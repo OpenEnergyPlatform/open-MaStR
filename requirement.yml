@@ -1,0 +1,12 @@
+name: py36-mastr
+channels:
+    - pip
+    - defaults
+dependencies:
+    - python=3.6
+    - pandas
+    - jupyter
+    - sqlalchemy
+    - psycopg2
+    - zeep
+    - oedialect
