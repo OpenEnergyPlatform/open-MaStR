@@ -22,10 +22,13 @@ import config as lc
 # import getpass
 import os
 import sqlalchemy as sa
+from collections import namedtuple
 
 from zeep import Client, Settings
 from zeep.cache import SqliteCache
 from zeep.transports import Transport
+
+UserToken = namedtuple('UserToken', ['user', 'token'])
 
 
 def oep_config():
@@ -33,10 +36,8 @@ def oep_config():
 
     Returns
     -------
-    user : str
-        User name (value).
-    token : str
-        API token (key).
+    UserToken : namedtuple
+        API token (key) and user name (value).
     """
     config_section = 'OEP'
 
@@ -60,8 +61,11 @@ def oep_config():
         #                         stream = sys.stdin)
         lc.config_section_set(config_section, value=user, key=token)
         print('Config file created')
-    return user, token
+    return UserToken(user, token)
 
+# a = oep_config()
+# a.user
+# a.token
 
 def oep_session():
     """SQLAlchemy session object with valid connection to database.
