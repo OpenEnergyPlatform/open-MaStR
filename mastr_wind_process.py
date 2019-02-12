@@ -40,5 +40,6 @@ def make_wind():
               on='EegMastrNummer', how='left', rsuffix='_e')
     print(f'Join data.')
 
+    # TODO: Encoding error! UnicodeEncodeError: 'charmap' codec can't encode character '\ufffd' in position 382: character maps to <undefined> FIXME! High Prio!
     write_to_csv(csv_wind, table_wind.replace(['�'],['-']))
     print(f'Process MaStR Wind to: {csv_wind}.')

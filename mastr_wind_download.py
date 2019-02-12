@@ -27,7 +27,7 @@ from zeep.helpers import serialize_object
 import codecs
 
 """logging"""
-# log  TODO: logger not available in submodules. Please fix!
+# log  TODO: logger not available in submodules. Please fix! Please fix! Low Priority!
 # log = logging.getLogger('RootLogger')
 
 """SOAP API"""
