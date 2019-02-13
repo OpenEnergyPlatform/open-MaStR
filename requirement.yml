@@ -1,6 +1,6 @@
 name: py36-mastr
 channels:
-    - pip
+    - conda-forge
     - defaults
 dependencies:
     - python=3.6
@@ -9,4 +9,5 @@ dependencies:
     - sqlalchemy
     - psycopg2
     - zeep
-    - oedialect
+    - pip:
+         - oedialect
