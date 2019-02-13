@@ -31,18 +31,17 @@ def make_wind():
     csv_unit_wind_eeg = f'data/bnetza_mastr_{data_version}_windeeg.csv'
     csv_wind = f'data/bnetza_mastr_{data_version}_wind.csv'
 
-    # power_unit = enc_read_power_units(csv_see)
-    power_unit_wind = enc_read_power_units(csv_see_wind)
-    unit_wind = enc_read_unit_wind(csv_unit_wind)
-    unit_wind_eeg = enc_read_unit_wind_eeg(csv_unit_wind_eeg)
+    # power_unit = read_power_units(csv_see)
+    power_unit_wind = read_power_units(csv_see_wind)
+    unit_wind = read_unit_wind(csv_unit_wind)
+    unit_wind_eeg = read_unit_wind_eeg(csv_unit_wind_eeg)
 
     table_wind = power_unit_wind.set_index('EinheitMastrNummer') \
         .join(unit_wind.set_index('EinheitMastrNummer'),
               on='EinheitMastrNummer', how='left', rsuffix='_w') \
         .join(unit_wind_eeg.set_index('EegMastrNummer'),
               on='EegMastrNummer', how='left', rsuffix='_e')
-    print(f'Join data.')
+    log.info(f'Join data.')
 
-    # TODO: Encoding error! UnicodeEncodeError: 'charmap' codec can't encode character '\ufffd' in position 382: character maps to <undefined> FIXME! High Prio!
-    write_to_csv(csv_wind, table_wind.replace(['�'],['-']))
-    print(f'Process MaStR Wind to: {csv_wind}.')
+    write_to_csv(csv_wind, table_wind)
+    log.info(f'Process MaStR Wind to: {csv_wind}.')
