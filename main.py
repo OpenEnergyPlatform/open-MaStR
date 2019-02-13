@@ -26,21 +26,22 @@ import time
 """version"""
 DATA_VERSION = '0.8'
 
-"""logging"""
-log = setup_logger()
-start_time = time.time()
-log.info(f'Script started with data version: {DATA_VERSION}.')
+if __name__ == "__main__":
+    """logging"""
+    log = setup_logger()
+    start_time = time.time()
+    log.info(f'Script started with data version: {DATA_VERSION}.')
 
-"""OEP"""
-# metadata = oep_session()
+    """OEP"""
+    # metadata = oep_session()
 
-"""MaStR Wind"""
-# download_power_unit()
-# download_unit_wind()
-# download_unit_wind_eeg()
-make_wind()
+    """MaStR Wind"""
+    download_power_unit()
+    download_unit_wind()
+    download_unit_wind_eeg()
+    make_wind()
 
-"""close"""
-log.info('...Script successfully executed in {:.2f} seconds.'
-         .format(time.time() - start_time))
-log.info('...Script finished. Goodbye!')
+    """close"""
+    log.info('...Script successfully executed in {:.2f} seconds.'
+            .format(time.time() - start_time))
+    log.info('...Script finished. Goodbye!')
