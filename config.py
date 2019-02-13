@@ -23,7 +23,6 @@ import configparser as cp
 
 # parameter
 cfg = cp.RawConfigParser()
-# sys.tracebacklimit = 0
 config_file = 'config.ini'
 log_file = 'mastr.log'
 
