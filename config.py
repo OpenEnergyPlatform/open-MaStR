@@ -23,7 +23,7 @@ import configparser as cp
 
 # parameter
 cfg = cp.RawConfigParser()
-sys.tracebacklimit = 0
+# sys.tracebacklimit = 0
 config_file = 'config.ini'
 log_file = 'mastr.log'
 
@@ -43,8 +43,7 @@ def setup_logger():
         Logging in console (ch) and file (fh).
     """
 
-    # set root logger (rl)
-    rl = logging.getLogger('RootLogger')
+    rl = logging.getLogger()
     rl.setLevel(logging.INFO)
     rl.propagate = False
 
@@ -56,13 +55,13 @@ def setup_logger():
     ch = logging.StreamHandler()
     ch.setLevel(logging.INFO)
     ch.setFormatter(formatter)
-    rl.addHandler(ch)
 
     # file handler (fh)
     fh = logging.FileHandler(log_file)
     fh.setLevel(logging.INFO)
     fh.setFormatter(formatter)
-    rl.addHandler(fh)
+
+    rl.handlers = [ch, fh]
 
     return rl
 

@@ -30,6 +30,9 @@ from zeep.transports import Transport
 
 UserToken = namedtuple('UserToken', ['user', 'token'])
 
+import logging
+
+log = logging.getLogger(__name__)
 
 def oep_config():
     """Access config.ini.
@@ -45,10 +48,10 @@ def oep_config():
     try:
         lc.config_file_load()
         user = lc.config_file_get(config_section, 'user')
-        print(f'Hello {user}, welcome back')
-    except:
+        log.info(f'Hello {user}, welcome back')
+    except FileNotFoundError:
         user = input('Please provide your OEP username (default surname_name):')
-        print(f'Hello {user}')
+        log.info(f'Hello {user}')
 
     # token
     try:
@@ -60,7 +63,7 @@ def oep_config():
         # token = getpass.getpass(prompt = 'Token:',
         #                         stream = sys.stdin)
         lc.config_section_set(config_section, value=user, key=token)
-        print('Config file created')
+        log.info('Config file created')
     return UserToken(user, token)
 
 # a = oep_config()

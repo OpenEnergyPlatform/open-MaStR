@@ -18,6 +18,9 @@ __version__ = "v0.5.0"
 
 from mastr_wind_download import *
 
+import logging
+log = logging.getLogger(__name__)
+
 
 def make_wind():
     """Read wind data from CSV files. Join data and write to file."""

@@ -25,10 +25,10 @@ import datetime
 import os
 from zeep.helpers import serialize_object
 import codecs
+import logging
 
 """logging"""
-# log  TODO: logger not available in submodules. Please fix! Please fix! Low Priority!
-# log = logging.getLogger('RootLogger')
+log = logging.getLogger(__name__)
 
 """SOAP API"""
 client, client_bind, token, user = mastr_session()
