@@ -36,9 +36,9 @@ if __name__ == "__main__":
     # metadata = oep_session()
 
     """MaStR Wind"""
-    #download_power_unit()
-    #download_unit_wind()
-    #download_unit_wind_eeg()
+    download_power_unit()
+    download_unit_wind()
+    download_unit_wind_eeg()
     make_wind()
 
     """close"""
