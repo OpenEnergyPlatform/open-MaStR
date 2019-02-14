@@ -138,3 +138,14 @@ def config_file_not_found_message():
     """Show error message if file not found."""
 
     print(f'The config file "{config_file}" could not be found')
+
+
+def disentangle_manufacturer(wind_unit):
+    wu = wind_unit
+    try:
+        wu['HerstellerID'] = wind_unit['Hersteller']['Id']
+        wu['HerstellerName'] = wind_unit['Hersteller']['Wert']
+        return(wu)
+    except:
+        print("This wind_unit contains no OrderedDict for 'Hersteller'")
+        return(wind_unit)

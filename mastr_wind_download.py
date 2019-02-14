@@ -17,6 +17,7 @@ __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.5.0"
 
 from config import get_data_version
+from config import disentangle_manufacturer
 from sessions import mastr_session
 
 import pandas as pd
@@ -121,6 +122,8 @@ def get_power_unit_wind(mastr_unit_wind):
     c = client_bind.GetEinheitWind(apiKey=api_key,
                                    marktakteurMastrNummer=my_mastr,
                                    einheitMastrNummer=mastr_unit_wind)
+    c = disentangle_manufacturer(c)
+    del c['Hersteller']
     s = serialize_object(c)
     df = pd.DataFrame(list(s.items()), )
     unit_wind = df.set_index(list(df.columns.values)[0]).transpose()
@@ -209,7 +212,6 @@ def read_unit_wind(csv_name):
                                        'Seelage': str,
                                        'ClusterOstsee': str,
                                        'ClusterNordsee': str,
-                                       'Hersteller': str,
                                        'Technologie': str,
                                        'Typenbezeichnung': str,
                                        'Nabenhoehe': float,
@@ -218,6 +220,8 @@ def read_unit_wind(csv_name):
                                        'Wassertiefe': float,
                                        'Kuestenentfernung': float,
                                        'EegMastrNummer': str,
+                                       'HerstellerID': str,
+                                       'HerstellerName': str,
                                        'version': str,
                                        'timestamp': str})
     log.info(f'Finished reading data from {csv_name}')
