@@ -197,4 +197,4 @@ def mastr_suppress_parsing_errors(which_errors):
     # Install filters selected by `which_errors`
     zplogger = logging.getLogger('zeep.xsd.types.simple')
     zplogger.filters = ([f for f in zplogger.filters if not isinstance(f, FilterExceptions)] +
-                        [f for f error_filters if f.name in which_errors])
+                        [f for f in error_filters if f.name in which_errors])
