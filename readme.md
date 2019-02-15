@@ -5,7 +5,7 @@
 * [GitHub](https://github.com/OpenEnergyPlatform/data-preprocessing/issues/13)
 * [API doc build](https://www.marktstammdatenregister.de/MaStRHilfe/files/webdienst/2019-01_31%20Funktionen%20MaStR%20Webdienste%20V1.2.html)
 
-### Gloassary
+### Glossary
 
 | German  | Code | English  | Variable  |
 |---|---|---|---|

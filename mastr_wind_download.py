@@ -16,7 +16,7 @@ __author__ = "Ludee; christian-rli"
 __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.5.0"
 
-from config import get_data_version
+from config import get_data_version, write_to_csv
 from config import disentangle_manufacturer
 from sessions import mastr_session
 
@@ -25,10 +25,8 @@ import numpy as np
 import datetime
 import os
 from zeep.helpers import serialize_object
-import codecs
-import logging
 
-"""logging"""
+import logging
 log = logging.getLogger(__name__)
 
 """SOAP API"""
@@ -300,26 +298,6 @@ def read_unit_wind_eeg(csv_name):
     return unit_wind_eeg
 
 
-def write_to_csv(csv_name, df, append=False):
-    """Create CSV file or append data to it.
-
-    Parameters
-    ----------
-    csv_name : str
-        Name of file.
-    df : DataFrame
-        data saved to file
-    append : bool
-        If False create a new CSV file (default), else append to it
-    """
-    df.to_csv(csv_name, sep=';',
-              mode='a' if append else 'w',
-              header=not append,
-              line_terminator='\n',
-              encoding='utf-8')
-    if not append: log.info(f'Created {csv_name} with header.')
-
-
 def setup_power_unit_wind():
     """Setup file for Stromerzeugungseinheit-Wind.
 
@@ -350,7 +328,7 @@ def setup_power_unit_wind():
         return power_unit_wind
 
 
-def download_power_unit(power_unit_list_len=1822000, limit=2000):
+def download_power_unit(power_unit_list_len=1844882, limit=2000):
     """Download StromErzeuger.
 
     Arguments
@@ -360,7 +338,9 @@ def download_power_unit(power_unit_list_len=1822000, limit=2000):
     limit : int
         Number of units to get per call to API (limited to 2000)
 
-    Existing units: 1822000 (2019-02-10)
+    Existing units:
+    1822000 (2019-02-10)
+    1844882 (2019-02-15)
     """
 
     data_version = get_data_version()
@@ -389,10 +369,13 @@ def download_unit_wind():
     unit_wind_list_len = len(unit_wind_list)
     log.info(f'Number of Windeinheit: {unit_wind_list_len}.')
 
-    for i in range(start_from, unit_wind_list_len, 1):
-        unit_wind = get_power_unit_wind(unit_wind_list[i])
-        write_to_csv(csv_wind, unit_wind, i > start_from)
-        log.info(f'Downloaded Windeinheit ({i}): {unit_wind_list[i]}')
+    try:
+        for i in range(start_from, unit_wind_list_len, 1):
+            unit_wind = get_power_unit_wind(unit_wind_list[i])
+            write_to_csv(csv_wind, unit_wind, i > start_from)
+    except:
+        log.info(f'Download failed Windeinheit ({i}): {unit_wind_list[i]}')
+
 
 def download_unit_wind_eeg():
     """Download unit_wind_eeg using GetAnlageEegWind request."""
@@ -402,9 +385,10 @@ def download_unit_wind_eeg():
 
     unit_wind_list = unit_wind['EegMastrNummer'].values.tolist()
     unit_wind_list_len = len(unit_wind_list)
-    log.info(f'Count of EEG-Anlage-Wind: {unit_wind_list_len}.')
 
-    for i in range(0, unit_wind_list_len, 1):
-        unit_wind_eeg = get_unit_wind_eeg(unit_wind_list[i])
-        write_to_csv(csv_wind_eeg, unit_wind_eeg, i > 0)
-        log.info(f'Download EEG-Anlage-Wind ({i}): {unit_wind_list[i]}')
+    try:
+        for i in range(0, unit_wind_list_len, 1):
+            unit_wind_eeg = get_unit_wind_eeg(unit_wind_list[i])
+            write_to_csv(csv_wind_eeg, unit_wind_eeg, i > 0)
+    except:
+        log.info(f'Download failed EEG-Anlage-Wind ({i}): {unit_wind_list[i]}')

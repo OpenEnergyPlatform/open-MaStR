@@ -17,11 +17,12 @@ __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.5.0"
 
 import os
-import sys
-import logging
 import configparser as cp
 
-# parameter
+import logging
+log = logging.getLogger(__name__)
+
+"""parameter"""
 cfg = cp.RawConfigParser()
 config_file = 'config.ini'
 log_file = 'mastr.log'
@@ -138,6 +139,26 @@ def config_file_not_found_message():
     """Show error message if file not found."""
 
     print(f'The config file "{config_file}" could not be found')
+
+
+def write_to_csv(csv_name, df, append=False):
+    """Create CSV file or append data to it.
+
+    Parameters
+    ----------
+    csv_name : str
+        Name of file.
+    df : DataFrame
+        Sata saved to file.
+    append : bool
+        If False create a new CSV file (default), else append to it.
+    """
+    df.to_csv(csv_name, sep=';',
+              mode='a' if append else 'w',
+              header=not append,
+              line_terminator='\n',
+              encoding='utf-8')
+    if not append: log.info(f'Created {csv_name} with header.')
 
 
 def disentangle_manufacturer(wind_unit):
