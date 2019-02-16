@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-BNetzA - MaStR Processing
+BNetzA - MaStR Processing Wind
 
 Process MaStR data from CSV
 
@@ -39,7 +39,6 @@ def make_wind():
               on='EinheitMastrNummer', how='left', rsuffix='_w') \
         .join(unit_wind_eeg.set_index('EegMastrNummer'),
               on='EegMastrNummer', how='left', rsuffix='_e')
-    log.info(f'Join data.')
 
     write_to_csv(csv_wind, table_wind)
-    log.info(f'Process MaStR Wind to: {csv_wind}.')
+    log.info(f'Join Wind to: {csv_wind}')

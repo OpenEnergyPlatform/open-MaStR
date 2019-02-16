@@ -77,7 +77,7 @@ def read_unit_wind(csv_name):
     unit_wind : DataFrame
         Windeinheit.
     """
-    log.info(f'Read data from {csv_name}.')
+    log.info(f'Read data from {csv_name}')
     unit_wind = pd.read_csv(csv_name, header=0, encoding='utf-8', sep=';', index_col=False,
                                 dtype={'lid': int,
                                        'Ergebniscode': str,
@@ -99,7 +99,7 @@ def read_unit_wind(csv_name):
                                        'Gemarkung': str,
                                        'FlurFlurstuecknummern': str,
                                        'Strasse': str,
-                                       'StrasseNichtGefunden': str,
+                                       'StrasseNichtGefunden': np.bool,
                                        'Hausnummer': str,
                                        'HausnummerNichtGefunden': np.bool,
                                        'Adresszusatz': str,
@@ -127,7 +127,7 @@ def read_unit_wind(csv_name):
                                        'Energietraeger': str,
                                        'Bruttoleistung': float,
                                        'Nettonennleistung': float,
-                                       'AnschlussAnHoechstOderHochSpannung': str,
+                                       'AnschlussAnHoechstOderHochSpannung': np.bool,
                                        'Schwarzstartfaehigkeit': str,
                                        'Inselbetriebsfaehigkeit': str,
                                        'Einsatzverantwortlicher': str,
@@ -154,7 +154,7 @@ def read_unit_wind(csv_name):
                                        'HerstellerName': str,
                                        'version': str,
                                        'timestamp': str})
-    log.info(f'Finished reading data from {csv_name}')
+    # log.info(f'Finished reading data from {csv_name}')
     return unit_wind
 
 
@@ -185,7 +185,6 @@ def get_unit_wind_eeg(mastr_wind_eeg):
     return unit_wind_eeg
 
 
-# Read MaStR Wind EEG from CSV
 def read_unit_wind_eeg(csv_name):
     """
     Encode and read EEG-Anlage-Wind from CSV file.
@@ -226,7 +225,7 @@ def read_unit_wind_eeg(csv_name):
                                        'VerknuepfteEinheit': str,
                                        'version': str,
                                        'timestamp': str})
-    log.info(f'Finished reading data from {csv_name}.')
+    # log.info(f'Finished reading data from {csv_name}')
     return unit_wind_eeg
 
 
@@ -251,12 +250,12 @@ def setup_power_unit_wind():
         power_unit_wind.index.names = ['see_id']
         power_unit_wind.reset_index()
         power_unit_wind.index.names = ['id']
-        log.info(f'Filtered Wind from Stromerzeuger')
+        log.info(f'Write data to {csv_see_wind}')
         write_to_csv(csv_see_wind, power_unit_wind)
         return power_unit_wind
     else:
         power_unit_wind = read_power_units(csv_see_wind)
-        log.info(f'Read Stromerzeugungseinheit-Wind from {csv_see_wind}.')
+        log.info(f'Read data from {csv_see_wind}')
         return power_unit_wind
 
 
@@ -272,7 +271,7 @@ def download_unit_wind():
     unit_wind = setup_power_unit_wind()
     unit_wind_list = unit_wind['EinheitMastrNummer'].values.tolist()
     unit_wind_list_len = len(unit_wind_list)
-    log.info(f'Number of Windeinheit: {unit_wind_list_len}.')
+    log.info(f'Number of unit_wind: {unit_wind_list_len}')
 
     for i in range(start_from, unit_wind_list_len, 1):
         try:

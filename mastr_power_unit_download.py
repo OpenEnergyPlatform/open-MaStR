@@ -77,7 +77,8 @@ def read_power_units(csv_name):
     """
     log.info(f'Read data from {csv_name}.')
     power_unit = pd.read_csv(csv_name, header=0, sep=';', index_col=False, encoding='utf-8',
-                             dtype={'lid': str,
+                             dtype={'id': int,
+                                    'lid': int,
                                     'EinheitMastrNummer': str,
                                     'Name': str,
                                     'Einheitart': str,
@@ -96,7 +97,7 @@ def read_power_units(csv_name):
                                     'version': str,
                                     'timestamp': str})
 
-    log.info(f'Finished reading data from {csv_name}')
+    # log.info(f'Finished reading data from {csv_name}')
     return power_unit
 
 

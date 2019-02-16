@@ -22,6 +22,7 @@ from mastr_power_unit_download import download_power_unit
 from mastr_wind_download import download_unit_wind, download_unit_wind_eeg
 from mastr_wind_process import make_wind
 from mastr_hydro_download import download_unit_hydro, download_unit_hydro_eeg
+from mastr_hydro_process import make_hydro
 
 import time
 
@@ -32,24 +33,24 @@ if __name__ == "__main__":
     """logging"""
     log = setup_logger()
     start_time = time.time()
-    log.info(f'MaStR script started with data version: {DATA_VERSION}.')
+    log.info(f'MaStR script started with data version: {DATA_VERSION}')
 
     """OEP"""
     # metadata = oep_session()
 
     """MaStR Einheiten"""
-    # download_power_unit()
+    download_power_unit()
 
     """Wind"""
-    # download_unit_wind()
-    # download_unit_wind_eeg()
-    # make_wind()
+    download_unit_wind()
+    download_unit_wind_eeg()
+    make_wind()
 
     """Hydro"""
     download_unit_hydro()
     download_unit_hydro_eeg()
-    # make_hydro()
+    make_hydro()
 
     """close"""
-    log.info('MaSTR script successfully executed in {:.2f} seconds.'
+    log.info('MaSTR script successfully executed in {:.2f} seconds'
              .format(time.time() - start_time))
