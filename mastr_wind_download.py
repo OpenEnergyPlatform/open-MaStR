@@ -34,74 +34,6 @@ client, client_bind, token, user = mastr_session()
 api_key = token
 my_mastr = user
 
-#
-# def get_power_unit(start_from, limit=2000):
-#     """Get Stromerzeugungseinheit from API using GetGefilterteListeStromErzeuger.
-#
-#     Parameters
-#     ----------
-#     start_from : int
-#         Skip first entries.
-#     limit : int
-#         Number of entries to get (default: 2000)
-#     """
-#     data_version = get_data_version()
-#     status = 'InBetrieb'
-#     c = client_bind.GetGefilterteListeStromErzeuger(
-#         apiKey=api_key,
-#         marktakteurMastrNummer=my_mastr,
-#         einheitBetriebsstatus=status,
-#         startAb=start_from,
-#         limit=limit)  # Limit of API.
-#     s = serialize_object(c)
-#     power_unit = pd.DataFrame(s['Einheiten'])
-#     power_unit.index.names = ['lid']
-#     power_unit['version'] = data_version
-#     power_unit['timestamp'] = str(datetime.datetime.now())
-#
-#     # remove double quotes from column
-#     power_unit['Standort'] = power_unit['Standort'].str.replace('"', '')
-#
-#     return power_unit
-#
-#
-# def read_power_units(csv_name):
-#     """Read Stromerzeugungseinheit from CSV file.
-#
-#     Parameters
-#     ----------
-#     csv_name : str
-#         Name of file.
-#
-#     Returns
-#     -------
-#     power_unit : DataFrame
-#         Stromerzeugungseinheit.
-#     """
-#     log.info(f'Read data from {csv_name}.')
-#     power_unit = pd.read_csv(csv_name, header=0, sep=';', index_col=False, encoding='utf-8',
-#                              dtype={'lid': str,
-#                                     'EinheitMastrNummer': str,
-#                                     'Name': str,
-#                                     'Einheitart': str,
-#                                     'Einheittyp': str,
-#                                     'Standort': str,
-#                                     'Bruttoleistung': str,
-#                                     'Erzeugungsleistung': str,
-#                                     'EinheitBetriebsstatus': str,
-#                                     'Anlagenbetreiber': str,
-#                                     'EegMastrNummer': str,
-#                                     'KwkMastrNummer': str,
-#                                     'SpeMastrNummer': str,
-#                                     'GenMastrNummer': str,
-#                                     'BestandsanlageMastrNummer': str,
-#                                     'NichtVorhandenInMigriertenEinheiten': str,
-#                                     'version': str,
-#                                     'timestamp': str})
-#
-#     log.info(f'Finished reading data from {csv_name}')
-#     return power_unit
-
 
 def get_power_unit_wind(mastr_unit_wind):
     """Get Windeinheit from API using GetEinheitWind.
@@ -326,36 +258,6 @@ def setup_power_unit_wind():
         power_unit_wind = read_power_units(csv_see_wind)
         log.info(f'Read Stromerzeugungseinheit-Wind from {csv_see_wind}.')
         return power_unit_wind
-
-#
-# def download_power_unit(power_unit_list_len=1844882, limit=2000):
-#     """Download StromErzeuger.
-#
-#     Arguments
-#     ---------
-#     power_unit_list_len : None|int
-#         Maximum number of units to get
-#     limit : int
-#         Number of units to get per call to API (limited to 2000)
-#
-#     Existing units:
-#     1822000 (2019-02-10)
-#     1844882 (2019-02-15)
-#     """
-#
-#     data_version = get_data_version()
-#     csv_see = f'data/bnetza_mastr_{data_version}_stromerzeuger.csv'
-#     log.info(f'Number of expected StromErzeuger: {power_unit_list_len}')
-#
-#     for start_from in range(0, power_unit_list_len, limit):
-#         try:
-#             power_unit = get_power_unit(start_from, limit)
-#             write_to_csv(csv_see, power_unit, start_from > 0)
-#
-#             power_unit_len = len(power_unit)
-#             log.info(f'Downloaded StromErzeuger from {start_from}-{start_from + power_unit_len}')
-#         except:
-#             log.info(f'Download failed StromErzeuger from {start_from}-{start_from + power_unit_len}')
 
 
 def download_unit_wind():
