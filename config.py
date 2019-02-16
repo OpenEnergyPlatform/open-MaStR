@@ -158,7 +158,7 @@ def write_to_csv(csv_name, df, append=False):
               header=not append,
               line_terminator='\n',
               encoding='utf-8')
-    if not append: log.info(f'Created {csv_name} with header.')
+    if not append: log.info(f'Create file {csv_name}')
 
 
 def disentangle_manufacturer(wind_unit):
