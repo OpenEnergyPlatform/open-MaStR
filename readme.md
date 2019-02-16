@@ -30,12 +30,20 @@
 
 ### Variables
 
-| German | Variable |
-|---|---|
-| Stromerzeugungseinheit  | power_unit  |
-| Stromerzeugungseinheit-Wind | power_unit_wind  |
-| Windeinheit | unit_wind |
-| EEG-Anlage-Wind | unit_wind_eeg  |
-|   |   |
-| EinheitMastrNummerId  | mastr_unit  |
-| EegMastrNummerId  | mastr_unit_eeg  |
+| German | Variable | Table |
+|---|---|---|
+| Stromerzeugungseinheit  | power_unit  | bnetza_mastr_{v}_power-unit.csv |
+|   |   |  |
+| Stromerzeugungseinheit-Wind | power_unit_wind  | bnetza_mastr_{v}_power-unit-wind.csv |
+| Windeinheit | unit_wind | bnetza_mastr_{v}_unit-wind.csv |
+| EEG-Anlage-Wind | unit_wind_eeg  | bnetza_mastr_{v}_unit-wind-eeg.csv |
+|   |   |  |
+| Stromerzeugungseinheit-Wasser | power_unit_hydro | bnetza_mastr_{v}_power-unit-hydro.csv |
+| Wassereinheit | unit_hydro | bnetza_mastr_{v}_unit-hydro.csv |
+| EEG-Anlage-Wasser | unit_hydro_eeg  | bnetza_mastr_{v}_unit-hydro-eeg.csv |
+|   |   |  |
+|   |   |  |
+|   |   |  |
+|   |   |  |
+| EinheitMastrNummerId  | mastr_unit  |  |
+| EegMastrNummerId  | mastr_unit_eeg  |  |

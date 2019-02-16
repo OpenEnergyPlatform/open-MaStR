@@ -25,13 +25,11 @@ log = logging.getLogger(__name__)
 def make_wind():
     """Read wind data from CSV files. Join data and write to file."""
     data_version = get_data_version()
-    # csv_see = f'data/bnetza_mastr_{data_version}_stromerzeuger.csv'
-    csv_see_wind = f'data/bnetza_mastr_{data_version}_stromerzeuger_wind.csv'
-    csv_unit_wind = f'data/bnetza_mastr_{data_version}_windeinheit.csv'
-    csv_unit_wind_eeg = f'data/bnetza_mastr_{data_version}_windeeg.csv'
+    csv_see_wind = f'data/bnetza_mastr_{data_version}_power-unit-wind.csv'
+    csv_unit_wind = f'data/bnetza_mastr_{data_version}_unit-wind.csv'
+    csv_unit_wind_eeg = f'data/bnetza_mastr_{data_version}_unit-wind-eeg.csv'
     csv_wind = f'data/bnetza_mastr_{data_version}_wind.csv'
 
-    # power_unit = read_power_units(csv_see)
     power_unit_wind = read_power_units(csv_see_wind)
     unit_wind = read_unit_wind(csv_unit_wind)
     unit_wind_eeg = read_unit_wind_eeg(csv_unit_wind_eeg)

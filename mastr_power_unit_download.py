@@ -118,7 +118,7 @@ def download_power_unit(power_unit_list_len=500, limit=2000):
     """
 
     data_version = get_data_version()
-    csv_see = f'data/bnetza_mastr_{data_version}_stromerzeuger.csv'
+    csv_see = f'data/bnetza_mastr_{data_version}_power-unit.csv'
     log.info(f'Number of expected StromErzeuger: {power_unit_list_len}')
 
     for start_from in range(0, power_unit_list_len, limit):

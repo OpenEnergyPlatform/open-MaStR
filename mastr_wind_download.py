@@ -242,8 +242,8 @@ def setup_power_unit_wind():
         Stromerzeugungseinheit-Wind.
     """
     data_version = get_data_version()
-    csv_see = f'data/bnetza_mastr_{data_version}_stromerzeuger.csv'
-    csv_see_wind = f'data/bnetza_mastr_{data_version}_stromerzeuger_wind.csv'
+    csv_see = f'data/bnetza_mastr_{data_version}_power-unit.csv'
+    csv_see_wind = f'data/bnetza_mastr_{data_version}_power-unit-wind.csv'
     if not os.path.isfile(csv_see_wind):
         power_unit = read_power_units(csv_see)
         power_unit = power_unit.drop_duplicates()
@@ -268,7 +268,7 @@ def download_unit_wind():
     start_from = 0
 
     data_version = get_data_version()
-    csv_wind = f'data/bnetza_mastr_{data_version}_windeinheit.csv'
+    csv_wind = f'data/bnetza_mastr_{data_version}_unit-wind.csv'
     unit_wind = setup_power_unit_wind()
     unit_wind_list = unit_wind['EinheitMastrNummer'].values.tolist()
     unit_wind_list_len = len(unit_wind_list)
@@ -285,7 +285,7 @@ def download_unit_wind():
 def download_unit_wind_eeg():
     """Download unit_wind_eeg using GetAnlageEegWind request."""
     data_version = get_data_version()
-    csv_wind_eeg = f'data/bnetza_mastr_{data_version}_windeeg.csv'
+    csv_wind_eeg = f'data/bnetza_mastr_{data_version}_unit-wind-eeg.csv'
     unit_wind = setup_power_unit_wind()
 
     unit_wind_list = unit_wind['EegMastrNummer'].values.tolist()
