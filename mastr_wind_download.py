@@ -348,11 +348,14 @@ def download_power_unit(power_unit_list_len=1844882, limit=2000):
     log.info(f'Number of expected StromErzeuger: {power_unit_list_len}')
 
     for start_from in range(0, power_unit_list_len, limit):
-        power_unit = get_power_unit(start_from, limit)
-        write_to_csv(csv_see, power_unit, start_from > 0)
+        try:
+            power_unit = get_power_unit(start_from, limit)
+            write_to_csv(csv_see, power_unit, start_from > 0)
 
-        power_unit_len = len(power_unit)
-        log.info(f'Downloaded StromErzeuger from {start_from}-{start_from + power_unit_len}')
+            power_unit_len = len(power_unit)
+            log.info(f'Downloaded StromErzeuger from {start_from}-{start_from + power_unit_len}')
+        except:
+            log.info(f'Download failed StromErzeuger from {start_from}-{start_from + power_unit_len}')
 
 
 def download_unit_wind():
@@ -369,12 +372,12 @@ def download_unit_wind():
     unit_wind_list_len = len(unit_wind_list)
     log.info(f'Number of Windeinheit: {unit_wind_list_len}.')
 
-    try:
-        for i in range(start_from, unit_wind_list_len, 1):
+    for i in range(start_from, unit_wind_list_len, 1):
+        try:
             unit_wind = get_power_unit_wind(unit_wind_list[i])
             write_to_csv(csv_wind, unit_wind, i > start_from)
-    except:
-        log.info(f'Download failed Windeinheit ({i}): {unit_wind_list[i]}')
+        except:
+            log.info(f'Download failed Windeinheit ({i}): {unit_wind_list[i]}')
 
 
 def download_unit_wind_eeg():
@@ -386,9 +389,9 @@ def download_unit_wind_eeg():
     unit_wind_list = unit_wind['EegMastrNummer'].values.tolist()
     unit_wind_list_len = len(unit_wind_list)
 
-    try:
-        for i in range(0, unit_wind_list_len, 1):
+    for i in range(0, unit_wind_list_len, 1):
+        try:
             unit_wind_eeg = get_unit_wind_eeg(unit_wind_list[i])
             write_to_csv(csv_wind_eeg, unit_wind_eeg, i > 0)
-    except:
-        log.info(f'Download failed EEG-Anlage-Wind ({i}): {unit_wind_list[i]}')
+        except:
+            log.info(f'Download failed EEG-Anlage-Wind ({i}): {unit_wind_list[i]}')
