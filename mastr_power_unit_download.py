@@ -20,9 +20,7 @@ from config import get_data_version, write_to_csv
 from sessions import mastr_session
 
 import pandas as pd
-# import numpy as np
 import datetime
-# import os
 from zeep.helpers import serialize_object
 
 import logging

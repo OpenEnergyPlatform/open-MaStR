@@ -102,7 +102,7 @@ def config_file_init():
     """Read config file."""
 
     try:
-        print('Load ' + config_file)
+        # print('Load ' + config_file)
         cfg.read(config_file)
         global _loaded
         _loaded = True

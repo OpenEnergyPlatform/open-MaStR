@@ -16,7 +16,6 @@ __author__ = "Ludee; christian-rli"
 __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.5.0"
 
-
 import config as lc
 
 # import getpass
@@ -31,8 +30,8 @@ from zeep.transports import Transport
 UserToken = namedtuple('UserToken', ['user', 'token'])
 
 import logging
-
 log = logging.getLogger(__name__)
+
 
 def oep_config():
     """Access config.ini.
@@ -66,6 +65,7 @@ def oep_config():
         log.info('Config file created')
     return UserToken(user, token)
 
+
 # a = oep_config()
 # a.user
 # a.token
@@ -87,7 +87,7 @@ def oep_session():
         oep_url = 'openenergy-platform.org'  # 'oep.iks.cs.ovgu.de'
         oed_string = f'postgresql+oedialect://{user}:{token}@{oep_url}'
         engine = sa.create_engine(oed_string)
-        metadata = sa.MetaData(bind = engine)
+        metadata = sa.MetaData(bind=engine)
 
         print(f'OEP connection established: /n {metadata}')
         return metadata
@@ -117,7 +117,7 @@ def mastr_config():
     try:
         lc.config_file_load()
         user = lc.config_file_get(config_section, 'user')
-        print('Hello ' + user)
+        # print('Hello ' + user)
     except:
         user = input('Please provide your MaStR Nummer:')
 
@@ -130,7 +130,7 @@ def mastr_config():
         token = input('Token:')
         # token = getpass.getpass(prompt='apiKey: ',
         #                            stream=sys.stderr)
-        lc.config_section_set(config_section, value = user, key = token)
+        lc.config_section_set(config_section, value=user, key=token)
         print('Config file created.')
     return user, token
 
@@ -159,8 +159,9 @@ def mastr_session():
 
     mastr_suppress_parsing_errors(['parse-time-second'])
 
-    print('MaStR API connection established.')
+    print(f'MaStR API connection established for user {user}')
     return client, client_bind, token, user
+
 
 def mastr_suppress_parsing_errors(which_errors):
     """
@@ -186,7 +187,8 @@ def mastr_suppress_parsing_errors(which_errors):
             self.msg = msg
 
         def filter(self, record):
-            if record.exc_info is None: return 1
+            if record.exc_info is None:
+                return 1
 
             kl, inst, tb = record.exc_info
             return 0 if isinstance(inst, self.klass) and inst.args[0] == self.msg else 1
