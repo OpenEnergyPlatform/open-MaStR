@@ -15,16 +15,17 @@ __license__ = "GNU Affero General Public License Version 3 (AGPL-3.0)"
 __url__ = "https://www.gnu.org/licenses/agpl-3.0.en.html"
 __author__ = "Ludee; christian-rli"
 __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
-__version__ = "v0.5.0"
+__version__ = "v0.6.0"
 
 from config import setup_logger
-from mastr_wind_download import download_power_unit, download_unit_wind, download_unit_wind_eeg
+from mastr_power_unit_download import download_power_unit
+from mastr_wind_download import download_unit_wind, download_unit_wind_eeg
 from mastr_wind_process import make_wind
 
 import time
 
 """version"""
-DATA_VERSION = '0.10'
+DATA_VERSION = '0.11'
 
 if __name__ == "__main__":
     """logging"""
@@ -43,6 +44,11 @@ if __name__ == "__main__":
     download_unit_wind_eeg()
     make_wind()
 
+    """Hydro"""
+    # download_unit_hydro()
+    # download_unit_hydro_eeg()
+    # make_hydro()
+
     """close"""
     log.info('MaSTR script successfully executed in {:.2f} seconds.'
-            .format(time.time() - start_time))
+             .format(time.time() - start_time))
