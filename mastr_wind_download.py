@@ -77,7 +77,7 @@ def read_unit_wind(csv_name):
     unit_wind : DataFrame
         Windeinheit.
     """
-    log.info(f'Read data from {csv_name}')
+    # log.info(f'Read data from {csv_name}')
     unit_wind = pd.read_csv(csv_name, header=0, encoding='utf-8', sep=';', index_col=False,
                                 dtype={'lid': int,
                                        'Ergebniscode': str,
@@ -199,7 +199,7 @@ def read_unit_wind_eeg(csv_name):
     unit_wind_eeg : DataFrame
         EEG-Anlage-Wind
     """
-    log.info(f'Read data from {csv_name}')
+    # log.info(f'Read data from {csv_name}')
     unit_wind_eeg = pd.read_csv(csv_name, header=0, sep=';', index_col=False, encoding='utf-8',
                                 dtype={'lid': int,
                                        'Ergebniscode': str,
@@ -255,7 +255,7 @@ def setup_power_unit_wind():
         return power_unit_wind
     else:
         power_unit_wind = read_power_units(csv_see_wind)
-        log.info(f'Read data from {csv_see_wind}')
+        # log.info(f'Read data from {csv_see_wind}')
         return power_unit_wind
 
 
@@ -271,6 +271,7 @@ def download_unit_wind():
     unit_wind = setup_power_unit_wind()
     unit_wind_list = unit_wind['EinheitMastrNummer'].values.tolist()
     unit_wind_list_len = len(unit_wind_list)
+    log.info('Download MaStR Wind')
     log.info(f'Number of unit_wind: {unit_wind_list_len}')
 
     for i in range(start_from, unit_wind_list_len, 1):

@@ -29,6 +29,7 @@ def make_wind():
     csv_unit_wind = f'data/bnetza_mastr_{data_version}_unit-wind.csv'
     csv_unit_wind_eeg = f'data/bnetza_mastr_{data_version}_unit-wind-eeg.csv'
     csv_wind = f'data/bnetza_mastr_{data_version}_wind.csv'
+    log.info('Join Wind')
 
     power_unit_wind = read_power_units(csv_see_wind)
     unit_wind = read_unit_wind(csv_unit_wind)

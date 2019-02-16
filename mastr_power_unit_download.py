@@ -75,7 +75,7 @@ def read_power_units(csv_name):
     power_unit : DataFrame
         Stromerzeugungseinheit.
     """
-    log.info(f'Read data from {csv_name}')
+    # log.info(f'Read data from {csv_name}')
     power_unit = pd.read_csv(csv_name, header=0, sep=';', index_col=False, encoding='utf-8',
                              dtype={'id': int,
                                     'lid': int,
@@ -101,7 +101,7 @@ def read_power_units(csv_name):
     return power_unit
 
 
-def download_power_unit(power_unit_list_len=500, limit=2000):
+def download_power_unit(power_unit_list_len=2000, limit=2000):
     """Download StromErzeuger.
 
     Arguments
@@ -118,6 +118,7 @@ def download_power_unit(power_unit_list_len=500, limit=2000):
 
     data_version = get_data_version()
     csv_see = f'data/bnetza_mastr_{data_version}_power-unit.csv'
+    log.info('Download MaStR Einheiten')
     log.info(f'Number of expected StromErzeuger: {power_unit_list_len}')
 
     for start_from in range(0, power_unit_list_len, limit):
@@ -126,6 +127,6 @@ def download_power_unit(power_unit_list_len=500, limit=2000):
             write_to_csv(csv_see, power_unit, start_from > 0)
 
             power_unit_len = len(power_unit)
-            log.info(f'Downloaded StromErzeuger from {start_from}-{start_from + power_unit_len}')
+            log.info(f'Download StromErzeuger from {start_from}-{start_from + power_unit_len}')
         except:
             log.info(f'Download failed StromErzeuger from {start_from}-{start_from + power_unit_len}')
