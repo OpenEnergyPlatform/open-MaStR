@@ -1,0 +1,115 @@
+{"name": "supply.bnetza_mastr",
+"title": "Bundesnetzagentur - Marktstammdatenregister",
+"id": "supply.bnetza_mastr_1.0",
+"description": "Processed MaStR",
+"language": [ "en-GB", "de-DE" ],
+"keywords": [ "powerplants, renewables" ],
+"publicationDate": "2019-01-31",
+"context":
+    {"homepage": "https://www.marktstammdatenregister.de/MaStR/",
+    "documentation": "https://www.marktstammdatenregister.de/MaStRHilfe/index.html",
+    "sourceCode": "none",
+    "contact": "none",
+    "grantNo": "unknown"},
+"spatial":
+    {"location": "none",
+    "extent": "Germany",
+    "resolution": "vector"},
+"temporal":
+    {"referenceDate": "2019-01-31",
+    "start": "none",
+    "end": "none",
+    "resolution": "none"},
+"sources": [
+    {"title": "Bundesnetzagentur - Marktstammdatenregister", "description": "Das Marktstammdatenregister ist das Register für den deutschen Strom- und Gasmarkt. Es wird MaStR abgekürzt. Im MaStR sind vor allem die Stammdaten zu Strom- und Gaserzeugungsanlagen zu registrieren. Außerdem sind die Stammdaten von Marktakteuren wie Anlagenbetreibern, Netzbetreibern und Energielieferanten zu registrieren. Das MaStR wird von der Bundesnetzagentur geführt.", "path": "https://www.marktstammdatenregister.de/MaStR/", "license": "Datenlizenz Deutschland – Namensnennung – Version 2.0", "copyright": "© Marktstammdatenregister 2019 | dl-de/by-2-0"},
+    {"title": "RLI - open_MaStR", "description": "Scripts to download, process and publish the MaStR data set.", "path": "https://github.com/OpenEnergyPlatform/data-preprocessing/", "license": "GNU Affero General Public License Version 3 (AGPL-3.0)", "copyright": "© Reiner Lemoine Institut"} ],
+"licenses": [
+    {"name": "dl-de/by-2-0",
+    "title": "Datenlizenz Deutschland – Namensnennung – Version 2.0",
+    "path": "https://www.govdata.de/dl-de/by-2-0",
+    "instruction": "Die bereitgestellten Daten und Metadaten dürfen für die kommerzielle und nicht kommerzielle Nutzung verwendet werden. Bei der Nutzung ist sicherzustellen, dass Angaben als Quellenvermerk enthalten sind.",
+    "attribution": "© Marktstammdatenregister 2019 | dl-de/by-2-0"}],
+"contributors": [
+    {"title": "Ludee", "email": "none", "date": "2019-02-07", "object": "metadata", "comment": "Create metadata"},
+    {"title": "Ludee", "email": "none", "date": "2019-02-17", "object": "data", "comment": "Download and process data"} ],
+"resources": [
+    {"profile": "tabular-data-resource",
+    "name": "supply.bnetza_mastr_wind",
+    "path": "bnetza_mastr_0.11_wind.csv",
+    "format": "csv",
+    "encoding" : "UTF-8",
+    "schema": {
+        "fields": [
+            {"name": "id", "description": "Unique identifier", "type": "serial", "unit": "none"},
+            {"name": "year", "description": "Reference year", "type": "integer", "unit": "none"},
+            {"name": "value", "description": "Example value", "type": "double precision", "unit": "none"},
+            {"name": "geom", "description": "Geometry", "type": "geometry(Point, 4326)", "unit": "none"} ],
+        "primaryKey": "id"},
+    "dialect":
+        {"delimiter": ";",
+        "decimalSeparator": "."} },
+
+    {"profile": "tabular-data-resource",
+    "name": "supply.bnetza_mastr_hydro",
+    "path": "bnetza_mastr_0.11_hydro.csv",
+    "format": "csv",
+    "encoding" : "UTF-8",
+    "schema": {
+        "fields": [
+            {"name": "id", "description": "Unique identifier", "type": "serial", "unit": "none"},
+            {"name": "year", "description": "Reference year", "type": "integer", "unit": "none"},
+            {"name": "value", "description": "Example value", "type": "double precision", "unit": "none"},
+            {"name": "geom", "description": "Geometry", "type": "geometry(Point, 4326)", "unit": "none"} ],
+        "primaryKey": "id"},
+    "dialect":
+        {"delimiter": ";",
+        "decimalSeparator": "."} },
+
+    {"profile": "tabular-data-resource",
+    "name": "supply.bnetza_mastr_biomass",
+    "path": "bnetza_mastr_0.11_biomass.csv",
+    "format": "csv",
+    "encoding" : "UTF-8",
+    "schema": {
+        "fields": [
+            {"name": "id", "description": "Unique identifier", "type": "serial", "unit": "none"},
+            {"name": "year", "description": "Reference year", "type": "integer", "unit": "none"},
+            {"name": "value", "description": "Example value", "type": "double precision", "unit": "none"},
+            {"name": "geom", "description": "Geometry", "type": "geometry(Point, 4326)", "unit": "none"} ],
+        "primaryKey": "id"},
+    "dialect":
+        {"delimiter": ";",
+        "decimalSeparator": "."} },
+
+    {"profile": "tabular-data-resource",
+    "name": "supply.bnetza_mastr_solar",
+    "path": "bnetza_mastr_0.11_solar.csv",
+    "format": "csv",
+    "encoding" : "UTF-8",
+    "schema": {
+        "fields": [
+            {"name": "id", "description": "Unique identifier", "type": "serial", "unit": "none"},
+            {"name": "year", "description": "Reference year", "type": "integer", "unit": "none"},
+            {"name": "value", "description": "Example value", "type": "double precision", "unit": "none"},
+            {"name": "geom", "description": "Geometry", "type": "geometry(Point, 4326)", "unit": "none"} ],
+        "primaryKey": "id"},
+    "dialect":
+        {"delimiter": ";",
+        "decimalSeparator": "."} } ],
+"review": {
+    "path": "https://github.com/OpenEnergyPlatform/data-preprocessing/issues/13",
+    "badge": "none"},
+"metaMetadata":
+    {"metadataVersion": "OEP-1.4",
+    "metadataLicense":
+        {"name": "CC0-1.0",
+        "title": "Creative Commons Zero v1.0 Universal",
+        "path": "https://creativecommons.org/publicdomain/zero/1.0/"}},
+"_comment":
+    {"metadata": "Metadata documentation and explanation (https://github.com/OpenEnergyPlatform/organisation/wiki/metadata)",
+    "dates": "Dates and time must follow the ISO8601 including time zone (YYYY-MM-DD or YYYY-MM-DDThh:mm:ss±hh)",
+    "units": "Use a space between numbers and units (100 m)",
+    "languages": "Languages must follow the IETF (BCP47) format (en-GB, en-US, de-DE)",
+    "licenses": "License name must follow the SPDX License List (https://spdx.org/licenses/)",
+    "review": "Following the OEP Data Review (https://github.com/OpenEnergyPlatform/data-preprocessing/wiki)",
+    "none": "If not applicable use (none)"}}
