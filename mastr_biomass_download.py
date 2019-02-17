@@ -80,7 +80,7 @@ def read_unit_biomass(csv_name):
     unit_biomass = pd.read_csv(csv_name, header=0, encoding='utf-8', sep=';', index_col=False,
                                dtype={'lid': int,
                                       'Ergebniscode': str,
-                                      'AufrufVeraltet': np.bool,
+                                      'AufrufVeraltet': str,
                                       'AufrufLebenszeitEnde': str,
                                       'AufrufVersion': str,
                                       'EinheitMastrNummer': str,
@@ -98,9 +98,9 @@ def read_unit_biomass(csv_name):
                                       'Gemarkung': str,
                                       'FlurFlurstuecknummern': str,
                                       'Strasse': str,
-                                      'StrasseNichtGefunden': np.bool,
+                                      'StrasseNichtGefunden': str,
                                       'Hausnummer': str,
-                                      'HausnummerNichtGefunden': np.bool,
+                                      'HausnummerNichtGefunden': str,
                                       'Adresszusatz': str,
                                       'Ort': str,
                                       'Laengengrad': str,
@@ -126,7 +126,7 @@ def read_unit_biomass(csv_name):
                                       'Energietraeger': str,
                                       'Bruttoleistung': float,
                                       'Nettonennleistung': float,
-                                      'AnschlussAnHoechstOderHochSpannung': np.bool,
+                                      'AnschlussAnHoechstOderHochSpannung': str,
                                       'Schwarzstartfaehigkeit': str,
                                       'Inselbetriebsfaehigkeit': str,
                                       'Einsatzverantwortlicher': str,
@@ -192,7 +192,7 @@ def read_unit_biomass_eeg(csv_name):
     unit_biomass_eeg = pd.read_csv(csv_name, header=0, sep=';', index_col=False, encoding='utf-8',
                                    dtype={'lid': int,
                                           'Ergebniscode': str,
-                                          'AufrufVeraltet': np.bool,
+                                          'AufrufVeraltet': str,
                                           'AufrufLebenszeitEnde': str,
                                           'AufrufVersion': str,
                                           'Meldedatum': str,
@@ -242,7 +242,7 @@ def setup_power_unit_biomass():
         power_unit_biomass.index.names = ['see_id']
         power_unit_biomass.reset_index()
         power_unit_biomass.index.names = ['id']
-        log.info(f'Write data to {csv_see_biomass}')
+        # log.info(f'Write data to {csv_see_biomass}')
         write_to_csv(csv_see_biomass, power_unit_biomass)
         return power_unit_biomass
     else:

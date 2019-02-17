@@ -80,7 +80,7 @@ def read_unit_solar(csv_name):
     unit_solar = pd.read_csv(csv_name, header=0, encoding='utf-8', sep=';', index_col=False,
                              dtype={'lid': int,
                                     'Ergebniscode': str,
-                                    'AufrufVeraltet': np.bool,
+                                    'AufrufVeraltet': str,
                                     'AufrufLebenszeitEnde': str,
                                     'AufrufVersion': str,
                                     'EinheitMastrNummer': str,
@@ -202,7 +202,7 @@ def read_unit_solar_eeg(csv_name):
     unit_solar_eeg = pd.read_csv(csv_name, header=0, sep=';', index_col=False, encoding='utf-8',
                                  dtype={'lid': int,
                                         'Ergebniscode': str,
-                                        'AufrufVeraltet': np.bool,
+                                        'AufrufVeraltet': str,
                                         'AufrufLebenszeitEnde': str,
                                         'AufrufVersion': str,
                                         'Meldedatum': str,
@@ -249,7 +249,7 @@ def setup_power_unit_solar():
         power_unit_solar.index.names = ['see_id']
         power_unit_solar.reset_index()
         power_unit_solar.index.names = ['id']
-        log.info(f'Write data to {csv_see_solar}')
+        # log.info(f'Write data to {csv_see_solar}')
         write_to_csv(csv_see_solar, power_unit_solar)
         return power_unit_solar
     else:

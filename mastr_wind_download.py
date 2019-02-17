@@ -81,7 +81,7 @@ def read_unit_wind(csv_name):
     unit_wind = pd.read_csv(csv_name, header=0, encoding='utf-8', sep=';', index_col=False,
                                 dtype={'lid': int,
                                        'Ergebniscode': str,
-                                       'AufrufVeraltet': np.bool,
+                                       'AufrufVeraltet': str,
                                        'AufrufLebenszeitEnde': str,
                                        'AufrufVersion': str,
                                        'EinheitMastrNummer': str,
@@ -99,9 +99,9 @@ def read_unit_wind(csv_name):
                                        'Gemarkung': str,
                                        'FlurFlurstuecknummern': str,
                                        'Strasse': str,
-                                       'StrasseNichtGefunden': np.bool,
+                                       'StrasseNichtGefunden': str,
                                        'Hausnummer': str,
-                                       'HausnummerNichtGefunden': np.bool,
+                                       'HausnummerNichtGefunden': str,
                                        'Adresszusatz': str,
                                        'Ort': str,
                                        'Laengengrad': str,
@@ -127,7 +127,7 @@ def read_unit_wind(csv_name):
                                        'Energietraeger': str,
                                        'Bruttoleistung': float,
                                        'Nettonennleistung': float,
-                                       'AnschlussAnHoechstOderHochSpannung': np.bool,
+                                       'AnschlussAnHoechstOderHochSpannung': str,
                                        'Schwarzstartfaehigkeit': str,
                                        'Inselbetriebsfaehigkeit': str,
                                        'Einsatzverantwortlicher': str,
@@ -203,7 +203,7 @@ def read_unit_wind_eeg(csv_name):
     unit_wind_eeg = pd.read_csv(csv_name, header=0, sep=';', index_col=False, encoding='utf-8',
                                 dtype={'lid': int,
                                        'Ergebniscode': str,
-                                       'AufrufVeraltet': np.bool,
+                                       'AufrufVeraltet': str,
                                        'AufrufLebenszeitEnde': str,
                                        'AufrufVersion': str,
                                        'Meldedatum': str,
@@ -212,14 +212,14 @@ def read_unit_wind_eeg(csv_name):
                                        'EegMastrNummer': str,
                                        'AnlagenkennzifferAnlagenregister': str,
                                        'AnlagenschluesselEeg': str,
-                                       'PrototypAnlage': np.bool,
-                                       'PilotAnlage': np.bool,
+                                       'PrototypAnlage': str,
+                                       'PilotAnlage': str,
                                        'InstallierteLeistung': float,
                                        'VerhaeltnisErtragsschaetzungReferenzertrag': str,
                                        'VerhaeltnisReferenzertragErtrag5Jahre': str,
                                        'VerhaeltnisReferenzertragErtrag10Jahre': str,
                                        'VerhaeltnisReferenzertragErtrag15Jahre': str,
-                                       'AusschreibungZuschlag': np.bool,
+                                       'AusschreibungZuschlag': str,
                                        'Zuschlagsnummer': str,
                                        'AnlageBetriebsstatus': str,
                                        'VerknuepfteEinheit': str,
@@ -250,7 +250,7 @@ def setup_power_unit_wind():
         power_unit_wind.index.names = ['see_id']
         power_unit_wind.reset_index()
         power_unit_wind.index.names = ['id']
-        log.info(f'Write data to {csv_see_wind}')
+        # log.info(f'Write data to {csv_see_wind}')
         write_to_csv(csv_see_wind, power_unit_wind)
         return power_unit_wind
     else:
