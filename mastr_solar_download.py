@@ -270,13 +270,13 @@ def download_unit_solar():
     unit_solar = setup_power_unit_solar()
     unit_solar_list = unit_solar['EinheitMastrNummer'].values.tolist()
     unit_solar_list_len = len(unit_solar_list)
-    log.info('Download MaStR Solar')
+    log.info(f'Download MaStR Solar')
     log.info(f'Number of unit_solar: {unit_solar_list_len}')
 
     for i in range(start_from, unit_solar_list_len, 1):
         try:
             unit_solar = get_power_unit_solar(unit_solar_list[i])
-            write_to_csv(csv_solar, unit_solar, i > start_from)
+            write_to_csv(csv_solar, unit_solar)
         except:
             log.info(f'Download failed unit_solar ({i}): {unit_solar_list[i]}')
 
@@ -293,6 +293,6 @@ def download_unit_solar_eeg():
     for i in range(0, unit_solar_list_len, 1):
         try:
             unit_solar_eeg = get_unit_solar_eeg(unit_solar_list[i])
-            write_to_csv(csv_solar_eeg, unit_solar_eeg, i > 0)
+            write_to_csv(csv_solar_eeg, unit_solar_eeg)
         except:
             log.info(f'Download failed unit_solar_eeg ({i}): {unit_solar_list[i]}')

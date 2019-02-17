@@ -269,7 +269,7 @@ def download_unit_biomass():
     for i in range(start_from, unit_biomass_list_len, 1):
         try:
             unit_biomass = get_power_unit_biomass(unit_biomass_list[i])
-            write_to_csv(csv_biomass, unit_biomass, i > start_from)
+            write_to_csv(csv_biomass, unit_biomass)
         except:
             log.info(f'Download failed unit_biomass ({i}): {unit_biomass_list[i]}')
 
@@ -286,6 +286,6 @@ def download_unit_biomass_eeg():
     for i in range(0, unit_biomass_list_len, 1):
         try:
             unit_biomass_eeg = get_unit_biomass_eeg(unit_biomass_list[i])
-            write_to_csv(csv_biomass_eeg, unit_biomass_eeg, i > 0)
+            write_to_csv(csv_biomass_eeg, unit_biomass_eeg)
         except:
             log.info(f'Download failed unit_biomass_eeg ({i}): {unit_biomass_list[i]}')

@@ -277,7 +277,7 @@ def download_unit_wind():
     for i in range(start_from, unit_wind_list_len, 1):
         try:
             unit_wind = get_power_unit_wind(unit_wind_list[i])
-            write_to_csv(csv_wind, unit_wind, i > start_from)
+            write_to_csv(csv_wind, unit_wind)
         except:
             log.info(f'Download failed unit_wind ({i}): {unit_wind_list[i]}')
 
@@ -294,7 +294,7 @@ def download_unit_wind_eeg():
     for i in range(0, unit_wind_list_len, 1):
         try:
             unit_wind_eeg = get_unit_wind_eeg(unit_wind_list[i])
-            write_to_csv(csv_wind_eeg, unit_wind_eeg, i > 0)
+            write_to_csv(csv_wind_eeg, unit_wind_eeg)
         except:
             log.info(f'Download failed unit_wind_eeg ({i}): {unit_wind_list[i]}')
 

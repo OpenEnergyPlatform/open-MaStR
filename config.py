@@ -25,7 +25,7 @@ log = logging.getLogger(__name__)
 """parameter"""
 cfg = cp.RawConfigParser()
 config_file = 'config.ini'
-log_file = 'mastr.log'
+log_file = 'open_mastr.log'
 
 
 def get_data_version():
@@ -141,7 +141,7 @@ def config_file_not_found_message():
     print(f'The config file "{config_file}" could not be found')
 
 
-def write_to_csv(csv_name, df, append=False):
+def write_to_csv(csv_name, df):
     """Create CSV file or append data to it.
 
     Parameters
@@ -153,12 +153,9 @@ def write_to_csv(csv_name, df, append=False):
     append : bool
         If False create a new CSV file (default), else append to it.
     """
-    df.to_csv(csv_name, sep=';',
-              mode='a' if append else 'w',
-              header=not append,
-              line_terminator='\n',
-              encoding='utf-8')
-    if not append: log.info(f'Create file {csv_name}')
-
-
-
+    with open(csv_name, 'a') as file:
+        df.to_csv(file, sep=';',
+                  mode='a',
+                  header=file.tell() == 0,
+                  line_terminator='\n',
+                  encoding='utf-8')
