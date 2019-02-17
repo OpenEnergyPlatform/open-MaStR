@@ -159,7 +159,7 @@ def mastr_session():
 
     mastr_suppress_parsing_errors(['parse-time-second'])
 
-    print(f'MaStR API connection established for user {user}')
+    # print(f'MaStR API connection established for user {user}')
     return client, client_bind, token, user
 
 

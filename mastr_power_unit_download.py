@@ -62,6 +62,38 @@ def get_power_unit(start_from, limit=2000):
     return power_unit
 
 
+def download_power_unit(power_unit_list_len=1847110, limit=2000):
+    """Download StromErzeuger.
+
+    Arguments
+    ---------
+    power_unit_list_len : None|int
+        Maximum number of units to get. Check MaStR portal for current number.
+    limit : int
+        Number of units to get per call to API (limited to 2000).
+
+    Existing units:
+    1822000 (2019-02-10)
+    1844882 (2019-02-15)
+    1847110 (2019-02-17)
+    """
+
+    data_version = get_data_version()
+    csv_see = f'data/bnetza_mastr_{data_version}_power-unit.csv'
+    log.info('Download MaStR Power Unit')
+    log.info(f'Number of expected power_unit: {power_unit_list_len}')
+
+    for start_from in range(0, power_unit_list_len, limit):
+        try:
+            power_unit = get_power_unit(start_from, limit)
+            write_to_csv(csv_see, power_unit, start_from > 0)
+
+            power_unit_len = len(power_unit)
+            log.info(f'Download power_unit from {start_from}-{start_from + power_unit_len}')
+        except:
+            log.info(f'Download failed power_unit from {start_from}-{start_from + power_unit_len}')
+
+
 def read_power_units(csv_name):
     """Read Stromerzeugungseinheit from CSV file.
 
@@ -99,35 +131,3 @@ def read_power_units(csv_name):
 
     # log.info(f'Finished reading data from {csv_name}')
     return power_unit
-
-
-def download_power_unit(power_unit_list_len=1847110, limit=2000):
-    """Download StromErzeuger.
-
-    Arguments
-    ---------
-    power_unit_list_len : None|int
-        Maximum number of units to get. Check MaStR portal for current number.
-    limit : int
-        Number of units to get per call to API (limited to 2000).
-
-    Existing units:
-    1822000 (2019-02-10)
-    1844882 (2019-02-15)
-    1847110 (2019-02-17)
-    """
-
-    data_version = get_data_version()
-    csv_see = f'data/bnetza_mastr_{data_version}_power-unit.csv'
-    log.info('Download MaStR Power Unit')
-    log.info(f'Number of expected power_unit: {power_unit_list_len}')
-
-    for start_from in range(0, power_unit_list_len, limit):
-        try:
-            power_unit = get_power_unit(start_from, limit)
-            write_to_csv(csv_see, power_unit, start_from > 0)
-
-            power_unit_len = len(power_unit)
-            log.info(f'Download power_unit from {start_from}-{start_from + power_unit_len}')
-        except:
-            log.info(f'Download failed power_unit from {start_from}-{start_from + power_unit_len}')

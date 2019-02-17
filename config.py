@@ -161,12 +161,4 @@ def write_to_csv(csv_name, df, append=False):
     if not append: log.info(f'Create file {csv_name}')
 
 
-def disentangle_manufacturer(wind_unit):
-    wu = wind_unit
-    try:
-        wu['HerstellerID'] = wind_unit['Hersteller']['Id']
-        wu['HerstellerName'] = wind_unit['Hersteller']['Wert']
-        return(wu)
-    except:
-        print("This wind_unit contains no OrderedDict for 'Hersteller'")
-        return(wind_unit)
+

@@ -42,8 +42,13 @@
 | Wassereinheit | unit_hydro | bnetza_mastr_{v}_unit-hydro.csv |
 | EEG-Anlage-Wasser | unit_hydro_eeg  | bnetza_mastr_{v}_unit-hydro-eeg.csv |
 |   |   |  |
+| Stromerzeugungseinheit-Biomasse | power_unit_biomass | bnetza_mastr_{v}_power-unit-biomass.csv |
+| Biomasseeinheit | unit_biomass | bnetza_mastr_{v}_unit-biomass.csv |
+| EEG-Anlage-Biomasse | unit_biomass_eeg  | bnetza_mastr_{v}_unit-biomass-eeg.csv |
 |   |   |  |
-|   |   |  |
+| Stromerzeugungseinheit-Solar | power_unit_solar | bnetza_mastr_{v}_power-unit-solar.csv |
+| Solareinheit | unit_solar | bnetza_mastr_{v}_unit-solar.csv |
+| EEG-Anlage-Solar | unit_solar_eeg  | bnetza_mastr_{v}_unit-solar-eeg.csv |
 |   |   |  |
 | EinheitMastrNummerId  | mastr_unit  |  |
 | EegMastrNummerId  | mastr_unit_eeg  |  |

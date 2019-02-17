@@ -16,7 +16,7 @@ __author__ = "Ludee; christian-rli"
 __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.6.0"
 
-from config import get_data_version, write_to_csv, disentangle_manufacturer
+from config import get_data_version, write_to_csv
 from sessions import mastr_session
 from mastr_power_unit_download import read_power_units
 
@@ -297,3 +297,14 @@ def download_unit_wind_eeg():
             write_to_csv(csv_wind_eeg, unit_wind_eeg, i > 0)
         except:
             log.info(f'Download failed unit_wind_eeg ({i}): {unit_wind_list[i]}')
+
+
+def disentangle_manufacturer(wind_unit):
+    wu = wind_unit
+    try:
+        wu['HerstellerID'] = wind_unit['Hersteller']['Id']
+        wu['HerstellerName'] = wind_unit['Hersteller']['Wert']
+        return(wu)
+    except:
+        print("This wind_unit contains no OrderedDict for 'Hersteller'")
+        return(wind_unit)
