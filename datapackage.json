@@ -1,15 +1,15 @@
 {"name": "supply.bnetza_mastr",
-"title": "Bundesnetzagentur - Marktstammdatenregister",
+"title": "Bundesnetzagentur - Marktstammdatenregister - Stromerzeuger",
 "id": "supply.bnetza_mastr_1.0",
-"description": "Processed MaStR",
+"description": "Download and process MaStR data",
 "language": [ "en-GB", "de-DE" ],
 "keywords": [ "powerplants, renewables" ],
 "publicationDate": "2019-01-31",
 "context":
     {"homepage": "https://www.marktstammdatenregister.de/MaStR/",
     "documentation": "https://www.marktstammdatenregister.de/MaStRHilfe/index.html",
-    "sourceCode": "none",
-    "contact": "none",
+    "sourceCode": "unknown",
+    "contact": "unknown",
     "grantNo": "unknown"},
 "spatial":
     {"location": "none",
@@ -22,7 +22,8 @@
     "resolution": "none"},
 "sources": [
     {"title": "Bundesnetzagentur - Marktstammdatenregister", "description": "Das Marktstammdatenregister ist das Register für den deutschen Strom- und Gasmarkt. Es wird MaStR abgekürzt. Im MaStR sind vor allem die Stammdaten zu Strom- und Gaserzeugungsanlagen zu registrieren. Außerdem sind die Stammdaten von Marktakteuren wie Anlagenbetreibern, Netzbetreibern und Energielieferanten zu registrieren. Das MaStR wird von der Bundesnetzagentur geführt.", "path": "https://www.marktstammdatenregister.de/MaStR/", "license": "Datenlizenz Deutschland – Namensnennung – Version 2.0", "copyright": "© Marktstammdatenregister 2019 | dl-de/by-2-0"},
-    {"title": "RLI - open_MaStR", "description": "Scripts to download, process and publish the MaStR data set.", "path": "https://github.com/OpenEnergyPlatform/data-preprocessing/", "license": "GNU Affero General Public License Version 3 (AGPL-3.0)", "copyright": "© Reiner Lemoine Institut"} ],
+    {"title": "RLI - open_MaStR", "description": "Scripts to download, process and publish the MaStR data set.", "path": "https://github.com/OpenEnergyPlatform/data-preprocessing/", "license": "GNU Affero General Public License Version 3 (AGPL-3.0)", "copyright": "© Reiner Lemoine Institut"},
+    {"title": "Logfile", "description": "Logging", "path": "mastr.log", "license": "CC0-1.0", "copyright": "none"}],
 "licenses": [
     {"name": "dl-de/by-2-0",
     "title": "Datenlizenz Deutschland – Namensnennung – Version 2.0",
@@ -530,6 +531,7 @@
     "badge": "none"},
 "metaMetadata":
     {"metadataVersion": "OEP-1.4",
+    "metametadata_is_too_deep": "True",
     "metadataLicense":
         {"name": "CC0-1.0",
         "title": "Creative Commons Zero v1.0 Universal",
