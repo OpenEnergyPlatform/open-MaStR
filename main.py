@@ -26,7 +26,7 @@ from mastr_hydro_process import make_hydro
 from mastr_biomass_download import download_unit_biomass, download_unit_biomass_eeg
 from mastr_biomass_process import make_biomass
 from mastr_solar_download import download_unit_solar, download_unit_solar_eeg
-# from mastr_solar_process import make_solar
+from mastr_solar_process import make_solar
 
 import time
 
@@ -61,9 +61,9 @@ if __name__ == "__main__":
     # make_biomass()
 
     """Solar"""
-    download_unit_solar()
+    # download_unit_solar()
     # download_unit_solar_eeg()
-    # make_solar()
+    make_solar()
 
     """close"""
     log.info('MaSTR script successfully executed in {:.2f} seconds'
