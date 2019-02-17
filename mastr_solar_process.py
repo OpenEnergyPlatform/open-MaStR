@@ -29,7 +29,6 @@ def make_solar():
     csv_unit_solar = f'data/bnetza_mastr_{data_version}_unit-solar.csv'
     csv_unit_solar_eeg = f'data/bnetza_mastr_{data_version}_unit-solar-eeg.csv'
     csv_solar = f'data/bnetza_mastr_{data_version}_solar.csv'
-    log.info('Join Solar')
 
     power_unit_solar = read_power_units(csv_see_solar)
     unit_solar = read_unit_solar(csv_unit_solar)

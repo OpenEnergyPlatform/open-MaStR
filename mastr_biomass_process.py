@@ -29,7 +29,6 @@ def make_biomass():
     csv_unit_biomass = f'data/bnetza_mastr_{data_version}_unit-biomass.csv'
     csv_unit_biomass_eeg = f'data/bnetza_mastr_{data_version}_unit-biomass-eeg.csv'
     csv_biomass = f'data/bnetza_mastr_{data_version}_biomass.csv'
-    log.info('Join Biomass')
 
     power_unit_biomass = read_power_units(csv_see_biomass)
     unit_biomass = read_unit_biomass(csv_unit_biomass)

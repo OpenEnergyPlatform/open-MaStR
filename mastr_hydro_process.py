@@ -29,7 +29,6 @@ def make_hydro():
     csv_unit_hydro = f'data/bnetza_mastr_{data_version}_unit-hydro.csv'
     csv_unit_hydro_eeg = f'data/bnetza_mastr_{data_version}_unit-hydro-eeg.csv'
     csv_hydro = f'data/bnetza_mastr_{data_version}_hydro.csv'
-    log.info('Join Hydro')
 
     power_unit_hydro = read_power_units(csv_see_hydro)
     unit_hydro = read_unit_hydro(csv_unit_hydro)
