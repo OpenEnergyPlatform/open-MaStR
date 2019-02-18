@@ -279,7 +279,7 @@ def download_unit_wind():
             unit_wind = get_power_unit_wind(unit_wind_list[i])
             write_to_csv(csv_wind, unit_wind)
         except:
-            log.info(f'Download failed unit_wind ({i}): {unit_wind_list[i]}')
+            log.exception(f'Download failed unit_wind ({i}): {unit_wind_list[i]}')
 
 
 def download_unit_wind_eeg():
@@ -296,7 +296,7 @@ def download_unit_wind_eeg():
             unit_wind_eeg = get_unit_wind_eeg(unit_wind_list[i])
             write_to_csv(csv_wind_eeg, unit_wind_eeg)
         except:
-            log.info(f'Download failed unit_wind_eeg ({i}): {unit_wind_list[i]}')
+            log.exception(f'Download failed unit_wind_eeg ({i}): {unit_wind_list[i]}')
 
 
 def disentangle_manufacturer(wind_unit):

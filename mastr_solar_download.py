@@ -278,7 +278,7 @@ def download_unit_solar():
             unit_solar = get_power_unit_solar(unit_solar_list[i])
             write_to_csv(csv_solar, unit_solar)
         except:
-            log.info(f'Download failed unit_solar ({i}): {unit_solar_list[i]}')
+            log.exception(f'Download failed unit_solar ({i}): {unit_solar_list[i]}')
 
 
 def download_unit_solar_eeg():
@@ -295,4 +295,4 @@ def download_unit_solar_eeg():
             unit_solar_eeg = get_unit_solar_eeg(unit_solar_list[i])
             write_to_csv(csv_solar_eeg, unit_solar_eeg)
         except:
-            log.info(f'Download failed unit_solar_eeg ({i}): {unit_solar_list[i]}')
+            log.exception(f'Download failed unit_solar_eeg ({i}): {unit_solar_list[i]}')
