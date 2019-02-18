@@ -263,7 +263,7 @@ def download_unit_solar():
 
     Existing units: 31543 (2019-02-10)
     """
-    start_from = 0
+    start_from = 36154
 
     data_version = get_data_version()
     csv_solar = f'data/bnetza_mastr_{data_version}_unit-solar.csv'
