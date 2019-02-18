@@ -268,7 +268,7 @@ def download_unit_hydro():
             unit_hydro = get_power_unit_hydro(unit_hydro_list[i])
             write_to_csv(csv_hydro, unit_hydro)
         except:
-            log.info(f'Download failed unit_hydro ({i}): {unit_hydro_list[i]}')
+            log.exception(f'Download failed unit_hydro ({i}): {unit_hydro_list[i]}')
 
 
 def download_unit_hydro_eeg():
@@ -285,4 +285,4 @@ def download_unit_hydro_eeg():
             unit_hydro_eeg = get_unit_hydro_eeg(unit_hydro_list[i])
             write_to_csv(csv_hydro_eeg, unit_hydro_eeg)
         except:
-            log.info(f'Download failed unit_hydro_eeg ({i}): {unit_hydro_list[i]}')
+            log.exception(f'Download failed unit_hydro_eeg ({i}): {unit_hydro_list[i]}')
