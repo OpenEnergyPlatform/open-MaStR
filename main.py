@@ -31,7 +31,7 @@ from mastr_solar_process import make_solar
 import time
 
 """version"""
-DATA_VERSION = '1.1'
+DATA_VERSION = '1.2'
 
 if __name__ == "__main__":
     """logging"""
@@ -61,9 +61,9 @@ if __name__ == "__main__":
     make_biomass()
 
     """Solar"""
-    download_unit_solar()
-    download_unit_solar_eeg()
-    make_solar()
+    # download_unit_solar()
+    # download_unit_solar_eeg()
+    # make_solar()
 
     """close"""
     log.info('MaSTR script successfully executed in {:.2f} seconds'
