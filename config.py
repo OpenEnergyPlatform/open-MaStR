@@ -153,7 +153,7 @@ def write_to_csv(csv_name, df):
     append : bool
         If False create a new CSV file (default), else append to it.
     """
-    with open(csv_name, 'a') as file:
+    with open(csv_name, mode='a', encoding='utf-8') as file:
         df.to_csv(file, sep=';',
                   mode='a',
                   header=file.tell() == 0,

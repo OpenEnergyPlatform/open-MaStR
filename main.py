@@ -31,7 +31,7 @@ from mastr_solar_process import make_solar
 import time
 
 """version"""
-DATA_VERSION = '1.0'
+DATA_VERSION = '1.2'
 
 if __name__ == "__main__":
     """logging"""

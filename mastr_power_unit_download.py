@@ -62,7 +62,7 @@ def get_power_unit(start_from, limit=2000):
     return power_unit
 
 
-def download_power_unit(power_unit_list_len=1848000, limit=2000):
+def download_power_unit(power_unit_list_len=1887270, limit=2000):
     """Download StromErzeuger.
 
     Arguments
@@ -76,6 +76,8 @@ def download_power_unit(power_unit_list_len=1848000, limit=2000):
     1822000 (2019-02-10)
     1844882 (2019-02-15)
     1847117 (2019-02-17)
+    1864103 (2019-02-23)
+    1887270 (2019-03-03)
     """
 
     data_version = get_data_version()
@@ -86,12 +88,12 @@ def download_power_unit(power_unit_list_len=1848000, limit=2000):
     for start_from in range(0, power_unit_list_len, limit):
         try:
             power_unit = get_power_unit(start_from, limit)
-            write_to_csv(csv_see, power_unit, start_from > 0)
+            write_to_csv(csv_see, power_unit)
 
             power_unit_len = len(power_unit)
             log.info(f'Download power_unit from {start_from}-{start_from + power_unit_len}')
         except:
-            log.info(f'Download failed power_unit from {start_from}-{start_from + power_unit_len}')
+            log.exception(f'Download failed power_unit from {start_from}')
 
 
 def read_power_units(csv_name):
