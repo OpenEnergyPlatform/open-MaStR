@@ -43,27 +43,27 @@ if __name__ == "__main__":
     # metadata = oep_session()
 
     """MaStR Einheiten"""
-    download_power_unit()
+    # download_power_unit()
 
     """Wind"""
-    download_unit_wind()
-    download_unit_wind_eeg()
-    make_wind()
+    # download_unit_wind()
+    # download_unit_wind_eeg()
+    # make_wind()
 
     """Hydro"""
-    download_unit_hydro()
-    download_unit_hydro_eeg()
-    make_hydro()
+    # download_unit_hydro()
+    # download_unit_hydro_eeg()
+    # make_hydro()
 
     """Biomass"""
-    download_unit_biomass()
-    download_unit_biomass_eeg()
-    make_biomass()
+    # download_unit_biomass()
+    # download_unit_biomass_eeg()
+    # make_biomass()
 
     """Solar"""
-    # download_unit_solar()
-    # download_unit_solar_eeg()
-    # make_solar()
+    download_unit_solar()
+    download_unit_solar_eeg()
+    make_solar()
 
     """close"""
     log.info('MaSTR script successfully executed in {:.2f} seconds'
