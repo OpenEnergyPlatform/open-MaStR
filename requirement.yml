@@ -1,4 +1,4 @@
-name: py36-mastr
+name: D_py36_mastr
 channels:
     - conda-forge
     - defaults
