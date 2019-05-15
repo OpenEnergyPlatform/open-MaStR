@@ -6,8 +6,4 @@ dependencies:
     - python=3.6
     - pandas
     - jupyter
-    - sqlalchemy
-    - psycopg2
     - zeep
-    - pip:
-         - oedialect
