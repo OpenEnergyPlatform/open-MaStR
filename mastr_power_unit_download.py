@@ -43,11 +43,13 @@ def get_power_unit(start_from, limit=2000):
         Number of entries to get (default: 2000)
     """
     data_version = get_data_version()
-    status = 'InBetrieb'
+    status = 'None'                 # 8.1.2 AnlagenBetriebsStatusEnum::string
+    energy_carrier = 'None'         # 8.1.36 EnergietraegerEnum::string
     c = client_bind.GetGefilterteListeStromErzeuger(
         apiKey=api_key,
         marktakteurMastrNummer=my_mastr,
         einheitBetriebsstatus=status,
+        energietraeger=energy_carrier,
         startAb=start_from,
         limit=limit)  # Limit of API.
     s = serialize_object(c)
