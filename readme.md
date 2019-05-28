@@ -27,6 +27,8 @@
 |   |   |   |   |
 | Strom - Netzanschlusspunkt  | SNA  |   | grid_connection_power  |
 | Gas - Netzanschlusspunkt  | GNA  |   | grid_connection_gas  |
+|   |   |   |   |
+| Genehmigung |   | permit | _permit |
 
 ### Variables
 
@@ -37,6 +39,7 @@
 | Stromerzeugungseinheit-Wind | power_unit_wind  | bnetza_mastr_{v}_power-unit-wind.csv |
 | Windeinheit | unit_wind | bnetza_mastr_{v}_unit-wind.csv |
 | EEG-Anlage-Wind | unit_wind_eeg  | bnetza_mastr_{v}_unit-wind-eeg.csv |
+| Genehmigung Windeinheit | unit_wind_permit | bnetza_mastr_{v}_unit-wind-permit.csv |
 |   |   |  |
 | Stromerzeugungseinheit-Wasser | power_unit_hydro | bnetza_mastr_{v}_power-unit-hydro.csv |
 | Wassereinheit | unit_hydro | bnetza_mastr_{v}_unit-hydro.csv |

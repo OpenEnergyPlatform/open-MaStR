@@ -46,9 +46,9 @@ if __name__ == "__main__":
     download_power_unit()
 
     """Wind"""
-    # download_unit_wind()
-    # download_unit_wind_eeg()
-    # make_wind()
+    download_unit_wind()
+    download_unit_wind_eeg()
+    make_wind()
 
     """Hydro"""
     # download_unit_hydro()
