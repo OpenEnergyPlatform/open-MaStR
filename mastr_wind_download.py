@@ -184,7 +184,6 @@ def get_unit_wind_eeg(mastr_wind_eeg):
     unit_wind_eeg["timestamp"] = str(datetime.datetime.now())
     return unit_wind_eeg
 
-
 def read_unit_wind_eeg(csv_name):
     """
     Encode and read EEG-Anlage-Wind from CSV file.
@@ -227,6 +226,64 @@ def read_unit_wind_eeg(csv_name):
                                        'timestamp': str})
     # log.info(f'Finished reading data from {csv_name}')
     return unit_wind_eeg
+
+
+def get_unit_wind_permit(mastr_wind_permit):
+    """Get Genehmigung-Wind-Wind from API using GetEinheitGenehmigung.
+
+    Parameters
+    ----------
+    mastr_wind_permit : str
+        Genehmigungnummer MaStR
+
+    Returns
+    -------
+    unit_wind_permit : DataFrame
+        Genehmigung-Einheit-Wind.
+    """
+    data_version = get_data_version()
+    c = client_bind.GetEinheitGenehmigung(apiKey=api_key,
+                                     marktakteurMastrNummer=my_mastr,
+                                     genMastrNummer=mastr_wind_permit)
+    s = serialize_object(c)
+    df = pd.DataFrame(list(s.items()), )
+    unit_wind_permit = df.set_index(list(df.columns.values)[0]).transpose()
+    unit_wind_permit.reset_index()
+    unit_wind_permit.index.names = ['lid']
+    unit_wind_permit["version"] = data_version
+    unit_wind_permit["timestamp"] = str(datetime.datetime.now())
+    return unit_wind_permit
+
+def read_unit_wind_permit(csv_name):
+    """
+    Encode and read Genehmigung-Einheit-Wind from CSV file.
+
+    Parameters
+    ----------
+    csv_name : str
+        Name of file.
+
+    Returns
+    -------
+    unit_wind_permit : DataFrame
+        Genehmigung-Einheit-Wind
+    """
+    # log.info(f'Read data from {csv_name}')
+    unit_wind_permit = pd.read_csv(csv_name, header=0, sep=';', index_col=False, encoding='utf-8',
+                                dtype={'lid': int,
+                                       'Ergebniscode': str,
+                                       'AufrufVeraltet': str,
+                                       'AufrufLebenszeitEnde': str,
+                                       'AufrufVersion': str,
+                                       'GenMastrNummer': str,
+                                       'Art': str,
+                                       'Datum': str,
+                                       'Behoerde': str,
+                                       'Aktenzeichen': str,
+                                       'Frist': str,
+                                       'timestamp': str})
+    # log.info(f'Finished reading data from {csv_name}')
+    return unit_wind_permit
 
 
 def setup_power_unit_wind():
@@ -281,7 +338,6 @@ def download_unit_wind():
         except:
             log.exception(f'Download failed unit_wind ({i}): {unit_wind_list[i]}')
 
-
 def download_unit_wind_eeg():
     """Download unit_wind_eeg using GetAnlageEegWind request."""
     data_version = get_data_version()
@@ -297,6 +353,22 @@ def download_unit_wind_eeg():
             write_to_csv(csv_wind_eeg, unit_wind_eeg)
         except:
             log.exception(f'Download failed unit_wind_eeg ({i}): {unit_wind_list[i]}')
+
+def download_unit_wind_permit():
+        """Download unit_wind_permit using GetEinheitGenehmigung request."""
+        data_version = get_data_version()
+        csv_wind_permit = f'data/bnetza_mastr_{data_version}_unit-wind-permit.csv'
+        unit_wind = setup_power_unit_wind()
+
+        unit_wind_list = unit_wind['GenMastrNummer'].values.tolist()
+        unit_wind_list_len = len(unit_wind_list)
+
+        for i in range(0, unit_wind_list_len, 1):
+            try:
+                unit_wind_permit = get_unit_wind_permit(unit_wind_list[i])
+                write_to_csv(csv_wind_permit, unit_wind_permit)
+            except:
+                log.exception(f'Download failed unit_wind_permit ({i}): {unit_wind_list[i]}')
 
 
 def disentangle_manufacturer(wind_unit):

@@ -28,17 +28,21 @@ def make_wind():
     csv_see_wind = f'data/bnetza_mastr_{data_version}_power-unit-wind.csv'
     csv_unit_wind = f'data/bnetza_mastr_{data_version}_unit-wind.csv'
     csv_unit_wind_eeg = f'data/bnetza_mastr_{data_version}_unit-wind-eeg.csv'
+    csv_unit_wind_permit = f'data/bnetza_mastr_{data_version}_unit-wind-permit.csv'
     csv_wind = f'data/bnetza_mastr_{data_version}_wind.csv'
 
     power_unit_wind = read_power_units(csv_see_wind)
     unit_wind = read_unit_wind(csv_unit_wind)
     unit_wind_eeg = read_unit_wind_eeg(csv_unit_wind_eeg)
+    unit_wind_permit = read_unit_wind_permit(csv_unit_wind_permit)
 
     table_wind = power_unit_wind.set_index('EinheitMastrNummer') \
         .join(unit_wind.set_index('EinheitMastrNummer'),
               on='EinheitMastrNummer', how='left', rsuffix='_w') \
         .join(unit_wind_eeg.set_index('EegMastrNummer'),
-              on='EegMastrNummer', how='left', rsuffix='_e')
+              on='EegMastrNummer', how='left', rsuffix='_e') \
+        .join(unit_wind_permit.set_index('GenMastrNummer'),
+              on='GenMastrNummer', how='left', rsuffix='_p')
 
     write_to_csv(csv_wind, table_wind)
     log.info(f'Join Wind to: {csv_wind}')

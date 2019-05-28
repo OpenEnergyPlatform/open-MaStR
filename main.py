@@ -19,7 +19,7 @@ __version__ = "v0.7.0"
 
 from config import setup_logger
 from mastr_power_unit_download import download_power_unit
-from mastr_wind_download import download_unit_wind, download_unit_wind_eeg
+from mastr_wind_download import download_unit_wind, download_unit_wind_eeg, download_unit_wind_permit
 from mastr_wind_process import make_wind
 from mastr_hydro_download import download_unit_hydro, download_unit_hydro_eeg
 from mastr_hydro_process import make_hydro
@@ -31,7 +31,7 @@ from mastr_solar_process import make_solar
 import time
 
 """version"""
-DATA_VERSION = 'rli_v1.3.1'
+DATA_VERSION = 'rli_v1.3.2_permit-test'
 
 if __name__ == "__main__":
     """logging"""
@@ -48,6 +48,7 @@ if __name__ == "__main__":
     """Wind"""
     download_unit_wind()
     download_unit_wind_eeg()
+    download_unit_wind_permit()
     make_wind()
 
     """Hydro"""
