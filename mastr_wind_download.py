@@ -252,6 +252,7 @@ def get_unit_wind_permit(mastr_wind_permit):
     unit_wind_permit.index.names = ['lid']
     unit_wind_permit["version"] = data_version
     unit_wind_permit["timestamp"] = str(datetime.datetime.now())
+    unit_wind_permit = unit_wind_permit.replace('\r', '', regex=True)
     return unit_wind_permit
 
 def read_unit_wind_permit(csv_name):
