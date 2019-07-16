@@ -18,14 +18,14 @@ __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.7.0"
 
 from config import setup_logger
-from mastr_power_unit_download import download_power_unit
+from mastr_power_unit_download import download_power_unit, download_parallel_power_unit
 from mastr_wind_download import download_unit_wind, download_unit_wind_eeg, download_unit_wind_permit
 from mastr_wind_process import make_wind
 from mastr_hydro_download import download_unit_hydro, download_unit_hydro_eeg
 from mastr_hydro_process import make_hydro
 from mastr_biomass_download import download_unit_biomass, download_unit_biomass_eeg
 from mastr_biomass_process import make_biomass
-from mastr_solar_download import download_unit_solar, download_unit_solar_eeg
+from mastr_solar_download import download_unit_solar, download_parallel_unit_solar, download_unit_solar_eeg
 from mastr_solar_process import make_solar
 
 import time
@@ -40,16 +40,16 @@ if __name__ == "__main__":
     log.info(f'MaStR script started with data version: {DATA_VERSION}')
 
     """OEP"""
-    # metadata = oep_session()
+    #metadata = oep_session()
 
     """MaStR Einheiten"""
-    download_power_unit()
+    download_parallel_power_unit(power_unit_list_len=500000)
 
     """Wind"""
-    download_unit_wind()
-    download_unit_wind_eeg()
-    download_unit_wind_permit()
-    make_wind()
+    #download_unit_wind()
+    #download_unit_wind_eeg()
+    #download_unit_wind_permit()
+    #make_wind()
 
     """Hydro"""
     # download_unit_hydro()
@@ -62,7 +62,7 @@ if __name__ == "__main__":
     # make_biomass()
 
     """Solar"""
-    # download_unit_solar()
+    download_parallel_unit_solar()
     # download_unit_solar_eeg()
     # make_solar()
 

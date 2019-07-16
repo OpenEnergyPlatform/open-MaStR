@@ -19,13 +19,20 @@ __version__ = "v0.7.0"
 from config import get_data_version, write_to_csv
 from sessions import mastr_session
 from mastr_power_unit_download import read_power_units
+from utils import split_to_sublists
 
+import concurrent.futures
+import multiprocessing as mp
+from multiprocessing.pool import ThreadPool 
 import pandas as pd
 import numpy as np
 import datetime
 import os
+import numpy as np
 from zeep.helpers import serialize_object
+from functools import partial
 
+import time
 import logging
 
 log = logging.getLogger(__name__)
@@ -49,17 +56,25 @@ def get_power_unit_solar(mastr_unit_solar):
     unit_solar : DataFrame
         Solareinheit.
     """
+    with mp.Lock():
+        log.info('downloading data unit... %s', mastr_unit_solar)
+
     data_version = get_data_version()
-    c = client_bind.GetEinheitSolar(apiKey=api_key,
+    
+    try:
+        c = client_bind.GetEinheitSolar(apiKey=api_key,
                                     marktakteurMastrNummer=my_mastr,
                                     einheitMastrNummer=mastr_unit_solar)
-    s = serialize_object(c)
-    df = pd.DataFrame(list(s.items()), )
-    unit_solar = df.set_index(list(df.columns.values)[0]).transpose()
-    unit_solar.reset_index()
-    unit_solar.index.names = ['lid']
-    unit_solar['version'] = data_version
-    unit_solar['timestamp'] = str(datetime.datetime.now())
+        s = serialize_object(c)
+        df = pd.DataFrame(list(s.items()), )
+        unit_solar = df.set_index(list(df.columns.values)[0]).transpose()
+        unit_solar.reset_index()
+        unit_solar.index.names = ['lid']
+        unit_solar['version'] = data_version
+        unit_solar['timestamp'] = str(datetime.datetime.now())
+    except Exception as e:
+        log.error('faulty unit %s', mastr_unit_solar)
+    
     return unit_solar
 
 
@@ -243,19 +258,22 @@ def setup_power_unit_solar():
     csv_see = f'data/bnetza_mastr_{data_version}_power-unit.csv'
     csv_see_solar = f'data/bnetza_mastr_{data_version}_power-unit-solar.csv'
     if not os.path.isfile(csv_see_solar):
-        power_unit = read_power_units(csv_see)
-        power_unit = power_unit.drop_duplicates()
-        power_unit_solar = power_unit[power_unit.Einheittyp == 'Solareinheit']
-        power_unit_solar.index.names = ['see_id']
-        power_unit_solar.reset_index()
-        power_unit_solar.index.names = ['id']
+        try:
+            power_unit = read_power_units(csv_see)
+            power_unit = power_unit.drop_duplicates()
+            power_unit_solar = power_unit[power_unit.Einheittyp == 'Solareinheit']
+            power_unit_solar.index.names = ['see_id']
+            power_unit_solar.reset_index()
+            power_unit_solar.index.names = ['id']
         # log.info(f'Write data to {csv_see_solar}')
-        write_to_csv(csv_see_solar, power_unit_solar)
+            write_to_csv(csv_see_solar, power_unit_solar)
+        except Exception as e:
+            log.info(e)
         return power_unit_solar
     else:
         power_unit_solar = read_power_units(csv_see_solar)
         # log.info(f'Read data from {csv_see_solar}')
-        return power_unit_solar
+    return power_unit_solar
 
 
 def download_unit_solar():
@@ -263,7 +281,9 @@ def download_unit_solar():
 
     Existing units: 31543 (2019-02-10)
     """
-    start_from = 36154
+    start_from = 0
+    
+    log.info('download unit solar..')
 
     data_version = get_data_version()
     csv_solar = f'data/bnetza_mastr_{data_version}_unit-solar.csv'
@@ -276,9 +296,55 @@ def download_unit_solar():
     for i in range(start_from, unit_solar_list_len, 1):
         try:
             unit_solar = get_power_unit_solar(unit_solar_list[i])
+            log.info(unit_solar_list[i])
             write_to_csv(csv_solar, unit_solar)
         except:
             log.exception(f'Download failed unit_solar ({i}): {unit_solar_list[i]}')
+
+
+''' use cpu_factor to multiply the processes  (=num cpu) for full capacity
+    use parallelism to manipulate the number of threads per process '''
+def download_parallel_unit_solar(start_from=0, n_entries=1, parallelism=300, cpu_factor=1):
+    split_solar_list = []
+    """Download Solareinheit.
+
+    Existing units: 31543 (2019-02-10)
+    """
+    data_version = get_data_version()
+    csv_solar = f'data/bnetza_mastr_{data_version}_unit-solar.csv'
+    unit_solar = setup_power_unit_solar() 
+    unit_solar_list = unit_solar['EinheitMastrNummer'].values.tolist()
+    unit_solar_list_len = len(unit_solar_list)
+    # check wether user input
+    if n_entries is 1:
+        n_entries = unit_solar_list_len
+    # check wether to download more entries than solareinheiten in unit_solar_list starting at start_from
+    if n_entries > (unit_solar_list_len-start_from):
+        n_entries = unit_solar_list_len-start_from
+    log.info('Found %s solar units', n_entries)
+    end_at = start_from+n_entries
+    cpu_count = mp.cpu_count()*cpu_factor
+    process_pool = mp.Pool(processes=cpu_count)
+    t = time.time()
+    proc_list = split_to_sublists(unit_solar_list[start_from:end_at],len(unit_solar_list[start_from:end_at]),cpu_count)
+    try:
+        partial(split_to_threads, parallelism)
+        unit_solar = process_pool.map(split_to_threads, proc_list)
+        process_pool.close()
+        process_pool.join()
+        write_to_csv(csv_solar, unit_solar)
+    except Exception as e:
+        log.error(e)
+    log.info('got %s non-faulty solar units', str(len(unit_solar)))
+    log.info('time needed %s', time.time()-t)
+
+
+def split_to_threads(sublist,parallelism=100): 
+    pool = ThreadPool(processes=parallelism)
+    results = pool.map(get_power_unit_solar, sublist)
+    pool.close()
+    pool.join()
+    return result
 
 
 def download_unit_solar_eeg():

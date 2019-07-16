@@ -18,6 +18,7 @@ __version__ = "v0.7.0"
 
 import os
 import configparser as cp
+import csv
 
 import logging
 log = logging.getLogger(__name__)
@@ -153,9 +154,30 @@ def write_to_csv(csv_name, df):
     append : bool
         If False create a new CSV file (default), else append to it.
     """
+    #if os.path.exists(os.path.dirname(csv_name)):
+    #    os.remove(os.path.dirname(csv_name))
+
+    if not os.path.exists(os.path.dirname(csv_name)):
+        os.makedirs(os.path.dirname(csv_name))
+
     with open(csv_name, mode='a', encoding='utf-8') as file:
         df.to_csv(file, sep=';',
                   mode='a',
                   header=file.tell() == 0,
                   line_terminator='\n',
                   encoding='utf-8')
+
+def write_list_to_csv(csv_name, list):
+    if not os.path.exists(os.path.dirname(csv_name)):
+        os.makedirs(os.path.dirname(csv_name))
+
+    with open(csv_name, mode='a', encoding='utf-8') as file:
+        writer = csv.writer(f)
+        writer.writerows(a)
+
+
+
+def write_list_to_csv(csv_name, data_list):
+    with open(csv_name, mode='a', encoding='utf-8') as file:
+        writer = csv.writer(file)
+        writer.writerow(data_list)

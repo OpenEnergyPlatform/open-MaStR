@@ -22,6 +22,8 @@ import config as lc
 import os
 import sqlalchemy as sa
 from collections import namedtuple
+import requests
+import urllib3
 
 from zeep import Client, Settings
 from zeep.cache import SqliteCache
@@ -152,7 +154,12 @@ def mastr_session():
     user, token = mastr_config()
 
     wsdl = 'https://www.marktstammdatenregister.de/MaStRAPI/wsdl/mastr.wsdl'
-    transport = Transport(cache=SqliteCache())
+    session = requests.Session()
+    session.max_redirects = 30
+    a = requests.adapters.HTTPAdapter(max_retries=3, pool_connections=2000, pool_maxsize=2000)
+    session.mount('https://',a)
+    session.mount('http://',a)
+    transport = Transport(cache=SqliteCache(), timeout=600, session=session)
     settings = Settings(strict=True, xml_huge_tree=True)
     client = Client(wsdl=wsdl, transport=transport, settings=settings)
     client_bind = client.bind('Marktstammdatenregister', 'Anlage')
