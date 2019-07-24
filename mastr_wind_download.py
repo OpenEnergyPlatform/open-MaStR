@@ -16,7 +16,7 @@ __author__ = "Ludee; christian-rli"
 __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.7.0"
 
-from config import get_data_version, write_to_csv
+from utils import get_data_version, write_to_csv, get_filename_csv_see, set_filename_csv_see, get_correct_filepath
 from sessions import mastr_session
 from mastr_power_unit_download import read_power_units
 
@@ -299,8 +299,9 @@ def setup_power_unit_wind():
         Stromerzeugungseinheit-Wind.
     """
     data_version = get_data_version()
-    csv_see = f'data/bnetza_mastr_{data_version}_power-unit.csv'
-    csv_see_wind = f'data/bnetza_mastr_{data_version}_power-unit-wind.csv'
+    csv_see = get_correct_filepath()
+    set_corrected_path(csv_see)
+    from utils import csv_see_wind
     if not os.path.isfile(csv_see_wind):
         power_unit = read_power_units(csv_see)
         power_unit = power_unit.drop_duplicates()
@@ -324,8 +325,7 @@ def download_unit_wind():
     """
     start_from = 0
 
-    data_version = get_data_version()
-    csv_wind = f'data/bnetza_mastr_{data_version}_unit-wind.csv'
+    set_filename_csv_see('wind_units')
     unit_wind = setup_power_unit_wind()
     unit_wind_list = unit_wind['EinheitMastrNummer'].values.tolist()
     unit_wind_list_len = len(unit_wind_list)

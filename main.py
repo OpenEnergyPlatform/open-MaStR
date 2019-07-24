@@ -19,7 +19,7 @@ __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.7.0"
 
 from config import setup_logger
-from mastr_power_unit_download import download_power_unit, download_parallel_power_unit
+from mastr_power_unit_download import download_parallel_power_unit
 from mastr_wind_download import download_unit_wind, download_unit_wind_eeg, download_unit_wind_permit
 from mastr_wind_process import make_wind
 from mastr_hydro_download import download_unit_hydro, download_unit_hydro_eeg
@@ -31,10 +31,9 @@ from mastr_solar_process import make_solar
 
 import time
 
-"""version"""
-DATA_VERSION = 'rli_v1.3.2_permit-test'
 
 if __name__ == "__main__":
+    from utils import DATA_VERSION
     """logging"""
     log = setup_logger()
     start_time = time.time()
@@ -44,7 +43,7 @@ if __name__ == "__main__":
     #metadata = oep_session()
 
     """MaStR Einheiten"""
-    download_parallel_power_unit(power_unit_list_len=50, start_from=20)
+    download_parallel_power_unit(power_unit_list_len=4000, batch_size=2000, start_from=0)
 
     """Wind"""
     #download_unit_wind()

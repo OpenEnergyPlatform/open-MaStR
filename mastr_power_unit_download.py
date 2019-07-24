@@ -16,9 +16,7 @@ __author__ = "Ludee; christian-rli"
 __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.7.0"
 
-from config import get_data_version, write_to_csv, write_list_to_csv
 from sessions import mastr_session
-from utils import split_to_sublists
 
 import time
 import math
@@ -30,12 +28,13 @@ import datetime
 from zeep.helpers import serialize_object
 import logging
 log = logging.getLogger(__name__)
+from utils import split_to_sublists, get_filename_csv_see, set_filename_csv_see, write_to_csv
+from utils import csv_see
 
 """SOAP API"""
 client, client_bind, token, user = mastr_session()
 api_key = token
 my_mastr = user
-
 
 def get_power_unit(start_from, limit=2000):
     """Get Stromerzeugungseinheit from API using GetGefilterteListeStromErzeuger.
@@ -49,8 +48,6 @@ def get_power_unit(start_from, limit=2000):
     """ 
     #with mp.Lock():
         #log.info('loading data starting at.. %s', start_from)
-
-    data_version = get_data_version()
     status = 'InBetrieb'
     try:
         c = client_bind.GetGefilterteListeStromErzeuger(
@@ -62,7 +59,7 @@ def get_power_unit(start_from, limit=2000):
         s = serialize_object(c)
         power_unit = pd.DataFrame(s['Einheiten'])
         power_unit.index.names = ['lid']
-        power_unit['version'] = data_version
+        power_unit['version'] = DATA_VERSION
         power_unit['timestamp'] = str(datetime.datetime.now())
     except Exception as e:
         log.error('retrying - faulty batch %s', start_from)
@@ -91,8 +88,7 @@ def download_power_unit(power_unit_list_len=20000, limit=2000):
     1965200 (2019-04-11)
     """
 
-    data_version = get_data_version()
-    csv_see = f'data/bnetza_mastr_{data_version}_power-unit.csv'
+
     log.info('Download MaStR Power Unit')
     log.info(f'Number of expected power_unit: {power_unit_list_len}')
 
@@ -111,13 +107,18 @@ def download_power_unit(power_unit_list_len=20000, limit=2000):
 a higher batch size number means less threads but more retries
 each batch is processed by a thread pool, where for each subbatch of 2000 (API limit) a new thread is created  '''
 def download_parallel_power_unit(power_unit_list_len=2000, limit=2000, batch_size=20000, start_from=0):
-    data_version = get_data_version()
+    global csv_see
     power_unit_list = list()
-    csv_see = f'data/bnetza_mastr_{data_version}_power-unit.csv'
     log.info('Download MaStR Power Unit')
+    set_filename_csv_see('power_units')
+    csv_see = get_filename_csv_see()
     log.info(f'Number of expected power_unit: {power_unit_list_len}')
+
     log.info(f'Starting at index: {start_from}')
     t = time.time()
+    # assert lists with size < api limit
+    if power_unit_list_len < limit:
+        limit = power_unit_list_len
     partial(get_power_unit, limit)
     end_at = power_unit_list_len+start_from
     start_from_list = list(range(start_from, end_at, limit))
@@ -129,22 +130,18 @@ def download_parallel_power_unit(power_unit_list_len=2000, limit=2000, batch_siz
     while sublists:
         try:
             pool = mp.Pool(processes=len(sublists[0]))
-            power_unit_list.append(pool.map(get_power_unit, sublists[0]))
-            pool.close()
-            pool.join()
+            result = pool.map(get_power_unit, sublists[0])
             log.info('successfull batch: %s', sublists[0])
             sublists.pop(0)
             log.info('processing next batch')
+            if result:
+                for mylist in result:
+                    write_to_csv(csv_see, pd.DataFrame(mylist))
         except Exception as e:
             log.error(e)
-    power_units = pd.DataFrame()
-    for x in range(len(power_unit_list)):
-            power_units = power_units.append(power_unit_list[x][0], ignore_index=True)
-    if not power_units.empty:
-        log.info('DOWNLAODING TIME %s', time.time()-t)
-        write_to_csv(csv_see, power_units)    
 
-            
+    pool.close()
+    pool.join()
 
 def read_power_units(csv_name):
     """Read Stromerzeugungseinheit from CSV file.

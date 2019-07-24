@@ -16,10 +16,9 @@ __author__ = "Ludee; christian-rli"
 __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.7.0"
 
-from config import get_data_version, write_to_csv
 from sessions import mastr_session
 from mastr_power_unit_download import read_power_units
-from utils import split_to_sublists
+from utils import split_to_sublists, get_data_version, write_to_csv, get_filename_csv_see, set_filename_csv_see, get_correct_filepath, set_corrected_path
 
 import concurrent.futures
 import multiprocessing as mp
@@ -255,8 +254,9 @@ def setup_power_unit_solar():
         Stromerzeugungseinheit-Solar.
     """
     data_version = get_data_version()
-    csv_see = f'data/bnetza_mastr_{data_version}_power-unit.csv'
-    csv_see_solar = f'data/bnetza_mastr_{data_version}_power-unit-solar.csv'
+    csv_see = get_correct_filepath()
+    set_corrected_path(csv_see)
+    from utils import csv_see_solar
     if not os.path.isfile(csv_see_solar):
         try:
             power_unit = read_power_units(csv_see)
@@ -268,7 +268,7 @@ def setup_power_unit_solar():
         # log.info(f'Write data to {csv_see_solar}')
             write_to_csv(csv_see_solar, power_unit_solar)
         except Exception as e:
-            log.info(e)
+            log.info('LALALA')
         return power_unit_solar
     else:
         power_unit_solar = read_power_units(csv_see_solar)
@@ -285,8 +285,7 @@ def download_unit_solar():
     
     log.info('download unit solar..')
 
-    data_version = get_data_version()
-    csv_solar = f'data/bnetza_mastr_{data_version}_unit-solar.csv'
+    set_filename_csv_see('solar_units')
     unit_solar = setup_power_unit_solar()
     unit_solar_list = unit_solar['EinheitMastrNummer'].values.tolist()
     unit_solar_list_len = len(unit_solar_list)
@@ -310,8 +309,7 @@ def download_parallel_unit_solar(start_from=0, n_entries=1, parallelism=300, cpu
 
     Existing units: 31543 (2019-02-10)
     """
-    data_version = get_data_version()
-    csv_solar = f'data/bnetza_mastr_{data_version}_unit-solar.csv'
+    set_filename_csv_see('solar_units')
     unit_solar = setup_power_unit_solar() 
     unit_solar_list = unit_solar['EinheitMastrNummer'].values.tolist()
     unit_solar_list_len = len(unit_solar_list)
