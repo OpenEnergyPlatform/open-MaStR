@@ -119,7 +119,8 @@ def download_parallel_power_unit(power_unit_list_len=2000, limit=2000, batch_siz
     log.info(f'Starting at index: {start_from}')
     t = time.time()
     partial(get_power_unit, limit)
-    start_from_list = list(range(start_from, power_unit_list_len, limit))
+    end_at = power_unit_list_len+start_from
+    start_from_list = list(range(start_from, end_at, limit))
     length = len(start_from_list)
     num = math.ceil(power_unit_list_len/batch_size)
     assert num >= 1
