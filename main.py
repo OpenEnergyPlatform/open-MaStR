@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
@@ -43,7 +44,7 @@ if __name__ == "__main__":
     #metadata = oep_session()
 
     """MaStR Einheiten"""
-    download_parallel_power_unit(power_unit_list_len=500000)
+    download_parallel_power_unit(power_unit_list_len=50, start_from=20)
 
     """Wind"""
     #download_unit_wind()

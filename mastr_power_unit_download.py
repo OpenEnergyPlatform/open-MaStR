@@ -110,15 +110,16 @@ def download_power_unit(power_unit_list_len=20000, limit=2000):
 ''' split power_unit_list_len into batches of 20.000, this number can be changed and was decided on empirically -- 
 a higher batch size number means less threads but more retries
 each batch is processed by a thread pool, where for each subbatch of 2000 (API limit) a new thread is created  '''
-def download_parallel_power_unit(power_unit_list_len=2000, limit=2000, batch_size=20000):
+def download_parallel_power_unit(power_unit_list_len=2000, limit=2000, batch_size=20000, start_from=0):
     data_version = get_data_version()
     power_unit_list = list()
     csv_see = f'data/bnetza_mastr_{data_version}_power-unit.csv'
     log.info('Download MaStR Power Unit')
     log.info(f'Number of expected power_unit: {power_unit_list_len}')
+    log.info(f'Starting at index: {start_from}')
     t = time.time()
     partial(get_power_unit, limit)
-    start_from_list = list(range(0, power_unit_list_len, limit))
+    start_from_list = list(range(start_from, power_unit_list_len, limit))
     length = len(start_from_list)
     num = math.ceil(power_unit_list_len/batch_size)
     assert num >= 1
