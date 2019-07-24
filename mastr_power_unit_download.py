@@ -69,7 +69,7 @@ def get_power_unit(start_from, limit=2000):
     return power_unit
 
 
-def download_power_unit(power_unit_list_len=20000, limit=2000):
+def download_power_unit(power_unit_list_len=20000, limit=2000, overwrite=False):
     """Download StromErzeuger.
 
     Arguments
@@ -95,7 +95,7 @@ def download_power_unit(power_unit_list_len=20000, limit=2000):
     for start_from in range(0, power_unit_list_len, limit):
         try:
             power_unit = get_power_unit(start_from, limit)
-            write_to_csv(csv_see, power_unit)
+            write_to_csv(csv_see, power_unit, overwrite)
 
             power_unit_len = len(power_unit)
             log.info(f'Download power_unit from {start_from}-{start_from + power_unit_len}')
@@ -106,7 +106,7 @@ def download_power_unit(power_unit_list_len=20000, limit=2000):
 ''' split power_unit_list_len into batches of 20.000, this number can be changed and was decided on empirically -- 
 a higher batch size number means less threads but more retries
 each batch is processed by a thread pool, where for each subbatch of 2000 (API limit) a new thread is created  '''
-def download_parallel_power_unit(power_unit_list_len=2000, limit=2000, batch_size=20000, start_from=0):
+def download_parallel_power_unit(power_unit_list_len=2000, limit=2000, batch_size=20000, start_from=0, overwrite=False):
     global csv_see
     power_unit_list = list()
     log.info('Download MaStR Power Unit')
@@ -136,7 +136,7 @@ def download_parallel_power_unit(power_unit_list_len=2000, limit=2000, batch_siz
             log.info('processing next batch')
             if result:
                 for mylist in result:
-                    write_to_csv(csv_see, pd.DataFrame(mylist))
+                    write_to_csv(csv_see, pd.DataFrame(mylist), overwrite)
         except Exception as e:
             log.error(e)
 
@@ -179,5 +179,5 @@ def read_power_units(csv_name):
                                     'timestamp': str})
 
     log.info(f'Finished reading data from {csv_name}')
-    log.info(power_unit[1:4])
+    #log.info(power_unit[1:4])
     return power_unit

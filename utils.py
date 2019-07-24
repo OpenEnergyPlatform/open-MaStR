@@ -63,7 +63,7 @@ def get_correct_filepath():
     return csv_path
 
 
-def write_to_csv(csv_name, df):
+def write_to_csv(csv_name, df, overwrite):
     """Create CSV file or append data to it.
 
     Parameters

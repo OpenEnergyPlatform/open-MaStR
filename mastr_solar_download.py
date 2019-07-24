@@ -56,7 +56,7 @@ def get_power_unit_solar(mastr_unit_solar):
         Solareinheit.
     """
     with mp.Lock():
-        log.info('downloading data unit... %s', mastr_unit_solar)
+       log.info('downloading data unit... %s', mastr_unit_solar)
 
     data_version = get_data_version()
     
@@ -72,7 +72,7 @@ def get_power_unit_solar(mastr_unit_solar):
         unit_solar['version'] = data_version
         unit_solar['timestamp'] = str(datetime.datetime.now())
     except Exception as e:
-        log.error('faulty unit %s', mastr_unit_solar)
+        return unit_solar
     
     return unit_solar
 
@@ -242,7 +242,7 @@ def read_unit_solar_eeg(csv_name):
     return unit_solar_eeg
 
 
-def setup_power_unit_solar():
+def setup_power_unit_solar(overwrite):
     """Setup file for Stromerzeugungseinheit-Solar.
 
     Check if file with Stromerzeugungseinheit-Solar exists. Create if not exists.
@@ -258,17 +258,16 @@ def setup_power_unit_solar():
     set_corrected_path(csv_see)
     from utils import csv_see_solar
     if not os.path.isfile(csv_see_solar):
-        try:
-            power_unit = read_power_units(csv_see)
+        power_unit = read_power_units(csv_see)
+        if not power_unit.empty:
             power_unit = power_unit.drop_duplicates()
             power_unit_solar = power_unit[power_unit.Einheittyp == 'Solareinheit']
             power_unit_solar.index.names = ['see_id']
             power_unit_solar.reset_index()
             power_unit_solar.index.names = ['id']
         # log.info(f'Write data to {csv_see_solar}')
-            write_to_csv(csv_see_solar, power_unit_solar)
-        except Exception as e:
-            log.info('LALALA')
+            write_to_csv(csv_see_solar, power_unit_solar, overwrite)
+            power_unit.iloc[0:0]
         return power_unit_solar
     else:
         power_unit_solar = read_power_units(csv_see_solar)
@@ -295,7 +294,6 @@ def download_unit_solar():
     for i in range(start_from, unit_solar_list_len, 1):
         try:
             unit_solar = get_power_unit_solar(unit_solar_list[i])
-            log.info(unit_solar_list[i])
             write_to_csv(csv_solar, unit_solar)
         except:
             log.exception(f'Download failed unit_solar ({i}): {unit_solar_list[i]}')
@@ -303,14 +301,14 @@ def download_unit_solar():
 
 ''' use cpu_factor to multiply the processes  (=num cpu) for full capacity
     use parallelism to manipulate the number of threads per process '''
-def download_parallel_unit_solar(start_from=0, n_entries=1, parallelism=300, cpu_factor=1):
+def download_parallel_unit_solar(start_from=0, n_entries=1, parallelism=300, cpu_factor=1, overwrite=False):
     split_solar_list = []
     """Download Solareinheit.
 
     Existing units: 31543 (2019-02-10)
     """
     set_filename_csv_see('solar_units')
-    unit_solar = setup_power_unit_solar() 
+    unit_solar = setup_power_unit_solar(overwrite) 
     unit_solar_list = unit_solar['EinheitMastrNummer'].values.tolist()
     unit_solar_list_len = len(unit_solar_list)
     # check wether user input
@@ -324,6 +322,7 @@ def download_parallel_unit_solar(start_from=0, n_entries=1, parallelism=300, cpu
     cpu_count = mp.cpu_count()*cpu_factor
     process_pool = mp.Pool(processes=cpu_count)
     t = time.time()
+    total = 0
     proc_list = split_to_sublists(unit_solar_list[start_from:end_at],len(unit_solar_list[start_from:end_at]),cpu_count)
     try:
         partial(split_to_threads, parallelism)
@@ -333,7 +332,6 @@ def download_parallel_unit_solar(start_from=0, n_entries=1, parallelism=300, cpu
         write_to_csv(csv_solar, unit_solar)
     except Exception as e:
         log.error(e)
-    log.info('got %s non-faulty solar units', str(len(unit_solar)))
     log.info('time needed %s', time.time()-t)
 
 

@@ -43,7 +43,7 @@ if __name__ == "__main__":
     #metadata = oep_session()
 
     """MaStR Einheiten"""
-    download_parallel_power_unit(power_unit_list_len=4000, batch_size=2000, start_from=0)
+    #download_parallel_power_unit(power_unit_list_len=4000, batch_size=2000, start_from=0)
 
     """Wind"""
     #download_unit_wind()
