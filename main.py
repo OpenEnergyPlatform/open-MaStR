@@ -43,7 +43,9 @@ if __name__ == "__main__":
     #metadata = oep_session()
 
     """MaStR Einheiten"""
-    #download_parallel_power_unit(power_unit_list_len=4000, batch_size=2000, start_from=0)
+
+    ''' DEFAULT PARAMS: power_unit_list_len=2000, limit=2000, batch_size=20000, start_from=0, overwrite=False '''
+    download_parallel_power_unit(power_unit_list_len=1000, overwrite=True)
 
     """Wind"""
     #download_unit_wind()
@@ -62,7 +64,8 @@ if __name__ == "__main__":
     # make_biomass()
 
     """Solar"""
-    download_parallel_unit_solar()
+    ''' DEFAULT PARAMS: start_from=0, n_entries=1, parallelism=300, cpu_factor=1, overwrite=False '''
+    download_parallel_unit_solar(overwrite=True)
     # download_unit_solar_eeg()
     # make_solar()
 

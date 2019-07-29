@@ -28,7 +28,9 @@ import datetime
 from zeep.helpers import serialize_object
 import logging
 log = logging.getLogger(__name__)
-from utils import split_to_sublists, get_filename_csv_see, set_filename_csv_see, write_to_csv
+from utils import split_to_sublists, get_filename_csv_see, set_filename_csv_see, write_to_csv, remove_csv
+
+''' GLOBAL VAR IMPORT '''
 from utils import csv_see
 
 """SOAP API"""
@@ -90,15 +92,14 @@ def download_power_unit(power_unit_list_len=20000, limit=2000, overwrite=False):
 
 
     log.info('Download MaStR Power Unit')
-    log.info(f'Number of expected power_unit: {power_unit_list_len}')
+    log.info(f'Number of expected power units: {power_unit_list_len}')
 
     for start_from in range(0, power_unit_list_len, limit):
         try:
             power_unit = get_power_unit(start_from, limit)
-            write_to_csv(csv_see, power_unit, overwrite)
-
+            write_to_csv(csv_see, power_unit)
             power_unit_len = len(power_unit)
-            log.info(f'Download power_unit from {start_from}-{start_from + power_unit_len}')
+            #log.info(f'Download power_unit from {start_from}-{start_from + power_unit_len}')
         except:
             log.exception(f'Download failed power_unit from {start_from}')
 
@@ -110,10 +111,14 @@ def download_parallel_power_unit(power_unit_list_len=2000, limit=2000, batch_siz
     global csv_see
     power_unit_list = list()
     log.info('Download MaStR Power Unit')
-    set_filename_csv_see('power_units')
+    set_filename_csv_see('power_units', overwrite)
     csv_see = get_filename_csv_see()
-    log.info(f'Number of expected power_unit: {power_unit_list_len}')
-
+    if overwrite:
+        remove_csv(csv_see)
+    if power_unit_list_len < limit:
+        log.info(f'Number of expected power units: {limit}')
+    else:
+        log.info(f'Number of expected power units: {power_unit_list_len}')
     log.info(f'Starting at index: {start_from}')
     t = time.time()
     # assert lists with size < api limit
@@ -127,21 +132,24 @@ def download_parallel_power_unit(power_unit_list_len=2000, limit=2000, batch_siz
     assert num >= 1
     sublists = split_to_sublists(start_from_list, length, num)
     log.info('number of batches to process %s', num)
+    summe = 0
     while sublists:
         try:
             pool = mp.Pool(processes=len(sublists[0]))
             result = pool.map(get_power_unit, sublists[0])
-            log.info('successfull batch: %s', sublists[0])
+            summe += 1
+            progress = int(len(sublists)/summe)*10
+            print('\r[{0}{1}] %'.format('#'*int(progress), '-'*int(10-progress)))
             sublists.pop(0)
-            log.info('processing next batch')
             if result:
                 for mylist in result:
-                    write_to_csv(csv_see, pd.DataFrame(mylist), overwrite)
+                    write_to_csv(csv_see, pd.DataFrame(mylist))
         except Exception as e:
             log.error(e)
 
     pool.close()
     pool.join()
+
 
 def read_power_units(csv_name):
     """Read Stromerzeugungseinheit from CSV file.

@@ -33,21 +33,23 @@ def get_filename_csv_see():
     return csv_see
 
 
-def set_filename_csv_see(types):
-	global csv_see, csv_see_hydro, csv_see_solar, csv_see_biomass, csv_see_wind
-	
-	print('CAUTION! Define a file name or press enter for default. If the file name exists, the file will not be overwritten. Data will be appended at the end of the existing file.')
-	myinput = input()
-	if types is 'power_units':
-			csv_see = csv_see_dummy+'_power-units'+myinput+'.csv'
-	elif types is 'solar_units':
-			csv_see_solar = csv_see_dummy+'_solar-units'+myinput+'.csv'
-	elif types is 'hydro_units':
-			csv_see_hydro = csv_see_dummy+'_hydro-units'+myinput+'.csv'
-	elif types is 'biomass_units':
-			csv_see_biomass = csv_see_dummy+'_biomass-units'+myinput+'.csv'
-	elif types is 'wind_units':
-			csv_see_wind = csv_see_dummy+'_wind'+myinput+'.csv'
+def set_filename_csv_see(types, overwrite=False):
+    global csv_see, csv_see_hydro, csv_see_solar, csv_see_biomass, csv_see_wind
+    myinput = ""
+    if not overwrite:
+        print('CAUTION! Define a file name or press enter for default. If the file name exists, the file will not be overwritten. Data will be appended at the end of the existing file.')
+        myinput = input()
+
+    if types is 'power_units':
+        csv_see = csv_see_dummy+'_power-units'+myinput+'.csv'
+    elif types is 'solar_units':
+        csv_see_solar = csv_see_dummy+'_solar-units'+myinput+'.csv'
+    elif types is 'hydro_units':
+        csv_see_hydro = csv_see_dummy+'_hydro-units'+myinput+'.csv'
+    elif types is 'biomass_units':
+        csv_see_biomass = csv_see_dummy+'_biomass-units'+myinput+'.csv'
+    elif types is 'wind_units':
+        csv_see_wind = csv_see_dummy+'_wind'+myinput+'.csv'
 
 
 def set_corrected_path(mypath):
@@ -63,7 +65,7 @@ def get_correct_filepath():
     return csv_path
 
 
-def write_to_csv(csv_name, df, overwrite):
+def write_to_csv(csv_name, df):
     """Create CSV file or append data to it.
 
     Parameters
@@ -87,3 +89,8 @@ def write_to_csv(csv_name, df, overwrite):
                   header=file.tell() == 0,
                   line_terminator='\n',
                   encoding='utf-8')
+
+
+def remove_csv(csv_name):
+    if os.path.isfile(csv_name):
+        os.remove(csv_name)

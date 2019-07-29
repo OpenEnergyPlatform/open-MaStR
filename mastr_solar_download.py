@@ -18,9 +18,9 @@ __version__ = "v0.7.0"
 
 from sessions import mastr_session
 from mastr_power_unit_download import read_power_units
-from utils import split_to_sublists, get_data_version, write_to_csv, get_filename_csv_see, set_filename_csv_see, get_correct_filepath, set_corrected_path
+from utils import split_to_sublists, get_data_version, write_to_csv, get_filename_csv_see, set_filename_csv_see, get_correct_filepath, set_corrected_path, remove_csv
 
-import concurrent.futures
+import sys
 import multiprocessing as mp
 from multiprocessing.pool import ThreadPool 
 import pandas as pd
@@ -33,7 +33,7 @@ from functools import partial
 
 import time
 import logging
-
+import multiprocessing as mp
 log = logging.getLogger(__name__)
 
 """SOAP API"""
@@ -55,8 +55,8 @@ def get_power_unit_solar(mastr_unit_solar):
     unit_solar : DataFrame
         Solareinheit.
     """
-    with mp.Lock():
-       log.info('downloading data unit... %s', mastr_unit_solar)
+    #with mp.Lock():
+    #   log.info('downloading data unit... %s', mastr_unit_solar)
 
     data_version = get_data_version()
     
@@ -242,7 +242,7 @@ def read_unit_solar_eeg(csv_name):
     return unit_solar_eeg
 
 
-def setup_power_unit_solar(overwrite):
+def setup_power_unit_solar(overwrite=False):
     """Setup file for Stromerzeugungseinheit-Solar.
 
     Check if file with Stromerzeugungseinheit-Solar exists. Create if not exists.
@@ -254,9 +254,12 @@ def setup_power_unit_solar(overwrite):
         Stromerzeugungseinheit-Solar.
     """
     data_version = get_data_version()
-    csv_see = get_correct_filepath()
-    set_corrected_path(csv_see)
-    from utils import csv_see_solar
+    from utils import csv_see_solar, csv_see
+    if overwrite:
+        remove_csv(csv_see_solar)
+    if not overwrite:
+        csv_see = get_correct_filepath()
+        set_corrected_path(csv_see)
     if not os.path.isfile(csv_see_solar):
         power_unit = read_power_units(csv_see)
         if not power_unit.empty:
@@ -266,16 +269,19 @@ def setup_power_unit_solar(overwrite):
             power_unit_solar.reset_index()
             power_unit_solar.index.names = ['id']
         # log.info(f'Write data to {csv_see_solar}')
-            write_to_csv(csv_see_solar, power_unit_solar, overwrite)
+            write_to_csv(csv_see_solar, power_unit_solar)
             power_unit.iloc[0:0]
-        return power_unit_solar
+            return power_unit_solar
+        else:
+            log.info('no solarunits found')
+            return pd.DataFrame()
     else:
         power_unit_solar = read_power_units(csv_see_solar)
         # log.info(f'Read data from {csv_see_solar}')
     return power_unit_solar
 
 
-def download_unit_solar():
+def download_unit_solar(overwrite=False):
     """Download Solareinheit.
 
     Existing units: 31543 (2019-02-10)
@@ -284,8 +290,8 @@ def download_unit_solar():
     
     log.info('download unit solar..')
 
-    set_filename_csv_see('solar_units')
-    unit_solar = setup_power_unit_solar()
+    set_filename_csv_see(overwrite,'solar_units')
+    unit_solar = setup_power_unit_solar(overwrite)
     unit_solar_list = unit_solar['EinheitMastrNummer'].values.tolist()
     unit_solar_list_len = len(unit_solar_list)
     log.info(f'Download MaStR Solar')
@@ -302,13 +308,17 @@ def download_unit_solar():
 ''' use cpu_factor to multiply the processes  (=num cpu) for full capacity
     use parallelism to manipulate the number of threads per process '''
 def download_parallel_unit_solar(start_from=0, n_entries=1, parallelism=300, cpu_factor=1, overwrite=False):
+    global proc_list
     split_solar_list = []
     """Download Solareinheit.
 
     Existing units: 31543 (2019-02-10)
     """
-    set_filename_csv_see('solar_units')
+    set_filename_csv_see('solar_units', overwrite)
+    from utils import csv_see_solar as csv_solar
     unit_solar = setup_power_unit_solar(overwrite) 
+    if unit_solar.empty:
+        return
     unit_solar_list = unit_solar['EinheitMastrNummer'].values.tolist()
     unit_solar_list_len = len(unit_solar_list)
     # check wether user input
@@ -322,10 +332,10 @@ def download_parallel_unit_solar(start_from=0, n_entries=1, parallelism=300, cpu
     cpu_count = mp.cpu_count()*cpu_factor
     process_pool = mp.Pool(processes=cpu_count)
     t = time.time()
-    total = 0
     proc_list = split_to_sublists(unit_solar_list[start_from:end_at],len(unit_solar_list[start_from:end_at]),cpu_count)
+    print("This may take a moment. Processing {} data batches.".format(len(proc_list)))
     try:
-        partial(split_to_threads, parallelism)
+        partial(split_to_threads, parallelism=parallelism)
         unit_solar = process_pool.map(split_to_threads, proc_list)
         process_pool.close()
         process_pool.join()
@@ -335,7 +345,7 @@ def download_parallel_unit_solar(start_from=0, n_entries=1, parallelism=300, cpu
     log.info('time needed %s', time.time()-t)
 
 
-def split_to_threads(sublist,parallelism=100): 
+def split_to_threads(sublist,parallelism=100):
     pool = ThreadPool(processes=parallelism)
     results = pool.map(get_power_unit_solar, sublist)
     pool.close()
@@ -343,11 +353,11 @@ def split_to_threads(sublist,parallelism=100):
     return result
 
 
-def download_unit_solar_eeg():
+def download_unit_solar_eeg(overwrite=False):
     """Download unit_solar_eeg using GetAnlageEegSolar request."""
     data_version = get_data_version()
     csv_solar_eeg = f'data/bnetza_mastr_{data_version}_unit-solar-eeg.csv'
-    unit_solar = setup_power_unit_solar()
+    unit_solar = setup_power_unit_solar(overwrite)
 
     unit_solar_list = unit_solar['EegMastrNummer'].values.tolist()
     unit_solar_list_len = len(unit_solar_list)
