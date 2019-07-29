@@ -62,8 +62,7 @@ def get_power_unit(start_from, limit=2000):
         power_unit['version'] = DATA_VERSION
         power_unit['timestamp'] = str(datetime.datetime.now())
     except Exception as e:
-        return pd.DataFrame()
-        #log.error('retrying - faulty batch %s', start_from)
+        log.debug(e)
         #log.error(e)
     # remove double quotes from column
     power_unit['Standort'] = power_unit['Standort'].str.replace('"', '')
