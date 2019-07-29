@@ -234,9 +234,9 @@ def setup_power_unit_biomass():
         Stromerzeugungseinheit-Biomass.
     """
     data_version = get_data_version()
-    csv_see = get_correct_filepath()
-    set_corrected_path(csv_see)
-    from utils import csv_see_biomass
+    #csv_see = get_correct_filepath()
+    #set_corrected_path(csv_see)
+    from utils import csv_see_biomass, csv_see
     if not os.path.isfile(csv_see_biomass):
         power_unit = read_power_units(csv_see)
         power_unit = power_unit.drop_duplicates()
@@ -260,7 +260,8 @@ def download_unit_biomass():
     """
     start_from = 0
 
-    set_filename_csv_see('biomass_units')
+    set_filename_csv_see('biomass_units', overwrite=True)
+    from utils import csv_see_biomass as csv_biomass
     unit_biomass = setup_power_unit_biomass()
     unit_biomass_list = unit_biomass['EinheitMastrNummer'].values.tolist()
     unit_biomass_list_len = len(unit_biomass_list)

@@ -299,9 +299,9 @@ def setup_power_unit_wind():
         Stromerzeugungseinheit-Wind.
     """
     data_version = get_data_version()
-    csv_see = get_correct_filepath()
-    set_corrected_path(csv_see)
-    from utils import csv_see_wind
+    #csv_see = get_correct_filepath()
+    #set_corrected_path(csv_see)
+    from utils import csv_see_wind, csv_see
     if not os.path.isfile(csv_see_wind):
         power_unit = read_power_units(csv_see)
         power_unit = power_unit.drop_duplicates()
@@ -325,8 +325,8 @@ def download_unit_wind():
     """
     start_from = 0
 
-    set_filename_csv_see('wind_units')
-    unit_wind = setup_power_unit_wind()
+    set_filename_csv_see('wind_units', overwrite=True)
+    from utils import csv_see_wind as csv_see
     unit_wind_list = unit_wind['EinheitMastrNummer'].values.tolist()
     unit_wind_list_len = len(unit_wind_list)
     log.info('Download MaStR Wind')

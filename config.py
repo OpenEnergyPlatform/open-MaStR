@@ -20,6 +20,7 @@ import os
 import configparser as cp
 
 import logging
+log = logging.getLogger(__name__) 
 
 """parameter"""
 cfg = cp.RawConfigParser()
@@ -39,8 +40,6 @@ def setup_logger():
     rl = logging.getLogger()
     rl.setLevel(logging.INFO)
     rl.propagate = False
-
-    DEBUG_LEVELV_NUM = 9 
 
     # set format
     formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s',
@@ -134,5 +133,3 @@ def config_file_not_found_message():
     """Show error message if file not found."""
 
     print(f'The config file "{config_file}" could not be found')
-
-

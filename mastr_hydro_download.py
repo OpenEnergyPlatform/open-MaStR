@@ -230,9 +230,9 @@ def setup_power_unit_hydro():
         Stromerzeugungseinheit-Wasser.
     """
     data_version = get_data_version()
-    csv_see = get_correct_filepath()
-    set_corrected_path(csv_see)
-    from utils import csv_see_hydro
+    #csv_see = get_correct_filepath()
+    #set_corrected_path(csv_see)
+    from utils import csv_see_hydro, csv_see
     if not os.path.isfile(csv_see_hydro):
         power_unit = read_power_units(csv_see)
         power_unit = power_unit.drop_duplicates()
@@ -256,7 +256,8 @@ def download_unit_hydro():
     """
     start_from = 0
 
-    set_filename_csv_see('hydro_units')
+    set_filename_csv_see('hydro_units', overwrite=True)
+    from utils import csv_see_hydro as csv_hydro
     unit_hydro = setup_power_unit_hydro()
     unit_hydro_list = unit_hydro['EinheitMastrNummer'].values.tolist()
     unit_hydro_list_len = len(unit_hydro_list)

@@ -20,7 +20,6 @@ from sessions import mastr_session
 from mastr_power_unit_download import read_power_units
 from utils import split_to_sublists, get_data_version, write_to_csv, get_filename_csv_see, set_filename_csv_see, get_correct_filepath, set_corrected_path, remove_csv
 
-import sys
 import multiprocessing as mp
 from multiprocessing.pool import ThreadPool 
 import pandas as pd
@@ -33,7 +32,6 @@ from functools import partial
 
 import time
 import logging
-import multiprocessing as mp
 log = logging.getLogger(__name__)
 
 """SOAP API"""

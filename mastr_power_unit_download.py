@@ -48,8 +48,6 @@ def get_power_unit(start_from, limit=2000):
     limit : int
         Number of entries to get (default: 2000)
     """ 
-    #with mp.Lock():
-        #log.info('loading data starting at.. %s', start_from)
     status = 'InBetrieb'
     try:
         c = client_bind.GetGefilterteListeStromErzeuger(
@@ -64,7 +62,8 @@ def get_power_unit(start_from, limit=2000):
         power_unit['version'] = DATA_VERSION
         power_unit['timestamp'] = str(datetime.datetime.now())
     except Exception as e:
-        log.error('retrying - faulty batch %s', start_from)
+        return pd.DataFrame()
+        #log.error('retrying - faulty batch %s', start_from)
         #log.error(e)
     # remove double quotes from column
     power_unit['Standort'] = power_unit['Standort'].str.replace('"', '')
@@ -111,6 +110,15 @@ def download_parallel_power_unit(power_unit_list_len=2000, limit=2000, batch_siz
     global csv_see
     power_unit_list = list()
     log.info('Download MaStR Power Unit')
+    if batch_size<2000:
+        limit=batch_size
+    if power_unit_list_len+start_from > 1814000:
+        deficit = (power_unit_list_len+start_from)-1814000
+        power_unit_list_len = power_unit_list_len-deficit
+        if power_unit_list_len <= 0:
+            log.info('No entries to download. Decrease index size.')
+            return 0
+    end_at = power_unit_list_len+start_from
     set_filename_csv_see('power_units', overwrite)
     csv_see = get_filename_csv_see()
     if overwrite:
@@ -125,28 +133,28 @@ def download_parallel_power_unit(power_unit_list_len=2000, limit=2000, batch_siz
     if power_unit_list_len < limit:
         limit = power_unit_list_len
     partial(get_power_unit, limit)
-    end_at = power_unit_list_len+start_from
     start_from_list = list(range(start_from, end_at, limit))
     length = len(start_from_list)
     num = math.ceil(power_unit_list_len/batch_size)
     assert num >= 1
     sublists = split_to_sublists(start_from_list, length, num)
-    log.info('number of batches to process %s', num)
+    log.info('number of batches to process: %s', num)
     summe = 0
+    length = len(sublists)
     while sublists:
         try:
             pool = mp.Pool(processes=len(sublists[0]))
             result = pool.map(get_power_unit, sublists[0])
             summe += 1
-            progress = int(len(sublists)/summe)*10
-            print('\r[{0}{1}] %'.format('#'*int(progress), '-'*int(10-progress)))
+            progress= math.floor((summe/length)*100)
+            print('\r[{0}{1}] %'.format('#'*int(progress/10), '-'*int((100-progress)/10)))
             sublists.pop(0)
             if result:
                 for mylist in result:
                     write_to_csv(csv_see, pd.DataFrame(mylist))
         except Exception as e:
             log.error(e)
-
+    log.info('Power Unit Download executed in: {0:.2f}'.format(time.time()-t))
     pool.close()
     pool.join()
 
