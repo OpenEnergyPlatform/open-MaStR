@@ -183,16 +183,19 @@ def get_unit_solar_eeg(mastr_solar_eeg):
         EEG-Anlage-Solar.
     """
     data_version = get_data_version()
-    c = client_bind.GetAnlageEegSolar(apiKey=api_key,
+    try:
+        c = client_bind.GetAnlageEegSolar(apiKey=api_key,
                                       marktakteurMastrNummer=my_mastr,
                                       eegMastrNummer=mastr_solar_eeg)
-    s = serialize_object(c)
-    df = pd.DataFrame(list(s.items()), )
-    unit_solar_eeg = df.set_index(list(df.columns.values)[0]).transpose()
-    unit_solar_eeg.reset_index()
-    unit_solar_eeg.index.names = ['lid']
-    unit_solar_eeg["version"] = data_version
-    unit_solar_eeg["timestamp"] = str(datetime.datetime.now())
+        s = serialize_object(c)
+        df = pd.DataFrame(list(s.items()), )
+        unit_solar_eeg = df.set_index(list(df.columns.values)[0]).transpose()
+        unit_solar_eeg.reset_index()
+        unit_solar_eeg.index.names = ['lid']
+        unit_solar_eeg["version"] = data_version
+        unit_solar_eeg["timestamp"] = str(datetime.datetime.now())
+    except Exception as e:
+        return unit_solar_eeg
     return unit_solar_eeg
 
 
@@ -240,7 +243,7 @@ def read_unit_solar_eeg(csv_name):
     return unit_solar_eeg
 
 
-def setup_power_unit_solar(overwrite=False):
+def setup_power_unit_solar(overwrite=False, eeg=False):
     """Setup file for Stromerzeugungseinheit-Solar.
 
     Check if file with Stromerzeugungseinheit-Solar exists. Create if not exists.
@@ -267,7 +270,11 @@ def setup_power_unit_solar(overwrite=False):
             power_unit_solar.reset_index()
             power_unit_solar.index.names = ['id']
         # log.info(f'Write data to {csv_see_solar}')
-            write_to_csv(csv_see_solar, power_unit_solar)
+            if not eeg:
+                write_to_csv(csv_see_solar, power_unit_solar)
+            else:
+                data_version = get_data_version()
+                write_to_csv(f'data/bnetza_mastr_{data_version}_unit-solar-eeg.csv', power_unit_solar)           
             power_unit.iloc[0:0]
             return power_unit_solar
         else:
@@ -343,6 +350,43 @@ def download_parallel_unit_solar(start_from=0, n_entries=1, parallelism=300, cpu
     log.info('time needed %s', time.time()-t)
 
 
+def download_parallel_unit_solar_eeg(start_from=0, n_entries=1, parallelism=300, cpu_factor=1, overwrite=False):
+    global proc_list
+    split_solar_list = []
+    """Download Solareinheit.
+
+    Existing units: 31543 (2019-02-10)
+    """
+    set_filename_csv_see('solar_units', overwrite)
+    from utils import csv_see_solar as csv_solar
+    unit_solar = setup_power_unit_solar(overwrite, eeg=True) 
+    if unit_solar.empty:
+        return
+    unit_solar_list = unit_solar['EegMastrNummer'].values.tolist()
+    unit_solar_list_len = len(unit_solar_list)
+    # check wether user input
+    if n_entries is 1:
+        n_entries = unit_solar_list_len
+    # check wether to download more entries than solareinheiten in unit_solar_list starting at start_from
+    if n_entries > (unit_solar_list_len-start_from):
+        n_entries = unit_solar_list_len-start_from
+    log.info('Found %s solar units eeg', n_entries)
+    end_at = start_from+n_entries
+    cpu_count = mp.cpu_count()*cpu_factor
+    process_pool = mp.Pool(processes=cpu_count)
+    t = time.time()
+    proc_list = split_to_sublists(unit_solar_list[start_from:end_at],len(unit_solar_list[start_from:end_at]),cpu_count)
+    print("This may take a moment. Processing {} data eeg batches.".format(len(proc_list)))
+    try:
+        partial(split_to_threads_eeg, parallelism=parallelism)
+        unit_solar = process_pool.map(split_to_threads_eeg, proc_list)
+        process_pool.close()
+        process_pool.join()
+        write_to_csv(csv_solar, unit_solar)
+    except Exception as e:
+        log.error(e)
+    log.info('time needed %s', time.time()-t)
+
 def split_to_threads(sublist,parallelism=100):
     pool = ThreadPool(processes=parallelism)
     results = pool.map(get_power_unit_solar, sublist)
@@ -350,6 +394,12 @@ def split_to_threads(sublist,parallelism=100):
     pool.join()
     return result
 
+def split_to_threads_eeg(sublist,parallelism=100):
+    pool = ThreadPool(processes=parallelism)
+    results = pool.map(get_unit_solar_eeg, sublist)
+    pool.close()
+    pool.join()
+    return result
 
 def download_unit_solar_eeg(overwrite=False):
     """Download unit_solar_eeg using GetAnlageEegSolar request."""
