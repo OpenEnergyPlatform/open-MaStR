@@ -243,7 +243,7 @@ def read_unit_solar_eeg(csv_name):
     return unit_solar_eeg
 
 
-def setup_power_unit_solar(overwrite=False, eeg=False):
+def setup_power_unit_solar(overwrite=False, eeg=False, storage=False):
     """Setup file for Stromerzeugungseinheit-Solar.
 
     Check if file with Stromerzeugungseinheit-Solar exists. Create if not exists.
@@ -272,6 +272,9 @@ def setup_power_unit_solar(overwrite=False, eeg=False):
         # log.info(f'Write data to {csv_see_solar}')
             if not eeg:
                 write_to_csv(csv_see_solar, power_unit_solar)
+            if storage:
+                data_version = get_data_version()
+                write_to_csv(f'data/bnetza_mastr_{data_version}_unit-solar-storage.csv', power_unit_solar)         
             else:
                 data_version = get_data_version()
                 write_to_csv(f'data/bnetza_mastr_{data_version}_unit-solar-eeg.csv', power_unit_solar)           

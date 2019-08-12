@@ -50,7 +50,7 @@ def get_power_unit(start_from, limit=2000):
     """ 
     status = 'InBetrieb'
     try:
-        c = client_bind.GetGefilterteListeStromErzeuger(
+        c = client_bind.GetGefilterteListeStromVerbraucher(
         apiKey=api_key,
         marktakteurMastrNummer=my_mastr,
         einheitBetriebsstatus=status,
@@ -66,6 +66,27 @@ def get_power_unit(start_from, limit=2000):
         #log.error(e)
     # remove double quotes from column
     power_unit['Standort'] = power_unit['Standort'].str.replace('"', '')
+    return power_unit
+
+
+def get_all_units(start_from, limit=2000):
+    
+    try:
+        c = client_bind.GetListeAlleEinheiten(
+        apiKey=api_key,
+        marktakteurMastrNummer=my_mastr,
+        startAb=start_from,
+        limit=limit)  # Limit of API.  
+        s = serialize_object(c)
+
+        power_unit = pd.DataFrame(s['Einheiten'])
+        power_unit.index.names = ['lid']
+        power_unit['version'] = DATA_VERSION
+        power_unit['timestamp'] = str(datetime.datetime.now())
+    except Exception as e:
+        log.debug(e)
+        #log.error(e)
+    # remove double quotes from column
     return power_unit
 
 
@@ -105,7 +126,7 @@ def download_power_unit(power_unit_list_len=20000, limit=2000, overwrite=False):
 ''' split power_unit_list_len into batches of 20.000, this number can be changed and was decided on empirically -- 
 a higher batch size number means less threads but more retries
 each batch is processed by a thread pool, where for each subbatch of 2000 (API limit) a new thread is created  '''
-def download_parallel_power_unit(power_unit_list_len=2000, limit=2000, batch_size=20000, start_from=0, overwrite=False):
+def download_parallel_power_unit(power_unit_list_len=2000, limit=2000, batch_size=20000, start_from=0, overwrite=False, all_units=False):
     global csv_see
     power_unit_list = list()
     log.info('Download MaStR Power Unit')
@@ -132,6 +153,7 @@ def download_parallel_power_unit(power_unit_list_len=2000, limit=2000, batch_siz
     if power_unit_list_len < limit:
         limit = power_unit_list_len
     partial(get_power_unit, limit)
+    partial(get_all_units, limit)
     start_from_list = list(range(start_from, end_at, limit))
     length = len(start_from_list)
     num = math.ceil(power_unit_list_len/batch_size)
@@ -143,7 +165,10 @@ def download_parallel_power_unit(power_unit_list_len=2000, limit=2000, batch_siz
     while sublists:
         try:
             pool = mp.Pool(processes=len(sublists[0]))
-            result = pool.map(get_power_unit, sublists[0])
+            if all_units:
+                result= pool.map(get_all_units,sublists[0])
+            else:
+                result = pool.map(get_power_unit, sublists[0])
             summe += 1
             progress= math.floor((summe/length)*100)
             print('\r[{0}{1}] %'.format('#'*int(progress/10), '-'*int((100-progress)/10)))
