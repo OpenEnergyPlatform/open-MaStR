@@ -168,12 +168,12 @@ def get_solar_storages():
         units_speicher = power_unit[power_unit.Einheittyp=='Stromspeichereinheit'][['Standort', 'EinheitMastrNummer']].values.tolist()
         units_solar_add = pd.DataFrame(units_solar)
         units_solar_add.columns= ['Standort', 'EinheitMastrNummer solar']
-        units_solar_add.groupby('Standort')['EinheitMastrNummer solar'].apply(list)
         units_speicher_add = pd.DataFrame(units_speicher) 
         units_speicher_add.columns = ['Standort', 'EinheitMastrNummer storage']
-        units_speicher_add.groupby('Standort')['EinheitMastrNummer storage'].apply(list)
         all_units_add = pd.merge(units_solar_add, units_speicher_add, on='Standort')
-        #all_units_add = all_units_add.groupby('EinheitMastrNummer solar')['EinheitMastrNummer storage'].apply(list)
+        all_units_storage =  all_units_add.groupby('Standort')['EinheitMastrNummer solar'].apply(list)
+        all_units_solar =  all_units_add.groupby('Standort')['EinheitMastrNummer storage'].apply(list)
+        all_units_add = pd.merge(all_units_storage, all_units_solar, on='Standort')
 
         storage_postal, solar_postal = prepare_data(units_speicher, units_solar)
         storage_postal.columns=['postal', 'EinheitMastrNummer storage']
