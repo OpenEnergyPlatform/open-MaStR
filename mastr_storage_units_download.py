@@ -29,6 +29,8 @@ import os
 import time
 import datetime
 import re
+import requests
+from xml.etree import ElementTree
 
 import logging
 log = logging.getLogger(__name__)
@@ -178,3 +180,48 @@ def get_solarunit_storages(overwrite=True):
         dv = get_data_version()
         write_to_csv(f'data/{dv}_postal_solar_storage.csv', all_postals)
         write_to_csv(f'data/{dv}_address_solar_storage.csv', all_units_add)
+
+
+def get_geocode_address():
+    csv_see = get_correct_filepath()
+    if os.path.isfile(csv_see):
+        power_unit = read_power_units(csv_see)
+        units_solar = pd.DataFrame(power_unit[power_unit.Einheittyp == 'Solareinheit'][['Standort', 'EinheitMastrNummer']].values.tolist())
+        units_speicher = pd.DataFrame(power_unit[power_unit.Einheittyp=='Stromspeichereinheit'][['Standort', 'EinheitMastrNummer']].values.tolist())
+    
+    units_solar.columns = ['Standort', 'MaStR']
+    units_speicher.columns = ['Standort', 'MaStR']
+    df_solar = request_geo_loc(units_solar)
+    write_to_csv(f'data/{dv}_geocoding_solar.csv', df_solar)
+    df_speicher = request_geo_loc(units_speicher)
+    write_to_csv(f'data/{dv}_geocoding_speicher.csv', df_speicher)
+
+
+def request_geo_loc(liste):
+    basic_url = 'https://nominatim.openstreetmap.org/search?q='
+    end_url = '&format=xml&polygon=1&addressdetails=1'
+    geo = pd.DataFrame()
+    mastr = []
+    lat = []
+    lon = []
+    for i,r in liste.iterrows():
+        num = [int(i) for i in r.Standort.split() if i.isdigit()] 
+        street_pos = [(i,c) for i,c in enumerate(r.Standort.split()) if c.isdigit()]
+        street = r.Standort[:street_pos[0][0]]
+        if num[0] < 1000:
+            index = (r.Standort).find(str(num[0]))
+            street = (r.Standort)[0:index]
+            index = (r.Standort).find(str(num[1]))
+            length = len(str(num[1]))
+            ort = (r.Standort)[(index+int(length)+1):]
+            add = str(num[0])+"+"+street+","+ort
+        res = requests.get(basic_url+add+end_url)
+        root = ElementTree.fromstring(res.content)
+        for child in root:
+            mastr.append(r.MaStR)
+            lat.append(child.attrib['lat'])
+            lon.append(child.attrib['lon'])
+    geo['MaStR'] = mastr
+    geo['lat'] = lat
+    geo['lon'] = lon
+    return geo
