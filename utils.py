@@ -34,7 +34,7 @@ def get_filename_csv_see():
 
 
 def set_filename_csv_see(types, overwrite=False):
-    global csv_see, csv_see_hydro, csv_see_solar, csv_see_biomass, csv_see_wind, csv_see_storage
+    global csv_see, csv_see_hydro, csv_see_solar, csv_see_biomass, csv_see_wind, csv_see_storage, csv_see_postal, csv_see_address
     myinput = ""
     if not overwrite:
         print('CAUTION! Define a file name or press enter for default. If the file name exists, the file will not be overwritten. Data will be appended at the end of the existing file.')
@@ -52,6 +52,9 @@ def set_filename_csv_see(types, overwrite=False):
         csv_see_wind = csv_see_dummy+'_wind'+myinput+'.csv'
     elif types is 'storage_units':
         csv_see_storage = csv_see_dummy+'_storage-units'+myinput+'.csv'
+    elif types is 'postal':
+        csv_see_postal = csv_see_dummy+'_postal'+myinput+'.csv'
+        csv_see_address = csv_see_dummy+'_address'+myinput+'.csv'
 
 
 def set_corrected_path(mypath):

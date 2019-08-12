@@ -28,7 +28,7 @@ from mastr_biomass_download import download_unit_biomass, download_unit_biomass_
 from mastr_biomass_process import make_biomass
 from mastr_solar_download import download_unit_solar, download_parallel_unit_solar, download_unit_solar_eeg, download_parallel_unit_solar_eeg
 from mastr_solar_process import make_solar
-from mastr_storage_units_download import get_solar_storages, download_unit_storage, get_unit_storage, download_parallel_unit_storage
+from mastr_storage_units_download import get_solarunit_storages, download_unit_storage, get_unit_storage, download_parallel_unit_storage
 
 import time
 
@@ -74,11 +74,9 @@ if __name__ == "__main__":
     #download_unit_storage(overwrite=False)
     #download_parallel_unit_storage()
     
-    get_solar_storages()
-    #compare_location()
-    #download_unit_storage()
-    # download_unit_solar_eeg()
-    # make_solar()
+    """ Storages"""
+    #get_solarunit_storages()
+    #download_parallel_unit_storage()
 
     """close"""
     log.info('MaSTR script successfully executed in {:.2f} seconds'

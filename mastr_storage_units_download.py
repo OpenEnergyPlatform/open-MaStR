@@ -38,10 +38,8 @@ client, client_bind, token, user = mastr_session()
 api_key = token
 my_mastr = user
 
-def download_parallel_unit_storage(start_from=0, end_at=20, overwrite=False):
+def download_parallel_unit_storage(start_from=0, end_at=20, overwrite=True):
     storage_units = get_storage_units(overwrite)
-    set_filename_csv_see('storage_units', overwrite=False)
-    from utils import csv_see_storage
     storage_units_nr = storage_units['EinheitMastrNummer'].values.tolist()
     eeg_nr = storage_units['EegMastrNummer'].values.tolist()
     storage_len = len(storage_units_nr)
@@ -50,12 +48,10 @@ def download_parallel_unit_storage(start_from=0, end_at=20, overwrite=False):
     log.info(f'Number of storage units: {storage_len}')
     cpu = parts=mp.cpu_count()
     split_storage_list =  split_to_sublists(storage_units_nr,storage_len,cpu)
-    split_eeg_list =  split_to_sublists(eeg_nr,eeg_len,cpu)
     process_pool = mp.Pool(processes=mp.cpu_count())
     storage = pd.DataFrame()
     try:
         storage_units = process_pool.map(split_to_threads,split_storage_list)
-        eeg_units = process_pool.map(split_to_eeg_threads, split_eeg_list)
         process_pool.close()
         process_pool.join()
     except Exception as e:
@@ -77,13 +73,6 @@ def download_unit_storage(start_from=0, end_at=20, overwrite=False):
         get_unit_storage(storage_units_nr[x])
 
 
-def split_to_eeg_threads(sublist):
-    pool = ThreadPool(processes=10)
-    results = pool.map(get_associated_EEG, sublist)
-    pool.close()
-    pool.join()
-    return results
-
 def split_to_threads(sublist):
     pool = ThreadPool(processes=10)
     results = pool.map(get_unit_storage, sublist)
@@ -92,14 +81,16 @@ def split_to_threads(sublist):
     return results
 
 ''' starting batch num /current 1st speichereinheit 5th Aug 2019:    1220000 '''
-def get_storage_units(overwrite=False):   
+def get_storage_units(overwrite=True):   
     data_version = get_data_version()
     csv_see = get_correct_filepath()
-    set_filename_csv_see('storage_units', overwrite)
-    from utils import csv_see_storage
-    if overwrite:
-        remove_csv(csv_see_storage)
-    if not os.path.isfile('storage_units.csv'):
+    if not overwrite:
+        set_filename_csv_see('storage_units', overwrite)
+        from utils import csv_see_storage
+    else: 
+        remove_csv(f'data/bnetza_mastr_{data_version}_storage_units.csv')
+        csv_see_storage = f'data/bnetza_mastr_{data_version}_storage_units.csv'
+    if not os.path.isfile(csv_see_storage):
         power_unit = read_power_units(csv_see)
         if not power_unit.empty:
             power_unit = power_unit.drop_duplicates()
@@ -123,10 +114,6 @@ def get_storage_units(overwrite=False):
 
 def get_unit_storage(mastr_unit_storage):
     """Get Solareinheit from API using GetEinheitStromspeicher."""
-
-    with mp.Lock():
-       log.info('downloading data unit... %s', mastr_unit_storage)
-
     data_version = get_data_version()
     try:
         c = client_bind.GetEinheitStromSpeicher(apiKey=api_key,
@@ -139,7 +126,7 @@ def get_unit_storage(mastr_unit_storage):
         unit_storage.index.names = ['lid']
         unit_storage['version'] = data_version
         unit_storage['timestamp'] = str(datetime.datetime.now())
-        write_to_csv('data/storage_units.csv', unit_storage)
+        write_to_csv(f'data/bnetza_mastr_{data_version}_storage_units.csv', unit_storage)
     except Exception as e:
         return
     return unit_storage
@@ -159,9 +146,15 @@ def prepare_data(units_speicher, units_solar):
     return [pd.DataFrame(storage_postal), pd.DataFrame(solar_postal)]
 
 
-def get_solar_storages():
+def get_solarunit_storages(overwrite=True):
     csv_see = get_correct_filepath()
-    results = []
+    data_version = get_data_version()
+    if not overwrite:
+        set_filename_csv_see('postal', overwrite)
+    else:
+        remove_csv(f'data/bnetza_mastr_{data_version}_postal_solar_storage.csv')
+        remove_csv(f'data/bnetza_mastr_{data_version}_address_solar_storage.csv')
+
     if os.path.isfile(csv_see):
         power_unit = read_power_units(csv_see)
         units_solar = power_unit[power_unit.Einheittyp == 'Solareinheit'][['Standort', 'EinheitMastrNummer']].values.tolist()
