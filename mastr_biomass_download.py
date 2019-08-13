@@ -16,8 +16,7 @@ __author__ = "Ludee; christian-rli"
 __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.7.0"
 
-from utils import get_data_version, write_to_csv, get_filename_csv_see, set_filename_csv_see, get_correct_filepath
-
+from utils import get_data_version, write_to_csv, get_filename_csv_see, remove_csv, set_corrected_path, set_filename_csv_see, get_correct_filepath
 from sessions import mastr_session
 from mastr_power_unit_download import read_power_units
 
@@ -234,22 +233,22 @@ def setup_power_unit_biomass():
         Stromerzeugungseinheit-Biomass.
     """
     data_version = get_data_version()
-    #csv_see = get_correct_filepath()
-    #set_corrected_path(csv_see)
-    from utils import csv_see_biomass, csv_see
-    if not os.path.isfile(csv_see_biomass):
+    csv_see = get_correct_filepath()
+    set_corrected_path(csv_see)
+    csv_see_biomass = set_filename_csv_see('biomass_units', True)
+    if os.path.isfile(csv_see_biomass):
+      remove_csv(csv_see_biomass)
+    if os.path.isfile(csv_see):
         power_unit = read_power_units(csv_see)
         power_unit = power_unit.drop_duplicates()
         power_unit_biomass = power_unit[power_unit.Einheittyp == 'Biomasse']
         power_unit_biomass.index.names = ['see_id']
         power_unit_biomass.reset_index()
         power_unit_biomass.index.names = ['id']
-        # log.info(f'Write data to {csv_see_biomass}')
         write_to_csv(csv_see_biomass, power_unit_biomass)
         return power_unit_biomass
     else:
         power_unit_biomass = read_power_units(csv_see_biomass)
-        # log.info(f'Read data from {csv_see_biomass}')
         return power_unit_biomass
 
 
@@ -259,10 +258,8 @@ def download_unit_biomass():
     Existing units: 31543 (2019-02-10)
     """
     start_from = 0
-
-    set_filename_csv_see('biomass_units', overwrite=True)
-    from utils import csv_see_biomass as csv_biomass
     unit_biomass = setup_power_unit_biomass()
+    csv_biomass = set_filename_csv_see('biomass_units', True)
     unit_biomass_list = unit_biomass['EinheitMastrNummer'].values.tolist()
     unit_biomass_list_len = len(unit_biomass_list)
     log.info('Download MaStR Biomass')

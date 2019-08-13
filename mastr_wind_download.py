@@ -16,7 +16,7 @@ __author__ = "Ludee; christian-rli"
 __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.7.0"
 
-from utils import get_data_version, write_to_csv, get_filename_csv_see, set_filename_csv_see, get_correct_filepath
+from utils import get_data_version, write_to_csv, get_filename_csv_see, remove_csv, set_corrected_path, set_filename_csv_see, get_correct_filepath
 from sessions import mastr_session
 from mastr_power_unit_download import read_power_units
 
@@ -299,10 +299,12 @@ def setup_power_unit_wind():
         Stromerzeugungseinheit-Wind.
     """
     data_version = get_data_version()
-    #csv_see = get_correct_filepath()
-    #set_corrected_path(csv_see)
-    from utils import csv_see_wind, csv_see
-    if not os.path.isfile(csv_see_wind):
+    csv_see = get_correct_filepath()
+    set_corrected_path(csv_see)
+    csv_see_wind = set_filename_csv_see('wind_units', True)
+    if os.path.isfile(csv_see_wind):
+      remove_csv(csv_see_wind)
+    if os.path.isfile(csv_see):
         power_unit = read_power_units(csv_see)
         power_unit = power_unit.drop_duplicates()
         power_unit_wind = power_unit[power_unit.Einheittyp == 'Windeinheit']
@@ -324,9 +326,8 @@ def download_unit_wind():
     Existing units: 31543 (2019-02-10)
     """
     start_from = 0
-
-    set_filename_csv_see('wind_units', overwrite=True)
-    from utils import csv_see_wind as csv_see
+    csv_wind = set_filename_csv_see('wind_units', True)
+    unit_wind = setup_power_unit_wind()
     unit_wind_list = unit_wind['EinheitMastrNummer'].values.tolist()
     unit_wind_list_len = len(unit_wind_list)
     log.info('Download MaStR Wind')

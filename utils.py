@@ -36,25 +36,31 @@ def get_filename_csv_see():
 def set_filename_csv_see(types, overwrite=False):
     global csv_see, csv_see_hydro, csv_see_solar, csv_see_biomass, csv_see_wind, csv_see_storage, csv_see_postal, csv_see_address
     myinput = ""
+    return_type = ""
     if not overwrite:
         print('CAUTION! Define a file name or press enter for default. If the file name exists, the file will not be overwritten. Data will be appended at the end of the existing file.')
         myinput = input()
 
     if types is 'power_units':
         csv_see = csv_see_dummy+'_power-units'+myinput+'.csv'
+        return_type = csv_see
     elif types is 'solar_units':
-        csv_see_solar = csv_see_dummy+'_solar-units'+myinput+'.csv'
+        return_type = csv_see_dummy+'_solar-units'+myinput+'.csv'
     elif types is 'hydro_units':
-        csv_see_hydro = csv_see_dummy+'_hydro-units'+myinput+'.csv'
+        return_type = csv_see_dummy+'_hydro-units'+myinput+'.csv'
     elif types is 'biomass_units':
-        csv_see_biomass = csv_see_dummy+'_biomass-units'+myinput+'.csv'
+        return_type = csv_see_dummy+'_biomass-units'+myinput+'.csv'
+    elif types is 'eeg_units':
+        return_type = csv_see_dummy+'_eeg_units'+myinput+'.csv'
     elif types is 'wind_units':
-        csv_see_wind = csv_see_dummy+'_wind'+myinput+'.csv'
+        return_type = csv_see_dummy+'_wind'+myinput+'.csv'
     elif types is 'storage_units':
-        csv_see_storage = csv_see_dummy+'_storage-units'+myinput+'.csv'
+        return_type = csv_see_dummy+'_storage-units'+myinput+'.csv'
     elif types is 'postal':
-        csv_see_postal = csv_see_dummy+'_postal'+myinput+'.csv'
-        csv_see_address = csv_see_dummy+'_address'+myinput+'.csv'
+        return_type = csv_see_dummy+'_postal'+myinput+'.csv'
+    elif types is 'address':
+        return_type = csv_see_dummy+'_address'+myinput+'.csv'
+    return return_type
 
 
 def set_corrected_path(mypath):
@@ -65,7 +71,7 @@ def set_corrected_path(mypath):
 def get_correct_filepath():
     log.info(f'CAUTION!! If your general power units file name DIFFERS from {csv_see} please ENTER NOW the complete path -- ELSE PRESS ENTER')
     csv_path = input()
-    if not csv_path:
+    if not csv_path or not os.path.isfile(csv_path):
         return csv_see
     return csv_path
 

@@ -28,7 +28,7 @@ from mastr_biomass_download import download_unit_biomass, download_unit_biomass_
 from mastr_biomass_process import make_biomass
 from mastr_solar_download import download_unit_solar, download_parallel_unit_solar, download_unit_solar_eeg, download_parallel_unit_solar_eeg
 from mastr_solar_process import make_solar
-from mastr_storage_units_download import get_solarunit_storages, download_unit_storage, get_unit_storage, download_parallel_unit_storage
+from mastr_storage_units_download import get_solarunit_storages, download_unit_storage, get_unit_storage, download_parallel_unit_storage, get_geocode_address
 
 import time
 
@@ -47,24 +47,24 @@ if __name__ == "__main__":
 
     ''' DEFAULT PARAMS: power_unit_list_len=100000, limit=2000, batch_size=20000, start_from=0, overwrite=False '''
     ''' CURRENT MAX INDEX FOR VAR start_from and power_unit_list_len: 1814000 '''
-    #download_parallel_power_unit(start_from=1220000,power_unit_list_len=4000000, batch_size=20000,overwrite=False, all_units=True)
+#    download_parallel_power_unit(start_from=1220000,power_unit_list_len=4000000, batch_size=20000,overwrite=False, all_units=True)
 
 
 
     """Wind"""
-    #download_unit_wind(overwrite=True)
+    #download_unit_wind()
     #download_unit_wind_eeg()
     #download_unit_wind_permit()
     #make_wind()
 
     """Hydro"""
     #download_unit_hydro()
-    # download_unit_hydro_eeg()
+    #download_unit_hydro_eeg()
     # make_hydro()
 
     """Biomass"""
     #download_unit_biomass()
-    # download_unit_biomass_eeg()
+    #download_unit_biomass_eeg()
     # make_biomass()
 
     """Solar"""
@@ -76,6 +76,7 @@ if __name__ == "__main__":
     
     """ Storages"""
     #get_solarunit_storages()
+    get_geocode_address()
     #download_parallel_unit_storage()
 
     """close"""

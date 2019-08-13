@@ -31,7 +31,7 @@ import datetime
 import re
 import requests
 from xml.etree import ElementTree
-
+import time
 import logging
 log = logging.getLogger(__name__)
 
@@ -41,7 +41,7 @@ api_key = token
 my_mastr = user
 
 def download_parallel_unit_storage(start_from=0, end_at=20, overwrite=True):
-    storage_units = get_storage_units(overwrite)
+    storage_units = setup_storage_units(overwrite)
     storage_units_nr = storage_units['EinheitMastrNummer'].values.tolist()
     eeg_nr = storage_units['EegMastrNummer'].values.tolist()
     storage_len = len(storage_units_nr)
@@ -59,9 +59,8 @@ def download_parallel_unit_storage(start_from=0, end_at=20, overwrite=True):
     except Exception as e:
         log.info(e)
 
-
 def download_unit_storage(start_from=0, end_at=20, overwrite=False):
-    storage_units = get_storage_units(overwrite)
+    storage_units = setup_storage_units(overwrite)
     from utils import csv_see_storage
     storage_units_nr = storage_units['EinheitMastrNummer'].values.tolist()
     eeg_nr = storage_units['EegMastrNummer'].values.tolist()
@@ -82,17 +81,17 @@ def split_to_threads(sublist):
     pool.join()
     return results
 
+
 ''' starting batch num /current 1st speichereinheit 5th Aug 2019:    1220000 '''
-def get_storage_units(overwrite=True):   
+def setup_storage_units(overwrite=True):   
     data_version = get_data_version()
     csv_see = get_correct_filepath()
-    if not overwrite:
-        set_filename_csv_see('storage_units', overwrite)
-        from utils import csv_see_storage
-    else: 
-        remove_csv(f'data/bnetza_mastr_{data_version}_storage_units.csv')
-        csv_see_storage = f'data/bnetza_mastr_{data_version}_storage_units.csv'
-    if not os.path.isfile(csv_see_storage):
+    set_corrected_path(csv_see)
+    csv_see_storage = set_filename_csv_see('storage_units', overwrite)
+    if overwrite: 
+        if os.path.isfile(csv_see_storage):
+            remove_csv(csv_see_storage)
+    if os.path.isfile(csv_see):
         power_unit = read_power_units(csv_see)
         if not power_unit.empty:
             power_unit = power_unit.drop_duplicates()
@@ -149,14 +148,14 @@ def prepare_data(units_speicher, units_solar):
 
 
 def get_solarunit_storages(overwrite=True):
-    csv_see = get_correct_filepath()
     data_version = get_data_version()
-    if not overwrite:
-        set_filename_csv_see('postal', overwrite)
-    else:
-        remove_csv(f'data/bnetza_mastr_{data_version}_postal_solar_storage.csv')
-        remove_csv(f'data/bnetza_mastr_{data_version}_address_solar_storage.csv')
-
+    csv_see = get_correct_filepath()
+    set_corrected_path(csv_see)
+    csv_see_postal = set_filename_csv_see('postal', overwrite)
+    csv_see_address = set_filename_csv_see('address', overwrite)
+    if overwrite:
+        remove_csv(csv_see_postal)
+        remove_csv(csv_see_address)
     if os.path.isfile(csv_see):
         power_unit = read_power_units(csv_see)
         units_solar = power_unit[power_unit.Einheittyp == 'Solareinheit'][['Standort', 'EinheitMastrNummer']].values.tolist()
@@ -182,6 +181,7 @@ def get_solarunit_storages(overwrite=True):
         write_to_csv(f'data/{dv}_address_solar_storage.csv', all_units_add)
 
 
+# load and prepare data, geocode
 def get_geocode_address():
     csv_see = get_correct_filepath()
     if os.path.isfile(csv_see):
@@ -191,37 +191,44 @@ def get_geocode_address():
     
     units_solar.columns = ['Standort', 'MaStR']
     units_speicher.columns = ['Standort', 'MaStR']
-    df_solar = request_geo_loc(units_solar)
-    write_to_csv(f'data/{dv}_geocoding_solar.csv', df_solar)
-    df_speicher = request_geo_loc(units_speicher)
-    write_to_csv(f'data/{dv}_geocoding_speicher.csv', df_speicher)
+    request_geo_loc(units_solar, '_solar')
+    request_geo_loc(units_speicher, '_speicher')
 
 
-def request_geo_loc(liste):
+# use nominatim to geocode address as [lat, long], index with MaStR Nr
+def request_geo_loc(liste, string):
+    dv = get_data_version()
     basic_url = 'https://nominatim.openstreetmap.org/search?q='
     end_url = '&format=xml&polygon=1&addressdetails=1'
-    geo = pd.DataFrame()
-    mastr = []
-    lat = []
-    lon = []
+    empty = False
+    add = ""
     for i,r in liste.iterrows():
+        if empty:
+            break
         num = [int(i) for i in r.Standort.split() if i.isdigit()] 
         street_pos = [(i,c) for i,c in enumerate(r.Standort.split()) if c.isdigit()]
-        street = r.Standort[:street_pos[0][0]]
+        try:
+            street = r.Standort[:street_pos[0][0]]
+        except Exception as e:
+            continue
         if num[0] < 1000:
-            index = (r.Standort).find(str(num[0]))
-            street = (r.Standort)[0:index]
-            index = (r.Standort).find(str(num[1]))
-            length = len(str(num[1]))
-            ort = (r.Standort)[(index+int(length)+1):]
-            add = str(num[0])+"+"+street+","+ort
-        res = requests.get(basic_url+add+end_url)
-        root = ElementTree.fromstring(res.content)
-        for child in root:
-            mastr.append(r.MaStR)
-            lat.append(child.attrib['lat'])
-            lon.append(child.attrib['lon'])
-    geo['MaStR'] = mastr
-    geo['lat'] = lat
-    geo['lon'] = lon
-    return geo
+            try:
+                index = (r.Standort).find(str(num[0]))
+                street = (r.Standort)[0:index-1]
+                index = (r.Standort).find(str(num[1]))
+                length = len(str(num[1]))
+                ort = (r.Standort)[(index+int(length)+1):]
+                add = str(num[0])+"+"+street+","+ort
+            except Exception as e:
+                continue
+        if add!="":
+            res = requests.get(basic_url+add+end_url)
+            root = ElementTree.fromstring(res.content)
+            for child in root:
+                elem = pd.DataFrame()
+                if child.attrib != {}:
+                    elem =elem.append({'MaStR':r.MaStR, 'lat':child.attrib['lat'], 'lon':child.attrib['lon']}, ignore_index=True)
+                    print(r.MaStR + " " + child.attrib['lat'])
+                    write_to_csv(f'data/{dv}_geocoding'+string+'.csv', elem)
+                    time.sleep(2)
+                continue

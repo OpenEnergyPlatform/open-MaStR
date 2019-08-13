@@ -29,7 +29,7 @@ from zeep.helpers import serialize_object
 import logging
 log = logging.getLogger(__name__)
 from utils import split_to_sublists, get_filename_csv_see, set_filename_csv_see, write_to_csv, remove_csv
-
+import math
 ''' GLOBAL VAR IMPORT '''
 from utils import csv_see
 
@@ -63,7 +63,6 @@ def get_power_unit(start_from, limit=2000):
         power_unit['timestamp'] = str(datetime.datetime.now())
     except Exception as e:
         log.debug(e)
-        #log.error(e)
     # remove double quotes from column
     power_unit['Standort'] = power_unit['Standort'].str.replace('"', '')
     return power_unit
@@ -108,8 +107,6 @@ def download_power_unit(power_unit_list_len=20000, limit=2000, overwrite=False):
     1887270 (2019-03-03)
     1965200 (2019-04-11)
     """
-
-
     log.info('Download MaStR Power Unit')
     log.info(f'Number of expected power units: {power_unit_list_len}')
 
@@ -139,8 +136,7 @@ def download_parallel_power_unit(power_unit_list_len=2000, limit=2000, batch_siz
             log.info('No entries to download. Decrease index size.')
             return 0
     end_at = power_unit_list_len+start_from
-    set_filename_csv_see('power_units', overwrite)
-    csv_see = get_filename_csv_see()
+    csv_see = set_filename_csv_see('power_units', overwrite)
     if overwrite:
         remove_csv(csv_see)
     if power_unit_list_len < limit:
@@ -171,7 +167,7 @@ def download_parallel_power_unit(power_unit_list_len=2000, limit=2000, batch_siz
                 result = pool.map(get_power_unit, sublists[0])
             summe += 1
             progress= math.floor((summe/length)*100)
-            print('\r[{0}{1}] %'.format('#'*int(progress/10), '-'*int((100-progress)/10)))
+            print('\r[{0}{1}] %'.format('#'*(int(math.floor(progress/10))), '-'*int(math.floor((100-progress)/10))))
             sublists.pop(0)
             if result:
                 for mylist in result:

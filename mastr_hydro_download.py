@@ -16,7 +16,7 @@ __author__ = "Ludee; christian-rli"
 __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.7.0"
 
-from utils import get_data_version, write_to_csv, get_filename_csv_see, set_filename_csv_see, get_correct_filepath
+from utils import get_data_version, write_to_csv, get_filename_csv_see, remove_csv, set_corrected_path, set_filename_csv_see, get_correct_filepath
 from sessions import mastr_session
 from mastr_power_unit_download import read_power_units
 
@@ -230,22 +230,22 @@ def setup_power_unit_hydro():
         Stromerzeugungseinheit-Wasser.
     """
     data_version = get_data_version()
-    #csv_see = get_correct_filepath()
-    #set_corrected_path(csv_see)
-    from utils import csv_see_hydro, csv_see
-    if not os.path.isfile(csv_see_hydro):
+    csv_see = get_correct_filepath()
+    set_corrected_path(csv_see)
+    csv_see_hydro = set_filename_csv_see('hydro_units', True)
+    if os.path.isfile(csv_see_hydro):
+        remove_csv(csv_see_hydro)
+    if os.path.isfile(csv_see):
         power_unit = read_power_units(csv_see)
         power_unit = power_unit.drop_duplicates()
         power_unit_hydro = power_unit[power_unit.Einheittyp == 'Wasser']
         power_unit_hydro.index.names = ['see_id']
         power_unit_hydro.reset_index()
         power_unit_hydro.index.names = ['id']
-        # log.info(f'Write data to {csv_see_hydro}')
         write_to_csv(csv_see_hydro, power_unit_hydro)
         return power_unit_hydro
     else:
         power_unit_hydro = read_power_units(csv_see_hydro)
-        # log.info(f'Read data from {csv_see_hydro}')
         return power_unit_hydro
 
 
@@ -255,9 +255,7 @@ def download_unit_hydro():
     Existing units: 31543 (2019-02-10)
     """
     start_from = 0
-
-    set_filename_csv_see('hydro_units', overwrite=True)
-    from utils import csv_see_hydro as csv_hydro
+    csv_hydro = set_filename_csv_see('hydro_units', True)
     unit_hydro = setup_power_unit_hydro()
     unit_hydro_list = unit_hydro['EinheitMastrNummer'].values.tolist()
     unit_hydro_list_len = len(unit_hydro_list)
