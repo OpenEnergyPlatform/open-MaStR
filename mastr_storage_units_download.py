@@ -219,6 +219,7 @@ def request_geo_loc(liste, string):
                 length = len(str(num[1]))
                 ort = (r.Standort)[(index+int(length)+1):]
                 add = str(num[0])+"+"+street+","+ort
+                postal = (r.Standort).findall(r'\b[0-9]{5}', units_speicher[x][0])
             except Exception as e:
                 continue
         if add!="":
@@ -227,7 +228,7 @@ def request_geo_loc(liste, string):
             for child in root:
                 elem = pd.DataFrame()
                 if child.attrib != {}:
-                    elem =elem.append({'MaStR':r.MaStR, 'lat':child.attrib['lat'], 'lon':child.attrib['lon']}, ignore_index=True)
+                    elem =elem.append({'MaStR':r.MaStR, 'postal code': postal, 'lat':child.attrib['lat'], 'lon':child.attrib['lon']}, ignore_index=True)
                     print(r.MaStR + " " + child.attrib['lat'])
                     write_to_csv(f'data/{dv}_geocoding'+string+'.csv', elem)
                     time.sleep(2)
