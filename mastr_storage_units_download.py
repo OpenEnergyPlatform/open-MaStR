@@ -189,10 +189,10 @@ def get_geocode_address():
         units_solar = pd.DataFrame(power_unit[power_unit.Einheittyp == 'Solareinheit'][['Standort', 'EinheitMastrNummer']].values.tolist())
         units_speicher = pd.DataFrame(power_unit[power_unit.Einheittyp=='Stromspeichereinheit'][['Standort', 'EinheitMastrNummer']].values.tolist())
     
-    units_solar.columns = ['Standort', 'MaStR']
-    units_speicher.columns = ['Standort', 'MaStR']
-    request_geo_loc(units_solar, '_solar')
-    request_geo_loc(units_speicher, '_speicher')
+        units_solar.columns = ['Standort', 'MaStR']
+        units_speicher.columns = ['Standort', 'MaStR']
+        request_geo_loc(units_solar, '_solar')
+        request_geo_loc(units_speicher, '_speicher')
 
 
 # use nominatim to geocode address as [lat, long], index with MaStR Nr
@@ -202,6 +202,7 @@ def request_geo_loc(liste, string):
     end_url = '&format=xml&polygon=1&addressdetails=1'
     empty = False
     add = ""
+    postal = 00000
     for i,r in liste.iterrows():
         if empty:
             break
@@ -230,6 +231,6 @@ def request_geo_loc(liste, string):
                 if child.attrib != {}:
                     elem =elem.append({'MaStR':r.MaStR, 'postal code': postal, 'lat':child.attrib['lat'], 'lon':child.attrib['lon']}, ignore_index=True)
                     print(r.MaStR + " " + child.attrib['lat'])
-                    write_to_csv(f'data/{dv}_geocoding'+string+'.csv', elem)
-                    time.sleep(2)
+                    write_to_csv(f'data/{dv}_geocoding'+string+'_2.csv', elem)
+                    time.sleep(1)
                 continue

@@ -69,10 +69,12 @@ def set_corrected_path(mypath):
 
 
 def get_correct_filepath():
-    log.info(f'CAUTION!! If your general power units file name DIFFERS from {csv_see} please ENTER NOW the complete path -- ELSE PRESS ENTER')
-    csv_path = input()
-    if not csv_path or not os.path.isfile(csv_path):
-        return csv_see
+    check = False
+    while not check:
+        log.info(f'CAUTION!! If your general power units file name DIFFERS from {csv_see} please ENTER NOW the complete path -- ELSE PRESS ENTER')
+        csv_path = input()
+        if os.path.isfile(csv_path):
+            check = True
     return csv_path
 
 def get_correct_solar_filepath():
