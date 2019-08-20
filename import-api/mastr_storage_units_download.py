@@ -44,12 +44,12 @@ def download_parallel_unit_storage(start_from=0, end_at=20, overwrite=True):
     storage_units = setup_storage_units(overwrite)
     storage_units_nr = storage_units['EinheitMastrNummer'].values.tolist()
     eeg_nr = storage_units['EegMastrNummer'].values.tolist()
-    storage_len = len(storage_units_nr)
+    storage_len = len(storage_units_nr[:20])
     eeg_len = len(eeg_nr)
     log.info(f'Download MaStR Storage')
     log.info(f'Number of storage units: {storage_len}')
     cpu = parts=mp.cpu_count()
-    split_storage_list =  split_to_sublists(storage_units_nr,storage_len,cpu)
+    split_storage_list =  split_to_sublists(storage_units_nr[:1000],storage_len,cpu)
     process_pool = mp.Pool(processes=mp.cpu_count())
     storage = pd.DataFrame()
     try:
@@ -59,9 +59,10 @@ def download_parallel_unit_storage(start_from=0, end_at=20, overwrite=True):
     except Exception as e:
         log.info(e)
 
+
 def download_unit_storage(start_from=0, end_at=20, overwrite=False):
     storage_units = setup_storage_units(overwrite)
-    from utils import csv_see_storage
+    csv_see_storage = set_filename_csv_see(types="storage_units")
     storage_units_nr = storage_units['EinheitMastrNummer'].values.tolist()
     eeg_nr = storage_units['EegMastrNummer'].values.tolist()
     storage_len = len(storage_units_nr)
@@ -69,13 +70,12 @@ def download_unit_storage(start_from=0, end_at=20, overwrite=False):
     log.info(f'Download MaStR Storage')
     log.info(f'Number of storage units: {storage_len}')
     cpu = parts=mp.cpu_count()
-    split_storage_list =  split_to_sublists(storage_units_nr,storage_len,cpu)
-    for x in range(len(storage_units_nr)):
+    for x in range(len(storage_units_nr[:1000])):
         get_unit_storage(storage_units_nr[x])
 
 
 def split_to_threads(sublist):
-    pool = ThreadPool(processes=10)
+    pool = ThreadPool(processes=4)
     results = pool.map(get_unit_storage, sublist)
     pool.close()
     pool.join()
@@ -127,6 +127,7 @@ def get_unit_storage(mastr_unit_storage):
         unit_storage.index.names = ['lid']
         unit_storage['version'] = data_version
         unit_storage['timestamp'] = str(datetime.datetime.now())
+        print(unit_storage)
         write_to_csv(f'data/bnetza_mastr_{data_version}_storage_units.csv', unit_storage)
     except Exception as e:
         return
@@ -147,7 +148,8 @@ def prepare_data(units_speicher, units_solar):
     return [pd.DataFrame(storage_postal), pd.DataFrame(solar_postal)]
 
 
-def get_solarunit_storages(overwrite=True):
+def get_storage_groups_by_address_or_postal():
+    overwrite=True
     data_version = get_data_version()
     csv_see = get_correct_filepath()
     set_corrected_path(csv_see)
@@ -179,58 +181,3 @@ def get_solarunit_storages(overwrite=True):
         dv = get_data_version()
         write_to_csv(f'data/{dv}_postal_solar_storage.csv', all_postals)
         write_to_csv(f'data/{dv}_address_solar_storage.csv', all_units_add)
-
-
-# load and prepare data, geocode
-def get_geocode_address():
-    csv_see = get_correct_filepath()
-    if os.path.isfile(csv_see):
-        power_unit = read_power_units(csv_see)
-        units_solar = pd.DataFrame(power_unit[power_unit.Einheittyp == 'Solareinheit'][['Standort', 'EinheitMastrNummer']].values.tolist())
-        units_speicher = pd.DataFrame(power_unit[power_unit.Einheittyp=='Stromspeichereinheit'][['Standort', 'EinheitMastrNummer']].values.tolist())
-    
-        units_solar.columns = ['Standort', 'MaStR']
-        units_speicher.columns = ['Standort', 'MaStR']
-        request_geo_loc(units_solar, '_solar')
-        request_geo_loc(units_speicher, '_speicher')
-
-
-# use nominatim to geocode address as [lat, long], index with MaStR Nr
-def request_geo_loc(liste, string):
-    dv = get_data_version()
-    basic_url = 'https://nominatim.openstreetmap.org/search?q='
-    end_url = '&format=xml&polygon=1&addressdetails=1'
-    empty = False
-    add = ""
-    postal = 00000
-    for i,r in liste.iterrows():
-        if empty:
-            break
-        num = [int(i) for i in r.Standort.split() if i.isdigit()] 
-        street_pos = [(i,c) for i,c in enumerate(r.Standort.split()) if c.isdigit()]
-        try:
-            street = r.Standort[:street_pos[0][0]]
-        except Exception as e:
-            continue
-        if num[0] < 1000:
-            try:
-                index = (r.Standort).find(str(num[0]))
-                street = (r.Standort)[0:index-1]
-                index = (r.Standort).find(str(num[1]))
-                length = len(str(num[1]))
-                ort = (r.Standort)[(index+int(length)+1):]
-                add = str(num[0])+"+"+street+","+ort
-                postal = (r.Standort).findall(r'\b[0-9]{5}', units_speicher[x][0])
-            except Exception as e:
-                continue
-        if add!="":
-            res = requests.get(basic_url+add+end_url)
-            root = ElementTree.fromstring(res.content)
-            for child in root:
-                elem = pd.DataFrame()
-                if child.attrib != {}:
-                    elem =elem.append({'MaStR':r.MaStR, 'postal code': postal, 'lat':child.attrib['lat'], 'lon':child.attrib['lon']}, ignore_index=True)
-                    print(r.MaStR + " " + child.attrib['lat'])
-                    write_to_csv(f'data/{dv}_geocoding'+string+'_2.csv', elem)
-                    time.sleep(1)
-                continue
