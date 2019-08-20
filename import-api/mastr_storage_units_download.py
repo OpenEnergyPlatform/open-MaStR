@@ -44,12 +44,12 @@ def download_parallel_unit_storage(start_from=0, end_at=20, overwrite=True):
     storage_units = setup_storage_units(overwrite)
     storage_units_nr = storage_units['EinheitMastrNummer'].values.tolist()
     eeg_nr = storage_units['EegMastrNummer'].values.tolist()
-    storage_len = len(storage_units_nr[:20])
+    storage_len = len(storage_units_nr)
     eeg_len = len(eeg_nr)
     log.info(f'Download MaStR Storage')
     log.info(f'Number of storage units: {storage_len}')
     cpu = parts=mp.cpu_count()
-    split_storage_list =  split_to_sublists(storage_units_nr[:1000],storage_len,cpu)
+    split_storage_list =  split_to_sublists(storage_units_nr,storage_len,cpu)
     process_pool = mp.Pool(processes=mp.cpu_count())
     storage = pd.DataFrame()
     try:
@@ -70,7 +70,7 @@ def download_unit_storage(start_from=0, end_at=20, overwrite=False):
     log.info(f'Download MaStR Storage')
     log.info(f'Number of storage units: {storage_len}')
     cpu = parts=mp.cpu_count()
-    for x in range(len(storage_units_nr[:1000])):
+    for x in range(len(storage_units_nr)):
         get_unit_storage(storage_units_nr[x])
 
 
