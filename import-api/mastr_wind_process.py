@@ -36,13 +36,13 @@ def make_wind():
     unit_wind_eeg = read_unit_wind_eeg(csv_unit_wind_eeg)
     unit_wind_permit = read_unit_wind_permit(csv_unit_wind_permit)
 
-    table_wind = power_unit_wind.set_index('EinheitMastrNummer') \
-        .join(unit_wind.set_index('EinheitMastrNummer'),
-              on='EinheitMastrNummer', how='left', rsuffix='_w') \
-        .join(unit_wind_eeg.set_index('EegMastrNummer'),
+    table_wind = power_unit_wind \
+    .join(unit_wind_permit.set_index('GenMastrNummer'),
+              on='GenMastrNummer', how='left', rsuffix='_p') \
+    .join(unit_wind.set_index('EinheitMastrNummer'),
+             on='EinheitMastrNummer', how='left', rsuffix='_w') \
+    .join(unit_wind_eeg.set_index('EegMastrNummer'),
               on='EegMastrNummer', how='left', rsuffix='_e') \
-        .join(unit_wind_permit.set_index('GenMastrNummer'),
-              on='GenMastrNummer', how='left', rsuffix='_p')
 
     write_to_csv(csv_wind, table_wind)
     log.info(f'Join Wind to: {csv_wind}')

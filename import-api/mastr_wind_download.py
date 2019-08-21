@@ -16,9 +16,9 @@ __author__ = "Ludee; christian-rli"
 __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.7.0"
 
-from utils import get_data_version, write_to_csv, get_filename_csv_see, remove_csv, set_corrected_path, set_filename_csv_see, get_correct_filepath
 from sessions import mastr_session
 from mastr_power_unit_download import read_power_units
+from utils import write_to_csv, get_data_version
 
 import pandas as pd
 import numpy as np
@@ -299,12 +299,9 @@ def setup_power_unit_wind():
         Stromerzeugungseinheit-Wind.
     """
     data_version = get_data_version()
-    csv_see = get_correct_filepath()
-    set_corrected_path(csv_see)
-    csv_see_wind = set_filename_csv_see('wind_units', True)
-    if os.path.isfile(csv_see_wind):
-      remove_csv(csv_see_wind)
-    if os.path.isfile(csv_see):
+    csv_see = f'data/bnetza_mastr_{data_version}_power-unit.csv'
+    csv_see_wind = f'data/bnetza_mastr_{data_version}_power-unit-wind.csv'
+    if not os.path.isfile(csv_see_wind):
         power_unit = read_power_units(csv_see)
         power_unit = power_unit.drop_duplicates()
         power_unit_wind = power_unit[power_unit.Einheittyp == 'Windeinheit']
@@ -326,7 +323,9 @@ def download_unit_wind():
     Existing units: 31543 (2019-02-10)
     """
     start_from = 0
-    csv_wind = set_filename_csv_see('wind_units', True)
+
+    data_version = get_data_version()
+    csv_wind = f'data/bnetza_mastr_{data_version}_unit-wind.csv'
     unit_wind = setup_power_unit_wind()
     unit_wind_list = unit_wind['EinheitMastrNummer'].values.tolist()
     unit_wind_list_len = len(unit_wind_list)
@@ -361,17 +360,42 @@ def download_unit_wind_permit():
         data_version = get_data_version()
         csv_wind_permit = f'data/bnetza_mastr_{data_version}_unit-wind-permit.csv'
         unit_wind = setup_power_unit_wind()
-
+        df_all = pd.DataFrame()
         unit_wind_list = unit_wind['GenMastrNummer'].values.tolist()
         unit_wind_list_len = len(unit_wind_list)
-
         for i in range(0, unit_wind_list_len, 1):
+          if not pd.isna(unit_wind_list[i]):
             try:
                 unit_wind_permit = get_unit_wind_permit(unit_wind_list[i])
-                write_to_csv(csv_wind_permit, unit_wind_permit)
+                for k,v in unit_wind_permit.VerknuepfteEinheiten.items():
+                  df_new = pd.DataFrame.from_dict(v)
+                  df = pd.DataFrame()
+                  gennr = df_new.size * [unit_wind_permit.GenMastrNummer.iloc[0]]
+                  dates = df_new.size * [unit_wind_permit.Datum.iloc[0]]
+                  types = df_new.size * [unit_wind_permit.Art.iloc[0]]
+                  authority = df_new.size * [(unit_wind_permit.Behoerde.iloc[0]).translate({ord(','):None})]
+                  file_num = df_new.size * [unit_wind_permit.Aktenzeichen.iloc[0]]
+                  frist = df_new.size * [unit_wind_permit.Frist.iloc[0]['Wert']]
+                  water_num = df_new.size * [unit_wind_permit.WasserrechtsNummer.iloc[0]]
+                  water_date = df_new.size * [unit_wind_permit.WasserrechtAblaufdatum.iloc[0]['Wert']]
+                  reporting_date = df_new.size * [unit_wind_permit.Meldedatum.iloc[0]]
+                  df = pd.DataFrame(
+                      {
+                      'GenMastrNummer':gennr,
+                      'Datum': dates,
+                      'Art': types,
+                      'Behoerde': authority,
+                      'Aktenzeichen': file_num,
+                      'Frist': frist,
+                      'WasserrechtsNummer': water_num,
+                      'WasserrechtAblaufdatum': water_date,
+                      'Meldedatum': reporting_date
+                      })
+                  df_all = pd.concat([df_new, df.reindex(df_new.index)], axis=1)
+                  df_all.set_index(['EinheitMastrNummer'], inplace=True)
+                  write_to_csv(csv_wind_permit,df_all)
             except:
                 log.exception(f'Download failed unit_wind_permit ({i}): {unit_wind_list[i]}')
-
 
 def disentangle_manufacturer(wind_unit):
     wu = wind_unit
