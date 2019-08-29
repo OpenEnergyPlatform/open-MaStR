@@ -3,4 +3,5 @@ channels:
 dependencies:
   - geoviews=1.6.3=py_0
   - pandas=0.25.0=py37he350917_0
+  - upsetplot=0.3.0.post3=py_0
 
