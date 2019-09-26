@@ -16,12 +16,13 @@ Here is a template for new release sections
 ### Removed
 -
 ```
-## [Unreleased]
+## [0.1.0] 2019-09-26
 
 ### Added
 - README.md
 - CHANGELOG.md
 - CONTRIBUTING.md
+- LICENSE
 - continuous integration with TravisCI (`.travis.yml`)
 - linting tests and their config files (`.pylintrc` and `.flake8`)
 - requirements.txt
