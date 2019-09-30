@@ -16,7 +16,7 @@ Here is a template for new release sections
 ### Removed
 -
 ```
-## [0.1.0] 2019-09-26
+## [0.8.0] 2019-09-30
 
 ### Added
 - README.md
