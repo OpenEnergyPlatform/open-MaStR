@@ -1,3 +1,19 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""
+Matches wind turbines to the wind_turbine_library
+https://openenergy-platform.org/dataedit/view/supply/wind_turbine_library
+"""
+
+__copyright__ = "© Reiner Lemoine Institut"
+__license__ = "GNU Affero General Public License Version 3 (AGPL-3.0)"
+__url__ = "https://www.gnu.org/licenses/agpl-3.0.en.html"
+__author__ = "solar-c"
+__issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
+__version__ = "v0.8.0"
+
+
 import pandas as pd
 import os
 

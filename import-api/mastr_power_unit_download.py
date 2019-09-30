@@ -14,7 +14,7 @@ __license__ = "GNU Affero General Public License Version 3 (AGPL-3.0)"
 __url__ = "https://www.gnu.org/licenses/agpl-3.0.en.html"
 __author__ = "Ludee; christian-rli"
 __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
-__version__ = "v0.7.0"
+__version__ = "v0.8.0"
 
 from sessions import mastr_session
 
@@ -28,7 +28,7 @@ import datetime
 from zeep.helpers import serialize_object
 import logging
 log = logging.getLogger(__name__)
-from utils import split_to_sublists, get_filename_csv_see, set_filename_csv_see, write_to_csv, remove_csv
+from utils import split_to_sublists, get_filename_csv_see, set_filename_csv_see, write_to_csv, remove_csv, get_data_version
 import math
 ''' GLOBAL VAR IMPORT '''
 from utils import csv_see
@@ -106,6 +106,7 @@ def download_power_unit(power_unit_list_len=20000, limit=2000, overwrite=False):
     1864103 (2019-02-23)
     1887270 (2019-03-03)
     1965200 (2019-04-11)
+    2328576 (2019-09-30)
     """
     log.info('Download MaStR Power Unit')
     log.info(f'Number of expected power units: {power_unit_list_len}')
@@ -123,14 +124,14 @@ def download_power_unit(power_unit_list_len=20000, limit=2000, overwrite=False):
 ''' split power_unit_list_len into batches of 20.000, this number can be changed and was decided on empirically -- 
 a higher batch size number means less threads but more retries
 each batch is processed by a thread pool, where for each subbatch of 2000 (API limit) a new thread is created  '''
-def download_parallel_power_unit(power_unit_list_len=2000, limit=2000, batch_size=20000, start_from=0, overwrite=False, all_units=False):
+def download_parallel_power_unit(power_unit_list_len=2328576, limit=2000, batch_size=20000, start_from=0, overwrite=True, all_units=False):
     global csv_see
     power_unit_list = list()
     log.info('Download MaStR Power Unit')
     if batch_size<2000:
         limit=batch_size
-    if power_unit_list_len+start_from > 1814000:
-        deficit = (power_unit_list_len+start_from)-1814000
+    if power_unit_list_len+start_from > 2328576:
+        deficit = (power_unit_list_len+start_from)-2328576
         power_unit_list_len = power_unit_list_len-deficit
         if power_unit_list_len <= 0:
             log.info('No entries to download. Decrease index size.')
@@ -155,7 +156,7 @@ def download_parallel_power_unit(power_unit_list_len=2000, limit=2000, batch_siz
     num = math.ceil(power_unit_list_len/batch_size)
     assert num >= 1
     sublists = split_to_sublists(start_from_list, length, num)
-    log.info('number of batches to process: %s', num)
+    log.info('Number of batches to process: %s', num)
     summe = 0
     length = len(sublists)
     while sublists:
@@ -211,6 +212,7 @@ def read_power_units(csv_name):
                                     'GenMastrNummer': str,
                                     'BestandsanlageMastrNummer': str,
                                     'NichtVorhandenInMigriertenEinheiten': str,
+                                    'StatisikFlag' : str,
                                     'version': str,
                                     'timestamp': str})
 
