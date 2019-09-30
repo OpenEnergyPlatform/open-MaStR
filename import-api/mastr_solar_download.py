@@ -243,7 +243,7 @@ def read_unit_solar_eeg(csv_name):
     return unit_solar_eeg
 
 
-def setup_power_unit_solar(overwrite=False, eeg=False):
+def setup_power_unit_solar(overwrite=True, eeg=False):
     """Setup file for Stromerzeugungseinheit-Solar.
 
     Check if file with Stromerzeugungseinheit-Solar exists. Create if not exists.
@@ -282,7 +282,7 @@ def setup_power_unit_solar(overwrite=False, eeg=False):
     return power_unit_solar
 
 
-def download_unit_solar(overwrite=False):
+def download_unit_solar(overwrite=True):
     """Download Solareinheit.
 
     Existing units: 31543 (2019-02-10)
@@ -306,7 +306,7 @@ def download_unit_solar(overwrite=False):
 
 ''' use cpu_factor to multiply the processes  (=num cpu) for full capacity
     use parallelism to manipulate the number of threads per process '''
-def download_parallel_unit_solar(start_from=0, n_entries=1, parallelism=300, cpu_factor=1, overwrite=False):
+def download_parallel_unit_solar(start_from=0, n_entries=1, parallelism=300, cpu_factor=1, overwrite=True):
     global proc_list
     split_solar_list = []
     """Download Solareinheit.
@@ -343,7 +343,7 @@ def download_parallel_unit_solar(start_from=0, n_entries=1, parallelism=300, cpu
     log.info('time needed %s', time.time()-t)
 
 
-def download_parallel_unit_solar_eeg(start_from=0, n_entries=1, parallelism=300, cpu_factor=1, overwrite=False):
+def download_parallel_unit_solar_eeg(start_from=0, n_entries=1, parallelism=300, cpu_factor=1, overwrite=True):
     global proc_list
     split_solar_list = []
     """Download Solareinheit.
@@ -393,7 +393,7 @@ def split_to_threads_eeg(sublist,parallelism=100):
     pool.join()
     return result
 
-def download_unit_solar_eeg(overwrite=False):
+def download_unit_solar_eeg(overwrite=True):
     """Download unit_solar_eeg using GetAnlageEegSolar request."""
     data_version = get_data_version()
     csv_solar_eeg = f'data/bnetza_mastr_{data_version}_unit-solar-eeg.csv'

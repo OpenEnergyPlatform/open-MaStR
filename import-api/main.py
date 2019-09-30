@@ -10,8 +10,7 @@ The data will be downloaded to the folder /data.
 
 SPDX-License-Identifier: AGPL-3.0-or-later
 """
-
-__copyright__ = "© Reiner Lemoine Institut"
+__copyright__ = "\xa9 Reiner Lemoine Institut"
 __license__ = "GNU Affero General Public License Version 3 (AGPL-3.0)"
 __url__ = "https://www.gnu.org/licenses/agpl-3.0.en.html"
 __author__ = "Ludee; christian-rli"
@@ -69,7 +68,6 @@ if __name__ == "__main__":
     ''' DEFAULT PARAMS: start_from=0, n_entries=1, parallelism=300, cpu_factor=1, overwrite=False '''
     download_parallel_unit_solar_eeg(overwrite=True, n_entries=10000)
     download_parallel_unit_solar(overwrite=True, n_entries=500000)
-    download_unit_storage(overwrite=False)
     download_parallel_unit_storage()
     
     """ Storages"""

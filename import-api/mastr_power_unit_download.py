@@ -89,7 +89,7 @@ def get_all_units(start_from, limit=2000):
     return power_unit
 
 
-def download_power_unit(power_unit_list_len=20000, limit=2000, overwrite=False):
+def download_power_unit(power_unit_list_len=20000, limit=2000, overwrite=True):
     """Download StromErzeuger.
 
     Arguments
