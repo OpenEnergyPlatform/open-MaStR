@@ -8,7 +8,7 @@ __version__ = "v0.7.0"
 
 
 
-DATA_VERSION = 'rli_v1.3.2_permit-test'
+DATA_VERSION = 'rli_v2.0.0_test'
 
 
 

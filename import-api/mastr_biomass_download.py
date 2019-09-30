@@ -14,7 +14,7 @@ __license__ = "GNU Affero General Public License Version 3 (AGPL-3.0)"
 __url__ = "https://www.gnu.org/licenses/agpl-3.0.en.html"
 __author__ = "Ludee; christian-rli"
 __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
-__version__ = "v0.7.0"
+__version__ = "v0.8.0"
 
 from utils import get_data_version, write_to_csv, get_filename_csv_see, remove_csv, set_corrected_path, set_filename_csv_see, get_correct_filepath
 from sessions import mastr_session
