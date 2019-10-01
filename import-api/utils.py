@@ -15,7 +15,7 @@ log = logging.getLogger(__name__)
 import csv
 
 csv_see_dummy = f'data/bnetza_mastr_{DATA_VERSION}'
-csv_see = f'data/bnetza_mastr_{DATA_VERSION}_power-units.csv'
+csv_see = f'data/bnetza_mastr_{DATA_VERSION}_power-unit.csv'
 
 def get_data_version():
 	return DATA_VERSION
@@ -39,7 +39,7 @@ def set_filename_csv_see(types, overwrite=True):
         myinput = input()
 
     if types is 'power_units':
-        csv_see = csv_see_dummy+'_power-units'+myinput+'.csv'
+        csv_see = csv_see_dummy+'_power-unit'+myinput+'.csv'
         return_type = csv_see
     elif types is 'solar_units':
         return_type = csv_see_dummy+'_solar-units'+myinput+'.csv'

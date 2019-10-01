@@ -392,7 +392,9 @@ def download_unit_wind_permit():
                       'Meldedatum': reporting_date
                       })
                   df_all = pd.concat([df_new, df.reindex(df_new.index)], axis=1)
-                  df_all.set_index(['EinheitMastrNummer'], inplace=True)
+                  log.info(df_head())
+                  log.info(df_all[0].MaStRNummer)
+                  #df_all.set_index(['MaStRNummer'], inplace=True)
                   write_to_csv(csv_wind_permit,df_all)
             except:
                 log.exception(f'Download failed unit_wind_permit ({i}): {unit_wind_list[i]}')

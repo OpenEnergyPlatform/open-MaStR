@@ -50,7 +50,7 @@ def get_power_unit(start_from, limit=2000):
     """ 
     status = 'InBetrieb'
     try:
-        c = client_bind.GetGefilterteListeStromVerbraucher(
+        c = client_bind.GetGefilterteListeStromErzeuger(
         apiKey=api_key,
         marktakteurMastrNummer=my_mastr,
         einheitBetriebsstatus=status,
@@ -59,12 +59,12 @@ def get_power_unit(start_from, limit=2000):
         s = serialize_object(c)
         power_unit = pd.DataFrame(s['Einheiten'])
         power_unit.index.names = ['lid']
-        power_unit['version'] = DATA_VERSION
+        power_unit['version'] = get_data_version()
         power_unit['timestamp'] = str(datetime.datetime.now())
     except Exception as e:
-        log.debug(e)
+        log.info('Download failed, retrying for %s', start_from)
     # remove double quotes from column
-    power_unit['Standort'] = power_unit['Standort'].str.replace('"', '')
+    #power_unit['Standort'] = power_unit['Standort'].str.replace('"', '')
     return power_unit
 
 
@@ -173,11 +173,12 @@ def download_parallel_power_unit(power_unit_list_len=2328576, limit=2000, batch_
             if result:
                 for mylist in result:
                     write_to_csv(csv_see, pd.DataFrame(mylist))
+                    pool.close()
+                    pool.join()
         except Exception as e:
             log.error(e)
     log.info('Power Unit Download executed in: {0:.2f}'.format(time.time()-t))
-    pool.close()
-    pool.join()
+
 
 
 def read_power_units(csv_name):

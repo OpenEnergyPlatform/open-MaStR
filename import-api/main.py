@@ -10,6 +10,7 @@ The data will be downloaded to the folder /data.
 
 SPDX-License-Identifier: AGPL-3.0-or-later
 """
+
 __copyright__ = "\xa9 Reiner Lemoine Institut"
 __license__ = "GNU Affero General Public License Version 3 (AGPL-3.0)"
 __url__ = "https://www.gnu.org/licenses/agpl-3.0.en.html"
@@ -46,35 +47,36 @@ if __name__ == "__main__":
 
     ''' DEFAULT PARAMS: power_unit_list_len=100000, limit=2000, batch_size=20000, start_from=0, overwrite=False '''
     ''' CURRENT MAX INDEX FOR VAR start_from and power_unit_list_len: 1814000 '''
-    download_parallel_power_unit()
+    download_parallel_power_unit(batch_size=10000)
 
     """Wind"""
     download_unit_wind()
     download_unit_wind_eeg()
-    download_unit_wind_permit()
-    make_wind()
+    #download_unit_wind_permit()
+    #make_wind()
 
     """Hydro"""
     download_unit_hydro()
     download_unit_hydro_eeg()
-    make_hydro()
+    #make_hydro()
 
     """Biomass"""
     download_unit_biomass()
     download_unit_biomass_eeg()
-    make_biomass()
+    #make_biomass()
 
     """Solar"""
     ''' DEFAULT PARAMS: start_from=0, n_entries=1, parallelism=300, cpu_factor=1, overwrite=False '''
-    download_parallel_unit_solar_eeg(overwrite=True, n_entries=10000)
-    download_parallel_unit_solar(overwrite=True, n_entries=500000)
+    download_parallel_unit_solar_eeg(overwrite=True)
+    download_parallel_unit_solar(overwrite=True)
+    #download_unit_storage(overwrite=False)
     download_parallel_unit_storage()
-    
+   # 
     """ Storages"""
-    get_solarunit_storages()
-    get_geocode_address()
-    download_parallel_unit_storage()
-
+    #get_solarunit_storages()
+    #get_geocode_address()
+    #download_parallel_unit_storage()
+#
     """close"""
     log.info('MaSTR script successfully executed in {:.2f} seconds'
              .format(time.time() - start_time))

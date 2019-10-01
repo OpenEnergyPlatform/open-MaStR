@@ -255,8 +255,8 @@ def setup_power_unit_solar(overwrite=True, eeg=False):
         Stromerzeugungseinheit-Solar.
     """
     data_version = get_data_version()
-    csv_see = get_correct_filepath()
-    set_corrected_path(csv_see)
+    csv_see = get_filename_csv_see()
+    #set_corrected_path(csv_see)
     csv_see_solar = set_filename_csv_see('solar_units', overwrite)
     csv_see_eeg = set_filename_csv_see('eeg_units', overwrite)
     if overwrite:

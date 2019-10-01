@@ -48,6 +48,9 @@ def download_parallel_unit_storage(start_from=0, end_at=20, overwrite=True):
     eeg_len = len(eeg_nr)
     log.info(f'Download MaStR Storage')
     log.info(f'Number of storage units: {storage_len}')
+    if storage_len <= 0:
+        log.info('No storages to retrieve')
+        return 
     cpu = parts=mp.cpu_count()
     split_storage_list =  split_to_sublists(storage_units_nr,storage_len,cpu)
     process_pool = mp.Pool(processes=mp.cpu_count())
@@ -85,8 +88,8 @@ def split_to_threads(sublist):
 ''' starting batch num /current 1st speichereinheit 5th Aug 2019:    1220000 '''
 def setup_storage_units(overwrite=True):   
     data_version = get_data_version()
-    csv_see = get_correct_filepath()
-    set_corrected_path(csv_see)
+    csv_see = get_filename_csv_see()
+    #set_corrected_path(csv_see)
     csv_see_storage = set_filename_csv_see('storage_units', overwrite)
     if overwrite: 
         if os.path.isfile(csv_see_storage):
