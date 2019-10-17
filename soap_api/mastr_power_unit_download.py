@@ -56,7 +56,7 @@ def get_power_unit(start_from, limit=2000):
             marktakteurMastrNummer=my_mastr,
             # einheitBetriebsstatus=status,
             startAb=start_from,
-            limit=limit # Limit of API.
+            limit=limit  # Limit of API.
         )
         s = serialize_object(c)
         power_unit = pd.DataFrame(s['Einheiten'])
@@ -122,10 +122,15 @@ def download_power_unit(
     log.info('Download MaStR Power Unit')
     log.info(f'Number of expected power units: {power_unit_list_len}')
 
+    if ofname is None:
+        ofname = csv_see
+
+    log.info(f'Write to : {ofname}')
+
     for start_from in range(0, power_unit_list_len, limit):
         try:
             power_unit = get_power_unit(start_from, limit)
-            write_to_csv(csv_see, power_unit)
+            write_to_csv(ofname, power_unit)
             power_unit_len = len(power_unit)
             log.info(f'Download power_unit from {start_from}-{start_from + power_unit_len}')
         except:
