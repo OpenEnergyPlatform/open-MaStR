@@ -91,7 +91,11 @@ def get_all_units(start_from, limit=2000):
     return power_unit
 
 
-def download_power_unit(power_unit_list_len=2363200, limit=2000, overwrite=True):
+def download_power_unit(
+        power_unit_list_len=2363200,
+        limit=2000,
+        ofname=None
+):
     """Download StromErzeuger.
 
     Arguments
@@ -100,6 +104,8 @@ def download_power_unit(power_unit_list_len=2363200, limit=2000, overwrite=True)
         Maximum number of units to get. Check MaStR portal for current number.
     limit : int
         Number of units to get per call to API (limited to 2000).
+    ofname : string
+        Path to save the downloaded files.
 
     Existing units:
     1822000 (2019-02-10)
