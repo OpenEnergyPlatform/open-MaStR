@@ -8,6 +8,8 @@ __version__ = "v0.8.0"
 import pandas as pd
 import os
 
+from soap_api.sessions import API_MAX_DEMANDS
+
 from soap_api.mastr_power_unit_download import (
     get_power_unit,
     download_power_unit,
@@ -29,6 +31,17 @@ def test_get_power_unit_return_correct_number():
     n = 13
     power_units = get_power_unit(0, n)
     assert len(power_units.index) == n
+
+
+def test_get_power_unit_starting_not_from_zero():
+    n = 13
+    power_units = get_power_unit(1000, n)
+    assert len(power_units.index) == n
+
+
+def test_get_power_unit_largest_limit():
+    power_units = get_power_unit(0, API_MAX_DEMANDS)
+    assert len(power_units.index) == API_MAX_DEMANDS
 
 
 def test_download_power_unit_unique_mastr_number():
