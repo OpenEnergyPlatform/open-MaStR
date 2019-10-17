@@ -148,8 +148,13 @@ def download_parallel_power_unit(power_unit_list_len=2359365, limit=2000, batch_
     global csv_see
     power_unit_list = list()
     log.info('Download MaStR Power Unit')
-    if batch_size<2000:
-        limit=batch_size
+    if batch_size < API_MAX_DEMANDS:
+        limit = batch_size
+
+    # if the list size is smaller than the limit
+    if limit > power_unit_list_len:
+        limit = power_unit_list_len
+
     if power_unit_list_len+start_from > 2359365:
         deficit = (power_unit_list_len+start_from)-2359365
         power_unit_list_len = power_unit_list_len-deficit
