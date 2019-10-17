@@ -20,6 +20,7 @@ from soap_api.sessions import mastr_session, API_MAX_DEMANDS
 
 import time
 import math
+import numpy as np
 import multiprocessing as mp
 from multiprocessing.pool import ThreadPool 
 from functools import partial
@@ -88,6 +89,7 @@ def get_all_units(start_from, limit=API_MAX_DEMANDS):
         log.debug(e)
         #log.error(e)
     # remove double quotes from column
+
     return power_unit
 
 
@@ -172,14 +174,9 @@ def download_parallel_power_unit(
     ofname : string
         Path to save the downloaded files.
     """
-    power_unit_list = list()
     log.info('Download MaStR Power Unit')
     if batch_size < API_MAX_DEMANDS:
         limit = batch_size
-
-    # if the list size is smaller than the limit
-    if limit >= power_unit_list_len:
-        limit = power_unit_list_len - 1
 
     if power_unit_list_len+start_from > 2359365:
         deficit = (power_unit_list_len+start_from)-2359365
@@ -204,7 +201,6 @@ def download_parallel_power_unit(
     if power_unit_list_len < limit:
         limit = power_unit_list_len
 
-
     start_from_list = list(range(start_from, end_at, limit + 1))
     length = len(start_from_list)
     num = math.ceil(power_unit_list_len/batch_size)
@@ -213,17 +209,43 @@ def download_parallel_power_unit(
     log.info('Number of batches to process: %s', num)
     summe = 0
     length = len(sublists)
+
+    almost_end_of_list = False
+    end_of_list = False
+
     while len(sublists) > 0:
-        try:
-            pool = mp.Pool(processes=len(sublists[0]))
-            if all_units:
-                result= pool.map(partial(get_all_units, limit=limit), sublists[0])
+        if len(sublists) == 1:
+            if almost_end_of_list is False:
+                almost_end_of_list = True
             else:
-                result = pool.map(partial(get_power_unit, limit=limit), sublists[0])
+                # compute the rest of the integer division by API_MAX_DEMANDS
+                limit = np.mod(end_at - start_from, API_MAX_DEMANDS)
+                if limit == 0:
+                    # number of download is an integer number of API_MAX_DEMANDS
+                    limit = API_MAX_DEMANDS
+                end_of_list = True
+        try:
+            sublist = sublists.pop(0)
+            ndownload = len(sublist)
+            pool = mp.Pool(processes=ndownload)
+            if all_units:
+                result = pool.map(get_all_units, sublist)
+            else:
+                if almost_end_of_list is False:
+                    result = pool.map(partial(get_power_unit, limit=limit), sublist)
+                else:
+                    if end_of_list is False:
+                        # The last list might not be an integer number of API_MAX_DEMANDS
+                        result = pool.map(partial(get_power_unit, limit=limit), sublist[:-1])
+                        # Evaluate the last item separately
+                        sublists.append([sublist[-1]])
+                    else:
+                        result = pool.map(partial(get_power_unit, limit=limit), sublist)
+
             summe += 1
             progress = math.floor((summe/length)*100)
             print('\r[{0}{1}] %'.format('#'*(int(math.floor(progress/10))), '-'*int(math.floor((100-progress)/10))))
-            sublists.pop(0)
+
             if result:
                 for mylist in result:
                     write_to_csv(ofname, pd.DataFrame(mylist))
@@ -232,7 +254,6 @@ def download_parallel_power_unit(
         except Exception as e:
             log.error(e)
     log.info('Power Unit Download executed in: {0:.2f}'.format(time.time()-t))
-
 
 
 def read_power_units(csv_name):
