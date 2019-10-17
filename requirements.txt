@@ -5,3 +5,4 @@ shapely
 python-dateutil
 psycopg2-binary
 multiprocess
+zeep
