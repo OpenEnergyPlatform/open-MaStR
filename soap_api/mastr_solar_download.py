@@ -407,19 +407,22 @@ def download_parallel_unit_solar_eeg(
         log.error(e)
     log.info('time needed %s', time.time()-t)
 
+
 def split_to_threads(sublist,parallelism=100):
     pool = ThreadPool(processes=parallelism)
     results = pool.map(get_power_unit_solar, sublist)
     pool.close()
     pool.join()
-    return result
+    return results
+
 
 def split_to_threads_eeg(sublist,parallelism=100):
     pool = ThreadPool(processes=parallelism)
     results = pool.map(get_unit_solar_eeg, sublist)
     pool.close()
     pool.join()
-    return result
+    return results
+
 
 def download_unit_solar_eeg(overwrite=True):
     """Download unit_solar_eeg using GetAnlageEegSolar request."""
