@@ -20,6 +20,7 @@ TEST_DATA = 'tests/data/bnetza_mastr_test_power-unit.csv'
 
 
 def remove_test_data(fname=TEST_DATA):
+    time.sleep(0.1)
     os.remove(fname)
     time.sleep(0.1)
     try:
@@ -76,9 +77,37 @@ def test_parallel_download_power_unit_unique_mastr_number_case1():
 
 
 def test_parallel_download_power_unit_unique_mastr_number_case2():
-    """Number is larger than the API_MAX_DEMAND"""
+    """Number is an integer number of the API_MAX_DEMAND"""
 
     n = 2 * API_MAX_DEMANDS
+    # download the data
+    download_parallel_power_unit(n, ofname=TEST_DATA)
+    # load the data
+    df = pd.read_csv(TEST_DATA, sep=';')
+    # remove the data
+    remove_test_data()
+    assert len(df.EinheitMastrNummer.unique()) == n
+    assert len(df.EegMastrNummer.unique()) == n
+
+
+def test_parallel_download_power_unit_unique_mastr_number_case3():
+    """Number is larger than the API_MAX_DEMAND"""
+
+    n = int(1.5 * API_MAX_DEMANDS)
+    # download the data
+    download_parallel_power_unit(n, ofname=TEST_DATA)
+    # load the data
+    df = pd.read_csv(TEST_DATA, sep=';')
+    # remove the data
+    remove_test_data()
+    assert len(df.EinheitMastrNummer.unique()) == n
+    assert len(df.EegMastrNummer.unique()) == n
+
+
+def test_parallel_download_power_unit_unique_mastr_number_case4():
+    """Number is larger than the API_MAX_DEMAND and batch_size"""
+
+    n = 6 * API_MAX_DEMANDS
     # download the data
     download_parallel_power_unit(n, ofname=TEST_DATA)
     # load the data
