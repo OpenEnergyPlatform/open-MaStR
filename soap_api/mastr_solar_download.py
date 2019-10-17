@@ -16,9 +16,9 @@ __author__ = "Ludee; christian-rli"
 __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.8.0"
 
-from sessions import mastr_session
+from soap_api.sessions import mastr_session
 from mastr_power_unit_download import read_power_units
-from utils import split_to_sublists, get_data_version, write_to_csv, get_filename_csv_see, set_filename_csv_see, get_correct_filepath, set_corrected_path, remove_csv
+from soap_api.utils import split_to_sublists, get_data_version, write_to_csv, get_filename_csv_see, set_filename_csv_see, get_correct_filepath, set_corrected_path, remove_csv
 
 import multiprocessing as mp
 from multiprocessing.pool import ThreadPool 
@@ -343,7 +343,7 @@ def download_parallel_unit_solar(
     cpu_count = mp.cpu_count()*cpu_factor
     process_pool = mp.Pool(processes=cpu_count)
     t = time.time()
-    proc_list = split_to_sublists(unit_solar_list[start_from:end_at],len(unit_solar_list[start_from:end_at]),cpu_count)
+    proc_list = split_to_sublists(unit_solar_list[start_from:end_at], len(unit_solar_list[start_from:end_at]),cpu_count)
     print("This may take a moment. Processing {} data batches.".format(len(proc_list)))
     try:
         partial(split_to_threads, parallelism=parallelism)

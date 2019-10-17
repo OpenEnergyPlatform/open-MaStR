@@ -18,7 +18,7 @@ __author__ = "Ludee; christian-rli"
 __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.8.0"
 
-from config import setup_logger
+from soap_api.config import setup_logger
 from mastr_power_unit_download import download_parallel_power_unit, download_power_unit
 from mastr_wind_download import download_unit_wind, download_unit_wind_eeg, download_unit_wind_permit
 from mastr_wind_process import make_wind
@@ -34,7 +34,7 @@ import time
 
 
 if __name__ == "__main__":
-    from utils import DATA_VERSION
+    from soap_api.utils import DATA_VERSION
     """logging"""
     log = setup_logger()
     start_time = time.time()

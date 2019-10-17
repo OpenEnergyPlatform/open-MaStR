@@ -16,8 +16,8 @@ __author__ = "Ludee; christian-rli"
 __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.7.0"
 
-from utils import get_data_version, write_to_csv, get_filename_csv_see, remove_csv, set_corrected_path, set_filename_csv_see, get_correct_filepath
-from sessions import mastr_session
+from soap_api.utils import get_data_version, write_to_csv, get_filename_csv_see, remove_csv, set_corrected_path, set_filename_csv_see, get_correct_filepath
+from soap_api.sessions import mastr_session
 from mastr_power_unit_download import read_power_units
 
 import pandas as pd

@@ -16,7 +16,7 @@ __author__ = "Ludee; christian-rli"
 __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.8.0"
 
-from sessions import mastr_session
+from soap_api.sessions import mastr_session
 
 import time
 import math
@@ -28,15 +28,16 @@ import datetime
 from zeep.helpers import serialize_object
 import logging
 log = logging.getLogger(__name__)
-from utils import split_to_sublists, get_filename_csv_see, set_filename_csv_see, write_to_csv, remove_csv, get_data_version
+from soap_api.utils import split_to_sublists, get_filename_csv_see, set_filename_csv_see, write_to_csv, remove_csv, get_data_version
 import math
 ''' GLOBAL VAR IMPORT '''
-from utils import csv_see
+from soap_api.utils import csv_see
 
 """SOAP API"""
 client, client_bind, token, user = mastr_session()
 api_key = token
 my_mastr = user
+
 
 def get_power_unit(start_from, limit=2000):
     """Get Stromerzeugungseinheit from API using GetGefilterteListeStromErzeuger.
@@ -51,11 +52,12 @@ def get_power_unit(start_from, limit=2000):
     status = 'InBetrieb'
     try:
         c = client_bind.GetGefilterteListeStromErzeuger(
-        apiKey=api_key,
-        marktakteurMastrNummer=my_mastr,
-        # einheitBetriebsstatus=status,
-        startAb=start_from,
-        limit=limit)  # Limit of API.  
+            apiKey=api_key,
+            marktakteurMastrNummer=my_mastr,
+            # einheitBetriebsstatus=status,
+            startAb=start_from,
+            limit=limit # Limit of API.
+        )
         s = serialize_object(c)
         power_unit = pd.DataFrame(s['Einheiten'])
         power_unit.index.names = ['lid']

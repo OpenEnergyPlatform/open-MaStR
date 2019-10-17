@@ -16,7 +16,7 @@ __author__ = "Ludee; christian-rli"
 __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.8.0"
 
-import config as lc
+import soap_api.config as lc
 
 # import getpass
 import os
@@ -125,7 +125,7 @@ def mastr_config():
 
     # token
     try:
-        from config import config_file_get
+        from soap_api.config import config_file_get
         token = config_file_get(config_section, 'token')
     except:
         import sys
