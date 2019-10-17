@@ -127,6 +127,10 @@ def download_power_unit(
 
     log.info(f'Write to : {ofname}')
 
+    # if the list size is smaller than the limit
+    if limit > power_unit_list_len:
+        limit = power_unit_list_len
+
     for start_from in range(0, power_unit_list_len, limit):
         try:
             power_unit = get_power_unit(start_from, limit)
