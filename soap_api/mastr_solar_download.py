@@ -304,15 +304,28 @@ def download_unit_solar(overwrite=True):
             log.exception(f'Download failed unit_solar ({i}): {unit_solar_list[i]}')
 
 
-''' use cpu_factor to multiply the processes  (=num cpu) for full capacity
-    use parallelism to manipulate the number of threads per process '''
-def download_parallel_unit_solar(start_from=0, n_entries=1, parallelism=300, cpu_factor=1, overwrite=True):
-    global proc_list
-    split_solar_list = []
-    """Download Solareinheit.
+def download_parallel_unit_solar(
+        start_from=0,
+        n_entries=1,
+        parallelism=300,
+        cpu_factor=1,
+        overwrite=True
+):
+    """Start parallel demands of Solareinheiten data to the SOAP API
 
     Existing units: 31543 (2019-02-10)
+
+    :param start_from: (int) start index in the unit_solar_list
+    :param n_entries: (int) number of entries to download
+    :param parallelism: (int) number of threads
+    :param cpu_factor: (float) factor multiplying the number of cpu. Alters the number of processes
+     in the Pool (default = number of cpu; with this factor it can be more)
+    :param overwrite: (bool) decide whether the existing files should be overwritten or not
+    :return:
     """
+    global proc_list
+    split_solar_list = []
+
     csv_see_solar = set_filename_csv_see('solar_units', overwrite)
     unit_solar = setup_power_unit_solar(overwrite) 
     if unit_solar.empty:
@@ -343,13 +356,28 @@ def download_parallel_unit_solar(start_from=0, n_entries=1, parallelism=300, cpu
     log.info('time needed %s', time.time()-t)
 
 
-def download_parallel_unit_solar_eeg(start_from=0, n_entries=1, parallelism=300, cpu_factor=1, overwrite=True):
-    global proc_list
-    split_solar_list = []
-    """Download Solareinheit.
+def download_parallel_unit_solar_eeg(
+        start_from=0,
+        n_entries=1,
+        parallelism=300,
+        cpu_factor=1,
+        overwrite=True
+):
+    """Start parallel demands of Solareinheiten EEG data to the SOAP API
 
     Existing units: 31543 (2019-02-10)
+
+    :param start_from: (int) start index in the unit_solar_list
+    :param n_entries: (int) number of entries to download
+    :param parallelism: (int) number of threads
+    :param cpu_factor: (float) factor multiplying the number of cpu. Alters the number of processes
+     in the Pool (default = number of cpu; with this factor it can be more)
+    :param overwrite: (bool) decide whether the existing files should be overwritten or not
+    :return:
     """
+    global proc_list
+    split_solar_list = []
+
     csv_see_eeg = set_filename_csv_see('eeg_units', overwrite)
     unit_solar = setup_power_unit_solar(overwrite, eeg=True) 
     if unit_solar.empty:
