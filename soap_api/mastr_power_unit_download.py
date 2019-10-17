@@ -89,7 +89,7 @@ def get_all_units(start_from, limit=2000):
     return power_unit
 
 
-def download_power_unit(power_unit_list_len=2359365, limit=2000, overwrite=True):
+def download_power_unit(power_unit_list_len=2363200, limit=2000, overwrite=True):
     """Download StromErzeuger.
 
     Arguments
@@ -109,6 +109,7 @@ def download_power_unit(power_unit_list_len=2359365, limit=2000, overwrite=True)
     2328576 (2019-09-30)
     2331651 (2019-10-01)
     2359365 (2019-10-15)
+    2363200 (2019-10-17)
     """
     log.info('Download MaStR Power Unit')
     log.info(f'Number of expected power units: {power_unit_list_len}')
@@ -118,7 +119,7 @@ def download_power_unit(power_unit_list_len=2359365, limit=2000, overwrite=True)
             power_unit = get_power_unit(start_from, limit)
             write_to_csv(csv_see, power_unit)
             power_unit_len = len(power_unit)
-            #log.info(f'Download power_unit from {start_from}-{start_from + power_unit_len}')
+            log.info(f'Download power_unit from {start_from}-{start_from + power_unit_len}')
         except:
             log.exception(f'Download failed power_unit from {start_from}')
 
@@ -126,7 +127,7 @@ def download_power_unit(power_unit_list_len=2359365, limit=2000, overwrite=True)
 ''' split power_unit_list_len into batches of 20.000, this number can be changed and was decided on empirically -- 
 a higher batch size number means less threads but more retries
 each batch is processed by a thread pool, where for each subbatch of 2000 (API limit) a new thread is created  '''
-def download_parallel_power_unit(power_unit_list_len=2359365, limit=2000, batch_size=20000, start_from=0, overwrite=True, all_units=False):
+def download_parallel_power_unit(power_unit_list_len=2359365, limit=2000, batch_size=10000, start_from=0, overwrite=True, all_units=False):
     global csv_see
     power_unit_list = list()
     log.info('Download MaStR Power Unit')

@@ -6,7 +6,7 @@ __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.8.0"
 
 
-DATA_VERSION = 'rli_v2.0.1'
+DATA_VERSION = 'rli_v2.0.3'
 
 
 import os
