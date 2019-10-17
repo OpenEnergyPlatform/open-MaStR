@@ -204,9 +204,8 @@ def download_parallel_power_unit(
     if power_unit_list_len < limit:
         limit = power_unit_list_len
 
-    partial(get_power_unit, limit)
-    partial(get_all_units, limit)
-    start_from_list = list(range(start_from, end_at, limit))
+
+    start_from_list = list(range(start_from, end_at, limit + 1))
     length = len(start_from_list)
     num = math.ceil(power_unit_list_len/batch_size)
     assert num >= 1
@@ -218,9 +217,9 @@ def download_parallel_power_unit(
         try:
             pool = mp.Pool(processes=len(sublists[0]))
             if all_units:
-                result= pool.map(get_all_units,sublists[0])
+                result= pool.map(partial(get_all_units, limit=limit), sublists[0])
             else:
-                result = pool.map(get_power_unit, sublists[0])
+                result = pool.map(partial(get_power_unit, limit=limit), sublists[0])
             summe += 1
             progress = math.floor((summe/length)*100)
             print('\r[{0}{1}] %'.format('#'*(int(math.floor(progress/10))), '-'*int(math.floor((100-progress)/10))))
