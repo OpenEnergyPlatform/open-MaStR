@@ -141,11 +141,37 @@ def download_power_unit(
             log.exception(f'Download failed power_unit from {start_from}')
 
 
-''' split power_unit_list_len into batches of 20.000, this number can be changed and was decided on empirically -- 
-a higher batch size number means less threads but more retries
-each batch is processed by a thread pool, where for each subbatch of 2000 (API limit) a new thread is created  '''
-def download_parallel_power_unit(power_unit_list_len=2359365, limit=2000, batch_size=10000, start_from=0, overwrite=True, all_units=False):
-    global csv_see
+def download_parallel_power_unit(
+        power_unit_list_len=2359365,
+        limit=API_MAX_DEMANDS,
+        batch_size=10000,
+        start_from=0,
+        overwrite=False,
+        all_units=False,
+        ofname=None
+):
+    """Download StromErzeuger with parallel process
+
+
+    Arguments
+    ---------
+    power_unit_list_len : None|int
+        Maximum number of units to get. Check MaStR portal for current number.
+    limit : int
+        Number of units to get per call to API (limited to 2000).
+    batch_size : int
+        Number of elements in a batch.
+        Units from the list will be split into n batches of batch_size.
+        A higher batch size number means less threads but more retries.
+    start_from : int
+        Start index in the power_unit_list.
+    overwrite : bool
+        Whether or not the data file should be overwritten.
+    all_units : bool
+        If True, will use get_all_units instead of get_power_unit.
+    ofname : string
+        Path to save the downloaded files.
+    """
     power_unit_list = list()
     log.info('Download MaStR Power Unit')
     if batch_size<2000:
