@@ -16,6 +16,8 @@ import csv
 
 csv_see_dummy = f'data/bnetza_mastr_{DATA_VERSION}'
 csv_see = f'data/bnetza_mastr_{DATA_VERSION}_power-unit.csv'
+csv_list_sve = f'data/bnetza_mastr_{DATA_VERSION}_consumer.csv'
+csv_sve = f'data/bnetza_mastr_{DATA_VERSION}_consumer-unit.csv'
 
 def get_data_version():
 	return DATA_VERSION

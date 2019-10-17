@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-BNetzA - MaStR Download - Wind
+BNetzA - MaStR Download - Power Unit
 
 Read data from MaStR API and write to CSV files.
 
@@ -82,9 +82,10 @@ def get_all_units(start_from, limit=API_MAX_DEMANDS):
 
         power_unit = pd.DataFrame(s['Einheiten'])
         power_unit.index.names = ['lid']
-        power_unit['version'] = DATA_VERSION
+        power_unit['version'] = get_data_version()
         power_unit['timestamp'] = str(datetime.datetime.now())
     except Exception as e:
+        log.info('Download failed, retrying for %s', start_from)
         log.debug(e)
         #log.error(e)
     # remove double quotes from column
@@ -242,7 +243,7 @@ def read_power_units(csv_name):
                                     'GenMastrNummer': str,
                                     'BestandsanlageMastrNummer': str,
                                     'NichtVorhandenInMigriertenEinheiten': str,
-                                    'StatisikFlag' : str,
+                                    'StatisikFlag': str,
                                     'version': str,
                                     'timestamp': str})
 
