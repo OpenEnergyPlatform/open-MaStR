@@ -152,8 +152,8 @@ def download_parallel_power_unit(power_unit_list_len=2359365, limit=2000, batch_
         limit = batch_size
 
     # if the list size is smaller than the limit
-    if limit > power_unit_list_len:
-        limit = power_unit_list_len
+    if limit >= power_unit_list_len:
+        limit = power_unit_list_len - 1
 
     if power_unit_list_len+start_from > 2359365:
         deficit = (power_unit_list_len+start_from)-2359365
@@ -161,7 +161,7 @@ def download_parallel_power_unit(power_unit_list_len=2359365, limit=2000, batch_
         if power_unit_list_len <= 0:
             log.info('No entries to download. Decrease index size.')
             return 0
-    end_at = power_unit_list_len+start_from
+    end_at = power_unit_list_len + start_from
     if ofname is None:
         ofname = set_filename_csv_see('power_units', overwrite)
 
@@ -188,7 +188,7 @@ def download_parallel_power_unit(power_unit_list_len=2359365, limit=2000, batch_
     log.info('Number of batches to process: %s', num)
     summe = 0
     length = len(sublists)
-    while sublists:
+    while len(sublists) > 0:
         try:
             pool = mp.Pool(processes=len(sublists[0]))
             if all_units:
