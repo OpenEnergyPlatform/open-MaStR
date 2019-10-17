@@ -16,7 +16,7 @@ __author__ = "Ludee; christian-rli"
 __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.8.0"
 
-from soap_api.sessions import mastr_session
+from soap_api.sessions import mastr_session, API_MAX_DEMANDS
 
 import time
 import math
@@ -39,7 +39,7 @@ api_key = token
 my_mastr = user
 
 
-def get_power_unit(start_from, limit=2000):
+def get_power_unit(start_from, limit=API_MAX_DEMANDS):
     """Get Stromerzeugungseinheit from API using GetGefilterteListeStromErzeuger.
 
     Parameters
@@ -70,7 +70,7 @@ def get_power_unit(start_from, limit=2000):
     return power_unit
 
 
-def get_all_units(start_from, limit=2000):
+def get_all_units(start_from, limit=API_MAX_DEMANDS):
     
     try:
         c = client_bind.GetListeAlleEinheiten(
@@ -93,7 +93,7 @@ def get_all_units(start_from, limit=2000):
 
 def download_power_unit(
         power_unit_list_len=2363200,
-        limit=2000,
+        limit=API_MAX_DEMANDS,
         ofname=None
 ):
     """Download StromErzeuger.

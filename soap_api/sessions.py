@@ -31,6 +31,8 @@ from zeep.transports import Transport
 
 UserToken = namedtuple('UserToken', ['user', 'token'])
 
+API_MAX_DEMANDS = 2000
+
 import logging
 log = logging.getLogger(__name__)
 
