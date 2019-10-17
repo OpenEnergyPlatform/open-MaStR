@@ -11,3 +11,18 @@ This repository is licensed under [GNU Affero General Public License v3.0 (AGPL-
 ## Installation
 
 tbd
+
+## Tests
+
+To run the tests install the required
+
+```
+pip install -r requirements.txt
+
+pip install -r tests/test_requirements.txt
+```
+Then execute the tests
+
+```
+pytest
+```
