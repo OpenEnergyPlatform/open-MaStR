@@ -29,10 +29,10 @@ import datetime
 from zeep.helpers import serialize_object
 import logging
 log = logging.getLogger(__name__)
-from soap_api.utils import split_to_sublists, get_filename_csv_see, set_filename_csv_see, write_to_csv, remove_csv, get_data_version
+from soap_api.utils import split_to_sublists, write_to_csv, remove_csv, get_data_version
 import math
-''' GLOBAL VAR IMPORT '''
-from soap_api.utils import csv_see
+''' VAR IMPORT '''
+from soap_api.utils import fname_all_units
 
 """SOAP API"""
 client, client_bind, token, user = mastr_session()
@@ -73,8 +73,7 @@ def get_power_unit(start_from, limit=API_MAX_DEMANDS):
 
 def download_power_unit(
         power_unit_list_len=2363200,
-        limit=API_MAX_DEMANDS,
-        ofname=None
+        limit=API_MAX_DEMANDS
 ):
     """Download StromErzeuger.
 
@@ -84,8 +83,6 @@ def download_power_unit(
         Maximum number of units to get. Check MaStR portal for current number.
     limit : int
         Number of units to get per call to API (limited to 2000).
-    ofname : string
-        Path to save the downloaded files.
 
     Existing units:
     1822000 (2019-02-10)
@@ -102,10 +99,7 @@ def download_power_unit(
     log.info('Download MaStR Power Unit')
     log.info(f'Number of expected power units: {power_unit_list_len}')
 
-    if ofname is None:
-        ofname = csv_see
-
-    log.info(f'Write to : {ofname}')
+    log.info(f'Write to : {fname_all_units}')
 
     # if the list size is smaller than the limit
     if limit > power_unit_list_len:
@@ -114,7 +108,7 @@ def download_power_unit(
     for start_from in range(0, power_unit_list_len, limit):
         try:
             power_unit = get_power_unit(start_from, limit)
-            write_to_csv(ofname, power_unit)
+            write_to_csv(fname_all_units, power_unit)
             power_unit_len = len(power_unit)
             log.info(f'Download power_unit from {start_from}-{start_from + power_unit_len}')
         except:
@@ -126,8 +120,7 @@ def download_parallel_power_unit(
         limit=API_MAX_DEMANDS,
         batch_size=10000,
         start_from=0,
-        overwrite=False,
-        ofname=None
+        overwrite=False
 ):
     """Download StromErzeuger with parallel process
 
@@ -146,8 +139,6 @@ def download_parallel_power_unit(
         Start index in the power_unit_list.
     overwrite : bool
         Whether or not the data file should be overwritten.
-    ofname : string
-        Path to save the downloaded files.
     """
     log.info('Download MaStR Power Unit')
     if batch_size < API_MAX_DEMANDS:
@@ -160,11 +151,9 @@ def download_parallel_power_unit(
             log.info('No entries to download. Decrease index size.')
             return 0
     end_at = power_unit_list_len + start_from
-    if ofname is None:
-        ofname = set_filename_csv_see('power_units', overwrite)
 
     if overwrite:
-        remove_csv(ofname)
+        remove_csv(fname_all_units)
 
     if power_unit_list_len < limit:
         log.info(f'Number of expected power units: {limit}')
@@ -220,7 +209,7 @@ def download_parallel_power_unit(
 
             if result:
                 for mylist in result:
-                    write_to_csv(ofname, pd.DataFrame(mylist))
+                    write_to_csv(fname_all_units, pd.DataFrame(mylist))
                     pool.close()
                     pool.join()
         except Exception as e:

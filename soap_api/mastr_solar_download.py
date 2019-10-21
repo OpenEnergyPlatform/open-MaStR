@@ -18,7 +18,7 @@ __version__ = "v0.8.0"
 
 from soap_api.sessions import mastr_session
 from mastr_power_unit_download import read_power_units
-from soap_api.utils import split_to_sublists, get_data_version, write_to_csv, get_filename_csv_see, set_filename_csv_see, get_correct_filepath, set_corrected_path, remove_csv
+from soap_api.utils import split_to_sublists, get_data_version, write_to_csv, remove_csv
 
 import multiprocessing as mp
 from multiprocessing.pool import ThreadPool 
@@ -256,9 +256,6 @@ def setup_power_unit_solar(overwrite=True, eeg=False):
     """
     data_version = get_data_version()
     csv_see = get_filename_csv_see()
-    #set_corrected_path(csv_see)
-    csv_see_solar = set_filename_csv_see('solar_units', overwrite)
-    csv_see_eeg = set_filename_csv_see('eeg_units', overwrite)
     if overwrite:
         if os.path.isfile(csv_see_solar):
             remove_csv(csv_see_solar)

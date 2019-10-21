@@ -18,6 +18,8 @@ __version__ = "v0.8.0"
 
 from mastr_solar_download import *
 
+from utils import fname_solar, fname_solar_unit, fname_eeg, fname_eeg_unit
+
 import logging
 log = logging.getLogger(__name__)
 
@@ -25,20 +27,19 @@ log = logging.getLogger(__name__)
 def make_solar():
     """Read solar data from CSV files. Join data and write to file."""
     data_version = get_data_version()
-    csv_see_solar = f'data/bnetza_mastr_{data_version}_power-unit-solar.csv'
-    csv_unit_solar = f'data/bnetza_mastr_{data_version}_unit-solar.csv'
-    csv_unit_solar_eeg = f'data/bnetza_mastr_{data_version}_unit-solar-eeg.csv'
-    csv_solar = f'data/bnetza_mastr_{data_version}_solar.csv'
 
-    power_unit_solar = read_power_units(csv_see_solar)
-    unit_solar = read_unit_solar(csv_unit_solar)
-    unit_solar_eeg = read_unit_solar_eeg(csv_unit_solar_eeg)
+
+    power_unit_solar = read_power_units(fname_solar_unit)
+    unit_solar = read_unit_solar(fname_solar)
+    power_unit_eeg = read_power_units(fname_eeg_unit)
+    unit_solar_eeg = read_unit_solar_eeg(fname_eeg_unit)
 
     table_solar = power_unit_solar.set_index('EinheitMastrNummer') \
         .join(unit_solar.set_index('EinheitMastrNummer'),
               on='EinheitMastrNummer', how='left', rsuffix='_w') \
         .join(unit_solar_eeg.set_index('EegMastrNummer'),
-              on='EegMastrNummer', how='left', rsuffix='_e')
+              on='EegMastrNummer', how='left', rsuffix='_e') \
+        .join(power_unit_eeg.set_index('EinheitMastrNummer'), on='EinheitMastrNummer', how='left', rsuffix='_w')
 
-    write_to_csv(csv_solar, table_solar)
-    log.info(f'Join Solar to: {csv_solar}')
+    write_to_csv(fname_solar, table_solar)
+    log.info(f'Join Solar to: {fname_solar}')
