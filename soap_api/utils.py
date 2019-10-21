@@ -27,18 +27,22 @@ fname_hydro_eeg = f'{fname_dummy}_hydro-eeg.csv'
 
 fname_solar = f'{fname_dummy}_solar.csv'
 fname_solar_unit = f'{fname_dummy}_unit-solar.csv'
-fname_eeg = f'{fname_dummy}_solar-eeg.csv'
-fname_eeg_unit = f'{fname_dummy}_unit-solar-eeg.csv'
+fname_solar_eeg = f'{fname_dummy}_solar-eeg.csv'
+fname_solar_eeg_unit = f'{fname_dummy}_unit-solar-eeg.csv'
 
 fname_wind = f'{fname_dummy}_wind.csv'
 fname_wind_eeg = f'{fname_dummy}_wind-eeg.csv'
 fname_wind_unit = f'{fname_dummy}_unit-wind.csv'
 fname_wind_eeg_unit = f'{fname_dummy}_unit-wind-eeg.csv'
+fname_wind_permit = f'{fname_dummy}_unit-wind-permit.csv'
 
 fname_biomass = f'{fname_dummy}_biomass.csv'
 fname_biomass_unit = f'{fname_dummy}_unit-biomass.csv'
 fname_biomass_eeg = f'{fname_dummy}_biomass-eeg.csv'
 fname_biomass_eeg_unit = f'{fname_dummy}_unit-biomass-eeg.csv'
+
+fname_storage = f'{fname_dummy}_storage.csv'
+fname_storage_unit = f'{fname_dummy}_unit-storage.csv'
 
 def get_data_version():
 	return DATA_VERSION

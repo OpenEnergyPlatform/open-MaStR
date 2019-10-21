@@ -16,7 +16,7 @@ __author__ = "Ludee; christian-rli"
 __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.7.0"
 
-from soap_api.utils import get_data_version, write_to_csv, get_filename_csv_see, remove_csv, set_corrected_path, set_filename_csv_see, get_correct_filepath
+from soap_api.utils import get_data_version, write_to_csv, remove_csv
 from soap_api.sessions import mastr_session
 from mastr_power_unit_download import read_power_units
 
@@ -218,7 +218,7 @@ def read_unit_hydro_eeg(csv_name):
     return unit_hydro_eeg
 
 
-def setup_power_unit_hydro():
+def setup_power_unit_hydro(overwrite=False):
     """Setup file for Stromerzeugungseinheit-Wasser.
 
     Check if file with Stromerzeugungseinheit-Wasser exists. Create if not exists.
@@ -230,32 +230,29 @@ def setup_power_unit_hydro():
         Stromerzeugungseinheit-Wasser.
     """
     data_version = get_data_version()
-    csv_see = get_filename_csv_see()
-    #set_corrected_path(csv_see)
-    csv_see_hydro = set_filename_csv_see('hydro_units', True)
-    if os.path.isfile(csv_see_hydro):
-        remove_csv(csv_see_hydro)
-    if os.path.isfile(csv_see):
-        power_unit = read_power_units(csv_see)
+    if overwrite:
+        if os.path.isfile(fname_hydro):
+            remove_csv(fname_hydro)
+        elif os.path.isfile(fname_hydro_unit):
+            remove_csv(fname_hydro_unit)
+    if os.path.isfile(fname_all_units):
+        power_unit = read_power_units(fname_all_units)
         power_unit = power_unit.drop_duplicates()
         power_unit_hydro = power_unit[power_unit.Einheittyp == 'Wasser']
         power_unit_hydro.index.names = ['see_id']
         power_unit_hydro.reset_index()
         power_unit_hydro.index.names = ['id']
-        write_to_csv(csv_see_hydro, power_unit_hydro)
+        write_to_csv(fname_hydro, power_unit_hydro)
+        power_unit_hydro.iloc[0:0]
         return power_unit_hydro
     else:
-        power_unit_hydro = read_power_units(csv_see_hydro)
-        return power_unit_hydro
+        log.info('no hydrounits found')
+        return pd.DataFrame()
 
 
 def download_unit_hydro():
-    """Download Wassereinheit.
 
-    Existing units: 31543 (2019-02-10)
-    """
     start_from = 0
-    csv_hydro = set_filename_csv_see('hydro_units', True)
     unit_hydro = setup_power_unit_hydro()
     unit_hydro_list = unit_hydro['EinheitMastrNummer'].values.tolist()
     unit_hydro_list_len = len(unit_hydro_list)
@@ -265,15 +262,13 @@ def download_unit_hydro():
     for i in range(start_from, unit_hydro_list_len, 1):
         try:
             unit_hydro = get_power_unit_hydro(unit_hydro_list[i])
-            write_to_csv(csv_hydro, unit_hydro)
+            write_to_csv(fname_hydro, unit_hydro)
         except:
             log.exception(f'Download failed unit_hydro ({i}): {unit_hydro_list[i]}')
 
 
 def download_unit_hydro_eeg():
     """Download unit_hydro_eeg using GetAnlageEegWasser request."""
-    data_version = get_data_version()
-    csv_hydro_eeg = f'data/bnetza_mastr_{data_version}_unit-hydro-eeg.csv'
     unit_hydro = setup_power_unit_hydro()
 
     unit_hydro_list = unit_hydro['EegMastrNummer'].values.tolist()
@@ -282,6 +277,6 @@ def download_unit_hydro_eeg():
     for i in range(0, unit_hydro_list_len, 1):
         try:
             unit_hydro_eeg = get_unit_hydro_eeg(unit_hydro_list[i])
-            write_to_csv(csv_hydro_eeg, unit_hydro_eeg)
+            write_to_csv(fname_hydro_eeg, unit_hydro_eeg)
         except:
             log.exception(f'Download failed unit_hydro_eeg ({i}): {unit_hydro_list[i]}')
