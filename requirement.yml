@@ -1,7 +1,0 @@
-name: D_py36_mastr
-channels:
-    - conda-forge
-    - defaults
-dependencies:
-    - python=3.6
-    - - requirements.txt

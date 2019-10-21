@@ -6,13 +6,11 @@ __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.8.0"
 
 
-DATA_VERSION = 'rli_v2.0.3'
-
-
 import os
 import logging
 log = logging.getLogger(__name__)
-import csv
+
+DATA_VERSION = 'rli_v2.0.3'
 
 """ dummy stump for other file names """
 fname_dummy = f'data/bnetza_mastr_{DATA_VERSION}'
@@ -44,8 +42,10 @@ fname_biomass_eeg_unit = f'{fname_dummy}_unit-biomass-eeg.csv'
 fname_storage = f'{fname_dummy}_storage.csv'
 fname_storage_unit = f'{fname_dummy}_unit-storage.csv'
 
+
 def get_data_version():
-	return DATA_VERSION
+    return DATA_VERSION
+
 
 def split_to_sublists(mylist, length, parts):
         s, r = divmod(length, parts)

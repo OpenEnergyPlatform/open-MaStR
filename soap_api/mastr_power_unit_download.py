@@ -16,21 +16,24 @@ __author__ = "Ludee; christian-rli"
 __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.8.0"
 
-from soap_api.sessions import mastr_session, API_MAX_DEMANDS
 
 import time
+import datetime
 import math
-import numpy as np
+import logging
 import multiprocessing as mp
-from multiprocessing.pool import ThreadPool 
 from functools import partial
 import pandas as pd
-import datetime
+import numpy as np
+
 from zeep.helpers import serialize_object
-import logging
-log = logging.getLogger(__name__)
+
+from soap_api.sessions import mastr_session, API_MAX_DEMANDS
 from soap_api.utils import split_to_sublists, write_to_csv, remove_csv, get_data_version
+
 import math
+
+log = logging.getLogger(__name__)
 ''' VAR IMPORT '''
 from soap_api.utils import fname_all_units
 
@@ -49,7 +52,7 @@ def get_power_unit(start_from, limit=API_MAX_DEMANDS):
         Skip first entries.
     limit : int
         Number of entries to get (default: 2000)
-    """ 
+    """
     status = 'InBetrieb'
     try:
         c = client_bind.GetGefilterteListeStromErzeuger(
@@ -231,28 +234,36 @@ def read_power_units(csv_name):
         Stromerzeugungseinheit.
     """
     # log.info(f'Read data from {csv_name}')
-    power_unit = pd.read_csv(csv_name, header=0, sep=';', index_col=False, encoding='utf-8',
-                             dtype={'id': int,
-                                    'lid': int,
-                                    'EinheitMastrNummer': str,
-                                    'Name': str,
-                                    'Einheitart': str,
-                                    'Einheittyp': str,
-                                    'Standort': str,
-                                    'Bruttoleistung': str,
-                                    'Erzeugungsleistung': str,
-                                    'EinheitBetriebsstatus': str,
-                                    'Anlagenbetreiber': str,
-                                    'EegMastrNummer': str,
-                                    'KwkMastrNummer': str,
-                                    'SpeMastrNummer': str,
-                                    'GenMastrNummer': str,
-                                    'BestandsanlageMastrNummer': str,
-                                    'NichtVorhandenInMigriertenEinheiten': str,
-                                    'StatisikFlag' : str,
-                                    'version': str,
-                                    'timestamp': str})
+    power_unit = pd.read_csv(
+        csv_name,
+        header=0,
+        sep=';',
+        index_col=False,
+        encoding='utf-8',
+        dtype={
+            'id': int,
+            'lid': int,
+            'EinheitMastrNummer': str,
+            'Name': str,
+            'Einheitart': str,
+            'Einheittyp': str,
+            'Standort': str,
+            'Bruttoleistung': str,
+            'Erzeugungsleistung': str,
+            'EinheitBetriebsstatus': str,
+            'Anlagenbetreiber': str,
+            'EegMastrNummer': str,
+            'KwkMastrNummer': str,
+            'SpeMastrNummer': str,
+            'GenMastrNummer': str,
+            'BestandsanlageMastrNummer': str,
+            'NichtVorhandenInMigriertenEinheiten': str,
+            'StatisikFlag' : str,
+            'version': str,
+            'timestamp': str
+        }
+    )
 
     log.info(f'Finished reading data from {csv_name}')
-    #log.info(power_unit[1:4])
+
     return power_unit
