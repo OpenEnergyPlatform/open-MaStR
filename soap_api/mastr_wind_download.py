@@ -30,7 +30,7 @@ import logging
 log = logging.getLogger(__name__)
 
 """ import variables """
-import fname_all_units, fname_wind, fname_wind_unit, fname_wind_eeg, fname_wind_eeg_unit, fname_wind_permit
+from utils import fname_all_units, fname_wind, fname_wind_unit, fname_wind_eeg, fname_wind_eeg_unit, fname_wind_permit
 
 """SOAP API"""
 client, client_bind, token, user = mastr_session()
@@ -290,7 +290,7 @@ def read_unit_wind_permit(csv_name):
     return unit_wind_permit
 
 
-def setup_power_unit_wind(overwrite, permit=False):
+def setup_power_unit_wind(overwrite, eeg=False, permit=False):
     """Setup file for Stromerzeugungseinheit-Wind.
 
     Check if file with Stromerzeugungseinheit-Wind exists. Create if not exists.

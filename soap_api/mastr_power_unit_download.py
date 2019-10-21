@@ -35,7 +35,7 @@ import math
 
 log = logging.getLogger(__name__)
 ''' VAR IMPORT '''
-from soap_api.utils import fname_all_units
+from utils import fname_all_units
 
 """SOAP API"""
 client, client_bind, token, user = mastr_session()

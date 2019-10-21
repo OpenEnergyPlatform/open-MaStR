@@ -235,11 +235,11 @@ def setup_power_unit_biomass(overwrite):
         Stromerzeugungseinheit-Biomass.
     """
     data_version = get_data_version()
-    if overwrite 
+    if overwrite:
       if os.path.isfile(fname_biomass):
         remove_csv(fname_biomass)
       elif os.path.isfile(fname_biomass_unit):
-      remove_csv(fname_biomass_unit)
+        remove_csv(fname_biomass_unit)
     if os.path.isfile(fname_all_units):
         power_unit = read_power_units(fname_all_units)
         if not power_unit.empty:

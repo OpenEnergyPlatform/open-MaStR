@@ -18,7 +18,7 @@ __version__ = "v0.8.0"
 
 from mastr_solar_download import *
 
-from utils import fname_solar, fname_solar_unit, fname_eeg, fname_eeg_unit
+from utils import fname_solar, fname_solar_unit, fname_solar_eeg, fname_solar_eeg_unit
 
 import logging
 log = logging.getLogger(__name__)
@@ -31,8 +31,8 @@ def make_solar():
 
     power_unit_solar = read_power_units(fname_solar_unit)
     unit_solar = read_unit_solar(fname_solar)
-    power_unit_eeg = read_power_units(fname_eeg_unit)
-    unit_solar_eeg = read_unit_solar_eeg(fname_eeg_unit)
+    power_unit_eeg = read_power_units(fname_solar_eeg_unit)
+    unit_solar_eeg = read_unit_solar_eeg(fname_solar_eeg)
 
     table_solar = power_unit_solar.set_index('EinheitMastrNummer') \
         .join(unit_solar.set_index('EinheitMastrNummer'),
