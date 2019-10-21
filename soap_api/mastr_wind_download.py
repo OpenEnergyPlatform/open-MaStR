@@ -30,7 +30,7 @@ import logging
 log = logging.getLogger(__name__)
 
 """ import variables """
-from utils import fname_all_units, fname_wind, fname_wind_unit, fname_wind_eeg, fname_wind_eeg_unit, fname_wind_permit
+from utils import fname_all_units, fname_wind, fname_wind_unit, fname_wind_eeg, fname_wind_eeg_unit, fname_wind_permit, remove_csv
 
 """SOAP API"""
 client, client_bind, token, user = mastr_session()
@@ -52,18 +52,21 @@ def get_power_unit_wind(mastr_unit_wind):
         Windeinheit.
     """
     data_version = get_data_version()
-    c = client_bind.GetEinheitWind(apiKey=api_key,
-                                   marktakteurMastrNummer=my_mastr,
-                                   einheitMastrNummer=mastr_unit_wind)
-    c = disentangle_manufacturer(c)
-    del c['Hersteller']
-    s = serialize_object(c)
-    df = pd.DataFrame(list(s.items()), )
-    unit_wind = df.set_index(list(df.columns.values)[0]).transpose()
-    unit_wind.reset_index()
-    unit_wind.index.names = ['lid']
-    unit_wind['version'] = data_version
-    unit_wind['timestamp'] = str(datetime.datetime.now())
+    try:
+      c = client_bind.GetEinheitWind(apiKey=api_key,
+                                     marktakteurMastrNummer=my_mastr,
+                                     einheitMastrNummer=mastr_unit_wind)
+      c = disentangle_manufacturer(c)
+      del c['Hersteller']
+      s = serialize_object(c)
+      df = pd.DataFrame(list(s.items()), )
+      unit_wind = df.set_index(list(df.columns.values)[0]).transpose()
+      unit_wind.reset_index()
+      unit_wind.index.names = ['lid']
+      unit_wind['version'] = data_version
+      unit_wind['timestamp'] = str(datetime.datetime.now())
+    except Exception as e:
+        log.info('Download failed for %s', mastr_unit_wind)
     return unit_wind
 
 
