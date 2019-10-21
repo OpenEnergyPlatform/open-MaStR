@@ -9,7 +9,7 @@ Read data from MaStR API and write to CSV files.
 SPDX-License-Identifier: AGPL-3.0-or-later
 """
 
-__copyright__ = "© Reiner Lemoine Institut"
+__copyright__ = "\xc2 Reiner Lemoine Institut"
 __license__ = "GNU Affero General Public License Version 3 (AGPL-3.0)"
 __url__ = "https://www.gnu.org/licenses/agpl-3.0.en.html"
 __author__ = "Ludee; christian-rli"
@@ -149,7 +149,6 @@ def download_parallel_power_unit(
         batch_size=10000,
         start_from=0,
         overwrite=False,
-        all_units=False,
         ofname=None
 ):
     """Download StromErzeuger with parallel process
@@ -169,8 +168,6 @@ def download_parallel_power_unit(
         Start index in the power_unit_list.
     overwrite : bool
         Whether or not the data file should be overwritten.
-    all_units : bool
-        If True, will use get_all_units instead of get_power_unit.
     ofname : string
         Path to save the downloaded files.
     """
@@ -228,19 +225,16 @@ def download_parallel_power_unit(
             sublist = sublists.pop(0)
             ndownload = len(sublist)
             pool = mp.Pool(processes=ndownload)
-            if all_units:
-                result = pool.map(get_all_units, sublist)
+            if almost_end_of_list is False:
+                result = pool.map(partial(get_power_unit, limit=limit), sublist)
             else:
-                if almost_end_of_list is False:
-                    result = pool.map(partial(get_power_unit, limit=limit), sublist)
+                if end_of_list is False:
+                    # The last list might not be an integer number of API_MAX_DEMANDS
+                    result = pool.map(partial(get_power_unit, limit=limit), sublist[:-1])
+                    # Evaluate the last item separately
+                    sublists.append([sublist[-1]])
                 else:
-                    if end_of_list is False:
-                        # The last list might not be an integer number of API_MAX_DEMANDS
-                        result = pool.map(partial(get_power_unit, limit=limit), sublist[:-1])
-                        # Evaluate the last item separately
-                        sublists.append([sublist[-1]])
-                    else:
-                        result = pool.map(partial(get_power_unit, limit=limit), sublist)
+                    result = pool.map(partial(get_power_unit, limit=limit), sublist)
 
             summe += 1
             progress = math.floor((summe/length)*100)

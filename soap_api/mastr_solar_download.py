@@ -311,17 +311,25 @@ def download_parallel_unit_solar(
         cpu_factor=1,
         overwrite=True
 ):
-    """Start parallel demands of Solareinheiten data to the SOAP API
+    """Download GetEinheitSolar with parallel process
+
+
+    Arguments
+    ---------
+    start_from : int
+        Start index in the power_unit_list.
+    n_entries : int
+        Number of entries to download
+    parallelism : int
+        number of threads
+    cpu_factor : float
+        multiplies the number of processes depending on available cpu units
+    overwrite : bool
+        decide wether the existing files should be overwritten or not
+
 
     Existing units: 31543 (2019-02-10)
 
-    :param start_from: (int) start index in the unit_solar_list
-    :param n_entries: (int) number of entries to download
-    :param parallelism: (int) number of threads
-    :param cpu_factor: (float) factor multiplying the number of cpu. Alters the number of processes
-     in the Pool (default = number of cpu; with this factor it can be more)
-    :param overwrite: (bool) decide whether the existing files should be overwritten or not
-    :return:
     """
     global proc_list
     split_solar_list = []
@@ -356,6 +364,8 @@ def download_parallel_unit_solar(
     log.info('time needed %s', time.time()-t)
 
 
+
+
 def download_parallel_unit_solar_eeg(
         start_from=0,
         n_entries=1,
@@ -363,18 +373,29 @@ def download_parallel_unit_solar_eeg(
         cpu_factor=1,
         overwrite=True
 ):
-    """Start parallel demands of Solareinheiten EEG data to the SOAP API
+
+    """Download GetAnlageEegSolar with parallel process
+
+
+    Arguments
+    ---------
+    start_from : int
+        Start index in the power_unit_list.
+    n_entries : int
+        Number of entries to download
+    parallelism : int
+        number of threads
+    cpu_factor : float
+        multiplies the number of processes depending on available cpu units
+    overwrite : bool
+        decide wether the existing files should be overwritten or not
+
 
     Existing units: 31543 (2019-02-10)
 
-    :param start_from: (int) start index in the unit_solar_list
-    :param n_entries: (int) number of entries to download
-    :param parallelism: (int) number of threads
-    :param cpu_factor: (float) factor multiplying the number of cpu. Alters the number of processes
-     in the Pool (default = number of cpu; with this factor it can be more)
-    :param overwrite: (bool) decide whether the existing files should be overwritten or not
-    :return:
+    Existing units: 31543 (2019-02-10)
     """
+
     global proc_list
     split_solar_list = []
 
