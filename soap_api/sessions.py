@@ -16,22 +16,22 @@ __author__ = "Ludee; christian-rli"
 __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.8.0"
 
-from . import config as lc
-
 import os
-import sqlalchemy as sa
 from collections import namedtuple
+import logging
 import requests
+import sqlalchemy as sa
 
 from zeep import Client, Settings
 from zeep.cache import SqliteCache
 from zeep.transports import Transport
 
+from . import config as lc
+
 UserToken = namedtuple('UserToken', ['user', 'token'])
 
 API_MAX_DEMANDS = 2000
 
-import logging
 log = logging.getLogger(__name__)
 
 
@@ -45,7 +45,7 @@ def oep_config():
     """
     config_section = 'OEP'
 
-    # username
+    # user
     try:
         lc.config_file_load()
         user = lc.config_file_get(config_section, 'user')
@@ -59,18 +59,11 @@ def oep_config():
         token = lc.config_file_get(config_section, 'token')
         print(f'Load API token')
     except:
-        import sys
         token = input('Token:')
-        # token = getpass.getpass(prompt = 'Token:',
-        #                         stream = sys.stdin)
         lc.config_section_set(config_section, value=user, key=token)
         log.info('Config file created')
     return UserToken(user, token)
 
-
-# a = oep_config()
-# a.user
-# a.token
 
 def oep_session():
     """SQLAlchemy session object with valid connection to database.
@@ -81,8 +74,6 @@ def oep_session():
         Database connection object.
     """
     user, token = oep_config()
-    # user = input('Enter OEP-username:')
-    # token = getpass.getpass('Token:')
 
     # engine
     try:
@@ -119,16 +110,14 @@ def mastr_config():
     try:
         lc.config_file_load()
         user = lc.config_file_get(config_section, 'user')
-        # print('Hello ' + user)
     except:
         user = input('Please provide your MaStR Nummer:')
 
     # token
     try:
-        from soap_api.config import config_file_get
-        token = config_file_get(config_section, 'token')
+        token = lc.config_file_get(config_section, 'token')
     except:
-        import sys
+
         token = input('Token:')
         # token = getpass.getpass(prompt='apiKey: ',
         #                            stream=sys.stderr)
@@ -157,8 +146,8 @@ def mastr_session():
     session = requests.Session()
     session.max_redirects = 30
     a = requests.adapters.HTTPAdapter(max_retries=3, pool_connections=2000, pool_maxsize=2000)
-    session.mount('https://',a)
-    session.mount('http://',a)
+    session.mount('https://', a)
+    session.mount('http://', a)
     transport = Transport(cache=SqliteCache(), timeout=600, session=session)
     settings = Settings(strict=True, xml_huge_tree=True)
     client = Client(wsdl=wsdl, transport=transport, settings=settings)
