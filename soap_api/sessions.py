@@ -16,14 +16,12 @@ __author__ = "Ludee; christian-rli"
 __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.8.0"
 
-import soap_api.config as lc
+from . import config as lc
 
-# import getpass
 import os
 import sqlalchemy as sa
 from collections import namedtuple
 import requests
-import urllib3
 
 from zeep import Client, Settings
 from zeep.cache import SqliteCache
