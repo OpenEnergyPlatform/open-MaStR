@@ -16,6 +16,23 @@ Here is a template for new release sections
 ### Removed
 -
 ```
+
+## [Unreleased]
+
+### Added
+- docstrings for functions
+- tests
+- setup.py file
+
+### Changed
+- rename `import-api` `soap_api`
+- update README with instruction for tests
+- update README with instruction for setup
+
+### Removed
+- unused imports
+- obsolete comments
+
 ## [0.8.0] 2019-09-30
 
 ### Added

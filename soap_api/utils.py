@@ -6,19 +6,19 @@ __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.8.0"
 
 
-DATA_VERSION = 'rli_v2.0.3'
-
-
 import os
 import logging
 log = logging.getLogger(__name__)
-import csv
+
+DATA_VERSION = 'rli_v2.0.3'
 
 csv_see_dummy = f'data/bnetza_mastr_{DATA_VERSION}'
 csv_see = f'data/bnetza_mastr_{DATA_VERSION}_power-unit.csv'
 
+
 def get_data_version():
-	return DATA_VERSION
+    return DATA_VERSION
+
 
 def split_to_sublists(mylist, length, parts):
         s, r = divmod(length, parts)
