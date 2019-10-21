@@ -71,28 +71,6 @@ def get_power_unit(start_from, limit=API_MAX_DEMANDS):
     return power_unit
 
 
-def get_all_units(start_from, limit=API_MAX_DEMANDS):
-    
-    try:
-        c = client_bind.GetListeAlleEinheiten(
-        apiKey=api_key,
-        marktakteurMastrNummer=my_mastr,
-        startAb=start_from,
-        limit=limit)  # Limit of API.  
-        s = serialize_object(c)
-
-        power_unit = pd.DataFrame(s['Einheiten'])
-        power_unit.index.names = ['lid']
-        power_unit['version'] = DATA_VERSION
-        power_unit['timestamp'] = str(datetime.datetime.now())
-    except Exception as e:
-        log.debug(e)
-        #log.error(e)
-    # remove double quotes from column
-
-    return power_unit
-
-
 def download_power_unit(
         power_unit_list_len=2363200,
         limit=API_MAX_DEMANDS,
