@@ -43,7 +43,7 @@ api_key = token
 my_mastr = user
 
 
-def get_power_unit(start_from, limit=API_MAX_DEMANDS):
+def get_power_unit(start_from, wind=False, limit=API_MAX_DEMANDS):
     """Get Stromerzeugungseinheit from API using GetGefilterteListeStromErzeuger.
 
     Parameters
@@ -54,12 +54,19 @@ def get_power_unit(start_from, limit=API_MAX_DEMANDS):
         Number of entries to get (default: 2000)
     """
     status = 'InBetrieb'
+    source = 'Wind'
+    if not wind:
+        source = 'None'
+    #else:
+    #    source = 'None'
+
     try:
         c = client_bind.GetGefilterteListeStromErzeuger(
             apiKey=api_key,
             marktakteurMastrNummer=my_mastr,
             # einheitBetriebsstatus=status,
             startAb=start_from,
+            energietraeger=source,
             limit=limit  # Limit of API.
         )
         s = serialize_object(c)
@@ -76,7 +83,8 @@ def get_power_unit(start_from, limit=API_MAX_DEMANDS):
 
 def download_power_unit(
         power_unit_list_len=2363200,
-        limit=API_MAX_DEMANDS
+        limit=API_MAX_DEMANDS,
+        wind=False
 ):
     """Download StromErzeuger.
 
@@ -86,6 +94,10 @@ def download_power_unit(
         Maximum number of units to get. Check MaStR portal for current number.
     limit : int
         Number of units to get per call to API (limited to 2000).
+    energietraeger: string
+        None, AndereGase, Biomasse, Braunkohle, Erdgas, Geothermie, Grubengas, Kernenergie,
+        Klaerschlamm, Mineraloelprodukte, NichtBiogenerAbfall, SolareStrahlungsenergie, Solarthermie,
+        Speicher, Steinkohle, Waerme, Wind, Wasser
 
     Existing units:
     1822000 (2019-02-10)
@@ -110,7 +122,7 @@ def download_power_unit(
 
     for start_from in range(0, power_unit_list_len, limit):
         try:
-            power_unit = get_power_unit(start_from, limit)
+            power_unit = get_power_unit(start_from, wind, limit)
             write_to_csv(fname_all_units, power_unit)
             power_unit_len = len(power_unit)
             log.info(f'Download power_unit from {start_from}-{start_from + power_unit_len}')
@@ -123,7 +135,8 @@ def download_parallel_power_unit(
         limit=API_MAX_DEMANDS,
         batch_size=10000,
         start_from=0,
-        overwrite=False
+        overwrite=False, 
+        wind=False
 ):
     """Download StromErzeuger with parallel process
 
