@@ -4,4 +4,3 @@ channels:
     - defaults
 dependencies:
     - python=3.6
-    - - requirements.txt

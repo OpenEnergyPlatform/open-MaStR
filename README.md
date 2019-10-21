@@ -17,6 +17,10 @@ The package is intended to be used for python 3.6
     ```
     conda env create -f environment.yml
    ```
+   
+   ```
+    python setup.py install
+   ```
 
 - without conda
 
