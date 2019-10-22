@@ -13,7 +13,7 @@ log = logging.getLogger(__name__)
 DATA_VERSION = 'rli_v2.0.3'
 
 """ dummy stump for other file names """
-fname_dummy = f'data/bnetza_mastr_{DATA_VERSION}'
+fname_template = f'data/bnetza_mastr_{DATA_VERSION}'
 
 """ list of specific power unit file names"""
 fname_all_units = f'{fname_dummy}_all_units.csv'
