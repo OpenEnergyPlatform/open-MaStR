@@ -256,11 +256,18 @@ def setup_power_unit_biomass(overwrite):
       return pd.DataFrame()
 
 
-def download_unit_biomass(overwrite=False):
+def download_unit_biomass(overwrite=False, ofname=None):
     """Download Biomasseeinheit.
 
+
+    ofname : string
+        Path to save the downloaded files.
     Existing units: 31543 (2019-02-10)
     """
+    # assign file name default value
+    if ofname is None:
+        ofname = fname_biomass
+
     start_from = 0
     unit_biomass = setup_power_unit_biomass(overwrite)
     unit_biomass_list = unit_biomass['EinheitMastrNummer'].values.tolist()
@@ -271,15 +278,22 @@ def download_unit_biomass(overwrite=False):
     for i in range(start_from, unit_biomass_list_len, 1):
         try:
             unit_biomass = get_power_unit_biomass(unit_biomass_list[i])
-            write_to_csv(fname_biomass, unit_biomass)
+            write_to_csv(ofname, unit_biomass)
         except:
             log.exception(f'Download failed unit_biomass ({i}): {unit_biomass_list[i]}')
 
 
-def download_unit_biomass_eeg():
-    """Download unit_biomass_eeg using GetAnlageEegBiomasse request."""
-    data_version = get_data_version()
-    csv_biomass_eeg = f'data/bnetza_mastr_{data_version}_unit-biomass-eeg.csv'
+def download_unit_biomass_eeg(ofname=None):
+    """Download unit_biomass_eeg using GetAnlageEegBiomasse request.
+
+    ofname : string
+        Path to save the downloaded files.
+    """
+
+    # assign file name default value
+    if ofname is None:
+        ofname = fname_biomass_eeg
+
     unit_biomass = setup_power_unit_biomass()
 
     unit_biomass_list = unit_biomass['EegMastrNummer'].values.tolist()
@@ -288,6 +302,6 @@ def download_unit_biomass_eeg():
     for i in range(0, unit_biomass_list_len, 1):
         try:
             unit_biomass_eeg = get_unit_biomass_eeg(unit_biomass_list[i])
-            write_to_csv(fname_biomass_eeg, unit_biomass_eeg)
+            write_to_csv(ofname, unit_biomass_eeg)
         except:
             log.exception(f'Download failed unit_biomass_eeg ({i}): {unit_biomass_list[i]}')
