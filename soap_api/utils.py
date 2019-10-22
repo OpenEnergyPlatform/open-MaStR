@@ -19,10 +19,10 @@ fname_template = f'data/bnetza_mastr_{DATA_VERSION}'
 """ list of specific power unit file names"""
 fname_all_units = f'{fname_template}_all_units.csv'
 
-fname_hydro_eeg_unit = f'{fname_template}_unit-hydro-eeg.csv'
-fname_hydro_unit = f'{fname_template}_unit-hydro.csv'
-fname_hydro = f'{fname_template}_hydro.csv'
-fname_hydro_eeg = f'{fname_template}_hydro-eeg.csv'
+fname_power_unit_hydro = f'{fname_template}_power-unit-hydro.csv'
+fname_unit_hydro = f'{fname_template}_unit-hydro.csv'
+fname_unit_hydro_eeg = f'{fname_template}_unit-hydro-eeg.csv'
+fname_hydro_all = f'{fname_template}_hydro_all.csv'
 
 fname_solar = f'{fname_template}_solar.csv'
 fname_solar_unit = f'{fname_template}_unit-solar.csv'
@@ -35,10 +35,11 @@ fname_wind_unit = f'{fname_template}_unit-wind.csv'
 fname_wind_eeg_unit = f'{fname_template}_unit-wind-eeg.csv'
 fname_wind_permit = f'{fname_template}_unit-wind-permit.csv'
 
-fname_biomass = f'{fname_template}_biomass.csv'
-fname_biomass_unit = f'{fname_template}_unit-biomass.csv'
-fname_biomass_eeg = f'{fname_template}_biomass-eeg.csv'
-fname_biomass_eeg_unit = f'{fname_template}_unit-biomass-eeg.csv'
+
+fname_power_unit_biomass = f'{fname_template}_power-unit-biomass.csv'
+fname_unit_biomass = f'{fname_template}_unit-biomass.csv'
+fname_unit_biomass_eeg = f'{fname_template}_unit-biomass-eeg.csv'
+fname_biomass_all = f'{fname_template}_biomass_all.csv'
 
 fname_storage = f'{fname_template}_storage.csv'
 fname_storage_unit = f'{fname_template}_unit-storage.csv'
