@@ -16,10 +16,17 @@ __author__ = "Ludee; christian-rli"
 __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.8.0"
 
-from mastr_biomass_download import *
-from utils import fname_biomass, fname_biomass_unit, fname_biomass_eeg, fname_biomass_eeg_unit
-
 import logging
+from soap_api.mastr_power_unit_download import read_power_units
+from soap_api.mastr_biomass_download import read_unit_biomass, read_unit_biomass_eeg
+from soap_api.utils import (
+    write_to_csv,
+    fname_power_unit_biomass,
+    fname_unit_biomass,
+    fname_unit_biomass_eeg,
+    fname_biomass_all
+)
+
 log = logging.getLogger(__name__)
 
 

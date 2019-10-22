@@ -16,19 +16,26 @@ __author__ = "Ludee; christian-rli"
 __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.8.0"
 
-from soap_api.utils import get_data_version, write_to_csv, remove_csv
-from soap_api.sessions import mastr_session
 
-import pandas as pd
-import datetime
 import os
+import datetime
+import logging
+import pandas as pd
+
 from zeep.helpers import serialize_object
 
-import logging
-log = logging.getLogger(__name__)
-
+from soap_api.utils import get_data_version, write_to_csv
+from soap_api.sessions import mastr_session
+from soap_api.mastr_power_unit_download import read_power_units
 """ import variables """
-from utils import fname_biomass, fname_biomass_unit, fname_all_units, fname_biomass_eeg
+from soap_api.utils import (
+    fname_all_units,
+    fname_power_unit_biomass,
+    fname_unit_biomass,
+    fname_unit_biomass_eeg
+)
+
+log = logging.getLogger(__name__)
 
 """SOAP API"""
 client, client_bind, token, user = mastr_session()
