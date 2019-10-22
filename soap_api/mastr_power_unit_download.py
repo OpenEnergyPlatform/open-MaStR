@@ -96,6 +96,9 @@ def download_power_unit(
         None, AndereGase, Biomasse, Braunkohle, Erdgas, Geothermie, Grubengas, Kernenergie,
         Klaerschlamm, Mineraloelprodukte, NichtBiogenerAbfall, SolareStrahlungsenergie, Solarthermie,
         Speicher, Steinkohle, Waerme, Wind, Wasser
+    wind : bool
+        Wether only wind data but all wind data (wind power unit, wind, (wind eeg), wind permit, wind all)
+        should be downloaded and processed
 
     Existing units:
     1822000 (2019-02-10)
@@ -154,6 +157,11 @@ def download_parallel_power_unit(
         Start index in the power_unit_list.
     overwrite : bool
         Whether or not the data file should be overwritten.
+    wind : bool
+        Wether only wind data but all wind data (wind power unit, wind, (wind eeg), wind permit, wind all)
+        should be downloaded and processed
+    eeg : bool
+        Wether eeg data should be downloaded,too
     """
     log.info('Download MaStR Power Unit')
     if batch_size < API_MAX_DEMANDS:
