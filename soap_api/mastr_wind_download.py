@@ -29,7 +29,7 @@ import logging
 log = logging.getLogger(__name__)
 
 """ import variables """
-from utils import fname_all_units, fname_wind, fname_wind_unit, fname_wind_eeg, fname_wind_eeg_unit, fname_wind_permit, remove_csv, read_power_units
+from utils import fname_all_units, fname_wind, fname_wind_unit, fname_wind_eeg, fname_wind_eeg_unit, fname_wind_permit, remove_csv
 
 """SOAP API"""
 client, client_bind, token, user = mastr_session()
@@ -308,13 +308,9 @@ def setup_power_unit_wind(overwrite, eeg=False, permit=False):
       if not eeg:
         if os.path.isfile(fname_wind):
           remove_csv(fname_wind)
-        if os.path.isfile(fname_wind_unit):
-          remove_csv(fname_wind_unit)
       elif eeg:
         if os.path.isfile(fname_wind_eeg):
           remove_csv(fname_wind_eeg)
-        if os.path.isfile(fname_wind_eeg_unit):
-          remove_csv(fname_wind_eeg_unit)
       elif permit:
         if os.path.isfile(fname_wind_permit):
           remove_csv(fname_wind_permit)

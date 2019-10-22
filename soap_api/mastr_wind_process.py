@@ -17,28 +17,30 @@ __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.8.0"
 
 from mastr_wind_download import *
-from utils import fname_wind, fname_wind_unit, fname_wind_eeg, fname_wind_eeg_unit, fname_wind_permit
+from utils import fname_wind, fname_wind_unit, fname_wind_eeg, fname_wind_eeg_unit, fname_wind_permit, read_power_units
 
 import logging
 log = logging.getLogger(__name__)
 
 
-def make_wind():
+def make_wind(eeg=False):
     """Read wind data from CSV files. Join data and write to file."""
     data_version = get_data_version()
     csv_wind = f'data/bnetza_mastr_{data_version}_wind_all.csv'
 
     power_unit_wind = read_power_units(fname_wind_unit)
     unit_wind = read_unit_wind(fname_wind)
-    unit_wind_eeg = read_unit_wind_eeg(fname_wind_eeg)
+    if eeg==True:
+        unit_wind_eeg = read_unit_wind_eeg(fname_wind_eeg)
     unit_wind_permit = read_unit_wind_permit(fname_wind_permit)
 
     table_wind = power_unit_wind \
     .join(unit_wind_permit.set_index('GenMastrNummer'),
               on='GenMastrNummer', how='left', rsuffix='_p') \
     .join(unit_wind.set_index('EinheitMastrNummer'),
-             on='EinheitMastrNummer', how='left', rsuffix='_w') \
-    .join(unit_wind_eeg.set_index('EegMastrNummer'),
+             on='EinheitMastrNummer', how='left', rsuffix='_w')
+    if eeg==True:
+        table_wind = table_wind.join(unit_wind_eeg.set_index('EegMastrNummer'),
               on='EegMastrNummer', how='left', rsuffix='_e') \
 
     write_to_csv(csv_wind, table_wind)

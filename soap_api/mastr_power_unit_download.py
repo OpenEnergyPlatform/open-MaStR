@@ -233,5 +233,5 @@ def download_parallel_power_unit(
         except Exception as e:
             log.error(e)
     log.info('Power Unit Download executed in: {0:.2f}'.format(time.time()-t))
-    do_wind(eeg=eeg, start_from=1)
+    do_wind(eeg=eeg)
 

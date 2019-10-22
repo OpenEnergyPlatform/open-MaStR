@@ -19,6 +19,7 @@ __version__ = "v0.8.0"
 from soap_api.sessions import mastr_session
 #from mastr_power_unit_download import read_power_units
 from soap_api.utils import write_to_csv, get_data_version
+from mastr_wind_process import make_wind
 
 import pandas as pd
 import numpy as np
@@ -37,7 +38,7 @@ client, client_bind, token, user = mastr_session()
 api_key = token
 my_mastr = user
 
-def do_wind(start_from, eeg):
+def do_wind(eeg,start_from=0):
   if os.path.isfile(fname_wind_unit):
     wind_unit = read_power_units(fname_wind_unit)
     wind_unit = wind_unit.drop_duplicates()
@@ -51,33 +52,33 @@ def do_wind(start_from, eeg):
       return pd.DataFrame()
   else:
     log.info('windunit file not found')
-
-  wind = download_wind(units=wind_unit, start_from=start_from, eeg=False)
-  if not wind.iloc[0].empty:
-    write_to_csv(fname_wind, wind.iloc[0])
-  elif not wind.iloc[1].empty:
-    write_to_csv(fname_wind_eeg, wind.iloc[1])
+  download_wind(units=wind_unit, start_from=start_from, eeg=eeg)
+  download_wind_permit(units=wind_unit, start_from=start_from)
+  log.info("Finished download wind")
+  make_wind(eeg)
+  log.info("DONE :)")
 
 
 def download_wind(units, start_from, eeg=False):
+    retry_max = 0
     wind_list = units['EinheitMastrNummer'].values.tolist()
+    if eeg==True:
+      wind_list_eeg = units['EegMastrNummer'].values.tolist()
+    else:
+      wind_list_eeg = wind_list
     wind_list_len = len(wind_list)
     log.info('Download MaStR Wind')
     log.info(f'Number of unit_wind: {wind_list_len}')
-
     for i in range(start_from, wind_list_len, 1):
-        try:
-            unit_wind = get_power_unit_wind(mastr_unit_wind=wind_list[i], eeg=eeg)
-            write_to_csv(fname_wind, unit_wind[0])
-            if not unit_wind[1].empty:
-              log.info(" wind unit found xy")
-            #if not isempty(unit_wind[1]):
-            #  write_to_csv(fname_wind_eeg, unit_wind[1])
-        except:
-            log.exception(f'Download failed unit_wind ({i}): {wind_list[i]}')
+      try:
+          unit_wind = get_power_unit_wind(mastr_unit_wind=wind_list[i], mastr_unit_eeg=wind_list_eeg[i],eeg=eeg)
+          write_to_csv(fname_wind, unit_wind[0])
+          if not len(unit_wind[1])==0:
+            write_to_csv(fname_wind_eeg, unit_wind[1])
+      except:
+          log.exception(f'Download failed unit_wind ({i}): {wind_list[i]}')
 
-
-def get_power_unit_wind(mastr_unit_wind, eeg=False):
+def get_power_unit_wind(mastr_unit_wind, mastr_unit_eeg, eeg=False):
     """Get Windeinheit from API using GetEinheitWind.
 
     Parameters
@@ -97,7 +98,7 @@ def get_power_unit_wind(mastr_unit_wind, eeg=False):
       try:
         c = client_bind.GetAnlageEegWind(apiKey=api_key,
                                      marktakteurMastrNummer=my_mastr,
-                                     eegMastrNummer=mastr_wind_eeg)
+                                     eegMastrNummer=mastr_unit_eeg)
         s = serialize_object(c)
         df = pd.DataFrame(list(s.items()), )
         unit_wind_eeg = df.set_index(list(df.columns.values)[0]).transpose()
@@ -106,7 +107,7 @@ def get_power_unit_wind(mastr_unit_wind, eeg=False):
         unit_wind_eeg["version"] = data_version
         unit_wind_eeg["timestamp"] = str(datetime.datetime.now())
       except Exception as e:
-          log.info('Download failed for %s', mastr_unit_wind)
+          log.info('Download eeg failed for %s', mastr_unit_wind)
 
     try:
       c = client_bind.GetEinheitWind(apiKey=api_key,
@@ -126,6 +127,71 @@ def get_power_unit_wind(mastr_unit_wind, eeg=False):
 
     return unit_wind, unit_wind_eeg
 
+def download_wind_permit(units, start_from=0, overwrite=False):
+        """Download unit_wind_permit using GetEinheitGenehmigung request."""
+        df_all = pd.DataFrame()
+        unit_wind_list = units['GenMastrNummer'].values.tolist()
+        unit_wind_list_len = len(unit_wind_list)
+        for i in range(start_from, unit_wind_list_len, 1):
+          if not pd.isna(unit_wind_list[i]):
+            try:
+                unit_wind_permit = get_unit_wind_permit(unit_wind_list[i])
+                for k,v in unit_wind_permit.VerknuepfteEinheiten.items():
+                  df_new = pd.DataFrame.from_dict(v)
+                  df = pd.DataFrame()
+                  gennr = df_new.size * [unit_wind_permit.GenMastrNummer.iloc[0]]
+                  dates = df_new.size * [unit_wind_permit.Datum.iloc[0]]
+                  types = df_new.size * [unit_wind_permit.Art.iloc[0]]
+                  authority = df_new.size * [(unit_wind_permit.Behoerde.iloc[0]).translate({ord(','):None})]
+                  file_num = df_new.size * [unit_wind_permit.Aktenzeichen.iloc[0]]
+                  frist = df_new.size * [unit_wind_permit.Frist.iloc[0]['Wert']]
+                  water_num = df_new.size * [unit_wind_permit.WasserrechtsNummer.iloc[0]]
+                  water_date = df_new.size * [unit_wind_permit.WasserrechtAblaufdatum.iloc[0]['Wert']]
+                  reporting_date = df_new.size * [unit_wind_permit.Meldedatum.iloc[0]]
+                  df = pd.DataFrame(
+                      {
+                      'GenMastrNummer':gennr,
+                      'Datum': dates,
+                      'Art': types,
+                      'Behoerde': authority,
+                      'Aktenzeichen': file_num,
+                      'Frist': frist,
+                      'WasserrechtsNummer': water_num,
+                      'WasserrechtAblaufdatum': water_date,
+                      'Meldedatum': reporting_date
+                      })
+                  df_all = pd.concat([df_new, df.reindex(df_new.index)], axis=1)
+                  #df_all.set_index(['MaStRNummer'], inplace=True)
+                  write_to_csv(fname_wind_permit,df_all)
+            except:
+                log.exception(f'Download failed unit_wind_permit ({i}): {unit_wind_list[i]}')
+
+def get_unit_wind_permit(mastr_wind_permit):
+    """Get Genehmigung-Wind-Wind from API using GetEinheitGenehmigung.
+
+    Parameters
+    ----------
+    mastr_wind_permit : str
+        Genehmigungnummer MaStR
+
+    Returns
+    -------
+    unit_wind_permit : DataFrame
+        Genehmigung-Einheit-Wind.
+    """
+    data_version = get_data_version()
+    c = client_bind.GetEinheitGenehmigung(apiKey=api_key,
+                                     marktakteurMastrNummer=my_mastr,
+                                     genMastrNummer=mastr_wind_permit)
+    s = serialize_object(c)
+    df = pd.DataFrame(list(s.items()), )
+    unit_wind_permit = df.set_index(list(df.columns.values)[0]).transpose()
+    unit_wind_permit.reset_index()
+    unit_wind_permit.index.names = ['lid']
+    unit_wind_permit["version"] = data_version
+    unit_wind_permit["timestamp"] = str(datetime.datetime.now())
+    unit_wind_permit = unit_wind_permit.replace('\r', '', regex=True)
+    return unit_wind_permit
 
 def disentangle_manufacturer(wind_unit):
     wu = wind_unit

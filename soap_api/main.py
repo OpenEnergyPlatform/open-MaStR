@@ -22,14 +22,14 @@ from config import setup_logger
 from mastr_power_unit_download import download_parallel_power_unit, download_power_unit
 from mastr_wind_download import download_unit_wind, download_unit_wind_eeg, download_unit_wind_permit
 from mastr_wind_process import make_wind
-from mastr_hydro_download import download_unit_hydro, download_unit_hydro_eeg
-from mastr_hydro_process import make_hydro
-from mastr_biomass_download import download_unit_biomass, download_unit_biomass_eeg
-from mastr_biomass_process import make_biomass
-from mastr_solar_download import download_unit_solar, download_parallel_unit_solar, download_unit_solar_eeg, download_parallel_unit_solar_eeg
-from mastr_solar_process import make_solar
-from mastr_storage_units_download import download_unit_storage, download_parallel_unit_storage
-
+#from mastr_hydro_download import download_unit_hydro, download_unit_hydro_eeg
+#from mastr_hydro_process import make_hydro
+#from mastr_biomass_download import download_unit_biomass, download_unit_biomass_eeg
+#from mastr_biomass_process import make_biomass
+#from mastr_solar_download import download_unit_solar, download_parallel_unit_solar, download_unit_solar_eeg, download_parallel_unit_solar_eeg
+#from mastr_solar_process import make_solar
+#from mastr_storage_units_download import download_unit_storage, download_parallel_unit_storage
+from mastr_wind_processing import do_wind
 import time
 
 
@@ -47,8 +47,9 @@ if __name__ == "__main__":
 
     ''' DEFAULT PARAMS: power_unit_list_len=100000, limit=2000, batch_size=20000, start_from=0, overwrite=False '''
     ''' CURRENT MAX INDEX FOR VAR start_from and power_unit_list_len: 1814000 '''
-    download_parallel_power_unit(batch_size=4000, power_unit_list_len=8000, wind=True, overwrite=True)
-    download_power_unit()
+    download_parallel_power_unit(power_unit_list_len=100, wind=True,  eeg=False,overwrite=True)
+    #do_wind(eeg=False)
+    #download_power_unit()
 
     """Wind"""
     # download_unit_wind()
