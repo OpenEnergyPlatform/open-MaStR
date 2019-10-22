@@ -32,12 +32,10 @@ log = logging.getLogger(__name__)
 
 def make_hydro():
     """Read hydro data from CSV files. Join data and write to file."""
-    data_version = get_data_version()
-    csv_hydro = f'data/bnetza_mastr_{data_version}_hydro_all.csv'
 
-    power_unit_hydro = read_power_units(fname_hydro_unit)
-    unit_hydro = read_unit_hydro(fname_hydro)
-    unit_hydro_eeg = read_unit_hydro_eeg(fname_hydro_eeg)
+    power_unit_hydro = read_power_units(fname_power_unit_hydro)
+    unit_hydro = read_unit_hydro(fname_unit_hydro)
+    unit_hydro_eeg = read_unit_hydro_eeg(fname_unit_hydro_eeg)
 
     table_hydro = power_unit_hydro.set_index('EinheitMastrNummer') \
         .join(unit_hydro.set_index('EinheitMastrNummer'),
@@ -45,5 +43,5 @@ def make_hydro():
         .join(unit_hydro_eeg.set_index('EegMastrNummer'),
               on='EegMastrNummer', how='left', rsuffix='_e')
 
-    write_to_csv(csv_hydro, table_hydro)
-    log.info(f'Join Hydro to: {csv_hydro}')
+    write_to_csv(fname_hydro_all, table_hydro)
+    log.info(f'Join Hydro to: {fname_hydro_all}')

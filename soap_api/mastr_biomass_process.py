@@ -32,18 +32,16 @@ log = logging.getLogger(__name__)
 
 def make_biomass():
     """Read biomass data from CSV files. Join data and write to file."""
-    data_version = get_data_version()
-    csv_biomass = f'data/bnetza_mastr_{data_version}_biomass_all.csv'
 
-    power_unit_biomass = read_power_units(fname_biomass_unit)
-    unit_biomass = read_unit_biomass(fname_biomass)
-    unit_biomass_eeg = read_unit_biomass_eeg(fname_biomass_eeg)
+    power_unit_biomass = read_power_units(fname_power_unit_biomass)
+    unit_biomass = read_unit_biomass(fname_unit_biomass)
+    unit_biomass_eeg = read_unit_biomass_eeg(fname_unit_biomass_eeg)
 
     table_biomass = power_unit_biomass.set_index('EinheitMastrNummer') \
         .join(unit_biomass.set_index('EinheitMastrNummer'),
-              on='EinheitMastrNummer', how='left', rsuffix='_w') \
+            on='EinheitMastrNummer', how='left', rsuffix='_w') \
         .join(unit_biomass_eeg.set_index('EegMastrNummer'),
-              on='EegMastrNummer', how='left', rsuffix='_e')
+            on='EegMastrNummer', how='left', rsuffix='_e')
 
-    write_to_csv(csv_biomass, table_biomass)
-    log.info(f'Join Biomass to: {csv_biomass}')
+    write_to_csv(fname_biomass_all, table_biomass)
+    log.info(f'Join Biomass to: {fname_biomass_all}')
