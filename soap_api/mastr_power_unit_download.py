@@ -9,7 +9,7 @@ Read data from MaStR API and write to CSV files.
 SPDX-License-Identifier: AGPL-3.0-or-later
 """
 
-__copyright__ = "© Reiner Lemoine Institut"
+__copyright__ = "\xc2 Reiner Lemoine Institut"
 __license__ = "GNU Affero General Public License Version 3 (AGPL-3.0)"
 __url__ = "https://www.gnu.org/licenses/agpl-3.0.en.html"
 __author__ = "Ludee; christian-rli"
@@ -29,9 +29,13 @@ import numpy as np
 from zeep.helpers import serialize_object
 
 from soap_api.sessions import mastr_session, API_MAX_DEMANDS
-from soap_api.utils import split_to_sublists, set_filename_csv_see, write_to_csv, remove_csv, get_data_version, csv_see
+from soap_api.utils import split_to_sublists, write_to_csv, remove_csv, get_data_version
+
+import math
 
 log = logging.getLogger(__name__)
+''' VAR IMPORT '''
+from utils import fname_all_units
 
 """SOAP API"""
 client, client_bind, token, user = mastr_session()
@@ -70,30 +74,9 @@ def get_power_unit(start_from, limit=API_MAX_DEMANDS):
     return power_unit
 
 
-def get_all_units(start_from, limit=API_MAX_DEMANDS):
-
-    try:
-        c = client_bind.GetListeAlleEinheiten(
-            apiKey=api_key,
-            marktakteurMastrNummer=my_mastr,
-            startAb=start_from,
-            limit=limit)  # Limit of API.
-        s = serialize_object(c)
-
-        power_unit = pd.DataFrame(s['Einheiten'])
-        power_unit.index.names = ['lid']
-        power_unit['version'] = get_data_version()
-        power_unit['timestamp'] = str(datetime.datetime.now())
-    except Exception as e:
-        log.debug(e)
-
-    return power_unit
-
-
 def download_power_unit(
         power_unit_list_len=2363200,
-        limit=API_MAX_DEMANDS,
-        ofname=None
+        limit=API_MAX_DEMANDS
 ):
     """Download StromErzeuger.
 
@@ -103,8 +86,6 @@ def download_power_unit(
         Maximum number of units to get. Check MaStR portal for current number.
     limit : int
         Number of units to get per call to API (limited to 2000).
-    ofname : string
-        Path to save the downloaded files.
 
     Existing units:
     1822000 (2019-02-10)
@@ -121,10 +102,7 @@ def download_power_unit(
     log.info('Download MaStR Power Unit')
     log.info(f'Number of expected power units: {power_unit_list_len}')
 
-    if ofname is None:
-        ofname = csv_see
-
-    log.info(f'Write to : {ofname}')
+    log.info(f'Write to : {fname_all_units}')
 
     # if the list size is smaller than the limit
     if limit > power_unit_list_len:
@@ -133,7 +111,7 @@ def download_power_unit(
     for start_from in range(0, power_unit_list_len, limit):
         try:
             power_unit = get_power_unit(start_from, limit)
-            write_to_csv(ofname, power_unit)
+            write_to_csv(fname_all_units, power_unit)
             power_unit_len = len(power_unit)
             log.info(f'Download power_unit from {start_from}-{start_from + power_unit_len}')
         except:
@@ -145,9 +123,7 @@ def download_parallel_power_unit(
         limit=API_MAX_DEMANDS,
         batch_size=10000,
         start_from=0,
-        overwrite=False,
-        all_units=False,
-        ofname=None
+        overwrite=False
 ):
     """Download StromErzeuger with parallel process
 
@@ -166,10 +142,6 @@ def download_parallel_power_unit(
         Start index in the power_unit_list.
     overwrite : bool
         Whether or not the data file should be overwritten.
-    all_units : bool
-        If True, will use get_all_units instead of get_power_unit.
-    ofname : string
-        Path to save the downloaded files.
     """
     log.info('Download MaStR Power Unit')
     if batch_size < API_MAX_DEMANDS:
@@ -182,11 +154,9 @@ def download_parallel_power_unit(
             log.info('No entries to download. Decrease index size.')
             return 0
     end_at = power_unit_list_len + start_from
-    if ofname is None:
-        ofname = set_filename_csv_see('power_units', overwrite)
 
     if overwrite:
-        remove_csv(ofname)
+        remove_csv(fname_all_units)
 
     if power_unit_list_len < limit:
         log.info(f'Number of expected power units: {limit}')
@@ -225,19 +195,16 @@ def download_parallel_power_unit(
             sublist = sublists.pop(0)
             ndownload = len(sublist)
             pool = mp.Pool(processes=ndownload)
-            if all_units:
-                result = pool.map(get_all_units, sublist)
+            if almost_end_of_list is False:
+                result = pool.map(partial(get_power_unit, limit=limit), sublist)
             else:
-                if almost_end_of_list is False:
-                    result = pool.map(partial(get_power_unit, limit=limit), sublist)
+                if end_of_list is False:
+                    # The last list might not be an integer number of API_MAX_DEMANDS
+                    result = pool.map(partial(get_power_unit, limit=limit), sublist[:-1])
+                    # Evaluate the last item separately
+                    sublists.append([sublist[-1]])
                 else:
-                    if end_of_list is False:
-                        # The last list might not be an integer number of API_MAX_DEMANDS
-                        result = pool.map(partial(get_power_unit, limit=limit), sublist[:-1])
-                        # Evaluate the last item separately
-                        sublists.append([sublist[-1]])
-                    else:
-                        result = pool.map(partial(get_power_unit, limit=limit), sublist)
+                    result = pool.map(partial(get_power_unit, limit=limit), sublist)
 
             summe += 1
             progress = math.floor((summe/length)*100)
@@ -245,7 +212,7 @@ def download_parallel_power_unit(
 
             if result:
                 for mylist in result:
-                    write_to_csv(ofname, pd.DataFrame(mylist))
+                    write_to_csv(fname_all_units, pd.DataFrame(mylist))
                     pool.close()
                     pool.join()
         except Exception as e:

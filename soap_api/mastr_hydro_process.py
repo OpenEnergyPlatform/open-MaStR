@@ -17,6 +17,7 @@ __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.8.0"
 
 from mastr_hydro_download import *
+from utils import fname_hydro, fname_hydro_unit, fname_hydro_eeg, fname_hydro_eeg_unit
 
 import logging
 log = logging.getLogger(__name__)
@@ -25,14 +26,11 @@ log = logging.getLogger(__name__)
 def make_hydro():
     """Read hydro data from CSV files. Join data and write to file."""
     data_version = get_data_version()
-    csv_see_hydro = f'data/bnetza_mastr_{data_version}_power-unit-hydro.csv'
-    csv_unit_hydro = f'data/bnetza_mastr_{data_version}_unit-hydro.csv'
-    csv_unit_hydro_eeg = f'data/bnetza_mastr_{data_version}_unit-hydro-eeg.csv'
-    csv_hydro = f'data/bnetza_mastr_{data_version}_hydro.csv'
+    csv_hydro = f'data/bnetza_mastr_{data_version}_hydro_all.csv'
 
-    power_unit_hydro = read_power_units(csv_see_hydro)
-    unit_hydro = read_unit_hydro(csv_unit_hydro)
-    unit_hydro_eeg = read_unit_hydro_eeg(csv_unit_hydro_eeg)
+    power_unit_hydro = read_power_units(fname_hydro_unit)
+    unit_hydro = read_unit_hydro(fname_hydro)
+    unit_hydro_eeg = read_unit_hydro_eeg(fname_hydro_eeg)
 
     table_hydro = power_unit_hydro.set_index('EinheitMastrNummer') \
         .join(unit_hydro.set_index('EinheitMastrNummer'),

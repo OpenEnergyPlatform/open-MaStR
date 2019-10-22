@@ -29,6 +29,9 @@ from zeep.helpers import serialize_object
 import logging
 log = logging.getLogger(__name__)
 
+""" import variables """
+from utils import fname_all_units, fname_wind, fname_wind_unit, fname_wind_eeg, fname_wind_eeg_unit, fname_wind_permit, remove_csv
+
 """SOAP API"""
 client, client_bind, token, user = mastr_session()
 api_key = token
@@ -49,18 +52,21 @@ def get_power_unit_wind(mastr_unit_wind):
         Windeinheit.
     """
     data_version = get_data_version()
-    c = client_bind.GetEinheitWind(apiKey=api_key,
-                                   marktakteurMastrNummer=my_mastr,
-                                   einheitMastrNummer=mastr_unit_wind)
-    c = disentangle_manufacturer(c)
-    del c['Hersteller']
-    s = serialize_object(c)
-    df = pd.DataFrame(list(s.items()), )
-    unit_wind = df.set_index(list(df.columns.values)[0]).transpose()
-    unit_wind.reset_index()
-    unit_wind.index.names = ['lid']
-    unit_wind['version'] = data_version
-    unit_wind['timestamp'] = str(datetime.datetime.now())
+    try:
+      c = client_bind.GetEinheitWind(apiKey=api_key,
+                                     marktakteurMastrNummer=my_mastr,
+                                     einheitMastrNummer=mastr_unit_wind)
+      c = disentangle_manufacturer(c)
+      del c['Hersteller']
+      s = serialize_object(c)
+      df = pd.DataFrame(list(s.items()), )
+      unit_wind = df.set_index(list(df.columns.values)[0]).transpose()
+      unit_wind.reset_index()
+      unit_wind.index.names = ['lid']
+      unit_wind['version'] = data_version
+      unit_wind['timestamp'] = str(datetime.datetime.now())
+    except Exception as e:
+        log.info('Download failed for %s', mastr_unit_wind)
     return unit_wind
 
 
@@ -287,7 +293,7 @@ def read_unit_wind_permit(csv_name):
     return unit_wind_permit
 
 
-def setup_power_unit_wind():
+def setup_power_unit_wind(overwrite, eeg=False, permit=False):
     """Setup file for Stromerzeugungseinheit-Wind.
 
     Check if file with Stromerzeugungseinheit-Wind exists. Create if not exists.
@@ -299,25 +305,37 @@ def setup_power_unit_wind():
         Stromerzeugungseinheit-Wind.
     """
     data_version = get_data_version()
-    csv_see = f'data/bnetza_mastr_{data_version}_power-unit.csv'
-    csv_see_wind = f'data/bnetza_mastr_{data_version}_power-unit-wind.csv'
-    if not os.path.isfile(csv_see_wind):
-        power_unit = read_power_units(csv_see)
+    if overwrite:
+      if not eeg:
+        if os.path.isfile(fname_wind):
+          remove_csv(fname_wind)
+        if os.path.isfile(fname_wind_unit):
+          remove_csv(fname_wind_unit)
+      elif eeg:
+        if os.path.isfile(fname_wind_eeg):
+          remove_csv(fname_wind_eeg)
+        if os.path.isfile(fname_wind_eeg_unit):
+          remove_csv(fname_wind_eeg_unit)
+      elif permit:
+        if os.path.isfile(fname_wind_permit):
+          remove_csv(fname_wind_permit)
+
+    if os.path.isfile(fname_all_units):
+        power_unit = read_power_units(fname_all_units)
         power_unit = power_unit.drop_duplicates()
         power_unit_wind = power_unit[power_unit.Einheittyp == 'Windeinheit']
         power_unit_wind.index.names = ['see_id']
         power_unit_wind.reset_index()
         power_unit_wind.index.names = ['id']
-        # log.info(f'Write data to {csv_see_wind}')
-        write_to_csv(csv_see_wind, power_unit_wind)
+        write_to_csv(fname_wind_unit, power_unit_wind)
+        power_unit_wind.iloc[0:0]
         return power_unit_wind
     else:
-        power_unit_wind = read_power_units(csv_see_wind)
-        # log.info(f'Read data from {csv_see_wind}')
-        return power_unit_wind
+        log.info('no windunits found')
+        return pd.DataFrame()
 
 
-def download_unit_wind():
+def download_unit_wind(overwrite=False):
     """Download Windeinheit.
 
     Existing units: 31543 (2019-02-10)
@@ -325,8 +343,7 @@ def download_unit_wind():
     start_from = 0
 
     data_version = get_data_version()
-    csv_wind = f'data/bnetza_mastr_{data_version}_unit-wind.csv'
-    unit_wind = setup_power_unit_wind()
+    unit_wind = setup_power_unit_wind(overwrite, eeg=False)
     unit_wind_list = unit_wind['EinheitMastrNummer'].values.tolist()
     unit_wind_list_len = len(unit_wind_list)
     log.info('Download MaStR Wind')
@@ -335,15 +352,14 @@ def download_unit_wind():
     for i in range(start_from, unit_wind_list_len, 1):
         try:
             unit_wind = get_power_unit_wind(unit_wind_list[i])
-            write_to_csv(csv_wind, unit_wind)
+            write_to_csv(fname_wind, unit_wind)
         except:
             log.exception(f'Download failed unit_wind ({i}): {unit_wind_list[i]}')
 
-def download_unit_wind_eeg():
+def download_unit_wind_eeg(overwrite=False):
     """Download unit_wind_eeg using GetAnlageEegWind request."""
     data_version = get_data_version()
-    csv_wind_eeg = f'data/bnetza_mastr_{data_version}_unit-wind-eeg.csv'
-    unit_wind = setup_power_unit_wind()
+    unit_wind = setup_power_unit_wind(overwrite, eeg=True)
 
     unit_wind_list = unit_wind['EegMastrNummer'].values.tolist()
     unit_wind_list_len = len(unit_wind_list)
@@ -351,15 +367,14 @@ def download_unit_wind_eeg():
     for i in range(0, unit_wind_list_len, 1):
         try:
             unit_wind_eeg = get_unit_wind_eeg(unit_wind_list[i])
-            write_to_csv(csv_wind_eeg, unit_wind_eeg)
+            write_to_csv(fname_wind_eeg, unit_wind_eeg)
         except:
             log.exception(f'Download failed unit_wind_eeg ({i}): {unit_wind_list[i]}')
 
-def download_unit_wind_permit():
+def download_unit_wind_permit(overwrite=False):
         """Download unit_wind_permit using GetEinheitGenehmigung request."""
         data_version = get_data_version()
-        csv_wind_permit = f'data/bnetza_mastr_{data_version}_unit-wind-permit.csv'
-        unit_wind = setup_power_unit_wind()
+        unit_wind = setup_power_unit_wind(overwrite, permit=True)
         df_all = pd.DataFrame()
         unit_wind_list = unit_wind['GenMastrNummer'].values.tolist()
         unit_wind_list_len = len(unit_wind_list)
@@ -392,10 +407,8 @@ def download_unit_wind_permit():
                       'Meldedatum': reporting_date
                       })
                   df_all = pd.concat([df_new, df.reindex(df_new.index)], axis=1)
-                  log.info(df_head())
-                  log.info(df_all[0].MaStRNummer)
                   #df_all.set_index(['MaStRNummer'], inplace=True)
-                  write_to_csv(csv_wind_permit,df_all)
+                  write_to_csv(fname_wind_permit,df_all)
             except:
                 log.exception(f'Download failed unit_wind_permit ({i}): {unit_wind_list[i]}')
 

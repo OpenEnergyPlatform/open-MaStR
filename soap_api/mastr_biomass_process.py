@@ -17,6 +17,7 @@ __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.8.0"
 
 from mastr_biomass_download import *
+from utils import fname_biomass, fname_biomass_unit, fname_biomass_eeg, fname_biomass_eeg_unit
 
 import logging
 log = logging.getLogger(__name__)
@@ -25,14 +26,11 @@ log = logging.getLogger(__name__)
 def make_biomass():
     """Read biomass data from CSV files. Join data and write to file."""
     data_version = get_data_version()
-    csv_see_biomass = f'data/bnetza_mastr_{data_version}_power-unit-biomass.csv'
-    csv_unit_biomass = f'data/bnetza_mastr_{data_version}_unit-biomass.csv'
-    csv_unit_biomass_eeg = f'data/bnetza_mastr_{data_version}_unit-biomass-eeg.csv'
-    csv_biomass = f'data/bnetza_mastr_{data_version}_biomass.csv'
+    csv_biomass = f'data/bnetza_mastr_{data_version}_biomass_all.csv'
 
-    power_unit_biomass = read_power_units(csv_see_biomass)
-    unit_biomass = read_unit_biomass(csv_unit_biomass)
-    unit_biomass_eeg = read_unit_biomass_eeg(csv_unit_biomass_eeg)
+    power_unit_biomass = read_power_units(fname_biomass_unit)
+    unit_biomass = read_unit_biomass(fname_biomass)
+    unit_biomass_eeg = read_unit_biomass_eeg(fname_biomass_eeg)
 
     table_biomass = power_unit_biomass.set_index('EinheitMastrNummer') \
         .join(unit_biomass.set_index('EinheitMastrNummer'),

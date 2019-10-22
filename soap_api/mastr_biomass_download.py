@@ -16,7 +16,7 @@ __author__ = "Ludee; christian-rli"
 __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.8.0"
 
-from soap_api.utils import get_data_version, write_to_csv, get_filename_csv_see, remove_csv, set_corrected_path, set_filename_csv_see, get_correct_filepath
+from soap_api.utils import get_data_version, write_to_csv, remove_csv
 from soap_api.sessions import mastr_session
 from mastr_power_unit_download import read_power_units
 
@@ -27,8 +27,10 @@ import os
 from zeep.helpers import serialize_object
 
 import logging
-
 log = logging.getLogger(__name__)
+
+""" import variables """
+from utils import fname_biomass, fname_biomass_unit, fname_all_units, fname_biomass_eeg
 
 """SOAP API"""
 client, client_bind, token, user = mastr_session()
@@ -221,7 +223,7 @@ def read_unit_biomass_eeg(csv_name):
     return unit_biomass_eeg
 
 
-def setup_power_unit_biomass():
+def setup_power_unit_biomass(overwrite):
     """Setup file for Stromerzeugungseinheit-Biomass.
 
     Check if file with Stromerzeugungseinheit-Biomass exists. Create if not exists.
@@ -233,33 +235,34 @@ def setup_power_unit_biomass():
         Stromerzeugungseinheit-Biomass.
     """
     data_version = get_data_version()
-    csv_see = get_filename_csv_see()
-    #sset_corrected_path(csv_see)
-    csv_see_biomass = set_filename_csv_see('biomass_units', True)
-    if os.path.isfile(csv_see_biomass):
-      remove_csv(csv_see_biomass)
-    if os.path.isfile(csv_see):
-        power_unit = read_power_units(csv_see)
-        power_unit = power_unit.drop_duplicates()
-        power_unit_biomass = power_unit[power_unit.Einheittyp == 'Biomasse']
-        power_unit_biomass.index.names = ['see_id']
-        power_unit_biomass.reset_index()
-        power_unit_biomass.index.names = ['id']
-        write_to_csv(csv_see_biomass, power_unit_biomass)
-        return power_unit_biomass
+    if overwrite:
+      if os.path.isfile(fname_biomass):
+        remove_csv(fname_biomass)
+      elif os.path.isfile(fname_biomass_unit):
+        remove_csv(fname_biomass_unit)
+    if os.path.isfile(fname_all_units):
+        power_unit = read_power_units(fname_all_units)
+        if not power_unit.empty:
+          power_unit = power_unit.drop_duplicates()
+          power_unit_biomass = power_unit[power_unit.Einheittyp == 'Biomasse']
+          power_unit_biomass.index.names = ['see_id']
+          power_unit_biomass.reset_index()
+          power_unit_biomass.index.names = ['id']
+          write_to_csv(fname_biomass_unit, power_unit_biomass)
+          power_unit.iloc[0:0]
+          return power_unit_biomass
     else:
-        power_unit_biomass = read_power_units(csv_see_biomass)
-        return power_unit_biomass
+      log.info('no biomassunits found')
+      return pd.DataFrame()
 
 
-def download_unit_biomass():
+def download_unit_biomass(overwrite=False):
     """Download Biomasseeinheit.
 
     Existing units: 31543 (2019-02-10)
     """
     start_from = 0
-    unit_biomass = setup_power_unit_biomass()
-    csv_biomass = set_filename_csv_see('biomass_units', True)
+    unit_biomass = setup_power_unit_biomass(overwrite)
     unit_biomass_list = unit_biomass['EinheitMastrNummer'].values.tolist()
     unit_biomass_list_len = len(unit_biomass_list)
     log.info('Download MaStR Biomass')
@@ -268,7 +271,7 @@ def download_unit_biomass():
     for i in range(start_from, unit_biomass_list_len, 1):
         try:
             unit_biomass = get_power_unit_biomass(unit_biomass_list[i])
-            write_to_csv(csv_biomass, unit_biomass)
+            write_to_csv(fname_biomass, unit_biomass)
         except:
             log.exception(f'Download failed unit_biomass ({i}): {unit_biomass_list[i]}')
 
@@ -285,6 +288,6 @@ def download_unit_biomass_eeg():
     for i in range(0, unit_biomass_list_len, 1):
         try:
             unit_biomass_eeg = get_unit_biomass_eeg(unit_biomass_list[i])
-            write_to_csv(csv_biomass_eeg, unit_biomass_eeg)
+            write_to_csv(fname_biomass_eeg, unit_biomass_eeg)
         except:
             log.exception(f'Download failed unit_biomass_eeg ({i}): {unit_biomass_list[i]}')
