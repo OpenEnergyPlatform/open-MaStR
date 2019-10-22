@@ -56,9 +56,11 @@ def get_power_unit_hydro(mastr_unit_hydro):
         Wassereinheit.
     """
     data_version = get_data_version()
-    c = client_bind.GetEinheitWasser(apiKey=api_key,
-                                     marktakteurMastrNummer=my_mastr,
-                                     einheitMastrNummer=mastr_unit_hydro)
+    c = client_bind.GetEinheitWasser(
+        apiKey=api_key,
+        marktakteurMastrNummer=my_mastr,
+        einheitMastrNummer=mastr_unit_hydro
+    )
     # c = disentangle_manufacturer(c)
     # del c['Hersteller']
     s = serialize_object(c)
@@ -85,77 +87,85 @@ def read_unit_hydro(csv_name):
         Wassereinheit.
     """
     # log.info(f'Read data from {csv_name}')
-    unit_hydro = pd.read_csv(csv_name, header=0, encoding='utf-8', sep=';', index_col=False,
-                             dtype={'lid': int,
-                                    'Ergebniscode': str,
-                                    'AufrufVeraltet': str,
-                                    'AufrufLebenszeitEnde': str,
-                                    'AufrufVersion': str,
-                                    'EinheitMastrNummer': str,
-                                    'DatumLetzteAktualisierung': str,
-                                    'LokationMastrNummer': str,
-                                    'NetzbetreiberpruefungStatus': str,
-                                    'NetzbetreiberpruefungDatum': str,
-                                    'AnlagenbetreiberMastrNummer': str,
-                                    'Land': str,
-                                    'Bundesland': str,
-                                    'Landkreis': str,
-                                    'Gemeinde': str,
-                                    'Gemeindeschluessel': str,
-                                    'Postleitzahl': str,
-                                    'Gemarkung': str,
-                                    'FlurFlurstuecknummern': str,
-                                    'Strasse': str,
-                                    'StrasseNichtGefunden': str,
-                                    'Hausnummer': str,
-                                    'HausnummerNichtGefunden': str,
-                                    'Adresszusatz': str,
-                                    'Ort': str,
-                                    'Laengengrad': str,
-                                    'Breitengrad': str,
-                                    'UtmZonenwert': str,
-                                    'UtmEast': str,
-                                    'UtmNorth': str,
-                                    'GaussKruegerHoch': str,
-                                    'GaussKruegerRechts': str,
-                                    'Meldedatum': str,
-                                    'GeplantesInbetriebnahmedatum': str,
-                                    'Inbetriebnahmedatum': str,
-                                    'DatumEndgueltigeStilllegung': str,
-                                    'DatumBeginnVoruebergehendeStilllegung': str,
-                                    'DatumWiederaufnahmeBetrieb': str,
-                                    'EinheitBetriebsstatus': str,
-                                    'BestandsanlageMastrNummer': str,
-                                    'NichtVorhandenInMigriertenEinheiten': str,
-                                    'NameStromerzeugungseinheit': str,
-                                    'Weic': str,
-                                    'WeicDisplayName': str,
-                                    'Kraftwerksnummer': str,
-                                    'Energietraeger': str,
-                                    'Bruttoleistung': float,
-                                    'Nettonennleistung': float,
-                                    'AnschlussAnHoechstOderHochSpannung': str,
-                                    'Schwarzstartfaehigkeit': str,
-                                    'Inselbetriebsfaehigkeit': str,
-                                    'Einsatzverantwortlicher': str,
-                                    'FernsteuerbarkeitNb': str,
-                                    'FernsteuerbarkeitDv': str,
-                                    'FernsteuerbarkeitDr': str,
-                                    'Einspeisungsart': str,
-                                    'PraequalifiziertFuerRegelenergie': str,
-                                    'GenMastrNummer': str,
-                                    'NameKraftwerk': str,
-                                    'ArtDerWasserkraftanlage': str,
-                                    'AnzeigeEinerStilllegung': str,
-                                    'ArtDerStilllegung': str,
-                                    'DatumBeginnVorlaeufigenOderEndgueltigenStilllegung': str,
-                                    'MinderungStromerzeugung': str,
-                                    'BestandteilGrenzkraftwerk': str,
-                                    'NettonennleistungDeutschland': str,
-                                    'ArtDesZuflusses': str,
-                                    'EegMastrNummer': str,
-                                    'version': str,
-                                    'timestamp': str})
+    unit_hydro = pd.read_csv(
+        csv_name,
+        header=0,
+        encoding='utf-8',
+        sep=';',
+        index_col=False,
+        dtype={
+            'lid': int,
+            'Ergebniscode': str,
+            'AufrufVeraltet': str,
+            'AufrufLebenszeitEnde': str,
+            'AufrufVersion': str,
+            'EinheitMastrNummer': str,
+            'DatumLetzteAktualisierung': str,
+            'LokationMastrNummer': str,
+            'NetzbetreiberpruefungStatus': str,
+            'NetzbetreiberpruefungDatum': str,
+            'AnlagenbetreiberMastrNummer': str,
+            'Land': str,
+            'Bundesland': str,
+            'Landkreis': str,
+            'Gemeinde': str,
+            'Gemeindeschluessel': str,
+            'Postleitzahl': str,
+            'Gemarkung': str,
+            'FlurFlurstuecknummern': str,
+            'Strasse': str,
+            'StrasseNichtGefunden': str,
+            'Hausnummer': str,
+            'HausnummerNichtGefunden': str,
+            'Adresszusatz': str,
+            'Ort': str,
+            'Laengengrad': str,
+            'Breitengrad': str,
+            'UtmZonenwert': str,
+            'UtmEast': str,
+            'UtmNorth': str,
+            'GaussKruegerHoch': str,
+            'GaussKruegerRechts': str,
+            'Meldedatum': str,
+            'GeplantesInbetriebnahmedatum': str,
+            'Inbetriebnahmedatum': str,
+            'DatumEndgueltigeStilllegung': str,
+            'DatumBeginnVoruebergehendeStilllegung': str,
+            'DatumWiederaufnahmeBetrieb': str,
+            'EinheitBetriebsstatus': str,
+            'BestandsanlageMastrNummer': str,
+            'NichtVorhandenInMigriertenEinheiten': str,
+            'NameStromerzeugungseinheit': str,
+            'Weic': str,
+            'WeicDisplayName': str,
+            'Kraftwerksnummer': str,
+            'Energietraeger': str,
+            'Bruttoleistung': float,
+            'Nettonennleistung': float,
+            'AnschlussAnHoechstOderHochSpannung': str,
+            'Schwarzstartfaehigkeit': str,
+            'Inselbetriebsfaehigkeit': str,
+            'Einsatzverantwortlicher': str,
+            'FernsteuerbarkeitNb': str,
+            'FernsteuerbarkeitDv': str,
+            'FernsteuerbarkeitDr': str,
+            'Einspeisungsart': str,
+            'PraequalifiziertFuerRegelenergie': str,
+            'GenMastrNummer': str,
+            'NameKraftwerk': str,
+            'ArtDerWasserkraftanlage': str,
+            'AnzeigeEinerStilllegung': str,
+            'ArtDerStilllegung': str,
+            'DatumBeginnVorlaeufigenOderEndgueltigenStilllegung': str,
+            'MinderungStromerzeugung': str,
+            'BestandteilGrenzkraftwerk': str,
+            'NettonennleistungDeutschland': str,
+            'ArtDesZuflusses': str,
+            'EegMastrNummer': str,
+            'version': str,
+            'timestamp': str
+        }
+    )
     # log.info(f'Finished reading data from {csv_name}')
     return unit_hydro
 
@@ -174,9 +184,11 @@ def get_unit_hydro_eeg(mastr_hydro_eeg):
         EEG-Anlage-Wasser.
     """
     data_version = get_data_version()
-    c = client_bind.GetAnlageEegWasser(apiKey=api_key,
-                                       marktakteurMastrNummer=my_mastr,
-                                       eegMastrNummer=mastr_hydro_eeg)
+    c = client_bind.GetAnlageEegWasser(
+        apiKey=api_key,
+        marktakteurMastrNummer=my_mastr,
+        eegMastrNummer=mastr_hydro_eeg
+    )
     s = serialize_object(c)
     df = pd.DataFrame(list(s.items()), )
     unit_hydro_eeg = df.set_index(list(df.columns.values)[0]).transpose()
@@ -202,24 +214,32 @@ def read_unit_hydro_eeg(csv_name):
         EEG-Anlage-Wasser
     """
     # log.info(f'Read data from {csv_name}')
-    unit_hydro_eeg = pd.read_csv(csv_name, header=0, sep=';', index_col=False, encoding='utf-8',
-                                 dtype={'lid': int,
-                                        'Ergebniscode': str,
-                                        'AufrufVeraltet': str,
-                                        'AufrufLebenszeitEnde': str,
-                                        'AufrufVersion': str,
-                                        'Meldedatum': str,
-                                        'DatumLetzteAktualisierung': str,
-                                        'EegInbetriebnahmedatum': str,
-                                        'EegMastrNummer': str,
-                                        'AnlagenschluesselEeg': str,
-                                        'AnlagenkennzifferAnlagenregister': str,
-                                        'InstallierteLeistung': str,
-                                        'AnlageBetriebsstatus': str,
-                                        'Ertuechtigung': str,
-                                        'VerknuepfteEinheit': str,
-                                        'version': str,
-                                        'timestamp': str})
+    unit_hydro_eeg = pd.read_csv(
+        csv_name,
+        header=0,
+        sep=';',
+        index_col=False,
+        encoding='utf-8',
+        dtype={
+            'lid': int,
+            'Ergebniscode': str,
+            'AufrufVeraltet': str,
+            'AufrufLebenszeitEnde': str,
+            'AufrufVersion': str,
+            'Meldedatum': str,
+            'DatumLetzteAktualisierung': str,
+            'EegInbetriebnahmedatum': str,
+            'EegMastrNummer': str,
+            'AnlagenschluesselEeg': str,
+            'AnlagenkennzifferAnlagenregister': str,
+            'InstallierteLeistung': str,
+            'AnlageBetriebsstatus': str,
+            'Ertuechtigung': str,
+            'VerknuepfteEinheit': str,
+            'version': str,
+            'timestamp': str
+        }
+    )
     # log.info(f'Finished reading data from {csv_name}')
     return unit_hydro_eeg
 
