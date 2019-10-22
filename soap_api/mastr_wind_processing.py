@@ -26,12 +26,15 @@ import numpy as np
 import datetime
 import os
 from zeep.helpers import serialize_object
+from functools import partial
 
 import logging
 log = logging.getLogger(__name__)
 
+import multiprocessing as mp 
+
 """ import variables """
-from utils import fname_all_units, fname_wind, fname_wind_unit, fname_wind_eeg, fname_wind_eeg_unit, fname_wind_permit, remove_csv, read_power_units
+from utils import fname_all_units, fname_wind, fname_wind_unit, fname_wind_eeg, fname_wind_eeg_unit, fname_wind_permit, remove_csv, read_power_units, split_to_sublists
 
 """SOAP API"""
 client, client_bind, token, user = mastr_session()
@@ -58,18 +61,26 @@ def do_wind(eeg,start_from=0):
   make_wind(eeg)
   log.info("DONE :)")
 
-
 def download_wind(units, start_from, eeg=False):
     retry_max = 0
+    wind_list_len = len(units)
+    log.info('Download MaStR Wind')
+    log.info(f'Number of unit_wind: {wind_list_len}')
+
+    sublists = split_to_sublists(units, len(units), mp.cpu_count()*2)
+    pool = mp.Pool(processes=mp.cpu_count()*2)
+    pool.map(partial(process_partionier, eeg=eeg), sublists)
+    pool.close()
+    pool.join()
+
+def process_partionier(units, eeg=False):
     wind_list = units['EinheitMastrNummer'].values.tolist()
     if eeg==True:
       wind_list_eeg = units['EegMastrNummer'].values.tolist()
     else:
       wind_list_eeg = wind_list
-    wind_list_len = len(wind_list)
-    log.info('Download MaStR Wind')
-    log.info(f'Number of unit_wind: {wind_list_len}')
-    for i in range(start_from, wind_list_len, 1):
+    max_units = len(units)
+    for i in range(1, max_units, 1):
       try:
           unit_wind = get_power_unit_wind(mastr_unit_wind=wind_list[i], mastr_unit_eeg=wind_list_eeg[i],eeg=eeg)
           write_to_csv(fname_wind, unit_wind[0])
@@ -77,6 +88,7 @@ def download_wind(units, start_from, eeg=False):
             write_to_csv(fname_wind_eeg, unit_wind[1])
       except:
           log.exception(f'Download failed unit_wind ({i}): {wind_list[i]}')
+
 
 def get_power_unit_wind(mastr_unit_wind, mastr_unit_eeg, eeg=False):
     """Get Windeinheit from API using GetEinheitWind.
