@@ -17,7 +17,6 @@ __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.8.0"
 
 from soap_api.sessions import mastr_session
-from mastr_power_unit_download import read_power_units
 from soap_api.utils import write_to_csv, get_data_version
 
 import pandas as pd
@@ -30,7 +29,7 @@ import logging
 log = logging.getLogger(__name__)
 
 """ import variables """
-from utils import fname_all_units, fname_wind, fname_wind_unit, fname_wind_eeg, fname_wind_eeg_unit, fname_wind_permit, remove_csv
+from utils import fname_all_units, fname_wind, fname_wind_unit, fname_wind_eeg, fname_wind_eeg_unit, fname_wind_permit, remove_csv, read_power_units
 
 """SOAP API"""
 client, client_bind, token, user = mastr_session()

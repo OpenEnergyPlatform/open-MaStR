@@ -18,7 +18,6 @@ __version__ = "v0.8.0"
 
 from soap_api.utils import get_data_version, write_to_csv, remove_csv
 from soap_api.sessions import mastr_session
-from mastr_power_unit_download import read_power_units
 
 import pandas as pd
 import datetime

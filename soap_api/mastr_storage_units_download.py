@@ -17,7 +17,6 @@ __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.8.0"
 
 from soap_api.sessions import mastr_session
-from mastr_power_unit_download import read_power_units
 from soap_api.utils import split_to_sublists,get_data_version, write_to_csv, remove_csv
 
 from zeep.helpers import serialize_object

@@ -56,11 +56,12 @@ def get_power_unit(start_from, wind=False, limit=API_MAX_DEMANDS):
     """
     status = 'InBetrieb'
     source = 'Wind'
-    if not wind:
+    if wind==False:
         source = 'None'
     #else:
     #    source = 'None'
-
+    log.info(wind)
+    log.info(source)
     try:
         c = client_bind.GetGefilterteListeStromErzeuger(
             apiKey=api_key,
@@ -194,7 +195,6 @@ def download_parallel_power_unit(
 
     almost_end_of_list = False
     end_of_list = False
-    partial(get_power_unit, wind=wind)
 
     while len(sublists) > 0:
         if len(sublists) == 1:
@@ -212,15 +212,15 @@ def download_parallel_power_unit(
             ndownload = len(sublist)
             pool = mp.Pool(processes=ndownload)
             if almost_end_of_list is False:
-                result = pool.map(partial(get_power_unit, limit=limit), sublist)
+                result = pool.map(partial(get_power_unit, limit=limit, wind=wind), sublist)
             else:
                 if end_of_list is False:
                     # The last list might not be an integer number of API_MAX_DEMANDS
-                    result = pool.map(partial(get_power_unit, limit=limit), sublist[:-1])
+                    result = pool.map(partial(get_power_unit, limit=limit, wind=wind), sublist[:-1])
                     # Evaluate the last item separately
                     sublists.append([sublist[-1]])
                 else:
-                    result = pool.map(partial(get_power_unit, limit=limit), sublist)
+                    result = pool.map(partial(get_power_unit, limit=limit, wind=wind), sublist)
 
             summe += 1
             progress = math.floor((summe/length)*100)
@@ -228,7 +228,7 @@ def download_parallel_power_unit(
 
             if result:
                 for mylist in result:
-                    if not wind:
+                    if wind==False:
                         write_to_csv(fname_all_units, pd.DataFrame(mylist))
                     else:
                         write_to_csv(fname_wind_unit, pd.DataFrame(mylist))
@@ -239,51 +239,3 @@ def download_parallel_power_unit(
     log.info('Power Unit Download executed in: {0:.2f}'.format(time.time()-t))
     do_wind(eeg=eeg, start_from=1)
 
-
-def read_power_units(csv_name):
-    """Read Stromerzeugungseinheit from CSV file.
-
-    Parameters
-    ----------
-    csv_name : str
-        Name of file.
-
-    Returns
-    -------
-    power_unit : DataFrame
-        Stromerzeugungseinheit.
-    """
-    # log.info(f'Read data from {csv_name}')
-    power_unit = pd.read_csv(
-        csv_name,
-        header=0,
-        sep=';',
-        index_col=False,
-        encoding='utf-8',
-        dtype={
-            'id': int,
-            'lid': int,
-            'EinheitMastrNummer': str,
-            'Name': str,
-            'Einheitart': str,
-            'Einheittyp': str,
-            'Standort': str,
-            'Bruttoleistung': str,
-            'Erzeugungsleistung': str,
-            'EinheitBetriebsstatus': str,
-            'Anlagenbetreiber': str,
-            'EegMastrNummer': str,
-            'KwkMastrNummer': str,
-            'SpeMastrNummer': str,
-            'GenMastrNummer': str,
-            'BestandsanlageMastrNummer': str,
-            'NichtVorhandenInMigriertenEinheiten': str,
-            'StatisikFlag' : str,
-            'version': str,
-            'timestamp': str
-        }
-    )
-
-    log.info(f'Finished reading data from {csv_name}')
-
-    return power_unit
