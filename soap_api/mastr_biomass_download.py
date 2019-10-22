@@ -21,7 +21,6 @@ from soap_api.sessions import mastr_session
 from mastr_power_unit_download import read_power_units
 
 import pandas as pd
-import numpy as np
 import datetime
 import os
 from zeep.helpers import serialize_object
@@ -30,7 +29,7 @@ import logging
 log = logging.getLogger(__name__)
 
 """ import variables """
-from utils import fname_biomass, fname_biomass_unit, fname_all_units, fname_biomass_eeg
+from soap_api.utils import fname_biomass, fname_biomass_unit, fname_all_units, fname_biomass_eeg
 
 """SOAP API"""
 client, client_bind, token, user = mastr_session()
@@ -52,9 +51,11 @@ def get_power_unit_biomass(mastr_unit_biomass):
         Biomasseeinheit.
     """
     data_version = get_data_version()
-    c = client_bind.GetEinheitBiomasse(apiKey=api_key,
-                                       marktakteurMastrNummer=my_mastr,
-                                       einheitMastrNummer=mastr_unit_biomass)
+    c = client_bind.GetEinheitBiomasse(
+        apiKey=api_key,
+        marktakteurMastrNummer=my_mastr,
+        einheitMastrNummer=mastr_unit_biomass
+    )
     s = serialize_object(c)
     df = pd.DataFrame(list(s.items()), )
     unit_biomass = df.set_index(list(df.columns.values)[0]).transpose()
@@ -79,72 +80,80 @@ def read_unit_biomass(csv_name):
         Biomasseeinheit.
     """
     # log.info(f'Read data from {csv_name}')
-    unit_biomass = pd.read_csv(csv_name, header=0, encoding='utf-8', sep=';', index_col=False,
-                               dtype={'lid': int,
-                                      'Ergebniscode': str,
-                                      'AufrufVeraltet': str,
-                                      'AufrufLebenszeitEnde': str,
-                                      'AufrufVersion': str,
-                                      'EinheitMastrNummer': str,
-                                      'DatumLetzteAktualisierung': str,
-                                      'LokationMastrNummer': str,
-                                      'NetzbetreiberpruefungStatus': str,
-                                      'NetzbetreiberpruefungDatum': str,
-                                      'AnlagenbetreiberMastrNummer': str,
-                                      'Land': str,
-                                      'Bundesland': str,
-                                      'Landkreis': str,
-                                      'Gemeinde': str,
-                                      'Gemeindeschluessel': str,
-                                      'Postleitzahl': str,
-                                      'Gemarkung': str,
-                                      'FlurFlurstuecknummern': str,
-                                      'Strasse': str,
-                                      'StrasseNichtGefunden': str,
-                                      'Hausnummer': str,
-                                      'HausnummerNichtGefunden': str,
-                                      'Adresszusatz': str,
-                                      'Ort': str,
-                                      'Laengengrad': str,
-                                      'Breitengrad': str,
-                                      'UtmZonenwert': str,
-                                      'UtmEast': str,
-                                      'UtmNorth': str,
-                                      'GaussKruegerHoch': str,
-                                      'GaussKruegerRechts': str,
-                                      'Meldedatum': str,
-                                      'GeplantesInbetriebnahmedatum': str,
-                                      'Inbetriebnahmedatum': str,
-                                      'DatumEndgueltigeStilllegung': str,
-                                      'DatumBeginnVoruebergehendeStilllegung': str,
-                                      'DatumWiederaufnahmeBetrieb': str,
-                                      'EinheitBetriebsstatus': str,
-                                      'BestandsanlageMastrNummer': str,
-                                      'NichtVorhandenInMigriertenEinheiten': str,
-                                      'NameStromerzeugungseinheit': str,
-                                      'Weic': str,
-                                      'WeicDisplayName': str,
-                                      'Kraftwerksnummer': str,
-                                      'Energietraeger': str,
-                                      'Bruttoleistung': float,
-                                      'Nettonennleistung': float,
-                                      'AnschlussAnHoechstOderHochSpannung': str,
-                                      'Schwarzstartfaehigkeit': str,
-                                      'Inselbetriebsfaehigkeit': str,
-                                      'Einsatzverantwortlicher': str,
-                                      'FernsteuerbarkeitNb': str,
-                                      'FernsteuerbarkeitDv': str,
-                                      'FernsteuerbarkeitDr': str,
-                                      'Einspeisungsart': str,
-                                      'PraequalifiziertFuerRegelenergie': str,
-                                      'GenMastrNummer': str,
-                                      'Hauptbrennstoff': str,
-                                      'Biomasseart': str,
-                                      'Technologie': str,
-                                      'EegMastrNummer': str,
-                                      'KwkMastrNummer': str,
-                                      'version': str,
-                                      'timestamp': str})
+    unit_biomass = pd.read_csv(
+        csv_name,
+        header=0,
+        encoding='utf-8',
+        sep=';',
+        index_col=False,
+        dtype={
+            'lid': int,
+            'Ergebniscode': str,
+            'AufrufVeraltet': str,
+            'AufrufLebenszeitEnde': str,
+            'AufrufVersion': str,
+            'EinheitMastrNummer': str,
+            'DatumLetzteAktualisierung': str,
+            'LokationMastrNummer': str,
+            'NetzbetreiberpruefungStatus': str,
+            'NetzbetreiberpruefungDatum': str,
+            'AnlagenbetreiberMastrNummer': str,
+            'Land': str,
+            'Bundesland': str,
+            'Landkreis': str,
+            'Gemeinde': str,
+            'Gemeindeschluessel': str,
+            'Postleitzahl': str,
+            'Gemarkung': str,
+            'FlurFlurstuecknummern': str,
+            'Strasse': str,
+            'StrasseNichtGefunden': str,
+            'Hausnummer': str,
+            'HausnummerNichtGefunden': str,
+            'Adresszusatz': str,
+            'Ort': str,
+            'Laengengrad': str,
+            'Breitengrad': str,
+            'UtmZonenwert': str,
+            'UtmEast': str,
+            'UtmNorth': str,
+            'GaussKruegerHoch': str,
+            'GaussKruegerRechts': str,
+            'Meldedatum': str,
+            'GeplantesInbetriebnahmedatum': str,
+            'Inbetriebnahmedatum': str,
+            'DatumEndgueltigeStilllegung': str,
+            'DatumBeginnVoruebergehendeStilllegung': str,
+            'DatumWiederaufnahmeBetrieb': str,
+            'EinheitBetriebsstatus': str,
+            'BestandsanlageMastrNummer': str,
+            'NichtVorhandenInMigriertenEinheiten': str,
+            'NameStromerzeugungseinheit': str,
+            'Weic': str,
+            'WeicDisplayName': str,
+            'Kraftwerksnummer': str,
+            'Energietraeger': str,
+            'Bruttoleistung': float,
+            'Nettonennleistung': float,
+            'AnschlussAnHoechstOderHochSpannung': str,
+            'Schwarzstartfaehigkeit': str,
+            'Inselbetriebsfaehigkeit': str,
+            'Einsatzverantwortlicher': str,
+            'FernsteuerbarkeitNb': str,
+            'FernsteuerbarkeitDv': str,
+            'FernsteuerbarkeitDr': str,
+            'Einspeisungsart': str,
+            'PraequalifiziertFuerRegelenergie': str,
+            'GenMastrNummer': str,
+            'Hauptbrennstoff': str,
+            'Biomasseart': str,
+            'Technologie': str,
+            'EegMastrNummer': str,
+            'KwkMastrNummer': str,
+            'version': str,
+            'timestamp': str
+        }
+    )
     # log.info(f'Finished reading data from {csv_name}')
     return unit_biomass
 
@@ -163,9 +172,11 @@ def get_unit_biomass_eeg(mastr_biomass_eeg):
         EEG-Anlage-Biomasse.
     """
     data_version = get_data_version()
-    c = client_bind.GetAnlageEegBiomasse(apiKey=api_key,
-                                         marktakteurMastrNummer=my_mastr,
-                                         eegMastrNummer=mastr_biomass_eeg)
+    c = client_bind.GetAnlageEegBiomasse(
+        apiKey=api_key,
+        marktakteurMastrNummer=my_mastr,
+        eegMastrNummer=mastr_biomass_eeg
+    )
     s = serialize_object(c)
     df = pd.DataFrame(list(s.items()), )
     unit_biomass_eeg = df.set_index(list(df.columns.values)[0]).transpose()
@@ -191,34 +202,42 @@ def read_unit_biomass_eeg(csv_name):
         EEG-Anlage-Biomass
     """
     # log.info(f'Read data from {csv_name}')
-    unit_biomass_eeg = pd.read_csv(csv_name, header=0, sep=';', index_col=False, encoding='utf-8',
-                                   dtype={'lid': int,
-                                          'Ergebniscode': str,
-                                          'AufrufVeraltet': str,
-                                          'AufrufLebenszeitEnde': str,
-                                          'AufrufVersion': str,
-                                          'Meldedatum': str,
-                                          'DatumLetzteAktualisierung': str,
-                                          'EegInbetriebnahmedatum': str,
-                                          'EegMastrNummer': str,
-                                          'AnlagenschluesselEeg': str,
-                                          'AnlagenkennzifferAnlagenregister': str,
-                                          'InstallierteLeistung': str,
-                                          'AusschliesslicheVerwendungBiomasse': str,
-                                          'AusschreibungZuschlag': str,
-                                          'Zuschlagsnummer': str,
-                                          'BiogasInanspruchnahmeFlexiPraemie': str,
-                                          'BiogasDatumInanspruchnahmeFlexiPraemie': str,
-                                          'BiogasLeistungserhoehung': str,
-                                          'BiogasDatumLeistungserhoehung': str,
-                                          'BiogasUmfangLeistungserhoehung': str,
-                                          'BiogasGaserzeugungskapazitaet': str,
-                                          'BiogasHoechstbemessungsleistung': str,
-                                          'BiomethanErstmaligerEinsatz': str,
-                                          'AnlageBetriebsstatus': str,
-                                          'VerknuepfteEinheit': str,
-                                          'version': str,
-                                          'timestamp': str})
+    unit_biomass_eeg = pd.read_csv(
+        csv_name,
+        header=0,
+        sep=';',
+        index_col=False,
+        encoding='utf-8',
+        dtype={
+            'lid': int,
+            'Ergebniscode': str,
+            'AufrufVeraltet': str,
+            'AufrufLebenszeitEnde': str,
+            'AufrufVersion': str,
+            'Meldedatum': str,
+            'DatumLetzteAktualisierung': str,
+            'EegInbetriebnahmedatum': str,
+            'EegMastrNummer': str,
+            'AnlagenschluesselEeg': str,
+            'AnlagenkennzifferAnlagenregister': str,
+            'InstallierteLeistung': str,
+            'AusschliesslicheVerwendungBiomasse': str,
+            'AusschreibungZuschlag': str,
+            'Zuschlagsnummer': str,
+            'BiogasInanspruchnahmeFlexiPraemie': str,
+            'BiogasDatumInanspruchnahmeFlexiPraemie': str,
+            'BiogasLeistungserhoehung': str,
+            'BiogasDatumLeistungserhoehung': str,
+            'BiogasUmfangLeistungserhoehung': str,
+            'BiogasGaserzeugungskapazitaet': str,
+            'BiogasHoechstbemessungsleistung': str,
+            'BiomethanErstmaligerEinsatz': str,
+            'AnlageBetriebsstatus': str,
+            'VerknuepfteEinheit': str,
+            'version': str,
+            'timestamp': str
+        }
+    )
     # log.info(f'Finished reading data from {csv_name}')
     return unit_biomass_eeg
 
@@ -236,31 +255,38 @@ def setup_power_unit_biomass(overwrite):
     """
     data_version = get_data_version()
     if overwrite:
-      if os.path.isfile(fname_biomass):
-        remove_csv(fname_biomass)
-      elif os.path.isfile(fname_biomass_unit):
-        remove_csv(fname_biomass_unit)
+        if os.path.isfile(fname_biomass):
+            remove_csv(fname_biomass)
+        elif os.path.isfile(fname_biomass_unit):
+            remove_csv(fname_biomass_unit)
     if os.path.isfile(fname_all_units):
         power_unit = read_power_units(fname_all_units)
         if not power_unit.empty:
-          power_unit = power_unit.drop_duplicates()
-          power_unit_biomass = power_unit[power_unit.Einheittyp == 'Biomasse']
-          power_unit_biomass.index.names = ['see_id']
-          power_unit_biomass.reset_index()
-          power_unit_biomass.index.names = ['id']
-          write_to_csv(fname_biomass_unit, power_unit_biomass)
-          power_unit.iloc[0:0]
-          return power_unit_biomass
+            power_unit = power_unit.drop_duplicates()
+            power_unit_biomass = power_unit[power_unit.Einheittyp == 'Biomasse']
+            power_unit_biomass.index.names = ['see_id']
+            power_unit_biomass.reset_index()
+            power_unit_biomass.index.names = ['id']
+            write_to_csv(fname_biomass_unit, power_unit_biomass)
+            power_unit.iloc[0:0]
+            return power_unit_biomass
     else:
-      log.info('no biomassunits found')
-      return pd.DataFrame()
+        log.info('no biomassunits found')
+        return pd.DataFrame()
 
 
-def download_unit_biomass(overwrite=False):
+def download_unit_biomass(overwrite=False, ofname=None):
     """Download Biomasseeinheit.
 
+
+    ofname : string
+        Path to save the downloaded files.
     Existing units: 31543 (2019-02-10)
     """
+    # assign file name default value
+    if ofname is None:
+        ofname = fname_biomass
+
     start_from = 0
     unit_biomass = setup_power_unit_biomass(overwrite)
     unit_biomass_list = unit_biomass['EinheitMastrNummer'].values.tolist()
@@ -271,15 +297,22 @@ def download_unit_biomass(overwrite=False):
     for i in range(start_from, unit_biomass_list_len, 1):
         try:
             unit_biomass = get_power_unit_biomass(unit_biomass_list[i])
-            write_to_csv(fname_biomass, unit_biomass)
+            write_to_csv(ofname, unit_biomass)
         except:
             log.exception(f'Download failed unit_biomass ({i}): {unit_biomass_list[i]}')
 
 
-def download_unit_biomass_eeg():
-    """Download unit_biomass_eeg using GetAnlageEegBiomasse request."""
-    data_version = get_data_version()
-    csv_biomass_eeg = f'data/bnetza_mastr_{data_version}_unit-biomass-eeg.csv'
+def download_unit_biomass_eeg(ofname=None):
+    """Download unit_biomass_eeg using GetAnlageEegBiomasse request.
+
+    ofname : string
+        Path to save the downloaded files.
+    """
+
+    # assign file name default value
+    if ofname is None:
+        ofname = fname_biomass_eeg
+
     unit_biomass = setup_power_unit_biomass()
 
     unit_biomass_list = unit_biomass['EegMastrNummer'].values.tolist()
@@ -288,6 +321,6 @@ def download_unit_biomass_eeg():
     for i in range(0, unit_biomass_list_len, 1):
         try:
             unit_biomass_eeg = get_unit_biomass_eeg(unit_biomass_list[i])
-            write_to_csv(fname_biomass_eeg, unit_biomass_eeg)
+            write_to_csv(ofname, unit_biomass_eeg)
         except:
             log.exception(f'Download failed unit_biomass_eeg ({i}): {unit_biomass_list[i]}')
