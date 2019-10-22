@@ -248,23 +248,24 @@ def read_unit_biomass_eeg(csv_name):
     return unit_biomass_eeg
 
 
-def setup_power_unit_biomass(overwrite):
+def setup_power_unit_biomass(ofname=None):
     """Setup file for Stromerzeugungseinheit-Biomass.
 
     Check if file with Stromerzeugungseinheit-Biomass exists. Create if not exists.
     Load Stromerzeugungseinheit-Biomass from file if exists.
+
+    ofname : string
+        Path to save the downloaded files.
 
     Returns
     -------
     power_unit_biomass : DataFrame
         Stromerzeugungseinheit-Biomass.
     """
-    data_version = get_data_version()
-    if overwrite:
-        if os.path.isfile(fname_biomass):
-            remove_csv(fname_biomass)
-        elif os.path.isfile(fname_biomass_unit):
-            remove_csv(fname_biomass_unit)
+    # assign file name default value
+    if ofname is None:
+        ofname = fname_power_unit_biomass
+
     if os.path.isfile(fname_all_units):
         power_unit = read_power_units(fname_all_units)
         if not power_unit.empty:
@@ -273,7 +274,7 @@ def setup_power_unit_biomass(overwrite):
             power_unit_biomass.index.names = ['see_id']
             power_unit_biomass.reset_index()
             power_unit_biomass.index.names = ['id']
-            write_to_csv(fname_biomass_unit, power_unit_biomass)
+            write_to_csv(ofname, power_unit_biomass)
             power_unit.iloc[0:0]
             return power_unit_biomass
     else:
@@ -287,11 +288,12 @@ def download_unit_biomass(overwrite=False, ofname=None):
 
     ofname : string
         Path to save the downloaded files.
+
     Existing units: 31543 (2019-02-10)
     """
     # assign file name default value
     if ofname is None:
-        ofname = fname_biomass
+        ofname = fname_unit_biomass
 
     start_from = 0
     unit_biomass = setup_power_unit_biomass(overwrite)
@@ -314,10 +316,9 @@ def download_unit_biomass_eeg(ofname=None):
     ofname : string
         Path to save the downloaded files.
     """
-
     # assign file name default value
     if ofname is None:
-        ofname = fname_biomass_eeg
+        ofname = fname_unit_biomass_eeg
 
     unit_biomass = setup_power_unit_biomass()
 

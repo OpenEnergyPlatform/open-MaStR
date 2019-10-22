@@ -224,23 +224,24 @@ def read_unit_hydro_eeg(csv_name):
     return unit_hydro_eeg
 
 
-def setup_power_unit_hydro(overwrite=False):
+def setup_power_unit_hydro(ofname=None):
     """Setup file for Stromerzeugungseinheit-Wasser.
 
     Check if file with Stromerzeugungseinheit-Wasser exists. Create if not exists.
     Load Stromerzeugungseinheit-Wasser from file if exists.
+
+    ofname : string
+        Path to save the downloaded files.
 
     Returns
     -------
     power_unit_hydro : DataFrame
         Stromerzeugungseinheit-Wasser.
     """
-    data_version = get_data_version()
-    if overwrite:
-        if os.path.isfile(fname_hydro):
-            remove_csv(fname_hydro)
-        elif os.path.isfile(fname_hydro_unit):
-            remove_csv(fname_hydro_unit)
+    # assign file name default value
+    if ofname is None:
+        ofname = fname_power_unit_hydro
+
     if os.path.isfile(fname_all_units):
         power_unit = read_power_units(fname_all_units)
         power_unit = power_unit.drop_duplicates()
@@ -248,7 +249,7 @@ def setup_power_unit_hydro(overwrite=False):
         power_unit_hydro.index.names = ['see_id']
         power_unit_hydro.reset_index()
         power_unit_hydro.index.names = ['id']
-        write_to_csv(fname_hydro, power_unit_hydro)
+        write_to_csv(ofname, power_unit_hydro)
         power_unit_hydro.iloc[0:0]
         return power_unit_hydro
     else:
@@ -256,7 +257,15 @@ def setup_power_unit_hydro(overwrite=False):
         return pd.DataFrame()
 
 
-def download_unit_hydro():
+def download_unit_hydro(ofname=None):
+    """Download Hydroeinheit.
+
+    ofname : string
+        Path to save the downloaded files.
+    """
+    # assign file name default value
+    if ofname is None:
+        ofname = fname_unit_hydro
 
     start_from = 0
     unit_hydro = setup_power_unit_hydro()
@@ -268,13 +277,21 @@ def download_unit_hydro():
     for i in range(start_from, unit_hydro_list_len, 1):
         try:
             unit_hydro = get_power_unit_hydro(unit_hydro_list[i])
-            write_to_csv(fname_hydro, unit_hydro)
+            write_to_csv(ofname, unit_hydro)
         except:
             log.exception(f'Download failed unit_hydro ({i}): {unit_hydro_list[i]}')
 
 
-def download_unit_hydro_eeg():
-    """Download unit_hydro_eeg using GetAnlageEegWasser request."""
+def download_unit_hydro_eeg(ofname=None):
+    """Download unit_hydro_eeg using GetAnlageEegWasser request.
+
+    ofname : string
+        Path to save the downloaded files.
+    """
+    # assign file name default value
+    if ofname is None:
+        ofname = fname_unit_hydro_eeg
+
     unit_hydro = setup_power_unit_hydro()
 
     unit_hydro_list = unit_hydro['EegMastrNummer'].values.tolist()
@@ -283,6 +300,6 @@ def download_unit_hydro_eeg():
     for i in range(0, unit_hydro_list_len, 1):
         try:
             unit_hydro_eeg = get_unit_hydro_eeg(unit_hydro_list[i])
-            write_to_csv(fname_hydro_eeg, unit_hydro_eeg)
+            write_to_csv(ofname, unit_hydro_eeg)
         except:
             log.exception(f'Download failed unit_hydro_eeg ({i}): {unit_hydro_list[i]}')
