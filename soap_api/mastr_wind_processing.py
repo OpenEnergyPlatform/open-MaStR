@@ -105,7 +105,6 @@ def get_power_unit_wind(mastr_unit_wind, eeg=False):
         unit_wind_eeg.index.names = ['lid']
         unit_wind_eeg["version"] = data_version
         unit_wind_eeg["timestamp"] = str(datetime.datetime.now())
-        log.info("succss")
       except Exception as e:
           log.info('Download failed for %s', mastr_unit_wind)
 
@@ -122,7 +121,6 @@ def get_power_unit_wind(mastr_unit_wind, eeg=False):
       unit_wind.index.names = ['lid']
       unit_wind['version'] = data_version
       unit_wind['timestamp'] = str(datetime.datetime.now())
-      log.info("success")
     except Exception as e:
           log.info('Download failed for %s', mastr_unit_wind)
 

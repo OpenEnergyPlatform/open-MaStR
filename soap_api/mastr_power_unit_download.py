@@ -58,10 +58,6 @@ def get_power_unit(start_from, wind=False, limit=API_MAX_DEMANDS):
     source = 'Wind'
     if wind==False:
         source = 'None'
-    #else:
-    #    source = 'None'
-    log.info(wind)
-    log.info(source)
     try:
         c = client_bind.GetGefilterteListeStromErzeuger(
             apiKey=api_key,
