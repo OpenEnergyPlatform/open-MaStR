@@ -7,6 +7,7 @@ __version__ = "v0.8.0"
 
 
 import os
+import pandas as pd
 import logging
 log = logging.getLogger(__name__)
 
@@ -137,3 +138,53 @@ def write_to_csv(csv_name, df):
 def remove_csv(csv_name):
     if os.path.isfile(csv_name):
         os.remove(csv_name)
+
+
+
+def read_power_units(csv_name):
+    """Read Stromerzeugungseinheit from CSV file.
+
+    Parameters
+    ----------
+    csv_name : str
+        Name of file.
+
+    Returns
+    -------
+    power_unit : DataFrame
+        Stromerzeugungseinheit.
+    """
+    # log.info(f'Read data from {csv_name}')
+    power_unit = pd.read_csv(
+        csv_name,
+        header=0,
+        sep=';',
+        index_col=False,
+        encoding='utf-8',
+        dtype={
+            'id': int,
+            'lid': int,
+            'EinheitMastrNummer': str,
+            'Name': str,
+            'Einheitart': str,
+            'Einheittyp': str,
+            'Standort': str,
+            'Bruttoleistung': str,
+            'Erzeugungsleistung': str,
+            'EinheitBetriebsstatus': str,
+            'Anlagenbetreiber': str,
+            'EegMastrNummer': str,
+            'KwkMastrNummer': str,
+            'SpeMastrNummer': str,
+            'GenMastrNummer': str,
+            'BestandsanlageMastrNummer': str,
+            'NichtVorhandenInMigriertenEinheiten': str,
+            'StatisikFlag' : str,
+            'version': str,
+            'timestamp': str
+        }
+    )
+
+    log.info(f'Finished reading data from {csv_name}')
+
+    return power_unit

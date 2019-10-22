@@ -29,7 +29,7 @@ import logging
 log = logging.getLogger(__name__)
 
 """ import variables """
-from soap_api.utils import fname_biomass, fname_biomass_unit, fname_all_units, fname_biomass_eeg
+from utils import fname_biomass, fname_biomass_unit, fname_all_units, fname_biomass_eeg
 
 """SOAP API"""
 client, client_bind, token, user = mastr_session()
