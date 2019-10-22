@@ -35,7 +35,7 @@ import math
 
 log = logging.getLogger(__name__)
 ''' VAR IMPORT '''
-from utils import fname_all_units
+from soap_api.utils import fname_all_units
 
 """SOAP API"""
 client, client_bind, token, user = mastr_session()
@@ -65,10 +65,12 @@ def get_power_unit(start_from, limit=API_MAX_DEMANDS):
         s = serialize_object(c)
         power_unit = pd.DataFrame(s['Einheiten'])
         power_unit.index.names = ['lid']
+        power_unit['uid'] = power_unit['lid'] + start_from
         power_unit['version'] = get_data_version()
         power_unit['timestamp'] = str(datetime.datetime.now())
     except Exception as e:
         log.info('Download failed, retrying for %s', start_from)
+        power_unit = pd.DataFrame()
     # remove double quotes from column
     #power_unit['Standort'] = power_unit['Standort'].str.replace('"', '')
     return power_unit

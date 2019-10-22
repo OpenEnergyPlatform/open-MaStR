@@ -16,7 +16,7 @@ DATA_VERSION = 'rli_v2.0.3'
 fname_template = f'data/bnetza_mastr_{DATA_VERSION}'
 
 """ list of specific power unit file names"""
-fname_all_units = f'{fname_template}_all_units.csv'
+fname_all_units = f'{fname_template}_power-unit.csv'
 
 fname_hydro_eeg_unit = f'{fname_template}_unit-hydro-eeg.csv'
 fname_hydro_unit = f'{fname_template}_unit-hydro.csv'
@@ -38,6 +38,11 @@ fname_biomass = f'{fname_template}_biomass.csv'
 fname_biomass_unit = f'{fname_template}_unit-biomass.csv'
 fname_biomass_eeg = f'{fname_template}_biomass-eeg.csv'
 fname_biomass_eeg_unit = f'{fname_template}_unit-biomass-eeg.csv'
+
+fname_power_unit_gsgk = f'{fname_template}_power-unit-gsgk.csv'
+fname_unit_gsgk = f'{fname_template}_unit-gsgk.csv'
+fname_unit_gsgk_eeg = f'{fname_template}_unit-gsgk-eeg.csv'
+fname_gsgk_all = f'{fname_template}_gsgk-all.csv'
 
 fname_storage = f'{fname_template}_storage.csv'
 fname_storage_unit = f'{fname_template}_unit-storage.csv'

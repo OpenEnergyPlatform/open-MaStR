@@ -36,6 +36,7 @@ setup(
         'multiprocess',
         'zeep'
     ],
+    py_modules=['soap_api'],
     project_urls={
         'Bug Reports': 'https://github.com/OpenEnergyPlatform/open-MaStR/issues',
         'Source': 'https://github.com/OpenEnergyPlatform/open-MaStR',
