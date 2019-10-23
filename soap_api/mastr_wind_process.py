@@ -37,7 +37,7 @@ def make_wind(eeg=False):
     log.info("Joining tables...")
     table_wind = power_unit_wind \
     .merge(unit_wind_permit.set_index('EinheitMastrNummer'), on= ['Einheitart', 'Einheittyp', 'GenMastrNummer','EinheitMastrNummer'], how='left') \
-    .merge(unit_wind_eeg.set_index('EegMastrNummer'), on=['EegMastrNummer'], how='left', rsuffix='_eeg') \
+    .merge(unit_wind_eeg.set_index('EegMastrNummer'), on=['EegMastrNummer'], how='left') \
 
     """table_wind = power_unit_wind \
     .join(unit_wind_permit.set_index('GenMastrNummer'),
