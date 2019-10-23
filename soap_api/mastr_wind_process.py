@@ -18,6 +18,7 @@ __version__ = "v0.8.0"
 
 from mastr_wind_download import *
 from utils import fname_wind, fname_wind_unit, fname_wind_eeg, fname_wind_eeg_unit, fname_wind_permit, read_power_units
+import pandas as pd 
 
 import logging
 log = logging.getLogger(__name__)
@@ -33,8 +34,12 @@ def make_wind(eeg=False):
     if eeg==True:
         unit_wind_eeg = read_unit_wind_eeg(fname_wind_eeg)
     unit_wind_permit = read_unit_wind_permit(fname_wind_permit)
-
+    log.info("Joining tables...")
     table_wind = power_unit_wind \
+    .merge(unit_wind_permit.set_index('EinheitMastrNummer'), on= ['Einheitart', 'Einheittyp', 'GenMastrNummer','EinheitMastrNummer'], how='left') \
+    .merge(unit_wind_eeg.set_index('EegMastrNummer'), on=['EegMastrNummer'], how='left', rsuffix='_eeg') \
+
+    """table_wind = power_unit_wind \
     .join(unit_wind_permit.set_index('GenMastrNummer'),
               on='GenMastrNummer', how='left', rsuffix='_p') \
     .join(unit_wind.set_index('EinheitMastrNummer'),
@@ -42,6 +47,6 @@ def make_wind(eeg=False):
     if eeg==True:
         table_wind = table_wind.join(unit_wind_eeg.set_index('EegMastrNummer'),
               on='EegMastrNummer', how='left', rsuffix='_e') \
-
+"""
     write_to_csv(csv_wind, table_wind)
     log.info(f'Join Wind to: {csv_wind}')

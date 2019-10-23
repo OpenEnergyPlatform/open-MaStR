@@ -180,6 +180,8 @@ def get_unit_wind_eeg(mastr_wind_eeg):
     c = client_bind.GetAnlageEegWind(apiKey=api_key,
                                      marktakteurMastrNummer=my_mastr,
                                      eegMastrNummer=mastr_wind_eeg)
+    c['VerknuepfteEinheit'] =  c['MaStR']['VerknuepfteEinheit']
+    del c['MaStR']
     s = serialize_object(c)
     df = pd.DataFrame(list(s.items()), )
     unit_wind_eeg = df.set_index(list(df.columns.values)[0]).transpose()
@@ -277,18 +279,22 @@ def read_unit_wind_permit(csv_name):
     # log.info(f'Read data from {csv_name}')
     unit_wind_permit = pd.read_csv(csv_name, header=0, sep=';', index_col=False, encoding='utf-8',
                                 dtype={'lid': int,
-                                       'Ergebniscode': str,
-                                       'AufrufVeraltet': str,
-                                       'AufrufLebenszeitEnde': str,
-                                       'AufrufVersion': str,
+                                       'EinheitMastrNummer': str,
+                                       'Einheittyp': str,
+                                       'Einheitart': str,
                                        'GenMastrNummer': str,
-                                       'Art': str,
                                        'Datum': str,
+                                       'Art': str,
                                        'Behoerde': str,
                                        'Aktenzeichen': str,
                                        'Frist': str,
-                                       'timestamp': str})
-    # log.info(f'Finished reading data from {csv_name}')
+                                       'WasserrechtsNummer': str,
+                                       'WasserrechtAblaufdatum': str,
+                                       'Meldedatum': str
+                                       })
+     #log.info(f'Finished reading data from {csv_name}')
+
+    
     return unit_wind_permit
 
 

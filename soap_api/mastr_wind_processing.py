@@ -25,9 +25,10 @@ import pandas as pd
 import numpy as np
 import datetime
 import os
+import re
 from zeep.helpers import serialize_object
 from functools import partial
-
+from collections import OrderedDict 
 import logging
 log = logging.getLogger(__name__)
 
@@ -112,6 +113,17 @@ def get_power_unit_wind(mastr_unit_wind, mastr_unit_eeg, eeg=False):
                                      marktakteurMastrNummer=my_mastr,
                                      eegMastrNummer=mastr_unit_eeg)
         s = serialize_object(c)
+        dicts = list((s['VerknuepfteEinheit'][0]).items())[0]
+        s['VerknuepfteEinheit']= dicts[1]
+        s['EinheitMastrNummer'] = s.pop('VerknuepfteEinheit')
+
+        """for i in s.items():
+            if isinstance(i[1], OrderedDict):  
+              title = re.findall('[A-Z][^A-Z]*', str(i[0]))          
+              if len(i[1].keys()) == len(title):"""
+
+
+              #s[i[0]] = 
         df = pd.DataFrame(list(s.items()), )
         unit_wind_eeg = df.set_index(list(df.columns.values)[0]).transpose()
         unit_wind_eeg.reset_index()
@@ -173,6 +185,7 @@ def download_wind_permit(units, start_from=0, overwrite=False):
                       'Meldedatum': reporting_date
                       })
                   df_all = pd.concat([df_new, df.reindex(df_new.index)], axis=1)
+                  df_all = df_all.rename({'MaStRNummer':'EinheitMastrNummer'}, axis=1) 
                   #df_all.set_index(['MaStRNummer'], inplace=True)
                   write_to_csv(fname_wind_permit,df_all)
             except:
