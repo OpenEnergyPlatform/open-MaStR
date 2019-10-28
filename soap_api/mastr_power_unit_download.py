@@ -18,14 +18,14 @@ __version__ = "v0.8.0"
 
 
 import time
-import datetime
+from datetime import datetime as dt
 import math
 import logging
 import multiprocessing as mp
 from functools import partial
 import pandas as pd
 import numpy as np
-
+from datetime import datetime
 from zeep.helpers import serialize_object
 
 from soap_api.sessions import mastr_session, API_MAX_DEMANDS
@@ -36,7 +36,7 @@ import math
 
 log = logging.getLogger(__name__)
 ''' VAR IMPORT '''
-from utils import fname_all_units, fname_wind_unit
+from utils import fname_all_units, fname_wind_unit ,set_timestamp, read_timestamp
 
 """SOAP API"""
 client, client_bind, token, user = mastr_session()
@@ -44,7 +44,7 @@ api_key = token
 my_mastr = user
 
 
-def get_power_unit(start_from, wind=False, limit=API_MAX_DEMANDS):
+def get_power_unit(start_from, wind=False, datum='Null', limit=API_MAX_DEMANDS):
     """Get Stromerzeugungseinheit from API using GetGefilterteListeStromErzeuger.
 
     Parameters
@@ -65,7 +65,8 @@ def get_power_unit(start_from, wind=False, limit=API_MAX_DEMANDS):
             # einheitBetriebsstatus=status,
             startAb=start_from,
             energietraeger=source,
-            limit=limit  # Limit of API.
+            limit=limit,  # Limit of API.
+            datumAb = datum
         )
         s = serialize_object(c)
         power_unit = pd.DataFrame(s['Einheiten'])
@@ -138,7 +139,8 @@ def download_parallel_power_unit(
         start_from=0,
         overwrite=False, 
         wind=False,
-        eeg=False
+        eeg=False,
+        update=False
 ):
     """Download StromErzeuger with parallel process
 
@@ -160,9 +162,19 @@ def download_parallel_power_unit(
     wind : bool
         Wether only wind data but all wind data (wind power unit, wind, (wind eeg), wind permit, wind all)
         should be downloaded and processed
+        current max entries: 42748 / 27.10.2019
     eeg : bool
         Wether eeg data should be downloaded,too
     """
+    if wind==True:
+        power_unit_list_len=42748
+
+    if update==True:
+        datum = get_update_date()
+    else:
+        datum = 'NULL'
+
+
     log.info('Download MaStR Power Unit')
     if batch_size < API_MAX_DEMANDS:
         limit = batch_size
@@ -216,15 +228,15 @@ def download_parallel_power_unit(
             ndownload = len(sublist)
             pool = mp.Pool(processes=ndownload)
             if almost_end_of_list is False:
-                result = pool.map(partial(get_power_unit, limit=limit, wind=wind), sublist)
+                result = pool.map(partial(get_power_unit, limit=limit, wind=wind, datum=datum), sublist)
             else:
                 if end_of_list is False:
                     # The last list might not be an integer number of API_MAX_DEMANDS
-                    result = pool.map(partial(get_power_unit, limit=limit, wind=wind), sublist[:-1])
+                    result = pool.map(partial(get_power_unit, limit=limit, wind=wind, datum=datum), sublist[:-1])
                     # Evaluate the last item separately
                     sublists.append([sublist[-1]])
                 else:
-                    result = pool.map(partial(get_power_unit, limit=limit, wind=wind), sublist)
+                    result = pool.map(partial(get_power_unit, limit=limit, wind=wind, datum=datum), sublist)
 
             summe += 1
             progress = math.floor((summe/length)*100)
@@ -243,3 +255,22 @@ def download_parallel_power_unit(
     log.info('Power Unit Download executed in: {0:.2f}'.format(time.time()-t))
     do_wind(eeg=eeg)
 
+""" check for new entries since TIMESTAMP """
+def get_update_date():
+
+    dateTime = datetime.now()
+    date = dateTime.date()
+
+    ts = read_timestamp()
+    if not ts==False:
+        ts = dt.strptime(ts, '%Y-%m-%d %H:%M:%S.%f')
+        ts_date = ts.date()
+
+        if ts_date is date:
+            log.info("No updates available. Try again on another day.")
+            return TIMESTAMP
+        else:
+            log.info(f"checking database for updates since {ts_date}")
+            set_timestamp(ts)
+            return ts
+    return 'NULL'
