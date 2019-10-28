@@ -193,11 +193,18 @@ def read_power_units(csv_name):
 
     return power_unit
 
-def set_timestamp(timestamp):
-    write_to_csv(ts_path, timestamp)
 
-def read_timestamp():
-    if os.path.isfile(ts_path):
-        ts = pd.read_csv(ts_path, header=0, index_col=0)
-        return ts
+def read_timestamp(wind=False):
+    if wind == True:
+        if os.path.isfile(fname_wind_unit):
+            """ get timestamp wind """
+            ts = pd.read_csv(fname_wind_unit,header=0, index_col=0)
+            ts = ts.timestamp.iloc[-1]
+            return ts
+    else:
+        if os.path.isfile(fname_all_units):
+            """ get timestamp """
+            ts = ts.timestamp.iloc[-1]
+            ts = pd.read_csv(fname_all_units, header=0, index_col=0)
+            return ts
     return False

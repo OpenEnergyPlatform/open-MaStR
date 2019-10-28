@@ -36,7 +36,7 @@ import math
 
 log = logging.getLogger(__name__)
 ''' VAR IMPORT '''
-from utils import fname_all_units, fname_wind_unit ,set_timestamp, read_timestamp
+from utils import fname_all_units, fname_wind_unit, read_timestamp
 
 """SOAP API"""
 client, client_bind, token, user = mastr_session()
@@ -170,7 +170,7 @@ def download_parallel_power_unit(
         power_unit_list_len=42748
 
     if update==True:
-        datum = get_update_date()
+        datum = get_update_date(wind)
     else:
         datum = 'NULL'
 
@@ -256,12 +256,12 @@ def download_parallel_power_unit(
     do_wind(eeg=eeg)
 
 """ check for new entries since TIMESTAMP """
-def get_update_date():
+def get_update_date(wind=False):
 
     dateTime = datetime.now()
     date = dateTime.date()
 
-    ts = read_timestamp()
+    ts = read_timestamp(wind)
     if not ts==False:
         ts = dt.strptime(ts, '%Y-%m-%d %H:%M:%S.%f')
         ts_date = ts.date()
@@ -271,6 +271,5 @@ def get_update_date():
             return TIMESTAMP
         else:
             log.info(f"checking database for updates since {ts_date}")
-            set_timestamp(ts)
             return ts
     return 'NULL'
