@@ -22,6 +22,8 @@ from datetime import datetime as dt
 import math
 import logging
 import multiprocessing as mp
+from multiprocessing import get_context
+from multiprocessing.pool import ThreadPool 
 from functools import partial
 import pandas as pd
 import numpy as np
@@ -65,8 +67,8 @@ def get_power_unit(start_from, wind=False, datum='Null', limit=API_MAX_DEMANDS):
             # einheitBetriebsstatus=status,
             startAb=start_from,
             energietraeger=source,
-            limit=limit,  # Limit of API.
-            datumAb = datum
+            limit=limit  # Limit of API.
+            #datumAb = datum
         )
         s = serialize_object(c)
         power_unit = pd.DataFrame(s['Einheiten'])
@@ -169,10 +171,10 @@ def download_parallel_power_unit(
     if wind==True:
         power_unit_list_len=42748
 
-    if update==True:
-        datum = get_update_date(wind)
-    else:
-        datum = 'NULL'
+   # if update==True:
+   #     datum = get_update_date(wind)
+   # else:
+    datum = 'NULL'
 
 
     log.info('Download MaStR Power Unit')
@@ -226,7 +228,7 @@ def download_parallel_power_unit(
         try:
             sublist = sublists.pop(0)
             ndownload = len(sublist)
-            pool = mp.Pool(processes=ndownload)
+            pool = mp.get_context("spawn").Pool(processes=mp.cpu_count()*2)
             if almost_end_of_list is False:
                 result = pool.map(partial(get_power_unit, limit=limit, wind=wind, datum=datum), sublist)
             else:
@@ -244,6 +246,7 @@ def download_parallel_power_unit(
 
             if result:
                 for mylist in result:
+                    mylist['timestamp'] = datetime.now()
                     if wind==False:
                         write_to_csv(fname_all_units, pd.DataFrame(mylist))
                     else:
@@ -254,6 +257,7 @@ def download_parallel_power_unit(
             log.error(e)
     log.info('Power Unit Download executed in: {0:.2f}'.format(time.time()-t))
     do_wind(eeg=eeg)
+
 
 """ check for new entries since TIMESTAMP """
 def get_update_date(wind=False):
