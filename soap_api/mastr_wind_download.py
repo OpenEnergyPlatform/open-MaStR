@@ -29,7 +29,7 @@ import logging
 log = logging.getLogger(__name__)
 
 """ import variables """
-from utils import fname_all_units, fname_wind, fname_wind_unit, fname_wind_eeg, fname_wind_eeg_unit, fname_wind_permit, remove_csv
+from soap_api.utils import fname_all_units, fname_wind, fname_wind_unit, fname_wind_eeg, fname_wind_eeg_unit, fname_wind_permit, remove_csv
 
 """SOAP API"""
 client, client_bind, token, user = mastr_session()

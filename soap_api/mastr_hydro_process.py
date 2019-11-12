@@ -17,7 +17,6 @@ __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.8.0"
 
 import logging
-from soap_api.mastr_power_unit_download import read_power_units
 from soap_api.mastr_hydro_download import read_unit_hydro, read_unit_hydro_eeg
 from soap_api.utils import (
     write_to_csv,

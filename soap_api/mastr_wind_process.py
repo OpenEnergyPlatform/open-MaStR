@@ -16,8 +16,8 @@ __author__ = "Ludee; christian-rli"
 __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.8.0"
 
-from mastr_wind_download import *
-from utils import fname_wind, fname_wind_unit, fname_wind_eeg, fname_wind_eeg_unit, fname_wind_permit, read_power_units
+from soap_api.mastr_wind_download import *
+from soap_api.utils import fname_wind, fname_wind_unit, fname_wind_eeg, fname_wind_eeg_unit, fname_wind_permit, read_power_units
 import pandas as pd 
 
 import logging

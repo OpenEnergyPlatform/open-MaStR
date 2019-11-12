@@ -34,7 +34,7 @@ import logging
 log = logging.getLogger(__name__)
 
 """ import variables """
-from utils import fname_all_units, fname_solar, fname_solar_unit, fname_solar_eeg, fname_solar_eeg_unit
+from soap_api.utils import fname_all_units, fname_solar, fname_solar_unit, fname_solar_eeg, fname_solar_eeg_unit
 
 """SOAP API"""
 client, client_bind, token, user = mastr_session()

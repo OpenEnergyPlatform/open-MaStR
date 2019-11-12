@@ -26,7 +26,6 @@ from zeep.helpers import serialize_object
 
 from soap_api.utils import get_data_version, write_to_csv
 from soap_api.sessions import mastr_session
-from soap_api.mastr_power_unit_download import read_power_units
 """ import variables """
 from soap_api.utils import (
     fname_all_units,

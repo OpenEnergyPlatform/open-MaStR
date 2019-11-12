@@ -32,13 +32,13 @@ from zeep.helpers import serialize_object
 
 from soap_api.sessions import mastr_session, API_MAX_DEMANDS
 from soap_api.utils import split_to_sublists, write_to_csv, remove_csv, get_data_version
-from mastr_wind_processing import do_wind
+from soap_api.mastr_wind_processing import do_wind
 
 import math
 
 log = logging.getLogger(__name__)
 ''' VAR IMPORT '''
-from utils import fname_all_units, fname_wind_unit, read_timestamp
+from soap_api.utils import fname_all_units, fname_wind_unit, read_timestamp
 
 """SOAP API"""
 client, client_bind, token, user = mastr_session()
@@ -228,7 +228,7 @@ def download_parallel_power_unit(
         try:
             sublist = sublists.pop(0)
             ndownload = len(sublist)
-            pool = mp.get_context("spawn").Pool(processes=mp.cpu_count()*2)
+            pool = mp.get_context("spawn").Pool(processes=mp.cpu_count(), maxtasksperchild=2)
             if almost_end_of_list is False:
                 result = pool.map(partial(get_power_unit, limit=limit, wind=wind, datum=datum), sublist)
             else:
@@ -252,11 +252,13 @@ def download_parallel_power_unit(
                     else:
                         write_to_csv(fname_wind_unit, pd.DataFrame(mylist))
                     pool.close()
+                    pool.terminate()
                     pool.join()
         except Exception as e:
             log.error(e)
     log.info('Power Unit Download executed in: {0:.2f}'.format(time.time()-t))
-    do_wind(eeg=eeg)
+    # do_wind(eeg=eeg)
+    print(mp.active_children())
 
 
 """ check for new entries since TIMESTAMP """
