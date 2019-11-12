@@ -56,6 +56,7 @@ def get_power_unit(start_from, wind=False, datum='Null', limit=API_MAX_DEMANDS):
     limit : int
         Number of entries to get (default: 2000)
     """
+    power_unit = pd.DataFrame()
     status = 'InBetrieb'
     source = 'Wind'
     if wind==False:
@@ -228,7 +229,8 @@ def download_parallel_power_unit(
         try:
             sublist = sublists.pop(0)
             ndownload = len(sublist)
-            pool = mp.get_context("spawn").Pool(processes=mp.cpu_count(), maxtasksperchild=2)
+            pool = ThreadPool(processes=ndownload)
+            #pool = mp.get_context("spawn").Pool(processes=mp.cpu_count(), maxtasksperchild=2)
             if almost_end_of_list is False:
                 result = pool.map(partial(get_power_unit, limit=limit, wind=wind, datum=datum), sublist)
             else:

@@ -24,7 +24,7 @@ import pandas as pd
 
 from zeep.helpers import serialize_object
 
-from soap_api.utils import get_data_version, write_to_csv
+from soap_api.utils import get_data_version, write_to_csv, read_power_units
 from soap_api.sessions import mastr_session
 """ import variables """
 from soap_api.utils import (
