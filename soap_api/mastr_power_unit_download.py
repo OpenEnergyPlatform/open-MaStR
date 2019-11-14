@@ -75,9 +75,10 @@ def get_power_unit(start_from, wind=False, datum='Null', limit=API_MAX_DEMANDS):
         power_unit = pd.DataFrame(s['Einheiten'])
         power_unit.index.names = ['lid']
         power_unit['version'] = get_data_version()
-        power_unit['timestamp'] = str(datetime.datetime.now())
+        power_unit['timestamp'] = str(datetime.now())
     except Exception as e:
-        log.info('Download failed, retrying for %s', start_from)
+        log.info(e)
+        #log.info('Download failed, retrying for %s', start_from)
     # remove double quotes from column
     #power_unit['Standort'] = power_unit['Standort'].str.replace('"', '')
     return power_unit
@@ -169,6 +170,7 @@ def download_parallel_power_unit(
     eeg : bool
         Wether eeg data should be downloaded,too
     """
+    log.info("HASDUOGHU")
     if wind==True:
         power_unit_list_len=42748
 
@@ -211,10 +213,11 @@ def download_parallel_power_unit(
     log.info('Number of batches to process: %s', num)
     summe = 0
     length = len(sublists)
-
     almost_end_of_list = False
     end_of_list = False
-
+    failed_downloads = []
+    counter = []
+    
     while len(sublists) > 0:
         if len(sublists) == 1:
             if almost_end_of_list is False:
@@ -228,9 +231,12 @@ def download_parallel_power_unit(
                 end_of_list = True
         try:
             sublist = sublists.pop(0)
+            if len(sublists) == 0 and counter <1:
+                sublists = failed_downloads
+                failed_downloads = []
             ndownload = len(sublist)
-            pool = ThreadPool(processes=ndownload)
-            #pool = mp.get_context("spawn").Pool(processes=mp.cpu_count(), maxtasksperchild=2)
+            #pool = ThreadPool(processes=ndownload)
+            pool = mp.get_context("spawn").Pool(processes=3)
             if almost_end_of_list is False:
                 result = pool.map(partial(get_power_unit, limit=limit, wind=wind, datum=datum), sublist)
             else:
@@ -245,8 +251,10 @@ def download_parallel_power_unit(
             summe += 1
             progress = math.floor((summe/length)*100)
             print('\r[{0}{1}] %'.format('#'*(int(math.floor(progress/10))), '-'*int(math.floor((100-progress)/10))))
-
-            if result:
+            print(time.time()-t)
+            failed_downloads.append(get_missing_indices(result, sublist))
+            if not result.empty:
+                counter=0
                 for mylist in result:
                     mylist['timestamp'] = datetime.now()
                     if wind==False:
@@ -257,11 +265,14 @@ def download_parallel_power_unit(
                     pool.terminate()
                     pool.join()
         except Exception as e:
+            log.info(counter)
             log.error(e)
     log.info('Power Unit Download executed in: {0:.2f}'.format(time.time()-t))
-    # do_wind(eeg=eeg)
-    print(mp.active_children())
+    do_wind(eeg=eeg)
 
+def get_missing_indices(result, sublist):
+    all_vals = result + sublist
+    return list(set(all_vals))
 
 """ check for new entries since TIMESTAMP """
 def get_update_date(wind=False):
