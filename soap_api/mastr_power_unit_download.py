@@ -81,7 +81,7 @@ def get_power_unit(start_from, wind=False, datum='Null', limit=API_MAX_DEMANDS):
         #log.info('Download failed, retrying for %s', start_from)
     # remove double quotes from column
     #power_unit['Standort'] = power_unit['Standort'].str.replace('"', '')
-    return power_unit
+    return [start_from, power_unit]
 
 
 def download_power_unit(
@@ -170,7 +170,6 @@ def download_parallel_power_unit(
     eeg : bool
         Wether eeg data should be downloaded,too
     """
-    log.info("HASDUOGHU")
     if wind==True:
         power_unit_list_len=42748
 
@@ -216,10 +215,24 @@ def download_parallel_power_unit(
     almost_end_of_list = False
     end_of_list = False
     failed_downloads = []
-    counter = []
+    counter = 0
     
     while len(sublists) > 0:
+        print(sublists)
         if len(sublists) == 1:
+            log.info(counter)
+            if counter < 1 and len(failed_downloads) > 0:
+                    log.info(failed_downloads)
+                    log.info('failed fgaroif')
+                    sublists = sublists[0]+failed_downloads
+                    log.info(sublists)
+                    log.info("HFDOS")
+                    num = math.ceil((len(failed_downloads)*2000)/batch_size)
+                    sublists = split_to_sublists(sublists, len(sublists), num)
+                    counter = counter+1
+                    log.info(counter)
+                    failed_downloads = []
+                    log.info('Starting second round with failed downloads')
             if almost_end_of_list is False:
                 almost_end_of_list = True
             else:
@@ -231,9 +244,12 @@ def download_parallel_power_unit(
                 end_of_list = True
         try:
             sublist = sublists.pop(0)
-            if len(sublists) == 0 and counter <1:
-                sublists = failed_downloads
-                failed_downloads = []
+            if len(sublists) > 1:
+                almost_end_of_list = False
+                end_of_list = False
+            if len(sublists) == 1:
+                end_of_list = False
+            
             ndownload = len(sublist)
             #pool = ThreadPool(processes=ndownload)
             pool = mp.get_context("spawn").Pool(processes=3)
@@ -252,27 +268,28 @@ def download_parallel_power_unit(
             progress = math.floor((summe/length)*100)
             print('\r[{0}{1}] %'.format('#'*(int(math.floor(progress/10))), '-'*int(math.floor((100-progress)/10))))
             print(time.time()-t)
-            failed_downloads.append(get_missing_indices(result, sublist))
-            if not result.empty:
-                counter=0
-                for mylist in result:
+            indices_list = []
+            if not len(result)==0:
+                for ind, mylist in result:
+                    if mylist.empty:
+                        failed_downloads.append(ind)
                     mylist['timestamp'] = datetime.now()
                     if wind==False:
                         write_to_csv(fname_all_units, pd.DataFrame(mylist))
                     else:
                         write_to_csv(fname_wind_unit, pd.DataFrame(mylist))
-                    pool.close()
-                    pool.terminate()
-                    pool.join()
+                log.info('Failed downloads: %s', len(failed_downloads))
+                pool.close()
+                pool.terminate()
+                pool.join()
+            else:
+                failed_downloads = failed_downloads+sublist
+                log.info('Download failed, retrying later')
         except Exception as e:
             log.info(counter)
             log.error(e)
     log.info('Power Unit Download executed in: {0:.2f}'.format(time.time()-t))
     do_wind(eeg=eeg)
-
-def get_missing_indices(result, sublist):
-    all_vals = result + sublist
-    return list(set(all_vals))
 
 """ check for new entries since TIMESTAMP """
 def get_update_date(wind=False):
