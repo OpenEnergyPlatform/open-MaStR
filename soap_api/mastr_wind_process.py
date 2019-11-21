@@ -25,7 +25,16 @@ log = logging.getLogger(__name__)
 
 
 def make_wind(eeg=False):
-    """Read wind data from CSV files. Join data and write to file."""
+    """Read wind data from CSV files. Join data and write to file.
+
+    Parameters
+    ----------
+    eeg
+
+    Returns
+    -------
+
+    """
     data_version = get_data_version()
     csv_wind = f'data/bnetza_mastr_{data_version}_wind_all.csv'
 

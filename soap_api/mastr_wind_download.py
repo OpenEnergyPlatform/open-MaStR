@@ -340,6 +340,14 @@ def download_unit_wind(overwrite=False):
     """Download Windeinheit.
 
     Existing units: 31543 (2019-02-10)
+
+    Parameters
+    ----------
+    overwrite
+
+    Returns
+    -------
+
     """
     start_from = 0
 
@@ -358,7 +366,16 @@ def download_unit_wind(overwrite=False):
             log.exception(f'Download failed unit_wind ({i}): {unit_wind_list[i]}')
 
 def download_unit_wind_eeg(overwrite=False):
-    """Download unit_wind_eeg using GetAnlageEegWind request."""
+    """Download unit_wind_eeg using GetAnlageEegWind request.
+
+    Parameters
+    ----------
+    overwrite
+
+    Returns
+    -------
+
+    """
     data_version = get_data_version()
     unit_wind = setup_power_unit_wind(overwrite, eeg=True)
 
@@ -373,7 +390,16 @@ def download_unit_wind_eeg(overwrite=False):
             log.exception(f'Download failed unit_wind_eeg ({i}): {unit_wind_list[i]}')
 
 def download_unit_wind_permit(overwrite=False):
-    """Download unit_wind_permit using GetEinheitGenehmigung request."""
+    """Download unit_wind_permit using GetEinheitGenehmigung request.
+
+    Parameters
+    ----------
+    overwrite
+
+    Returns
+    -------
+
+    """
     data_version = get_data_version()
     unit_wind = setup_power_unit_wind(overwrite, permit=True)
     df_all = pd.DataFrame()
@@ -414,6 +440,16 @@ def download_unit_wind_permit(overwrite=False):
                 log.exception(f'Download failed unit_wind_permit ({i}): {unit_wind_list[i]}')
 
 def disentangle_manufacturer(wind_unit):
+    """
+
+    Parameters
+    ----------
+    wind_unit
+
+    Returns
+    -------
+
+    """
     wu = wind_unit
     try:
         wu['HerstellerID'] = wind_unit['Hersteller']['Id']

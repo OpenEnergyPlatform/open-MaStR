@@ -43,6 +43,17 @@ api_key = token
 my_mastr = user
 
 def do_wind(eeg,start_from=0):
+    """
+
+    Parameters
+    ----------
+    eeg
+    start_from
+
+    Returns
+    -------
+
+    """
     if os.path.isfile(fname_wind_unit):
         wind_unit = read_power_units(fname_wind_unit)
         wind_unit = wind_unit.drop_duplicates()
@@ -63,6 +74,18 @@ def do_wind(eeg,start_from=0):
     log.info("DONE :)")
 
 def download_wind(units, start_from, eeg=False):
+    """
+
+    Parameters
+    ----------
+    units
+    start_from
+    eeg
+
+    Returns
+    -------
+
+    """
     retry_max = 0
     wind_list_len = len(units)
     log.info('Download MaStR Wind')
@@ -75,6 +98,17 @@ def download_wind(units, start_from, eeg=False):
     pool.join()
 
 def process_partionier(units, eeg=False):
+    """
+
+    Parameters
+    ----------
+    units
+    eeg
+
+    Returns
+    -------
+
+    """
     wind_list = units['EinheitMastrNummer'].values.tolist()
     if eeg==True:
         wind_list_eeg = units['EegMastrNummer'].values.tolist()
@@ -152,7 +186,18 @@ def get_power_unit_wind(mastr_unit_wind, mastr_unit_eeg, eeg=False):
     return unit_wind, unit_wind_eeg
 
 def download_wind_permit(units, start_from=0, overwrite=False):
-    """Download unit_wind_permit using GetEinheitGenehmigung request."""
+    """Download unit_wind_permit using GetEinheitGenehmigung request.
+
+    Parameters
+    ----------
+    units
+    start_from
+    overwrite
+
+    Returns
+    -------
+
+    """
     df_all = pd.DataFrame()
     unit_wind_list = units['GenMastrNummer'].values.tolist()
     unit_wind_list_len = len(unit_wind_list)
@@ -219,6 +264,16 @@ def get_unit_wind_permit(mastr_wind_permit):
     return unit_wind_permit
 
 def disentangle_manufacturer(wind_unit):
+    """
+
+    Parameters
+    ----------
+    wind_unit
+
+    Returns
+    -------
+
+    """
     wu = wind_unit
     try:
         wu['HerstellerID'] = wind_unit['Hersteller']['Id']
