@@ -26,7 +26,7 @@ Here is a template for new release sections
 - continuous integration with TravisCI (`.travis.yml`)
 - linting tests and their config files (`.pylintrc` and `.flake8`)
 - requirements.txt
-
+- ontology folder (#46)
 
 ### Changed
 - took the code from this [repository's subfolder](https://github.com/OpenEnergyPlatform/data-preprocessing/tree/master/data-import/bnetza_mastr)
