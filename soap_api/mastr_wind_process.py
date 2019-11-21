@@ -18,7 +18,7 @@ __version__ = "v0.8.0"
 
 from soap_api.mastr_wind_download import *
 from soap_api.utils import fname_wind, fname_wind_unit, fname_wind_eeg, fname_wind_eeg_unit, fname_wind_permit, read_power_units
-import pandas as pd 
+import pandas as pd
 
 import logging
 log = logging.getLogger(__name__)
@@ -36,9 +36,9 @@ def make_wind(eeg=False):
     unit_wind_permit = read_unit_wind_permit(fname_wind_permit)
     log.info("Joining tables...")
     table_wind = power_unit_wind \
-    .merge(unit_wind_permit.set_index('EinheitMastrNummer'), on= ['Einheitart', 'Einheittyp', 'GenMastrNummer','EinheitMastrNummer'], how='left') \
-    .merge(unit_wind_eeg.set_index('EegMastrNummer'), on=['EegMastrNummer'], how='left') \
-
+        .merge(unit_wind_permit.set_index('EinheitMastrNummer'), on= ['Einheitart', 'Einheittyp', 'GenMastrNummer','EinheitMastrNummer'], how='left') \
+        .merge(unit_wind_eeg.set_index('EegMastrNummer'), on=['EegMastrNummer'], how='left') \
+ \
     """table_wind = power_unit_wind \
     .join(unit_wind_permit.set_index('GenMastrNummer'),
               on='GenMastrNummer', how='left', rsuffix='_p') \
