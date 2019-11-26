@@ -8,14 +8,19 @@ __version__ = "v0.8.0"
 
 import os
 import pandas as pd
+from datetime import datetime as dt
 import logging
 log = logging.getLogger(__name__)
 
 DATA_VERSION = 'rli_v2.0.3'
-
+""" Total Count of Power Units (TOTAL_POWER_UNITS) on date (UPDATE_TIMESTAMP) """
+TOTAL_POWER_UNITS = 2359365
+""" 01.03.2019 """
+TIMESTAMP = "1900-01-01 00:00:00.000000"
+""" test string: "2019-10-20 00:00:00.000000" """
 """ dummy stump for other file names """
 fname_template = f'data/bnetza_mastr_{DATA_VERSION}'
-
+ts_path = f'data/update/bnetza_mastr_ts.csv'
 """ list of specific power unit file names"""
 fname_all_units = f'{fname_template}_all_units.csv'
 
@@ -140,8 +145,6 @@ def remove_csv(csv_name):
     if os.path.isfile(csv_name):
         os.remove(csv_name)
 
-
-
 def read_power_units(csv_name):
     """Read Stromerzeugungseinheit from CSV file.
 
@@ -163,8 +166,8 @@ def read_power_units(csv_name):
         index_col=False,
         encoding='utf-8',
         dtype={
-            'id': int,
-            'lid': int,
+            'id': str,
+            'lid': str,
             'EinheitMastrNummer': str,
             'Name': str,
             'Einheitart': str,
@@ -189,3 +192,19 @@ def read_power_units(csv_name):
     log.info(f'Finished reading data from {csv_name}')
 
     return power_unit
+
+
+def read_timestamp(wind=False):
+    if wind == True:
+        if os.path.isfile(fname_wind_unit):
+            """ get timestamp wind """
+            ts = pd.read_csv(fname_wind_unit,header=0, index_col=0)
+            ts = ts.timestamp.iloc[-1]
+            return ts
+    else:
+        if os.path.isfile(fname_all_units):
+            """ get timestamp """
+            ts = pd.read_csv(fname_all_units, header=0, index_col=0)
+            ts = ts.timestamp.iloc[-1]
+            return ts
+    return False

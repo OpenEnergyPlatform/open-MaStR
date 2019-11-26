@@ -17,7 +17,7 @@ __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.8.0"
 
 from soap_api.sessions import mastr_session
-from soap_api.utils import split_to_sublists, get_data_version, write_to_csv, remove_csv
+from soap_api.utils import split_to_sublists, get_data_version, write_to_csv, remove_csv, read_power_units
 
 import multiprocessing as mp
 from multiprocessing.pool import ThreadPool 
@@ -34,7 +34,7 @@ import logging
 log = logging.getLogger(__name__)
 
 """ import variables """
-from utils import fname_all_units, fname_solar, fname_solar_unit, fname_solar_eeg, fname_solar_eeg_unit
+from soap_api.utils import fname_all_units, fname_solar, fname_solar_unit, fname_solar_eeg, fname_solar_eeg_unit
 
 """SOAP API"""
 client, client_bind, token, user = mastr_session()

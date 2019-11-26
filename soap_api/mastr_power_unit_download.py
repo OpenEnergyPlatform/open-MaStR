@@ -18,25 +18,27 @@ __version__ = "v0.8.0"
 
 
 import time
-import datetime
+from datetime import datetime as dt
 import math
 import logging
 import multiprocessing as mp
+from multiprocessing import get_context
+from multiprocessing.pool import ThreadPool 
 from functools import partial
 import pandas as pd
 import numpy as np
-
+from datetime import datetime
 from zeep.helpers import serialize_object
 
 from soap_api.sessions import mastr_session, API_MAX_DEMANDS
 from soap_api.utils import split_to_sublists, write_to_csv, remove_csv, get_data_version
-from mastr_wind_processing import do_wind
+from soap_api.mastr_wind_processing import do_wind
 
 import math
 
 log = logging.getLogger(__name__)
 ''' VAR IMPORT '''
-from utils import fname_all_units, fname_wind_unit
+from soap_api.utils import fname_all_units, fname_wind_unit, read_timestamp
 
 """SOAP API"""
 client, client_bind, token, user = mastr_session()
@@ -44,16 +46,21 @@ api_key = token
 my_mastr = user
 
 
-def get_power_unit(start_from, wind=False, limit=API_MAX_DEMANDS):
+def get_power_unit(start_from, wind=False, datum='1900-01-01 00:00:00.00000', limit=API_MAX_DEMANDS):
     """Get Stromerzeugungseinheit from API using GetGefilterteListeStromErzeuger.
 
     Parameters
     ----------
     start_from : int
         Skip first entries.
+    wind : bool
+        Wether only wind data should be retrieved
+    datum: String
+        the starting datestring to retrieve data, can be used for updating a data set
     limit : int
         Number of entries to get (default: 2000)
     """
+    power_unit = pd.DataFrame()
     status = 'InBetrieb'
     source = 'Wind'
     if wind==False:
@@ -66,17 +73,19 @@ def get_power_unit(start_from, wind=False, limit=API_MAX_DEMANDS):
             startAb=start_from,
             energietraeger=source,
             limit=limit  # Limit of API.
+            #datumAb = datum
         )
         s = serialize_object(c)
         power_unit = pd.DataFrame(s['Einheiten'])
         power_unit.index.names = ['lid']
         power_unit['version'] = get_data_version()
-        power_unit['timestamp'] = str(datetime.datetime.now())
+        power_unit['timestamp'] = str(datetime.now())
     except Exception as e:
-        log.info('Download failed, retrying for %s', start_from)
+        log.info(e)
+        #log.info('Download failed, retrying for %s', start_from)
     # remove double quotes from column
     #power_unit['Standort'] = power_unit['Standort'].str.replace('"', '')
-    return power_unit
+    return [start_from, power_unit]
 
 
 def download_power_unit(
@@ -138,7 +147,8 @@ def download_parallel_power_unit(
         start_from=0,
         overwrite=False, 
         wind=False,
-        eeg=False
+        eeg=False,
+        update=False
 ):
     """Download StromErzeuger with parallel process
 
@@ -160,9 +170,18 @@ def download_parallel_power_unit(
     wind : bool
         Wether only wind data but all wind data (wind power unit, wind, (wind eeg), wind permit, wind all)
         should be downloaded and processed
+        current max entries: 42748 / 27.10.2019
     eeg : bool
         Wether eeg data should be downloaded,too
+    update: bool
+        Wether a dataset should only be updated
     """
+    if wind==True:
+        power_unit_list_len=42748
+
+   if update==True:
+        datum = get_update_date(wind)
+
     log.info('Download MaStR Power Unit')
     if batch_size < API_MAX_DEMANDS:
         limit = batch_size
@@ -188,6 +207,7 @@ def download_parallel_power_unit(
     if power_unit_list_len < limit:
         limit = power_unit_list_len
 
+    # set some params
     start_from_list = list(range(start_from, end_at, limit + 1))
     length = len(start_from_list)
     num = math.ceil(power_unit_list_len/batch_size)
@@ -196,12 +216,22 @@ def download_parallel_power_unit(
     log.info('Number of batches to process: %s', num)
     summe = 0
     length = len(sublists)
-
     almost_end_of_list = False
     end_of_list = False
-
+    failed_downloads = []
+    counter = 0
+    
+    # while there are still batches, try to download batch in parallel
     while len(sublists) > 0:
         if len(sublists) == 1:
+            # check wether the 1st round is done and if any downloads are in the failed_downloads list
+            if counter < 1 and len(failed_downloads) > 0:
+                    sublists = sublists[0]+failed_downloads
+                    num = math.ceil((len(failed_downloads)*2000)/batch_size)
+                    sublists = split_to_sublists(sublists, len(sublists), num)
+                    counter = counter+1
+                    failed_downloads = []
+                    log.info('Starting second round with failed downloads')
             if almost_end_of_list is False:
                 almost_end_of_list = True
             else:
@@ -213,33 +243,72 @@ def download_parallel_power_unit(
                 end_of_list = True
         try:
             sublist = sublists.pop(0)
+            if len(sublists) > 1:
+                almost_end_of_list = False
+                end_of_list = False
+            if len(sublists) == 1:
+                end_of_list = False
+            
             ndownload = len(sublist)
-            pool = mp.Pool(processes=ndownload)
+            #pool = ThreadPool(processes=ndownload)
+
+            # create pool and map all indices in batch sublist to one instance of get_power_unit
+            # use partial to partially preset some variables from get_power_unit
+            pool = mp.get_context("spawn").Pool(processes=3)
             if almost_end_of_list is False:
-                result = pool.map(partial(get_power_unit, limit=limit, wind=wind), sublist)
+                result = pool.map(partial(get_power_unit, limit=limit, wind=wind, datum=datum), sublist)
             else:
                 if end_of_list is False:
                     # The last list might not be an integer number of API_MAX_DEMANDS
-                    result = pool.map(partial(get_power_unit, limit=limit, wind=wind), sublist[:-1])
+                    result = pool.map(partial(get_power_unit, limit=limit, wind=wind, datum=datum), sublist[:-1])
                     # Evaluate the last item separately
                     sublists.append([sublist[-1]])
                 else:
-                    result = pool.map(partial(get_power_unit, limit=limit, wind=wind), sublist)
-
+                    result = pool.map(partial(get_power_unit, limit=limit, wind=wind, datum=datum), sublist)
+            # print progression        
             summe += 1
             progress = math.floor((summe/length)*100)
             print('\r[{0}{1}] %'.format('#'*(int(math.floor(progress/10))), '-'*int(math.floor((100-progress)/10))))
-
-            if result:
-                for mylist in result:
+            print(time.time()-t)
+            # check for failed downloads and add indices of failed downloads to failed list
+            indices_list = []
+            if not len(result)==0:
+                for ind, mylist in result:
+                    if mylist.empty:
+                        failed_downloads.append(ind)
+                    mylist['timestamp'] = datetime.now()
                     if wind==False:
                         write_to_csv(fname_all_units, pd.DataFrame(mylist))
                     else:
                         write_to_csv(fname_wind_unit, pd.DataFrame(mylist))
-                    pool.close()
-                    pool.join()
+                log.info('Failed downloads: %s', len(failed_downloads))
+                pool.close()
+                pool.terminate()
+                pool.join()
+            else:
+                failed_downloads = failed_downloads+sublist
+                log.info('Download failed, retrying later')
         except Exception as e:
             log.error(e)
     log.info('Power Unit Download executed in: {0:.2f}'.format(time.time()-t))
     do_wind(eeg=eeg)
 
+""" check for new entries since TIMESTAMP """
+def get_update_date(wind=False):
+
+    dateTime = datetime.now()
+    date = dateTime.date()
+
+    # retrieve last timestamp from file powerunits or wind units if wind=True
+    ts = read_timestamp(wind)
+    if not ts==False:
+        ts = dt.strptime(ts, '%Y-%m-%d %H:%M:%S.%f')
+        ts_date = ts.date()
+
+        if ts_date is date:
+            log.info("No updates available. Try again on another day.")
+            return TIMESTAMP
+        else:
+            log.info(f"checking database for updates since {ts_date}")
+            return ts
+    return 'NULL'

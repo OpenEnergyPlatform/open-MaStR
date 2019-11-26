@@ -17,7 +17,7 @@ __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.8.0"
 
 from soap_api.sessions import mastr_session
-from soap_api.utils import write_to_csv, get_data_version
+from soap_api.utils import write_to_csv, get_data_version, read_power_units
 
 import pandas as pd
 import numpy as np
@@ -29,7 +29,7 @@ import logging
 log = logging.getLogger(__name__)
 
 """ import variables """
-from utils import fname_all_units, fname_wind, fname_wind_unit, fname_wind_eeg, fname_wind_eeg_unit, fname_wind_permit, remove_csv
+from soap_api.utils import fname_all_units, fname_wind, fname_wind_unit, fname_wind_eeg, fname_wind_eeg_unit, fname_wind_permit, remove_csv
 
 """SOAP API"""
 client, client_bind, token, user = mastr_session()
@@ -52,18 +52,18 @@ def get_power_unit_wind(mastr_unit_wind):
     """
     data_version = get_data_version()
     try:
-      c = client_bind.GetEinheitWind(apiKey=api_key,
-                                     marktakteurMastrNummer=my_mastr,
-                                     einheitMastrNummer=mastr_unit_wind)
-      c = disentangle_manufacturer(c)
-      del c['Hersteller']
-      s = serialize_object(c)
-      df = pd.DataFrame(list(s.items()), )
-      unit_wind = df.set_index(list(df.columns.values)[0]).transpose()
-      unit_wind.reset_index()
-      unit_wind.index.names = ['lid']
-      unit_wind['version'] = data_version
-      unit_wind['timestamp'] = str(datetime.datetime.now())
+        c = client_bind.GetEinheitWind(apiKey=api_key,
+                                       marktakteurMastrNummer=my_mastr,
+                                       einheitMastrNummer=mastr_unit_wind)
+        c = disentangle_manufacturer(c)
+        del c['Hersteller']
+        s = serialize_object(c)
+        df = pd.DataFrame(list(s.items()), )
+        unit_wind = df.set_index(list(df.columns.values)[0]).transpose()
+        unit_wind.reset_index()
+        unit_wind.index.names = ['lid']
+        unit_wind['version'] = data_version
+        unit_wind['timestamp'] = str(datetime.datetime.now())
     except Exception as e:
         log.info('Download failed for %s', mastr_unit_wind)
     return unit_wind
@@ -84,81 +84,81 @@ def read_unit_wind(csv_name):
     """
     # log.info(f'Read data from {csv_name}')
     unit_wind = pd.read_csv(csv_name, header=0, encoding='utf-8', sep=';', index_col=False,
-                                dtype={'lid': int,
-                                       'Ergebniscode': str,
-                                       'AufrufVeraltet': str,
-                                       'AufrufLebenszeitEnde': str,
-                                       'AufrufVersion': str,
-                                       'EinheitMastrNummer': str,
-                                       'DatumLetzteAktualisierung': str,
-                                       'LokationMastrNummer': str,
-                                       'NetzbetreiberpruefungStatus': str,
-                                       'NetzbetreiberpruefungDatum': str,
-                                       'AnlagenbetreiberMastrNummer': str,
-                                       'Land': str,
-                                       'Bundesland': str,
-                                       'Landkreis': str,
-                                       'Gemeinde': str,
-                                       'Gemeindeschluessel': str,
-                                       'Postleitzahl': str,
-                                       'Gemarkung': str,
-                                       'FlurFlurstuecknummern': str,
-                                       'Strasse': str,
-                                       'StrasseNichtGefunden': str,
-                                       'Hausnummer': str,
-                                       'HausnummerNichtGefunden': str,
-                                       'Adresszusatz': str,
-                                       'Ort': str,
-                                       'Laengengrad': str,
-                                       'Breitengrad': str,
-                                       'UtmZonenwert': str,
-                                       'UtmEast': str,
-                                       'UtmNorth': str,
-                                       'GaussKruegerHoch': str,
-                                       'GaussKruegerRechts': str,
-                                       'Meldedatum': str,
-                                       'GeplantesInbetriebnahmedatum': str,
-                                       'Inbetriebnahmedatum': str,
-                                       'DatumEndgueltigeStilllegung': str,
-                                       'DatumBeginnVoruebergehendeStilllegung': str,
-                                       'DatumWiederaufnahmeBetrieb': str,
-                                       'EinheitBetriebsstatus': str,
-                                       'BestandsanlageMastrNummer': str,
-                                       'NichtVorhandenInMigriertenEinheiten': str,
-                                       'NameStromerzeugungseinheit': str,
-                                       'Weic': str,
-                                       'WeicDisplayName': str,
-                                       'Kraftwerksnummer': str,
-                                       'Energietraeger': str,
-                                       'Bruttoleistung': float,
-                                       'Nettonennleistung': float,
-                                       'AnschlussAnHoechstOderHochSpannung': str,
-                                       'Schwarzstartfaehigkeit': str,
-                                       'Inselbetriebsfaehigkeit': str,
-                                       'Einsatzverantwortlicher': str,
-                                       'FernsteuerbarkeitNb': str,
-                                       'FernsteuerbarkeitDv': str,
-                                       'FernsteuerbarkeitDr': str,
-                                       'Einspeisungsart': str,
-                                       'PraequalifiziertFuerRegelenergie': str,
-                                       'GenMastrNummer': str,
-                                       'NameWindpark': str,
-                                       'Lage': str,
-                                       'Seelage': str,
-                                       'ClusterOstsee': str,
-                                       'ClusterNordsee': str,
-                                       'Technologie': str,
-                                       'Typenbezeichnung': str,
-                                       'Nabenhoehe': float,
-                                       'Rotordurchmesser': float,
-                                       'AuflageAbschaltungLeistungsbegrenzung': str,
-                                       'Wassertiefe': float,
-                                       'Kuestenentfernung': float,
-                                       'EegMastrNummer': str,
-                                       'HerstellerID': str,
-                                       'HerstellerName': str,
-                                       'version': str,
-                                       'timestamp': str})
+                            dtype={'lid': int,
+                                   'Ergebniscode': str,
+                                   'AufrufVeraltet': str,
+                                   'AufrufLebenszeitEnde': str,
+                                   'AufrufVersion': str,
+                                   'EinheitMastrNummer': str,
+                                   'DatumLetzteAktualisierung': str,
+                                   'LokationMastrNummer': str,
+                                   'NetzbetreiberpruefungStatus': str,
+                                   'NetzbetreiberpruefungDatum': str,
+                                   'AnlagenbetreiberMastrNummer': str,
+                                   'Land': str,
+                                   'Bundesland': str,
+                                   'Landkreis': str,
+                                   'Gemeinde': str,
+                                   'Gemeindeschluessel': str,
+                                   'Postleitzahl': str,
+                                   'Gemarkung': str,
+                                   'FlurFlurstuecknummern': str,
+                                   'Strasse': str,
+                                   'StrasseNichtGefunden': str,
+                                   'Hausnummer': str,
+                                   'HausnummerNichtGefunden': str,
+                                   'Adresszusatz': str,
+                                   'Ort': str,
+                                   'Laengengrad': str,
+                                   'Breitengrad': str,
+                                   'UtmZonenwert': str,
+                                   'UtmEast': str,
+                                   'UtmNorth': str,
+                                   'GaussKruegerHoch': str,
+                                   'GaussKruegerRechts': str,
+                                   'Meldedatum': str,
+                                   'GeplantesInbetriebnahmedatum': str,
+                                   'Inbetriebnahmedatum': str,
+                                   'DatumEndgueltigeStilllegung': str,
+                                   'DatumBeginnVoruebergehendeStilllegung': str,
+                                   'DatumWiederaufnahmeBetrieb': str,
+                                   'EinheitBetriebsstatus': str,
+                                   'BestandsanlageMastrNummer': str,
+                                   'NichtVorhandenInMigriertenEinheiten': str,
+                                   'NameStromerzeugungseinheit': str,
+                                   'Weic': str,
+                                   'WeicDisplayName': str,
+                                   'Kraftwerksnummer': str,
+                                   'Energietraeger': str,
+                                   'Bruttoleistung': float,
+                                   'Nettonennleistung': float,
+                                   'AnschlussAnHoechstOderHochSpannung': str,
+                                   'Schwarzstartfaehigkeit': str,
+                                   'Inselbetriebsfaehigkeit': str,
+                                   'Einsatzverantwortlicher': str,
+                                   'FernsteuerbarkeitNb': str,
+                                   'FernsteuerbarkeitDv': str,
+                                   'FernsteuerbarkeitDr': str,
+                                   'Einspeisungsart': str,
+                                   'PraequalifiziertFuerRegelenergie': str,
+                                   'GenMastrNummer': str,
+                                   'NameWindpark': str,
+                                   'Lage': str,
+                                   'Seelage': str,
+                                   'ClusterOstsee': str,
+                                   'ClusterNordsee': str,
+                                   'Technologie': str,
+                                   'Typenbezeichnung': str,
+                                   'Nabenhoehe': float,
+                                   'Rotordurchmesser': float,
+                                   'AuflageAbschaltungLeistungsbegrenzung': str,
+                                   'Wassertiefe': float,
+                                   'Kuestenentfernung': float,
+                                   'EegMastrNummer': str,
+                                   'HerstellerID': str,
+                                   'HerstellerName': str,
+                                   'version': str,
+                                   'timestamp': str})
     # log.info(f'Finished reading data from {csv_name}')
     return unit_wind
 
@@ -180,6 +180,8 @@ def get_unit_wind_eeg(mastr_wind_eeg):
     c = client_bind.GetAnlageEegWind(apiKey=api_key,
                                      marktakteurMastrNummer=my_mastr,
                                      eegMastrNummer=mastr_wind_eeg)
+    c['VerknuepfteEinheit'] =  c['MaStR']['VerknuepfteEinheit']
+    del c['MaStR']
     s = serialize_object(c)
     df = pd.DataFrame(list(s.items()), )
     unit_wind_eeg = df.set_index(list(df.columns.values)[0]).transpose()
@@ -248,8 +250,8 @@ def get_unit_wind_permit(mastr_wind_permit):
     """
     data_version = get_data_version()
     c = client_bind.GetEinheitGenehmigung(apiKey=api_key,
-                                     marktakteurMastrNummer=my_mastr,
-                                     genMastrNummer=mastr_wind_permit)
+                                          marktakteurMastrNummer=my_mastr,
+                                          genMastrNummer=mastr_wind_permit)
     s = serialize_object(c)
     df = pd.DataFrame(list(s.items()), )
     unit_wind_permit = df.set_index(list(df.columns.values)[0]).transpose()
@@ -276,19 +278,23 @@ def read_unit_wind_permit(csv_name):
     """
     # log.info(f'Read data from {csv_name}')
     unit_wind_permit = pd.read_csv(csv_name, header=0, sep=';', index_col=False, encoding='utf-8',
-                                dtype={'lid': int,
-                                       'Ergebniscode': str,
-                                       'AufrufVeraltet': str,
-                                       'AufrufLebenszeitEnde': str,
-                                       'AufrufVersion': str,
-                                       'GenMastrNummer': str,
-                                       'Art': str,
-                                       'Datum': str,
-                                       'Behoerde': str,
-                                       'Aktenzeichen': str,
-                                       'Frist': str,
-                                       'timestamp': str})
-    # log.info(f'Finished reading data from {csv_name}')
+                                   dtype={'lid': int,
+                                          'EinheitMastrNummer': str,
+                                          'Einheittyp': str,
+                                          'Einheitart': str,
+                                          'GenMastrNummer': str,
+                                          'Datum': str,
+                                          'Art': str,
+                                          'Behoerde': str,
+                                          'Aktenzeichen': str,
+                                          'Frist': str,
+                                          'WasserrechtsNummer': str,
+                                          'WasserrechtAblaufdatum': str,
+                                          'Meldedatum': str
+                                          })
+    #log.info(f'Finished reading data from {csv_name}')
+
+
     return unit_wind_permit
 
 
@@ -305,15 +311,15 @@ def setup_power_unit_wind(overwrite, eeg=False, permit=False):
     """
     data_version = get_data_version()
     if overwrite:
-      if not eeg:
-        if os.path.isfile(fname_wind):
-          remove_csv(fname_wind)
-      elif eeg:
-        if os.path.isfile(fname_wind_eeg):
-          remove_csv(fname_wind_eeg)
-      elif permit:
-        if os.path.isfile(fname_wind_permit):
-          remove_csv(fname_wind_permit)
+        if not eeg:
+            if os.path.isfile(fname_wind):
+                remove_csv(fname_wind)
+        elif eeg:
+            if os.path.isfile(fname_wind_eeg):
+                remove_csv(fname_wind_eeg)
+        elif permit:
+            if os.path.isfile(fname_wind_permit):
+                remove_csv(fname_wind_permit)
 
     if os.path.isfile(fname_all_units):
         power_unit = read_power_units(fname_all_units)
@@ -334,6 +340,14 @@ def download_unit_wind(overwrite=False):
     """Download Windeinheit.
 
     Existing units: 31543 (2019-02-10)
+
+    Parameters
+    ----------
+    overwrite
+
+    Returns
+    -------
+
     """
     start_from = 0
 
@@ -352,7 +366,16 @@ def download_unit_wind(overwrite=False):
             log.exception(f'Download failed unit_wind ({i}): {unit_wind_list[i]}')
 
 def download_unit_wind_eeg(overwrite=False):
-    """Download unit_wind_eeg using GetAnlageEegWind request."""
+    """Download unit_wind_eeg using GetAnlageEegWind request.
+
+    Parameters
+    ----------
+    overwrite
+
+    Returns
+    -------
+
+    """
     data_version = get_data_version()
     unit_wind = setup_power_unit_wind(overwrite, eeg=True)
 
@@ -367,47 +390,66 @@ def download_unit_wind_eeg(overwrite=False):
             log.exception(f'Download failed unit_wind_eeg ({i}): {unit_wind_list[i]}')
 
 def download_unit_wind_permit(overwrite=False):
-        """Download unit_wind_permit using GetEinheitGenehmigung request."""
-        data_version = get_data_version()
-        unit_wind = setup_power_unit_wind(overwrite, permit=True)
-        df_all = pd.DataFrame()
-        unit_wind_list = unit_wind['GenMastrNummer'].values.tolist()
-        unit_wind_list_len = len(unit_wind_list)
-        for i in range(0, unit_wind_list_len, 1):
-          if not pd.isna(unit_wind_list[i]):
+    """Download unit_wind_permit using GetEinheitGenehmigung request.
+
+    Parameters
+    ----------
+    overwrite
+
+    Returns
+    -------
+
+    """
+    data_version = get_data_version()
+    unit_wind = setup_power_unit_wind(overwrite, permit=True)
+    df_all = pd.DataFrame()
+    unit_wind_list = unit_wind['GenMastrNummer'].values.tolist()
+    unit_wind_list_len = len(unit_wind_list)
+    for i in range(0, unit_wind_list_len, 1):
+        if not pd.isna(unit_wind_list[i]):
             try:
                 unit_wind_permit = get_unit_wind_permit(unit_wind_list[i])
                 for k,v in unit_wind_permit.VerknuepfteEinheiten.items():
-                  df_new = pd.DataFrame.from_dict(v)
-                  df = pd.DataFrame()
-                  gennr = df_new.size * [unit_wind_permit.GenMastrNummer.iloc[0]]
-                  dates = df_new.size * [unit_wind_permit.Datum.iloc[0]]
-                  types = df_new.size * [unit_wind_permit.Art.iloc[0]]
-                  authority = df_new.size * [(unit_wind_permit.Behoerde.iloc[0]).translate({ord(','):None})]
-                  file_num = df_new.size * [unit_wind_permit.Aktenzeichen.iloc[0]]
-                  frist = df_new.size * [unit_wind_permit.Frist.iloc[0]['Wert']]
-                  water_num = df_new.size * [unit_wind_permit.WasserrechtsNummer.iloc[0]]
-                  water_date = df_new.size * [unit_wind_permit.WasserrechtAblaufdatum.iloc[0]['Wert']]
-                  reporting_date = df_new.size * [unit_wind_permit.Meldedatum.iloc[0]]
-                  df = pd.DataFrame(
-                      {
-                      'GenMastrNummer':gennr,
-                      'Datum': dates,
-                      'Art': types,
-                      'Behoerde': authority,
-                      'Aktenzeichen': file_num,
-                      'Frist': frist,
-                      'WasserrechtsNummer': water_num,
-                      'WasserrechtAblaufdatum': water_date,
-                      'Meldedatum': reporting_date
-                      })
-                  df_all = pd.concat([df_new, df.reindex(df_new.index)], axis=1)
-                  #df_all.set_index(['MaStRNummer'], inplace=True)
-                  write_to_csv(fname_wind_permit,df_all)
+                    df_new = pd.DataFrame.from_dict(v)
+                    df = pd.DataFrame()
+                    gennr = df_new.size * [unit_wind_permit.GenMastrNummer.iloc[0]]
+                    dates = df_new.size * [unit_wind_permit.Datum.iloc[0]]
+                    types = df_new.size * [unit_wind_permit.Art.iloc[0]]
+                    authority = df_new.size * [(unit_wind_permit.Behoerde.iloc[0]).translate({ord(','):None})]
+                    file_num = df_new.size * [unit_wind_permit.Aktenzeichen.iloc[0]]
+                    frist = df_new.size * [unit_wind_permit.Frist.iloc[0]['Wert']]
+                    water_num = df_new.size * [unit_wind_permit.WasserrechtsNummer.iloc[0]]
+                    water_date = df_new.size * [unit_wind_permit.WasserrechtAblaufdatum.iloc[0]['Wert']]
+                    reporting_date = df_new.size * [unit_wind_permit.Meldedatum.iloc[0]]
+                    df = pd.DataFrame(
+                        {
+                            'GenMastrNummer':gennr,
+                            'Datum': dates,
+                            'Art': types,
+                            'Behoerde': authority,
+                            'Aktenzeichen': file_num,
+                            'Frist': frist,
+                            'WasserrechtsNummer': water_num,
+                            'WasserrechtAblaufdatum': water_date,
+                            'Meldedatum': reporting_date
+                        })
+                    df_all = pd.concat([df_new, df.reindex(df_new.index)], axis=1)
+                    #df_all.set_index(['MaStRNummer'], inplace=True)
+                    write_to_csv(fname_wind_permit,df_all)
             except:
                 log.exception(f'Download failed unit_wind_permit ({i}): {unit_wind_list[i]}')
 
 def disentangle_manufacturer(wind_unit):
+    """
+
+    Parameters
+    ----------
+    wind_unit
+
+    Returns
+    -------
+
+    """
     wu = wind_unit
     try:
         wu['HerstellerID'] = wind_unit['Hersteller']['Id']
