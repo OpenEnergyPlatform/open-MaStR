@@ -47,8 +47,9 @@ def make_wind(eeg=False):
     table_wind = power_unit_wind \
         .merge(unit_wind_permit.set_index('EinheitMastrNummer'), on= ['Einheitart', 'Einheittyp', 'GenMastrNummer','EinheitMastrNummer'], how='left') \
         .merge(unit_wind_eeg.set_index('EegMastrNummer'), on=['EegMastrNummer'], how='left') \
- \
-    """table_wind = power_unit_wind \
+ 
+    """
+    table_wind = power_unit_wind \
     .join(unit_wind_permit.set_index('GenMastrNummer'),
               on='GenMastrNummer', how='left', rsuffix='_p') \
     .join(unit_wind.set_index('EinheitMastrNummer'),

@@ -46,13 +46,17 @@ api_key = token
 my_mastr = user
 
 
-def get_power_unit(start_from, wind=False, datum='Null', limit=API_MAX_DEMANDS):
+def get_power_unit(start_from, wind=False, datum='1900-01-01 00:00:00.00000', limit=API_MAX_DEMANDS):
     """Get Stromerzeugungseinheit from API using GetGefilterteListeStromErzeuger.
 
     Parameters
     ----------
     start_from : int
         Skip first entries.
+    wind : bool
+        Wether only wind data should be retrieved
+    datum: String
+        the starting datestring to retrieve data, can be used for updating a data set
     limit : int
         Number of entries to get (default: 2000)
     """
@@ -169,15 +173,14 @@ def download_parallel_power_unit(
         current max entries: 42748 / 27.10.2019
     eeg : bool
         Wether eeg data should be downloaded,too
+    update: bool
+        Wether a dataset should only be updated
     """
     if wind==True:
         power_unit_list_len=42748
 
-   # if update==True:
-   #     datum = get_update_date(wind)
-   # else:
-    datum = 'NULL'
-
+   if update==True:
+        datum = get_update_date(wind)
 
     log.info('Download MaStR Power Unit')
     if batch_size < API_MAX_DEMANDS:
@@ -204,6 +207,7 @@ def download_parallel_power_unit(
     if power_unit_list_len < limit:
         limit = power_unit_list_len
 
+    # set some params
     start_from_list = list(range(start_from, end_at, limit + 1))
     length = len(start_from_list)
     num = math.ceil(power_unit_list_len/batch_size)
@@ -217,20 +221,15 @@ def download_parallel_power_unit(
     failed_downloads = []
     counter = 0
     
+    # while there are still batches, try to download batch in parallel
     while len(sublists) > 0:
-        print(sublists)
         if len(sublists) == 1:
-            log.info(counter)
+            # check wether the 1st round is done and if any downloads are in the failed_downloads list
             if counter < 1 and len(failed_downloads) > 0:
-                    log.info(failed_downloads)
-                    log.info('failed fgaroif')
                     sublists = sublists[0]+failed_downloads
-                    log.info(sublists)
-                    log.info("HFDOS")
                     num = math.ceil((len(failed_downloads)*2000)/batch_size)
                     sublists = split_to_sublists(sublists, len(sublists), num)
                     counter = counter+1
-                    log.info(counter)
                     failed_downloads = []
                     log.info('Starting second round with failed downloads')
             if almost_end_of_list is False:
@@ -252,6 +251,9 @@ def download_parallel_power_unit(
             
             ndownload = len(sublist)
             #pool = ThreadPool(processes=ndownload)
+
+            # create pool and map all indices in batch sublist to one instance of get_power_unit
+            # use partial to partially preset some variables from get_power_unit
             pool = mp.get_context("spawn").Pool(processes=3)
             if almost_end_of_list is False:
                 result = pool.map(partial(get_power_unit, limit=limit, wind=wind, datum=datum), sublist)
@@ -263,11 +265,12 @@ def download_parallel_power_unit(
                     sublists.append([sublist[-1]])
                 else:
                     result = pool.map(partial(get_power_unit, limit=limit, wind=wind, datum=datum), sublist)
-
+            # print progression        
             summe += 1
             progress = math.floor((summe/length)*100)
             print('\r[{0}{1}] %'.format('#'*(int(math.floor(progress/10))), '-'*int(math.floor((100-progress)/10))))
             print(time.time()-t)
+            # check for failed downloads and add indices of failed downloads to failed list
             indices_list = []
             if not len(result)==0:
                 for ind, mylist in result:
@@ -286,7 +289,6 @@ def download_parallel_power_unit(
                 failed_downloads = failed_downloads+sublist
                 log.info('Download failed, retrying later')
         except Exception as e:
-            log.info(counter)
             log.error(e)
     log.info('Power Unit Download executed in: {0:.2f}'.format(time.time()-t))
     do_wind(eeg=eeg)
@@ -297,6 +299,7 @@ def get_update_date(wind=False):
     dateTime = datetime.now()
     date = dateTime.date()
 
+    # retrieve last timestamp from file powerunits or wind units if wind=True
     ts = read_timestamp(wind)
     if not ts==False:
         ts = dt.strptime(ts, '%Y-%m-%d %H:%M:%S.%f')

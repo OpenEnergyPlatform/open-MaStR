@@ -204,7 +204,7 @@ def read_timestamp(wind=False):
     else:
         if os.path.isfile(fname_all_units):
             """ get timestamp """
-            ts = ts.timestamp.iloc[-1]
             ts = pd.read_csv(fname_all_units, header=0, index_col=0)
+            ts = ts.timestamp.iloc[-1]
             return ts
     return False
