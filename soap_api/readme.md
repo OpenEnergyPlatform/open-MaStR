@@ -59,31 +59,32 @@
 
 ### Documentation
 
-- download_parallel_power_unit
- ``` Downloads inital power unit information for all 'Erzeuger' (producer). ```
-	* power_unit_list_len : int
-	> total number of units to download
-	* limit : int 
-	> number of units per download request
-	* batch_size : int 
-	> number of units per batch 
-	* start_from : int 
-	> starting index
-	* overwrite : bool
-	> overwrites existing file if true, appends if false
-	* wind : bool
-	> decision variable if only wind units should be processed
-	* eeg : bool
-	> decision variable wether eegs should be downloaded
+- download_parallel_power_unit \
+ | Downloads inital power unit information for all 'Erzeuger' (producer). 
+	* power_unit_list_len : int \
+	  total number of units to download
+	* limit : int \
+	  number of units per download request
+	* batch_size : int \
+	  number of units per batch 
+	* start_from : int \
+	  starting index
+	* overwrite : bool\
+	  overwrites existing file if true, appends if false
+	* wind : bool\
+	  decision variable if only wind units should be processed
+	* eeg : bool\
+	  decision variable wether eegs should be downloaded
 
-- do_wind
-``` Uses existing wind related csvs to create one inclusive wind csv ```
-	* eeg : bool
-	> decision variable wether eegs should be included
+- do_wind \
+| Uses existing wind related csvs to create one inclusive wind csv 
+	* eeg : bool \
+	  decision variable wether eegs should be included
 
 ### Getting started
 
 - Create a virtualenv
 - Run python setup.py install
-- Optional: Read the Documentation to setup _download_parallel_power_unit_ if neccessary 
+- Optional: Read the Documentation to setup _download_parallel_power_unit_ 
+- decide which functions to use
 - Run python soap_api/main.py 
