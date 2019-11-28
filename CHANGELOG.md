@@ -16,6 +16,28 @@ Here is a template for new release sections
 ### Removed
 -
 ```
+
+## [Unreleased]
+
+### Added
+- docstrings for functions
+- tests
+- setup.py file
+- added update function (based on latest timestamp in powerunits csv)
+- added wind functions 
+  * only download power units for wind to avoid massive download
+  * changed : process units wind ("one-click solution")
+- added loop to retry failed power unit downloads, currently one retry
+
+### Changed
+- rename `import-api` `soap_api`
+- update README with instruction for tests
+- update README with instruction for setup
+
+### Removed
+- unused imports
+- obsolete comments
+
 ## [0.8.0] 2019-09-30
 
 ### Added
@@ -26,6 +48,10 @@ Here is a template for new release sections
 - continuous integration with TravisCI (`.travis.yml`)
 - linting tests and their config files (`.pylintrc` and `.flake8`)
 - requirements.txt
+- parallelized download for power units and solar
+- utils.py for utility functions
+- added storage units download
+- added wind permit download
 - ontology folder (#46)
 
 ### Changed

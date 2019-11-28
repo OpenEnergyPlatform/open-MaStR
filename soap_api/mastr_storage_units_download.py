@@ -12,13 +12,12 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 __copyright__ = "© Reiner Lemoine Institut"
 __license__ = "GNU Affero General Public License Version 3 (AGPL-3.0)"
 __url__ = "https://www.gnu.org/licenses/agpl-3.0.en.html"
-__author__ = "Ludee; christian-rli"
+__author__ = "Ludee; christian-rli; Bachibouzouk; solar-c"
 __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.8.0"
 
-from sessions import mastr_session
-from mastr_power_unit_download import read_power_units
-from utils import split_to_sublists,get_data_version, write_to_csv, get_filename_csv_see, set_filename_csv_see, get_correct_filepath, set_corrected_path, remove_csv
+from soap_api.sessions import mastr_session
+from soap_api.utils import split_to_sublists,get_data_version, write_to_csv, remove_csv, read_power_units
 
 from zeep.helpers import serialize_object
 from functools import partial
@@ -35,6 +34,9 @@ import time
 import logging
 log = logging.getLogger(__name__)
 
+""" import variables """
+from soap_api.utils import fname_all_units, fname_storage, fname_storage_unit
+
 """SOAP API"""
 client, client_bind, token, user = mastr_session()
 api_key = token
@@ -48,6 +50,9 @@ def download_parallel_unit_storage(start_from=0, end_at=20, overwrite=True):
     eeg_len = len(eeg_nr)
     log.info(f'Download MaStR Storage')
     log.info(f'Number of storage units: {storage_len}')
+    if storage_len <= 0:
+        log.info('No storages to retrieve')
+        return 
     cpu = parts=mp.cpu_count()
     split_storage_list =  split_to_sublists(storage_units_nr,storage_len,cpu)
     process_pool = mp.Pool(processes=mp.cpu_count())
@@ -62,7 +67,6 @@ def download_parallel_unit_storage(start_from=0, end_at=20, overwrite=True):
 
 def download_unit_storage(start_from=0, end_at=20, overwrite=True):
     storage_units = setup_storage_units(overwrite)
-    csv_see_storage = set_filename_csv_see(types="storage_units")
     storage_units_nr = storage_units['EinheitMastrNummer'].values.tolist()
     eeg_nr = storage_units['EegMastrNummer'].values.tolist()
     storage_len = len(storage_units_nr)
@@ -85,14 +89,11 @@ def split_to_threads(sublist):
 ''' starting batch num /current 1st speichereinheit 5th Aug 2019:    1220000 '''
 def setup_storage_units(overwrite=True):   
     data_version = get_data_version()
-    csv_see = get_correct_filepath()
-    set_corrected_path(csv_see)
-    csv_see_storage = set_filename_csv_see('storage_units', overwrite)
     if overwrite: 
-        if os.path.isfile(csv_see_storage):
-            remove_csv(csv_see_storage)
-    if os.path.isfile(csv_see):
-        power_unit = read_power_units(csv_see)
+        if os.path.isfile(fname_storage):
+            remove_csv(fname_storage)
+    if os.path.isfile(fname_all_units):
+        power_unit = read_power_units(fname_all_units)
         if not power_unit.empty:
             power_unit = power_unit.drop_duplicates()
             power_unit_storage = power_unit[power_unit.Einheittyp == 'Stromspeichereinheit']
@@ -100,7 +101,7 @@ def setup_storage_units(overwrite=True):
             power_unit_storage.reset_index()
             power_unit_storage.index.names = ['id']
             if not power_unit_storage.empty:
-                write_to_csv(csv_see_storage, power_unit_storage)    
+                write_to_csv(fname_storage_unit, power_unit_storage)    
             else:
                 log.info('No storage units in this dataset. Storage units can be found starting at index: approx. 1 220 000')   
             power_unit.iloc[0:0]
@@ -109,7 +110,7 @@ def setup_storage_units(overwrite=True):
             log.info('no storageunits found')
             return pd.DataFrame()
     else:
-        power_unit_solar = read_power_units(csv_see_storage)
+        power_unit_solar = read_power_units(name_storage)
     return power_unit_solar
 
 
@@ -127,57 +128,7 @@ def get_unit_storage(mastr_unit_storage):
         unit_storage.index.names = ['lid']
         unit_storage['version'] = data_version
         unit_storage['timestamp'] = str(datetime.datetime.now())
-        print(unit_storage)
-        write_to_csv(f'data/bnetza_mastr_{data_version}_storage_units.csv', unit_storage)
+        write_to_csv(fname_storage, unit_storage)
     except Exception as e:
         return
     return unit_storage
-
-
-def prepare_data(units_speicher, units_solar):
-    storage_postal = []
-    solar_postal = []
-    for x in range(len(units_speicher)):
-        postal = re.findall(r'\b[0-9]{5}', units_speicher[x][0])
-        if postal and units_speicher[x][1]:
-            storage_postal.append([postal[0], units_speicher[x][1]])
-    for y in range(len(units_solar)):
-        postal = re.findall(r'\b[0-9]{5}', units_solar[y][0])
-        if postal and postal != None and units_solar[y][1] and units_solar[y][1] != None:
-            solar_postal.append([postal[0], units_solar[y][1]])
-    return [pd.DataFrame(storage_postal), pd.DataFrame(solar_postal)]
-
-
-def get_storage_groups_by_address_or_postal():
-    overwrite=True
-    data_version = get_data_version()
-    csv_see = get_correct_filepath()
-    set_corrected_path(csv_see)
-    csv_see_postal = set_filename_csv_see('postal', overwrite)
-    csv_see_address = set_filename_csv_see('address', overwrite)
-    if overwrite:
-        remove_csv(csv_see_postal)
-        remove_csv(csv_see_address)
-    if os.path.isfile(csv_see):
-        power_unit = read_power_units(csv_see)
-        units_solar = power_unit[power_unit.Einheittyp == 'Solareinheit'][['Standort', 'EinheitMastrNummer']].values.tolist()
-        units_speicher = power_unit[power_unit.Einheittyp=='Stromspeichereinheit'][['Standort', 'EinheitMastrNummer']].values.tolist()
-        units_solar_add = pd.DataFrame(units_solar)
-        units_solar_add.columns= ['Standort', 'EinheitMastrNummer solar']
-        units_speicher_add = pd.DataFrame(units_speicher) 
-        units_speicher_add.columns = ['Standort', 'EinheitMastrNummer storage']
-
-        all_units_add = pd.merge(units_solar_add, units_speicher_add, on='Standort')
-        all_units_add.columns = ['Standort', 'EinheitMastrNummer storage', 'EinheitMastrNummer solar']
-        all_units_add =  all_units_add.groupby( ['Standort','EinheitMastrNummer solar'])['EinheitMastrNummer storage'].apply(list)
-
-        storage_postal, solar_postal = prepare_data(units_speicher, units_solar)
-        storage_postal.columns=['postal', 'EinheitMastrNummer storage']
-        storage_postal = storage_postal.groupby('postal')['EinheitMastrNummer storage'].apply(list)
-        solar_postal.columns=['postal', 'EinheitMastrNummer solar']
-        solar_postal = solar_postal.groupby('postal')['EinheitMastrNummer solar'].apply(list)
-
-        all_postals = pd.merge(solar_postal, storage_postal, on='postal')
-        dv = get_data_version()
-        write_to_csv(f'data/{dv}_postal_solar_storage.csv', all_postals)
-        write_to_csv(f'data/{dv}_address_solar_storage.csv', all_units_add)
