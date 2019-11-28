@@ -86,5 +86,5 @@
 - Create a virtualenv
 - Run python setup.py install
 - Optional: Read the Documentation to setup _download_parallel_power_unit_ 
-- decide which functions to use
+- decide which functions to use in main.py 
 - Run python soap_api/main.py 
