@@ -16,7 +16,7 @@ DATA_VERSION = 'rli_v2.0.3'
 """ Total Count of Power Units (TOTAL_POWER_UNITS) on date (UPDATE_TIMESTAMP) """
 TOTAL_POWER_UNITS = 2359365
 """ 01.03.2019 """
-TIMESTAMP = "1900-01-01 00:00:00.000000"
+TIMESTAMP = "1900-01-01 00:00:00.00000"
 """ test string: "2019-10-20 00:00:00.000000" """
 """ dummy stump for other file names """
 fname_template = f'data/bnetza_mastr_{DATA_VERSION}'
@@ -67,9 +67,9 @@ def split_to_sublists(mylist, length, parts):
     parts : int
         number of desired sublists
     """
-        s, r = divmod(length, parts)
-        k = s+1
-        return [mylist[i:i+k] for i in range(0, r*k, k)] + [mylist[i:i+s] for i in range(r*k, length, s)]
+    s, r = divmod(length, parts)
+    k = s+1
+    return [mylist[i:i+k] for i in range(0, r*k, k)] + [mylist[i:i+s] for i in range(r*k, length, s)]
 
 
 def write_to_csv(csv_name, df):

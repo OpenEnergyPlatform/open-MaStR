@@ -38,7 +38,7 @@ import math
 
 log = logging.getLogger(__name__)
 ''' VAR IMPORT '''
-from soap_api.utils import fname_all_units, fname_wind_unit, read_timestamp
+from soap_api.utils import fname_all_units, fname_wind_unit, read_timestamp, TIMESTAMP
 
 """SOAP API"""
 client, client_bind, token, user = mastr_session()
@@ -175,8 +175,8 @@ def download_parallel_power_unit(
     """
     if wind==True:
         power_unit_list_len=42748
-
-   if update==True:
+    update = TIMESTAMP
+    if update==True:
         datum = get_update_date(wind)
 
     log.info('Download MaStR Power Unit')
