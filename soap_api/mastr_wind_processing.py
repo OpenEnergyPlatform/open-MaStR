@@ -12,7 +12,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 __copyright__ = "© Reiner Lemoine Institut"
 __license__ = "GNU Affero General Public License Version 3 (AGPL-3.0)"
 __url__ = "https://www.gnu.org/licenses/agpl-3.0.en.html"
-__author__ = "Ludee; christian-rli"
+__author__ = "Ludee; christian-rli; Bachibouzouk; solar-c"
 __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.8.0"
 
@@ -43,16 +43,14 @@ api_key = token
 my_mastr = user
 
 def do_wind(eeg,start_from=0):
-    """
+    """ One-button function to trigger complete wind and wind permit downloads as well as processing into one table of all wind related tables.
 
     Parameters
     ----------
-    eeg
-    start_from
-
-    Returns
-    -------
-
+    eeg : bool
+        wether eeg data should also be retrieved.
+    start_from : int
+        starting index
     """
     if os.path.isfile(fname_wind_unit):
         wind_unit = read_power_units(fname_wind_unit)
@@ -64,7 +62,7 @@ def do_wind(eeg,start_from=0):
 
         if wind_unit.empty:
             log.info('no windunits found')
-            return pd.DataFrame()
+            return 
     else:
         log.info('windunit file not found')
     download_wind(units=wind_unit, start_from=start_from, eeg=eeg)
@@ -74,19 +72,18 @@ def do_wind(eeg,start_from=0):
     log.info("DONE :)")
 
 def download_wind(units, start_from, eeg=False):
-    """
+    """ Manages the parallel download process for wind units.
 
     Parameters
     ----------
-    units
-    start_from
-    eeg
-
-    Returns
-    -------
+    units : list
+        list of power units wind
+    start_from : int
+        starting index
+    eeg : bool
+        wether to retrieve eegs
 
     """
-    retry_max = 0
     wind_list_len = len(units)
     log.info('Download MaStR Wind')
     log.info(f'Number of unit_wind: {wind_list_len}')
@@ -98,15 +95,14 @@ def download_wind(units, start_from, eeg=False):
     pool.join()
 
 def process_partionier(units, eeg=False):
-    """
+    """ Manages the concrete download of units calling get_power_unit_wind 
 
     Parameters
     ----------
-    units
-    eeg
-
-    Returns
-    -------
+    units : list
+        list of power units wind
+    eeg : bool
+        wether to retrieve eegs
 
     """
     wind_list = units['EinheitMastrNummer'].values.tolist()
@@ -190,13 +186,12 @@ def download_wind_permit(units, start_from=0, overwrite=False):
 
     Parameters
     ----------
-    units
-    start_from
-    overwrite
-
-    Returns
-    -------
-
+    units : int
+        the units to download
+    start_from : int
+        starting index
+    overwrite : bool
+        wether the current result file (if existing) should be replaced
     """
     df_all = pd.DataFrame()
     unit_wind_list = units['GenMastrNummer'].values.tolist()

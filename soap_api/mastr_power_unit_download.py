@@ -12,7 +12,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 __copyright__ = "\xc2 Reiner Lemoine Institut"
 __license__ = "GNU Affero General Public License Version 3 (AGPL-3.0)"
 __url__ = "https://www.gnu.org/licenses/agpl-3.0.en.html"
-__author__ = "Ludee; christian-rli"
+__author__ = "Ludee; christian-rli; Bachibouzouk; solar-c"
 __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.8.0"
 
@@ -82,9 +82,6 @@ def get_power_unit(start_from, wind=False, datum='1900-01-01 00:00:00.00000', li
         power_unit['timestamp'] = str(datetime.now())
     except Exception as e:
         log.info(e)
-        #log.info('Download failed, retrying for %s', start_from)
-    # remove double quotes from column
-    #power_unit['Standort'] = power_unit['Standort'].str.replace('"', '')
     return [start_from, power_unit]
 
 
@@ -295,7 +292,13 @@ def download_parallel_power_unit(
 
 """ check for new entries since TIMESTAMP """
 def get_update_date(wind=False):
+    """ Retrieve timestamp to use as update baseline for powerunits - from timestamp until now.
 
+    Parameters
+    ----------
+    wind : bool
+        Wether a wind data timestamp should be retrieved or a general powerunit timestamp
+    """
     dateTime = datetime.now()
     date = dateTime.date()
 

@@ -12,7 +12,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 __copyright__ = "© Reiner Lemoine Institut"
 __license__ = "GNU Affero General Public License Version 3 (AGPL-3.0)"
 __url__ = "https://www.gnu.org/licenses/agpl-3.0.en.html"
-__author__ = "Ludee; christian-rli"
+__author__ = "Ludee; christian-rli; Bachibouzouk; solar-c"
 __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.8.0"
 
@@ -431,6 +431,15 @@ def download_parallel_unit_solar_eeg(
 
 
 def split_to_threads(sublist,parallelism=100):
+    """ Maps sublist variables to function get_power_unit_solar on parallel threads (number = parallelism)
+
+    Parameters
+    ----------
+    sublist : list
+        list to process in parallel
+    parallelism : int
+        number of threads
+    """
     pool = ThreadPool(processes=parallelism)
     results = pool.map(get_power_unit_solar, sublist)
     pool.close()
@@ -439,6 +448,15 @@ def split_to_threads(sublist,parallelism=100):
 
 
 def split_to_threads_eeg(sublist,parallelism=100):
+    """ Maps sublist variables to function get_unit_solar_eeg on parallel threads (number = parallelism)
+
+    Parameters
+    ----------
+    sublist : list
+        list to process in parallel
+    parallelism : int
+        number of threads
+    """
     pool = ThreadPool(processes=parallelism)
     results = pool.map(get_unit_solar_eeg, sublist)
     pool.close()
@@ -447,7 +465,15 @@ def split_to_threads_eeg(sublist,parallelism=100):
 
 
 def download_unit_solar_eeg(overwrite=True):
-    """Download unit_solar_eeg using GetAnlageEegSolar request."""
+    """Download unit_solar_eeg using GetAnlageEegSolar request.
+
+    Parameters
+    ----------
+    sublist : list
+        list to process in parallel
+    parallelism : int
+        number of threads
+    """
     data_version = get_data_version()
     unit_solar = setup_power_unit_solar(overwrite, eeg=True)
 

@@ -1,7 +1,7 @@
 __copyright__ = "© Reiner Lemoine Institut"
 __license__ = "GNU Affero General Public License Version 3 (AGPL-3.0)"
 __url__ = "https://www.gnu.org/licenses/agpl-3.0.en.html"
-__author__ = "Ludee; christian-rli"
+__author__ = "Bachibouzouk; solar-c"
 __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.8.0"
 
@@ -51,68 +51,25 @@ fname_storage_unit = f'{fname_template}_unit-storage.csv'
 
 
 def get_data_version():
+    """Return current data version """
     return DATA_VERSION
 
 
 def split_to_sublists(mylist, length, parts):
+    """Read data from config file.
+
+    Parameters
+    ----------
+    mylist : list
+        list to split
+    length : int
+        length of mylist
+    parts : int
+        number of desired sublists
+    """
         s, r = divmod(length, parts)
         k = s+1
         return [mylist[i:i+k] for i in range(0, r*k, k)] + [mylist[i:i+s] for i in range(r*k, length, s)]
-
-def get_filename_csv_see():
-    return csv_see
-
-
-def set_filename_csv_see(types, overwrite=True):
-    global csv_see, csv_see_hydro, csv_see_solar, csv_see_biomass, csv_see_wind, csv_see_storage, csv_see_postal, csv_see_address
-    myinput = ""
-    return_type = ""
-    if not overwrite:
-        print('CAUTION! Define a file name or press enter for default. If the file name exists, the file will not be overwritten. Data will be appended at the end of the existing file.')
-        myinput = input()
-
-    if types is 'power_units':
-        csv_see = csv_see_dummy+'_power-unit'+myinput+'.csv'
-        return_type = csv_see
-    elif types is 'solar_units':
-        return_type = csv_see_dummy+'_solar-units'+myinput+'.csv'
-    elif types is 'hydro_units':
-        return_type = csv_see_dummy+'_hydro-units'+myinput+'.csv'
-    elif types is 'biomass_units':
-        return_type = csv_see_dummy+'_biomass-units'+myinput+'.csv'
-    elif types is 'eeg_units':
-        return_type = csv_see_dummy+'_eeg_units'+myinput+'.csv'
-    elif types is 'wind_units':
-        return_type = csv_see_dummy+'_wind'+myinput+'.csv'
-    elif types is 'storage_units':
-        return_type = csv_see_dummy+'_storage-units'+myinput+'.csv'
-    elif types is 'postal':
-        return_type = csv_see_dummy+'_postal'+myinput+'.csv'
-    elif types is 'address':
-        return_type = csv_see_dummy+'_address'+myinput+'.csv'
-    return return_type
-
-
-def set_corrected_path(mypath):
-    global csv_see
-    csv_see = mypath
-
-
-def get_correct_filepath():
-    check = False
-    while not check:
-        log.info(f'CAUTION!! If your general power units file name DIFFERS from {csv_see} please ENTER NOW the complete path -- ELSE PRESS ENTER')
-        csv_path = input()
-        if os.path.isfile(csv_path):
-            check = True
-    return csv_path
-
-def get_correct_solar_filepath():
-    log.info(f'CAUTION!! If your SOLAR power units file name DIFFERS from {csv_see_solar} please ENTER NOW the complete path -- ELSE PRESS ENTER')
-    csv_path = input()
-    if not csv_path:
-        return csv_see_solar
-    return csv_path 
 
 
 def write_to_csv(csv_name, df):
@@ -142,6 +99,13 @@ def write_to_csv(csv_name, df):
 
 
 def remove_csv(csv_name):
+    """Remove csv file with given filename.
+
+    Parameters
+    ----------
+    csv_name : String
+        name of csv file to remove
+    """
     if os.path.isfile(csv_name):
         os.remove(csv_name)
 
@@ -195,6 +159,13 @@ def read_power_units(csv_name):
 
 
 def read_timestamp(wind=False):
+    """Read latest timestamp from powerunit file.
+
+    Parameters
+    ----------
+    wind : bool
+        determines which powerunit file should be used : wind or all units.
+    """
     if wind == True:
         if os.path.isfile(fname_wind_unit):
             """ get timestamp wind """
