@@ -14,7 +14,7 @@ log = logging.getLogger(__name__)
 
 DATA_VERSION = 'rli_v2.0.3'
 """ Total Count of Power Units (TOTAL_POWER_UNITS) on date (UPDATE_TIMESTAMP) """
-TOTAL_POWER_UNITS = 2359365
+TOTAL_POWER_UNITS = 2468804
 """ 01.03.2019 """
 TIMESTAMP = "1900-01-01 00:00:00.000000"
 """ test string: "2019-10-20 00:00:00.000000" """

@@ -31,7 +31,7 @@ from datetime import datetime
 from zeep.helpers import serialize_object
 
 from soap_api.sessions import mastr_session, API_MAX_DEMANDS
-from soap_api.utils import split_to_sublists, write_to_csv, remove_csv, get_data_version,read_timestamp
+from soap_api.utils import split_to_sublists, write_to_csv, remove_csv, get_data_version, read_timestamp, TOTAL_POWER_UNITS
 from soap_api.mastr_wind_processing import do_wind
 
 import math
@@ -117,6 +117,7 @@ def download_power_unit(
     2331651 (2019-10-01)
     2359365 (2019-10-15)
     2363200 (2019-10-17)
+    2468804 (2019-11-28)
     """
     log.info('Download MaStR Power Unit')
     log.info(f'Number of expected power units: {power_unit_list_len}')
@@ -138,7 +139,7 @@ def download_power_unit(
 
 
 def download_parallel_power_unit(
-        power_unit_list_len=2359365,
+        power_unit_list_len=TOTAL_POWER_UNITS,
         limit=API_MAX_DEMANDS,
         batch_size=10000,
         start_from=0,
@@ -167,14 +168,16 @@ def download_parallel_power_unit(
     wind : bool
         Wether only wind data but all wind data (wind power unit, wind, (wind eeg), wind permit, wind all)
         should be downloaded and processed
-        current max entries: 42748 / 27.10.2019
+        current max entries:
+        42748 (2019-10-27)
+        42481 (2019-11-28)
     eeg : bool
         Wether eeg data should be downloaded,too
     update: bool
         Wether a dataset should only be updated
     """
     if wind==True:
-        power_unit_list_len=42748
+        power_unit_list_len=42481
     datum = TIMESTAMP
     if update==True:
         datum = get_update_date(wind)
@@ -183,8 +186,8 @@ def download_parallel_power_unit(
     if batch_size < API_MAX_DEMANDS:
         limit = batch_size
 
-    if power_unit_list_len+start_from > 2359365:
-        deficit = (power_unit_list_len+start_from)-2359365
+    if power_unit_list_len+start_from > TOTAL_POWER_UNITS:
+        deficit = (power_unit_list_len+start_from)-TOTAL_POWER_UNITS
         power_unit_list_len = power_unit_list_len-deficit
         if power_unit_list_len <= 0:
             log.info('No entries to download. Decrease index size.')
