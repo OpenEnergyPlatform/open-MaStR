@@ -45,11 +45,7 @@ def make_wind(eeg=False):
         unit_wind_eeg = read_unit_wind_eeg(fname_wind_eeg)
     unit_wind_permit = read_unit_wind_permit(fname_wind_permit)
     log.info("Joining tables...")
-    table_wind = power_unit_wind \
-        .merge(unit_wind_permit.set_index('EinheitMastrNummer'), on= ['Einheitart', 'Einheittyp', 'GenMastrNummer','EinheitMastrNummer'], how='left') \
-        .merge(unit_wind_eeg.set_index('EegMastrNummer'), on=['EegMastrNummer'], how='left') \
  
-    """
     table_wind = power_unit_wind \
     .join(unit_wind_permit.set_index('GenMastrNummer'),
               on='GenMastrNummer', how='left', rsuffix='_p') \
@@ -58,6 +54,7 @@ def make_wind(eeg=False):
     if eeg==True:
         table_wind = table_wind.join(unit_wind_eeg.set_index('EegMastrNummer'),
               on='EegMastrNummer', how='left', rsuffix='_e') \
-"""
+
+
     write_to_csv(csv_wind, table_wind)
     log.info(f'Join Wind to: {csv_wind}')
