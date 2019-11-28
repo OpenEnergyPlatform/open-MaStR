@@ -34,6 +34,8 @@ UserToken = namedtuple('UserToken', ['user', 'token'])
 import logging
 log = logging.getLogger(__name__)
 
+API_MAX_DEMANDS = 2000
+
 
 def oep_config():
     """Access config.ini.
