@@ -47,16 +47,22 @@ if __name__ == "__main__":
 
     ''' DEFAULT PARAMS: power_unit_list_len=100000, limit=2000, batch_size=20000, start_from=0, overwrite=False '''
     ''' CURRENT MAX INDEX FOR VAR start_from and power_unit_list_len: 1814000 '''
-    download_parallel_power_unit(batch_size=10000, power_unit_list_len=100000, wind=False,eeg=True, update=False, overwrite=False, start_from = 2034000)
-    #do_wind(eeg=True)
-    #download_power_unit()
+    download_parallel_power_unit(
+        power_unit_list_len=30000,
+        batch_size=10000,
+        limit=2000,
+        wind=False,
+        eeg=True,
+        update=False,
+        overwrite=False,
+        start_from=100000
+    )
 
     """Wind"""
     download_unit_wind()
     download_unit_wind_eeg()
     download_unit_wind_permit()
-    do_wind(eeg=True)
-    # make_wind()
+    make_wind()
 
     """Hydro"""
     download_unit_hydro()
@@ -70,13 +76,12 @@ if __name__ == "__main__":
 
     """Solar"""
     ''' DEFAULT PARAMS: start_from=0, n_entries=1, parallelism=300, cpu_factor=1, overwrite=False '''
-    download_parallel_unit_solar(overwrite=True)
-    download_parallel_unit_solar_eeg(overwrite=True)
+    download_parallel_unit_solar()
+    download_parallel_unit_solar_eeg()
     make_solar()
 
     """ Storages"""
     get_solarunit_storages()
-    #get_geocode_address()
     download_parallel_unit_storage()
 #
     """close"""
