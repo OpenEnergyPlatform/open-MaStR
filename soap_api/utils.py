@@ -67,9 +67,9 @@ def split_to_sublists(mylist, length, parts):
     parts : int
         number of desired sublists
     """
-        s, r = divmod(length, parts)
-        k = s+1
-        return [mylist[i:i+k] for i in range(0, r*k, k)] + [mylist[i:i+s] for i in range(r*k, length, s)]
+    s, r = divmod(length, parts)
+    k = s+1
+    return [mylist[i:i+k] for i in range(0, r*k, k)] + [mylist[i:i+s] for i in range(r*k, length, s)]
 
 
 def write_to_csv(csv_name, df):

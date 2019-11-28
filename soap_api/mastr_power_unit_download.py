@@ -176,7 +176,7 @@ def download_parallel_power_unit(
     if wind==True:
         power_unit_list_len=42748
 
-   if update==True:
+    if update==True:
         datum = get_update_date(wind)
 
     log.info('Download MaStR Power Unit')
