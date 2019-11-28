@@ -52,6 +52,7 @@ Here is a template for new release sections
 - utils.py for utility functions
 - added storage units download
 - added wind permit download
+- ontology folder (#46)
 
 ### Changed
 - took the code from this [repository's subfolder](https://github.com/OpenEnergyPlatform/data-preprocessing/tree/master/data-import/bnetza_mastr)
