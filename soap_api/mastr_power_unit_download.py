@@ -31,14 +31,14 @@ from datetime import datetime
 from zeep.helpers import serialize_object
 
 from soap_api.sessions import mastr_session, API_MAX_DEMANDS
-from soap_api.utils import split_to_sublists, write_to_csv, remove_csv, get_data_version
+from soap_api.utils import split_to_sublists, write_to_csv, remove_csv, get_data_version,read_timestamp
 from soap_api.mastr_wind_processing import do_wind
 
 import math
 
 log = logging.getLogger(__name__)
 ''' VAR IMPORT '''
-from soap_api.utils import fname_all_units, fname_wind_unit, read_timestamp
+from soap_api.utils import fname_all_units, fname_wind_unit, TIMESTAMP
 
 """SOAP API"""
 client, client_bind, token, user = mastr_session()
@@ -175,7 +175,7 @@ def download_parallel_power_unit(
     """
     if wind==True:
         power_unit_list_len=42748
-
+    datum = TIMESTAMP
     if update==True:
         datum = get_update_date(wind)
 
@@ -227,6 +227,8 @@ def download_parallel_power_unit(
                     num = math.ceil((len(failed_downloads)*2000)/batch_size)
                     sublists = split_to_sublists(sublists, len(sublists), num)
                     counter = counter+1
+                    summe = 0
+                    length = len(sublists)
                     failed_downloads = []
                     log.info('Starting second round with failed downloads')
             if almost_end_of_list is False:
@@ -266,7 +268,6 @@ def download_parallel_power_unit(
             summe += 1
             progress = math.floor((summe/length)*100)
             print('\r[{0}{1}] %'.format('#'*(int(math.floor(progress/10))), '-'*int(math.floor((100-progress)/10))))
-            print(time.time()-t)
             # check for failed downloads and add indices of failed downloads to failed list
             indices_list = []
             if not len(result)==0:
