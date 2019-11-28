@@ -289,7 +289,6 @@ def download_parallel_power_unit(
         except Exception as e:
             log.error(e)
     log.info('Power Unit Download executed in: {0:.2f}'.format(time.time()-t))
-    do_wind(eeg=eeg)
 
 """ check for new entries since TIMESTAMP """
 def get_update_date(wind=False):
