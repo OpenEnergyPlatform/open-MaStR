@@ -12,7 +12,7 @@ from datetime import datetime as dt
 import logging
 log = logging.getLogger(__name__)
 
-DATA_VERSION = 'rli_v2.1.1'
+DATA_VERSION = 'rli_v2.1.2'
 """ Total Count of Power Units (TOTAL_POWER_UNITS) on date (UPDATE_TIMESTAMP) """
 TOTAL_POWER_UNITS = 2468804
 """ 01.03.2019 """
@@ -22,7 +22,7 @@ TIMESTAMP = "1900-01-01 00:00:00.000000"
 fname_template = f'data/bnetza_mastr_{DATA_VERSION}'
 ts_path = f'data/update/bnetza_mastr_ts.csv'
 """ list of specific power unit file names"""
-fname_power_unit = f'{fname_template}_power_unit.csv'
+fname_power_unit = f'{fname_template}_power-unit.csv'
 
 fname_power_unit_hydro = f'{fname_template}_power-unit-hydro.csv'
 fname_hydro_unit = f'{fname_template}_unit-hydro.csv'
