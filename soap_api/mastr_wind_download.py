@@ -300,29 +300,41 @@ def read_unit_wind_permit(csv_name):
 def setup_power_unit_wind(overwrite, eeg=False, permit=False):
     """Setup file for Stromerzeugungseinheit-Wind.
 
-    Check if file with Stromerzeugungseinheit-Wind exists. Create if not exists.
-    Load Stromerzeugungseinheit-Wind from file if exists.
+    Check if file with Stromerzeugungseinheit exists.
+    Read Stromerzeugungseinheit and filter Stromerzeugungseinheit-Wind.
 
     Returns
     -------
     power_unit_wind : DataFrame
         Stromerzeugungseinheit-Wind.
     """
-    if overwrite:
-        if not eeg:
-            if os.path.isfile(fname_wind_unit):
-                remove_csv(fname_wind_unit)
-        elif eeg:
-            if os.path.isfile(fname_wind_eeg):
-                remove_csv(fname_wind_eeg)
-        elif permit:
-            if os.path.isfile(fname_wind_permit):
-                remove_csv(fname_wind_permit)
+    # if overwrite:
+    #     if not eeg:
+    #         if os.path.isfile(fname_wind_unit):
+    #             remove_csv(fname_wind_unit)
+    #     elif eeg:
+    #         if os.path.isfile(fname_wind_eeg):
+    #             remove_csv(fname_wind_eeg)
+    #     elif permit:
+    #         if os.path.isfile(fname_wind_permit):
+    #             remove_csv(fname_wind_permit)
 
     if os.path.isfile(fname_power_unit):
         power_unit = read_power_units(fname_power_unit)
-        power_unit = power_unit.drop_duplicates()
         power_unit_wind = power_unit[power_unit.Einheittyp == 'Windeinheit']
+        power_unit_wind = power_unit_wind.drop_duplicates(subset=['EinheitMastrNummer',
+                                                                 'Name',
+                                                                 'Einheitart',
+                                                                 'Einheittyp',
+                                                                 'Standort',
+                                                                 'Bruttoleistung',
+                                                                 'Erzeugungsleistung',
+                                                                 'EinheitBetriebsstatus',
+                                                                 'Anlagenbetreiber',
+                                                                 'EegMastrNummer',
+                                                                 'KwkMastrNummer',
+                                                                 'SpeMastrNummer',
+                                                                 'GenMastrNummer'])
         power_unit_wind.index.names = ['see_id']
         power_unit_wind.reset_index()
         power_unit_wind.index.names = ['id']
@@ -330,12 +342,12 @@ def setup_power_unit_wind(overwrite, eeg=False, permit=False):
         power_unit_wind.iloc[0:0]
         return power_unit_wind
     else:
-        log.info('no windunits found')
+        log.info('Error reading from power-unit and filter wind-unit')
         return pd.DataFrame()
 
 
 def download_unit_wind(overwrite=False):
-    """Download Windeinheit.
+    """Download Windeinheit. Write results to csv file.
 
     Existing units: 31543 (2019-02-10)
 
@@ -357,7 +369,7 @@ def download_unit_wind(overwrite=False):
     for i in range(start_from, unit_wind_list_len, 1):
         try:
             unit_wind = get_power_unit_wind(unit_wind_list[i])
-            write_to_csv(fname_wind, unit_wind)
+            write_to_csv(fname_wind_unit, unit_wind)
         except:
             log.exception(f'Download failed unit_wind ({i}): {unit_wind_list[i]}')
 
