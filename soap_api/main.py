@@ -60,8 +60,8 @@ if __name__ == "__main__":
     """Wind"""
 #    download_unit_wind()
     download_unit_wind_eeg()
-    download_unit_wind_permit()
-    make_wind()
+    # download_unit_wind_permit()
+    # make_wind()
     #
     # """Hydro"""
     # download_unit_hydro()
