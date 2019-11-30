@@ -54,8 +54,6 @@ def setup_power_unit_wind():
     else:
         if os.path.isfile(fname_power_unit):
             power_unit = read_power_units(fname_power_unit)
-            power_unit_cnt = power_unit['timestamp'].count()
-            log.info(f'Read {power_unit_cnt} power-unit from {fname_power_unit}')
 
             power_unit_wind = power_unit[power_unit.Einheittyp == 'Windeinheit']
             power_unit_wind = power_unit_wind.drop_duplicates(subset=['EinheitMastrNummer',
@@ -72,9 +70,8 @@ def setup_power_unit_wind():
                                                                       'SpeMastrNummer',
                                                                       'GenMastrNummer'])
             log.info(f'Filter power-unit for wind and remove duplicates')
-            power_unit_wind.index.names = ['see_id']
             power_unit_wind.reset_index()
-            power_unit_wind.index.names = ['id']
+            power_unit_wind.index.names = ['pu-id']
 
             write_to_csv(fname_power_unit_wind, power_unit_wind)
             power_unit_wind_cnt = power_unit_wind['timestamp'].count()
@@ -101,7 +98,7 @@ def read_power_unit_wind(csv_name):
     if os.path.isfile(csv_name):
         power_unit_wind = pd.read_csv(csv_name, header=0, encoding='utf-8', sep=';', index_col=False,
                                       dtype={
-                                          'id': str,
+                                          'pu-id': str,
                                           'lid': str,
                                           'EinheitMastrNummer': str,
                                           'Name': str,
@@ -121,8 +118,8 @@ def read_power_unit_wind(csv_name):
                                           'StatisikFlag': str,
                                           'version': str,
                                           'timestamp': str})
-        power_unit_wind_cnt = power_unit_wind['id'].count()
-        log.info(f'Read {power_unit_wind_cnt} power-unit_wind from {csv_name}')
+        power_unit_wind_cnt = power_unit_wind['pu-id'].count()
+        log.info(f'Read {power_unit_wind_cnt} Stromerzeugungseinheit-Wind from {csv_name}')
         return power_unit_wind
 
     else:
@@ -408,6 +405,7 @@ def download_unit_wind():
     power_unit_wind = read_power_unit_wind(fname_power_unit_wind)
     power_unit_wind = power_unit_wind['EinheitMastrNummer']
     power_unit_wind_list = power_unit_wind.values.tolist()
+    power_unit_wind_list = list(dict.fromkeys(power_unit_wind_list))
     power_unit_wind_list_len = len(power_unit_wind_list)
     log.info(f'Download {power_unit_wind_list_len} Windeinheit')
 
@@ -434,6 +432,7 @@ def download_unit_wind_eeg():
     power_unit_wind = read_power_unit_wind(fname_power_unit_wind)
     power_unit_wind = power_unit_wind['EegMastrNummer']
     power_unit_wind_list = power_unit_wind.values.tolist()
+    power_unit_wind_list = list(dict.fromkeys(power_unit_wind_list))
     power_unit_wind_list_len = len(power_unit_wind_list)
     log.info(f'Download {power_unit_wind_list_len} Windeinheit EEG')
 
@@ -462,6 +461,7 @@ def download_unit_wind_permit():
     power_unit_wind = read_power_unit_wind(fname_power_unit_wind)
     power_unit_wind = power_unit_wind['GenMastrNummer'].drop_duplicates
     power_unit_wind_list = power_unit_wind.values.tolist()
+    power_unit_wind_list = list(dict.fromkeys(power_unit_wind_list))
     power_unit_wind_list_len = len(power_unit_wind_list)
     log.info(f'Download {power_unit_wind_list_len} Windeinheit Permit')
 
