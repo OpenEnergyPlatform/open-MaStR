@@ -35,7 +35,7 @@ api_key = token
 my_mastr = user
 
 
-def setup_power_unit_wind(overwrite, eeg=False, permit=False):
+def setup_power_unit_wind():
     """Setup file for Stromerzeugungseinheit-Wind.
 
     Check if file with Stromerzeugungseinheit exists.
@@ -47,25 +47,16 @@ def setup_power_unit_wind(overwrite, eeg=False, permit=False):
     power_unit_wind : DataFrame
         Stromerzeugungseinheit-Wind.
     """
-    # if overwrite:
-    #     if not eeg:
-    #         if os.path.isfile(fname_wind_unit):
-    #             remove_csv(fname_wind_unit)
-    #     elif eeg:
-    #         if os.path.isfile(fname_wind_eeg):
-    #             remove_csv(fname_wind_eeg)
-    #     elif permit:
-    #         if os.path.isfile(fname_wind_permit):
-    #             remove_csv(fname_wind_permit)
 
-    if os.path.isfile(fname_power_unit):
-        power_unit = read_power_units(fname_power_unit)
-        power_unit_cnt = power_unit['id'].count()
-        log.info(f'Read {power_unit_cnt} power-unit from {fname_power_unit}')
+    if os.path.isfile(fname_power_unit_wind):
+        log.info(f'File {fname_power_unit_wind} already exists')
 
-        if os.path.isfile(fname_power_unit_wind):
-            log.info(f'File {fname_power_unit_wind} already exists')
-        else:
+    else:
+        if os.path.isfile(fname_power_unit):
+            power_unit = read_power_units(fname_power_unit)
+            power_unit_cnt = power_unit['timestamp'].count()
+            log.info(f'Read {power_unit_cnt} power-unit from {fname_power_unit}')
+
             power_unit_wind = power_unit[power_unit.Einheittyp == 'Windeinheit']
             power_unit_wind = power_unit_wind.drop_duplicates(subset=['EinheitMastrNummer',
                                                                       'Name',
@@ -84,16 +75,58 @@ def setup_power_unit_wind(overwrite, eeg=False, permit=False):
             power_unit_wind.index.names = ['see_id']
             power_unit_wind.reset_index()
             power_unit_wind.index.names = ['id']
-            write_to_csv(fname_power_unit_wind, power_unit_wind)
 
-            power_unit_wind_cnt = power_unit_wind['id'].count()
+            write_to_csv(fname_power_unit_wind, power_unit_wind)
+            power_unit_wind_cnt = power_unit_wind['timestamp'].count()
             log.info(f'Write {power_unit_wind_cnt} power-unit_wind to {fname_power_unit_wind}')
 
-            power_unit_wind.iloc[0:0]
-            return power_unit_wind
+        else:
+            log.info(f'Error reading power-unit from {fname_power_unit}')
+
+
+def read_power_unit_wind(csv_name):
+    """Read Stromerzeugungseinheit-Wind from CSV file.
+
+    Parameters
+    ----------
+    csv_name : str
+        Name of file.
+
+    Returns
+    -------
+    power_unit_wind : DataFrame
+        Stromerzeugungseinheit-Wind.
+    """
+
+    if os.path.isfile(csv_name):
+        power_unit_wind = pd.read_csv(csv_name, header=0, encoding='utf-8', sep=';', index_col=False,
+                                      dtype={
+                                          'id': str,
+                                          'lid': str,
+                                          'EinheitMastrNummer': str,
+                                          'Name': str,
+                                          'Einheitart': str,
+                                          'Einheittyp': str,
+                                          'Standort': str,
+                                          'Bruttoleistung': str,
+                                          'Erzeugungsleistung': str,
+                                          'EinheitBetriebsstatus': str,
+                                          'Anlagenbetreiber': str,
+                                          'EegMastrNummer': str,
+                                          'KwkMastrNummer': str,
+                                          'SpeMastrNummer': str,
+                                          'GenMastrNummer': str,
+                                          'BestandsanlageMastrNummer': str,
+                                          'NichtVorhandenInMigriertenEinheiten': str,
+                                          'StatisikFlag': str,
+                                          'version': str,
+                                          'timestamp': str})
+        power_unit_wind_cnt = power_unit_wind['id'].count()
+        log.info(f'Read {power_unit_wind_cnt} power-unit_wind from {csv_name}')
+        return power_unit_wind
 
     else:
-        log.info(f'Error reading power-unit from {fname_power_unit}')
+        log.info(f'Error reading {csv_name}')
 
 
 def get_power_unit_wind(mastr_unit_wind):
@@ -371,7 +404,7 @@ def download_unit_wind(overwrite=False):
 
     """
     start_from = 0
-    unit_wind = setup_power_unit_wind(overwrite, eeg=False)
+    unit_wind = setup_power_unit_wind()
     unit_wind_list = unit_wind['EinheitMastrNummer'].values.tolist()
     unit_wind_list_len = len(unit_wind_list)
     log.info('Download MaStR Wind')
@@ -396,9 +429,10 @@ def download_unit_wind_eeg(overwrite=False):
     -------
 
     """
-    unit_wind = setup_power_unit_wind(overwrite, eeg=True)
+    setup_power_unit_wind()
+    power_unit_wind = read_power_unit_wind(fname_power_unit_wind)
 
-    unit_wind_list = unit_wind['EegMastrNummer'].values.tolist()
+    unit_wind_list = power_unit_wind['EegMastrNummer'].values.tolist()
     unit_wind_list_len = len(unit_wind_list)
 
     for i in range(0, unit_wind_list_len, 1):
@@ -421,7 +455,7 @@ def download_unit_wind_permit(overwrite=False):
 
     """
     data_version = get_data_version()
-    unit_wind = setup_power_unit_wind(overwrite, permit=True)
+    unit_wind = setup_power_unit_wind()
     df_all = pd.DataFrame()
     unit_wind_list = unit_wind['GenMastrNummer'].values.tolist()
     unit_wind_list_len = len(unit_wind_list)
