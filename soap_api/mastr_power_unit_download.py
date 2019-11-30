@@ -32,7 +32,7 @@ from zeep.helpers import serialize_object
 
 from soap_api.sessions import mastr_session, API_MAX_DEMANDS
 from soap_api.utils import split_to_sublists, write_to_csv, remove_csv, get_data_version, read_timestamp, TOTAL_POWER_UNITS
-from soap_api.mastr_wind_processing import do_wind
+# from soap_api.mastr_wind_processing import do_wind
 
 import math
 
