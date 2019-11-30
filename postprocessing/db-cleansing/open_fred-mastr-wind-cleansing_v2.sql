@@ -83,25 +83,27 @@ UPDATE  model_draft.bnetza_mastr_rli_v2_0_3_wind_clean AS t1
     UPDATE  model_draft.bnetza_mastr_rli_v2_0_3_wind_clean AS t1
     SET     comment =  COALESCE(comment, '') || 'inside_vg250; '
     FROM    (
-        SELECT  m.index AS index
+        SELECT  m.id AS id
         FROM    boundaries.bkg_vg250_1_sta_union_mview AS vg,
                 model_draft.bnetza_mastr_rli_v2_0_3_wind_clean AS m
-        WHERE   vg.geom && ST_TRANSFORM(m.geom,3035) AND
-                ST_CONTAINS(vg.geom,ST_TRANSFORM(m.geom,3035))
+        WHERE   m.geom && ST_TRANSFORM(vg.geom,4326) AND
+                ST_CONTAINS(ST_TRANSFORM(vg.geom,4326),m.geom)
         ) AS t2
-    WHERE   t1.index = t2.index;
+    WHERE   t1.id = t2.id;
+
+
 
 -- Punkte außerhalb nicht Offshore
     UPDATE  model_draft.bnetza_mastr_rli_v2_0_3_wind_clean
     SET     comment =  COALESCE(comment, '') || 'outside_vg250_onshore; '
-    WHERE   comment = 'has_geom; ' 
+    WHERE   comment = 'make_geom; has_geom; ' 
             AND "Lage" = 'WindAnLand';
 
 -- Reset außerhalb Onshore 
     UPDATE  model_draft.bnetza_mastr_rli_v2_0_3_wind_clean
     SET     geom =  NULL,
             comment =  COALESCE(comment, '') || 'remove_geom; '
-    WHERE   comment = 'has_geom; outside_vg250_onshore; ';
+    WHERE   comment = 'make_geom; has_geom; outside_vg250_onshore; ';
 
 
 -- Make geom from PLZ
@@ -135,6 +137,7 @@ FROM model_draft.bnetza_mastr_rli_v2_0_3_wind_clean
 GROUP BY "HerstellerID","HerstellerName", "Typenbezeichnung"
 ORDER BY COUNT(*) DESC;
 
+/*
 -- Analyze Wind
 SELECT  'ALL' AS "Typenbezeichnung", COUNT(*) AS cnt
 FROM model_draft.bnetza_mastr_rli_v2_0_3_wind_clean_50hertz
@@ -144,3 +147,4 @@ SELECT  "Typenbezeichnung", COUNT(*) AS cnt
 FROM model_draft.bnetza_mastr_rli_v2_0_3_wind_clean_50hertz
 WHERE is_50hertz = TRUE
 GROUP BY "Typenbezeichnung"
+*/
