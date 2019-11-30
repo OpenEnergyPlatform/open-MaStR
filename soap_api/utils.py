@@ -35,9 +35,8 @@ fname_solar_eeg = f'{fname_template}_solar-eeg.csv'
 fname_solar_eeg_unit = f'{fname_template}_unit-solar-eeg.csv'
 
 fname_wind = f'{fname_template}_wind.csv'
-fname_wind_eeg = f'{fname_template}_wind-eeg.csv'
 fname_wind_unit = f'{fname_template}_unit-wind.csv'
-fname_wind_eeg_unit = f'{fname_template}_unit-wind-eeg.csv'
+fname_wind_eeg = f'{fname_template}_wind-eeg.csv'
 fname_wind_permit = f'{fname_template}_unit-wind-permit.csv'
 
 
