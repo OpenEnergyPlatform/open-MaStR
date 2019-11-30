@@ -390,14 +390,14 @@ def read_unit_wind_permit(csv_name):
     return unit_wind_permit
 
 
-def download_unit_wind(overwrite=False):
+def download_unit_wind():
     """Download Windeinheit. Write results to csv file.
 
     Existing units: 31543 (2019-02-10)
 
     Parameters
     ----------
-    overwrite
+
 
     Returns
     -------
@@ -406,11 +406,10 @@ def download_unit_wind(overwrite=False):
     start_from = 0
     setup_power_unit_wind()
     power_unit_wind = read_power_unit_wind(fname_power_unit_wind)
-    power_unit_wind = power_unit_wind['EinheitMastrNummer'].drop_duplicates
+    power_unit_wind = power_unit_wind['EinheitMastrNummer']
     power_unit_wind_list = power_unit_wind.values.tolist()
     power_unit_wind_list_len = len(power_unit_wind_list)
-    log.info('Download Windeinheit')
-    log.info(f'Number of unit_wind: {power_unit_wind_list_len}')
+    log.info(f'Download {power_unit_wind_list_len} Windeinheit')
 
     for i in range(start_from, power_unit_wind_list_len, 1):
         try:
@@ -420,12 +419,12 @@ def download_unit_wind(overwrite=False):
             log.exception(f'Download failed unit_wind ({i}): {unit_wind_list[i]}')
 
 
-def download_unit_wind_eeg(overwrite=False):
+def download_unit_wind_eeg():
     """Download unit_wind_eeg using GetAnlageEegWind request.
 
     Parameters
     ----------
-    overwrite
+
 
     Returns
     -------
@@ -433,28 +432,27 @@ def download_unit_wind_eeg(overwrite=False):
     """
     setup_power_unit_wind()
     power_unit_wind = read_power_unit_wind(fname_power_unit_wind)
-    power_unit_wind = power_unit_wind['EegMastrNummer'].drop_duplicates
+    power_unit_wind = power_unit_wind['EegMastrNummer']
     power_unit_wind_list = power_unit_wind.values.tolist()
     power_unit_wind_list_len = len(power_unit_wind_list)
-    log.info('Download Windeinheit EEG')
-    log.info(f'Number of unit_wind_eeg: {power_unit_wind_list_len}')
+    log.info(f'Download {power_unit_wind_list_len} Windeinheit EEG')
 
-    for i in range(0, power_unit_wind_list, 1):
+    for i in range(0, power_unit_wind_list_len, 1):
         try:
             unit_wind_eeg = get_unit_wind_eeg(power_unit_wind_list[i])
             write_to_csv(fname_wind_eeg, unit_wind_eeg)
         except:
-            log.exception(f'Download failed unit_wind_eeg ({i}): {unit_wind_list[i]}')
+            log.exception(f'Download failed unit_wind_eeg ({i}): {power_unit_wind_list[i]}')
 
 
-def download_unit_wind_permit(overwrite=False):
+def download_unit_wind_permit():
     """Download unit_wind_permit using GetEinheitGenehmigung request.
 
     ToDo: More Documentation needed @solar-c
 
     Parameters
     ----------
-    overwrite
+
 
     Returns
     -------
@@ -465,6 +463,7 @@ def download_unit_wind_permit(overwrite=False):
     power_unit_wind = power_unit_wind['GenMastrNummer'].drop_duplicates
     power_unit_wind_list = power_unit_wind.values.tolist()
     power_unit_wind_list_len = len(power_unit_wind_list)
+    log.info(f'Download {power_unit_wind_list_len} Windeinheit Permit')
 
     df_all = pd.DataFrame()
 
