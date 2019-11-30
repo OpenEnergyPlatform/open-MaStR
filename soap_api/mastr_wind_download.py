@@ -180,8 +180,8 @@ def get_unit_wind_eeg(mastr_wind_eeg):
     c = client_bind.GetAnlageEegWind(apiKey=api_key,
                                      marktakteurMastrNummer=my_mastr,
                                      eegMastrNummer=mastr_wind_eeg)
-    c['VerknuepfteEinheit'] =  c['MaStR']['VerknuepfteEinheit']
-    del c['MaStR']
+    #c['VerknuepfteEinheit'] = c['MaStR']['VerknuepfteEinheit']
+    #del c['MaStR']
     s = serialize_object(c)
     df = pd.DataFrame(list(s.items()), )
     unit_wind_eeg = df.set_index(list(df.columns.values)[0]).transpose()
@@ -309,7 +309,6 @@ def setup_power_unit_wind(overwrite, eeg=False, permit=False):
     power_unit_wind : DataFrame
         Stromerzeugungseinheit-Wind.
     """
-    data_version = get_data_version()
     if overwrite:
         if not eeg:
             if os.path.isfile(fname_wind):
@@ -376,7 +375,6 @@ def download_unit_wind_eeg(overwrite=False):
     -------
 
     """
-    data_version = get_data_version()
     unit_wind = setup_power_unit_wind(overwrite, eeg=True)
 
     unit_wind_list = unit_wind['EegMastrNummer'].values.tolist()
