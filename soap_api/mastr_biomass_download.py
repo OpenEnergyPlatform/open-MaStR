@@ -28,7 +28,7 @@ from soap_api.utils import get_data_version, write_to_csv, read_power_units
 from soap_api.sessions import mastr_session
 """ import variables """
 from soap_api.utils import (
-    fname_all_units,
+    fname_power_unit,
     fname_power_unit_biomass,
     fname_unit_biomass,
     fname_unit_biomass_eeg
@@ -265,8 +265,8 @@ def setup_power_unit_biomass(ofname=None):
     if ofname is None:
         ofname = fname_power_unit_biomass
 
-    if os.path.isfile(fname_all_units):
-        power_unit = read_power_units(fname_all_units)
+    if os.path.isfile(fname_power_unit):
+        power_unit = read_power_units(fname_power_unit)
         if not power_unit.empty:
             power_unit = power_unit.drop_duplicates()
             power_unit_biomass = power_unit[power_unit.Einheittyp == 'Biomasse']

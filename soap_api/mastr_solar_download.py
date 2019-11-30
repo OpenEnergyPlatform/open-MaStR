@@ -34,7 +34,7 @@ import logging
 log = logging.getLogger(__name__)
 
 """ import variables """
-from soap_api.utils import fname_all_units, fname_solar, fname_solar_unit, fname_solar_eeg, fname_solar_eeg_unit
+from soap_api.utils import fname_power_unit, fname_solar, fname_solar_unit, fname_solar_eeg, fname_solar_eeg_unit
 
 """SOAP API"""
 client, client_bind, token, user = mastr_session()
@@ -263,8 +263,8 @@ def setup_power_unit_solar(overwrite=True, eeg=False):
     elif overwrite and eeg:
             remove_csv(fname_solar_eeg)
             remove_csv(fname_solar_eeg_unit)
-    if os.path.isfile(fname_all_units):
-        power_unit = read_power_units(fname_all_units)
+    if os.path.isfile(fname_power_unit):
+        power_unit = read_power_units(fname_power_unit)
         if not power_unit.empty:
             power_unit = power_unit.drop_duplicates()
             power_unit_solar = power_unit[power_unit.Einheittyp == 'Solareinheit']

@@ -35,7 +35,7 @@ import logging
 log = logging.getLogger(__name__)
 
 """ import variables """
-from soap_api.utils import fname_all_units, fname_storage, fname_storage_unit
+from soap_api.utils import fname_power_unit, fname_storage, fname_storage_unit
 
 """SOAP API"""
 client, client_bind, token, user = mastr_session()
@@ -92,8 +92,8 @@ def setup_storage_units(overwrite=True):
     if overwrite: 
         if os.path.isfile(fname_storage):
             remove_csv(fname_storage)
-    if os.path.isfile(fname_all_units):
-        power_unit = read_power_units(fname_all_units)
+    if os.path.isfile(fname_power_unit):
+        power_unit = read_power_units(fname_power_unit)
         if not power_unit.empty:
             power_unit = power_unit.drop_duplicates()
             power_unit_storage = power_unit[power_unit.Einheittyp == 'Stromspeichereinheit']

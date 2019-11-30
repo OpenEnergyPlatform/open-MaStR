@@ -21,8 +21,8 @@ from soap_api.mastr_hydro_download import read_unit_hydro, read_unit_hydro_eeg
 from soap_api.utils import (
     write_to_csv,
     fname_power_unit_hydro,
-    fname_unit_hydro,
-    fname_unit_hydro_eeg,
+    fname_hydro_unit,
+    fname_hydro_unit_eeg,
     fname_hydro_all
 )
 
@@ -33,8 +33,8 @@ def make_hydro():
     """Read hydro data from CSV files. Join data and write to file."""
 
     power_unit_hydro = read_power_units(fname_power_unit_hydro)
-    unit_hydro = read_unit_hydro(fname_unit_hydro)
-    unit_hydro_eeg = read_unit_hydro_eeg(fname_unit_hydro_eeg)
+    unit_hydro = read_unit_hydro(fname_hydro_unit)
+    unit_hydro_eeg = read_unit_hydro_eeg(fname_hydro_unit_eeg)
 
     table_hydro = power_unit_hydro.set_index('EinheitMastrNummer') \
         .join(unit_hydro.set_index('EinheitMastrNummer'),

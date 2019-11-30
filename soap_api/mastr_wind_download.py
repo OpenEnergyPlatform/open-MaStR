@@ -20,7 +20,6 @@ from soap_api.sessions import mastr_session
 from soap_api.utils import write_to_csv, get_data_version, read_power_units
 
 import pandas as pd
-import numpy as np
 import datetime
 import os
 from zeep.helpers import serialize_object
@@ -29,7 +28,7 @@ import logging
 log = logging.getLogger(__name__)
 
 """ import variables """
-from soap_api.utils import fname_all_units, fname_wind, fname_wind_unit, fname_wind_eeg, fname_wind_eeg_unit, fname_wind_permit, remove_csv
+from soap_api.utils import fname_power_unit, fname_power_unit_wind, fname_wind_unit, fname_wind_eeg, fname_wind_permit, remove_csv
 
 """SOAP API"""
 client, client_bind, token, user = mastr_session()
@@ -311,8 +310,8 @@ def setup_power_unit_wind(overwrite, eeg=False, permit=False):
     """
     if overwrite:
         if not eeg:
-            if os.path.isfile(fname_wind):
-                remove_csv(fname_wind)
+            if os.path.isfile(fname_wind_unit):
+                remove_csv(fname_wind_unit)
         elif eeg:
             if os.path.isfile(fname_wind_eeg):
                 remove_csv(fname_wind_eeg)
@@ -320,14 +319,14 @@ def setup_power_unit_wind(overwrite, eeg=False, permit=False):
             if os.path.isfile(fname_wind_permit):
                 remove_csv(fname_wind_permit)
 
-    if os.path.isfile(fname_all_units):
-        power_unit = read_power_units(fname_all_units)
+    if os.path.isfile(fname_power_unit):
+        power_unit = read_power_units(fname_power_unit)
         power_unit = power_unit.drop_duplicates()
         power_unit_wind = power_unit[power_unit.Einheittyp == 'Windeinheit']
         power_unit_wind.index.names = ['see_id']
         power_unit_wind.reset_index()
         power_unit_wind.index.names = ['id']
-        write_to_csv(fname_wind_unit, power_unit_wind)
+        write_to_csv(fname_power_unit_wind, power_unit_wind)
         power_unit_wind.iloc[0:0]
         return power_unit_wind
     else:
@@ -349,8 +348,6 @@ def download_unit_wind(overwrite=False):
 
     """
     start_from = 0
-
-    data_version = get_data_version()
     unit_wind = setup_power_unit_wind(overwrite, eeg=False)
     unit_wind_list = unit_wind['EinheitMastrNummer'].values.tolist()
     unit_wind_list_len = len(unit_wind_list)
