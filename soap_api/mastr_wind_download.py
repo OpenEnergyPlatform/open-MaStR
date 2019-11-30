@@ -49,7 +49,7 @@ def setup_power_unit_wind():
     """
 
     if os.path.isfile(fname_power_unit_wind):
-        log.info(f'File {fname_power_unit_wind} already exists')
+        log.info(f'Skip setup for Stromerzeugungseinheit-Wind')
 
     else:
         if os.path.isfile(fname_power_unit):
@@ -404,15 +404,17 @@ def download_unit_wind(overwrite=False):
 
     """
     start_from = 0
-    unit_wind = setup_power_unit_wind()
-    unit_wind_list = unit_wind['EinheitMastrNummer'].values.tolist()
-    unit_wind_list_len = len(unit_wind_list)
-    log.info('Download MaStR Wind')
-    log.info(f'Number of unit_wind: {unit_wind_list_len}')
+    setup_power_unit_wind()
+    power_unit_wind = read_power_unit_wind(fname_power_unit_wind)
+    power_unit_wind = power_unit_wind['EinheitMastrNummer'].drop_duplicates
+    power_unit_wind_list = power_unit_wind.values.tolist()
+    power_unit_wind_list_len = len(power_unit_wind_list)
+    log.info('Download Windeinheit')
+    log.info(f'Number of unit_wind: {power_unit_wind_list_len}')
 
-    for i in range(start_from, unit_wind_list_len, 1):
+    for i in range(start_from, power_unit_wind_list_len, 1):
         try:
-            unit_wind = get_power_unit_wind(unit_wind_list[i])
+            unit_wind = get_power_unit_wind(power_unit_wind_list[i])
             write_to_csv(fname_wind_unit, unit_wind)
         except:
             log.exception(f'Download failed unit_wind ({i}): {unit_wind_list[i]}')
@@ -431,13 +433,15 @@ def download_unit_wind_eeg(overwrite=False):
     """
     setup_power_unit_wind()
     power_unit_wind = read_power_unit_wind(fname_power_unit_wind)
+    power_unit_wind = power_unit_wind['EegMastrNummer'].drop_duplicates
+    power_unit_wind_list = power_unit_wind.values.tolist()
+    power_unit_wind_list_len = len(power_unit_wind_list)
+    log.info('Download Windeinheit EEG')
+    log.info(f'Number of unit_wind_eeg: {power_unit_wind_list_len}')
 
-    unit_wind_list = power_unit_wind['EegMastrNummer'].values.tolist()
-    unit_wind_list_len = len(unit_wind_list)
-
-    for i in range(0, unit_wind_list_len, 1):
+    for i in range(0, power_unit_wind_list, 1):
         try:
-            unit_wind_eeg = get_unit_wind_eeg(unit_wind_list[i])
+            unit_wind_eeg = get_unit_wind_eeg(power_unit_wind_list[i])
             write_to_csv(fname_wind_eeg, unit_wind_eeg)
         except:
             log.exception(f'Download failed unit_wind_eeg ({i}): {unit_wind_list[i]}')
@@ -445,6 +449,8 @@ def download_unit_wind_eeg(overwrite=False):
 
 def download_unit_wind_permit(overwrite=False):
     """Download unit_wind_permit using GetEinheitGenehmigung request.
+
+    ToDo: More Documentation needed @solar-c
 
     Parameters
     ----------
@@ -454,15 +460,18 @@ def download_unit_wind_permit(overwrite=False):
     -------
 
     """
-    data_version = get_data_version()
-    unit_wind = setup_power_unit_wind()
+    setup_power_unit_wind()
+    power_unit_wind = read_power_unit_wind(fname_power_unit_wind)
+    power_unit_wind = power_unit_wind['GenMastrNummer'].drop_duplicates
+    power_unit_wind_list = power_unit_wind.values.tolist()
+    power_unit_wind_list_len = len(power_unit_wind_list)
+
     df_all = pd.DataFrame()
-    unit_wind_list = unit_wind['GenMastrNummer'].values.tolist()
-    unit_wind_list_len = len(unit_wind_list)
-    for i in range(0, unit_wind_list_len, 1):
-        if not pd.isna(unit_wind_list[i]):
+
+    for i in range(0, power_unit_wind_list_len, 1):
+        if not pd.isna(power_unit_wind_list[i]):
             try:
-                unit_wind_permit = get_unit_wind_permit(unit_wind_list[i])
+                unit_wind_permit = get_unit_wind_permit(power_unit_wind_list[i])
                 for k, v in unit_wind_permit.VerknuepfteEinheiten.items():
                     df_new = pd.DataFrame.from_dict(v)
                     df = pd.DataFrame()
@@ -491,7 +500,7 @@ def download_unit_wind_permit(overwrite=False):
                     # df_all.set_index(['MaStRNummer'], inplace=True)
                     write_to_csv(fname_wind_permit, df_all)
             except:
-                log.exception(f'Download failed unit_wind_permit ({i}): {unit_wind_list[i]}')
+                log.exception(f'Download failed unit_wind_permit ({i}): {power_unit_wind_list[i]}')
 
 
 def disentangle_manufacturer(wind_unit):
