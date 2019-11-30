@@ -35,7 +35,7 @@ log = logging.getLogger(__name__)
 import multiprocessing as mp
 
 """ import variables """
-from soap_api.utils import fname_power_unit, fname_wind, fname_wind_unit, fname_wind_eeg, fname_wind_permit, remove_csv, read_power_units, split_to_sublists
+from soap_api.utils import fname_power_unit, fname_wind, fname_wind_unit, fname_wind_eeg, fname_wind_permit, read_power_units, split_to_sublists
 
 """SOAP API"""
 client, client_bind, token, user = mastr_session()

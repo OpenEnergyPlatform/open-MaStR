@@ -153,9 +153,9 @@ def get_power_unit_wind(mastr_unit_wind):
         unit_wind.index.names = ['lid']
         unit_wind['version'] = data_version
         unit_wind['timestamp'] = str(datetime.datetime.now())
+        return unit_wind
     except Exception as e:
         log.info('Download failed for %s', mastr_unit_wind)
-    return unit_wind
 
 
 def read_unit_wind(csv_name):
@@ -414,7 +414,7 @@ def download_unit_wind():
             unit_wind = get_power_unit_wind(power_unit_wind_list[i])
             write_to_csv(fname_wind_unit, unit_wind)
         except:
-            log.exception(f'Download failed unit_wind ({i}): {unit_wind_list[i]}')
+            log.exception(f'Download failed unit_wind ({i}): {power_unit_wind_list[i]}')
 
 
 def download_unit_wind_eeg():
