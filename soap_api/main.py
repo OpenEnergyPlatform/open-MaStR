@@ -34,7 +34,7 @@ import time
 
 
 if __name__ == "__main__":
-    from utils import DATA_VERSION
+    from soap_api.utils import DATA_VERSION
     """logging"""
     log = setup_logger()
     start_time = time.time()

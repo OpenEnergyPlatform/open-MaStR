@@ -17,7 +17,7 @@ __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.9.0"
 
 from soap_api.mastr_wind_download import *
-from soap_api.utils import fname_wind, fname_wind_unit, fname_wind_eeg, fname_wind_eeg_unit, fname_wind_permit, read_power_units
+from soap_api.utils import fname_wind_unit, fname_wind_eeg, fname_wind_permit, fname_wind
 import pandas as pd
 
 import logging
@@ -37,7 +37,6 @@ def make_wind(eeg=False):
 
     """
     data_version = get_data_version()
-    csv_wind = f'data/bnetza_mastr_{data_version}_wind_all.csv'
 
     power_unit_wind = read_power_units(fname_wind_unit)
     unit_wind = read_unit_wind(fname_wind)
@@ -55,6 +54,5 @@ def make_wind(eeg=False):
         table_wind = table_wind.join(unit_wind_eeg.set_index('EegMastrNummer'),
               on='EegMastrNummer', how='left', rsuffix='_e') \
 
-
-    write_to_csv(csv_wind, table_wind)
-    log.info(f'Join Wind to: {csv_wind}')
+    write_to_csv(fname_wind, table_wind)
+    log.info(f'Join Wind to: {fname_wind}')

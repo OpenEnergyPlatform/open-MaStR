@@ -27,10 +27,10 @@ from soap_api.utils import get_data_version, write_to_csv, read_power_units
 from soap_api.sessions import mastr_session
 """ import variables """
 from soap_api.utils import (
-    fname_all_units,
+    fname_power_unit,
     fname_power_unit_hydro,
-    fname_unit_hydro,
-    fname_unit_hydro_eeg
+    fname_hydro_unit,
+    fname_hydro_unit_eeg
 )
 
 log = logging.getLogger(__name__)
@@ -261,8 +261,8 @@ def setup_power_unit_hydro(ofname=None):
     if ofname is None:
         ofname = fname_power_unit_hydro
 
-    if os.path.isfile(fname_all_units):
-        power_unit = read_power_units(fname_all_units)
+    if os.path.isfile(fname_power_unit):
+        power_unit = read_power_units(fname_power_unit)
         power_unit = power_unit.drop_duplicates()
         power_unit_hydro = power_unit[power_unit.Einheittyp == 'Wasser']
         power_unit_hydro.index.names = ['see_id']
@@ -284,7 +284,7 @@ def download_unit_hydro(ofname=None):
     """
     # assign file name default value
     if ofname is None:
-        ofname = fname_unit_hydro
+        ofname = fname_hydro_unit
 
     start_from = 0
     unit_hydro = setup_power_unit_hydro()
@@ -309,7 +309,7 @@ def download_unit_hydro_eeg(ofname=None):
     """
     # assign file name default value
     if ofname is None:
-        ofname = fname_unit_hydro_eeg
+        ofname = fname_hydro_unit_eeg
 
     unit_hydro = setup_power_unit_hydro()
 
