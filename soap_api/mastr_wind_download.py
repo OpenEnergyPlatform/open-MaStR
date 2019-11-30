@@ -35,6 +35,7 @@ api_key = token
 my_mastr = user
 
 
+# Setup power-unit
 def setup_power_unit_wind():
     """Setup file for Stromerzeugungseinheit-Wind.
 
@@ -124,6 +125,37 @@ def read_power_unit_wind(csv_name):
 
     else:
         log.info(f'Error reading {csv_name}')
+
+
+# Download unit-wind
+def download_unit_wind():
+    """Download Windeinheit. Write results to csv file.
+
+    Existing units: 31543 (2019-02-10)
+
+    Parameters
+    ----------
+
+
+    Returns
+    -------
+
+    """
+    start_from = 0
+    setup_power_unit_wind()
+    power_unit_wind = read_power_unit_wind(fname_power_unit_wind)
+    power_unit_wind = power_unit_wind['EinheitMastrNummer']
+    power_unit_wind_list = power_unit_wind.values.tolist()
+    power_unit_wind_list = list(dict.fromkeys(power_unit_wind_list))
+    power_unit_wind_list_len = len(power_unit_wind_list)
+    log.info(f'Download {power_unit_wind_list_len} Windeinheit')
+
+    for i in range(start_from, power_unit_wind_list_len, 1):
+        try:
+            unit_wind = get_power_unit_wind(power_unit_wind_list[i])
+            write_to_csv(fname_wind_unit, unit_wind)
+        except:
+            log.exception(f'Download failed unit_wind ({i}): {power_unit_wind_list[i]}')
 
 
 def get_power_unit_wind(mastr_unit_wind):
@@ -252,6 +284,34 @@ def read_unit_wind(csv_name):
     return unit_wind
 
 
+# Download unit-wind-eeg
+def download_unit_wind_eeg():
+    """Download unit_wind_eeg using GetAnlageEegWind request.
+
+    Parameters
+    ----------
+
+
+    Returns
+    -------
+
+    """
+    setup_power_unit_wind()
+    power_unit_wind = read_power_unit_wind(fname_power_unit_wind)
+    power_unit_wind = power_unit_wind['EegMastrNummer']
+    power_unit_wind_list = power_unit_wind.values.tolist()
+    power_unit_wind_list = list(dict.fromkeys(power_unit_wind_list))
+    power_unit_wind_list_len = len(power_unit_wind_list)
+    log.info(f'Download {power_unit_wind_list_len} Windeinheit EEG')
+
+    for i in range(0, power_unit_wind_list_len, 1):
+        try:
+            unit_wind_eeg = get_unit_wind_eeg(power_unit_wind_list[i])
+            write_to_csv(fname_wind_eeg, unit_wind_eeg)
+        except:
+            log.exception(f'Download failed unit_wind_eeg ({i}): {power_unit_wind_list[i]}')
+
+
 def get_unit_wind_eeg(mastr_wind_eeg):
     """Get EEG-Anlage-Wind from API using GetAnlageEegWind.
 
@@ -325,6 +385,65 @@ def read_unit_wind_eeg(csv_name):
     return unit_wind_eeg
 
 
+# Download unit-wind-permit
+def download_unit_wind_permit():
+    """Download unit_wind_permit using GetEinheitGenehmigung request.
+
+    ToDo: More Documentation needed @solar-c
+
+    Parameters
+    ----------
+
+
+    Returns
+    -------
+
+    """
+    setup_power_unit_wind()
+    power_unit_wind = read_power_unit_wind(fname_power_unit_wind)
+    power_unit_wind = power_unit_wind['GenMastrNummer'].drop_duplicates
+    power_unit_wind_list = power_unit_wind.values.tolist()
+    power_unit_wind_list = list(dict.fromkeys(power_unit_wind_list))
+    power_unit_wind_list_len = len(power_unit_wind_list)
+    log.info(f'Download {power_unit_wind_list_len} Windeinheit Permit')
+
+    df_all = pd.DataFrame()
+
+    for i in range(0, power_unit_wind_list_len, 1):
+        if not pd.isna(power_unit_wind_list[i]):
+            try:
+                unit_wind_permit = get_unit_wind_permit(power_unit_wind_list[i])
+                for k, v in unit_wind_permit.VerknuepfteEinheiten.items():
+                    df_new = pd.DataFrame.from_dict(v)
+                    df = pd.DataFrame()
+                    gennr = df_new.size * [unit_wind_permit.GenMastrNummer.iloc[0]]
+                    dates = df_new.size * [unit_wind_permit.Datum.iloc[0]]
+                    types = df_new.size * [unit_wind_permit.Art.iloc[0]]
+                    authority = df_new.size * [(unit_wind_permit.Behoerde.iloc[0]).translate({ord(','): None})]
+                    file_num = df_new.size * [unit_wind_permit.Aktenzeichen.iloc[0]]
+                    frist = df_new.size * [unit_wind_permit.Frist.iloc[0]['Wert']]
+                    water_num = df_new.size * [unit_wind_permit.WasserrechtsNummer.iloc[0]]
+                    water_date = df_new.size * [unit_wind_permit.WasserrechtAblaufdatum.iloc[0]['Wert']]
+                    reporting_date = df_new.size * [unit_wind_permit.Meldedatum.iloc[0]]
+                    df = pd.DataFrame(
+                        {
+                            'GenMastrNummer': gennr,
+                            'Datum': dates,
+                            'Art': types,
+                            'Behoerde': authority,
+                            'Aktenzeichen': file_num,
+                            'Frist': frist,
+                            'WasserrechtsNummer': water_num,
+                            'WasserrechtAblaufdatum': water_date,
+                            'Meldedatum': reporting_date
+                        })
+                    df_all = pd.concat([df_new, df.reindex(df_new.index)], axis=1)
+                    # df_all.set_index(['MaStRNummer'], inplace=True)
+                    write_to_csv(fname_wind_permit, df_all)
+            except:
+                log.exception(f'Download failed unit_wind_permit ({i}): {power_unit_wind_list[i]}')
+
+
 def get_unit_wind_permit(mastr_wind_permit):
     """Get Genehmigung-Wind-Wind from API using GetEinheitGenehmigung.
 
@@ -385,121 +504,6 @@ def read_unit_wind_permit(csv_name):
                                           })
     # log.info(f'Finished reading data from {csv_name}')
     return unit_wind_permit
-
-
-def download_unit_wind():
-    """Download Windeinheit. Write results to csv file.
-
-    Existing units: 31543 (2019-02-10)
-
-    Parameters
-    ----------
-
-
-    Returns
-    -------
-
-    """
-    start_from = 0
-    setup_power_unit_wind()
-    power_unit_wind = read_power_unit_wind(fname_power_unit_wind)
-    power_unit_wind = power_unit_wind['EinheitMastrNummer']
-    power_unit_wind_list = power_unit_wind.values.tolist()
-    power_unit_wind_list = list(dict.fromkeys(power_unit_wind_list))
-    power_unit_wind_list_len = len(power_unit_wind_list)
-    log.info(f'Download {power_unit_wind_list_len} Windeinheit')
-
-    for i in range(start_from, power_unit_wind_list_len, 1):
-        try:
-            unit_wind = get_power_unit_wind(power_unit_wind_list[i])
-            write_to_csv(fname_wind_unit, unit_wind)
-        except:
-            log.exception(f'Download failed unit_wind ({i}): {power_unit_wind_list[i]}')
-
-
-def download_unit_wind_eeg():
-    """Download unit_wind_eeg using GetAnlageEegWind request.
-
-    Parameters
-    ----------
-
-
-    Returns
-    -------
-
-    """
-    setup_power_unit_wind()
-    power_unit_wind = read_power_unit_wind(fname_power_unit_wind)
-    power_unit_wind = power_unit_wind['EegMastrNummer']
-    power_unit_wind_list = power_unit_wind.values.tolist()
-    power_unit_wind_list = list(dict.fromkeys(power_unit_wind_list))
-    power_unit_wind_list_len = len(power_unit_wind_list)
-    log.info(f'Download {power_unit_wind_list_len} Windeinheit EEG')
-
-    for i in range(0, power_unit_wind_list_len, 1):
-        try:
-            unit_wind_eeg = get_unit_wind_eeg(power_unit_wind_list[i])
-            write_to_csv(fname_wind_eeg, unit_wind_eeg)
-        except:
-            log.exception(f'Download failed unit_wind_eeg ({i}): {power_unit_wind_list[i]}')
-
-
-def download_unit_wind_permit():
-    """Download unit_wind_permit using GetEinheitGenehmigung request.
-
-    ToDo: More Documentation needed @solar-c
-
-    Parameters
-    ----------
-
-
-    Returns
-    -------
-
-    """
-    setup_power_unit_wind()
-    power_unit_wind = read_power_unit_wind(fname_power_unit_wind)
-    power_unit_wind = power_unit_wind['GenMastrNummer'].drop_duplicates
-    power_unit_wind_list = power_unit_wind.values.tolist()
-    power_unit_wind_list = list(dict.fromkeys(power_unit_wind_list))
-    power_unit_wind_list_len = len(power_unit_wind_list)
-    log.info(f'Download {power_unit_wind_list_len} Windeinheit Permit')
-
-    df_all = pd.DataFrame()
-
-    for i in range(0, power_unit_wind_list_len, 1):
-        if not pd.isna(power_unit_wind_list[i]):
-            try:
-                unit_wind_permit = get_unit_wind_permit(power_unit_wind_list[i])
-                for k, v in unit_wind_permit.VerknuepfteEinheiten.items():
-                    df_new = pd.DataFrame.from_dict(v)
-                    df = pd.DataFrame()
-                    gennr = df_new.size * [unit_wind_permit.GenMastrNummer.iloc[0]]
-                    dates = df_new.size * [unit_wind_permit.Datum.iloc[0]]
-                    types = df_new.size * [unit_wind_permit.Art.iloc[0]]
-                    authority = df_new.size * [(unit_wind_permit.Behoerde.iloc[0]).translate({ord(','): None})]
-                    file_num = df_new.size * [unit_wind_permit.Aktenzeichen.iloc[0]]
-                    frist = df_new.size * [unit_wind_permit.Frist.iloc[0]['Wert']]
-                    water_num = df_new.size * [unit_wind_permit.WasserrechtsNummer.iloc[0]]
-                    water_date = df_new.size * [unit_wind_permit.WasserrechtAblaufdatum.iloc[0]['Wert']]
-                    reporting_date = df_new.size * [unit_wind_permit.Meldedatum.iloc[0]]
-                    df = pd.DataFrame(
-                        {
-                            'GenMastrNummer': gennr,
-                            'Datum': dates,
-                            'Art': types,
-                            'Behoerde': authority,
-                            'Aktenzeichen': file_num,
-                            'Frist': frist,
-                            'WasserrechtsNummer': water_num,
-                            'WasserrechtAblaufdatum': water_date,
-                            'Meldedatum': reporting_date
-                        })
-                    df_all = pd.concat([df_new, df.reindex(df_new.index)], axis=1)
-                    # df_all.set_index(['MaStRNummer'], inplace=True)
-                    write_to_csv(fname_wind_permit, df_all)
-            except:
-                log.exception(f'Download failed unit_wind_permit ({i}): {power_unit_wind_list[i]}')
 
 
 def disentangle_manufacturer(wind_unit):
