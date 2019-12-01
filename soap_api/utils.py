@@ -27,7 +27,7 @@ fname_power_unit = f'{fname_template}_power-unit.csv'
 fname_power_unit_hydro = f'{fname_template}_power-unit-hydro.csv'
 fname_hydro_unit = f'{fname_template}_unit-hydro.csv'
 fname_hydro_unit_eeg = f'{fname_template}_unit-hydro-eeg.csv'
-fname_hydro_all = f'{fname_template}_hydro.csv'
+fname_hydro = f'{fname_template}_hydro.csv'
 
 fname_solar = f'{fname_template}_power-unit_solar.csv'
 fname_solar_unit = f'{fname_template}_unit-solar.csv'
