@@ -404,7 +404,7 @@ def download_unit_wind_permit():
     """
     setup_power_unit_wind()
     power_unit_wind = read_power_unit_wind(fname_power_unit_wind)
-    power_unit_wind = power_unit_wind['GenMastrNummer'].drop_duplicates
+    power_unit_wind = power_unit_wind['GenMastrNummer']
     power_unit_wind_list = power_unit_wind.values.tolist()
     power_unit_wind_list = list(dict.fromkeys(power_unit_wind_list))
     power_unit_wind_list_len = len(power_unit_wind_list)
