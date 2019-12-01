@@ -326,19 +326,22 @@ def get_unit_wind_eeg(mastr_wind_eeg):
         EEG-Anlage-Wind.
     """
     data_version = get_data_version()
-    c = client_bind.GetAnlageEegWind(apiKey=api_key,
-                                     marktakteurMastrNummer=my_mastr,
-                                     eegMastrNummer=mastr_wind_eeg)
-    # c['VerknuepfteEinheit'] = c['MaStR']['VerknuepfteEinheit']
-    # del c['MaStR']
-    s = serialize_object(c)
-    df = pd.DataFrame(list(s.items()), )
-    unit_wind_eeg = df.set_index(list(df.columns.values)[0]).transpose()
-    unit_wind_eeg.reset_index()
-    unit_wind_eeg.index.names = ['lid']
-    unit_wind_eeg["version"] = data_version
-    unit_wind_eeg["timestamp"] = str(datetime.datetime.now())
-    return unit_wind_eeg
+    try:
+        c = client_bind.GetAnlageEegWind(apiKey=api_key,
+                                         marktakteurMastrNummer=my_mastr,
+                                         eegMastrNummer=mastr_wind_eeg)
+        # c['VerknuepfteEinheit'] = c['MaStR']['VerknuepfteEinheit']
+        # del c['MaStR']
+        s = serialize_object(c)
+        df = pd.DataFrame(list(s.items()), )
+        unit_wind_eeg = df.set_index(list(df.columns.values)[0]).transpose()
+        unit_wind_eeg.reset_index()
+        unit_wind_eeg.index.names = ['lid']
+        unit_wind_eeg["version"] = data_version
+        unit_wind_eeg["timestamp"] = str(datetime.datetime.now())
+        return unit_wind_eeg
+    except Exception as e:
+        log.info('Download failed for %s', mastr_wind_eeg)
 
 
 def read_unit_wind_eeg(csv_name):
@@ -458,18 +461,21 @@ def get_unit_wind_permit(mastr_wind_permit):
         Genehmigung-Einheit-Wind.
     """
     data_version = get_data_version()
-    c = client_bind.GetEinheitGenehmigung(apiKey=api_key,
-                                          marktakteurMastrNummer=my_mastr,
-                                          genMastrNummer=mastr_wind_permit)
-    s = serialize_object(c)
-    df = pd.DataFrame(list(s.items()), )
-    unit_wind_permit = df.set_index(list(df.columns.values)[0]).transpose()
-    unit_wind_permit.reset_index()
-    unit_wind_permit.index.names = ['lid']
-    unit_wind_permit["version"] = data_version
-    unit_wind_permit["timestamp"] = str(datetime.datetime.now())
-    unit_wind_permit = unit_wind_permit.replace('\r', '', regex=True)
-    return unit_wind_permit
+    try:
+        c = client_bind.GetEinheitGenehmigung(apiKey=api_key,
+                                              marktakteurMastrNummer=my_mastr,
+                                              genMastrNummer=mastr_wind_permit)
+        s = serialize_object(c)
+        df = pd.DataFrame(list(s.items()), )
+        unit_wind_permit = df.set_index(list(df.columns.values)[0]).transpose()
+        unit_wind_permit.reset_index()
+        unit_wind_permit.index.names = ['lid']
+        unit_wind_permit["version"] = data_version
+        unit_wind_permit["timestamp"] = str(datetime.datetime.now())
+        unit_wind_permit = unit_wind_permit.replace('\r', '', regex=True)
+        return unit_wind_permit
+    except Exception as e:
+        log.info('Download failed for %s', mastr_wind_permit)
 
 
 def read_unit_wind_permit(csv_name):
