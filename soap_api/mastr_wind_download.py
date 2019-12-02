@@ -141,6 +141,7 @@ def download_unit_wind():
     -------
 
     """
+
     start_from = 0
     setup_power_unit_wind()
     power_unit_wind = read_power_unit_wind(fname_power_unit_wind)
@@ -171,6 +172,7 @@ def get_power_unit_wind(mastr_unit_wind):
     unit_wind : DataFrame
         Windeinheit.
     """
+
     data_version = get_data_version()
     try:
         c = client_bind.GetEinheitWind(apiKey=api_key,
@@ -300,11 +302,11 @@ def download_unit_wind_eeg():
     Parameters
     ----------
 
-
     Returns
     -------
 
     """
+
     setup_power_unit_wind()
     power_unit_wind = read_power_unit_wind(fname_power_unit_wind)
     power_unit_wind = power_unit_wind['EegMastrNummer']
