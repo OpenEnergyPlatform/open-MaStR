@@ -58,7 +58,7 @@ if __name__ == "__main__":
     #    start_from=0)
 
     """Wind"""
-    # download_unit_wind()
+    download_unit_wind()
     # download_unit_wind_eeg()
     # download_unit_wind_permit()
     # make_wind()
@@ -69,8 +69,8 @@ if __name__ == "__main__":
     # make_hydro()
 
     """Biomass"""
-    download_unit_biomass()
-    download_unit_biomass_eeg()
+    # download_unit_biomass()
+    # download_unit_biomass_eeg()
     # make_biomass()
 
     """Solar"""

@@ -18,7 +18,12 @@ __version__ = "v0.9.0"
 
 from soap_api.sessions import mastr_session
 from soap_api.utils import write_to_csv, get_data_version, read_power_units
-from soap_api.utils import fname_power_unit, fname_power_unit_wind, fname_wind_unit, fname_wind_eeg, fname_wind_permit
+from soap_api.utils import (fname_power_unit,
+                            fname_power_unit_wind,
+                            fname_wind_unit,
+                            fname_wind_eeg,
+                            fname_wind_permit,
+                            fname_wind_fail)
 
 import pandas as pd
 import datetime
@@ -155,6 +160,8 @@ def download_unit_wind():
             write_to_csv(fname_wind_unit, unit_wind)
         except:
             log.exception(f'Download failed unit_wind ({i}): {mastr_list[i]}')
+            unit_wind_fail = mastr_list[i]
+            write_to_csv(fname_wind_fail, unit_wind_fail)
 
 
 def get_power_unit_wind(mastr_unit_wind):
@@ -318,6 +325,8 @@ def download_unit_wind_eeg():
             write_to_csv(fname_wind_eeg, unit_wind_eeg)
         except:
             log.exception(f'Download failed unit_wind_eeg ({i}): {mastr_list[i]}')
+            unit_wind_fail = mastr_list[i]
+            write_to_csv(fname_wind_fail, unit_wind_fail)
 
 
 def get_unit_wind_eeg(mastr_wind_eeg):
@@ -459,6 +468,8 @@ def download_unit_wind_permit():
                     write_to_csv(fname_wind_permit, df_all)
             except:
                 log.exception(f'Download failed Windeinheit-Genehmigung ({i}): {mastr_list[i]}')
+                unit_wind_fail = mastr_list[i]
+                write_to_csv(fname_wind_fail, unit_wind_fail)
 
 
 def get_unit_wind_permit(mastr_wind_permit):

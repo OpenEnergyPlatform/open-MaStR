@@ -12,7 +12,7 @@ from datetime import datetime as dt
 import logging
 log = logging.getLogger(__name__)
 
-DATA_VERSION = 'rli_v2.1.2'
+DATA_VERSION = 'rli_v2.1.3'
 """ Total Count of Power Units (TOTAL_POWER_UNITS) on date (UPDATE_TIMESTAMP) """
 TOTAL_POWER_UNITS = 2468804
 """ 01.03.2019 """
@@ -30,16 +30,19 @@ fname_wind_unit = f'{fname_template}_unit-wind.csv'
 fname_wind_eeg = f'{fname_template}_unit-wind-eeg.csv'
 fname_wind_permit = f'{fname_template}_unit-wind-permit.csv'
 fname_wind = f'{fname_template}_wind.csv'
+fname_wind_fail = f'{fname_template}_wind_fail.csv'
 
 fname_power_unit_hydro = f'{fname_template}_power-unit_hydro.csv'
 fname_hydro_unit = f'{fname_template}_unit-hydro.csv'
 fname_hydro_unit_eeg = f'{fname_template}_unit-hydro-eeg.csv'
 fname_hydro = f'{fname_template}_hydro.csv'
+fname_hydro_fail = f'{fname_template}_hydro_fail.csv'
 
 fname_power_unit_biomass = f'{fname_template}_power-unit_biomass.csv'
 fname_biomass_unit = f'{fname_template}_unit-biomass.csv'
 fname_biomass_eeg = f'{fname_template}_unit-biomass-eeg.csv'
 fname_biomass = f'{fname_template}_biomass.csv'
+fname_biomass_fail = f'{fname_template}_biomass_fail.csv'
 
 fname_solar = f'{fname_template}_power-unit_solar.csv'
 fname_solar_unit = f'{fname_template}_unit-solar.csv'
