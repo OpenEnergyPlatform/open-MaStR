@@ -21,18 +21,9 @@ TIMESTAMP = "1900-01-01 00:00:00.000000"
 """ dummy stump for other file names """
 fname_template = f'data/bnetza_mastr_{DATA_VERSION}'
 ts_path = f'data/update/bnetza_mastr_ts.csv'
+
 """ list of specific power unit file names"""
 fname_power_unit = f'{fname_template}_power-unit.csv'
-
-fname_power_unit_hydro = f'{fname_template}_power-unit-hydro.csv'
-fname_hydro_unit = f'{fname_template}_unit-hydro.csv'
-fname_hydro_unit_eeg = f'{fname_template}_unit-hydro-eeg.csv'
-fname_hydro = f'{fname_template}_hydro.csv'
-
-fname_solar = f'{fname_template}_power-unit_solar.csv'
-fname_solar_unit = f'{fname_template}_unit-solar.csv'
-fname_solar_eeg = f'{fname_template}_solar-eeg.csv'
-fname_solar_eeg_unit = f'{fname_template}_unit-solar-eeg.csv'
 
 fname_power_unit_wind = f'{fname_template}_power-unit_wind.csv'
 fname_wind_unit = f'{fname_template}_unit-wind.csv'
@@ -40,10 +31,20 @@ fname_wind_eeg = f'{fname_template}_unit-wind-eeg.csv'
 fname_wind_permit = f'{fname_template}_unit-wind-permit.csv'
 fname_wind = f'{fname_template}_wind.csv'
 
+fname_power_unit_hydro = f'{fname_template}_power-unit_hydro.csv'
+fname_hydro_unit = f'{fname_template}_unit-hydro.csv'
+fname_hydro_unit_eeg = f'{fname_template}_unit-hydro-eeg.csv'
+fname_hydro = f'{fname_template}_hydro.csv'
+
 fname_power_unit_biomass = f'{fname_template}_power-unit_biomass.csv'
 fname_unit_biomass = f'{fname_template}_unit-biomass.csv'
 fname_unit_biomass_eeg = f'{fname_template}_unit-biomass-eeg.csv'
 fname_biomass_all = f'{fname_template}_biomass.csv'
+
+fname_solar = f'{fname_template}_power-unit_solar.csv'
+fname_solar_unit = f'{fname_template}_unit-solar.csv'
+fname_solar_eeg = f'{fname_template}_solar-eeg.csv'
+fname_solar_eeg_unit = f'{fname_template}_unit-solar-eeg.csv'
 
 fname_storage = f'{fname_template}_storage.csv'
 fname_storage_unit = f'{fname_template}_unit-storage.csv'
