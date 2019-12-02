@@ -37,18 +37,17 @@ my_mastr = user
 
 # Setup power-unit
 def setup_power_unit_wind():
-    """Setup file for Stromerzeugungseinheit-Wind.
+    """Setup file for Stromerzeugungseinheit-Wind (power-unit_wind).
 
-    Check if file with Stromerzeugungseinheit exists.
+    Check if file with Stromerzeugungseinheit (power-unit) exists.
     Read Stromerzeugungseinheit and filter Stromerzeugungseinheit-Wind.
     Remove duplicates and write to file.
 
     Returns
     -------
-    power_unit_wind : DataFrame
-        Stromerzeugungseinheit-Wind.
+    fname_power_unit_wind : csv
+        Write Stromerzeugungseinheit-Wind to csv file.
     """
-
     if os.path.isfile(fname_power_unit_wind):
         log.info(f'Skip setup for Stromerzeugungseinheit-Wind')
 
@@ -83,7 +82,7 @@ def setup_power_unit_wind():
 
 
 def read_power_unit_wind(csv_name):
-    """Read Stromerzeugungseinheit-Wind from CSV file.
+    """Encode and read Stromerzeugungseinheit-Wind (power-unit_wind) from CSV file.
 
     Parameters
     ----------
@@ -95,7 +94,6 @@ def read_power_unit_wind(csv_name):
     power_unit_wind : DataFrame
         Stromerzeugungseinheit-Wind.
     """
-
     if os.path.isfile(csv_name):
         power_unit_wind = pd.read_csv(csv_name, header=0, encoding='utf-8', sep=';', index_col=False,
                                       dtype={
@@ -129,38 +127,38 @@ def read_power_unit_wind(csv_name):
 
 # Download unit-wind
 def download_unit_wind():
-    """Download Windeinheit. Write results to csv file.
+    """Download Windeinheit (unit-wind).
+
+    Filter EinheitMastrNummer from Stromerzeugungseinheit-Wind.
+    Remove duplicates and count.
+    Loop over list and write download to file.
 
     Existing units: 31543 (2019-02-10)
 
-    Parameters
-    ----------
-
-
     Returns
     -------
-
+    fname_wind_unit : csv
+        Write Windeinheit to csv file.
     """
-
     start_from = 0
     setup_power_unit_wind()
     power_unit_wind = read_power_unit_wind(fname_power_unit_wind)
     power_unit_wind = power_unit_wind['EinheitMastrNummer']
-    power_unit_wind_list = power_unit_wind.values.tolist()
-    power_unit_wind_list = list(dict.fromkeys(power_unit_wind_list))
-    power_unit_wind_list_len = len(power_unit_wind_list)
-    log.info(f'Download {power_unit_wind_list_len} Windeinheit')
+    mastr_list = power_unit_wind.values.tolist()
+    mastr_list = list(dict.fromkeys(mastr_list))
+    mastr_list_len = len(mastr_list)
+    log.info(f'Download {mastr_list_len} Windeinheit')
 
-    for i in range(start_from, power_unit_wind_list_len, 1):
+    for i in range(start_from, mastr_list_len, 1):
         try:
-            unit_wind = get_power_unit_wind(power_unit_wind_list[i])
+            unit_wind = get_power_unit_wind(mastr_list[i])
             write_to_csv(fname_wind_unit, unit_wind)
         except:
-            log.exception(f'Download failed unit_wind ({i}): {power_unit_wind_list[i]}')
+            log.exception(f'Download failed unit_wind ({i}): {mastr_list[i]}')
 
 
 def get_power_unit_wind(mastr_unit_wind):
-    """Get Windeinheit from API using GetEinheitWind.
+    """Get Windeinheit (unit-wind) from API using GetEinheitWind.
 
     Parameters
     ----------
@@ -172,7 +170,6 @@ def get_power_unit_wind(mastr_unit_wind):
     unit_wind : DataFrame
         Windeinheit.
     """
-
     data_version = get_data_version()
     try:
         c = client_bind.GetEinheitWind(apiKey=api_key,
@@ -193,7 +190,7 @@ def get_power_unit_wind(mastr_unit_wind):
 
 
 def read_unit_wind(csv_name):
-    """Read Windeinheit from CSV file.
+    """Encode and read Windeinheit (unit-wind) from CSV file.
 
     Parameters
     ----------
@@ -205,7 +202,6 @@ def read_unit_wind(csv_name):
     unit_wind : DataFrame
         Windeinheit.
     """
-
     if os.path.isfile(csv_name):
         unit_wind = pd.read_csv(csv_name, header=0, encoding='utf-8', sep=';', index_col=False,
                                 dtype={'lid': int,
@@ -297,30 +293,31 @@ def read_unit_wind(csv_name):
 
 # Download unit-wind-eeg
 def download_unit_wind_eeg():
-    """Download unit_wind_eeg using GetAnlageEegWind request.
+    """Download Windeinheit-EEG (unit-wind-eeg) using GetAnlageEegWind request.
 
-    Parameters
-    ----------
+    Filter EegMastrNummer from Stromerzeugungseinheit-Wind.
+    Remove duplicates and count.
+    Loop over list and write download to file.
 
     Returns
     -------
-
+    fname_wind_eeg : csv
+        Write Windeinheit-EEG to csv file.
     """
-
     setup_power_unit_wind()
     power_unit_wind = read_power_unit_wind(fname_power_unit_wind)
     power_unit_wind = power_unit_wind['EegMastrNummer']
-    power_unit_wind_list = power_unit_wind.values.tolist()
-    power_unit_wind_list = list(dict.fromkeys(power_unit_wind_list))
-    power_unit_wind_list_len = len(power_unit_wind_list)
-    log.info(f'Download {power_unit_wind_list_len} Windeinheit EEG')
+    mastr_list = power_unit_wind.values.tolist()
+    mastr_list = list(dict.fromkeys(mastr_list))
+    mastr_list_len = len(mastr_list)
+    log.info(f'Download {mastr_list_len} Windeinheit-EEG')
 
-    for i in range(0, power_unit_wind_list_len, 1):
+    for i in range(0, mastr_list_len, 1):
         try:
-            unit_wind_eeg = get_unit_wind_eeg(power_unit_wind_list[i])
+            unit_wind_eeg = get_unit_wind_eeg(mastr_list[i])
             write_to_csv(fname_wind_eeg, unit_wind_eeg)
         except:
-            log.exception(f'Download failed unit_wind_eeg ({i}): {power_unit_wind_list[i]}')
+            log.exception(f'Download failed unit_wind_eeg ({i}): {mastr_list[i]}')
 
 
 def get_unit_wind_eeg(mastr_wind_eeg):
@@ -356,8 +353,7 @@ def get_unit_wind_eeg(mastr_wind_eeg):
 
 
 def read_unit_wind_eeg(csv_name):
-    """
-    Encode and read EEG-Anlage-Wind from CSV file.
+    """Encode and read Windeinheit-EEG (unit-wind-eeg) from CSV file.
 
     Parameters
     ----------
@@ -367,9 +363,8 @@ def read_unit_wind_eeg(csv_name):
     Returns
     -------
     unit_wind_eeg : DataFrame
-        EEG-Anlage-Wind
+        Windeinheit-EEG.
     """
-
     if os.path.isfile(csv_name):
         unit_wind_eeg = pd.read_csv(csv_name, header=0, sep=';', index_col=False, encoding='utf-8',
                                     dtype={'lid': int,
@@ -406,32 +401,33 @@ def read_unit_wind_eeg(csv_name):
 
 # Download unit-wind-permit
 def download_unit_wind_permit():
-    """Download unit_wind_permit using GetEinheitGenehmigung request.
+    """Download Windeinheit-Genehmigung using GetEinheitGenehmigung request.
+
+    Filter GenMastrNummer from Stromerzeugungseinheit-Wind.
+    Remove duplicates and count.
+    Loop over list and write download to file.
 
     ToDo: More Documentation needed @solar-c
 
-    Parameters
-    ----------
-
-
     Returns
     -------
-
+    fname_wind_permit : csv
+        Write Windeinheit-Genehmigung to csv file.
     """
     setup_power_unit_wind()
     power_unit_wind = read_power_unit_wind(fname_power_unit_wind)
     power_unit_wind = power_unit_wind['GenMastrNummer']
-    power_unit_wind_list = power_unit_wind.values.tolist()
-    power_unit_wind_list = list(dict.fromkeys(power_unit_wind_list))
-    power_unit_wind_list_len = len(power_unit_wind_list)
-    log.info(f'Download {power_unit_wind_list_len} Windeinheit Permit')
+    mastr_list = power_unit_wind.values.tolist()
+    mastr_list = list(dict.fromkeys(mastr_list))
+    mastr_list_len = len(mastr_list)
+    log.info(f'Download {mastr_list_len} Windeinheit-Genehmigung')
 
     df_all = pd.DataFrame()
 
-    for i in range(0, power_unit_wind_list_len, 1):
-        if not pd.isna(power_unit_wind_list[i]):
+    for i in range(0, mastr_list_len, 1):
+        if not pd.isna(mastr_list[i]):
             try:
-                unit_wind_permit = get_unit_wind_permit(power_unit_wind_list[i])
+                unit_wind_permit = get_unit_wind_permit(mastr_list[i])
                 for k, v in unit_wind_permit.VerknuepfteEinheiten.items():
                     df_new = pd.DataFrame.from_dict(v)
                     df = pd.DataFrame()
@@ -462,21 +458,21 @@ def download_unit_wind_permit():
                     # df_all['timestamp'] = str(datetime.datetime.now())
                     write_to_csv(fname_wind_permit, df_all)
             except:
-                log.exception(f'Download failed unit_wind_permit ({i}): {power_unit_wind_list[i]}')
+                log.exception(f'Download failed Windeinheit-Genehmigung ({i}): {mastr_list[i]}')
 
 
 def get_unit_wind_permit(mastr_wind_permit):
-    """Get Genehmigung-Wind-Wind from API using GetEinheitGenehmigung.
+    """Get Windeinheit-Genehmigung from API using GetEinheitGenehmigung.
 
     Parameters
     ----------
     mastr_wind_permit : str
-        Genehmigungnummer MaStR
+        Genehmigungnummer MaStR.
 
     Returns
     -------
     unit_wind_permit : DataFrame
-        Genehmigung-Einheit-Wind.
+        Windeinheit-Genehmigung.
     """
     data_version = get_data_version()
     try:
@@ -497,8 +493,7 @@ def get_unit_wind_permit(mastr_wind_permit):
 
 
 def read_unit_wind_permit(csv_name):
-    """
-    Encode and read Genehmigung-Einheit-Wind from CSV file.
+    """Encode and read Windeinheit-Genehmigung (unit-wind-permit) from CSV file.
 
     Parameters
     ----------
@@ -508,9 +503,8 @@ def read_unit_wind_permit(csv_name):
     Returns
     -------
     unit_wind_permit : DataFrame
-        Genehmigung-Einheit-Wind
+        Windeinheit-Genehmigung.
     """
-
     if os.path.isfile(csv_name):
         unit_wind_permit = pd.read_csv(csv_name, header=0, sep=';', index_col=False, encoding='utf-8',
                                        dtype={
@@ -529,7 +523,7 @@ def read_unit_wind_permit(csv_name):
                                               })
         unit_wind_permit = unit_wind_permit.drop('Unnamed: 0', axis=1)
         unit_wind_permit_cnt = unit_wind_permit['MaStRNummer'].count()
-        log.info(f'Read {unit_wind_permit_cnt} Windeinheit-Permit from {csv_name}')
+        log.info(f'Read {unit_wind_permit_cnt} Windeinheit-Genehmigung from {csv_name}')
         return unit_wind_permit
 
     else:
@@ -537,21 +531,18 @@ def read_unit_wind_permit(csv_name):
 
 
 def disentangle_manufacturer(wind_unit):
-    """
-
-    Parameters
-    ----------
-    wind_unit
+    """Unfold OrderedDict Hersteller for Windeinheit.
 
     Returns
     -------
-
+    wind_unit : DataFrame
+        Windeinheit with unfold Hersteller.
     """
     wu = wind_unit
     try:
         wu['HerstellerID'] = wind_unit['Hersteller']['Id']
         wu['HerstellerName'] = wind_unit['Hersteller']['Wert']
-        return (wu)
+        return wu
     except:
         print("This wind_unit contains no OrderedDict for 'Hersteller'")
-        return (wind_unit)
+        return wind_unit
