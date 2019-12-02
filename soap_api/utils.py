@@ -37,9 +37,9 @@ fname_hydro_unit_eeg = f'{fname_template}_unit-hydro-eeg.csv'
 fname_hydro = f'{fname_template}_hydro.csv'
 
 fname_power_unit_biomass = f'{fname_template}_power-unit_biomass.csv'
-fname_unit_biomass = f'{fname_template}_unit-biomass.csv'
-fname_unit_biomass_eeg = f'{fname_template}_unit-biomass-eeg.csv'
-fname_biomass_all = f'{fname_template}_biomass.csv'
+fname_biomass_unit = f'{fname_template}_unit-biomass.csv'
+fname_biomass_eeg = f'{fname_template}_unit-biomass-eeg.csv'
+fname_biomass = f'{fname_template}_biomass.csv'
 
 fname_solar = f'{fname_template}_power-unit_solar.csv'
 fname_solar_unit = f'{fname_template}_unit-solar.csv'
