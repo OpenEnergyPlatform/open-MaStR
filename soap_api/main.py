@@ -47,18 +47,18 @@ if __name__ == "__main__":
 
     ''' DEFAULT PARAMS: power_unit_list_len=100000, limit=2000, batch_size=20000, start_from=0, overwrite=False '''
     ''' CURRENT MAX INDEX FOR VAR start_from and power_unit_list_len: 1814000 '''
-#    download_parallel_power_unit(
-#        batch_size=10000,
-#        limit=2000,
-#        wind=False,
-#        eeg=True,
-#        update=False,
-#        overwrite=False,
-#        start_from=0
-#    )
+
+    # download_parallel_power_unit(
+    #    batch_size=10000,
+    #    limit=2000,
+    #    wind=False,
+    #    eeg=True,
+    #    update=False,
+    #    overwrite=False,
+    #    start_from=0)
 
     """Wind"""
-#    download_unit_wind()
+    # download_unit_wind()
     # download_unit_wind_eeg()
     # download_unit_wind_permit()
     # make_wind()
@@ -72,17 +72,17 @@ if __name__ == "__main__":
     download_unit_biomass()
     download_unit_biomass_eeg()
     # make_biomass()
-    #
-    # """Solar"""
+
+    """Solar"""
     # ''' DEFAULT PARAMS: start_from=0, n_entries=1, parallelism=300, cpu_factor=1, overwrite=False '''
     # download_parallel_unit_solar()
     # download_parallel_unit_solar_eeg()
     # make_solar()
-    #
-    # """ Storages"""
-    # #get_solarunit_storages()
+
+    """ Storages"""
+    # get_solarunit_storages()
     # download_parallel_unit_storage()
-#
+
     """close"""
     log.info('MaSTR script successfully executed in {:.2f} seconds'
              .format(time.time() - start_time))

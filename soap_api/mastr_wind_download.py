@@ -72,7 +72,7 @@ def setup_power_unit_wind():
                                                                       'GenMastrNummer'])
             log.info(f'Filter power-unit for wind and remove duplicates')
             power_unit_wind.reset_index()
-            power_unit_wind.index.names = ['pu-id']
+            power_unit_wind.index.name = 'pu-id'
 
             write_to_csv(fname_power_unit_wind, power_unit_wind)
             power_unit_wind_cnt = power_unit_wind['timestamp'].count()
@@ -119,7 +119,7 @@ def read_power_unit_wind(csv_name):
                                           'StatisikFlag': str,
                                           'version': str,
                                           'timestamp': str})
-        power_unit_wind_cnt = power_unit_wind['pu-id'].count()
+        power_unit_wind_cnt = power_unit_wind['timestamp'].count()
         log.info(f'Read {power_unit_wind_cnt} Stromerzeugungseinheit-Wind from {csv_name}')
         return power_unit_wind
 
@@ -203,85 +203,94 @@ def read_unit_wind(csv_name):
     unit_wind : DataFrame
         Windeinheit.
     """
-    # log.info(f'Read data from {csv_name}')
-    unit_wind = pd.read_csv(csv_name, header=0, encoding='utf-8', sep=';', index_col=False,
-                            dtype={'lid': int,
-                                   'Ergebniscode': str,
-                                   'AufrufVeraltet': str,
-                                   'AufrufLebenszeitEnde': str,
-                                   'AufrufVersion': str,
-                                   'EinheitMastrNummer': str,
-                                   'DatumLetzteAktualisierung': str,
-                                   'LokationMastrNummer': str,
-                                   'NetzbetreiberpruefungStatus': str,
-                                   'NetzbetreiberpruefungDatum': str,
-                                   'AnlagenbetreiberMastrNummer': str,
-                                   'Land': str,
-                                   'Bundesland': str,
-                                   'Landkreis': str,
-                                   'Gemeinde': str,
-                                   'Gemeindeschluessel': str,
-                                   'Postleitzahl': str,
-                                   'Gemarkung': str,
-                                   'FlurFlurstuecknummern': str,
-                                   'Strasse': str,
-                                   'StrasseNichtGefunden': str,
-                                   'Hausnummer': str,
-                                   'HausnummerNichtGefunden': str,
-                                   'Adresszusatz': str,
-                                   'Ort': str,
-                                   'Laengengrad': str,
-                                   'Breitengrad': str,
-                                   'UtmZonenwert': str,
-                                   'UtmEast': str,
-                                   'UtmNorth': str,
-                                   'GaussKruegerHoch': str,
-                                   'GaussKruegerRechts': str,
-                                   'Meldedatum': str,
-                                   'GeplantesInbetriebnahmedatum': str,
-                                   'Inbetriebnahmedatum': str,
-                                   'DatumEndgueltigeStilllegung': str,
-                                   'DatumBeginnVoruebergehendeStilllegung': str,
-                                   'DatumWiederaufnahmeBetrieb': str,
-                                   'EinheitBetriebsstatus': str,
-                                   'BestandsanlageMastrNummer': str,
-                                   'NichtVorhandenInMigriertenEinheiten': str,
-                                   'NameStromerzeugungseinheit': str,
-                                   'Weic': str,
-                                   'WeicDisplayName': str,
-                                   'Kraftwerksnummer': str,
-                                   'Energietraeger': str,
-                                   'Bruttoleistung': float,
-                                   'Nettonennleistung': float,
-                                   'AnschlussAnHoechstOderHochSpannung': str,
-                                   'Schwarzstartfaehigkeit': str,
-                                   'Inselbetriebsfaehigkeit': str,
-                                   'Einsatzverantwortlicher': str,
-                                   'FernsteuerbarkeitNb': str,
-                                   'FernsteuerbarkeitDv': str,
-                                   'FernsteuerbarkeitDr': str,
-                                   'Einspeisungsart': str,
-                                   'PraequalifiziertFuerRegelenergie': str,
-                                   'GenMastrNummer': str,
-                                   'NameWindpark': str,
-                                   'Lage': str,
-                                   'Seelage': str,
-                                   'ClusterOstsee': str,
-                                   'ClusterNordsee': str,
-                                   'Technologie': str,
-                                   'Typenbezeichnung': str,
-                                   'Nabenhoehe': float,
-                                   'Rotordurchmesser': float,
-                                   'AuflageAbschaltungLeistungsbegrenzung': str,
-                                   'Wassertiefe': float,
-                                   'Kuestenentfernung': float,
-                                   'EegMastrNummer': str,
-                                   'HerstellerID': str,
-                                   'HerstellerName': str,
-                                   'version': str,
-                                   'timestamp': str})
-    # log.info(f'Finished reading data from {csv_name}')
-    return unit_wind
+
+    if os.path.isfile(csv_name):
+        unit_wind = pd.read_csv(csv_name, header=0, encoding='utf-8', sep=';', index_col=False,
+                                dtype={'lid': int,
+                                       'Ergebniscode': str,
+                                       'AufrufVeraltet': str,
+                                       'AufrufLebenszeitEnde': str,
+                                       'AufrufVersion': str,
+                                       'EinheitMastrNummer': str,
+                                       'DatumLetzteAktualisierung': str,
+                                       'LokationMastrNummer': str,
+                                       'NetzbetreiberpruefungStatus': str,
+                                       'NetzbetreiberpruefungDatum': str,
+                                       'AnlagenbetreiberMastrNummer': str,
+                                       'Land': str,
+                                       'Bundesland': str,
+                                       'Landkreis': str,
+                                       'Gemeinde': str,
+                                       'Gemeindeschluessel': str,
+                                       'Postleitzahl': str,
+                                       'Gemarkung': str,
+                                       'FlurFlurstuecknummern': str,
+                                       'Strasse': str,
+                                       'StrasseNichtGefunden': str,
+                                       'Hausnummer': str,
+                                       'HausnummerNichtGefunden': str,
+                                       'Adresszusatz': str,
+                                       'Ort': str,
+                                       'Laengengrad': str,
+                                       'Breitengrad': str,
+                                       'UtmZonenwert': str,
+                                       'UtmEast': str,
+                                       'UtmNorth': str,
+                                       'GaussKruegerHoch': str,
+                                       'GaussKruegerRechts': str,
+                                       'Meldedatum': str,
+                                       'GeplantesInbetriebnahmedatum': str,
+                                       'Inbetriebnahmedatum': str,
+                                       'DatumEndgueltigeStilllegung': str,
+                                       'DatumBeginnVoruebergehendeStilllegung': str,
+                                       'DatumWiederaufnahmeBetrieb': str,
+                                       'EinheitBetriebsstatus': str,
+                                       'BestandsanlageMastrNummer': str,
+                                       'NichtVorhandenInMigriertenEinheiten': str,
+                                       'AltAnlagenbetreiberMastrNummer': str,
+                                       'DatumDesBetreiberwechsels': str,
+                                       'DatumRegistrierungDesBetreiberwechsels': str,
+                                       'StatisikFlag': str,
+                                       'NameStromerzeugungseinheit': str,
+                                       'Weic': str,
+                                       'WeicDisplayName': str,
+                                       'Kraftwerksnummer': str,
+                                       'Energietraeger': str,
+                                       'Bruttoleistung': float,
+                                       'Nettonennleistung': float,
+                                       'AnschlussAnHoechstOderHochSpannung': str,
+                                       'Schwarzstartfaehigkeit': str,
+                                       'Inselbetriebsfaehigkeit': str,
+                                       'Einsatzverantwortlicher': str,
+                                       'FernsteuerbarkeitNb': str,
+                                       'FernsteuerbarkeitDv': str,
+                                       'FernsteuerbarkeitDr': str,
+                                       'Einspeisungsart': str,
+                                       'PraequalifiziertFuerRegelenergie': str,
+                                       'GenMastrNummer': str,
+                                       'NameWindpark': str,
+                                       'Lage': str,
+                                       'Seelage': str,
+                                       'ClusterOstsee': str,
+                                       'ClusterNordsee': str,
+                                       'Technologie': str,
+                                       'Typenbezeichnung': str,
+                                       'Nabenhoehe': float,
+                                       'Rotordurchmesser': float,
+                                       'AuflageAbschaltungLeistungsbegrenzung': str,
+                                       'Wassertiefe': float,
+                                       'Kuestenentfernung': float,
+                                       'EegMastrNummer': str,
+                                       'HerstellerID': str,
+                                       'HerstellerName': str,
+                                       'version': str,
+                                       'timestamp': str})
+        unit_wind_cnt = unit_wind['timestamp'].count()
+        log.info(f'Read {unit_wind_cnt} Windeinheit from {csv_name}')
+        return unit_wind
+
+    else:
+        log.info(f'Error reading {csv_name}')
 
 
 # Download unit-wind-eeg
@@ -358,34 +367,39 @@ def read_unit_wind_eeg(csv_name):
     unit_wind_eeg : DataFrame
         EEG-Anlage-Wind
     """
-    # log.info(f'Read data from {csv_name}')
-    unit_wind_eeg = pd.read_csv(csv_name, header=0, sep=';', index_col=False, encoding='utf-8',
-                                dtype={'lid': int,
-                                       'Ergebniscode': str,
-                                       'AufrufVeraltet': str,
-                                       'AufrufLebenszeitEnde': str,
-                                       'AufrufVersion': str,
-                                       'Meldedatum': str,
-                                       'DatumLetzteAktualisierung': str,
-                                       'EegInbetriebnahmedatum': str,
-                                       'EegMastrNummer': str,
-                                       'AnlagenkennzifferAnlagenregister': str,
-                                       'AnlagenschluesselEeg': str,
-                                       'PrototypAnlage': str,
-                                       'PilotAnlage': str,
-                                       'InstallierteLeistung': float,
-                                       'VerhaeltnisErtragsschaetzungReferenzertrag': str,
-                                       'VerhaeltnisReferenzertragErtrag5Jahre': str,
-                                       'VerhaeltnisReferenzertragErtrag10Jahre': str,
-                                       'VerhaeltnisReferenzertragErtrag15Jahre': str,
-                                       'AusschreibungZuschlag': str,
-                                       'Zuschlagsnummer': str,
-                                       'AnlageBetriebsstatus': str,
-                                       'VerknuepfteEinheit': str,
-                                       'version': str,
-                                       'timestamp': str})
-    # log.info(f'Finished reading data from {csv_name}')
-    return unit_wind_eeg
+
+    if os.path.isfile(csv_name):
+        unit_wind_eeg = pd.read_csv(csv_name, header=0, sep=';', index_col=False, encoding='utf-8',
+                                    dtype={'lid': int,
+                                           'Ergebniscode': str,
+                                           'AufrufVeraltet': str,
+                                           'AufrufLebenszeitEnde': str,
+                                           'AufrufVersion': str,
+                                           'Meldedatum': str,
+                                           'DatumLetzteAktualisierung': str,
+                                           'EegInbetriebnahmedatum': str,
+                                           'EegMastrNummer': str,
+                                           'AnlagenkennzifferAnlagenregister': str,
+                                           'AnlagenschluesselEeg': str,
+                                           'PrototypAnlage': str,
+                                           'PilotAnlage': str,
+                                           'InstallierteLeistung': float,
+                                           'VerhaeltnisErtragsschaetzungReferenzertrag': str,
+                                           'VerhaeltnisReferenzertragErtrag5Jahre': str,
+                                           'VerhaeltnisReferenzertragErtrag10Jahre': str,
+                                           'VerhaeltnisReferenzertragErtrag15Jahre': str,
+                                           'AusschreibungZuschlag': str,
+                                           'Zuschlagsnummer': str,
+                                           'AnlageBetriebsstatus': str,
+                                           'VerknuepfteEinheit': str,
+                                           'version': str,
+                                           'timestamp': str})
+        unit_wind_eeg_cnt = unit_wind_eeg['timestamp'].count()
+        log.info(f'Read {unit_wind_eeg_cnt} Windeinheit-EEG from {csv_name}')
+        return unit_wind_eeg
+
+    else:
+        log.info(f'Error reading {csv_name}')
 
 
 # Download unit-wind-permit
@@ -442,6 +456,8 @@ def download_unit_wind_permit():
                         })
                     df_all = pd.concat([df_new, df.reindex(df_new.index)], axis=1)
                     # df_all.set_index(['MaStRNummer'], inplace=True)
+                    # df_all['version'] = data_version
+                    # df_all['timestamp'] = str(datetime.datetime.now())
                     write_to_csv(fname_wind_permit, df_all)
             except:
                 log.exception(f'Download failed unit_wind_permit ({i}): {power_unit_wind_list[i]}')
@@ -492,24 +508,30 @@ def read_unit_wind_permit(csv_name):
     unit_wind_permit : DataFrame
         Genehmigung-Einheit-Wind
     """
-    # log.info(f'Read data from {csv_name}')
-    unit_wind_permit = pd.read_csv(csv_name, header=0, sep=';', index_col=False, encoding='utf-8',
-                                   dtype={'lid': int,
-                                          'EinheitMastrNummer': str,
-                                          'Einheittyp': str,
-                                          'Einheitart': str,
-                                          'GenMastrNummer': str,
-                                          'Datum': str,
-                                          'Art': str,
-                                          'Behoerde': str,
-                                          'Aktenzeichen': str,
-                                          'Frist': str,
-                                          'WasserrechtsNummer': str,
-                                          'WasserrechtAblaufdatum': str,
-                                          'Meldedatum': str
-                                          })
-    # log.info(f'Finished reading data from {csv_name}')
-    return unit_wind_permit
+
+    if os.path.isfile(csv_name):
+        unit_wind_permit = pd.read_csv(csv_name, header=0, sep=';', index_col=False, encoding='utf-8',
+                                       dtype={
+                                              'MaStRNummer': str,
+                                              'Einheittyp': str,
+                                              'Einheitart': str,
+                                              'GenMastrNummer': str,
+                                              'Datum': str,
+                                              'Art': str,
+                                              'Behoerde': str,
+                                              'Aktenzeichen': str,
+                                              'Frist': str,
+                                              'WasserrechtsNummer': str,
+                                              'WasserrechtAblaufdatum': str,
+                                              'Meldedatum': str
+                                              })
+        unit_wind_permit = unit_wind_permit.drop('Unnamed: 0', axis=1)
+        unit_wind_permit_cnt = unit_wind_permit['MaStRNummer'].count()
+        log.info(f'Read {unit_wind_permit_cnt} Windeinheit-Permit from {csv_name}')
+        return unit_wind_permit
+
+    else:
+        log.info(f'Error reading {csv_name}')
 
 
 def disentangle_manufacturer(wind_unit):

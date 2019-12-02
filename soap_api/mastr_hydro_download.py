@@ -134,6 +134,10 @@ def read_unit_hydro(csv_name):
             'EinheitBetriebsstatus': str,
             'BestandsanlageMastrNummer': str,
             'NichtVorhandenInMigriertenEinheiten': str,
+            'AltAnlagenbetreiberMastrNummer': str,
+            'DatumDesBetreiberwechsels': str,
+            'DatumRegistrierungDesBetreiberwechsels': str,
+            'StatisikFlag': str,
             'NameStromerzeugungseinheit': str,
             'Weic': str,
             'WeicDisplayName': str,
@@ -274,6 +278,51 @@ def setup_power_unit_hydro(ofname=None):
     else:
         log.info('no hydrounits found')
         return pd.DataFrame()
+
+
+def read_power_unit_hydro(csv_name):
+    """Read Stromerzeugungseinheit-Hydro from CSV file.
+
+    Parameters
+    ----------
+    csv_name : str
+        Name of file.
+
+    Returns
+    -------
+    power_unit_hydro : DataFrame
+        Stromerzeugungseinheit-Wind.
+    """
+
+    if os.path.isfile(csv_name):
+        power_unit_hydro = pd.read_csv(csv_name, header=0, encoding='utf-8', sep=';', index_col=False,
+                                      dtype={
+                                          'pu-id': str,
+                                          'lid': str,
+                                          'EinheitMastrNummer': str,
+                                          'Name': str,
+                                          'Einheitart': str,
+                                          'Einheittyp': str,
+                                          'Standort': str,
+                                          'Bruttoleistung': str,
+                                          'Erzeugungsleistung': str,
+                                          'EinheitBetriebsstatus': str,
+                                          'Anlagenbetreiber': str,
+                                          'EegMastrNummer': str,
+                                          'KwkMastrNummer': str,
+                                          'SpeMastrNummer': str,
+                                          'GenMastrNummer': str,
+                                          'BestandsanlageMastrNummer': str,
+                                          'NichtVorhandenInMigriertenEinheiten': str,
+                                          'StatisikFlag': str,
+                                          'version': str,
+                                          'timestamp': str})
+        power_unit_hydro_cnt = power_unit_hydro['timestamp'].count()
+        log.info(f'Read {power_unit_hydro_cnt} Stromerzeugungseinheit-Hydro from {csv_name}')
+        return power_unit_hydro
+
+    else:
+        log.info(f'Error reading {csv_name}')
 
 
 def download_unit_hydro(ofname=None):

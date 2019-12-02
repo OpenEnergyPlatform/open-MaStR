@@ -27,7 +27,7 @@ fname_power_unit = f'{fname_template}_power-unit.csv'
 fname_power_unit_hydro = f'{fname_template}_power-unit-hydro.csv'
 fname_hydro_unit = f'{fname_template}_unit-hydro.csv'
 fname_hydro_unit_eeg = f'{fname_template}_unit-hydro-eeg.csv'
-fname_hydro_all = f'{fname_template}_hydro.csv'
+fname_hydro = f'{fname_template}_hydro.csv'
 
 fname_solar = f'{fname_template}_power-unit_solar.csv'
 fname_solar_unit = f'{fname_template}_unit-solar.csv'
@@ -121,41 +121,42 @@ def read_power_units(csv_name):
     power_unit : DataFrame
         Stromerzeugungseinheit.
     """
-    # log.info(f'Read data from {csv_name}')
-    power_unit = pd.read_csv(
-        csv_name,
-        header=0,
-        sep=';',
-        index_col=False,
-        encoding='utf-8',
-        dtype={
-            'id': str,
-            'lid': str,
-            'EinheitMastrNummer': str,
-            'Name': str,
-            'Einheitart': str,
-            'Einheittyp': str,
-            'Standort': str,
-            'Bruttoleistung': str,
-            'Erzeugungsleistung': str,
-            'EinheitBetriebsstatus': str,
-            'Anlagenbetreiber': str,
-            'EegMastrNummer': str,
-            'KwkMastrNummer': str,
-            'SpeMastrNummer': str,
-            'GenMastrNummer': str,
-            'BestandsanlageMastrNummer': str,
-            'NichtVorhandenInMigriertenEinheiten': str,
-            'StatisikFlag' : str,
-            'version': str,
-            'timestamp': str
-        }
-    )
 
-    power_unit_cnt = power_unit['timestamp'].count()
-    log.info(f'Read {power_unit_cnt} power-unit from {csv_name}')
+    if os.path.isfile(csv_name):
+        power_unit = pd.read_csv(
+            csv_name,
+            header=0,
+            sep=';',
+            index_col=False,
+            encoding='utf-8',
+            dtype={
+                'id': str,
+                'lid': str,
+                'EinheitMastrNummer': str,
+                'Name': str,
+                'Einheitart': str,
+                'Einheittyp': str,
+                'Standort': str,
+                'Bruttoleistung': str,
+                'Erzeugungsleistung': str,
+                'EinheitBetriebsstatus': str,
+                'Anlagenbetreiber': str,
+                'EegMastrNummer': str,
+                'KwkMastrNummer': str,
+                'SpeMastrNummer': str,
+                'GenMastrNummer': str,
+                'BestandsanlageMastrNummer': str,
+                'NichtVorhandenInMigriertenEinheiten': str,
+                'StatisikFlag' : str,
+                'version': str,
+                'timestamp': str})
 
-    return power_unit
+        power_unit_cnt = power_unit['timestamp'].count()
+        log.info(f'Read {power_unit_cnt} power-unit from {csv_name}')
+        return power_unit
+
+    else:
+        log.info(f'Error reading {csv_name}')
 
 
 def read_timestamp(wind=False):
