@@ -77,7 +77,7 @@ GROUP BY comment;
 -- Check geom
 UPDATE  model_draft.bnetza_mastr_rli_v2_0_3_wind_clean AS t1
     SET     comment =  COALESCE(comment, '') || 'has_geom; '
-    WHERE   geom IS NOT NULL
+    WHERE   geom IS NOT NULL;
 
 -- Punkte innerhalb vg250
     UPDATE  model_draft.bnetza_mastr_rli_v2_0_3_wind_clean AS t1
@@ -123,7 +123,7 @@ UPDATE  model_draft.bnetza_mastr_rli_v2_0_3_wind_clean AS t1
 -- Analyze Wind
 SELECT  "Technologie", COUNT(*) AS cnt
 FROM model_draft.bnetza_mastr_rli_v2_0_3_wind_clean
-GROUP BY "Technologie"
+GROUP BY "Technologie";
 
 -- Analyze Wind
 SELECT  "HerstellerID", "HerstellerName", COUNT(*) AS cnt
