@@ -18,7 +18,11 @@ __version__ = "v0.9.0"
 
 from soap_api.sessions import mastr_session
 from soap_api.utils import write_to_csv, get_data_version, read_power_units
-from soap_api.utils import fname_power_unit, fname_power_unit_biomass, fname_biomass_unit, fname_biomass_eeg
+from soap_api.utils import (fname_power_unit,
+                            fname_power_unit_biomass,
+                            fname_biomass_unit,
+                            fname_biomass_eeg,
+                            fname_biomass_fail)
 
 import pandas as pd
 import datetime
