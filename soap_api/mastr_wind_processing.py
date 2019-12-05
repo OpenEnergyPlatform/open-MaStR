@@ -14,7 +14,7 @@ __license__ = "GNU Affero General Public License Version 3 (AGPL-3.0)"
 __url__ = "https://www.gnu.org/licenses/agpl-3.0.en.html"
 __author__ = "Ludee; christian-rli; Bachibouzouk; solar-c"
 __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
-__version__ = "v0.8.0"
+__version__ = "v0.9.0"
 
 from soap_api.sessions import mastr_session
 #from mastr_power_unit_download import read_power_units
@@ -35,7 +35,7 @@ log = logging.getLogger(__name__)
 import multiprocessing as mp
 
 """ import variables """
-from soap_api.utils import fname_all_units, fname_wind, fname_wind_unit, fname_wind_eeg, fname_wind_eeg_unit, fname_wind_permit, remove_csv, read_power_units, split_to_sublists
+from soap_api.utils import fname_power_unit, fname_wind, fname_wind_unit, fname_wind_eeg, fname_wind_permit, read_power_units, split_to_sublists
 
 """SOAP API"""
 client, client_bind, token, user = mastr_session()
