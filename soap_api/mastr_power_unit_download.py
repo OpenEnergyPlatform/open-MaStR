@@ -118,6 +118,7 @@ def download_power_unit(
     2359365 (2019-10-15)
     2363200 (2019-10-17)
     2468804 (2019-11-28)
+    2487585 (2019-12-05) data-release/2.2.0
     """
     log.info('Download MaStR Power Unit')
     log.info(f'Number of expected power units: {power_unit_list_len}')
