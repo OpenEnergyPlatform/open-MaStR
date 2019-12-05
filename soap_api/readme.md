@@ -1,5 +1,8 @@
 ## MaStR Processing
 
+The description of each data version and the version of the code with which it was downloaded is available in the
+[data-release-notes.md](https://github.com/OpenEnergyPlatform/open-MaStR/blob/master/soap_api/data-release-notes.md)
+
 ### Links
 
 * [GitHub](https://github.com/OpenEnergyPlatform/data-preprocessing/issues/13)
