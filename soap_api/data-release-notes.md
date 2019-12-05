@@ -2,6 +2,10 @@
 
 ### RLI versions
 
+#### dataversion-2.2.0 (2019-12-05)
+- Code version [v0.9.0](https://github.com/OpenEnergyPlatform/open-MaStR/releases/tag/v0.9.0)
+- Includes: wind; hydro; biomass
+- new power-unit download: true
 #### dataversion-2.1.2 
 - Code version [v0.9.0](https://github.com/OpenEnergyPlatform/open-MaStR/releases/tag/v0.9.0)
 - Includes: wind; hydro; biomass
