@@ -12,7 +12,7 @@ from datetime import datetime as dt
 import logging
 log = logging.getLogger(__name__)
 
-DATA_VERSION = 'rli_v2.2.0'
+DATA_VERSION = 'rli_v2.2.1'
 """ Total Count of Power Units (TOTAL_POWER_UNITS) on date (UPDATE_TIMESTAMP) """
 TOTAL_POWER_UNITS = 2487585
 """ 01.03.2019 """
@@ -48,10 +48,10 @@ fname_biomass = f'{fname_template}_biomass.csv'
 fname_biomass_fail_u = f'{fname_template}_biomass_fail_u.csv'
 fname_biomass_fail_e = f'{fname_template}_biomass_fail_e.csv'
 
-fname_solar = f'{fname_template}_power-unit_solar.csv'
+fname_power_unit_solar = f'{fname_template}_power-unit_solar.csv'
 fname_solar_unit = f'{fname_template}_unit-solar.csv'
 fname_solar_eeg = f'{fname_template}_solar-eeg.csv'
-fname_solar_eeg_unit = f'{fname_template}_unit-solar-eeg.csv'
+fname_solar = f'{fname_template}_solar.csv'
 
 fname_storage = f'{fname_template}_storage.csv'
 fname_storage_unit = f'{fname_template}_unit-storage.csv'

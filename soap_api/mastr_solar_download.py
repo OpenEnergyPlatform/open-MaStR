@@ -18,23 +18,23 @@ __version__ = "v0.9.0"
 
 from soap_api.sessions import mastr_session
 from soap_api.utils import split_to_sublists, get_data_version, write_to_csv, remove_csv, read_power_units
+from soap_api.utils import (fname_power_unit,
+                            fname_power_unit_solar,
+                            fname_solar_unit,
+                            fname_solar_eeg)
 
 import multiprocessing as mp
 from multiprocessing.pool import ThreadPool 
 import pandas as pd
-import numpy as np
+import time
 import datetime
 import os
-import numpy as np
 from zeep.helpers import serialize_object
 from functools import partial
 
-import time
 import logging
-log = logging.getLogger(__name__)
 
-""" import variables """
-from soap_api.utils import fname_power_unit, fname_solar, fname_solar_unit, fname_solar_eeg, fname_solar_eeg_unit
+log = logging.getLogger(__name__)
 
 """SOAP API"""
 client, client_bind, token, user = mastr_session()
@@ -245,42 +245,49 @@ def read_unit_solar_eeg(csv_name):
     return unit_solar_eeg
 
 
-def setup_power_unit_solar(overwrite=True, eeg=False):
-    """Setup file for Stromerzeugungseinheit-Solar.
+def setup_power_unit_solar():
+    """Setup file for Stromerzeugungseinheit-Solar (power-unit_solar).
 
-    Check if file with Stromerzeugungseinheit-Solar exists. Create if not exists.
-    Load Stromerzeugungseinheit-Solar from file if exists.
+    Check if file with Stromerzeugungseinheit (power-unit) exists.
+    Read Stromerzeugungseinheit and filter Stromerzeugungseinheit-Solar.
+    Remove duplicates and write to file.
 
     Returns
     -------
-    power_unit_solar : DataFrame
-        Stromerzeugungseinheit-Solar.
+    fname_power_unit_solar : csv
+        Write Stromerzeugungseinheit-Solar to csv file.
     """
-    data_version = get_data_version()
-    if overwrite and not eeg:
-            remove_csv(fname_solar)
-            remove_csv(fname_solar_unit)
-    elif overwrite and eeg:
-            remove_csv(fname_solar_eeg)
-            remove_csv(fname_solar_eeg_unit)
-    if os.path.isfile(fname_power_unit):
-        power_unit = read_power_units(fname_power_unit)
-        if not power_unit.empty:
-            power_unit = power_unit.drop_duplicates()
+    if os.path.isfile(fname_power_unit_solar):
+        log.info(f'Skip setup for Stromerzeugungseinheit-Solar')
+
+    else:
+        if os.path.isfile(fname_power_unit):
+            power_unit = read_power_units(fname_power_unit)
+
             power_unit_solar = power_unit[power_unit.Einheittyp == 'Solareinheit']
-            power_unit_solar.index.names = ['see_id']
+            power_unit_solar = power_unit_solar.drop_duplicates(subset=['EinheitMastrNummer',
+                                                                      'Name',
+                                                                      'Einheitart',
+                                                                      'Einheittyp',
+                                                                      'Standort',
+                                                                      'Bruttoleistung',
+                                                                      'Erzeugungsleistung',
+                                                                      'EinheitBetriebsstatus',
+                                                                      'Anlagenbetreiber',
+                                                                      'EegMastrNummer',
+                                                                      'KwkMastrNummer',
+                                                                      'SpeMastrNummer',
+                                                                      'GenMastrNummer'])
+            log.info(f'Filter power-unit for solar and remove duplicates')
             power_unit_solar.reset_index()
-            power_unit_solar.index.names = ['id']
-            if not eeg:
-                write_to_csv(fname_solar_unit, power_unit_solar)       
-            else:
-                write_to_csv(fname_solar_eeg_unit, power_unit_solar)           
-            power_unit.iloc[0:0]
-            return power_unit_solar
+            power_unit_solar.index.name = 'pu-id'
+
+            write_to_csv(fname_power_unit_solar, power_unit_solar)
+            power_unit_solar_cnt = power_unit_solar['timestamp'].count()
+            log.info(f'Write {power_unit_solar_cnt} power-unit_solar to {fname_power_unit_solar}')
+
         else:
-            log.info('no solarunits found')
-            return pd.DataFrame()
-    return power_unit_solar
+            log.info(f'Error reading power-unit from {fname_power_unit}')
 
 
 def download_unit_solar(overwrite=True):
