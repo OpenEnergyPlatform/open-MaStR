@@ -34,7 +34,7 @@ fname_wind_fail = f'{fname_template}_wind_fail.csv'
 
 fname_power_unit_hydro = f'{fname_template}_power-unit_hydro.csv'
 fname_hydro_unit = f'{fname_template}_unit-hydro.csv'
-fname_hydro_unit_eeg = f'{fname_template}_unit-hydro-eeg.csv'
+fname_hydro_eeg = f'{fname_template}_unit-hydro-eeg.csv'
 fname_hydro = f'{fname_template}_hydro.csv'
 fname_hydro_fail = f'{fname_template}_hydro_fail.csv'
 
