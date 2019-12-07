@@ -146,17 +146,20 @@ def download_unit_biomass():
     setup_power_unit_biomass()
     power_unit_biomass = read_power_unit_biomass(fname_power_unit_biomass)
     power_unit_biomass = power_unit_biomass['EinheitMastrNummer']
-    power_unit_biomass_list = power_unit_biomass.values.tolist()
-    power_unit_biomass_list = list(dict.fromkeys(power_unit_biomass_list))
-    power_unit_biomass_list_len = len(power_unit_biomass_list)
-    log.info(f'Download {power_unit_biomass_list_len} Biomasseeinheit')
+    mastr_list = power_unit_biomass.values.tolist()
+    mastr_list = list(dict.fromkeys(mastr_list))
+    mastr_list_len = len(mastr_list)
+    log.info(f'Download {mastr_list_len} Biomasseeinheit')
 
-    for i in range(start_from, power_unit_biomass_list_len, 1):
-        try:
-            unit_biomass = get_power_unit_biomass(power_unit_biomass_list[i])
+    for i in range(start_from, mastr_list_len, 1):
+        unit_biomass = get_power_unit_biomass(mastr_list[i])
+        if unit_biomass is not None:
             write_to_csv(fname_biomass_unit, unit_biomass)
-        except:
-            log.exception(f'Download failed unit_biomass ({i}): {power_unit_biomass_list[i]}')
+        else:
+            log.exception(f'Download failed unit_biomass ({i}): {mastr_list[i]}')
+            mastr_fail = {'EinheitMastrNummer': [mastr_list[i]]}
+            unit_biomass_fail = pd.DataFrame(mastr_fail)
+            write_to_csv(fname_biomass_fail, unit_biomass_fail)
 
 
 def get_power_unit_biomass(mastr_unit_biomass):
@@ -298,17 +301,20 @@ def download_unit_biomass_eeg():
     setup_power_unit_biomass()
     power_unit_biomass = read_power_unit_biomass(fname_power_unit_biomass)
     power_unit_biomass = power_unit_biomass['EegMastrNummer']
-    power_unit_biomass_list = power_unit_biomass.values.tolist()
-    power_unit_biomass_list = list(dict.fromkeys(power_unit_biomass_list))
-    power_unit_biomass_list_len = len(power_unit_biomass_list)
-    log.info(f'Download {power_unit_biomass_list_len} Biomasseinheit EEG')
+    mastr_list = power_unit_biomass.values.tolist()
+    mastr_list = list(dict.fromkeys(mastr_list))
+    mastr_list_len = len(mastr_list)
+    log.info(f'Download {mastr_list_len} Biomasseinheit EEG')
 
-    for i in range(0, power_unit_biomass_list_len, 1):
-        try:
-            unit_biomass_eeg = get_unit_biomass_eeg(power_unit_biomass_list[i])
+    for i in range(0, mastr_list_len, 1):
+        unit_biomass_eeg = get_unit_biomass_eeg(mastr_list[i])
+        if unit_biomass_eeg is not None:
             write_to_csv(fname_biomass_eeg, unit_biomass_eeg)
-        except:
-            log.exception(f'Download failed unit_biomass_eeg ({i}): {power_unit_biomass_list[i]}')
+        else:
+            log.exception(f'Download failed unit_biomass_eeg ({i}): {mastr_list[i]}')
+            mastr_fail = {'EegMastrNummer': [mastr_list[i]]}
+            unit_biomass_fail = pd.DataFrame(mastr_fail)
+            write_to_csv(fname_biomass_fail, unit_biomass_fail)
 
 
 def get_unit_biomass_eeg(mastr_biomass_eeg):
