@@ -21,7 +21,7 @@ from soap_api.utils import write_to_csv, get_data_version, read_power_units
 from soap_api.utils import (fname_power_unit,
                             fname_power_unit_hydro,
                             fname_hydro_unit,
-                            fname_hydro_unit_eeg,
+                            fname_hydro_eeg,
                             fname_hydro_fail)
 
 import pandas as pd
@@ -154,12 +154,13 @@ def download_unit_hydro():
     log.info(f'Download {mastr_list_len} Wassereinheit')
 
     for i in range(start_from, mastr_list_len, 1):
-        try:
-            unit_hydro = get_power_unit_hydro(mastr_list[i])
+        unit_hydro = get_power_unit_hydro(mastr_list[i])
+        if unit_hydro is not None:
             write_to_csv(fname_hydro_unit, unit_hydro)
-        except:
+        else:
             log.exception(f'Download failed unit_hydro ({i}): {mastr_list[i]}')
-            unit_hydro_fail = mastr_list[i]
+            mastr_fail = {'EinheitMastrNummer': [mastr_list[i]]}
+            unit_hydro_fail = pd.DataFrame(mastr_fail, columns=['EinheitMastrNummer', 'EegMastrNummer'])
             write_to_csv(fname_hydro_fail, unit_hydro_fail)
 
 
@@ -312,12 +313,13 @@ def download_unit_hydro_eeg():
     log.info(f'Download {mastr_list_len} Wassereinheit-EEG')
 
     for i in range(0, mastr_list_len, 1):
-        try:
-            unit_hydro_eeg = get_unit_hydro_eeg(mastr_list[i])
+        unit_hydro_eeg = get_unit_hydro_eeg(mastr_list[i])
+        if unit_hydro_eeg is not None:
             write_to_csv(fname_hydro_eeg, unit_hydro_eeg)
-        except:
+        else:
             log.exception(f'Download failed unit_hydro_eeg ({i}): {mastr_list[i]}')
-            unit_hydro_fail = mastr_list[i]
+            mastr_fail = {'EegMastrNummer': [mastr_list[i]]}
+            unit_hydro_fail = pd.DataFrame(mastr_fail, columns=['EinheitMastrNummer', 'EegMastrNummer'])
             write_to_csv(fname_hydro_fail, unit_hydro_fail)
 
 
@@ -337,8 +339,8 @@ def get_unit_hydro_eeg(mastr_hydro_eeg):
     data_version = get_data_version()
     try:
         c = client_bind.GetAnlageEegWasser(apiKey=api_key,
-                                         marktakteurMastrNummer=my_mastr,
-                                         eegMastrNummer=mastr_hydro_eeg)
+                                           marktakteurMastrNummer=my_mastr,
+                                           eegMastrNummer=mastr_hydro_eeg)
         # c['VerknuepfteEinheit'] = c['MaStR']['VerknuepfteEinheit']
         # del c['MaStR']
         s = serialize_object(c)
