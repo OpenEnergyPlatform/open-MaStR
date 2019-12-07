@@ -22,7 +22,8 @@ from soap_api.utils import (fname_power_unit,
                             fname_power_unit_biomass,
                             fname_biomass_unit,
                             fname_biomass_eeg,
-                            fname_biomass_fail)
+                            fname_biomass_fail_u,
+                            fname_biomass_fail_e)
 
 import pandas as pd
 import datetime
@@ -159,7 +160,7 @@ def download_unit_biomass():
             log.exception(f'Download failed unit_biomass ({i}): {mastr_list[i]}')
             mastr_fail = {'EinheitMastrNummer': [mastr_list[i]]}
             unit_biomass_fail = pd.DataFrame(mastr_fail)
-            write_to_csv(fname_biomass_fail, unit_biomass_fail)
+            write_to_csv(fname_biomass_fail_u, unit_biomass_fail)
 
 
 def get_power_unit_biomass(mastr_unit_biomass):
@@ -314,7 +315,7 @@ def download_unit_biomass_eeg():
             log.exception(f'Download failed unit_biomass_eeg ({i}): {mastr_list[i]}')
             mastr_fail = {'EegMastrNummer': [mastr_list[i]]}
             unit_biomass_fail = pd.DataFrame(mastr_fail)
-            write_to_csv(fname_biomass_fail, unit_biomass_fail)
+            write_to_csv(fname_biomass_fail_e, unit_biomass_fail)
 
 
 def get_unit_biomass_eeg(mastr_biomass_eeg):
