@@ -155,10 +155,10 @@ def download_unit_wind():
     log.info(f'Download {mastr_list_len} Windeinheit')
 
     for i in range(start_from, mastr_list_len, 1):
-        try:
-            unit_wind = get_power_unit_wind(mastr_list[i])
+        unit_wind = get_power_unit_wind(mastr_list[i])
+        if unit_wind is not None:
             write_to_csv(fname_wind_unit, unit_wind)
-        except:
+        else:
             log.exception(f'Download failed unit_wind ({i}): {mastr_list[i]}')
             mastr_fail = {'EinheitMastrNummer': [mastr_list[i]]}
             unit_wind_fail = pd.DataFrame(mastr_fail)
@@ -321,10 +321,10 @@ def download_unit_wind_eeg():
     log.info(f'Download {mastr_list_len} Windeinheit-EEG')
 
     for i in range(0, mastr_list_len, 1):
-        try:
-            unit_wind_eeg = get_unit_wind_eeg(mastr_list[i])
+        unit_wind_eeg = get_unit_wind_eeg(mastr_list[i])
+        if unit_wind_eeg is not None:
             write_to_csv(fname_wind_eeg, unit_wind_eeg)
-        except:
+        else:
             log.exception(f'Download failed unit_wind_eeg ({i}): {mastr_list[i]}')
             mastr_fail = {'EegMastrNummer': [mastr_list[i]]}
             unit_wind_fail = pd.DataFrame(mastr_fail)
