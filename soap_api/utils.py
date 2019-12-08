@@ -65,6 +65,8 @@ def get_data_version():
 def split_to_sublists(mylist, length, parts):
     """Read data from config file.
 
+    ToDo: Please document function @solar-c
+
     Parameters
     ----------
     mylist : list
@@ -98,11 +100,20 @@ def write_to_csv(csv_name, df):
         os.makedirs(os.path.dirname(csv_name))
 
     with open(csv_name, mode='a', encoding='utf-8') as file:
-        df.to_csv(file, sep=';',
-                  mode='a',
-                  header=file.tell() == 0,
-                  line_terminator='\n',
-                  encoding='utf-8')
+        if isinstance(df, pd.DataFrame):
+            df.to_csv(file, sep=';',
+                      mode='a',
+                      header=file.tell() == 0,
+                      line_terminator='\n',
+                      encoding='utf-8')
+        else:
+            log.exception('Split list to DataFrame')
+            df_list = [y for x in df for y in x]
+            df_list.to_csv(file, sep=';',
+                    mode='a',
+                    header=file.tell() == 0,
+                    line_terminator='\n',
+                    encoding='utf-8')
 
 
 def remove_csv(csv_name):
