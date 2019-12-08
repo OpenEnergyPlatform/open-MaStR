@@ -346,7 +346,7 @@ def get_unit_biomass_eeg(mastr_biomass_eeg):
         unit_biomass_eeg["timestamp"] = str(datetime.datetime.now())
         return unit_biomass_eeg
     except Exception as e:
-        log.info('Download failed for %s', unit_biomass_eeg)
+        log.info('Download failed for %s', mastr_biomass_eeg)
 
 
 def read_unit_biomass_eeg(csv_name):
