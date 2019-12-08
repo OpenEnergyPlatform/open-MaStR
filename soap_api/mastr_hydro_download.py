@@ -22,7 +22,8 @@ from soap_api.utils import (fname_power_unit,
                             fname_power_unit_hydro,
                             fname_hydro_unit,
                             fname_hydro_eeg,
-                            fname_hydro_fail)
+                            fname_hydro_fail_u,
+                            fname_hydro_fail_e)
 
 import pandas as pd
 import datetime
@@ -160,8 +161,8 @@ def download_unit_hydro():
         else:
             log.exception(f'Download failed unit_hydro ({i}): {mastr_list[i]}')
             mastr_fail = {'EinheitMastrNummer': [mastr_list[i]]}
-            unit_hydro_fail = pd.DataFrame(mastr_fail, columns=['EinheitMastrNummer', 'EegMastrNummer'])
-            write_to_csv(fname_hydro_fail, unit_hydro_fail)
+            unit_hydro_fail = pd.DataFrame(mastr_fail)
+            write_to_csv(fname_hydro_fail_u, unit_hydro_fail)
 
 
 def get_power_unit_hydro(mastr_unit_hydro):
@@ -319,8 +320,8 @@ def download_unit_hydro_eeg():
         else:
             log.exception(f'Download failed unit_hydro_eeg ({i}): {mastr_list[i]}')
             mastr_fail = {'EegMastrNummer': [mastr_list[i]]}
-            unit_hydro_fail = pd.DataFrame(mastr_fail, columns=['EinheitMastrNummer', 'EegMastrNummer'])
-            write_to_csv(fname_hydro_fail, unit_hydro_fail)
+            unit_hydro_fail = pd.DataFrame(mastr_fail)
+            write_to_csv(fname_hydro_fail_e, unit_hydro_fail)
 
 
 def get_unit_hydro_eeg(mastr_hydro_eeg):
