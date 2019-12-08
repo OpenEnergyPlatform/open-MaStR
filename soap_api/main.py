@@ -79,8 +79,8 @@ if __name__ == "__main__":
     """Solar"""
     # ''' DEFAULT PARAMS: start_from=0, n_entries=1, parallelism=300, cpu_factor=1, overwrite=False '''
     download_parallel_unit_solar()
-    download_parallel_unit_solar_eeg()
-    make_solar()
+    # download_parallel_unit_solar_eeg()
+    # make_solar()
 
     """ Storages"""
     # get_solarunit_storages()
