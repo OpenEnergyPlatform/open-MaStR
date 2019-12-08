@@ -132,66 +132,61 @@ def read_power_unit_solar(csv_name):
 
 
 # Download unit-solar (parallel)
-def download_parallel_unit_solar(
-        start_from=0,
-        n_entries=1,
-        parallelism=300,
-        cpu_factor=1,
-        overwrite=True
-):
-    """Download GetEinheitSolar with parallel process
+def download_parallel_unit_solar(n_entries=1, parallelism=300, cpu_factor=1):
+    """Download Solareinheit (solar-unit) with parallel process.
 
+    Filter EinheitMastrNummer from Stromerzeugungseinheit-Solar.
+    Remove duplicates and count.
+    Loop over list and write download to file.
 
     Arguments
     ---------
     start_from : int
         Start index in the power_unit_list.
     n_entries : int
-        Number of entries to download
+        Number of entries to download.
     parallelism : int
-        number of threads
+        Number of threads.
     cpu_factor : float
-        multiplies the number of processes depending on available cpu units
-    overwrite : bool
-        decide wether the existing files should be overwritten or not
-
-
-    Existing units: 31543 (2019-02-10)
-
+        Multiplies the number of processes depending on available cpu units.
     """
+    start_from = 0
+    setup_power_unit_solar()
+
     global proc_list
     split_solar_list = []
 
-    unit_solar = setup_power_unit_solar(overwrite, eeg=False)
-    if unit_solar.empty:
-        return
-    unit_solar_list = unit_solar['EinheitMastrNummer'].values.tolist()
-    unit_solar_list_len = len(unit_solar_list)
+    power_unit_solar = read_power_unit_solar(fname_power_unit_solar)
+    mastr_list = power_unit_solar['EinheitMastrNummer'].values.tolist()
+    # mastr_list = list(dict.fromkeys(mastr_list))
+    mastr_list_len = len(mastr_list)
+
     # check wether user input
     if n_entries is 1:
-        n_entries = unit_solar_list_len
+        n_entries = mastr_list_len
     # check wether to download more entries than solareinheiten in unit_solar_list starting at start_from
-    if n_entries > (unit_solar_list_len-start_from):
-        n_entries = unit_solar_list_len-start_from
-    log.info('Found %s solar units', n_entries)
-    end_at = start_from+n_entries
-    cpu_count = mp.cpu_count()*cpu_factor
+    if n_entries > (mastr_list_len-start_from):
+        n_entries = mastr_list_len-start_from
+    log.info(f'Download {n_entries} Solareinheit')
+
+    end_at = start_from + n_entries
+    cpu_count = mp.cpu_count() * cpu_factor
     process_pool = mp.Pool(processes=cpu_count)
     t = time.time()
-    proc_list = split_to_sublists(unit_solar_list[start_from:end_at], len(unit_solar_list[start_from:end_at]),cpu_count)
+    proc_list = split_to_sublists(mastr_list[start_from:end_at], len(mastr_list[start_from:end_at]), cpu_count)
     print("This may take a moment. Processing {} data batches.".format(len(proc_list)))
     try:
         partial(split_to_threads, parallelism=parallelism)
         unit_solar = process_pool.map(split_to_threads, proc_list)
         process_pool.close()
         process_pool.join()
-        if not eeg:
-            write_to_csv(fname_solar, unit_solar)
-        else:
-            write_to_csv(fname_solar_eeg, unit_solar)
+
+        write_to_csv(fname_solar_unit, unit_solar)
+
     except Exception as e:
         log.error(e)
-    log.info('time needed %s', time.time()-t)
+
+    log.info('Time needed %s', time.time()-t)
 
 
 def split_to_threads(sublist, parallelism=100):
@@ -226,9 +221,7 @@ def get_power_unit_solar(mastr_unit_solar):
     """
     # with mp.Lock():
     #   log.info('downloading data unit... %s', mastr_unit_solar)
-
     data_version = get_data_version()
-
     try:
         c = client_bind.GetEinheitSolar(apiKey=api_key,
                                         marktakteurMastrNummer=my_mastr,
@@ -240,10 +233,10 @@ def get_power_unit_solar(mastr_unit_solar):
         unit_solar.index.names = ['lid']
         unit_solar['version'] = data_version
         unit_solar['timestamp'] = str(datetime.datetime.now())
-    except Exception as e:
         return unit_solar
+    except Exception as e:
+        log.info('Download failed for %s', mastr_unit_solar)
 
-    return unit_solar
 
 
 def read_unit_solar(csv_name):
@@ -377,13 +370,13 @@ def download_parallel_unit_solar_eeg(
     if unit_solar.empty:
         return
     unit_solar_list = unit_solar['EegMastrNummer'].values.tolist()
-    unit_solar_list_len = len(unit_solar_list)
+    mastr_list_len = len(unit_solar_list)
     # check wether user input
     if n_entries is 1:
-        n_entries = unit_solar_list_len
+        n_entries = mastr_list_len
     # check wether to download more entries than solareinheiten in unit_solar_list starting at start_from
-    if n_entries > (unit_solar_list_len-start_from):
-        n_entries = unit_solar_list_len-start_from
+    if n_entries > (mastr_list_len-start_from):
+        n_entries = mastr_list_len-start_from
     log.info('Found %s solar units eeg', n_entries)
     end_at = start_from+n_entries
     cpu_count = mp.cpu_count()*cpu_factor
