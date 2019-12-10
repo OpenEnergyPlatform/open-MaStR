@@ -77,9 +77,17 @@ if __name__ == "__main__":
     # make_biomass()
 
     """Solar"""
-    # ''' DEFAULT PARAMS: start_from=0, n_entries=1, parallelism=300, cpu_factor=1, overwrite=False '''
-    download_parallel_unit_solar()
-    # download_parallel_unit_solar_eeg()
+    # ''' DEFAULT PARAMS: start_from=0, n_entries=1, parallelism=12 '''
+    download_parallel_unit_solar(
+        start_from=0,
+        n_entries=1,
+        parallelism=12
+    )
+    # download_parallel_unit_solar_eeg(
+    #    start_from=0,
+    #    n_entries=1,
+    #    parallelism=12
+    #)
     # make_solar()
 
     """ Storages"""

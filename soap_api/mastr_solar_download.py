@@ -31,9 +31,9 @@ import datetime
 import os
 from zeep.helpers import serialize_object
 from functools import partial
+import textwrap
 
 import logging
-
 log = logging.getLogger(__name__)
 
 """SOAP API"""
@@ -132,7 +132,7 @@ def read_power_unit_solar(csv_name):
 
 
 # Download unit-solar (parallel)
-def download_parallel_unit_solar(n_entries=1, parallelism=300, cpu_factor=1):
+def download_parallel_unit_solar(start_from=0,n_entries=1, parallelism=12):
     """Download Solareinheit (solar-unit) with parallel process.
 
     Filter EinheitMastrNummer from Stromerzeugungseinheit-Solar.
@@ -147,10 +147,7 @@ def download_parallel_unit_solar(n_entries=1, parallelism=300, cpu_factor=1):
         Number of entries to download.
     parallelism : int
         Number of threads.
-    cpu_factor : float
-        Multiplies the number of processes depending on available cpu units.
     """
-    start_from = 0
     setup_power_unit_solar()
 
     global proc_list
@@ -170,26 +167,42 @@ def download_parallel_unit_solar(n_entries=1, parallelism=300, cpu_factor=1):
     log.info(f'Download {n_entries} Solareinheit')
 
     end_at = start_from + n_entries
-    cpu_count = mp.cpu_count() * cpu_factor
+    cpu_count = mp.cpu_count()
     process_pool = mp.Pool(processes=cpu_count)
     t = time.time()
     proc_list = split_to_sublists(mastr_list[start_from:end_at], len(mastr_list[start_from:end_at]), cpu_count)
     print("This may take a moment. Processing {} data batches.".format(len(proc_list)))
+    
+    wait_for_offtime()
+
     try:
         partial(split_to_threads, parallelism=parallelism)
         unit_solar = process_pool.map(split_to_threads, proc_list)
         process_pool.close()
         process_pool.join()
-
-        write_to_csv(fname_solar_unit, unit_solar)
+        write_to_csv(fname_solar_unit, cleaned_unit_solar)
 
     except Exception as e:
         log.error(e)
 
     log.info('Time needed %s', time.time()-t)
 
+def wait_for_offtime():
+    # check if time is between 7:00 and 19:00, wait until 19h
+    now = time.strftime('%H%M%S', time.localtime(time.time()))
+    limit_lower = time.strftime('%H%M%S', time.strptime('17:00:00', '%H:%M:%S'))
+    limit_upper =  time.strftime('%H%M%S', time.strptime('07:00:00', '%H:%M:%S'))
 
-def split_to_threads(sublist, parallelism=100):
+    if now > limit_upper and now < limit_lower:
+        waiting_time =  int(limit_lower) - int(now)
+        timesteps = textwrap.wrap(str(waiting_time)[::-1], 2)
+        x=1
+        for i in timesteps:
+            seconds += int(i)*x
+            x*=60
+        time.sleep(seconds)
+
+def split_to_threads(sublist, parallelism=12):
     """ Maps sublist variables to function get_power_unit_solar on parallel threads (number = parallelism)
 
     Parameters
@@ -222,6 +235,7 @@ def get_power_unit_solar(mastr_unit_solar):
     # with mp.Lock():
     #   log.info('downloading data unit... %s', mastr_unit_solar)
     data_version = get_data_version()
+    unit_solar = pd.DataFrame()
     try:
         c = client_bind.GetEinheitSolar(apiKey=api_key,
                                         marktakteurMastrNummer=my_mastr,
@@ -337,9 +351,7 @@ def read_unit_solar(csv_name):
 def download_parallel_unit_solar_eeg(
         start_from=0,
         n_entries=1,
-        parallelism=300,
-        cpu_factor=1,
-        overwrite=True
+        parallelism=12
 ):
     """Download GetAnlageEegSolar with parallel process
 
@@ -352,11 +364,6 @@ def download_parallel_unit_solar_eeg(
         Number of entries to download
     parallelism : int
         number of threads
-    cpu_factor : float
-        multiplies the number of processes depending on available cpu units
-    overwrite : bool
-        decide wether the existing files should be overwritten or not
-
 
     Existing units: 31543 (2019-02-10)
 
@@ -366,7 +373,7 @@ def download_parallel_unit_solar_eeg(
     global proc_list
     split_solar_list = []
 
-    unit_solar = setup_power_unit_solar(overwrite, eeg=True)
+    unit_solar = setup_power_unit_solar(eeg=True)
     if unit_solar.empty:
         return
     unit_solar_list = unit_solar['EegMastrNummer'].values.tolist()
@@ -379,7 +386,7 @@ def download_parallel_unit_solar_eeg(
         n_entries = mastr_list_len-start_from
     log.info('Found %s solar units eeg', n_entries)
     end_at = start_from+n_entries
-    cpu_count = mp.cpu_count()*cpu_factor
+    cpu_count = mp.cpu_count()
     process_pool = mp.Pool(processes=cpu_count)
     t = time.time()
     proc_list = split_to_sublists(unit_solar_list[start_from:end_at],len(unit_solar_list[start_from:end_at]),cpu_count)
@@ -395,7 +402,7 @@ def download_parallel_unit_solar_eeg(
     log.info('time needed %s', time.time()-t)
 
 
-def split_to_threads_eeg(sublist,parallelism=100):
+def split_to_threads_eeg(sublist,parallelism=12):
     """ Maps sublist variables to function get_unit_solar_eeg on parallel threads (number = parallelism)
 
     Parameters
@@ -487,14 +494,14 @@ def read_unit_solar_eeg(csv_name):
 
 
 # Download unit-solar
-def download_unit_solar(overwrite=True):
+def download_unit_solar():
     """Download Solareinheit.
 
     Existing units: 31543 (2019-02-10)
     """
     start_from = 0
     log.info('download unit solar..')
-    unit_solar = setup_power_unit_solar(overwrite, eeg=False)
+    unit_solar = setup_power_unit_solar(eeg=False)
     unit_solar_list = unit_solar['EinheitMastrNummer'].values.tolist()
     unit_solar_list_len = len(unit_solar_list)
     log.info(f'Download MaStR Solar')
@@ -509,7 +516,7 @@ def download_unit_solar(overwrite=True):
 
 
 # Download unit-solar-eeg
-def download_unit_solar_eeg(overwrite=True):
+def download_unit_solar_eeg():
     """Download unit_solar_eeg using GetAnlageEegSolar request.
 
     Parameters
@@ -520,7 +527,7 @@ def download_unit_solar_eeg(overwrite=True):
         number of threads
     """
     data_version = get_data_version()
-    unit_solar = setup_power_unit_solar(overwrite, eeg=True)
+    unit_solar = setup_power_unit_solar(eeg=True)
 
     unit_solar_list = unit_solar['EegMastrNummer'].values.tolist()
     unit_solar_list_len = len(unit_solar_list)
