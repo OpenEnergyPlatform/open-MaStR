@@ -165,6 +165,21 @@ def download_unit_wind():
             mastr_fail = {'EinheitMastrNummer': [mastr_list[i]]}
             unit_wind_fail = pd.DataFrame(mastr_fail)
             write_to_csv(fname_wind_fail_u, unit_wind_fail)
+            retry(unit_wind_fail)
+
+
+def retry(fail_first):
+  for i in liste:
+    unit_wind = get_power_unit_wind(i)
+    if unit_wind is not None:
+      write_to_csv(fname_wind_unit, unit_wind)
+    else:
+      log.exception(f'Download failed unit_wind ({i}): {mastr_list[i]}')
+      mastr_fail = {'EinheitMastrNummer': i}
+      fail_second = pd.DataFrame(mastr_fail)
+      csv_input = pd.read_csv(fname_wind_fail_u)
+      csv_input['2nd Fail'] = fail_second
+      csv_input.to_csv(fname_wind_fail_u)
 
 
 def get_power_unit_wind(mastr_unit_wind):
