@@ -1,5 +1,7 @@
 numpy
+matplotlib
 pandas
+geopandas
 sqlalchemy
 geoalchemy2
 pyshp
@@ -7,4 +9,7 @@ shapely
 python-dateutil
 psycopg2-binary
 multiprocess
-zeep
+geoviews==1.6.3
+upsetplot
+bokeh
+jupyterlab

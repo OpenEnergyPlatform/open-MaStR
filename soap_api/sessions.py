@@ -12,9 +12,9 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 __copyright__ = "© Reiner Lemoine Institut"
 __license__ = "GNU Affero General Public License Version 3 (AGPL-3.0)"
 __url__ = "https://www.gnu.org/licenses/agpl-3.0.en.html"
-__author__ = "Ludee; christian-rli; Bachibouzouk; solar-c"
+__author__ = "Ludee; christian-rli"
 __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
-__version__ = "v0.8.0"
+__version__ = "v0.9.0"
 
 import config as lc
 
@@ -27,7 +27,7 @@ from collections import namedtuple
 import requests
 import urllib3
 
-from soap_api.utils import fname_hydro_all, fname_wind_all, fname_hydro_all, fname_biomass_all
+#from soap_api.utils import fname_hydro_all, fname_wind_all, fname_hydro_all, fname_biomass_all
 
 
 from zeep import Client, Settings
@@ -35,6 +35,7 @@ from zeep.cache import SqliteCache
 from zeep.transports import Transport
 
 UserToken = namedtuple('UserToken', ['user', 'token'])
+API_MAX_DEMANDS = 2000
 
 import logging
 log = logging.getLogger(__name__)
@@ -527,7 +528,6 @@ def oep_upload():
             # 3rd, insert data into tables
             insert_data(engine, data, metadata, file[1])
 
-
 def oep_config():
     """Access config.ini.
 
@@ -742,7 +742,6 @@ def insert_data(engine, data, metadata, unittype):
 
     # insert data into db
     session.commit()
-
 
 
 def mastr_config():

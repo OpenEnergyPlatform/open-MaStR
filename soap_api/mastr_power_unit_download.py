@@ -14,7 +14,7 @@ __license__ = "GNU Affero General Public License Version 3 (AGPL-3.0)"
 __url__ = "https://www.gnu.org/licenses/agpl-3.0.en.html"
 __author__ = "Ludee; christian-rli; Bachibouzouk; solar-c"
 __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
-__version__ = "v0.8.0"
+__version__ = "v0.9.0"
 
 
 import time
@@ -31,14 +31,15 @@ from datetime import datetime
 from zeep.helpers import serialize_object
 
 from soap_api.sessions import mastr_session, API_MAX_DEMANDS
-from soap_api.utils import split_to_sublists, write_to_csv, remove_csv, get_data_version
-from soap_api.mastr_wind_processing import do_wind
+from soap_api.utils import split_to_sublists, write_to_csv, remove_csv, get_data_version, read_timestamp, TOTAL_POWER_UNITS
+# from soap_api.mastr_wind_processing import do_wind
 
 import math
 
 log = logging.getLogger(__name__)
 ''' VAR IMPORT '''
 from soap_api.utils import fname_all_units, fname_wind_unit, read_timestamp, TIMESTAMP
+
 
 """SOAP API"""
 client, client_bind, token, user = mastr_session()
@@ -117,11 +118,13 @@ def download_power_unit(
     2331651 (2019-10-01)
     2359365 (2019-10-15)
     2363200 (2019-10-17)
+    2468804 (2019-11-28)
+    2487585 (2019-12-05) data-release/2.2.0
     """
     log.info('Download MaStR Power Unit')
     log.info(f'Number of expected power units: {power_unit_list_len}')
 
-    log.info(f'Write to : {fname_all_units}')
+    log.info(f'Write to : {fname_power_unit}')
 
     # if the list size is smaller than the limit
     if limit > power_unit_list_len:
@@ -130,7 +133,7 @@ def download_power_unit(
     for start_from in range(0, power_unit_list_len, limit):
         try:
             power_unit = get_power_unit(start_from, wind, limit)
-            write_to_csv(fname_all_units, power_unit)
+            write_to_csv(fname_power_unit, power_unit)
             power_unit_len = len(power_unit)
             log.info(f'Download power_unit from {start_from}-{start_from + power_unit_len}')
         except:
@@ -138,7 +141,7 @@ def download_power_unit(
 
 
 def download_parallel_power_unit(
-        power_unit_list_len=2359365,
+        power_unit_list_len=TOTAL_POWER_UNITS,
         limit=API_MAX_DEMANDS,
         batch_size=10000,
         start_from=0,
@@ -167,7 +170,9 @@ def download_parallel_power_unit(
     wind : bool
         Wether only wind data but all wind data (wind power unit, wind, (wind eeg), wind permit, wind all)
         should be downloaded and processed
-        current max entries: 42748 / 27.10.2019
+        current max entries:
+        42748 (2019-10-27)
+        42481 (2019-11-28)
     eeg : bool
         Wether eeg data should be downloaded,too
     update: bool
@@ -183,8 +188,8 @@ def download_parallel_power_unit(
     if batch_size < API_MAX_DEMANDS:
         limit = batch_size
 
-    if power_unit_list_len+start_from > 2359365:
-        deficit = (power_unit_list_len+start_from)-2359365
+    if power_unit_list_len+start_from > TOTAL_POWER_UNITS:
+        deficit = (power_unit_list_len+start_from)-TOTAL_POWER_UNITS
         power_unit_list_len = power_unit_list_len-deficit
         if power_unit_list_len <= 0:
             log.info('No entries to download. Decrease index size.')
@@ -192,7 +197,7 @@ def download_parallel_power_unit(
     end_at = power_unit_list_len + start_from
 
     if overwrite:
-        remove_csv(fname_all_units)
+        remove_csv(fname_power_unit)
 
     if power_unit_list_len < limit:
         log.info(f'Number of expected power units: {limit}')
@@ -227,6 +232,8 @@ def download_parallel_power_unit(
                     num = math.ceil((len(failed_downloads)*2000)/batch_size)
                     sublists = split_to_sublists(sublists, len(sublists), num)
                     counter = counter+1
+                    summe = 0
+                    length = len(sublists)
                     failed_downloads = []
                     log.info('Starting second round with failed downloads')
             if almost_end_of_list is False:
@@ -266,7 +273,6 @@ def download_parallel_power_unit(
             summe += 1
             progress = math.floor((summe/length)*100)
             print('\r[{0}{1}] %'.format('#'*(int(math.floor(progress/10))), '-'*int(math.floor((100-progress)/10))))
-            print(time.time()-t)
             # check for failed downloads and add indices of failed downloads to failed list
             indices_list = []
             if not len(result)==0:
@@ -275,7 +281,7 @@ def download_parallel_power_unit(
                         failed_downloads.append(ind)
                     mylist['timestamp'] = datetime.now()
                     if wind==False:
-                        write_to_csv(fname_all_units, pd.DataFrame(mylist))
+                        write_to_csv(fname_power_unit, pd.DataFrame(mylist))
                     else:
                         write_to_csv(fname_wind_unit, pd.DataFrame(mylist))
                 log.info('Failed downloads: %s', len(failed_downloads))
@@ -288,7 +294,6 @@ def download_parallel_power_unit(
         except Exception as e:
             log.error(e)
     log.info('Power Unit Download executed in: {0:.2f}'.format(time.time()-t))
-    do_wind(eeg=eeg)
 
 """ check for new entries since TIMESTAMP """
 def get_update_date(wind=False):

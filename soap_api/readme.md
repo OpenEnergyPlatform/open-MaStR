@@ -1,5 +1,8 @@
 ## MaStR Processing
 
+The description of each data version and the version of the code with which it was downloaded is available in the
+[data-release-notes.md](https://github.com/OpenEnergyPlatform/open-MaStR/blob/master/soap_api/data-release-notes.md)
+
 ### Links
 
 * [GitHub](https://github.com/OpenEnergyPlatform/data-preprocessing/issues/13)
@@ -53,37 +56,19 @@
 | Solareinheit | unit_solar | bnetza_mastr_{v}_unit-solar.csv |
 | EEG-Anlage-Solar | unit_solar_eeg  | bnetza_mastr_{v}_unit-solar-eeg.csv |
 |   |   |  |
-| EinheitMastrNummerId  | mastr_unit  |  |
-| EegMastrNummerId  | mastr_unit_eeg  |  |
+| EinheitMastrNummer  | mastr_unit_id  |  |
+| EegMastrNummer  | mastr_unit_eeg_id  |  |
+| GenMastrNummer  | mastr_unit_permit_id  |  |
 
 
-### Documentation
-
-- download_parallel_power_unit
- ``` Downloads inital power unit information for all 'Erzeuger' (producer). ```
-	* power_unit_list_len : int
-	> total number of units to download
-	* limit : int 
-	> number of units per download request
-	* batch_size : int 
-	> number of units per batch 
-	* start_from : int 
-	> starting index
-	* overwrite : bool
-	> overwrites existing file if true, appends if false
-	* wind : bool
-	> decision variable if only wind units should be processed
-	* eeg : bool
-	> decision variable wether eegs should be downloaded
-
-- do_wind
-``` Uses existing wind related csvs to create one inclusive wind csv ```
-	* eeg : bool
-	> decision variable wether eegs should be included
 
 ### Getting started
 
 - Create a virtualenv
 - Run python setup.py install
-- Optional: Read the Documentation to setup _download_parallel_power_unit_ if neccessary 
+- Optional: Read the Documentation to setup _download_parallel_power_unit_ 
+- Set parameters in _soap_api/utils.py_
+    - _DATA_VERSION_
+    - _TOTAL_POWER_UNITS_ - Query from [Website](https://www.marktstammdatenregister.de/MaStR/Einheit/Einheiten/ErweiterteOeffentlicheEinheitenuebersicht)
+- Decide which technologies to download in _main.py_
 - Run python soap_api/main.py 

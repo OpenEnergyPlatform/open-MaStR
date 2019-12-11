@@ -20,6 +20,17 @@ Here is a template for new release sections
 ## [Unreleased]
 
 ### Added
+
+
+### Changed
+
+
+### Removed
+
+
+## [0.9.0] 2019-12-05
+
+### Added
 - docstrings for functions
 - tests
 - setup.py file
@@ -28,6 +39,7 @@ Here is a template for new release sections
   * only download power units for wind to avoid massive download
   * changed : process units wind ("one-click solution")
 - added loop to retry failed power unit downloads, currently one retry
+- write failed downloads to file
 
 ### Changed
 - rename `import-api` `soap_api`
@@ -37,6 +49,10 @@ Here is a template for new release sections
 ### Removed
 - unused imports
 - obsolete comments
+
+### Fixed
+- power unit update
+- filter technologies from power units
 
 ## [0.8.0] 2019-09-30
 
@@ -52,6 +68,7 @@ Here is a template for new release sections
 - utils.py for utility functions
 - added storage units download
 - added wind permit download
+- ontology folder (#46)
 
 ### Changed
 - took the code from this [repository's subfolder](https://github.com/OpenEnergyPlatform/data-preprocessing/tree/master/data-import/bnetza_mastr)
