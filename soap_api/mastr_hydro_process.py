@@ -17,7 +17,7 @@ __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.9.0"
 
 from soap_api.mastr_hydro_download import *
-from soap_api.utils import fname_power_unit_hydro, fname_hydro_unit, fname_hydro_unit_eeg, fname_hydro
+from soap_api.utils import fname_power_unit_hydro, fname_hydro_unit, fname_hydro_eeg, fname_hydro
 
 import logging
 
@@ -38,7 +38,7 @@ def make_hydro():
     unit_hydro_cnt = unit_hydro['EinheitMastrNummer'].count()
     log.info(f'Filter {unit_hydro_cnt} unique unit-hydro')
 
-    unit_hydro_eeg = read_unit_hydro_eeg(fname_hydro_unit_eeg)
+    unit_hydro_eeg = read_unit_hydro_eeg(fname_hydro_eeg)
     unit_hydro_eeg = unit_hydro_eeg.drop_duplicates(subset=['EegMastrNummer'])
     unit_hydro_eeg_cnt = unit_hydro_eeg['EegMastrNummer'].count()
     log.info(f'Filter {unit_hydro_eeg_cnt} unique unit-hydro-eeg')

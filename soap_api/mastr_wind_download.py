@@ -23,7 +23,9 @@ from soap_api.utils import (fname_power_unit,
                             fname_wind_unit,
                             fname_wind_eeg,
                             fname_wind_permit,
-                            fname_wind_fail)
+                            fname_wind_fail_u,
+                            fname_wind_fail_e,
+                            fname_wind_fail_p)
 
 import pandas as pd
 import datetime
@@ -155,13 +157,14 @@ def download_unit_wind():
     log.info(f'Download {mastr_list_len} Windeinheit')
 
     for i in range(start_from, mastr_list_len, 1):
-        try:
-            unit_wind = get_power_unit_wind(mastr_list[i])
+        unit_wind = get_power_unit_wind(mastr_list[i])
+        if unit_wind is not None:
             write_to_csv(fname_wind_unit, unit_wind)
-        except:
+        else:
             log.exception(f'Download failed unit_wind ({i}): {mastr_list[i]}')
-            unit_wind_fail = mastr_list[i]
-            write_to_csv(fname_wind_fail, unit_wind_fail)
+            mastr_fail = {'EinheitMastrNummer': [mastr_list[i]]}
+            unit_wind_fail = pd.DataFrame(mastr_fail)
+            write_to_csv(fname_wind_fail_u, unit_wind_fail)
 
 
 def get_power_unit_wind(mastr_unit_wind):
@@ -320,13 +323,14 @@ def download_unit_wind_eeg():
     log.info(f'Download {mastr_list_len} Windeinheit-EEG')
 
     for i in range(0, mastr_list_len, 1):
-        try:
-            unit_wind_eeg = get_unit_wind_eeg(mastr_list[i])
+        unit_wind_eeg = get_unit_wind_eeg(mastr_list[i])
+        if unit_wind_eeg is not None:
             write_to_csv(fname_wind_eeg, unit_wind_eeg)
-        except:
+        else:
             log.exception(f'Download failed unit_wind_eeg ({i}): {mastr_list[i]}')
-            unit_wind_fail = mastr_list[i]
-            write_to_csv(fname_wind_fail, unit_wind_fail)
+            mastr_fail = {'EegMastrNummer': [mastr_list[i]]}
+            unit_wind_fail = pd.DataFrame(mastr_fail)
+            write_to_csv(fname_wind_fail_e, unit_wind_fail)
 
 
 def get_unit_wind_eeg(mastr_wind_eeg):
@@ -468,8 +472,9 @@ def download_unit_wind_permit():
                     write_to_csv(fname_wind_permit, df_all)
             except:
                 log.exception(f'Download failed Windeinheit-Genehmigung ({i}): {mastr_list[i]}')
-                unit_wind_fail = mastr_list[i]
-                write_to_csv(fname_wind_fail, unit_wind_fail)
+                mastr_fail = {'GenMastrNummer': [mastr_list[i]]}
+                unit_wind_fail = pd.DataFrame(mastr_fail)
+                write_to_csv(fname_wind_fail_p, unit_wind_fail)
 
 
 def get_unit_wind_permit(mastr_wind_permit):
