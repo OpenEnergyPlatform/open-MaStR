@@ -38,7 +38,8 @@ import math
 
 log = logging.getLogger(__name__)
 ''' VAR IMPORT '''
-from soap_api.utils import fname_power_unit, fname_wind_unit, TIMESTAMP
+from soap_api.utils import fname_all_units, fname_wind_unit, read_timestamp, TIMESTAMP
+
 
 """SOAP API"""
 client, client_bind, token, user = mastr_session()
@@ -178,8 +179,8 @@ def download_parallel_power_unit(
         Wether a dataset should only be updated
     """
     if wind==True:
-        power_unit_list_len=42481
-    datum = TIMESTAMP
+        power_unit_list_len=42748
+    update = TIMESTAMP
     if update==True:
         datum = get_update_date(wind)
 

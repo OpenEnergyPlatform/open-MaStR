@@ -12,11 +12,11 @@ from datetime import datetime as dt
 import logging
 log = logging.getLogger(__name__)
 
-DATA_VERSION = 'rli_v2.2.1'
+DATA_VERSION = 'rli_v2.0.3'
 """ Total Count of Power Units (TOTAL_POWER_UNITS) on date (UPDATE_TIMESTAMP) """
 TOTAL_POWER_UNITS = 2487585
 """ 01.03.2019 """
-TIMESTAMP = "1900-01-01 00:00:00.000000"
+TIMESTAMP = "1900-01-01 00:00:00.00000"
 """ test string: "2019-10-20 00:00:00.000000" """
 """ dummy stump for other file names """
 fname_template = f'data/bnetza_mastr_{DATA_VERSION}'
@@ -100,28 +100,11 @@ def write_to_csv(csv_name, df):
         os.makedirs(os.path.dirname(csv_name))
 
     with open(csv_name, mode='a', encoding='utf-8') as file:
-        if isinstance(df, pd.DataFrame):
-            df.to_csv(file, sep=';',
-                      mode='a',
+        df.to_csv(file, sep=';',
+                    mode='a',
                       header=file.tell() == 0,
                       line_terminator='\n',
                       encoding='utf-8')
-        else:
-            log.info('Split list to DataFrame')
-            df_batch = [y for x in df for y in x]
-            for i in range(len(df_batch)):
-                df_u = df_batch[i]
-                if isinstance(df_u, pd.DataFrame):
-                    df_u.to_csv(file,
-                                sep=';',
-                                mode='a',
-                                header=file.tell() == 0,
-                                line_terminator='\n',
-                                encoding='utf-8')
-                else:
-                    log.exception(f'No DataFrame in list {df_u}')
-
-            log.info(f'Write unlisted DataFrame to file {csv_name}')
 
 
 def remove_csv(csv_name):

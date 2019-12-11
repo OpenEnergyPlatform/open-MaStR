@@ -173,14 +173,13 @@ def download_parallel_unit_solar(start_from=0,n_entries=1, parallelism=12):
     proc_list = split_to_sublists(mastr_list[start_from:end_at], len(mastr_list[start_from:end_at]), cpu_count)
     print("This may take a moment. Processing {} data batches.".format(len(proc_list)))
     
-    wait_for_offtime()
+    #wait_for_offtime()
 
     try:
         partial(split_to_threads, parallelism=parallelism)
         unit_solar = process_pool.map(split_to_threads, proc_list)
         process_pool.close()
         process_pool.join()
-        write_to_csv(fname_solar_unit, cleaned_unit_solar)
 
     except Exception as e:
         log.error(e)
@@ -197,9 +196,11 @@ def wait_for_offtime():
         waiting_time =  int(limit_lower) - int(now)
         timesteps = textwrap.wrap(str(waiting_time)[::-1], 2)
         x=1
+        seconds=0
         for i in timesteps:
             seconds += int(i)*x
             x*=60
+        log.info(f'Program paused. Waiting for {seconds} seconds')
         time.sleep(seconds)
 
 def split_to_threads(sublist, parallelism=12):
@@ -247,6 +248,7 @@ def get_power_unit_solar(mastr_unit_solar):
         unit_solar.index.names = ['lid']
         unit_solar['version'] = data_version
         unit_solar['timestamp'] = str(datetime.datetime.now())
+        write_to_csv(fname_solar_unit, unit_solar)
         return unit_solar
     except Exception as e:
         log.info('Download failed for %s', mastr_unit_solar)
