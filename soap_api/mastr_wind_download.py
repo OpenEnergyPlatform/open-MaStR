@@ -321,6 +321,7 @@ def download_unit_wind_eeg():
     """Download Windeinheit-EEG (unit-wind-eeg) using GetAnlageEegWind request.
 
     Filter EegMastrNummer from Stromerzeugungseinheit-Wind.
+    Filter EegMastrNummer from Windeinheit.
     Remove duplicates and count.
     Loop over list and write download to file.
 
@@ -330,10 +331,24 @@ def download_unit_wind_eeg():
         Write Windeinheit-EEG to csv file.
     """
     setup_power_unit_wind()
-    power_unit_wind = read_power_unit_wind(fname_power_unit_wind)
-    power_unit_wind = power_unit_wind['EegMastrNummer']
-    mastr_list = power_unit_wind.values.tolist()
-    mastr_list = list(dict.fromkeys(mastr_list))
+
+    power_unit_wind_1 = read_power_unit_wind(fname_power_unit_wind)
+    power_unit_wind_1 = power_unit_wind_1.dropna(subset=['EegMastrNummer'])
+    power_unit_wind_1 = power_unit_wind_1['EegMastrNummer']
+    mastr_list_1 = power_unit_wind_1.values.tolist()
+    mastr_list_1 = list(dict.fromkeys(mastr_list_1))
+    mastr_list_len_1 = len(mastr_list_1)
+    log.info(f'Read {mastr_list_len_1} unique EegMastrNummer from Stromerzeugungseinheit-Wind')
+
+    power_unit_wind_2 = read_unit_wind(fname_wind_unit)
+    power_unit_wind_2 = power_unit_wind_2.dropna(subset=['EegMastrNummer'])
+    power_unit_wind_2 = power_unit_wind_2['EegMastrNummer']
+    mastr_list_2 = power_unit_wind_2.values.tolist()
+    mastr_list_2 = list(dict.fromkeys(mastr_list_2))
+    mastr_list_len_2 = len(mastr_list_2)
+    log.info(f'Read {mastr_list_len_2} unique EegMastrNummer from Windeinheit')
+
+    mastr_list = mastr_list_1 + mastr_list_2
     mastr_list_len = len(mastr_list)
     log.info(f'Download {mastr_list_len} Windeinheit-EEG')
 
@@ -432,6 +447,7 @@ def download_unit_wind_permit():
     """Download Windeinheit-Genehmigung using GetEinheitGenehmigung request.
 
     Filter GenMastrNummer from Stromerzeugungseinheit-Wind.
+    Filter GenMastrNummer from Windeinheit.
     Remove duplicates and count.
     Loop over list and write download to file.
 
@@ -443,10 +459,25 @@ def download_unit_wind_permit():
         Write Windeinheit-Genehmigung to csv file.
     """
     setup_power_unit_wind()
-    power_unit_wind = read_power_unit_wind(fname_power_unit_wind)
-    power_unit_wind = power_unit_wind['GenMastrNummer']
-    mastr_list = power_unit_wind.values.tolist()
-    mastr_list = list(dict.fromkeys(mastr_list))
+
+    power_unit_wind_1 = read_power_unit_wind(fname_power_unit_wind)
+    power_unit_wind_1 = power_unit_wind_1.dropna(subset=['GenMastrNummer'])
+    power_unit_wind_1 = power_unit_wind_1['GenMastrNummer']
+    mastr_list_1 = power_unit_wind_1.values.tolist()
+    mastr_list_1 = list(dict.fromkeys(mastr_list_1))
+    mastr_list_len_1 = len(mastr_list_1)
+    log.info(f'Read {mastr_list_len_1} unique GenMastrNummer from Windeinheit')
+
+    power_unit_wind_2 = read_unit_wind(fname_wind_unit)
+    power_unit_wind_2 = power_unit_wind_2.dropna(subset=['GenMastrNummer'])
+    power_unit_wind_2 = power_unit_wind_2['GenMastrNummer']
+    mastr_list_2 = power_unit_wind_2.values.tolist()
+    mastr_list_2 = list(dict.fromkeys(mastr_list_2))
+    mastr_list_len_2 = len(mastr_list_2)
+    log.info(f'Read {mastr_list_len_2} unique GenMastrNummer from Windeinheit')
+
+    mastr_list = mastr_list_1 + mastr_list_2
+    mastr_list = [x for x in mastr_list if str(x) != 'nan']
     mastr_list_len = len(mastr_list)
     log.info(f'Download {mastr_list_len} Windeinheit-Genehmigung')
 
