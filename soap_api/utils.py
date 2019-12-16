@@ -12,7 +12,7 @@ from datetime import datetime as dt
 import logging
 log = logging.getLogger(__name__)
 
-DATA_VERSION = 'rli_v2.0.3'
+DATA_VERSION = 'BWW_Dez'
 """ Total Count of Power Units (TOTAL_POWER_UNITS) on date (UPDATE_TIMESTAMP) """
 TOTAL_POWER_UNITS = 2487585
 """ 01.03.2019 """
