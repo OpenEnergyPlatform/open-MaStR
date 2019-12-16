@@ -51,6 +51,7 @@ def make_wind():
     log.info(f'Filter {unit_wind_permit_cnt} unique unit-wind-permit')
 
     log.info("Joining tables...")
+
     df_wind = power_unit_wind.join(unit_wind.set_index('EinheitMastrNummer'),
                                                                    on='EinheitMastrNummer', how='left', lsuffix='', rsuffix='_w')
     df_wind_cnt = df_wind['timestamp'].count()

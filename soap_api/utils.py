@@ -12,11 +12,11 @@ from datetime import datetime as dt
 import logging
 log = logging.getLogger(__name__)
 
-DATA_VERSION = 'rli_v2.2.0'
+DATA_VERSION = 'rli_v2.0.3'
 """ Total Count of Power Units (TOTAL_POWER_UNITS) on date (UPDATE_TIMESTAMP) """
 TOTAL_POWER_UNITS = 2487585
 """ 01.03.2019 """
-TIMESTAMP = "1900-01-01 00:00:00.000000"
+TIMESTAMP = "1900-01-01 00:00:00.00000"
 """ test string: "2019-10-20 00:00:00.000000" """
 """ dummy stump for other file names """
 fname_template = f'data/bnetza_mastr_{DATA_VERSION}'
@@ -48,10 +48,10 @@ fname_biomass = f'{fname_template}_biomass.csv'
 fname_biomass_fail_u = f'{fname_template}_biomass_fail_u.csv'
 fname_biomass_fail_e = f'{fname_template}_biomass_fail_e.csv'
 
-fname_solar = f'{fname_template}_power-unit_solar.csv'
+fname_power_unit_solar = f'{fname_template}_power-unit_solar.csv'
 fname_solar_unit = f'{fname_template}_unit-solar.csv'
 fname_solar_eeg = f'{fname_template}_solar-eeg.csv'
-fname_solar_eeg_unit = f'{fname_template}_unit-solar-eeg.csv'
+fname_solar = f'{fname_template}_solar.csv'
 
 fname_storage = f'{fname_template}_storage.csv'
 fname_storage_unit = f'{fname_template}_unit-storage.csv'
@@ -64,6 +64,8 @@ def get_data_version():
 
 def split_to_sublists(mylist, length, parts):
     """Read data from config file.
+
+    ToDo: Please document function @solar-c
 
     Parameters
     ----------
@@ -99,10 +101,10 @@ def write_to_csv(csv_name, df):
 
     with open(csv_name, mode='a', encoding='utf-8') as file:
         df.to_csv(file, sep=';',
-                  mode='a',
-                  header=file.tell() == 0,
-                  line_terminator='\n',
-                  encoding='utf-8')
+                    mode='a',
+                      header=file.tell() == 0,
+                      line_terminator='\n',
+                      encoding='utf-8')
 
 
 def remove_csv(csv_name):
