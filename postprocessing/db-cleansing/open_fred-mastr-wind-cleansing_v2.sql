@@ -120,6 +120,33 @@ UPDATE  model_draft.bnetza_mastr_rli_v2_2_0_wind_clean AS t1
             t1.geom IS NULL;
 
 
+-- Make geom from Standort (Extract PLZ)
+UPDATE  model_draft.bnetza_mastr_rli_v2_2_0_wind_clean AS t1
+    SET     geom = t2.geom,
+            comment =  COALESCE(comment, '') || 'make_geom_standort_plz; '
+    FROM    (SELECT plz,
+            ST_CENTROID(geom) ::geometry(Point,4326) AS geom
+            FROM    boundaries.osm_postcode
+            WHERE   stellen = 5
+            ORDER BY plz
+            ) AS t2,
+            (SELECT "Standort", NULLIF(regexp_replace("Standort", '\D','','g'), '')::text AS plz
+            FROM model_draft.bnetza_mastr_rli_v2_2_0_wind_clean
+            WHERE geom IS NULL
+            ) AS t3
+    WHERE   length(t3.plz) = 5 AND
+            t3.plz = t2.plz AND
+            t1.geom IS NULL;
+
+SELECT *
+FROM model_draft.bnetza_mastr_rli_v2_2_0_wind_clean
+WHERE comment = 'make_geom_standort_plz; ';
+
+-- Check geom
+SELECT *
+FROM model_draft.bnetza_mastr_rli_v2_2_0_wind_clean
+WHERE geom IS NULL;
+
 -- Analyze Wind
 SELECT  "Technologie", COUNT(*) AS cnt
 FROM model_draft.bnetza_mastr_rli_v2_2_0_wind_clean
