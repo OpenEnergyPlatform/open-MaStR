@@ -38,7 +38,7 @@ import math
 
 log = logging.getLogger(__name__)
 ''' VAR IMPORT '''
-from soap_api.utils import fname_all_units, fname_wind_unit, read_timestamp, TIMESTAMP
+from soap_api.utils import fname_power_unit, fname_wind_unit, TIMESTAMP
 
 
 """SOAP API"""
