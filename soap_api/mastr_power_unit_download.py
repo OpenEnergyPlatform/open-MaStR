@@ -40,6 +40,7 @@ log = logging.getLogger(__name__)
 ''' VAR IMPORT '''
 from soap_api.utils import fname_power_unit, fname_wind_unit, TIMESTAMP
 
+
 """SOAP API"""
 client, client_bind, token, user = mastr_session()
 api_key = token
@@ -86,7 +87,7 @@ def get_power_unit(start_from, wind=False, datum='1900-01-01 00:00:00.00000', li
 
 
 def download_power_unit(
-        power_unit_list_len=2363200,
+        power_unit_list_len=TOTAL_POWER_UNITS,
         limit=API_MAX_DEMANDS,
         wind=False
 ):
@@ -119,6 +120,7 @@ def download_power_unit(
     2363200 (2019-10-17)
     2468804 (2019-11-28)
     2487585 (2019-12-05) data-release/2.2.0
+    2791367 (2020-03-21) data-release/2.2.1
     """
     log.info('Download MaStR Power Unit')
     log.info(f'Number of expected power units: {power_unit_list_len}')
@@ -178,8 +180,8 @@ def download_parallel_power_unit(
         Wether a dataset should only be updated
     """
     if wind==True:
-        power_unit_list_len=42481
-    datum = TIMESTAMP
+        power_unit_list_len=42748
+    update = TIMESTAMP
     if update==True:
         datum = get_update_date(wind)
 

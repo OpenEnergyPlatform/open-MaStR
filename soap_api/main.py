@@ -44,10 +44,11 @@ if __name__ == "__main__":
     #metadata = oep_session()
 
     """MaStR Einheiten"""
+    '''Get maximum number from the web interface and setup utils.py'''
+    # download_power_unit()
 
-    ''' DEFAULT PARAMS: power_unit_list_len=100000, limit=2000, batch_size=20000, start_from=0, overwrite=False '''
-    ''' CURRENT MAX INDEX FOR VAR start_from and power_unit_list_len: 1814000 '''
-
+    '''WARNING: Batch download may cause a database error. Extended limit required!'''
+    '''DEFAULT PARAMS: power_unit_list_len=100000, limit=2000, batch_size=20000, start_from=0, overwrite=False '''
     download_parallel_power_unit(
        batch_size=10000,
        limit=2000,
@@ -66,20 +67,27 @@ if __name__ == "__main__":
 
     """Hydro"""
     # setup_power_unit_hydro()
-    download_unit_hydro()
-    download_unit_hydro_eeg()
-    make_hydro()
+    # download_unit_hydro()
+    # download_unit_hydro_eeg()
+    # make_hydro()
 
     """Biomass"""
     # setup_power_unit_biomass()
-    download_unit_biomass()
-    download_unit_biomass_eeg()
-    make_biomass()
+    # download_unit_biomass()
+    # download_unit_biomass_eeg()
+    # make_biomass()
 
     """Solar"""
-    # ''' DEFAULT PARAMS: start_from=0, n_entries=1, parallelism=300, cpu_factor=1, overwrite=False '''
-    # download_parallel_unit_solar()
-    # download_parallel_unit_solar_eeg()
+    # ''' DEFAULT PARAMS: start_from=0, n_entries=1, parallelism=12 '''
+    # download_parallel_unit_solar(
+    #     start_from=0,
+    #     n_entries=1,
+    #     parallelism=12
+    # )
+    # download_parallel_unit_solar_eeg(
+    #    start_from=0,
+    #    n_entries=1,
+    #    parallelism=12)
     # make_solar()
 
     """ Storages"""
