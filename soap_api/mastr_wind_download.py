@@ -168,7 +168,7 @@ def download_unit_wind():
                 write_to_csv(fname_wind_unit, unit_wind)
             else:
                 mastr_fail = {'EinheitMastrNummer': [mastr_list[i]]}
-                log.exception(f'Second Download failed unit_wind ({i}): {mastr_fail} - Write to list')
+                log.exception(f'Second Download failed unit_wind ({i}): {mastr_list[i]} - Write to list')
                 unit_wind_fail = pd.DataFrame(mastr_fail)
                 unit_wind_fail['timestamp'] = str(datetime.datetime.now())
                 write_to_csv(fname_wind_fail_u, unit_wind_fail)
@@ -197,7 +197,7 @@ def retry_download_unit_wind():
     log.info(f'Retry download {unit_fail_list_len} failed Windeinheit')
 
     for i in range(start_from, unit_fail_list_len, 1):
-        unit_wind = get_power_unit_wind(unit_fail_list[i])
+        unit_wind = get_power_unit_wind(unit_fail_list[i])  # Third download
         if unit_wind is not None:
             write_to_csv(fname_wind_unit, unit_wind)
         else:
@@ -425,7 +425,7 @@ def retry_download_unit_wind_eeg():
             write_to_csv(fname_wind_eeg, unit_wind)
         else:
             unit_fail_eeg = {'EegMastrNummer': [unit_fail_list[i]]}
-            log.exception(f'Third Download failed unit_wind: {unit_fail_list[i]}')
+            log.exception(f'Third Download failed unit_wind_eeg: {unit_fail_list[i]}')
             unit_fail_third = pd.DataFrame(unit_fail_eeg)
             csv_input = pd.read_csv(fname_wind_fail_e)
             csv_input['Retry'] = unit_fail_third
