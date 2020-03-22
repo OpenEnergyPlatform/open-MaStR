@@ -147,6 +147,7 @@ def download_unit_hydro():
     """
     start_from = 0
     setup_power_unit_hydro()
+
     power_unit_hydro = read_power_unit_hydro(fname_power_unit_hydro)
     power_unit_hydro = power_unit_hydro['EinheitMastrNummer']
     mastr_list = power_unit_hydro.values.tolist()
@@ -155,14 +156,55 @@ def download_unit_hydro():
     log.info(f'Download {mastr_list_len} Wassereinheit')
 
     for i in range(start_from, mastr_list_len, 1):
-        unit_hydro = get_power_unit_hydro(mastr_list[i])
+        unit_hydro = get_power_unit_hydro(mastr_list[i])  # First download
         if unit_hydro is not None:
             write_to_csv(fname_hydro_unit, unit_hydro)
         else:
-            log.exception(f'Download failed unit_hydro ({i}): {mastr_list[i]}')
-            mastr_fail = {'EinheitMastrNummer': [mastr_list[i]]}
-            unit_hydro_fail = pd.DataFrame(mastr_fail)
-            write_to_csv(fname_hydro_fail_u, unit_hydro_fail)
+            log.exception(f'Download failed unit_hydro ({i}): {mastr_list[i]} - Second download')
+            unit_hydro = get_power_unit_hydro(mastr_list[i])  # Second download
+            if unit_hydro is not None:
+                write_to_csv(fname_hydro_unit, unit_hydro)
+            else:
+                mastr_fail = {'EinheitMastrNummer': [mastr_list[i]]}
+                log.exception(f'Second Download failed unit_wind ({i}): {mastr_list[i]} - Write to list')
+                unit_hydro_fail = pd.DataFrame(mastr_fail)
+                unit_hydro_fail['timestamp'] = str(datetime.datetime.now())
+                write_to_csv(fname_hydro_fail_u, unit_hydro_fail)
+
+    retry_download_unit_hydro()
+
+
+def retry_download_unit_hydro():
+    """Download Wassereinheit (unit-hydro) from list.
+
+    Read list of failed downloads from csv.
+    Remove duplicates and retry download.
+    Write download to file.
+
+    Returns
+    -------
+    fname_hydro_unit : csv
+        Write Windeinheit to csv file.
+    """
+    start_from = 0
+    unit_fail_csv = pd.read_csv(fname_hydro_fail_u, delimiter=';')
+    unit_fail = unit_fail_csv['EinheitMastrNummer']
+    unit_fail_list = unit_fail.values.tolist()
+    unit_fail_list = list(dict.fromkeys(unit_fail_list))
+    unit_fail_list_len = len(unit_fail_list)
+    log.info(f'Retry download {unit_fail_list_len} failed Wassereinheit')
+
+    for i in range(start_from, unit_fail_list_len, 1):
+        unit_wind = get_power_unit_hydro(unit_fail_list[i])  # Third download
+        if unit_wind is not None:
+            write_to_csv(fname_hydro_unit, unit_wind)
+        else:
+            unit_fail_unit = {'EinheitMastrNummer': [unit_fail_list[i]]}
+            log.exception(f'Third Download failed unit_wind: {unit_fail_list[i]}')
+            unit_fail_third = pd.DataFrame(unit_fail_unit)
+            csv_input = pd.read_csv(fname_hydro_fail_u)
+            csv_input['Retry'] = unit_fail_third
+            csv_input.to_csv(fname_hydro_fail_u)
 
 
 def get_power_unit_hydro(mastr_unit_hydro):
@@ -305,7 +347,9 @@ def download_unit_hydro_eeg():
     fname_hydro_eeg : csv
         Write Wassereinheit-EEG to csv file.
     """
+    start_from = 0
     setup_power_unit_hydro()
+
     power_unit_hydro = read_power_unit_hydro(fname_power_unit_hydro)
     power_unit_hydro = power_unit_hydro['EegMastrNummer']
     mastr_list = power_unit_hydro.values.tolist()
@@ -314,14 +358,55 @@ def download_unit_hydro_eeg():
     log.info(f'Download {mastr_list_len} Wassereinheit-EEG')
 
     for i in range(0, mastr_list_len, 1):
-        unit_hydro_eeg = get_unit_hydro_eeg(mastr_list[i])
+        unit_hydro_eeg = get_unit_hydro_eeg(mastr_list[i])  # First download
         if unit_hydro_eeg is not None:
             write_to_csv(fname_hydro_eeg, unit_hydro_eeg)
         else:
             log.exception(f'Download failed unit_hydro_eeg ({i}): {mastr_list[i]}')
-            mastr_fail = {'EegMastrNummer': [mastr_list[i]]}
-            unit_hydro_fail = pd.DataFrame(mastr_fail)
-            write_to_csv(fname_hydro_fail_e, unit_hydro_fail)
+            unit_wind_eeg = get_unit_hydro_eeg(mastr_list[i])  # Second download
+            if unit_wind_eeg is not None:
+                write_to_csv(fname_hydro_eeg, unit_wind_eeg)
+            else:
+                eeg_fail = {'EegMastrNummer': [mastr_list[i]]}
+                log.exception(f'Second Download failed unit_hydro_eeg ({i}): {eeg_fail} - Write to list', exc_info=False)
+                unit_hydro_fail = pd.DataFrame(eeg_fail)
+                unit_hydro_fail['timestamp'] = str(datetime.datetime.now())
+                write_to_csv(fname_hydro_fail_e, unit_hydro_fail)
+
+    retry_download_unit_hydro_eeg()
+
+
+def retry_download_unit_hydro_eeg():
+    """Download Wassereinheit-EEG (unit-hydro-eeg) from list.
+
+    Read list of failed downloads from csv.
+    Remove duplicates and retry download.
+    Write download to file.
+
+    Returns
+    -------
+    fname_hydro_eeg : csv
+        Write Windeinheit to csv file.
+    """
+    start_from = 0
+    unit_fail_csv = pd.read_csv(fname_hydro_fail_e, delimiter=';')
+    unit_fail = unit_fail_csv['EegMastrNummer']
+    unit_fail_list = unit_fail.values.tolist()
+    unit_fail_list = list(dict.fromkeys(unit_fail_list))
+    unit_fail_list_len = len(unit_fail_list)
+    log.info(f'Retry download {unit_fail_list_len} failed Windeinheit-EEG')
+
+    for i in range(start_from, unit_fail_list_len, 1):
+        unit_wind = get_unit_hydro_eeg(unit_fail_list[i])
+        if unit_wind is not None:
+            write_to_csv(fname_hydro_eeg, unit_wind)
+        else:
+            unit_fail_eeg = {'EegMastrNummer': [unit_fail_list[i]]}
+            log.exception(f'Third Download failed unit_hydro_eeg: {unit_fail_list[i]}')
+            unit_fail_third = pd.DataFrame(unit_fail_eeg)
+            csv_input = pd.read_csv(fname_hydro_fail_e)
+            csv_input['Retry'] = unit_fail_third
+            csv_input.to_csv(fname_hydro_fail_e)
 
 
 def get_unit_hydro_eeg(mastr_hydro_eeg):
