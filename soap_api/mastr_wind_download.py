@@ -377,6 +377,7 @@ def download_unit_wind_eeg():
     log.info(f'Read {mastr_list_len_2} unique EegMastrNummer from Windeinheit')
 
     mastr_list = mastr_list_1 + mastr_list_2
+    mastr_list = list(dict.fromkeys(mastr_list))
     mastr_list_len = len(mastr_list)
     log.info(f'Download {mastr_list_len} Windeinheit-EEG')
 
