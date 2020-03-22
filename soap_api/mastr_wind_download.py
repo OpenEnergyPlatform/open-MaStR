@@ -162,13 +162,13 @@ def download_unit_wind():
         if unit_wind is not None:
             write_to_csv(fname_wind_unit, unit_wind)
         else:
-            log.exception(f'Download failed unit_wind ({i}): {mastr_list[i]} - Second download')
+            log.exception(f'Download failed unit_wind ({i}): {mastr_list[i]} - Second download', exc_info=False)
             unit_wind = get_power_unit_wind(mastr_list[i])  # Second download
             if unit_wind is not None:
                 write_to_csv(fname_wind_unit, unit_wind)
             else:
                 mastr_fail = {'EinheitMastrNummer': [mastr_list[i]]}
-                log.exception(f'Second Download failed unit_wind ({i}): {mastr_list[i]} - Write to list')
+                log.exception(f'Second Download failed unit_wind ({i}): {mastr_list[i]} - Write to list', exc_info=False)
                 unit_wind_fail = pd.DataFrame(mastr_fail)
                 unit_wind_fail['timestamp'] = str(datetime.datetime.now())
                 write_to_csv(fname_wind_fail_u, unit_wind_fail)
@@ -202,7 +202,7 @@ def retry_download_unit_wind():
             write_to_csv(fname_wind_unit, unit_wind)
         else:
             unit_fail_unit = {'EinheitMastrNummer': [unit_fail_list[i]]}
-            log.exception(f'Third Download failed unit_wind: {unit_fail_list[i]}')
+            log.exception(f'Third Download failed unit_wind: {unit_fail_list[i]}', exc_info=False)
             unit_fail_third = pd.DataFrame(unit_fail_unit)
             csv_input = pd.read_csv(fname_wind_fail_u)
             csv_input['Retry'] = unit_fail_third
@@ -425,7 +425,7 @@ def retry_download_unit_wind_eeg():
             write_to_csv(fname_wind_eeg, unit_wind)
         else:
             unit_fail_eeg = {'EegMastrNummer': [unit_fail_list[i]]}
-            log.exception(f'Third Download failed unit_wind_eeg: {unit_fail_list[i]}')
+            log.exception(f'Third Download failed unit_wind_eeg: {unit_fail_list[i]}', exc_info=False)
             unit_fail_third = pd.DataFrame(unit_fail_eeg)
             csv_input = pd.read_csv(fname_wind_fail_e)
             csv_input['Retry'] = unit_fail_third
@@ -587,7 +587,7 @@ def download_unit_wind_permit():
                     # df_all['timestamp'] = str(datetime.datetime.now())
                     write_to_csv(fname_wind_permit, df_all)
             except:
-                log.exception(f'Download failed Windeinheit-Genehmigung ({i}): {mastr_list[i]}')
+                log.exception(f'Download failed Windeinheit-Genehmigung ({i}): {mastr_list[i]}', exc_info=False)
                 mastr_fail = {'GenMastrNummer': [mastr_list[i]]}
                 unit_wind_fail = pd.DataFrame(mastr_fail)
                 write_to_csv(fname_wind_fail_p, unit_wind_fail)

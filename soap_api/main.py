@@ -59,16 +59,16 @@ if __name__ == "__main__":
 
     """Wind"""
     # setup_power_unit_wind()
-    download_unit_wind()
+    # download_unit_wind()
     # download_unit_wind_eeg()
     # download_unit_wind_permit()
     # make_wind()
 
     """Hydro"""
-    # setup_power_unit_hydro()
-    # download_unit_hydro()
-    # download_unit_hydro_eeg()
-    # make_hydro()
+    setup_power_unit_hydro()
+    download_unit_hydro()
+    download_unit_hydro_eeg()
+    make_hydro()
 
     """Biomass"""
     # setup_power_unit_biomass()
