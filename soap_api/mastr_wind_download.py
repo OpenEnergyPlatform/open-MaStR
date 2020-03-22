@@ -149,6 +149,7 @@ def download_unit_wind():
     """
     start_from = 0
     setup_power_unit_wind()
+    
     power_unit_wind = read_power_unit_wind(fname_power_unit_wind)
     power_unit_wind = power_unit_wind['EinheitMastrNummer']
     mastr_list = power_unit_wind.values.tolist()
@@ -163,7 +164,6 @@ def download_unit_wind():
         else:
             log.exception(f'Download failed unit_wind ({i}): {mastr_list[i]} - Second download')
             unit_wind = get_power_unit_wind(mastr_list[i])  # Second download
-
             if unit_wind is not None:
                 write_to_csv(fname_wind_unit, unit_wind)
             else:
@@ -201,8 +201,9 @@ def retry_download_unit_wind():
         if unit_wind is not None:
             write_to_csv(fname_wind_unit, unit_wind)
         else:
+            unit_fail_unit = {'EinheitMastrNummer': [unit_fail_list[i]]}
             log.exception(f'Third Download failed unit_wind: {unit_fail_list[i]}')
-            unit_fail_third = pd.DataFrame(unit_fail_list[i])
+            unit_fail_third = pd.DataFrame(unit_fail_unit)
             csv_input = pd.read_csv(fname_wind_fail_u)
             csv_input['Retry'] = unit_fail_third
             csv_input.to_csv(fname_wind_fail_u)
@@ -346,8 +347,8 @@ def read_unit_wind(csv_name):
 def download_unit_wind_eeg():
     """Download Windeinheit-EEG (unit-wind-eeg) using GetAnlageEegWind request.
 
-    Filter EegMastrNummer from Stromerzeugungseinheit-Wind.
-    Filter EegMastrNummer from Windeinheit.
+    1. Filter EegMastrNummer from Stromerzeugungseinheit-Wind.
+    2. Filter EegMastrNummer from Windeinheit.
     Remove duplicates and count.
     Loop over list and write download to file.
 
@@ -356,6 +357,7 @@ def download_unit_wind_eeg():
     fname_wind_eeg : csv
         Write Windeinheit-EEG to csv file.
     """
+    start_from = 0
     setup_power_unit_wind()
 
     power_unit_wind_1 = read_power_unit_wind(fname_power_unit_wind)
@@ -378,15 +380,56 @@ def download_unit_wind_eeg():
     mastr_list_len = len(mastr_list)
     log.info(f'Download {mastr_list_len} Windeinheit-EEG')
 
-    for i in range(0, mastr_list_len, 1):
-        unit_wind_eeg = get_unit_wind_eeg(mastr_list[i])
+    for i in range(start_from, mastr_list_len, 1):
+        unit_wind_eeg = get_unit_wind_eeg(mastr_list[i])  # First download
         if unit_wind_eeg is not None:
             write_to_csv(fname_wind_eeg, unit_wind_eeg)
         else:
-            log.exception(f'Download failed unit_wind_eeg ({i}): {mastr_list[i]}')
-            mastr_fail = {'EegMastrNummer': [mastr_list[i]]}
-            unit_wind_fail = pd.DataFrame(mastr_fail)
-            write_to_csv(fname_wind_fail_e, unit_wind_fail)
+            log.exception(f'Download failed unit_wind_eeg ({i}): {mastr_list[i]} - Second download', exc_info=False)
+            unit_wind_eeg = get_unit_wind_eeg(mastr_list[i])  # Second download
+            if unit_wind_eeg is not None:
+                write_to_csv(fname_wind_eeg, unit_wind_eeg)
+            else:
+                eeg_fail = {'EegMastrNummer': [mastr_list[i]]}
+                log.exception(f'Second Download failed unit_wind_eeg ({i}): {eeg_fail} - Write to list', exc_info=False)
+                unit_wind_fail = pd.DataFrame(eeg_fail)
+                unit_wind_fail['timestamp'] = str(datetime.datetime.now())
+                write_to_csv(fname_wind_fail_e, unit_wind_fail)
+
+    retry_download_unit_wind_eeg()
+
+
+def retry_download_unit_wind_eeg():
+    """Download Windeinheit-EEG (unit-wind-eeg) from list.
+
+    Read list of failed downloads from csv.
+    Remove duplicates and retry download.
+    Write download to file.
+
+    Returns
+    -------
+    fname_wind_eeg : csv
+        Write Windeinheit to csv file.
+    """
+    start_from = 0
+    unit_fail_csv = pd.read_csv(fname_wind_fail_e, delimiter=';')
+    unit_fail = unit_fail_csv['EegMastrNummer']
+    unit_fail_list = unit_fail.values.tolist()
+    unit_fail_list = list(dict.fromkeys(unit_fail_list))
+    unit_fail_list_len = len(unit_fail_list)
+    log.info(f'Retry download {unit_fail_list_len} failed Windeinheit-EEG')
+
+    for i in range(start_from, unit_fail_list_len, 1):
+        unit_wind = get_unit_wind_eeg(unit_fail_list[i])
+        if unit_wind is not None:
+            write_to_csv(fname_wind_eeg, unit_wind)
+        else:
+            unit_fail_eeg = {'EegMastrNummer': [unit_fail_list[i]]}
+            log.exception(f'Third Download failed unit_wind: {unit_fail_list[i]}')
+            unit_fail_third = pd.DataFrame(unit_fail_eeg)
+            csv_input = pd.read_csv(fname_wind_fail_e)
+            csv_input['Retry'] = unit_fail_third
+            csv_input.to_csv(fname_wind_fail_e)
 
 
 def get_unit_wind_eeg(mastr_wind_eeg):
@@ -484,6 +527,7 @@ def download_unit_wind_permit():
     fname_wind_permit : csv
         Write Windeinheit-Genehmigung to csv file.
     """
+    start_from = 0
     setup_power_unit_wind()
 
     power_unit_wind_1 = read_power_unit_wind(fname_power_unit_wind)
@@ -509,7 +553,7 @@ def download_unit_wind_permit():
 
     df_all = pd.DataFrame()
 
-    for i in range(0, mastr_list_len, 1):
+    for i in range(start_from, mastr_list_len, 1):
         if not pd.isna(mastr_list[i]):
             try:
                 unit_wind_permit = get_unit_wind_permit(mastr_list[i])
