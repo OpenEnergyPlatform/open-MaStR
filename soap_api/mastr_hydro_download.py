@@ -184,27 +184,30 @@ def retry_download_unit_hydro():
     Returns
     -------
     fname_hydro_unit : csv
-        Write Windeinheit to csv file.
+        Write Wassereinheit to csv file.
     """
     start_from = 0
-    unit_fail_csv = pd.read_csv(fname_hydro_fail_u, delimiter=';')
-    unit_fail = unit_fail_csv['EinheitMastrNummer']
-    unit_fail_list = unit_fail.values.tolist()
-    unit_fail_list = list(dict.fromkeys(unit_fail_list))
-    unit_fail_list_len = len(unit_fail_list)
-    log.info(f'Retry download {unit_fail_list_len} failed Wassereinheit')
+    if os.path.exists(os.path.dirname(fname_hydro_fail_u)):
+        unit_fail_csv = pd.read_csv(fname_hydro_fail_u, delimiter=';')
+        unit_fail = unit_fail_csv['EinheitMastrNummer']
+        unit_fail_list = unit_fail.values.tolist()
+        unit_fail_list = list(dict.fromkeys(unit_fail_list))
+        unit_fail_list_len = len(unit_fail_list)
+        log.info(f'Retry download {unit_fail_list_len} failed Wassereinheit')
 
-    for i in range(start_from, unit_fail_list_len, 1):
-        unit_wind = get_power_unit_hydro(unit_fail_list[i])  # Third download
-        if unit_wind is not None:
-            write_to_csv(fname_hydro_unit, unit_wind)
-        else:
-            unit_fail_unit = {'EinheitMastrNummer': [unit_fail_list[i]]}
-            log.exception(f'Third Download failed unit_wind: {unit_fail_list[i]}', exc_info=False)
-            unit_fail_third = pd.DataFrame(unit_fail_unit)
-            csv_input = pd.read_csv(fname_hydro_fail_u)
-            csv_input['Retry'] = unit_fail_third
-            csv_input.to_csv(fname_hydro_fail_u)
+        for i in range(start_from, unit_fail_list_len, 1):
+            unit_wind = get_power_unit_hydro(unit_fail_list[i])  # Third download
+            if unit_wind is not None:
+                write_to_csv(fname_hydro_unit, unit_wind)
+            else:
+                unit_fail_unit = {'EinheitMastrNummer': [unit_fail_list[i]]}
+                log.exception(f'Third download failed unit_wind: {unit_fail_list[i]}', exc_info=False)
+                unit_fail_third = pd.DataFrame(unit_fail_unit)
+                unit_fail_third['timestamp'] = str(datetime.datetime.now())
+                unit_fail_third['comment'] = 'Third fail'
+                write_to_csv(fname_hydro_fail_u, unit_fail_third)
+    else:
+        log.info('No failed downloads for Wassereinheit')
 
 
 def get_power_unit_hydro(mastr_unit_hydro):
@@ -386,28 +389,30 @@ def retry_download_unit_hydro_eeg():
     Returns
     -------
     fname_hydro_eeg : csv
-        Write Windeinheit to csv file.
+        Write Wassereinheit-EEG to csv file.
     """
     start_from = 0
-    unit_fail_csv = pd.read_csv(fname_hydro_fail_e, delimiter=';')
-    unit_fail = unit_fail_csv['EegMastrNummer']
-    unit_fail_list = unit_fail.values.tolist()
-    unit_fail_list = list(dict.fromkeys(unit_fail_list))
-    unit_fail_list_len = len(unit_fail_list)
-    log.info(f'Retry download {unit_fail_list_len} failed Windeinheit-EEG')
+    if os.path.exists(os.path.dirname(fname_hydro_fail_e)):
+        unit_fail_csv = pd.read_csv(fname_hydro_fail_e, delimiter=';')
+        unit_fail = unit_fail_csv['EegMastrNummer']
+        unit_fail_list = unit_fail.values.tolist()
+        unit_fail_list = list(dict.fromkeys(unit_fail_list))
+        unit_fail_list_len = len(unit_fail_list)
+        log.info(f'Retry download {unit_fail_list_len} failed Wassereinheit-EEG')
 
-    for i in range(start_from, unit_fail_list_len, 1):
-        unit_wind = get_unit_hydro_eeg(unit_fail_list[i])
-        if unit_wind is not None:
-            write_to_csv(fname_hydro_eeg, unit_wind)
-        else:
-            unit_fail_eeg = {'EegMastrNummer': [unit_fail_list[i]]}
-            log.exception(f'Third Download failed unit_hydro_eeg: {unit_fail_list[i]}', exc_info=False)
-            unit_fail_third = pd.DataFrame(unit_fail_eeg)
-            csv_input = pd.read_csv(fname_hydro_fail_e)
-            csv_input['Retry'] = unit_fail_third
-            csv_input.to_csv(fname_hydro_fail_e)
-
+        for i in range(start_from, unit_fail_list_len, 1):
+            unit_wind = get_unit_hydro_eeg(unit_fail_list[i])
+            if unit_wind is not None:
+                write_to_csv(fname_hydro_eeg, unit_wind)
+            else:
+                unit_fail_eeg = {'EegMastrNummer': [unit_fail_list[i]]}
+                log.exception(f'Third Download failed unit_hydro_eeg: {unit_fail_list[i]}', exc_info=False)
+                unit_fail_third = pd.DataFrame(unit_fail_eeg)
+                csv_input = pd.read_csv(fname_hydro_fail_e)
+                csv_input['Retry'] = unit_fail_third
+                csv_input.to_csv(fname_hydro_fail_e)
+    else:
+        log.info('No failed downloads for Wassereinheit-EEG')
 
 def get_unit_hydro_eeg(mastr_hydro_eeg):
     """Get EEG-Anlage-Wasser from API using GetAnlageEegWasser.
