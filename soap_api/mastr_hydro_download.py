@@ -169,6 +169,7 @@ def download_unit_hydro():
                 log.exception(f'Second download failed unit_wind ({i}): {mastr_list[i]} - Write to list', exc_info=False)
                 unit_hydro_fail = pd.DataFrame(mastr_fail)
                 unit_hydro_fail['timestamp'] = str(datetime.datetime.now())
+                unit_hydro_fail['comment'] = 'Second fail'
                 write_to_csv(fname_hydro_fail_u, unit_hydro_fail)
 
     retry_download_unit_hydro()
@@ -374,6 +375,7 @@ def download_unit_hydro_eeg():
                 log.exception(f'Second Download failed unit_hydro_eeg ({i}): {eeg_fail} - Write to list', exc_info=False)
                 unit_hydro_fail = pd.DataFrame(eeg_fail)
                 unit_hydro_fail['timestamp'] = str(datetime.datetime.now())
+                unit_hydro_fail['comment'] = 'Second fail'
                 write_to_csv(fname_hydro_fail_e, unit_hydro_fail)
 
     retry_download_unit_hydro_eeg()
