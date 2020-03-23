@@ -242,7 +242,8 @@ def get_power_unit_wind(mastr_unit_wind):
         unit_wind['timestamp'] = str(datetime.datetime.now())
         return unit_wind
     except Exception as e:
-        log.info('Download failed for %s', mastr_unit_wind)
+        # log.info('Download failed for %s', mastr_unit_wind)
+        pass
 
 
 def read_unit_wind(csv_name):
@@ -382,6 +383,7 @@ def download_unit_wind_eeg():
 
     mastr_list = mastr_list_1 + mastr_list_2
     mastr_list = list(dict.fromkeys(mastr_list))
+    mastr_list = [x for x in mastr_list if str(x) != 'nan']
     mastr_list_len = len(mastr_list)
     log.info(f'Download {mastr_list_len} Windeinheit-EEG')
 
@@ -470,7 +472,8 @@ def get_unit_wind_eeg(mastr_wind_eeg):
         unit_wind_eeg["timestamp"] = str(datetime.datetime.now())
         return unit_wind_eeg
     except Exception as e:
-        log.info('Download failed for %s', mastr_wind_eeg)
+        # log.info('Download failed for %s', mastr_wind_eeg)
+        pass
 
 
 def read_unit_wind_eeg(csv_name):
@@ -633,7 +636,8 @@ def get_unit_wind_permit(mastr_wind_permit):
         unit_wind_permit = unit_wind_permit.replace('\r', '', regex=True)
         return unit_wind_permit
     except Exception as e:
-        log.info('Download failed for %s', mastr_wind_permit)
+        # log.info('Download failed for %s', mastr_wind_permit)
+        pass
 
 
 def read_unit_wind_permit(csv_name):
