@@ -171,6 +171,7 @@ def download_unit_wind():
                 log.exception(f'Second Download failed unit_wind ({i}): {mastr_list[i]} - Write to list', exc_info=False)
                 unit_wind_fail = pd.DataFrame(mastr_fail)
                 unit_wind_fail['timestamp'] = str(datetime.datetime.now())
+                unit_wind_fail['comment'] = 'Second fail'
                 write_to_csv(fname_wind_fail_u, unit_wind_fail)
 
     retry_download_unit_wind()
@@ -205,9 +206,9 @@ def retry_download_unit_wind():
                 unit_fail_unit = {'EinheitMastrNummer': [unit_fail_list[i]]}
                 log.exception(f'Third Download failed unit_wind: {unit_fail_list[i]}', exc_info=False)
                 unit_fail_third = pd.DataFrame(unit_fail_unit)
-                csv_input = pd.read_csv(fname_wind_fail_u)
-                csv_input['Retry'] = unit_fail_third
-                csv_input.to_csv(fname_wind_fail_u)
+                unit_fail_third['timestamp'] = str(datetime.datetime.now())
+                unit_fail_third['comment'] = 'Third fail'
+                write_to_csv ( fname_wind_fail_u, unit_fail_third)
     else:
         log.info('No failed downloads for Windeinheit')
 
@@ -397,6 +398,7 @@ def download_unit_wind_eeg():
                 log.exception(f'Second Download failed unit_wind_eeg ({i}): {eeg_fail} - Write to list', exc_info=False)
                 unit_wind_fail = pd.DataFrame(eeg_fail)
                 unit_wind_fail['timestamp'] = str(datetime.datetime.now())
+                unit_wind_fail['comment'] = 'Second fail'
                 write_to_csv(fname_wind_fail_e, unit_wind_fail)
 
     retry_download_unit_wind_eeg()
@@ -431,11 +433,12 @@ def retry_download_unit_wind_eeg():
                 unit_fail_eeg = {'EegMastrNummer': [unit_fail_list[i]]}
                 log.exception(f'Third Download failed unit_wind_eeg: {unit_fail_list[i]}', exc_info=False)
                 unit_fail_third = pd.DataFrame(unit_fail_eeg)
-                csv_input = pd.read_csv(fname_wind_fail_e)
-                csv_input['Retry'] = unit_fail_third
-                csv_input.to_csv(fname_wind_fail_e)
+                unit_fail_third['timestamp'] = str(datetime.datetime.now())
+                unit_fail_third['comment'] = 'Third fail'
+                write_to_csv(fname_wind_fail_e, unit_fail_third)
     else:
         log.info('No failed downloads for Windeinheit-EEG')
+
 
 def get_unit_wind_eeg(mastr_wind_eeg):
     """Get EEG-Anlage-Wind from API using GetAnlageEegWind.
@@ -597,7 +600,45 @@ def download_unit_wind_permit():
                 gen_fail = {'GenMastrNummer': [mastr_list[i]]}
                 unit_wind_fail = pd.DataFrame(gen_fail)
                 unit_wind_fail['timestamp'] = str(datetime.datetime.now())
+                unit_wind_fail['comment'] = 'First fail'
                 write_to_csv(fname_wind_fail_p, unit_wind_fail)
+
+    retry_download_unit_wind_permit()
+
+def retry_download_unit_wind_permit():
+    """Download Windeinheit-EEG (unit-wind-permit) from list.
+
+    Read list of failed downloads from csv.
+    Remove duplicates and retry download.
+    Write download to file.
+
+    Returns
+    -------
+    fname_wind_eeg : csv
+        Write Windeinheit to csv file.
+    """
+    start_from = 0
+    if os.path.exists(os.path.dirname(fname_wind_fail_p)):
+        unit_fail_csv = pd.read_csv(fname_wind_fail_p, delimiter=';')
+        unit_fail = unit_fail_csv['GenMastrNummer']
+        unit_fail_list = unit_fail.values.tolist()
+        unit_fail_list = list(dict.fromkeys(unit_fail_list))
+        unit_fail_list_len = len(unit_fail_list)
+        log.info(f'Retry download {unit_fail_list_len} failed Windeinheit-EEG')
+
+        for i in range(start_from, unit_fail_list_len, 1):
+            unit_wind = get_unit_wind_eeg(unit_fail_list[i])
+            if unit_wind is not None:
+                write_to_csv(fname_wind_eeg, unit_wind)
+            else:
+                unit_fail_permit = {'GenMastrNummer': [unit_fail_list[i]]}
+                log.exception(f'Third Download failed unit_wind_eeg: {unit_fail_list[i]}', exc_info=False)
+                unit_fail_retry = pd.DataFrame(unit_fail_permit)
+                unit_fail_retry['timestamp'] = str(datetime.datetime.now())
+                unit_fail_retry['comment'] = 'Second fail'
+                write_to_csv(fname_wind_fail_p, unit_fail_retry)
+    else:
+        log.info('No failed downloads for Windeinheit-EEG')
 
 
 def get_unit_wind_permit(mastr_wind_permit):
