@@ -238,7 +238,9 @@ def get_power_unit_hydro(mastr_unit_hydro):
         unit_hydro['timestamp'] = str(datetime.datetime.now())
         return unit_hydro
     except Exception as e:
-        log.info('Download failed for %s', mastr_unit_hydro)
+        # log.info('Download failed for %s', mastr_unit_hydro)
+        pass
+
 
 
 def read_unit_hydro(csv_name):
@@ -358,6 +360,7 @@ def download_unit_hydro_eeg():
     power_unit_hydro = power_unit_hydro['EegMastrNummer']
     mastr_list = power_unit_hydro.values.tolist()
     mastr_list = list(dict.fromkeys(mastr_list))
+    mastr_list = [x for x in mastr_list if str(x) != 'nan']
     mastr_list_len = len(mastr_list)
     log.info(f'Download {mastr_list_len} Wassereinheit-EEG')
 
@@ -445,7 +448,8 @@ def get_unit_hydro_eeg(mastr_hydro_eeg):
         unit_hydro_eeg["timestamp"] = str(datetime.datetime.now())
         return unit_hydro_eeg
     except Exception as e:
-        log.info('Download failed for %s', mastr_hydro_eeg)
+        # log.info('Download failed for %s', mastr_hydro_eeg)
+        pass
 
 
 def read_unit_hydro_eeg(csv_name):
