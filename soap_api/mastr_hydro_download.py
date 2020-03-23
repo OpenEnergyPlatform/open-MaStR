@@ -166,7 +166,7 @@ def download_unit_hydro():
                 write_to_csv(fname_hydro_unit, unit_hydro)
             else:
                 mastr_fail = {'EinheitMastrNummer': [mastr_list[i]]}
-                log.exception(f'Second Download failed unit_wind ({i}): {mastr_list[i]} - Write to list', exc_info=False)
+                log.exception(f'Second download failed unit_wind ({i}): {mastr_list[i]} - Write to list', exc_info=False)
                 unit_hydro_fail = pd.DataFrame(mastr_fail)
                 unit_hydro_fail['timestamp'] = str(datetime.datetime.now())
                 write_to_csv(fname_hydro_fail_u, unit_hydro_fail)
