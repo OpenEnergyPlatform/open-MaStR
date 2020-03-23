@@ -62,18 +62,18 @@ def setup_power_unit_hydro():
 
             power_unit_hydro = power_unit[power_unit.Einheittyp == 'Wasser']
             power_unit_hydro = power_unit_hydro.drop_duplicates(subset=['EinheitMastrNummer',
-                                                                      'Name',
-                                                                      'Einheitart',
-                                                                      'Einheittyp',
-                                                                      'Standort',
-                                                                      'Bruttoleistung',
-                                                                      'Erzeugungsleistung',
-                                                                      'EinheitBetriebsstatus',
-                                                                      'Anlagenbetreiber',
-                                                                      'EegMastrNummer',
-                                                                      'KwkMastrNummer',
-                                                                      'SpeMastrNummer',
-                                                                      'GenMastrNummer'])
+                                                                        'Name',
+                                                                        'Einheitart',
+                                                                        'Einheittyp',
+                                                                        'Standort',
+                                                                        'Bruttoleistung',
+                                                                        'Erzeugungsleistung',
+                                                                        'EinheitBetriebsstatus',
+                                                                        'Anlagenbetreiber',
+                                                                        'EegMastrNummer',
+                                                                        'KwkMastrNummer',
+                                                                        'SpeMastrNummer',
+                                                                        'GenMastrNummer'])
             log.info(f'Filter power-unit for hydro and remove duplicates')
             power_unit_hydro.reset_index()
             power_unit_hydro.index.name = 'pu-id'
@@ -101,27 +101,27 @@ def read_power_unit_hydro(csv_name):
     """
     if os.path.isfile(csv_name):
         power_unit_hydro = pd.read_csv(csv_name, header=0, encoding='utf-8', sep=';', index_col=False,
-                                      dtype={
-                                          'pu-id': str,
-                                          'lid': str,
-                                          'EinheitMastrNummer': str,
-                                          'Name': str,
-                                          'Einheitart': str,
-                                          'Einheittyp': str,
-                                          'Standort': str,
-                                          'Bruttoleistung': str,
-                                          'Erzeugungsleistung': str,
-                                          'EinheitBetriebsstatus': str,
-                                          'Anlagenbetreiber': str,
-                                          'EegMastrNummer': str,
-                                          'KwkMastrNummer': str,
-                                          'SpeMastrNummer': str,
-                                          'GenMastrNummer': str,
-                                          'BestandsanlageMastrNummer': str,
-                                          'NichtVorhandenInMigriertenEinheiten': str,
-                                          'StatisikFlag': str,
-                                          'version': str,
-                                          'timestamp': str})
+                                       dtype={
+                                           'pu-id': str,
+                                           'lid': str,
+                                           'EinheitMastrNummer': str,
+                                           'Name': str,
+                                           'Einheitart': str,
+                                           'Einheittyp': str,
+                                           'Standort': str,
+                                           'Bruttoleistung': str,
+                                           'Erzeugungsleistung': str,
+                                           'EinheitBetriebsstatus': str,
+                                           'Anlagenbetreiber': str,
+                                           'EegMastrNummer': str,
+                                           'KwkMastrNummer': str,
+                                           'SpeMastrNummer': str,
+                                           'GenMastrNummer': str,
+                                           'BestandsanlageMastrNummer': str,
+                                           'NichtVorhandenInMigriertenEinheiten': str,
+                                           'StatisikFlag': str,
+                                           'version': str,
+                                           'timestamp': str})
         power_unit_hydro_cnt = power_unit_hydro['timestamp'].count()
         log.info(f'Read {power_unit_hydro_cnt} Stromerzeugungseinheit-Wasser from {csv_name}')
         return power_unit_hydro
@@ -227,8 +227,8 @@ def get_power_unit_hydro(mastr_unit_hydro):
     data_version = get_data_version()
     try:
         c = client_bind.GetEinheitWasser(apiKey=api_key,
-                                       marktakteurMastrNummer=my_mastr,
-                                       einheitMastrNummer=mastr_unit_hydro)
+                                         marktakteurMastrNummer=my_mastr,
+                                         einheitMastrNummer=mastr_unit_hydro)
         s = serialize_object(c)
         df = pd.DataFrame(list(s.items()), )
         unit_hydro = df.set_index(list(df.columns.values)[0]).transpose()
@@ -240,7 +240,6 @@ def get_power_unit_hydro(mastr_unit_hydro):
     except Exception as e:
         # log.info('Download failed for %s', mastr_unit_hydro)
         pass
-
 
 
 def read_unit_hydro(csv_name):
@@ -258,7 +257,7 @@ def read_unit_hydro(csv_name):
     """
     if os.path.isfile(csv_name):
         unit_hydro = pd.read_csv(csv_name, header=0, encoding='utf-8', sep=';', index_col=False,
-                                dtype={'lid': int,
+                                 dtype={'lid': int,
                                         'Ergebniscode': str,
                                         'AufrufVeraltet': str,
                                         'AufrufLebenszeitEnde': str,
@@ -364,7 +363,7 @@ def download_unit_hydro_eeg():
     mastr_list_len = len(mastr_list)
     log.info(f'Download {mastr_list_len} Wassereinheit-EEG')
 
-    for i in range(0, mastr_list_len, 1):
+    for i in range(start_from, mastr_list_len, 1):
         unit_hydro_eeg = get_unit_hydro_eeg(mastr_list[i])  # First download
         if unit_hydro_eeg is not None:
             write_to_csv(fname_hydro_eeg, unit_hydro_eeg)
@@ -419,6 +418,7 @@ def retry_download_unit_hydro_eeg():
     else:
         log.info('No failed downloads for Wassereinheit-EEG')
 
+
 def get_unit_hydro_eeg(mastr_hydro_eeg):
     """Get EEG-Anlage-Wasser from API using GetAnlageEegWasser.
 
@@ -467,7 +467,7 @@ def read_unit_hydro_eeg(csv_name):
     """
     if os.path.isfile(csv_name):
         unit_hydro_eeg = pd.read_csv(csv_name, header=0, sep=';', index_col=False, encoding='utf-8',
-                                    dtype={'lid': int,
+                                     dtype={'lid': int,
                                             'Ergebniscode': str,
                                             'AufrufVeraltet': str,
                                             'AufrufLebenszeitEnde': str,
