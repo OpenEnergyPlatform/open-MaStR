@@ -162,13 +162,13 @@ def download_unit_wind():
         if unit_wind is not None:
             write_to_csv(fname_wind_unit, unit_wind)
         else:
-            log.exception(f'Download failed unit_wind ({i}): {mastr_list[i]} - Second download', exc_info=False)
+            log.exception(f'First download failed unit_wind ({i}): {mastr_list[i]}', exc_info=False)
             unit_wind = get_power_unit_wind(mastr_list[i])  # Second download
             if unit_wind is not None:
                 write_to_csv(fname_wind_unit, unit_wind)
             else:
                 mastr_fail = {'EinheitMastrNummer': [mastr_list[i]]}
-                log.exception(f'Second download failed unit_wind ({i}): {mastr_list[i]} - Write to list', exc_info=False)
+                log.exception(f'Second download failed unit_wind ({i}): {mastr_list[i]}', exc_info=False)
                 unit_fail = pd.DataFrame(mastr_fail)
                 unit_fail['timestamp'] = str(datetime.datetime.now())
                 unit_fail['comment'] = 'Second fail'
