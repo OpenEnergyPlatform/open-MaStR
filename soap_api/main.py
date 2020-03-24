@@ -19,7 +19,7 @@ __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.9.0"
 
 from soap_api.config import setup_logger
-from soap_api.utils import get_daily_contingent
+from soap_api.mastr_general_download import get_mastr_time, get_mastr_time_auth, get_daily_contingent
 from soap_api.mastr_power_unit_download import download_parallel_power_unit, download_power_unit
 from soap_api.mastr_wind_download import setup_power_unit_wind, download_unit_wind, download_unit_wind_eeg, download_unit_wind_permit
 from soap_api.mastr_wind_process import make_wind
@@ -40,6 +40,8 @@ if __name__ == "__main__":
     log = setup_logger()
     start_time = time.time()
     log.info(f'MaStR script started with data version: {DATA_VERSION}')
+    get_mastr_time()
+    get_mastr_time_auth()
     get_daily_contingent()
     """OEP"""
     #metadata = oep_session()
