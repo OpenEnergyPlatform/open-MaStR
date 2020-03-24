@@ -166,7 +166,7 @@ def read_power_units(csv_name):
                 'timestamp': str})
 
         power_unit_cnt = power_unit['timestamp'].count()
-        log.info(f'Read {power_unit_cnt} power-unit from {csv_name}')
+        log.info(f'Read {power_unit_cnt} Stromerzeugungseinheiten from {csv_name}')
         return power_unit
 
     else:
