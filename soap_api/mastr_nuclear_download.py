@@ -39,19 +39,19 @@ my_mastr = user
 
 # Setup power-unit
 def setup_power_unit_nuclear():
-    """Setup file for Stromerzeugungseinheit-Biomasse (power-unit_nuclear).
+    """Setup file for Stromerzeugungseinheit-Kernenergie (power-unit_nuclear).
 
     Check if file with Stromerzeugungseinheit (power-unit) exists.
-    Read Stromerzeugungseinheit and filter Stromerzeugungseinheit-Biomasse.
+    Read Stromerzeugungseinheit and filter Stromerzeugungseinheit-Kernenergie.
     Remove duplicates and write to file.
 
     Returns
     -------
     fname_power_unit_nuclear : csv
-        Write Stromerzeugungseinheit-Biomasse to csv file.
+        Write Stromerzeugungseinheit-Kernenergie to csv file.
     """
     if os.path.isfile(fname_power_unit_nuclear):
-        log.info(f'Skip setup for Stromerzeugungseinheit-Biomasse')
+        log.info(f'Skip setup for Stromerzeugungseinheit-Kernenergie')
 
     else:
         if os.path.isfile(fname_power_unit):
@@ -166,7 +166,7 @@ def get_power_unit_nuclear(mastr_unit_nuclear):
     Parameters
     ----------
     mastr_unit_nuclear : object
-        Biomass from EinheitMastrNummerId.
+        Kernenergie from EinheitMastrNummerId.
 
     Returns
     -------
@@ -188,7 +188,8 @@ def get_power_unit_nuclear(mastr_unit_nuclear):
         unit_nuclear['timestamp'] = str(datetime.datetime.now())
         return unit_nuclear
     except Exception as e:
-        log.info('Download failed for %s', mastr_unit_nuclear)
+        # log.info('Download failed for %s', mastr_unit_nuclear)
+        pass
 
 
 def read_unit_nuclear(csv_name):
@@ -268,15 +269,13 @@ def read_unit_nuclear(csv_name):
                                           'Einspeisungsart': str,
                                           'PraequalifiziertFuerRegelenergie': str,
                                           'GenMastrNummer': str,
-                                          'Hauptbrennstoff': str,
-                                          'Kernenergieart': str,
+                                          'NameKraftwerk': str,
+                                          'NameKraftwerksblock': str,
                                           'Technologie': str,
-                                          'EegMastrNummer': str,
-                                          'KwkMastrNummer': str,
                                           'version': str,
                                           'timestamp': str})
         unit_nuclear_cnt = unit_nuclear['timestamp'].count()
-        log.info(f'Read {unit_nuclear_cnt} Biomassseeinheit from {csv_name}')
+        log.info(f'Read {unit_nuclear_cnt} Kernenergieeinheiten from {csv_name}')
         return unit_nuclear
 
     else:
