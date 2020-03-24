@@ -19,6 +19,7 @@ __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.9.0"
 
 from soap_api.config import setup_logger
+from soap_api.utils import get_daily_contingent
 from soap_api.mastr_power_unit_download import download_parallel_power_unit, download_power_unit
 from soap_api.mastr_wind_download import setup_power_unit_wind, download_unit_wind, download_unit_wind_eeg, download_unit_wind_permit
 from soap_api.mastr_wind_process import make_wind
@@ -39,7 +40,7 @@ if __name__ == "__main__":
     log = setup_logger()
     start_time = time.time()
     log.info(f'MaStR script started with data version: {DATA_VERSION}')
-
+    get_daily_contingent()
     """OEP"""
     #metadata = oep_session()
 
@@ -49,21 +50,21 @@ if __name__ == "__main__":
 
     '''WARNING: Batch download may cause a database error. Extended limit required!'''
     '''DEFAULT PARAMS: power_unit_list_len=100000, limit=2000, batch_size=20000, start_from=0, overwrite=False '''
-    download_parallel_power_unit(
-       batch_size=10000,
-       limit=2000,
-       wind=False,
-       eeg=True,
-       update=False,
-       overwrite=False,
-       start_from=0)
+    # download_parallel_power_unit(
+    #    batch_size=10000,
+    #    limit=2000,
+    #    wind=False,
+    #    eeg=True,
+    #    update=False,
+    #    overwrite=False,
+    #    start_from=0)
 
     """Wind"""
     # setup_power_unit_wind()
-    download_unit_wind()
-    download_unit_wind_eeg()
-    download_unit_wind_permit()
-    make_wind()
+    # download_unit_wind()
+    # download_unit_wind_eeg()
+    # download_unit_wind_permit()
+    # make_wind()
 
     """Hydro"""
     # setup_power_unit_hydro()
