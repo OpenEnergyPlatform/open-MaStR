@@ -26,7 +26,7 @@ from soap_api.mastr_hydro_download import setup_power_unit_hydro, download_unit_
 from soap_api.mastr_hydro_process import make_hydro
 from soap_api.mastr_biomass_download import setup_power_unit_biomass, download_unit_biomass, download_unit_biomass_eeg
 from soap_api.mastr_biomass_process import make_biomass
-from soap_api.mastr_solar_download import download_unit_solar, download_parallel_unit_solar, download_unit_solar_eeg, download_parallel_unit_solar_eeg
+from soap_api.mastr_solar_download import setup_power_unit_solar, download_unit_solar, download_parallel_unit_solar, download_unit_solar_eeg, download_parallel_unit_solar_eeg
 from soap_api.mastr_solar_process import make_solar
 from soap_api.mastr_storage_units_download import download_unit_storage, download_parallel_unit_storage
 # from soap_api.mastr_wind_processing import do_wind
@@ -77,6 +77,7 @@ if __name__ == "__main__":
     # make_biomass()
 
     """Solar"""
+    setup_power_unit_solar()
     ''' DEFAULT PARAMS: start_from=0, n_entries=1, parallelism=12 '''
     download_parallel_unit_solar(
         start_from=0,
