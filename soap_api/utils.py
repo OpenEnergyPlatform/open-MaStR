@@ -8,7 +8,6 @@ __version__ = "v0.9.0"
 
 import os
 import pandas as pd
-import datetime
 import logging
 log = logging.getLogger(__name__)
 
@@ -60,33 +59,6 @@ fname_storage_unit = f'{fname_template}_unit-storage.csv'
 def get_data_version():
     """Return current data version. """
     return DATA_VERSION
-
-
-def get_daily_contingent():
-    """Return current contingent status.
-
-        Returns
-    -------
-    daily_contingent_limit : DataFrame
-        AktuellesLimitTageskontingent.
-    daily_contingent_status : DataFrame
-        AktuellerStandTageskontingent.
-    """
-    data_version = get_data_version()
-    try:
-        c = client_bind.GetAktuellerStandTageskontingent(apiKey=api_key,
-                                                         marktakteurMastrNummer=my_mastr)
-        s = serialize_object(c)
-        df = pd.DataFrame(list(s.items()), )
-        daily_contingent = df.set_index(list(df.columns.values)[0]).transpose()
-        daily_contingent.reset_index()
-        daily_contingent.index.names = ['lid']
-        daily_contingent['version'] = data_version
-        daily_contingent['timestamp'] = str(datetime.datetime.now())
-        return daily_contingent
-    except Exception as e:
-        log.info(f'Failed to get daily contingent: %s', daily_contingent)
-
 
 def split_to_sublists(mylist, length, parts):
     """Read data from config file.
