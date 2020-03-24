@@ -96,7 +96,7 @@ if __name__ == "__main__":
 
     """Nuclear"""
     setup_power_unit_nuclear()
-    # download_unit_nuclear()
+    download_unit_nuclear()
 
     """close"""
     log.info('MaSTR script successfully executed in {:.2f} seconds'
