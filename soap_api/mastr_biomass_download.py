@@ -167,7 +167,7 @@ def download_unit_biomass():
                 unit_fail['comment'] = 'Second fail'
                 write_to_csv(fname_biomass_fail_u, unit_fail)
 
-        retry_download_unit_biomass()
+    retry_download_unit_biomass()
 
 
 def retry_download_unit_biomass():
@@ -371,7 +371,7 @@ def download_unit_biomass_eeg():
                 unit_fail['comment'] = 'Second fail'
                 write_to_csv(fname_biomass_fail_e, unit_fail)
 
-        retry_download_unit_biomass_eeg()
+    retry_download_unit_biomass_eeg()
 
 
 def retry_download_unit_biomass_eeg():
