@@ -56,6 +56,9 @@ The description of each data version and the version of the code with which it w
 | Solareinheit | unit_solar | bnetza_mastr_{v}_unit-solar.csv |
 | EEG-Anlage-Solar | unit_solar_eeg  | bnetza_mastr_{v}_unit-solar-eeg.csv |
 |   |   |  |
+| Stromerzeugungseinheit-Kernenergie | power_unit_nuclear | bnetza_mastr_{v}_power-unit-nuclear.csv |
+| Kernenergieeinheit | unit_nuclear | bnetza_mastr_{v}_unit-nuclear.csv |
+|   |   |  |
 | EinheitMastrNummer  | mastr_unit_id  |  |
 | EegMastrNummer  | mastr_unit_eeg_id  |  |
 | GenMastrNummer  | mastr_unit_permit_id  |  |
