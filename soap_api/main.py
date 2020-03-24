@@ -30,6 +30,7 @@ from soap_api.mastr_solar_download import setup_power_unit_solar, download_unit_
 from soap_api.mastr_solar_process import make_solar
 from soap_api.mastr_storage_units_download import download_unit_storage, download_parallel_unit_storage
 from soap_api.mastr_nuclear_download import setup_power_unit_nuclear, download_unit_nuclear
+from soap_api.mastr_nuclear_process import make_nuclear
 # from soap_api.mastr_wind_processing import do_wind
 import time
 
@@ -97,6 +98,7 @@ if __name__ == "__main__":
     """Nuclear"""
     setup_power_unit_nuclear()
     download_unit_nuclear()
+    make_nuclear()
 
     """close"""
     log.info('MaSTR script successfully executed in {:.2f} seconds'
