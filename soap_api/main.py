@@ -65,10 +65,10 @@ if __name__ == "__main__":
     # make_wind()
 
     """Hydro"""
-    setup_power_unit_hydro()
-    download_unit_hydro()
-    download_unit_hydro_eeg()
-    make_hydro()
+    # setup_power_unit_hydro()
+    # download_unit_hydro()
+    # download_unit_hydro_eeg()
+    # make_hydro()
 
     """Biomass"""
     # setup_power_unit_biomass()
@@ -77,12 +77,11 @@ if __name__ == "__main__":
     # make_biomass()
 
     """Solar"""
-    # ''' DEFAULT PARAMS: start_from=0, n_entries=1, parallelism=12 '''
-    # download_parallel_unit_solar(
-    #     start_from=0,
-    #     n_entries=1,
-    #     parallelism=12
-    # )
+    ''' DEFAULT PARAMS: start_from=0, n_entries=1, parallelism=12 '''
+    download_parallel_unit_solar(
+        start_from=0,
+        n_entries=1,
+        parallelism=12)
     # download_parallel_unit_solar_eeg(
     #    start_from=0,
     #    n_entries=1,
