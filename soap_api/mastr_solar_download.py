@@ -24,7 +24,7 @@ from soap_api.utils import (fname_power_unit,
                             fname_solar_eeg)
 
 import multiprocessing as mp
-from multiprocessing.pool import ThreadPool 
+from multiprocessing.pool import ThreadPool
 import pandas as pd
 import time
 import datetime
@@ -34,6 +34,7 @@ from functools import partial
 import textwrap
 
 import logging
+
 log = logging.getLogger(__name__)
 
 """SOAP API"""
@@ -63,18 +64,18 @@ def setup_power_unit_solar():
 
             power_unit_solar = power_unit[power_unit.Einheittyp == 'Solareinheit']
             power_unit_solar = power_unit_solar.drop_duplicates(subset=['EinheitMastrNummer',
-                                                                      'Name',
-                                                                      'Einheitart',
-                                                                      'Einheittyp',
-                                                                      'Standort',
-                                                                      'Bruttoleistung',
-                                                                      'Erzeugungsleistung',
-                                                                      'EinheitBetriebsstatus',
-                                                                      'Anlagenbetreiber',
-                                                                      'EegMastrNummer',
-                                                                      'KwkMastrNummer',
-                                                                      'SpeMastrNummer',
-                                                                      'GenMastrNummer'])
+                                                                        'Name',
+                                                                        'Einheitart',
+                                                                        'Einheittyp',
+                                                                        'Standort',
+                                                                        'Bruttoleistung',
+                                                                        'Erzeugungsleistung',
+                                                                        'EinheitBetriebsstatus',
+                                                                        'Anlagenbetreiber',
+                                                                        'EegMastrNummer',
+                                                                        'KwkMastrNummer',
+                                                                        'SpeMastrNummer',
+                                                                        'GenMastrNummer'])
             log.info(f'Filter power-unit for solar and remove duplicates')
             power_unit_solar.reset_index()
             power_unit_solar.index.name = 'pu-id'
@@ -102,27 +103,27 @@ def read_power_unit_solar(csv_name):
     """
     if os.path.isfile(csv_name):
         power_unit_solar = pd.read_csv(csv_name, header=0, encoding='utf-8', sep=';', index_col=False,
-                                      dtype={
-                                          'pu-id': str,
-                                          'lid': str,
-                                          'EinheitMastrNummer': str,
-                                          'Name': str,
-                                          'Einheitart': str,
-                                          'Einheittyp': str,
-                                          'Standort': str,
-                                          'Bruttoleistung': str,
-                                          'Erzeugungsleistung': str,
-                                          'EinheitBetriebsstatus': str,
-                                          'Anlagenbetreiber': str,
-                                          'EegMastrNummer': str,
-                                          'KwkMastrNummer': str,
-                                          'SpeMastrNummer': str,
-                                          'GenMastrNummer': str,
-                                          'BestandsanlageMastrNummer': str,
-                                          'NichtVorhandenInMigriertenEinheiten': str,
-                                          'StatisikFlag': str,
-                                          'version': str,
-                                          'timestamp': str})
+                                       dtype={
+                                           'pu-id': str,
+                                           'lid': str,
+                                           'EinheitMastrNummer': str,
+                                           'Name': str,
+                                           'Einheitart': str,
+                                           'Einheittyp': str,
+                                           'Standort': str,
+                                           'Bruttoleistung': str,
+                                           'Erzeugungsleistung': str,
+                                           'EinheitBetriebsstatus': str,
+                                           'Anlagenbetreiber': str,
+                                           'EegMastrNummer': str,
+                                           'KwkMastrNummer': str,
+                                           'SpeMastrNummer': str,
+                                           'GenMastrNummer': str,
+                                           'BestandsanlageMastrNummer': str,
+                                           'NichtVorhandenInMigriertenEinheiten': str,
+                                           'StatisikFlag': str,
+                                           'version': str,
+                                           'timestamp': str})
         power_unit_solar_cnt = power_unit_solar['timestamp'].count()
         log.info(f'Read {power_unit_solar_cnt} Stromerzeugungseinheit-Solar from {csv_name}')
         return power_unit_solar
@@ -132,7 +133,7 @@ def read_power_unit_solar(csv_name):
 
 
 # Download unit-solar (parallel)
-def download_parallel_unit_solar(start_from=0,n_entries=1, parallelism=12):
+def download_parallel_unit_solar(start_from=0, n_entries=1, parallelism=12):
     """Download Solareinheit (solar-unit) with parallel process.
 
     Filter EinheitMastrNummer from Stromerzeugungseinheit-Solar.
@@ -162,8 +163,8 @@ def download_parallel_unit_solar(start_from=0,n_entries=1, parallelism=12):
     if n_entries is 1:
         n_entries = mastr_list_len
     # check wether to download more entries than solareinheiten in unit_solar_list starting at start_from
-    if n_entries > (mastr_list_len-start_from):
-        n_entries = mastr_list_len-start_from
+    if n_entries > (mastr_list_len - start_from):
+        n_entries = mastr_list_len - start_from
     log.info(f'Download {n_entries} Solareinheit')
 
     end_at = start_from + n_entries
@@ -172,8 +173,8 @@ def download_parallel_unit_solar(start_from=0,n_entries=1, parallelism=12):
     t = time.time()
     proc_list = split_to_sublists(mastr_list[start_from:end_at], len(mastr_list[start_from:end_at]), cpu_count)
     print("This may take a moment. Processing {} data batches.".format(len(proc_list)))
-    
-    #wait_for_offtime()
+
+    # wait_for_offtime()
 
     try:
         partial(split_to_threads, parallelism=parallelism)
@@ -184,24 +185,26 @@ def download_parallel_unit_solar(start_from=0,n_entries=1, parallelism=12):
     except Exception as e:
         log.error(e)
 
-    log.info('Time needed %s', time.time()-t)
+    log.info('Time needed %s', time.time() - t)
+
 
 def wait_for_offtime():
     # check if time is between 7:00 and 19:00, wait until 19h
     now = time.strftime('%H%M%S', time.localtime(time.time()))
     limit_lower = time.strftime('%H%M%S', time.strptime('17:00:00', '%H:%M:%S'))
-    limit_upper =  time.strftime('%H%M%S', time.strptime('07:00:00', '%H:%M:%S'))
+    limit_upper = time.strftime('%H%M%S', time.strptime('07:00:00', '%H:%M:%S'))
 
     if now > limit_upper and now < limit_lower:
-        waiting_time =  int(limit_lower) - int(now)
+        waiting_time = int(limit_lower) - int(now)
         timesteps = textwrap.wrap(str(waiting_time)[::-1], 2)
-        x=1
-        seconds=0
+        x = 1
+        seconds = 0
         for i in timesteps:
-            seconds += int(i)*x
-            x*=60
+            seconds += int(i) * x
+            x *= 60
         log.info(f'Program paused. Waiting for {seconds} seconds')
         time.sleep(seconds)
+
 
 def split_to_threads(sublist, parallelism=12):
     """ Maps sublist variables to function get_power_unit_solar on parallel threads (number = parallelism)
@@ -252,7 +255,6 @@ def get_power_unit_solar(mastr_unit_solar):
         return unit_solar
     except Exception as e:
         log.info('Download failed for %s', mastr_unit_solar)
-
 
 
 def read_unit_solar(csv_name):
@@ -375,7 +377,7 @@ def download_parallel_unit_solar_eeg(
     global proc_list
     split_solar_list = []
 
-    unit_solar = setup_power_unit_solar(eeg=True)
+    unit_solar = setup_power_unit_solar()
     if unit_solar.empty:
         return
     unit_solar_list = unit_solar['EegMastrNummer'].values.tolist()
@@ -384,14 +386,15 @@ def download_parallel_unit_solar_eeg(
     if n_entries is 1:
         n_entries = mastr_list_len
     # check wether to download more entries than solareinheiten in unit_solar_list starting at start_from
-    if n_entries > (mastr_list_len-start_from):
-        n_entries = mastr_list_len-start_from
+    if n_entries > (mastr_list_len - start_from):
+        n_entries = mastr_list_len - start_from
     log.info('Found %s solar units eeg', n_entries)
-    end_at = start_from+n_entries
+    end_at = start_from + n_entries
     cpu_count = mp.cpu_count()
     process_pool = mp.Pool(processes=cpu_count)
     t = time.time()
-    proc_list = split_to_sublists(unit_solar_list[start_from:end_at],len(unit_solar_list[start_from:end_at]),cpu_count)
+    proc_list = split_to_sublists(unit_solar_list[start_from:end_at], len(unit_solar_list[start_from:end_at]),
+                                  cpu_count)
     print("This may take a moment. Processing {} data eeg batches.".format(len(proc_list)))
     try:
         partial(split_to_threads_eeg, parallelism=parallelism)
@@ -401,10 +404,10 @@ def download_parallel_unit_solar_eeg(
         write_to_csv(fname_solar_eeg, unit_solar)
     except Exception as e:
         log.error(e)
-    log.info('time needed %s', time.time()-t)
+    log.info('time needed %s', time.time() - t)
 
 
-def split_to_threads_eeg(sublist,parallelism=12):
+def split_to_threads_eeg(sublist, parallelism=12):
     """ Maps sublist variables to function get_unit_solar_eeg on parallel threads (number = parallelism)
 
     Parameters
@@ -437,8 +440,8 @@ def get_unit_solar_eeg(mastr_solar_eeg):
     data_version = get_data_version()
     try:
         c = client_bind.GetAnlageEegSolar(apiKey=api_key,
-                                      marktakteurMastrNummer=my_mastr,
-                                      eegMastrNummer=mastr_solar_eeg)
+                                          marktakteurMastrNummer=my_mastr,
+                                          eegMastrNummer=mastr_solar_eeg)
         s = serialize_object(c)
         df = pd.DataFrame(list(s.items()), )
         unit_solar_eeg = df.set_index(list(df.columns.values)[0]).transpose()
@@ -512,7 +515,7 @@ def download_unit_solar():
     for i in range(start_from, unit_solar_list_len, 1):
         try:
             unit_solar = get_power_unit_solar(unit_solar_list[i])
-            write_to_csv(fname_solar, unit_solar)
+            write_to_csv(fname_solar_unit, unit_solar)
         except:
             log.exception(f'Download failed unit_solar ({i}): {unit_solar_list[i]}')
 
@@ -529,7 +532,7 @@ def download_unit_solar_eeg():
         number of threads
     """
     data_version = get_data_version()
-    unit_solar = setup_power_unit_solar(eeg=True)
+    unit_solar = setup_power_unit_solar()
 
     unit_solar_list = unit_solar['EegMastrNummer'].values.tolist()
     unit_solar_list_len = len(unit_solar_list)
