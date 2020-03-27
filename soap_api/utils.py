@@ -12,7 +12,7 @@ from datetime import datetime as dt
 import logging
 log = logging.getLogger(__name__)
 
-DATA_VERSION = 'rli_v2.2.1'
+DATA_VERSION = 'rli_v2.2.4'
 """ Total Count of Power Units (TOTAL_POWER_UNITS) on date (UPDATE_TIMESTAMP) """
 TOTAL_POWER_UNITS = 2791367
 """ 01.03.2019 """
@@ -55,6 +55,10 @@ fname_solar = f'{fname_template}_solar.csv'
 
 fname_storage = f'{fname_template}_storage.csv'
 fname_storage_unit = f'{fname_template}_unit-storage.csv'
+
+fname_power_unit_nuclear = f'{fname_template}_power-unit_nuclear.csv'
+fname_nuclear_unit = f'{fname_template}_unit-nuclear.csv'
+fname_nuclear = f'{fname_template}_nuclear.csv'
 
 
 def get_data_version():
@@ -162,7 +166,7 @@ def read_power_units(csv_name):
                 'timestamp': str})
 
         power_unit_cnt = power_unit['timestamp'].count()
-        log.info(f'Read {power_unit_cnt} power-unit from {csv_name}')
+        log.info(f'Read {power_unit_cnt} Stromerzeugungseinheiten from {csv_name}')
         return power_unit
 
     else:

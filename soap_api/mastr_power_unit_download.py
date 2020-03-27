@@ -148,7 +148,6 @@ def download_parallel_power_unit(
         start_from=0,
         overwrite=False, 
         wind=False,
-        eeg=False,
         update=False
 ):
     """Download StromErzeuger with parallel process
@@ -261,15 +260,15 @@ def download_parallel_power_unit(
             # use partial to partially preset some variables from get_power_unit
             pool = mp.get_context("spawn").Pool(processes=3)
             if almost_end_of_list is False:
-                result = pool.map(partial(get_power_unit, limit=limit, wind=wind, datum=datum), sublist)
+                result = pool.map(partial(get_power_unit, limit=limit, wind=wind), sublist)
             else:
                 if end_of_list is False:
                     # The last list might not be an integer number of API_MAX_DEMANDS
-                    result = pool.map(partial(get_power_unit, limit=limit, wind=wind, datum=datum), sublist[:-1])
+                    result = pool.map(partial(get_power_unit, limit=limit, wind=wind), sublist[:-1])
                     # Evaluate the last item separately
                     sublists.append([sublist[-1]])
                 else:
-                    result = pool.map(partial(get_power_unit, limit=limit, wind=wind, datum=datum), sublist)
+                    result = pool.map(partial(get_power_unit, limit=limit, wind=wind), sublist)
             # print progression        
             summe += 1
             progress = math.floor((summe/length)*100)
