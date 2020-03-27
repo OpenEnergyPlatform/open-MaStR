@@ -8,7 +8,6 @@ __version__ = "v0.9.0"
 
 import os
 import pandas as pd
-from datetime import datetime as dt
 import logging
 log = logging.getLogger(__name__)
 
@@ -62,9 +61,8 @@ fname_nuclear = f'{fname_template}_nuclear.csv'
 
 
 def get_data_version():
-    """Return current data version """
+    """Return current data version. """
     return DATA_VERSION
-
 
 def split_to_sublists(mylist, length, parts):
     """Read data from config file.

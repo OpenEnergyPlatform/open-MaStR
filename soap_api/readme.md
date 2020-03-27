@@ -62,6 +62,9 @@ The description of each data version and the version of the code with which it w
 | EinheitMastrNummer  | mastr_unit_id  |  |
 | EegMastrNummer  | mastr_unit_eeg_id  |  |
 | GenMastrNummer  | mastr_unit_permit_id  |  |
+|   |   |  |
+| AktuellesLimitTageskontingent  | daily_contingent_limit  |  |
+| AktuellerStandTageskontingent  | daily_contingent_status  |  |
 
 
 
