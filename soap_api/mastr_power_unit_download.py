@@ -194,7 +194,7 @@ def download_parallel_power_unit(
             return 0
     end_at = power_unit_list_len + start_from
 
-    if overwrite:
+    if overwrite is True:
         remove_csv(fname_power_unit)
 
     if power_unit_list_len < limit:
@@ -275,7 +275,7 @@ def download_parallel_power_unit(
                     if mylist.empty:
                         failed_downloads.append(ind)
                     mylist['timestamp'] = datetime.now()
-                    if wind==False:
+                    if wind is False:
                         write_to_csv(fname_power_unit, pd.DataFrame(mylist))
                     else:
                         write_to_csv(fname_wind_unit, pd.DataFrame(mylist))
