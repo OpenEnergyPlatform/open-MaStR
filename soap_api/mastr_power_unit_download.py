@@ -265,10 +265,7 @@ def download_parallel_power_unit(
                     sublists.append([sublist[-1]])
                 else:
                     result = pool.map(partial(get_power_unit, limit=limit, wind=wind), sublist)
-            # print progression        
-            summe += 1
-            progress = np.floor((summe/length)*100)
-            print('\r[{0}{1}] %'.format('#'*(int(np.floor(progress/10))), '-'*int(np.floor((100-progress)/10))))
+
             # check for failed downloads and add indices of failed downloads to failed list
             if len(result) != 0:
                 for ind, mylist in result:
@@ -286,6 +283,11 @@ def download_parallel_power_unit(
             else:
                 failed_downloads = failed_downloads + sublist
                 log.info('Download failed, retrying later')
+
+            # print progression
+            summe += 1
+            progress = np.floor((summe/length)*100)
+            print('\r[{0}{1}] %'.format('#'*(int(np.floor(progress/10))), '-'*int(np.floor((100-progress)/10))))
         except Exception as e:
             log.error(e)
     log.info('Power Unit Download executed in: {0:.2f}'.format(time.time()-t))
