@@ -225,10 +225,12 @@ def download_parallel_power_unit(
         if len(sublists) == 1:
             # check wether the 1st round is done and if any downloads are in the failed_downloads list
             if counter < 1 and len(failed_downloads) > 0:
-                    sublists = sublists[0]+failed_downloads
-                    num = int(np.ceil((len(failed_downloads)*2000)/batch_size))
-                    sublists = split_to_sublists(sublists, num)
-                    counter = counter+1
+                    # add the failed downloads indexes to the first sublist
+                    sublists = sublists[0] + failed_downloads
+                    # recalculate the number of batches and sublists
+                    num_batches = int(np.ceil((len(failed_downloads)*2000)/batch_size))
+                    sublists = split_to_sublists(sublists, num_batches)
+                    counter = counter + 1
                     summe = 0
                     length = len(sublists)
                     failed_downloads = []
