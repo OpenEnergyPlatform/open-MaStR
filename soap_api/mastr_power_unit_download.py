@@ -183,6 +183,7 @@ def download_parallel_power_unit(
         datum = get_update_date(wind)
 
     log.info('Download MaStR Power Unit')
+    # if the batch_size is smaller than the api max allowed demands
     if batch_size < API_MAX_DEMANDS:
         limit = batch_size
 
@@ -206,7 +207,7 @@ def download_parallel_power_unit(
     log.info(f'Starting at index: {start_from}')
     t = time.time()
 
-    # set some params
+    # create a list of all indexes ranges to download (in batches of size given by limit)
     start_from_list = list(range(start_from, end_at, limit + 1))
     length = len(start_from_list)
     num_batches = int(np.ceil(power_unit_list_len/batch_size))
@@ -222,6 +223,7 @@ def download_parallel_power_unit(
     
     # while there are still batches, try to download batch in parallel
     while len(sublists) > 0:
+        # if there is only one batch left
         if len(sublists) == 1:
             # check wether the 1st round is done and if any downloads are in the failed_downloads list
             if counter < 1 and len(failed_downloads) > 0:
@@ -235,6 +237,10 @@ def download_parallel_power_unit(
                     length = len(sublists)
                     failed_downloads = []
                     log.info('Starting second round with failed downloads')
+
+            # Set the variable to indicate that this is the last element (it is special because the
+            # size of the batch might be different than other batches, i.e. it might be the rest of
+            # the integer division of power_unit_list_len/API_MAX_DEMANDS
             if almost_end_of_list is False:
                 almost_end_of_list = True
             else:
@@ -244,6 +250,8 @@ def download_parallel_power_unit(
                     # number of download is an integer number of API_MAX_DEMANDS
                     limit = API_MAX_DEMANDS
                 end_of_list = True
+
+        # Main loop
         try:
             sublist = sublists.pop(0)
             if len(sublists) > 1:
@@ -254,12 +262,15 @@ def download_parallel_power_unit(
 
             # create pool and map all indices in batch sublist to one instance of get_power_unit
             # use partial to partially preset some variables from get_power_unit
+            # 'spawn' is the only option to work on Windows and unix
+            # https://docs.python.org/3/library/multiprocessing.html#contexts-and-start-methods
             pool = mp.get_context("spawn").Pool(processes=3)
             if almost_end_of_list is False:
+                # Normal process
                 result = pool.map(partial(get_power_unit, limit=limit, wind=wind), sublist)
             else:
                 if end_of_list is False:
-                    # The last list might not be an integer number of API_MAX_DEMANDS
+                    # The last batch size might not be an integer number of API_MAX_DEMANDS
                     result = pool.map(partial(get_power_unit, limit=limit, wind=wind), sublist[:-1])
                     # Evaluate the last item separately
                     sublists.append([sublist[-1]])
@@ -291,6 +302,7 @@ def download_parallel_power_unit(
         except Exception as e:
             log.error(e)
     log.info('Power Unit Download executed in: {0:.2f}'.format(time.time()-t))
+
 
 """ check for new entries since TIMESTAMP """
 def get_update_date(wind=False):
