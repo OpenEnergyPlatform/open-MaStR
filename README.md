@@ -24,22 +24,29 @@ The package is intended to be used for python 3.6
 
 - without conda
 
-    In a virtual environment run the setup file
+    In a virtual environment run `setup.py`.
 
     ```
     python setup.py install
    ```
+  
+Set the version number in `utils.py`.
 
-You can then run the download code
+```
+python soap_api/utils.py
+```
+
+You can select the technologies and run the download code in `main.py`.
 
 ```
 python soap_api/main.py
 ```
 
-In order to connect to the MastR SOAP API you need a `user` name and a `token`. The first time you
- run the code you will be prompted for that information and a `config.ini` file will be generated automatically for you
+In order to connect to the MastR SOAP API you need a `user` name and a `token`. <br>
+The first time you run the code you will be prompted for that information and a `config.ini` file will be generated automatically for you.
+Handle this file carefully.
 
-You can also save those in a `config.ini` file at the repository's root level with the following structure:
+The `config.ini` file at the repository's root level should have the following structure:
 ```
 [MaStR]
 token = <your token>

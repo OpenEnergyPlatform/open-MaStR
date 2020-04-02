@@ -11,9 +11,9 @@ import pandas as pd
 import logging
 log = logging.getLogger(__name__)
 
-DATA_VERSION = 'rli_v2.2.4'
+DATA_VERSION = 'rli_v2.4.0'
 """ Total Count of Power Units (TOTAL_POWER_UNITS) on date (UPDATE_TIMESTAMP) """
-TOTAL_POWER_UNITS = 2791367
+TOTAL_POWER_UNITS = 2812372
 """ 01.03.2019 """
 TIMESTAMP = "1900-01-01 00:00:00.00000"
 """ test string: "2019-10-20 00:00:00.000000" """
