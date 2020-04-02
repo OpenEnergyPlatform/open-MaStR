@@ -177,8 +177,10 @@ def download_parallel_unit_solar(start_from=0, n_entries=1, parallelism=12):
     # wait_for_offtime()
 
     try:
-        partial(split_to_threads, parallelism=parallelism)
-        unit_solar = process_pool.map(split_to_threads, proc_list)
+        unit_solar = process_pool.map(
+            partial(split_to_threads, process_func=get_power_unit_solar,parallelism=parallelism),
+            proc_list
+        )
         process_pool.close()
         process_pool.join()
 
@@ -206,7 +208,7 @@ def wait_for_offtime():
         time.sleep(seconds)
 
 
-def split_to_threads(sublist, parallelism=12):
+def split_to_threads(sublist, process_func=None, parallelism=12):
     """ Maps sublist variables to function get_power_unit_solar on parallel threads (number = parallelism)
 
     Parameters
@@ -217,7 +219,7 @@ def split_to_threads(sublist, parallelism=12):
         number of threads
     """
     pool = ThreadPool(processes=parallelism)
-    results = pool.map(get_power_unit_solar, sublist)
+    results = pool.map(process_func, sublist)
     pool.close()
     pool.join()
     return results
@@ -391,13 +393,19 @@ def download_parallel_unit_solar_eeg(
     log.info('Found %s solar units eeg', n_entries)
     end_at = start_from + n_entries
     cpu_count = mp.cpu_count()
-    process_pool = mp.Pool(processes=cpu_count)
-    t = time.time()
     proc_list = split_to_sublists(unit_solar_list[start_from:end_at], cpu_count)
     print("This may take a moment. Processing {} data eeg batches.".format(len(proc_list)))
+
+    t = time.time()
+
+    cpu_count = mp.cpu_count()
+    process_pool = mp.Pool(processes=cpu_count)
+
     try:
-        partial(split_to_threads_eeg, parallelism=parallelism)
-        unit_solar = process_pool.map(split_to_threads_eeg, proc_list)
+        unit_solar = process_pool.map(
+            partial(split_to_threads, process_func=get_unit_solar_eeg, parallelism=parallelism),
+            proc_list
+        )
         process_pool.close()
         process_pool.join()
         write_to_csv(fname_solar_eeg, unit_solar)
@@ -405,22 +413,6 @@ def download_parallel_unit_solar_eeg(
         log.error(e)
     log.info('time needed %s', time.time() - t)
 
-
-def split_to_threads_eeg(sublist, parallelism=12):
-    """ Maps sublist variables to function get_unit_solar_eeg on parallel threads (number = parallelism)
-
-    Parameters
-    ----------
-    sublist : list
-        list to process in parallel
-    parallelism : int
-        number of threads
-    """
-    pool = ThreadPool(processes=parallelism)
-    results = pool.map(get_unit_solar_eeg, sublist)
-    pool.close()
-    pool.join()
-    return results
 
 
 def get_unit_solar_eeg(mastr_solar_eeg):
