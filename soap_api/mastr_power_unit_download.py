@@ -186,9 +186,9 @@ def download_parallel_power_unit(
     if batch_size < API_MAX_DEMANDS:
         limit = batch_size
 
-    if power_unit_list_len+start_from > TOTAL_POWER_UNITS:
-        deficit = (power_unit_list_len+start_from)-TOTAL_POWER_UNITS
-        power_unit_list_len = power_unit_list_len-deficit
+    if power_unit_list_len + start_from > TOTAL_POWER_UNITS:
+        deficit = (power_unit_list_len + start_from) - TOTAL_POWER_UNITS
+        power_unit_list_len = power_unit_list_len - deficit
         if power_unit_list_len <= 0:
             log.info('No entries to download. Decrease index size.')
             return 0
@@ -270,8 +270,7 @@ def download_parallel_power_unit(
             progress = np.floor((summe/length)*100)
             print('\r[{0}{1}] %'.format('#'*(int(np.floor(progress/10))), '-'*int(np.floor((100-progress)/10))))
             # check for failed downloads and add indices of failed downloads to failed list
-            indices_list = []
-            if not len(result)==0:
+            if len(result) != 0:
                 for ind, mylist in result:
                     if mylist.empty:
                         failed_downloads.append(ind)
@@ -285,7 +284,7 @@ def download_parallel_power_unit(
                 pool.terminate()
                 pool.join()
             else:
-                failed_downloads = failed_downloads+sublist
+                failed_downloads = failed_downloads + sublist
                 log.info('Download failed, retrying later')
         except Exception as e:
             log.error(e)
