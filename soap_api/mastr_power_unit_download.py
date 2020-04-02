@@ -251,9 +251,6 @@ def download_parallel_power_unit(
                 end_of_list = False
             if len(sublists) == 1:
                 end_of_list = False
-            
-            ndownload = len(sublist)
-            #pool = ThreadPool(processes=ndownload)
 
             # create pool and map all indices in batch sublist to one instance of get_power_unit
             # use partial to partially preset some variables from get_power_unit
