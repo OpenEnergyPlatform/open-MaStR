@@ -198,14 +198,13 @@ def download_parallel_power_unit(
         remove_csv(fname_power_unit)
 
     if power_unit_list_len < limit:
-        log.info(f'Number of expected power units: {limit}')
-    else:
-        log.info(f'Number of expected power units: {power_unit_list_len}')
+        # less than one batch is to be downloaded
+        limit = power_unit_list_len
+
+    log.info(f'Number of expected power units: {power_unit_list_len}')
+
     log.info(f'Starting at index: {start_from}')
     t = time.time()
-    # assert lists with size < api limit
-    if power_unit_list_len < limit:
-        limit = power_unit_list_len
 
     # set some params
     start_from_list = list(range(start_from, end_at, limit + 1))
