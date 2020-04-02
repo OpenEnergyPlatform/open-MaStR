@@ -88,7 +88,7 @@ def download_wind(units, start_from, eeg=False):
     log.info('Download MaStR Wind')
     log.info(f'Number of unit_wind: {wind_list_len}')
 
-    sublists = split_to_sublists(units, len(units), mp.cpu_count()*2)
+    sublists = split_to_sublists(units, mp.cpu_count()*2)
     pool = mp.Pool(processes=mp.cpu_count()*2)
     pool.map(partial(process_partionier, eeg=eeg), sublists)
     pool.close()

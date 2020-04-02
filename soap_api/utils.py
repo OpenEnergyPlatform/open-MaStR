@@ -64,21 +64,18 @@ def get_data_version():
     """Return current data version. """
     return DATA_VERSION
 
-def split_to_sublists(mylist, length, parts):
-    """Read data from config file.
-
-    ToDo: Please document function @solar-c
+def split_to_sublists(mylist, num_sublists):
+    """Split elements in a list into num_sublists.
 
     Parameters
     ----------
     mylist : list
         list to split
-    length : int
-        length of mylist
-    parts : int
+    num_sublists : int
         number of desired sublists
     """
-    s, r = divmod(length, parts)
+    length = len(mylist)
+    s, r = divmod(length, num_sublists)
     k = s+1
     return [mylist[i:i+k] for i in range(0, r*k, k)] + [mylist[i:i+s] for i in range(r*k, length, s)]
 

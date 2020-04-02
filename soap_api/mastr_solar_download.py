@@ -171,7 +171,7 @@ def download_parallel_unit_solar(start_from=0, n_entries=1, parallelism=12):
     cpu_count = mp.cpu_count()
     process_pool = mp.Pool(processes=cpu_count)
     t = time.time()
-    proc_list = split_to_sublists(mastr_list[start_from:end_at], len(mastr_list[start_from:end_at]), cpu_count)
+    proc_list = split_to_sublists(mastr_list[start_from:end_at], cpu_count)
     print("This may take a moment. Processing {} data batches.".format(len(proc_list)))
 
     # wait_for_offtime()
@@ -393,8 +393,7 @@ def download_parallel_unit_solar_eeg(
     cpu_count = mp.cpu_count()
     process_pool = mp.Pool(processes=cpu_count)
     t = time.time()
-    proc_list = split_to_sublists(unit_solar_list[start_from:end_at], len(unit_solar_list[start_from:end_at]),
-                                  cpu_count)
+    proc_list = split_to_sublists(unit_solar_list[start_from:end_at], cpu_count)
     print("This may take a moment. Processing {} data eeg batches.".format(len(proc_list)))
     try:
         partial(split_to_threads_eeg, parallelism=parallelism)

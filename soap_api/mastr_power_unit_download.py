@@ -209,10 +209,10 @@ def download_parallel_power_unit(
     # set some params
     start_from_list = list(range(start_from, end_at, limit + 1))
     length = len(start_from_list)
-    num = int(np.ceil(power_unit_list_len/batch_size))
-    assert num >= 1
-    sublists = split_to_sublists(start_from_list, length, num)
-    log.info('Number of batches to process: %s', num)
+    num_batches = int(np.ceil(power_unit_list_len/batch_size))
+    assert num_batches >= 1
+    sublists = split_to_sublists(start_from_list, num_batches)
+    log.info('Number of batches to process: %s', num_batches)
     summe = 0
     length = len(sublists)
     almost_end_of_list = False
@@ -227,7 +227,7 @@ def download_parallel_power_unit(
             if counter < 1 and len(failed_downloads) > 0:
                     sublists = sublists[0]+failed_downloads
                     num = int(np.ceil((len(failed_downloads)*2000)/batch_size))
-                    sublists = split_to_sublists(sublists, len(sublists), num)
+                    sublists = split_to_sublists(sublists, num)
                     counter = counter+1
                     summe = 0
                     length = len(sublists)
