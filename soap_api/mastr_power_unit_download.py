@@ -19,7 +19,6 @@ __version__ = "v0.9.0"
 
 import time
 from datetime import datetime as dt
-import math
 import logging
 import multiprocessing as mp
 from multiprocessing import get_context
@@ -33,8 +32,6 @@ from zeep.helpers import serialize_object
 from soap_api.sessions import mastr_session, API_MAX_DEMANDS
 from soap_api.utils import split_to_sublists, write_to_csv, remove_csv, get_data_version, read_timestamp, TOTAL_POWER_UNITS
 # from soap_api.mastr_wind_processing import do_wind
-
-import math
 
 log = logging.getLogger(__name__)
 ''' VAR IMPORT '''
@@ -213,7 +210,7 @@ def download_parallel_power_unit(
     # set some params
     start_from_list = list(range(start_from, end_at, limit + 1))
     length = len(start_from_list)
-    num = math.ceil(power_unit_list_len/batch_size)
+    num = int(np.ceil(power_unit_list_len/batch_size))
     assert num >= 1
     sublists = split_to_sublists(start_from_list, length, num)
     log.info('Number of batches to process: %s', num)
@@ -230,7 +227,7 @@ def download_parallel_power_unit(
             # check wether the 1st round is done and if any downloads are in the failed_downloads list
             if counter < 1 and len(failed_downloads) > 0:
                     sublists = sublists[0]+failed_downloads
-                    num = math.ceil((len(failed_downloads)*2000)/batch_size)
+                    num = int(np.ceil((len(failed_downloads)*2000)/batch_size))
                     sublists = split_to_sublists(sublists, len(sublists), num)
                     counter = counter+1
                     summe = 0
@@ -272,8 +269,8 @@ def download_parallel_power_unit(
                     result = pool.map(partial(get_power_unit, limit=limit, wind=wind), sublist)
             # print progression        
             summe += 1
-            progress = math.floor((summe/length)*100)
-            print('\r[{0}{1}] %'.format('#'*(int(math.floor(progress/10))), '-'*int(math.floor((100-progress)/10))))
+            progress = np.floor((summe/length)*100)
+            print('\r[{0}{1}] %'.format('#'*(int(np.floor(progress/10))), '-'*int(np.floor((100-progress)/10))))
             # check for failed downloads and add indices of failed downloads to failed list
             indices_list = []
             if not len(result)==0:
