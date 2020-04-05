@@ -386,7 +386,7 @@ def download_parallel_unit_solar_eeg(
 
     unit_solar_list = unit_solar['EegMastrNummer'].values.tolist()
     mastr_list_len = len(unit_solar_list)
-    
+
     # check wether user input
     if n_entries is 1:
         n_entries = mastr_list_len
