@@ -88,11 +88,11 @@ if __name__ == "__main__":
     #     start_from=0,
     #     n_entries=1,
     #     parallelism=12)
-    # download_parallel_unit_solar_eeg(
-    #    start_from=0,
-    #    n_entries=1,
-    #    parallelism=12)
-    # make_solar()
+    download_parallel_unit_solar_eeg(
+       start_from=0,
+       n_entries=1,
+       parallelism=12)
+    make_solar()
 
     """ Storages"""
     # get_solarunit_storages()
