@@ -379,11 +379,14 @@ def download_parallel_unit_solar_eeg(
     global proc_list
     split_solar_list = []
 
-    unit_solar = setup_power_unit_solar()
-    if unit_solar.empty:
-        return
+    setup_power_unit_solar()
+
+    unit_solar = read_unit_solar(fname_solar_unit)
+    unit_solar = unit_solar.dropna(subset=['EegMastrNummer'])
+
     unit_solar_list = unit_solar['EegMastrNummer'].values.tolist()
     mastr_list_len = len(unit_solar_list)
+    
     # check wether user input
     if n_entries is 1:
         n_entries = mastr_list_len
