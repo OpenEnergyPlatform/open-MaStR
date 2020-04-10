@@ -54,13 +54,13 @@ if __name__ == "__main__":
 
     '''WARNING: Batch download may cause a database error. Extended limit required!'''
     '''DEFAULT PARAMS: power_unit_list_len=100000, limit=2000, batch_size=20000, start_from=0, overwrite=False '''
-    download_parallel_power_unit(
-       batch_size=10000,
-       limit=2000,
-       wind=False,
-       update=False,
-       overwrite=False,
-       start_from=0)
+    # download_parallel_power_unit(
+    #    batch_size=10000,
+    #    limit=2000,
+    #    wind=False,
+    #    update=False,
+    #    overwrite=False,
+    #    start_from=0)
 
     """Wind"""
     # setup_power_unit_wind()
@@ -72,20 +72,20 @@ if __name__ == "__main__":
     # make_wind()
 
     """Hydro"""
-    setup_power_unit_hydro()
-    download_unit_hydro()
-    download_unit_hydro_eeg()
+    # setup_power_unit_hydro()
+    # download_unit_hydro()
+    # download_unit_hydro_eeg()
     # retry_download_unit_hydro()
     # retry_download_unit_hydro_eeg()
-    make_hydro()
+    # make_hydro()
 
     """Biomass"""
-    setup_power_unit_biomass()
-    download_unit_biomass()
-    download_unit_biomass_eeg()
+    # setup_power_unit_biomass()
+    # download_unit_biomass()
+    # download_unit_biomass_eeg()
     # retry_download_unit_biomass()
     # retry_download_unit_biomass_eeg()
-    make_biomass()
+    # make_biomass()
 
     """Solar"""
     # setup_power_unit_solar()
@@ -94,10 +94,10 @@ if __name__ == "__main__":
     #     start_from=0,
     #     n_entries=1,
     #     parallelism=12)
-    # download_parallel_unit_solar_eeg(
-    #    start_from=0,
-    #    n_entries=1,
-    #    parallelism=12)
+    download_parallel_unit_solar_eeg(
+       start_from=0,
+       n_entries=1,
+       parallelism=12)
     # make_solar()
 
     """Storages"""
@@ -105,9 +105,9 @@ if __name__ == "__main__":
     # download_parallel_unit_storage()
 
     """Nuclear"""
-    setup_power_unit_nuclear()
-    download_unit_nuclear()
-    make_nuclear()
+    # setup_power_unit_nuclear()
+    # download_unit_nuclear()
+    # make_nuclear()
 
     """close"""
     log.info('MaSTR script successfully executed in {:.2f} seconds'
