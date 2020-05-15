@@ -18,14 +18,15 @@ __version__ = "v0.9.0"
 
 import os
 import configparser as cp
+from soap_api.utils import open_mastr_home
 
 import logging
 log = logging.getLogger(__name__) 
 
 """parameter"""
 cfg = cp.RawConfigParser()
-config_file = 'config.ini'
-log_file = 'open_mastr.log'
+config_file = os.path.join(open_mastr_home, 'config.ini')
+log_file = os.path.join(open_mastr_home, 'open_mastr.log')
 
 
 def setup_logger():

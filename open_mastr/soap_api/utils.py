@@ -20,6 +20,7 @@ TIMESTAMP = "1900-01-01 00:00:00.00000"
 """ dummy stump for other file names """
 fname_template = f'data/bnetza_mastr_{DATA_VERSION}'
 ts_path = f'data/update/bnetza_mastr_ts.csv'
+open_mastr_home = os.path.join(os.path.expanduser("~"), ".open-MaStR")
 
 """ list of specific power unit file names"""
 fname_power_unit = f'{fname_template}_power-unit.csv'
