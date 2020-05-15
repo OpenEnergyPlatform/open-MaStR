@@ -46,6 +46,8 @@ Here, we aim for the latter. The SOAP API of the MaStR web service is wrapped by
 `MaStRAPI()` binds SOAP queries as methods and automatically passes credentials to these. After 
 instantiating the class with your credentials 
 
+    from open_mastr.soap_api.sessions import MaStRAPI
+    
     mastr_api = MaStRAPI(
         user="SOM123456789012",
         key=""koo5eixeiQuoi'w8deighai8ahsh1Ha3eib3coqu7ceeg%ies..."
