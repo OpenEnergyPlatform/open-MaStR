@@ -18,7 +18,7 @@ __version__ = "v0.9.0"
 
 import os
 import configparser as cp
-from soap_api.utils import open_mastr_home
+from open_mastr.utils.tools import open_mastr_home
 
 import logging
 log = logging.getLogger(__name__) 

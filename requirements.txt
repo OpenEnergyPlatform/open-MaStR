@@ -9,3 +9,4 @@ psycopg2-binary
 multiprocess
 zeep
 requests
+keyring
