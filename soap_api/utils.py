@@ -1,7 +1,7 @@
 __copyright__ = "© Reiner Lemoine Institut"
 __license__ = "GNU Affero General Public License Version 3 (AGPL-3.0)"
 __url__ = "https://www.gnu.org/licenses/agpl-3.0.en.html"
-__author__ = "Bachibouzouk; solar-c"
+__author__ = "Ludee; Bachibouzouk; solar-c"
 __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.9.0"
 
@@ -11,10 +11,10 @@ import pandas as pd
 import logging
 log = logging.getLogger(__name__)
 
-DATA_VERSION = 'rli_v2.5.0'
+DATA_VERSION = 'rli_v2.5.1'
 """ Total Count of Power Units (TOTAL_POWER_UNITS) on date (UPDATE_TIMESTAMP) """
-TOTAL_POWER_UNITS = 3197769
-""" 17.08.2020 """
+TOTAL_POWER_UNITS = 3200862
+""" 18.08.2020 """
 TIMESTAMP = "1900-01-01 00:00:00.00000"
 """ test string: "2019-10-20 00:00:00.000000" """
 """ dummy stump for other file names """
@@ -64,6 +64,7 @@ def get_data_version():
     """Return current data version. """
     return DATA_VERSION
 
+
 def split_to_sublists(mylist, length, parts):
     """Read data from config file.
 
@@ -95,7 +96,7 @@ def write_to_csv(csv_name, df):
     append : bool
         If False create a new CSV file (default), else append to it.
     """
-    #if os.path.exists(os.path.dirname(csv_name)):
+    # if os.path.exists(os.path.dirname(csv_name)):
     #    os.remove(os.path.dirname(csv_name))
 
     if not os.path.exists(os.path.dirname(csv_name)):
@@ -103,10 +104,10 @@ def write_to_csv(csv_name, df):
 
     with open(csv_name, mode='a', encoding='utf-8') as file:
         df.to_csv(file, sep=';',
-                    mode='a',
-                      header=file.tell() == 0,
-                      line_terminator='\n',
-                      encoding='utf-8')
+                  mode='a',
+                  header=file.tell() == 0,
+                  line_terminator='\n',
+                  encoding='utf-8')
 
 
 def remove_csv(csv_name):
@@ -119,6 +120,7 @@ def remove_csv(csv_name):
     """
     if os.path.isfile(csv_name):
         os.remove(csv_name)
+
 
 def read_power_units(csv_name):
     """Read Stromerzeugungseinheit from CSV file.
@@ -159,7 +161,7 @@ def read_power_units(csv_name):
                 'GenMastrNummer': str,
                 'BestandsanlageMastrNummer': str,
                 'NichtVorhandenInMigriertenEinheiten': str,
-                'StatisikFlag' : str,
+                'StatisikFlag': str,
                 'version': str,
                 'timestamp': str})
 
@@ -182,7 +184,7 @@ def read_timestamp(wind=False):
     if wind == True:
         if os.path.isfile(fname_wind_unit):
             """ get timestamp wind """
-            ts = pd.read_csv(fname_wind_unit,header=0, index_col=0)
+            ts = pd.read_csv(fname_wind_unit, header=0, index_col=0)
             ts = ts.timestamp.iloc[-1]
             return ts
     else:
