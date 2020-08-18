@@ -92,7 +92,7 @@ if __name__ == "__main__":
        start_from=0,
        n_entries=1,
        parallelism=12)
-    make_solar()
+    # make_solar()
 
     """ Storages"""
     # get_solarunit_storages()

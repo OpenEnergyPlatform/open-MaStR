@@ -178,7 +178,7 @@ def download_parallel_unit_solar(start_from=0, n_entries=1, parallelism=12):
 
     try:
         unit_solar = process_pool.map(
-            partial(split_to_threads, process_func=get_power_unit_solar,parallelism=parallelism),
+            partial(split_to_threads, process_func=get_power_unit_solar, parallelism=parallelism),
             proc_list
         )
         process_pool.close()
@@ -274,7 +274,7 @@ def read_unit_solar(csv_name):
     """
     # log.info(f'Read data from {csv_name}')
     unit_solar = pd.read_csv(csv_name, header=0, encoding='utf-8', sep=';', index_col=False,
-                             dtype={'lid': int,
+                             dtype={'lid': str,
                                     'Ergebniscode': str,
                                     'AufrufVeraltet': str,
                                     'AufrufLebenszeitEnde': str,
@@ -315,13 +315,17 @@ def read_unit_solar(csv_name):
                                     'EinheitBetriebsstatus': str,
                                     'BestandsanlageMastrNummer': str,
                                     'NichtVorhandenInMigriertenEinheiten': str,
+                                    'AltAnlagenbetreiberMastrNummer': str,
+                                    'DatumDesBetreiberwechsels': str,
+                                    'DatumRegistrierungDesBetreiberwechsels': str,
+                                    'StatisikFlag': str,
                                     'NameStromerzeugungseinheit': str,
                                     'Weic': str,
                                     'WeicDisplayName': str,
                                     'Kraftwerksnummer': str,
                                     'Energietraeger': str,
-                                    'Bruttoleistung': float,
-                                    'Nettonennleistung': float,
+                                    'Bruttoleistung': str,
+                                    'Nettonennleistung': str,
                                     'AnschlussAnHoechstOderHochSpannung': str,
                                     'Schwarzstartfaehigkeit': str,
                                     'Inselbetriebsfaehigkeit': str,
@@ -379,7 +383,7 @@ def download_parallel_unit_solar_eeg(
     global proc_list
     split_solar_list = []
 
-    setup_power_unit_solar()
+    #setup_power_unit_solar()
 
     unit_solar = read_unit_solar(fname_solar_unit)
     unit_solar = unit_solar.dropna(subset=['EegMastrNummer'])
