@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
@@ -53,7 +52,7 @@ if __name__ == "__main__":
     # download_power_unit()
 
     '''WARNING: Batch download may cause a database error. Extended limit required!'''
-    '''DEFAULT PARAMS: power_unit_list_len=100000, limit=2000, batch_size=20000, start_from=0, overwrite=False '''
+    '''DEFAULT PARAMS: batch_size=20000, limit=2000, start_from=0'''
     # download_parallel_power_unit(
     #    batch_size=10000,
     #    limit=2000,
@@ -93,11 +92,11 @@ if __name__ == "__main__":
     # download_parallel_unit_solar(
     #     start_from=0,
     #     n_entries=1,
-    #     parallelism=12)
-    download_parallel_unit_solar_eeg(
-       start_from=0,
-       n_entries=1,
-       parallelism=12)
+    #     parallelism=6)
+    # download_parallel_unit_solar_eeg(
+    #    start_from=0,
+    #    n_entries=1,
+    #    parallelism=6)
     # make_solar()
 
     """Storages"""

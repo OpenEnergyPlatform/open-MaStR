@@ -548,7 +548,7 @@ def download_unit_wind_permit():
     mastr_list_1 = power_unit_wind_1.values.tolist()
     mastr_list_1 = list(dict.fromkeys(mastr_list_1))
     mastr_list_len_1 = len(mastr_list_1)
-    log.info(f'Read {mastr_list_len_1} unique GenMastrNummer from Windeinheit')
+    log.info(f'Read {mastr_list_len_1} unique GenMastrNummer from Stromerzeugungseinheit-Wind')
 
     power_unit_wind_2 = read_unit_wind(fname_wind_unit)
     power_unit_wind_2 = power_unit_wind_2.dropna(subset=['GenMastrNummer'])
