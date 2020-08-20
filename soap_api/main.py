@@ -53,13 +53,13 @@ if __name__ == "__main__":
 
     '''WARNING: Batch download may cause a database error. Extended limit required!'''
     '''DEFAULT PARAMS: batch_size=20000, limit=2000, start_from=0'''
-    download_parallel_power_unit(
-       batch_size=20000,
-       limit=2000,
-       wind=False,
-       update=False,
-       overwrite=False,
-       start_from=0)
+    # download_parallel_power_unit(
+    #    batch_size=20000,
+    #    limit=2000,
+    #    wind=False,
+    #    update=False,
+    #    overwrite=False,
+    #    start_from=0)
 
     """Wind"""
     # setup_power_unit_wind()
@@ -104,9 +104,9 @@ if __name__ == "__main__":
     # download_parallel_unit_storage()
 
     """Nuclear"""
-    setup_power_unit_nuclear()
-    download_unit_nuclear()
-    make_nuclear()
+    # setup_power_unit_nuclear()
+    # download_unit_nuclear()
+    # make_nuclear()
 
     """close"""
     log.info('MaSTR script successfully executed in {:.2f} seconds'

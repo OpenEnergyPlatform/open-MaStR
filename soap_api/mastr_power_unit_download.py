@@ -63,9 +63,12 @@ def get_power_unit(start_from, wind=False, datum='1900-01-01 00:00:00.00000', li
     """
     power_unit = pd.DataFrame()
     status = 'InBetrieb'
-    source = 'Wind'
-    if wind==False:
-        source = 'None'
+    source = 'Biomasse'
+    #source = 'SolareStrahlungsenergie', 'Wasser', 'Wind', 'Biomasse'
+    #if wind==False:
+    #    source = 'None'
+    power = 30
+
     try:
         c = client_bind.GetGefilterteListeStromErzeuger(
             apiKey=api_key,
@@ -74,6 +77,7 @@ def get_power_unit(start_from, wind=False, datum='1900-01-01 00:00:00.00000', li
             startAb=start_from,
             energietraeger=source,
             limit=limit  # Limit of API.
+            #bruttoleistungGroesser=power
             #datumAb = datum
         )
         s = serialize_object(c)
@@ -124,6 +128,7 @@ def download_power_unit(
     2812372 (2020-03-28) data-release/2.4.0
     3197769 (2020-08-17) data-release/2.5.0
     3200862 (2020-08-18) data-release/2.5.1
+    3203715 (2020-08-19) data-release/2.5.2
     """
     log.info('Download MaStR Power Unit')
     log.info(f'Number of expected power units: {power_unit_list_len}')
@@ -136,8 +141,8 @@ def download_power_unit(
 
     for start_from in range(0, power_unit_list_len, limit):
         try:
-            power_unit = get_power_unit(start_from, wind, limit)
-            write_to_csv(fname_power_unit, power_unit)
+            start_from, power_unit = get_power_unit(start_from, wind, limit)
+            write_to_csv(fname_power_unit, pd.DataFrame(power_unit))
             power_unit_len = len(power_unit)
             log.info(f'Download power_unit from {start_from}-{start_from + power_unit_len}')
         except:

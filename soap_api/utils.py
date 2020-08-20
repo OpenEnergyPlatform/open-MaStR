@@ -11,9 +11,9 @@ import pandas as pd
 import logging
 log = logging.getLogger(__name__)
 
-DATA_VERSION = 'rli_v2.5.1'
+DATA_VERSION = 'rli_v2.5.3'
 """ Total Count of Power Units (TOTAL_POWER_UNITS) on date (UPDATE_TIMESTAMP) """
-TOTAL_POWER_UNITS = 3200862
+TOTAL_POWER_UNITS = 3204000
 """ 18.08.2020 """
 TIMESTAMP = "1900-01-01 00:00:00.00000"
 """ test string: "2019-10-20 00:00:00.000000" """
@@ -144,8 +144,8 @@ def read_power_units(csv_name):
             index_col=False,
             encoding='utf-8',
             dtype={
-                'id': str,
-                'lid': str,
+                'pu-id': int,
+                'lid': int,
                 'EinheitMastrNummer': str,
                 'Name': str,
                 'Einheitart': str,
