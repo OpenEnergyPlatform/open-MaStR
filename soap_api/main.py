@@ -62,14 +62,14 @@ if __name__ == "__main__":
     #    start_from=0)
 
     """Wind"""
-    # # setup_power_unit_wind()    # Extract from all power units
-    # download_power_unit(energy_carrier='Wind', power_unit_list_len=51429)
-    # download_unit_wind()
-    # download_unit_wind_eeg()
-    # download_unit_wind_permit()
-    # retry_download_unit_wind()
-    # retry_download_unit_wind_eeg()
-    # make_wind()
+    # setup_power_unit_wind()    # Extract from all power units
+    download_power_unit(energy_carrier='Wind', power_unit_list_len=51429)
+    download_unit_wind()
+    download_unit_wind_eeg()
+    download_unit_wind_permit()
+    retry_download_unit_wind()
+    retry_download_unit_wind_eeg()
+    make_wind()
 
     """Hydro"""
     # setup_power_unit_hydro()

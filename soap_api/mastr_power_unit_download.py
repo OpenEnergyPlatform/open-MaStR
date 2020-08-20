@@ -38,7 +38,7 @@ import math
 
 log = logging.getLogger(__name__)
 ''' VAR IMPORT '''
-from soap_api.utils import fname_power_unit, fname_wind_unit, fname_power_unit_nuclear, TIMESTAMP
+from soap_api.utils import fname_power_unit, fname_wind_unit, fname_power_unit_nuclear, fname_power_unit_wind, TIMESTAMP
 
 
 """SOAP API"""
@@ -95,7 +95,7 @@ def download_power_unit(
     ---------
     power_unit_list_len : None|int
         Maximum number of units to get. Check MaStR portal for current number.
-    limit : int
+    pu_limit : int
         Number of units to get per call to API (limited to 2000).
     energy_carrier: string
         Energieträger: None, AndereGase, Biomasse, Braunkohle, Erdgas, Geothermie, Grubengas, Kernenergie,
@@ -127,6 +127,8 @@ def download_power_unit(
 
     if energy_carrier == 'Kernenergie':
         filename = fname_power_unit_nuclear
+    elif energy_carrier == 'Wind':
+        filename = fname_power_unit_wind
     else:
         filename = fname_power_unit
 
@@ -184,7 +186,7 @@ def download_parallel_power_unit(
         Wether a dataset should only be updated
     """
     if wind==True:
-        power_unit_list_len=42748
+        power_unit_list_len = 42748
     update = TIMESTAMP
     if update==True:
         datum = get_update_date(wind)
