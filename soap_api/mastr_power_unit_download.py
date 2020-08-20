@@ -47,15 +47,13 @@ api_key = token
 my_mastr = user
 
 
-def get_power_unit(start_from, source='None', datum='1900-01-01 00:00:00.00000', limit=API_MAX_DEMANDS):
+def get_power_unit(start_from, energy_carrier='None', datum='1900-01-01 00:00:00.00000', limit=API_MAX_DEMANDS):
     """Get Stromerzeugungseinheit from API using GetGefilterteListeStromErzeuger.
 
     Parameters
     ----------
     start_from : int
         Skip first entries.
-    wind : bool
-        Wether only wind data should be retrieved
     datum: String
         the starting datestring to retrieve data, can be used for updating a data set
     limit : int
@@ -63,8 +61,6 @@ def get_power_unit(start_from, source='None', datum='1900-01-01 00:00:00.00000',
     """
     power_unit = pd.DataFrame()
     status = 'InBetrieb'
-    #source = 'Biomasse'
-    #source = 'SolareStrahlungsenergie', 'Wasser', 'Wind', 'Biomasse'
     # power = 30
 
     try:
@@ -73,7 +69,7 @@ def get_power_unit(start_from, source='None', datum='1900-01-01 00:00:00.00000',
             marktakteurMastrNummer=my_mastr,
             # einheitBetriebsstatus=status,
             startAb=start_from,
-            energietraeger=source,
+            energietraeger=energy_carrier,
             limit=limit
             #bruttoleistungGroesser=power
             #datumAb = datum
@@ -91,7 +87,7 @@ def get_power_unit(start_from, source='None', datum='1900-01-01 00:00:00.00000',
 def download_power_unit(
         power_unit_list_len=TOTAL_POWER_UNITS,
         pu_limit=API_MAX_DEMANDS,
-        source='None'
+        energy_carrier='None'
 ):
     """Download StromErzeuger.
 
@@ -101,13 +97,10 @@ def download_power_unit(
         Maximum number of units to get. Check MaStR portal for current number.
     limit : int
         Number of units to get per call to API (limited to 2000).
-    energietraeger: string
-        None, AndereGase, Biomasse, Braunkohle, Erdgas, Geothermie, Grubengas, Kernenergie,
+    energy_carrier: string
+        Energieträger: None, AndereGase, Biomasse, Braunkohle, Erdgas, Geothermie, Grubengas, Kernenergie,
         Klaerschlamm, Mineraloelprodukte, NichtBiogenerAbfall, SolareStrahlungsenergie, Solarthermie,
         Speicher, Steinkohle, Waerme, Wind, Wasser
-    wind : bool
-        Wether only wind data but all wind data (wind power unit, wind, (wind eeg), wind permit, wind all)
-        should be downloaded and processed
 
     Existing units:
     1822000 (2019-02-10)
@@ -132,12 +125,12 @@ def download_power_unit(
     log.info('Download MaStR Power Unit')
     log.info(f'Number of expected power units: {power_unit_list_len}')
 
-    if source == 'Kernenergie':
+    if energy_carrier == 'Kernenergie':
         filename = fname_power_unit_nuclear
     else:
         filename = fname_power_unit
 
-    log.info(f'Write to : {filename}')
+    log.info(f'Write to: {filename}')
 
     # if the list size is smaller than the limit
     if pu_limit > power_unit_list_len:
@@ -145,7 +138,7 @@ def download_power_unit(
 
     for start_from in range(0, power_unit_list_len, pu_limit):
         try:
-            start_from, power_unit = get_power_unit(start_from, source, pu_limit)
+            start_from, power_unit = get_power_unit(start_from, energy_carrier, pu_limit)
             write_to_csv(filename, pd.DataFrame(power_unit))
             power_unit_len = len(power_unit)
             log.info(f'Download power_unit from {start_from}-{start_from + power_unit_len}')

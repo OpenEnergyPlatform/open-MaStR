@@ -63,6 +63,7 @@ if __name__ == "__main__":
 
     """Wind"""
     # # setup_power_unit_wind()    # Extract from all power units
+    # download_power_unit(energy_carrier='Wind', power_unit_list_len=51429)
     # download_unit_wind()
     # download_unit_wind_eeg()
     # download_unit_wind_permit()
@@ -104,8 +105,8 @@ if __name__ == "__main__":
     # download_parallel_unit_storage()
 
     """Nuclear"""
-    # # setup_power_unit_nuclear()    # Extract from all power units
-    # download_power_unit(source='Kernenergie', power_unit_list_len=9)
+    # setup_power_unit_nuclear()    # Extract from all power units
+    # download_power_unit(energy_carrier='Kernenergie', power_unit_list_len=9)
     # download_unit_nuclear()
     # make_nuclear()
 
