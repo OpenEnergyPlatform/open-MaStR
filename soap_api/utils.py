@@ -144,8 +144,8 @@ def read_power_units(csv_name):
             index_col=False,
             encoding='utf-8',
             dtype={
-                'id': str,
-                'lid': str,
+                'pu-id': int,
+                'lid': int,
                 'EinheitMastrNummer': str,
                 'Name': str,
                 'Einheitart': str,
