@@ -38,7 +38,7 @@ import math
 
 log = logging.getLogger(__name__)
 ''' VAR IMPORT '''
-from soap_api.utils import fname_power_unit, fname_wind_unit, fname_power_unit_nuclear, fname_power_unit_wind, TIMESTAMP
+from soap_api.utils import fname_power_unit, fname_wind_unit, fname_power_unit_wind, fname_power_unit_hydro, fname_power_unit_biomass, fname_power_unit_nuclear,  TIMESTAMP
 
 
 """SOAP API"""
@@ -129,10 +129,14 @@ def download_power_unit(
         filename = fname_power_unit_nuclear
     elif energy_carrier == 'Wind':
         filename = fname_power_unit_wind
+    elif energy_carrier == 'Wasser':
+        filename = fname_power_unit_hydro
+    elif energy_carrier == 'Biomasse':
+        filename = fname_power_unit_biomass
     else:
         filename = fname_power_unit
 
-    log.info(f'Write to: {filename}')
+    log.info(f'Write to: {fname_power_unit}')
 
     # if the list size is smaller than the limit
     if pu_limit > power_unit_list_len:
@@ -141,7 +145,7 @@ def download_power_unit(
     for start_from in range(0, power_unit_list_len, pu_limit):
         try:
             start_from, power_unit = get_power_unit(start_from, energy_carrier, pu_limit)
-            write_to_csv(filename, pd.DataFrame(power_unit))
+            write_to_csv(fname_power_unit, pd.DataFrame(power_unit))
             power_unit_len = len(power_unit)
             log.info(f'Download power_unit from {start_from}-{start_from + power_unit_len}')
         except:

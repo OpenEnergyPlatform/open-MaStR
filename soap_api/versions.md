@@ -19,3 +19,17 @@ This file logs the numbers.
 |---|---|---|---|
 | 2020-08-20 | 51429 | 22035 | Start logging |
 |  |  |  |  |
+
+### hydro
+
+| Date | Count | Count (Aktuell) | Comment |
+|---|---|---|---|
+| 2020-08-20 | 10931 | 3784 | Start logging |
+|  |  |  |  |
+
+### biomass
+
+| Date | Count | Count (Aktuell) | Comment |
+|---|---|---|---|
+| 2020-08-20 | 28255 | 13279 | Start logging |
+|  |  |  |  |

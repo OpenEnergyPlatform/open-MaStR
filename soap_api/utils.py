@@ -24,6 +24,7 @@ ts_path = f'data/update/bnetza_mastr_ts.csv'
 """ list of specific power unit file names"""
 fname_power_unit = f'{fname_template}_power-unit.csv'
 
+# Wind
 fname_power_unit_wind = f'{fname_template}_power-unit_wind.csv'
 fname_wind_unit = f'{fname_template}_unit-wind.csv'
 fname_wind_eeg = f'{fname_template}_unit-wind-eeg.csv'
@@ -33,6 +34,7 @@ fname_wind_fail_u = f'{fname_template}_wind_fail_u.csv'
 fname_wind_fail_e = f'{fname_template}_wind_fail_e.csv'
 fname_wind_fail_p = f'{fname_template}_wind_fail_p.csv'
 
+# Wasser
 fname_power_unit_hydro = f'{fname_template}_power-unit_hydro.csv'
 fname_hydro_unit = f'{fname_template}_unit-hydro.csv'
 fname_hydro_eeg = f'{fname_template}_unit-hydro-eeg.csv'
@@ -40,6 +42,7 @@ fname_hydro = f'{fname_template}_hydro.csv'
 fname_hydro_fail_u = f'{fname_template}_hydro_fail_u.csv'
 fname_hydro_fail_e = f'{fname_template}_hydro_fail_e.csv'
 
+# Biomasse
 fname_power_unit_biomass = f'{fname_template}_power-unit_biomass.csv'
 fname_biomass_unit = f'{fname_template}_unit-biomass.csv'
 fname_biomass_eeg = f'{fname_template}_unit-biomass-eeg.csv'
@@ -47,18 +50,37 @@ fname_biomass = f'{fname_template}_biomass.csv'
 fname_biomass_fail_u = f'{fname_template}_biomass_fail_u.csv'
 fname_biomass_fail_e = f'{fname_template}_biomass_fail_e.csv'
 
+# SolareStrahlungsenergie
 fname_power_unit_solar = f'{fname_template}_power-unit_solar.csv'
 fname_solar_unit = f'{fname_template}_unit-solar.csv'
 fname_solar_eeg = f'{fname_template}_solar-eeg.csv'
 fname_solar = f'{fname_template}_solar.csv'
 
+# Speicher
 fname_storage = f'{fname_template}_storage.csv'
 fname_storage_unit = f'{fname_template}_unit-storage.csv'
 
+# Kernenergie
 fname_power_unit_nuclear = f'{fname_template}_power-unit_nuclear.csv'
 fname_nuclear_unit = f'{fname_template}_unit-nuclear.csv'
 fname_nuclear = f'{fname_template}_nuclear.csv'
 
+# AndereGase
+fname_power_unit_othergas = f'{fname_template}_power-unit_othergas.csv'
+# Braunkohle
+fname_power_unit_lignite = f'{fname_template}_power-unit_lignite.csv'
+# Erdgas
+fname_power_unit_naturalgas = f'{fname_template}_power-unit_naturalgas.csv'
+# Geothermie Solarthermie Grubengas Klaerschlamm (AKA GeoSolarthermieGrubenKlaerschlamm)
+fname_power_unit_gsgk = f'{fname_template}_power-unit_gsgk.csv'
+# Mineraloelprodukte
+fname_power_unit_petroleum = f'{fname_template}_power-unit_petroleum.csv'
+# NichtBiogenerAbfall
+fname_power_unit_nonbiowaste = f'{fname_template}_power-unit_nonbiowaste.csv'
+# Steinkohle
+fname_power_unit_hardcoal = f'{fname_template}_power-unit_hardcoal.csv'
+# Waerme
+fname_power_unit_heat = f'{fname_template}_power-unit_heat.csv'
 
 def get_data_version():
     """Return current data version. """
