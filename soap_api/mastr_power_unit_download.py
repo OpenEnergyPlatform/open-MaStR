@@ -139,7 +139,7 @@ def download_power_unit(
     3204000 (2020-08-20) data-release/2.5.5
     3233056 (2020-08-20) data-release/2.7.0
     """
-    log.info('Download MaStR Power Unit')
+    log.info(f'Download MaStR power unit for energy carrier: {energy_carrier}')
     log.info(f'Number of expected power units: {power_unit_list_len}')
 
     if energy_carrier == 'Kernenergie':
