@@ -173,7 +173,7 @@ def download_power_unit(
     else:
         filename = fname_power_unit
 
-    log.info(f'Write to: {fname_power_unit}')
+    log.info(f'Write to: {filename}')
 
     # if the list size is smaller than the limit
     if pu_limit > power_unit_list_len:
@@ -182,7 +182,7 @@ def download_power_unit(
     for start_from in range(0, power_unit_list_len, pu_limit):
         try:
             start_from, power_unit = get_power_unit(start_from, energy_carrier, pu_limit)
-            write_to_csv(fname_power_unit, pd.DataFrame(power_unit))
+            write_to_csv(filename, pd.DataFrame(power_unit))
             power_unit_len = len(power_unit)
             log.info(f'Download power_unit from {start_from}-{start_from + power_unit_len}')
         except:
