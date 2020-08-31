@@ -63,7 +63,7 @@ if __name__ == "__main__":
 
     """Wind"""
     # # setup_power_unit_wind()   # Extract from all power units
-    # download_power_unit(energy_carrier='Wind', power_unit_list_len=51429)
+    download_power_unit(energy_carrier='Wind', power_unit_list_len=51929)
     # download_unit_wind()
     # download_unit_wind_eeg()
     # download_unit_wind_permit()
@@ -73,7 +73,7 @@ if __name__ == "__main__":
 
     """Hydro"""
     # setup_power_unit_hydro()    # Extract from all power units
-    # download_power_unit(energy_carrier='Wasser', power_unit_list_len=10931)
+    download_power_unit(energy_carrier='Wasser', power_unit_list_len=11000)
     # download_unit_hydro()
     # download_unit_hydro_eeg()
     # retry_download_unit_hydro()
@@ -82,7 +82,7 @@ if __name__ == "__main__":
 
     """Biomass"""
     # # setup_power_unit_biomass()  # Extract from all power units
-    # download_power_unit(energy_carrier='Biomasse', power_unit_list_len=28255)
+    download_power_unit(energy_carrier='Biomasse', power_unit_list_len=28365)
     # download_unit_biomass()
     # download_unit_biomass_eeg()
     # retry_download_unit_biomass()
@@ -91,6 +91,7 @@ if __name__ == "__main__":
 
     """Solar"""
     # setup_power_unit_solar()
+    # download_power_unit(energy_carrier='SolareStrahlungsenergie', power_unit_list_len=2952918)
     # ''' DEFAULT PARAMS: start_from=0, n_entries=1, parallelism=12 '''
     # download_parallel_unit_solar(
     #     start_from=0,
@@ -103,31 +104,32 @@ if __name__ == "__main__":
     # make_solar()
 
     """Storages"""
+    download_power_unit(energy_carrier='Speicher', power_unit_list_len=144594)
     # get_solarunit_storages()
     # download_parallel_unit_storage()
 
     """Nuclear"""
     # setup_power_unit_nuclear()    # Extract from all power units
-    # download_power_unit(energy_carrier='Kernenergie', power_unit_list_len=9)
-    # download_unit_nuclear()
-    # make_nuclear()
+    download_power_unit(energy_carrier='Kernenergie', power_unit_list_len=9)
+    download_unit_nuclear()
+    make_nuclear()
 
     """Other"""
-    download_power_unit(energy_carrier='AndereGase', power_unit_list_len=2214)
+    download_power_unit(energy_carrier='AndereGase', power_unit_list_len=2276)
 
     download_power_unit(energy_carrier='Braunkohle', power_unit_list_len=96)
 
-    download_power_unit(energy_carrier='Erdgas', power_unit_list_len=36234)
+    download_power_unit(energy_carrier='Erdgas', power_unit_list_len=37014)
 
     download_power_unit(energy_carrier='Geothermie', power_unit_list_len=20)
-    download_power_unit(energy_carrier='Solarthermie', power_unit_list_len=29)
+    download_power_unit(energy_carrier='Solarthermie', power_unit_list_len=7)
     download_power_unit(energy_carrier='Grubengas', power_unit_list_len=193)
     download_power_unit(energy_carrier='Klaerschlamm', power_unit_list_len=98)
 
-    download_power_unit(energy_carrier='Mineraloelprodukte', power_unit_list_len=3962)
+    download_power_unit(energy_carrier='Mineraloelprodukte', power_unit_list_len=4056)
     download_power_unit(energy_carrier='NichtBiogenerAbfall', power_unit_list_len=158)
-    download_power_unit(energy_carrier='Steinkohle', power_unit_list_len=122)
-    download_power_unit(energy_carrier='Waerme', power_unit_list_len=194)
+    download_power_unit(energy_carrier='Steinkohle', power_unit_list_len=123)
+    download_power_unit(energy_carrier='Waerme', power_unit_list_len=195)
 
     """close"""
     log.info('MaSTR script successfully executed in {:.2f} seconds'

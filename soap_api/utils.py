@@ -11,7 +11,7 @@ import pandas as pd
 import logging
 log = logging.getLogger(__name__)
 
-DATA_VERSION = 'rli_v2.6.0'
+DATA_VERSION = 'rli_v2.7.0'
 """ Total Count of Power Units (TOTAL_POWER_UNITS) on date (UPDATE_TIMESTAMP) """
 TOTAL_POWER_UNITS = 3204000
 """ 19.08.2020 """
@@ -57,6 +57,7 @@ fname_solar_eeg = f'{fname_template}_solar-eeg.csv'
 fname_solar = f'{fname_template}_solar.csv'
 
 # Speicher
+fname_power_unit_storage = f'{fname_template}_power-unit_storage.csv'
 fname_storage = f'{fname_template}_storage.csv'
 fname_storage_unit = f'{fname_template}_unit-storage.csv'
 

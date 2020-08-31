@@ -38,7 +38,23 @@ import math
 
 log = logging.getLogger(__name__)
 ''' VAR IMPORT '''
-from soap_api.utils import fname_power_unit, fname_wind_unit, fname_power_unit_wind, fname_power_unit_hydro, fname_power_unit_biomass, fname_power_unit_nuclear,  TIMESTAMP
+from soap_api.utils import fname_power_unit, \
+    fname_wind_unit, \
+    fname_power_unit_wind, \
+    fname_power_unit_hydro, \
+    fname_power_unit_biomass, \
+    fname_power_unit_solar, \
+    fname_power_unit_nuclear,  \
+    fname_power_unit_storage,  \
+    fname_power_unit_othergas,  \
+    fname_power_unit_lignite,  \
+    fname_power_unit_naturalgas,  \
+    fname_power_unit_gsgk,  \
+    fname_power_unit_petroleum,  \
+    fname_power_unit_nonbiowaste,  \
+    fname_power_unit_hardcoal,  \
+    fname_power_unit_heat,  \
+    TIMESTAMP
 
 
 """SOAP API"""
@@ -121,6 +137,7 @@ def download_power_unit(
     3200862 (2020-08-18) data-release/2.5.1
     3203715 (2020-08-19) data-release/2.5.2
     3204000 (2020-08-20) data-release/2.5.5
+    3233056 (2020-08-20) data-release/2.7.0
     """
     log.info('Download MaStR Power Unit')
     log.info(f'Number of expected power units: {power_unit_list_len}')
@@ -133,6 +150,26 @@ def download_power_unit(
         filename = fname_power_unit_hydro
     elif energy_carrier == 'Biomasse':
         filename = fname_power_unit_biomass
+    elif energy_carrier == 'SolareStrahlungsenergie':
+        filename = fname_power_unit_solar
+    elif energy_carrier == 'Speicher':
+        filename = fname_power_unit_storage
+    elif energy_carrier == 'AndereGase':
+        filename = fname_power_unit_othergas
+    elif energy_carrier == 'Braunkohle':
+        filename = fname_power_unit_lignite
+    elif energy_carrier == 'Erdgas':
+        filename = fname_power_unit_naturalgas
+    elif energy_carrier == 'Geothermie' or energy_carrier == 'Solarthermie' or energy_carrier == 'Grubengas' or energy_carrier == 'Klaerschlamm':
+        filename = fname_power_unit_gsgk
+    elif energy_carrier == 'Mineraloelprodukte':
+        filename = fname_power_unit_petroleum
+    elif energy_carrier == 'NichtBiogenerAbfall':
+        filename = fname_power_unit_nonbiowaste
+    elif energy_carrier == 'Steinkohle':
+        filename = fname_power_unit_hardcoal
+    elif energy_carrier == 'Waerme':
+        filename = fname_power_unit_heat
     else:
         filename = fname_power_unit
 
