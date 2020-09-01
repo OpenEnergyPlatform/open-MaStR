@@ -66,22 +66,11 @@ fname_power_unit_nuclear = f'{fname_template}_power-unit_nuclear.csv'
 fname_nuclear_unit = f'{fname_template}_unit-nuclear.csv'
 fname_nuclear = f'{fname_template}_nuclear.csv'
 
-# AndereGase
-fname_power_unit_othergas = f'{fname_template}_power-unit_othergas.csv'
-# Braunkohle
-fname_power_unit_lignite = f'{fname_template}_power-unit_lignite.csv'
-# Erdgas
-fname_power_unit_naturalgas = f'{fname_template}_power-unit_naturalgas.csv'
 # Geothermie Solarthermie Grubengas Klaerschlamm (AKA GeoSolarthermieGrubenKlaerschlamm)
 fname_power_unit_gsgk = f'{fname_template}_power-unit_gsgk.csv'
-# Mineraloelprodukte
-fname_power_unit_petroleum = f'{fname_template}_power-unit_petroleum.csv'
-# NichtBiogenerAbfall
-fname_power_unit_nonbiowaste = f'{fname_template}_power-unit_nonbiowaste.csv'
-# Steinkohle
-fname_power_unit_hardcoal = f'{fname_template}_power-unit_hardcoal.csv'
-# Waerme
-fname_power_unit_heat = f'{fname_template}_power-unit_heat.csv'
+
+# AndereGase Braunkohle Erdgas Mineraloelprodukte NichtBiogenerAbfall Steinkohle Waerme (AKA Verbrennung)
+fname_power_unit_combustion = f'{fname_template}_power-unit_combustion.csv'
 
 def get_data_version():
     """Return current data version. """
