@@ -93,10 +93,14 @@ def get_power_unit(start_from, energy_carrier='None', datum='1900-01-01 00:00:00
         s = serialize_object(c)
         power_unit = pd.DataFrame(s['Einheiten'])
         power_unit.index.names = ['lid']
+        power_unit['uid'] = power_unit['lid'] + start_from
         power_unit['version'] = get_data_version()
         power_unit['timestamp'] = str(datetime.now())
     except Exception as e:
-        log.info(e)
+        log.info('Download failed, retrying for %s', start_from)
+        power_unit = pd.DataFrame()
+    # remove double quotes from column
+    # power_unit['Standort'] = power_unit['Standort'].str.replace('"', '')
     return [start_from, power_unit]
 
 

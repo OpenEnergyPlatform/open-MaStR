@@ -68,20 +68,31 @@ fname_nuclear = f'{fname_template}_nuclear.csv'
 
 # AndereGase
 fname_power_unit_othergas = f'{fname_template}_power-unit_othergas.csv'
+
 # Braunkohle
 fname_power_unit_lignite = f'{fname_template}_power-unit_lignite.csv'
+
 # Erdgas
 fname_power_unit_naturalgas = f'{fname_template}_power-unit_naturalgas.csv'
+
 # Geothermie Solarthermie Grubengas Klaerschlamm (AKA GeoSolarthermieGrubenKlaerschlamm)
 fname_power_unit_gsgk = f'{fname_template}_power-unit_gsgk.csv'
+fname_unit_gsgk = f'{fname_template}_unit-gsgk.csv'
+fname_unit_gsgk_eeg = f'{fname_template}_unit-gsgk-eeg.csv'
+fname_gsgk_all = f'{fname_template}_gsgk-all.csv'
+
 # Mineraloelprodukte
 fname_power_unit_petroleum = f'{fname_template}_power-unit_petroleum.csv'
+
 # NichtBiogenerAbfall
 fname_power_unit_nonbiowaste = f'{fname_template}_power-unit_nonbiowaste.csv'
+
 # Steinkohle
 fname_power_unit_hardcoal = f'{fname_template}_power-unit_hardcoal.csv'
+
 # Waerme
 fname_power_unit_heat = f'{fname_template}_power-unit_heat.csv'
+
 
 def get_data_version():
     """Return current data version. """

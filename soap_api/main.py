@@ -22,16 +22,19 @@ from soap_api.mastr_general_download import get_mastr_time, get_mastr_time_auth,
 from soap_api.mastr_power_unit_download import download_parallel_power_unit, download_power_unit
 from soap_api.mastr_wind_download import setup_power_unit_wind, retry_download_unit_wind, retry_download_unit_wind_eeg, download_unit_wind, download_unit_wind_eeg, download_unit_wind_permit
 from soap_api.mastr_wind_process import make_wind
+# from soap_api.mastr_wind_processing import do_wind
 from soap_api.mastr_hydro_download import setup_power_unit_hydro, retry_download_unit_hydro, retry_download_unit_hydro_eeg, download_unit_hydro, download_unit_hydro_eeg
 from soap_api.mastr_hydro_process import make_hydro
 from soap_api.mastr_biomass_download import setup_power_unit_biomass, retry_download_unit_biomass, retry_download_unit_biomass_eeg, download_unit_biomass, download_unit_biomass_eeg
 from soap_api.mastr_biomass_process import make_biomass
+from soap_api.mastr_gsgk_download import download_unit_gsgk, download_unit_gsgk_eeg
+from soap_api.mastr_gsgk_process import make_gsgk
 from soap_api.mastr_solar_download import setup_power_unit_solar, download_unit_solar, download_parallel_unit_solar, download_unit_solar_eeg, download_parallel_unit_solar_eeg
 from soap_api.mastr_solar_process import make_solar
-from soap_api.mastr_storage_units_download import download_unit_storage, download_parallel_unit_storage
+from soap_api.mastr_storage_units_download import get_storage_groups_by_address_or_postal, download_unit_storage, download_parallel_unit_storage
 from soap_api.mastr_nuclear_download import setup_power_unit_nuclear, download_unit_nuclear
 from soap_api.mastr_nuclear_process import make_nuclear
-# from soap_api.mastr_wind_processing import do_wind
+
 import time
 
 
@@ -60,6 +63,7 @@ if __name__ == "__main__":
     #    update=False,
     #    overwrite=False,
     #    start_from=0)
+
 
     """Wind"""
     # # setup_power_unit_wind()   # Extract from all power units
@@ -105,6 +109,7 @@ if __name__ == "__main__":
 
     """Storages"""
     # download_power_unit(energy_carrier='Speicher', power_unit_list_len=144594)
+    # get_geocode_address()
     # get_solarunit_storages()
     # download_parallel_unit_storage()
 
@@ -130,6 +135,16 @@ if __name__ == "__main__":
     # download_power_unit(energy_carrier='NichtBiogenerAbfall', power_unit_list_len=158)
     # download_power_unit(energy_carrier='Steinkohle', power_unit_list_len=123)
     # download_power_unit(energy_carrier='Waerme', power_unit_list_len=195)
+
+    """ Storages"""
+    # get_solarunit_storages()
+    # get_geocode_address()
+    # download_parallel_unit_storage()
+
+    """Geothermie Solarthermie Gruben Klaerschlamm (GSGK)"""
+    download_unit_gsgk()
+    download_unit_gsgk_eeg()
+    make_gsgk()
 
     """close"""
     log.info('MaSTR script successfully executed in {:.2f} seconds'
