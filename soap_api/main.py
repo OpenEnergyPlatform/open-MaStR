@@ -31,7 +31,7 @@ from soap_api.mastr_gsgk_download import download_unit_gsgk, download_unit_gsgk_
 from soap_api.mastr_gsgk_process import make_gsgk
 from soap_api.mastr_solar_download import setup_power_unit_solar, download_unit_solar, download_parallel_unit_solar, download_unit_solar_eeg, download_parallel_unit_solar_eeg
 from soap_api.mastr_solar_process import make_solar
-from soap_api.mastr_storage_units_download import get_storage_groups_by_address_or_postal, download_unit_storage, download_parallel_unit_storage
+from soap_api.mastr_storage_units_download import download_unit_storage, download_parallel_unit_storage
 from soap_api.mastr_nuclear_download import setup_power_unit_nuclear, download_unit_nuclear
 from soap_api.mastr_nuclear_process import make_nuclear
 
@@ -78,7 +78,7 @@ if __name__ == "__main__":
     """Hydro"""
     # setup_power_unit_hydro()    # Extract from all power units
     # download_power_unit(energy_carrier='Wasser', power_unit_list_len=11000)
-    download_unit_hydro()
+    # download_unit_hydro()
     # download_unit_hydro_eeg()
     # retry_download_unit_hydro()
     # retry_download_unit_hydro_eeg()
@@ -126,10 +126,7 @@ if __name__ == "__main__":
     #
     # download_power_unit(energy_carrier='Erdgas', power_unit_list_len=37014)
     #
-    # download_power_unit(energy_carrier='Geothermie', power_unit_list_len=20)
-    # download_power_unit(energy_carrier='Solarthermie', power_unit_list_len=7)
-    # download_power_unit(energy_carrier='Grubengas', power_unit_list_len=193)
-    # download_power_unit(energy_carrier='Klaerschlamm', power_unit_list_len=98)
+
     #
     # download_power_unit(energy_carrier='Mineraloelprodukte', power_unit_list_len=4056)
     # download_power_unit(energy_carrier='NichtBiogenerAbfall', power_unit_list_len=158)
@@ -142,9 +139,13 @@ if __name__ == "__main__":
     # download_parallel_unit_storage()
 
     """Geothermie Solarthermie Gruben Klaerschlamm (GSGK)"""
-    download_unit_gsgk()
-    download_unit_gsgk_eeg()
-    make_gsgk()
+    download_power_unit(energy_carrier='Geothermie', power_unit_list_len=20)
+    download_power_unit(energy_carrier='Solarthermie', power_unit_list_len=7)
+    # download_power_unit(energy_carrier='Grubengas', power_unit_list_len=193)
+    # download_power_unit(energy_carrier='Klaerschlamm', power_unit_list_len=98)
+    # download_unit_gsgk()
+    # download_unit_gsgk_eeg()
+    # make_gsgk()
 
     """close"""
     log.info('MaSTR script successfully executed in {:.2f} seconds'

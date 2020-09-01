@@ -63,7 +63,7 @@ api_key = token
 my_mastr = user
 
 
-def get_power_unit(start_from, energy_carrier='None', datum='1900-01-01 00:00:00.00000', limit=API_MAX_DEMANDS):
+def get_power_unit(start_from, energy_carrier, datum='1900-01-01 00:00:00.00000', limit=API_MAX_DEMANDS):
     """Get Stromerzeugungseinheit from API using GetGefilterteListeStromErzeuger.
 
     Parameters
