@@ -14,11 +14,10 @@ __license__ = "GNU Affero General Public License Version 3 (AGPL-3.0)"
 __url__ = "https://www.gnu.org/licenses/agpl-3.0.en.html"
 __author__ = "Ludee; christian-rli"
 __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
-__version__ = "v0.8.0"
+__version__ = "v0.9.0"
 
-from mastr_solar_download import *
-
-from utils import fname_solar, fname_solar_unit, fname_solar_eeg, fname_solar_eeg_unit
+from soap_api.mastr_solar_download import *
+from soap_api.utils import fname_power_unit_solar, fname_solar_unit, fname_solar_eeg, fname_solar
 
 import logging
 log = logging.getLogger(__name__)
@@ -29,9 +28,9 @@ def make_solar():
     data_version = get_data_version()
     csv_solar = f'data/bnetza_mastr_{data_version}_solar_all.csv'
 
-    power_unit_solar = read_power_units(fname_solar_unit)
-    unit_solar = read_unit_solar(fname_solar)
-    power_unit_eeg = read_power_units(fname_solar_eeg_unit)
+    power_unit_solar = read_power_units(fname_power_unit_solar)
+    unit_solar = read_unit_solar(fname_solar_unit)
+    power_unit_eeg = read_power_units(fname_solar_eeg)
     unit_solar_eeg = read_unit_solar_eeg(fname_solar_eeg)
 
     table_solar = power_unit_solar.set_index('EinheitMastrNummer') \

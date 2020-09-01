@@ -12,35 +12,215 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 __copyright__ = "© Reiner Lemoine Institut"
 __license__ = "GNU Affero General Public License Version 3 (AGPL-3.0)"
 __url__ = "https://www.gnu.org/licenses/agpl-3.0.en.html"
-__author__ = "Ludee; christian-rli"
+__author__ = "Ludee; christian-rli; Bachibouzouk; solar-c"
 __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
-__version__ = "v0.8.0"
+__version__ = "v0.9.0"
 
 from soap_api.sessions import mastr_session
-from mastr_power_unit_download import read_power_units
-from soap_api.utils import split_to_sublists, get_data_version, write_to_csv, remove_csv
+from soap_api.utils import split_to_sublists, get_data_version, write_to_csv, remove_csv, read_power_units
+from soap_api.utils import (fname_power_unit,
+                            fname_power_unit_solar,
+                            fname_solar_unit,
+                            fname_solar_eeg)
 
 import multiprocessing as mp
-from multiprocessing.pool import ThreadPool 
+from multiprocessing.pool import ThreadPool
 import pandas as pd
-import numpy as np
+import time
 import datetime
 import os
-import numpy as np
 from zeep.helpers import serialize_object
 from functools import partial
+import textwrap
 
-import time
 import logging
-log = logging.getLogger(__name__)
 
-""" import variables """
-from utils import fname_all_units, fname_solar, fname_solar_unit, fname_solar_eeg, fname_solar_eeg_unit
+log = logging.getLogger(__name__)
 
 """SOAP API"""
 client, client_bind, token, user = mastr_session()
 api_key = token
 my_mastr = user
+
+
+def setup_power_unit_solar():
+    """Setup file for Stromerzeugungseinheit-Solar (power-unit_solar).
+
+    Check if file with Stromerzeugungseinheit (power-unit) exists.
+    Read Stromerzeugungseinheit and filter Stromerzeugungseinheit-Solar.
+    Remove duplicates and write to file.
+
+    Returns
+    -------
+    fname_power_unit_solar : csv
+        Write Stromerzeugungseinheit-Solar to csv file.
+    """
+    if os.path.isfile(fname_power_unit_solar):
+        log.info(f'Skip setup for Stromerzeugungseinheit-Solar')
+
+    else:
+        if os.path.isfile(fname_power_unit):
+            power_unit = read_power_units(fname_power_unit)
+
+            power_unit_solar = power_unit[power_unit.Einheittyp == 'Solareinheit']
+            power_unit_solar = power_unit_solar.drop_duplicates(subset=['EinheitMastrNummer',
+                                                                        'Name',
+                                                                        'Einheitart',
+                                                                        'Einheittyp',
+                                                                        'Standort',
+                                                                        'Bruttoleistung',
+                                                                        'Erzeugungsleistung',
+                                                                        'EinheitBetriebsstatus',
+                                                                        'Anlagenbetreiber',
+                                                                        'EegMastrNummer',
+                                                                        'KwkMastrNummer',
+                                                                        'SpeMastrNummer',
+                                                                        'GenMastrNummer'])
+            log.info(f'Filter power-unit for solar and remove duplicates')
+            power_unit_solar.reset_index()
+            power_unit_solar.index.name = 'pu-id'
+
+            write_to_csv(fname_power_unit_solar, power_unit_solar)
+            power_unit_solar_cnt = power_unit_solar['timestamp'].count()
+            log.info(f'Write {power_unit_solar_cnt} power-unit_solar to {fname_power_unit_solar}')
+
+        else:
+            log.info(f'Error reading power-unit from {fname_power_unit}')
+
+
+def read_power_unit_solar(csv_name):
+    """Encode and read Stromerzeugungseinheit-Solar (power-unit_solar) from CSV file.
+
+    Parameters
+    ----------
+    csv_name : str
+        Name of file.
+
+    Returns
+    -------
+    power_unit_solar : DataFrame
+        Stromerzeugungseinheit-Solar.
+    """
+    if os.path.isfile(csv_name):
+        power_unit_solar = pd.read_csv(csv_name, header=0, encoding='utf-8', sep=';', index_col=False,
+                                       dtype={
+                                           'pu-id': str,
+                                           'lid': str,
+                                           'EinheitMastrNummer': str,
+                                           'Name': str,
+                                           'Einheitart': str,
+                                           'Einheittyp': str,
+                                           'Standort': str,
+                                           'Bruttoleistung': str,
+                                           'Erzeugungsleistung': str,
+                                           'EinheitBetriebsstatus': str,
+                                           'Anlagenbetreiber': str,
+                                           'EegMastrNummer': str,
+                                           'KwkMastrNummer': str,
+                                           'SpeMastrNummer': str,
+                                           'GenMastrNummer': str,
+                                           'BestandsanlageMastrNummer': str,
+                                           'NichtVorhandenInMigriertenEinheiten': str,
+                                           'StatisikFlag': str,
+                                           'version': str,
+                                           'timestamp': str})
+        power_unit_solar_cnt = power_unit_solar['timestamp'].count()
+        log.info(f'Read {power_unit_solar_cnt} Stromerzeugungseinheit-Solar from {csv_name}')
+        return power_unit_solar
+
+    else:
+        log.info(f'Error reading {csv_name}')
+
+
+# Download unit-solar (parallel)
+def download_parallel_unit_solar(start_from=0, n_entries=1, parallelism=12):
+    """Download Solareinheit (solar-unit) with parallel process.
+
+    Filter EinheitMastrNummer from Stromerzeugungseinheit-Solar.
+    Remove duplicates and count.
+    Loop over list and write download to file.
+
+    Arguments
+    ---------
+    start_from : int
+        Start index in the power_unit_list.
+    n_entries : int
+        Number of entries to download.
+    parallelism : int
+        Number of threads.
+    """
+    setup_power_unit_solar()
+
+    global proc_list
+    split_solar_list = []
+
+    power_unit_solar = read_power_unit_solar(fname_power_unit_solar)
+    mastr_list = power_unit_solar['EinheitMastrNummer'].values.tolist()
+    # mastr_list = list(dict.fromkeys(mastr_list))
+    mastr_list_len = len(mastr_list)
+
+    # check wether user input
+    if n_entries is 1:
+        n_entries = mastr_list_len
+    # check wether to download more entries than solareinheiten in unit_solar_list starting at start_from
+    if n_entries > (mastr_list_len - start_from):
+        n_entries = mastr_list_len - start_from
+    log.info(f'Download {n_entries} Solareinheit')
+
+    end_at = start_from + n_entries
+    cpu_count = mp.cpu_count()
+    process_pool = mp.Pool(processes=cpu_count)
+    t = time.time()
+    proc_list = split_to_sublists(mastr_list[start_from:end_at], len(mastr_list[start_from:end_at]), cpu_count)
+    print("This may take a moment. Processing {} data batches.".format(len(proc_list)))
+
+    # wait_for_offtime()
+
+    try:
+        partial(split_to_threads, parallelism=parallelism)
+        unit_solar = process_pool.map(split_to_threads, proc_list)
+        process_pool.close()
+        process_pool.join()
+
+    except Exception as e:
+        log.error(e)
+
+    log.info('Time needed %s', time.time() - t)
+
+
+def wait_for_offtime():
+    # check if time is between 7:00 and 19:00, wait until 19h
+    now = time.strftime('%H%M%S', time.localtime(time.time()))
+    limit_lower = time.strftime('%H%M%S', time.strptime('17:00:00', '%H:%M:%S'))
+    limit_upper = time.strftime('%H%M%S', time.strptime('07:00:00', '%H:%M:%S'))
+
+    if now > limit_upper and now < limit_lower:
+        waiting_time = int(limit_lower) - int(now)
+        timesteps = textwrap.wrap(str(waiting_time)[::-1], 2)
+        x = 1
+        seconds = 0
+        for i in timesteps:
+            seconds += int(i) * x
+            x *= 60
+        log.info(f'Program paused. Waiting for {seconds} seconds')
+        time.sleep(seconds)
+
+
+def split_to_threads(sublist, parallelism=12):
+    """ Maps sublist variables to function get_power_unit_solar on parallel threads (number = parallelism)
+
+    Parameters
+    ----------
+    sublist : list
+        list to process in parallel
+    parallelism : int
+        number of threads
+    """
+    pool = ThreadPool(processes=parallelism)
+    results = pool.map(get_power_unit_solar, sublist)
+    pool.close()
+    pool.join()
+    return results
 
 
 def get_power_unit_solar(mastr_unit_solar):
@@ -56,15 +236,14 @@ def get_power_unit_solar(mastr_unit_solar):
     unit_solar : DataFrame
         Solareinheit.
     """
-    #with mp.Lock():
+    # with mp.Lock():
     #   log.info('downloading data unit... %s', mastr_unit_solar)
-
     data_version = get_data_version()
-    
+    unit_solar = pd.DataFrame()
     try:
         c = client_bind.GetEinheitSolar(apiKey=api_key,
-                                    marktakteurMastrNummer=my_mastr,
-                                    einheitMastrNummer=mastr_unit_solar)
+                                        marktakteurMastrNummer=my_mastr,
+                                        einheitMastrNummer=mastr_unit_solar)
         s = serialize_object(c)
         df = pd.DataFrame(list(s.items()), )
         unit_solar = df.set_index(list(df.columns.values)[0]).transpose()
@@ -72,10 +251,10 @@ def get_power_unit_solar(mastr_unit_solar):
         unit_solar.index.names = ['lid']
         unit_solar['version'] = data_version
         unit_solar['timestamp'] = str(datetime.datetime.now())
-    except Exception as e:
+        write_to_csv(fname_solar_unit, unit_solar)
         return unit_solar
-    
-    return unit_solar
+    except Exception as e:
+        log.info('Download failed for %s', mastr_unit_solar)
 
 
 def read_unit_solar(csv_name):
@@ -172,6 +351,79 @@ def read_unit_solar(csv_name):
     return unit_solar
 
 
+# Download unit-solar-eeg (parallel)
+def download_parallel_unit_solar_eeg(
+        start_from=0,
+        n_entries=1,
+        parallelism=12
+):
+    """Download GetAnlageEegSolar with parallel process
+
+
+    Arguments
+    ---------
+    start_from : int
+        Start index in the power_unit_list.
+    n_entries : int
+        Number of entries to download
+    parallelism : int
+        number of threads
+
+    Existing units: 31543 (2019-02-10)
+
+    Existing units: 31543 (2019-02-10)
+    """
+
+    global proc_list
+    split_solar_list = []
+
+    unit_solar = setup_power_unit_solar()
+    if unit_solar.empty:
+        return
+    unit_solar_list = unit_solar['EegMastrNummer'].values.tolist()
+    mastr_list_len = len(unit_solar_list)
+    # check wether user input
+    if n_entries is 1:
+        n_entries = mastr_list_len
+    # check wether to download more entries than solareinheiten in unit_solar_list starting at start_from
+    if n_entries > (mastr_list_len - start_from):
+        n_entries = mastr_list_len - start_from
+    log.info('Found %s solar units eeg', n_entries)
+    end_at = start_from + n_entries
+    cpu_count = mp.cpu_count()
+    process_pool = mp.Pool(processes=cpu_count)
+    t = time.time()
+    proc_list = split_to_sublists(unit_solar_list[start_from:end_at], len(unit_solar_list[start_from:end_at]),
+                                  cpu_count)
+    print("This may take a moment. Processing {} data eeg batches.".format(len(proc_list)))
+    try:
+        partial(split_to_threads_eeg, parallelism=parallelism)
+        unit_solar = process_pool.map(split_to_threads_eeg, proc_list)
+        process_pool.close()
+        process_pool.join()
+        write_to_csv(fname_solar_eeg, unit_solar)
+    except Exception as e:
+        log.error(e)
+    log.info('time needed %s', time.time() - t)
+
+
+def split_to_threads_eeg(sublist, parallelism=12):
+    """ Maps sublist variables to function get_unit_solar_eeg on parallel threads (number = parallelism)
+
+    Parameters
+    ----------
+    sublist : list
+        list to process in parallel
+    parallelism : int
+        number of threads
+    """
+    pool = ThreadPool(processes=parallelism)
+    results = pool.map(get_unit_solar_eeg, sublist)
+    pool.close()
+    pool.join()
+    return results
+
+
 def get_unit_solar_eeg(mastr_solar_eeg):
     """Get EEG-Anlage-Solar from API using GetAnlageEegSolar.
 
@@ -188,8 +440,8 @@ def get_unit_solar_eeg(mastr_solar_eeg):
     data_version = get_data_version()
     try:
         c = client_bind.GetAnlageEegSolar(apiKey=api_key,
-                                      marktakteurMastrNummer=my_mastr,
-                                      eegMastrNummer=mastr_solar_eeg)
+                                          marktakteurMastrNummer=my_mastr,
+                                          eegMastrNummer=mastr_solar_eeg)
         s = serialize_object(c)
         df = pd.DataFrame(list(s.items()), )
         unit_solar_eeg = df.set_index(list(df.columns.values)[0]).transpose()
@@ -246,52 +498,15 @@ def read_unit_solar_eeg(csv_name):
     return unit_solar_eeg
 
 
-def setup_power_unit_solar(overwrite=True, eeg=False):
-    """Setup file for Stromerzeugungseinheit-Solar.
-
-    Check if file with Stromerzeugungseinheit-Solar exists. Create if not exists.
-    Load Stromerzeugungseinheit-Solar from file if exists.
-
-    Returns
-    -------
-    power_unit_solar : DataFrame
-        Stromerzeugungseinheit-Solar.
-    """
-    data_version = get_data_version()
-    if overwrite and not eeg:
-            remove_csv(fname_solar)
-            remove_csv(fname_solar_unit)
-    elif overwrite and eeg:
-            remove_csv(fname_solar_eeg)
-            remove_csv(fname_solar_eeg_unit)
-    if os.path.isfile(fname_all_units):
-        power_unit = read_power_units(fname_all_units)
-        if not power_unit.empty:
-            power_unit = power_unit.drop_duplicates()
-            power_unit_solar = power_unit[power_unit.Einheittyp == 'Solareinheit']
-            power_unit_solar.index.names = ['see_id']
-            power_unit_solar.reset_index()
-            power_unit_solar.index.names = ['id']
-            if not eeg:
-                write_to_csv(fname_solar_unit, power_unit_solar)       
-            else:
-                write_to_csv(fname_solar_eeg_unit, power_unit_solar)           
-            power_unit.iloc[0:0]
-            return power_unit_solar
-        else:
-            log.info('no solarunits found')
-            return pd.DataFrame()
-    return power_unit_solar
-
-
-def download_unit_solar(overwrite=True):
+# Download unit-solar
+def download_unit_solar():
     """Download Solareinheit.
 
     Existing units: 31543 (2019-02-10)
     """
     start_from = 0
     log.info('download unit solar..')
-    unit_solar = setup_power_unit_solar(overwrite, eeg=False)
+    unit_solar = setup_power_unit_solar(eeg=False)
     unit_solar_list = unit_solar['EinheitMastrNummer'].values.tolist()
     unit_solar_list_len = len(unit_solar_list)
     log.info(f'Download MaStR Solar')
@@ -300,157 +515,24 @@ def download_unit_solar(overwrite=True):
     for i in range(start_from, unit_solar_list_len, 1):
         try:
             unit_solar = get_power_unit_solar(unit_solar_list[i])
-            write_to_csv(fname_solar, unit_solar)
+            write_to_csv(fname_solar_unit, unit_solar)
         except:
             log.exception(f'Download failed unit_solar ({i}): {unit_solar_list[i]}')
 
 
-def download_parallel_unit_solar(
-        start_from=0,
-        n_entries=1,
-        parallelism=300,
-        cpu_factor=1,
-        overwrite=True
-):
-    """Download GetEinheitSolar with parallel process
+# Download unit-solar-eeg
+def download_unit_solar_eeg():
+    """Download unit_solar_eeg using GetAnlageEegSolar request.
 
-
-    Arguments
-    ---------
-    start_from : int
-        Start index in the power_unit_list.
-    n_entries : int
-        Number of entries to download
+    Parameters
+    ----------
+    sublist : list
+        list to process in parallel
     parallelism : int
         number of threads
-    cpu_factor : float
-        multiplies the number of processes depending on available cpu units
-    overwrite : bool
-        decide wether the existing files should be overwritten or not
-
-
-    Existing units: 31543 (2019-02-10)
-
     """
-    global proc_list
-    split_solar_list = []
-
-    unit_solar = setup_power_unit_solar(overwrite, eeg=False) 
-    if unit_solar.empty:
-        return
-    unit_solar_list = unit_solar['EinheitMastrNummer'].values.tolist()
-    unit_solar_list_len = len(unit_solar_list)
-    # check wether user input
-    if n_entries is 1:
-        n_entries = unit_solar_list_len
-    # check wether to download more entries than solareinheiten in unit_solar_list starting at start_from
-    if n_entries > (unit_solar_list_len-start_from):
-        n_entries = unit_solar_list_len-start_from
-    log.info('Found %s solar units', n_entries)
-    end_at = start_from+n_entries
-    cpu_count = mp.cpu_count()*cpu_factor
-    process_pool = mp.Pool(processes=cpu_count)
-    t = time.time()
-    proc_list = split_to_sublists(unit_solar_list[start_from:end_at], len(unit_solar_list[start_from:end_at]),cpu_count)
-    print("This may take a moment. Processing {} data batches.".format(len(proc_list)))
-    try:
-        partial(split_to_threads, parallelism=parallelism)
-        unit_solar = process_pool.map(split_to_threads, proc_list)
-        process_pool.close()
-        process_pool.join()
-        if not eeg:
-            write_to_csv(fname_solar, unit_solar)
-        else:
-            write_to_csv(fname_solar_eeg, unit_solar)
-    except Exception as e:
-        log.error(e)
-    log.info('time needed %s', time.time()-t)
-
-
-
-
-def download_parallel_unit_solar_eeg(
-        start_from=0,
-        n_entries=1,
-        parallelism=300,
-        cpu_factor=1,
-        overwrite=True
-):
-
-    """Download GetAnlageEegSolar with parallel process
-
-
-    Arguments
-    ---------
-    start_from : int
-        Start index in the power_unit_list.
-    n_entries : int
-        Number of entries to download
-    parallelism : int
-        number of threads
-    cpu_factor : float
-        multiplies the number of processes depending on available cpu units
-    overwrite : bool
-        decide wether the existing files should be overwritten or not
-
-
-    Existing units: 31543 (2019-02-10)
-
-    Existing units: 31543 (2019-02-10)
-    """
-
-    global proc_list
-    split_solar_list = []
-
-    unit_solar = setup_power_unit_solar(overwrite, eeg=True) 
-    if unit_solar.empty:
-        return
-    unit_solar_list = unit_solar['EegMastrNummer'].values.tolist()
-    unit_solar_list_len = len(unit_solar_list)
-    # check wether user input
-    if n_entries is 1:
-        n_entries = unit_solar_list_len
-    # check wether to download more entries than solareinheiten in unit_solar_list starting at start_from
-    if n_entries > (unit_solar_list_len-start_from):
-        n_entries = unit_solar_list_len-start_from
-    log.info('Found %s solar units eeg', n_entries)
-    end_at = start_from+n_entries
-    cpu_count = mp.cpu_count()*cpu_factor
-    process_pool = mp.Pool(processes=cpu_count)
-    t = time.time()
-    proc_list = split_to_sublists(unit_solar_list[start_from:end_at],len(unit_solar_list[start_from:end_at]),cpu_count)
-    print("This may take a moment. Processing {} data eeg batches.".format(len(proc_list)))
-    try:
-        partial(split_to_threads_eeg, parallelism=parallelism)
-        unit_solar = process_pool.map(split_to_threads_eeg, proc_list)
-        process_pool.close()
-        process_pool.join()
-        write_to_csv(fname_solar_eeg, unit_solar)
-    except Exception as e:
-        log.error(e)
-    log.info('time needed %s', time.time()-t)
-
-
-def split_to_threads(sublist,parallelism=100):
-    pool = ThreadPool(processes=parallelism)
-    results = pool.map(get_power_unit_solar, sublist)
-    pool.close()
-    pool.join()
-    return results
-
-
-def split_to_threads_eeg(sublist,parallelism=100):
-    pool = ThreadPool(processes=parallelism)
-    results = pool.map(get_unit_solar_eeg, sublist)
-    pool.close()
-    pool.join()
-    return results
-
-
-def download_unit_solar_eeg(overwrite=True):
-    """Download unit_solar_eeg using GetAnlageEegSolar request."""
     data_version = get_data_version()
-    unit_solar = setup_power_unit_solar(overwrite, eeg=True)
+    unit_solar = setup_power_unit_solar()
 
     unit_solar_list = unit_solar['EegMastrNummer'].values.tolist()
     unit_solar_list_len = len(unit_solar_list)

@@ -1,0 +1,862 @@
+Prefix(:=<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56>)
+Prefix(owl:=<http://www.w3.org/2002/07/owl#>)
+Prefix(rdf:=<http://www.w3.org/1999/02/22-rdf-syntax-ns#>)
+Prefix(xml:=<http://www.w3.org/XML/1998/namespace>)
+Prefix(xsd:=<http://www.w3.org/2001/XMLSchema#>)
+Prefix(rdfs:=<http://www.w3.org/2000/01/rdf-schema#>)
+
+
+Ontology(<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56>
+
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/AcDcCoupling>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/AdditionalToAddress>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/AreaOfApplication>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/AssignedEffectivePowerInverter>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/AssignedEffectivePowerInverterSolar>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/Batterytechnology>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/BlackStartCapability>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/CapacitiyLimitation>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/City>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/ClusterBalticSea>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/ClusterNorthSea>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/CoastDistance>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/CommissioningData>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/CommonInverterWithStorage>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/CommonParameters>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/Community>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/ConnectionToMaximumOrHighVoltage>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/Continent>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/Country>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/County>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/DataFinalDecommissioning>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/DataRestartOperation>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/DataStartTemporaryDecommissioning>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/Dataset>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/DateRegistrationOfOperatorChange>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/DateStartOfTemporaryorFinalDecommissioning>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/DisplayOfDecommissioning>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/District>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/ElectricityGridComponent>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/ElectricityProductionUnit>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/EmergencyGenerator>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/EnergyCarrier>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/EntityOperationStatus>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/FederalState>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/FeedingType>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/GaussKrügerEast>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/GaussKrügerNorth>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/GeographicRegion>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/GeopgraphicCoordinate>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/GrossCapacity>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/HouseNumber>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/HubHeight>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/HydroEntityDataset>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/InformationArtifact>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/IsolatedOperationCapability>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/Land>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/Latitude>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/LoadArea>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/Longitude>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/MaStR>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/MainOrientation>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/MainOrientationTilt>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/Manufacturer>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/ManufacturerSpecifications>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/NameElectricityProducerEntity>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/NamePowerPlant>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/NetCapacity>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/NetCapacityGermany>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/NetCapacityGermanyHydro>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/NumbersOfModules>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/OccupiedArableLand>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/OccupiedArea>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/OperationSite>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/ParcelNumber>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/PartOfMarginalPowerPlant>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/PartOfMarginalPowerPlantHydro>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/PlannedCommissioningData>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/PlantOperation>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/PositionSolar>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/PostalCode>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/PowerPlantData>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/PowerPlantnumber>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/PrequalifiedForControlEnergy>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/PumpOperationContinouslyAdjustable>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/PumpOperationPowerConsumption>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/PumpStorageTechnology>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/ReductionElectricityGeneration>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/RemoteControl>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/RemoteControlByThirdParties>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/RemoteControlDirectMarketer>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/RemoteControlGridOperator>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/RequierementSwitchOffAnimalProtection>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/RequierementSwitchOffCapacityLimitation>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/RequierementSwitchOffIceFalling>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/RequierementSwitchOffNoiseImmissionProtectionNights>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/RequierementSwitchOffOthers>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/RequierementSwitchOffShadowing>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/Requierements>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/RotorBladeDeIcingSystem>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/RotorDiameter>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/Sea>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/SeasideLocation>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/SecondaryOrientation>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/SecondaryOrientationTilt>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/SolarEntityDataset>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/StorageUnitDataset>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/Street>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/TechnicalDataStorage>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/TechnicalDataWind>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/Technology>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/TypeDescription>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/TypeOfArea>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/TypeOfDecommissioning>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/TypeOfHydroPowerPlant>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/TypeOfInflows>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/UniformOrientationAndTilt>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/UseableStorageCapacity>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/UtmEast>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/UtmNorth>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/UtmZoneValue>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/WaterDepth>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/Weic>))
+Declaration(Class(<http://openenergy-platform.org/ontology/oeo/WeicDisplayName>))
+Declaration(Class(<http://purl.obolibrary.org/obo/Continuant>))
+Declaration(Class(<http://purl.obolibrary.org/obo/continuant_fiat_boundary>))
+Declaration(Class(<http://purl.obolibrary.org/obo/disposition>))
+Declaration(Class(<http://purl.obolibrary.org/obo/fiat_object_part>))
+Declaration(Class(<http://purl.obolibrary.org/obo/function>))
+Declaration(Class(<http://purl.obolibrary.org/obo/generically_dependent_continuant>))
+Declaration(Class(<http://purl.obolibrary.org/obo/history>))
+Declaration(Class(<http://purl.obolibrary.org/obo/immaterial_entity>))
+Declaration(Class(<http://purl.obolibrary.org/obo/independent_continuant>))
+Declaration(Class(<http://purl.obolibrary.org/obo/material_entity>))
+Declaration(Class(<http://purl.obolibrary.org/obo/object>))
+Declaration(Class(<http://purl.obolibrary.org/obo/object_aggregate>))
+Declaration(Class(<http://purl.obolibrary.org/obo/occurent>))
+Declaration(Class(<http://purl.obolibrary.org/obo/one-dimensional_continuant_fiat_boundary>))
+Declaration(Class(<http://purl.obolibrary.org/obo/one-dimensional_spatial_region>))
+Declaration(Class(<http://purl.obolibrary.org/obo/one-dimensional_temporal_region>))
+Declaration(Class(<http://purl.obolibrary.org/obo/process>))
+Declaration(Class(<http://purl.obolibrary.org/obo/process_boundary>))
+Declaration(Class(<http://purl.obolibrary.org/obo/process_profile>))
+Declaration(Class(<http://purl.obolibrary.org/obo/quality>))
+Declaration(Class(<http://purl.obolibrary.org/obo/realizable_entity>))
+Declaration(Class(<http://purl.obolibrary.org/obo/relational_quality>))
+Declaration(Class(<http://purl.obolibrary.org/obo/role>))
+Declaration(Class(<http://purl.obolibrary.org/obo/site>))
+Declaration(Class(<http://purl.obolibrary.org/obo/spatial_region>))
+Declaration(Class(<http://purl.obolibrary.org/obo/spatiotemperol_region>))
+Declaration(Class(<http://purl.obolibrary.org/obo/specifically_dependent_continuant>))
+Declaration(Class(<http://purl.obolibrary.org/obo/temperol_region>))
+Declaration(Class(<http://purl.obolibrary.org/obo/three-dimensional_spatial_region>))
+Declaration(Class(<http://purl.obolibrary.org/obo/two-dimensional_continuant_fiat_boundary>))
+Declaration(Class(<http://purl.obolibrary.org/obo/two-dimensional_spatial_region>))
+Declaration(Class(<http://purl.obolibrary.org/obo/two-dimensional_temporal_region>))
+Declaration(Class(<http://purl.obolibrary.org/obo/zero-dimensional_continuant_fiat_boundary>))
+Declaration(Class(<http://purl.obolibrary.org/obo/zero-dimensional_spatial_region>))
+Declaration(Class(<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#Authority>))
+Declaration(Class(<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#ClaimingPaymentAccordingEEG>))
+Declaration(Class(<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#CommunityKey>))
+Declaration(Class(<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#ConnectedEntity>))
+Declaration(Class(<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#Data>))
+Declaration(Class(<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#DateOfOperatorChange>))
+Declaration(Class(<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#EEGCommissioningData>))
+Declaration(Class(<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#EEGDataWind>))
+Declaration(Class(<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#FileReference>))
+Declaration(Class(<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#HouseNumberNotFound>))
+Declaration(Class(<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#InstalledCapacity>))
+Declaration(Class(<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#License>))
+Declaration(Class(<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#NameWindPark>))
+Declaration(Class(<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#Period>))
+Declaration(Class(<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#PilotPlant>))
+Declaration(Class(<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#PlantIdEEG>))
+Declaration(Class(<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#PositionWindEnergyPlant>))
+Declaration(Class(<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#PrototypPlant>))
+Declaration(Class(<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#ReportingDate>))
+Declaration(Class(<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#StreetNotFound>))
+Declaration(Class(<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#Typ>))
+Declaration(Class(<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#WaterRightNumber>))
+Declaration(Class(<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#WaterRightsExpirationDate>))
+
+
+############################
+#   Classes
+############################
+
+# Class: <http://openenergy-platform.org/ontology/oeo/AcDcCoupling> (<http://openenergy-platform.org/ontology/oeo/AcDcCoupling>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/AcDcCoupling> <http://openenergy-platform.org/ontology/oeo/TechnicalDataStorage>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/AdditionalToAddress> (<http://openenergy-platform.org/ontology/oeo/AdditionalToAddress>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/AdditionalToAddress> <http://openenergy-platform.org/ontology/oeo/Land>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/AreaOfApplication> (<http://openenergy-platform.org/ontology/oeo/AreaOfApplication>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/AreaOfApplication> <http://openenergy-platform.org/ontology/oeo/SolarEntityDataset>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/AssignedEffectivePowerInverter> (<http://openenergy-platform.org/ontology/oeo/AssignedEffectivePowerInverter>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/AssignedEffectivePowerInverter> <http://openenergy-platform.org/ontology/oeo/TechnicalDataStorage>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/AssignedEffectivePowerInverterSolar> (<http://openenergy-platform.org/ontology/oeo/AssignedEffectivePowerInverterSolar>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/AssignedEffectivePowerInverterSolar> <http://openenergy-platform.org/ontology/oeo/SolarEntityDataset>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/Batterytechnology> (<http://openenergy-platform.org/ontology/oeo/Batterytechnology>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/Batterytechnology> <http://openenergy-platform.org/ontology/oeo/TechnicalDataStorage>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/BlackStartCapability> (<http://openenergy-platform.org/ontology/oeo/BlackStartCapability>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/BlackStartCapability> <http://openenergy-platform.org/ontology/oeo/PowerPlantData>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/CapacitiyLimitation> (<http://openenergy-platform.org/ontology/oeo/CapacitiyLimitation>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/CapacitiyLimitation> <http://openenergy-platform.org/ontology/oeo/SolarEntityDataset>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/City> (<http://openenergy-platform.org/ontology/oeo/City>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/City> <http://openenergy-platform.org/ontology/oeo/Land>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/ClusterBalticSea> (<http://openenergy-platform.org/ontology/oeo/ClusterBalticSea>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/ClusterBalticSea> <http://openenergy-platform.org/ontology/oeo/Sea>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/ClusterNorthSea> (<http://openenergy-platform.org/ontology/oeo/ClusterNorthSea>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/ClusterNorthSea> <http://openenergy-platform.org/ontology/oeo/Sea>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/CoastDistance> (<http://openenergy-platform.org/ontology/oeo/CoastDistance>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/CoastDistance> <http://openenergy-platform.org/ontology/oeo/Sea>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/CommissioningData> (<http://openenergy-platform.org/ontology/oeo/CommissioningData>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/CommissioningData> <http://openenergy-platform.org/ontology/oeo/PlantOperation>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/CommonInverterWithStorage> (<http://openenergy-platform.org/ontology/oeo/CommonInverterWithStorage>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/CommonInverterWithStorage> <http://openenergy-platform.org/ontology/oeo/SolarEntityDataset>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/CommonParameters> (<http://openenergy-platform.org/ontology/oeo/CommonParameters>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/CommonParameters> <http://openenergy-platform.org/ontology/oeo/ElectricityProductionUnit>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/Community> (<http://openenergy-platform.org/ontology/oeo/Community>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/Community> <http://openenergy-platform.org/ontology/oeo/Land>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/ConnectionToMaximumOrHighVoltage> (<http://openenergy-platform.org/ontology/oeo/ConnectionToMaximumOrHighVoltage>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/ConnectionToMaximumOrHighVoltage> <http://openenergy-platform.org/ontology/oeo/PowerPlantData>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/Continent> (<http://openenergy-platform.org/ontology/oeo/Continent>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/Continent> <http://openenergy-platform.org/ontology/oeo/Land>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/Country> (<http://openenergy-platform.org/ontology/oeo/Country>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/Country> <http://openenergy-platform.org/ontology/oeo/Land>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/County> (<http://openenergy-platform.org/ontology/oeo/County>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/County> <http://openenergy-platform.org/ontology/oeo/Land>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/DataFinalDecommissioning> (<http://openenergy-platform.org/ontology/oeo/DataFinalDecommissioning>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/DataFinalDecommissioning> <http://openenergy-platform.org/ontology/oeo/PlantOperation>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/DataRestartOperation> (<http://openenergy-platform.org/ontology/oeo/DataRestartOperation>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/DataRestartOperation> <http://openenergy-platform.org/ontology/oeo/PlantOperation>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/DataStartTemporaryDecommissioning> (<http://openenergy-platform.org/ontology/oeo/DataStartTemporaryDecommissioning>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/DataStartTemporaryDecommissioning> <http://openenergy-platform.org/ontology/oeo/PlantOperation>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/Dataset> (<http://openenergy-platform.org/ontology/oeo/Dataset>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/Dataset> <http://openenergy-platform.org/ontology/oeo/InformationArtifact>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/DateRegistrationOfOperatorChange> (<http://openenergy-platform.org/ontology/oeo/DateRegistrationOfOperatorChange>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/DateRegistrationOfOperatorChange> <http://openenergy-platform.org/ontology/oeo/ElectricityProductionUnit>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/DateStartOfTemporaryorFinalDecommissioning> (<http://openenergy-platform.org/ontology/oeo/DateStartOfTemporaryorFinalDecommissioning>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/DateStartOfTemporaryorFinalDecommissioning> <http://openenergy-platform.org/ontology/oeo/HydroEntityDataset>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/DisplayOfDecommissioning> (<http://openenergy-platform.org/ontology/oeo/DisplayOfDecommissioning>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/DisplayOfDecommissioning> <http://openenergy-platform.org/ontology/oeo/HydroEntityDataset>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/District> (<http://openenergy-platform.org/ontology/oeo/District>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/District> <http://openenergy-platform.org/ontology/oeo/Land>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/ElectricityGridComponent> (<http://openenergy-platform.org/ontology/oeo/ElectricityGridComponent>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/ElectricityGridComponent> <http://purl.obolibrary.org/obo/generically_dependent_continuant>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/ElectricityProductionUnit> (<http://openenergy-platform.org/ontology/oeo/ElectricityProductionUnit>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/ElectricityProductionUnit> <http://openenergy-platform.org/ontology/oeo/ElectricityGridComponent>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/EmergencyGenerator> (<http://openenergy-platform.org/ontology/oeo/EmergencyGenerator>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/EmergencyGenerator> <http://openenergy-platform.org/ontology/oeo/TechnicalDataStorage>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/EnergyCarrier> (<http://openenergy-platform.org/ontology/oeo/EnergyCarrier>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/EnergyCarrier> <http://openenergy-platform.org/ontology/oeo/PowerPlantData>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/EntityOperationStatus> (<http://openenergy-platform.org/ontology/oeo/EntityOperationStatus>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/EntityOperationStatus> <http://openenergy-platform.org/ontology/oeo/PlantOperation>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/FederalState> (<http://openenergy-platform.org/ontology/oeo/FederalState>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/FederalState> <http://openenergy-platform.org/ontology/oeo/Land>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/FeedingType> (<http://openenergy-platform.org/ontology/oeo/FeedingType>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/FeedingType> <http://openenergy-platform.org/ontology/oeo/PowerPlantData>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/GaussKrügerEast> (<http://openenergy-platform.org/ontology/oeo/GaussKrügerEast>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/GaussKrügerEast> <http://openenergy-platform.org/ontology/oeo/GeopgraphicCoordinate>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/GaussKrügerNorth> (<http://openenergy-platform.org/ontology/oeo/GaussKrügerNorth>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/GaussKrügerNorth> <http://openenergy-platform.org/ontology/oeo/GeopgraphicCoordinate>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/GeographicRegion> (<http://openenergy-platform.org/ontology/oeo/GeographicRegion>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/GeographicRegion> <http://purl.obolibrary.org/obo/spatial_region>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/GeopgraphicCoordinate> (<http://openenergy-platform.org/ontology/oeo/GeopgraphicCoordinate>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/GeopgraphicCoordinate> <http://purl.obolibrary.org/obo/immaterial_entity>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/GrossCapacity> (<http://openenergy-platform.org/ontology/oeo/GrossCapacity>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/GrossCapacity> <http://openenergy-platform.org/ontology/oeo/PowerPlantData>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/HouseNumber> (<http://openenergy-platform.org/ontology/oeo/HouseNumber>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/HouseNumber> <http://openenergy-platform.org/ontology/oeo/Land>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/HubHeight> (<http://openenergy-platform.org/ontology/oeo/HubHeight>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/HubHeight> <http://openenergy-platform.org/ontology/oeo/TechnicalDataWind>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/HydroEntityDataset> (<http://openenergy-platform.org/ontology/oeo/HydroEntityDataset>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/HydroEntityDataset> <http://openenergy-platform.org/ontology/oeo/ElectricityProductionUnit>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/InformationArtifact> (<http://openenergy-platform.org/ontology/oeo/InformationArtifact>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/InformationArtifact> <http://purl.obolibrary.org/obo/generically_dependent_continuant>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/IsolatedOperationCapability> (<http://openenergy-platform.org/ontology/oeo/IsolatedOperationCapability>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/IsolatedOperationCapability> <http://openenergy-platform.org/ontology/oeo/PowerPlantData>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/Land> (<http://openenergy-platform.org/ontology/oeo/Land>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/Land> <http://openenergy-platform.org/ontology/oeo/GeographicRegion>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/Latitude> (<http://openenergy-platform.org/ontology/oeo/Latitude>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/Latitude> <http://openenergy-platform.org/ontology/oeo/GeopgraphicCoordinate>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/LoadArea> (<http://openenergy-platform.org/ontology/oeo/LoadArea>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/LoadArea> <http://openenergy-platform.org/ontology/oeo/Land>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/Longitude> (<http://openenergy-platform.org/ontology/oeo/Longitude>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/Longitude> <http://openenergy-platform.org/ontology/oeo/GeopgraphicCoordinate>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/MaStR> (<http://openenergy-platform.org/ontology/oeo/MaStR>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/MaStR> <http://openenergy-platform.org/ontology/oeo/Dataset>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/MainOrientation> (<http://openenergy-platform.org/ontology/oeo/MainOrientation>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/MainOrientation> <http://openenergy-platform.org/ontology/oeo/SolarEntityDataset>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/MainOrientationTilt> (<http://openenergy-platform.org/ontology/oeo/MainOrientationTilt>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/MainOrientationTilt> <http://openenergy-platform.org/ontology/oeo/SolarEntityDataset>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/Manufacturer> (<http://openenergy-platform.org/ontology/oeo/Manufacturer>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/Manufacturer> <http://openenergy-platform.org/ontology/oeo/ManufacturerSpecifications>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/ManufacturerSpecifications> (<http://openenergy-platform.org/ontology/oeo/ManufacturerSpecifications>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/ManufacturerSpecifications> <http://openenergy-platform.org/ontology/oeo/DateRegistrationOfOperatorChange>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/NameElectricityProducerEntity> (<http://openenergy-platform.org/ontology/oeo/NameElectricityProducerEntity>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/NameElectricityProducerEntity> <http://openenergy-platform.org/ontology/oeo/PowerPlantData>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/NamePowerPlant> (<http://openenergy-platform.org/ontology/oeo/NamePowerPlant>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/NamePowerPlant> <http://openenergy-platform.org/ontology/oeo/CommonParameters>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/NetCapacity> (<http://openenergy-platform.org/ontology/oeo/NetCapacity>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/NetCapacity> <http://openenergy-platform.org/ontology/oeo/PowerPlantData>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/NetCapacityGermany> (<http://openenergy-platform.org/ontology/oeo/NetCapacityGermany>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/NetCapacityGermany> <http://openenergy-platform.org/ontology/oeo/TechnicalDataStorage>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/NetCapacityGermanyHydro> (<http://openenergy-platform.org/ontology/oeo/NetCapacityGermanyHydro>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/NetCapacityGermanyHydro> <http://openenergy-platform.org/ontology/oeo/HydroEntityDataset>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/NumbersOfModules> (<http://openenergy-platform.org/ontology/oeo/NumbersOfModules>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/NumbersOfModules> <http://openenergy-platform.org/ontology/oeo/SolarEntityDataset>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/OccupiedArableLand> (<http://openenergy-platform.org/ontology/oeo/OccupiedArableLand>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/OccupiedArableLand> <http://openenergy-platform.org/ontology/oeo/SolarEntityDataset>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/OccupiedArea> (<http://openenergy-platform.org/ontology/oeo/OccupiedArea>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/OccupiedArea> <http://openenergy-platform.org/ontology/oeo/SolarEntityDataset>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/OperationSite> (<http://openenergy-platform.org/ontology/oeo/OperationSite>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/OperationSite> <http://openenergy-platform.org/ontology/oeo/StorageUnitDataset>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/ParcelNumber> (<http://openenergy-platform.org/ontology/oeo/ParcelNumber>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/ParcelNumber> <http://openenergy-platform.org/ontology/oeo/Land>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/PartOfMarginalPowerPlant> (<http://openenergy-platform.org/ontology/oeo/PartOfMarginalPowerPlant>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/PartOfMarginalPowerPlant> <http://openenergy-platform.org/ontology/oeo/TechnicalDataStorage>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/PartOfMarginalPowerPlantHydro> (<http://openenergy-platform.org/ontology/oeo/PartOfMarginalPowerPlantHydro>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/PartOfMarginalPowerPlantHydro> <http://openenergy-platform.org/ontology/oeo/HydroEntityDataset>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/PlannedCommissioningData> (<http://openenergy-platform.org/ontology/oeo/PlannedCommissioningData>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/PlannedCommissioningData> <http://openenergy-platform.org/ontology/oeo/PlantOperation>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/PlantOperation> (<http://openenergy-platform.org/ontology/oeo/PlantOperation>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/PlantOperation> <http://openenergy-platform.org/ontology/oeo/CommonParameters>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/PositionSolar> (<http://openenergy-platform.org/ontology/oeo/PositionSolar>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/PositionSolar> <http://openenergy-platform.org/ontology/oeo/SolarEntityDataset>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/PostalCode> (<http://openenergy-platform.org/ontology/oeo/PostalCode>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/PostalCode> <http://openenergy-platform.org/ontology/oeo/Land>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/PowerPlantData> (<http://openenergy-platform.org/ontology/oeo/PowerPlantData>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/PowerPlantData> <http://openenergy-platform.org/ontology/oeo/CommonParameters>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/PowerPlantnumber> (<http://openenergy-platform.org/ontology/oeo/PowerPlantnumber>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/PowerPlantnumber> <http://openenergy-platform.org/ontology/oeo/PowerPlantData>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/PrequalifiedForControlEnergy> (<http://openenergy-platform.org/ontology/oeo/PrequalifiedForControlEnergy>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/PrequalifiedForControlEnergy> <http://openenergy-platform.org/ontology/oeo/PowerPlantData>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/PumpOperationContinouslyAdjustable> (<http://openenergy-platform.org/ontology/oeo/PumpOperationContinouslyAdjustable>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/PumpOperationContinouslyAdjustable> <http://openenergy-platform.org/ontology/oeo/TechnicalDataStorage>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/PumpOperationPowerConsumption> (<http://openenergy-platform.org/ontology/oeo/PumpOperationPowerConsumption>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/PumpOperationPowerConsumption> <http://openenergy-platform.org/ontology/oeo/TechnicalDataStorage>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/PumpStorageTechnology> (<http://openenergy-platform.org/ontology/oeo/PumpStorageTechnology>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/PumpStorageTechnology> <http://openenergy-platform.org/ontology/oeo/TechnicalDataStorage>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/ReductionElectricityGeneration> (<http://openenergy-platform.org/ontology/oeo/ReductionElectricityGeneration>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/ReductionElectricityGeneration> <http://openenergy-platform.org/ontology/oeo/HydroEntityDataset>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/RemoteControl> (<http://openenergy-platform.org/ontology/oeo/RemoteControl>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/RemoteControl> <http://openenergy-platform.org/ontology/oeo/PowerPlantData>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/RemoteControlByThirdParties> (<http://openenergy-platform.org/ontology/oeo/RemoteControlByThirdParties>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/RemoteControlByThirdParties> <http://openenergy-platform.org/ontology/oeo/RemoteControl>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/RemoteControlDirectMarketer> (<http://openenergy-platform.org/ontology/oeo/RemoteControlDirectMarketer>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/RemoteControlDirectMarketer> <http://openenergy-platform.org/ontology/oeo/RemoteControl>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/RemoteControlGridOperator> (<http://openenergy-platform.org/ontology/oeo/RemoteControlGridOperator>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/RemoteControlGridOperator> <http://openenergy-platform.org/ontology/oeo/RemoteControl>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/RequierementSwitchOffAnimalProtection> (<http://openenergy-platform.org/ontology/oeo/RequierementSwitchOffAnimalProtection>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/RequierementSwitchOffAnimalProtection> <http://openenergy-platform.org/ontology/oeo/Requierements>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/RequierementSwitchOffCapacityLimitation> (<http://openenergy-platform.org/ontology/oeo/RequierementSwitchOffCapacityLimitation>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/RequierementSwitchOffCapacityLimitation> <http://openenergy-platform.org/ontology/oeo/Requierements>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/RequierementSwitchOffIceFalling> (<http://openenergy-platform.org/ontology/oeo/RequierementSwitchOffIceFalling>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/RequierementSwitchOffIceFalling> <http://openenergy-platform.org/ontology/oeo/Requierements>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/RequierementSwitchOffNoiseImmissionProtectionNights> (<http://openenergy-platform.org/ontology/oeo/RequierementSwitchOffNoiseImmissionProtectionNights>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/RequierementSwitchOffNoiseImmissionProtectionNights> <http://openenergy-platform.org/ontology/oeo/Requierements>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/RequierementSwitchOffOthers> (<http://openenergy-platform.org/ontology/oeo/RequierementSwitchOffOthers>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/RequierementSwitchOffOthers> <http://openenergy-platform.org/ontology/oeo/Requierements>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/RequierementSwitchOffShadowing> (<http://openenergy-platform.org/ontology/oeo/RequierementSwitchOffShadowing>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/RequierementSwitchOffShadowing> <http://openenergy-platform.org/ontology/oeo/Requierements>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/Requierements> (<http://openenergy-platform.org/ontology/oeo/Requierements>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/Requierements> <http://openenergy-platform.org/ontology/oeo/DateRegistrationOfOperatorChange>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/RotorBladeDeIcingSystem> (<http://openenergy-platform.org/ontology/oeo/RotorBladeDeIcingSystem>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/RotorBladeDeIcingSystem> <http://openenergy-platform.org/ontology/oeo/TechnicalDataWind>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/RotorDiameter> (<http://openenergy-platform.org/ontology/oeo/RotorDiameter>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/RotorDiameter> <http://openenergy-platform.org/ontology/oeo/TechnicalDataWind>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/Sea> (<http://openenergy-platform.org/ontology/oeo/Sea>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/Sea> <http://openenergy-platform.org/ontology/oeo/GeographicRegion>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/SeasideLocation> (<http://openenergy-platform.org/ontology/oeo/SeasideLocation>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/SeasideLocation> <http://openenergy-platform.org/ontology/oeo/Sea>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/SecondaryOrientation> (<http://openenergy-platform.org/ontology/oeo/SecondaryOrientation>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/SecondaryOrientation> <http://openenergy-platform.org/ontology/oeo/SolarEntityDataset>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/SecondaryOrientationTilt> (<http://openenergy-platform.org/ontology/oeo/SecondaryOrientationTilt>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/SecondaryOrientationTilt> <http://openenergy-platform.org/ontology/oeo/SolarEntityDataset>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/SolarEntityDataset> (<http://openenergy-platform.org/ontology/oeo/SolarEntityDataset>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/SolarEntityDataset> <http://openenergy-platform.org/ontology/oeo/ElectricityProductionUnit>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/StorageUnitDataset> (<http://openenergy-platform.org/ontology/oeo/StorageUnitDataset>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/StorageUnitDataset> <http://openenergy-platform.org/ontology/oeo/MaStR>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/Street> (<http://openenergy-platform.org/ontology/oeo/Street>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/Street> <http://openenergy-platform.org/ontology/oeo/Land>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/TechnicalDataStorage> (<http://openenergy-platform.org/ontology/oeo/TechnicalDataStorage>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/TechnicalDataStorage> <http://openenergy-platform.org/ontology/oeo/StorageUnitDataset>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/TechnicalDataWind> (<http://openenergy-platform.org/ontology/oeo/TechnicalDataWind>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/TechnicalDataWind> <http://openenergy-platform.org/ontology/oeo/DateRegistrationOfOperatorChange>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/Technology> (<http://openenergy-platform.org/ontology/oeo/Technology>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/Technology> <http://openenergy-platform.org/ontology/oeo/TechnicalDataStorage>)
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/Technology> <http://openenergy-platform.org/ontology/oeo/TechnicalDataWind>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/TypeDescription> (<http://openenergy-platform.org/ontology/oeo/TypeDescription>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/TypeDescription> <http://openenergy-platform.org/ontology/oeo/ManufacturerSpecifications>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/TypeOfArea> (<http://openenergy-platform.org/ontology/oeo/TypeOfArea>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/TypeOfArea> <http://openenergy-platform.org/ontology/oeo/SolarEntityDataset>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/TypeOfDecommissioning> (<http://openenergy-platform.org/ontology/oeo/TypeOfDecommissioning>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/TypeOfDecommissioning> <http://openenergy-platform.org/ontology/oeo/HydroEntityDataset>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/TypeOfHydroPowerPlant> (<http://openenergy-platform.org/ontology/oeo/TypeOfHydroPowerPlant>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/TypeOfHydroPowerPlant> <http://openenergy-platform.org/ontology/oeo/HydroEntityDataset>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/TypeOfInflows> (<http://openenergy-platform.org/ontology/oeo/TypeOfInflows>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/TypeOfInflows> <http://openenergy-platform.org/ontology/oeo/HydroEntityDataset>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/UniformOrientationAndTilt> (<http://openenergy-platform.org/ontology/oeo/UniformOrientationAndTilt>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/UniformOrientationAndTilt> <http://openenergy-platform.org/ontology/oeo/SolarEntityDataset>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/UseableStorageCapacity> (<http://openenergy-platform.org/ontology/oeo/UseableStorageCapacity>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/UseableStorageCapacity> <http://openenergy-platform.org/ontology/oeo/TechnicalDataStorage>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/UtmEast> (<http://openenergy-platform.org/ontology/oeo/UtmEast>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/UtmEast> <http://openenergy-platform.org/ontology/oeo/GeopgraphicCoordinate>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/UtmNorth> (<http://openenergy-platform.org/ontology/oeo/UtmNorth>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/UtmNorth> <http://openenergy-platform.org/ontology/oeo/GeopgraphicCoordinate>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/UtmZoneValue> (<http://openenergy-platform.org/ontology/oeo/UtmZoneValue>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/UtmZoneValue> <http://openenergy-platform.org/ontology/oeo/GeopgraphicCoordinate>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/WaterDepth> (<http://openenergy-platform.org/ontology/oeo/WaterDepth>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/WaterDepth> <http://openenergy-platform.org/ontology/oeo/Sea>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/Weic> (<http://openenergy-platform.org/ontology/oeo/Weic>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/Weic> <http://openenergy-platform.org/ontology/oeo/PowerPlantData>)
+
+# Class: <http://openenergy-platform.org/ontology/oeo/WeicDisplayName> (<http://openenergy-platform.org/ontology/oeo/WeicDisplayName>)
+
+SubClassOf(<http://openenergy-platform.org/ontology/oeo/WeicDisplayName> <http://openenergy-platform.org/ontology/oeo/PowerPlantData>)
+
+# Class: <http://purl.obolibrary.org/obo/continuant_fiat_boundary> (<http://purl.obolibrary.org/obo/continuant_fiat_boundary>)
+
+SubClassOf(<http://purl.obolibrary.org/obo/continuant_fiat_boundary> <http://purl.obolibrary.org/obo/immaterial_entity>)
+
+# Class: <http://purl.obolibrary.org/obo/disposition> (<http://purl.obolibrary.org/obo/disposition>)
+
+SubClassOf(<http://purl.obolibrary.org/obo/disposition> <http://purl.obolibrary.org/obo/realizable_entity>)
+
+# Class: <http://purl.obolibrary.org/obo/fiat_object_part> (<http://purl.obolibrary.org/obo/fiat_object_part>)
+
+SubClassOf(<http://purl.obolibrary.org/obo/fiat_object_part> <http://purl.obolibrary.org/obo/material_entity>)
+
+# Class: <http://purl.obolibrary.org/obo/function> (<http://purl.obolibrary.org/obo/function>)
+
+SubClassOf(<http://purl.obolibrary.org/obo/function> <http://purl.obolibrary.org/obo/disposition>)
+
+# Class: <http://purl.obolibrary.org/obo/generically_dependent_continuant> (<http://purl.obolibrary.org/obo/generically_dependent_continuant>)
+
+SubClassOf(<http://purl.obolibrary.org/obo/generically_dependent_continuant> <http://purl.obolibrary.org/obo/Continuant>)
+
+# Class: <http://purl.obolibrary.org/obo/history> (<http://purl.obolibrary.org/obo/history>)
+
+SubClassOf(<http://purl.obolibrary.org/obo/history> <http://purl.obolibrary.org/obo/process>)
+
+# Class: <http://purl.obolibrary.org/obo/immaterial_entity> (<http://purl.obolibrary.org/obo/immaterial_entity>)
+
+SubClassOf(<http://purl.obolibrary.org/obo/immaterial_entity> <http://purl.obolibrary.org/obo/independent_continuant>)
+
+# Class: <http://purl.obolibrary.org/obo/independent_continuant> (<http://purl.obolibrary.org/obo/independent_continuant>)
+
+SubClassOf(<http://purl.obolibrary.org/obo/independent_continuant> <http://purl.obolibrary.org/obo/Continuant>)
+
+# Class: <http://purl.obolibrary.org/obo/material_entity> (<http://purl.obolibrary.org/obo/material_entity>)
+
+SubClassOf(<http://purl.obolibrary.org/obo/material_entity> <http://purl.obolibrary.org/obo/independent_continuant>)
+
+# Class: <http://purl.obolibrary.org/obo/object> (<http://purl.obolibrary.org/obo/object>)
+
+SubClassOf(<http://purl.obolibrary.org/obo/object> <http://purl.obolibrary.org/obo/material_entity>)
+
+# Class: <http://purl.obolibrary.org/obo/object_aggregate> (<http://purl.obolibrary.org/obo/object_aggregate>)
+
+SubClassOf(<http://purl.obolibrary.org/obo/object_aggregate> <http://purl.obolibrary.org/obo/material_entity>)
+
+# Class: <http://purl.obolibrary.org/obo/one-dimensional_continuant_fiat_boundary> (<http://purl.obolibrary.org/obo/one-dimensional_continuant_fiat_boundary>)
+
+SubClassOf(<http://purl.obolibrary.org/obo/one-dimensional_continuant_fiat_boundary> <http://purl.obolibrary.org/obo/continuant_fiat_boundary>)
+
+# Class: <http://purl.obolibrary.org/obo/one-dimensional_spatial_region> (<http://purl.obolibrary.org/obo/one-dimensional_spatial_region>)
+
+SubClassOf(<http://purl.obolibrary.org/obo/one-dimensional_spatial_region> <http://purl.obolibrary.org/obo/spatial_region>)
+
+# Class: <http://purl.obolibrary.org/obo/one-dimensional_temporal_region> (<http://purl.obolibrary.org/obo/one-dimensional_temporal_region>)
+
+SubClassOf(<http://purl.obolibrary.org/obo/one-dimensional_temporal_region> <http://purl.obolibrary.org/obo/temperol_region>)
+
+# Class: <http://purl.obolibrary.org/obo/process> (<http://purl.obolibrary.org/obo/process>)
+
+SubClassOf(<http://purl.obolibrary.org/obo/process> <http://purl.obolibrary.org/obo/occurent>)
+
+# Class: <http://purl.obolibrary.org/obo/process_boundary> (<http://purl.obolibrary.org/obo/process_boundary>)
+
+SubClassOf(<http://purl.obolibrary.org/obo/process_boundary> <http://purl.obolibrary.org/obo/occurent>)
+
+# Class: <http://purl.obolibrary.org/obo/process_profile> (<http://purl.obolibrary.org/obo/process_profile>)
+
+SubClassOf(<http://purl.obolibrary.org/obo/process_profile> <http://purl.obolibrary.org/obo/process>)
+
+# Class: <http://purl.obolibrary.org/obo/quality> (<http://purl.obolibrary.org/obo/quality>)
+
+SubClassOf(<http://purl.obolibrary.org/obo/quality> <http://purl.obolibrary.org/obo/specifically_dependent_continuant>)
+
+# Class: <http://purl.obolibrary.org/obo/realizable_entity> (<http://purl.obolibrary.org/obo/realizable_entity>)
+
+SubClassOf(<http://purl.obolibrary.org/obo/realizable_entity> <http://purl.obolibrary.org/obo/specifically_dependent_continuant>)
+
+# Class: <http://purl.obolibrary.org/obo/relational_quality> (<http://purl.obolibrary.org/obo/relational_quality>)
+
+SubClassOf(<http://purl.obolibrary.org/obo/relational_quality> <http://purl.obolibrary.org/obo/quality>)
+
+# Class: <http://purl.obolibrary.org/obo/role> (<http://purl.obolibrary.org/obo/role>)
+
+SubClassOf(<http://purl.obolibrary.org/obo/role> <http://purl.obolibrary.org/obo/realizable_entity>)
+
+# Class: <http://purl.obolibrary.org/obo/site> (<http://purl.obolibrary.org/obo/site>)
+
+SubClassOf(<http://purl.obolibrary.org/obo/site> <http://purl.obolibrary.org/obo/immaterial_entity>)
+
+# Class: <http://purl.obolibrary.org/obo/spatial_region> (<http://purl.obolibrary.org/obo/spatial_region>)
+
+SubClassOf(<http://purl.obolibrary.org/obo/spatial_region> <http://purl.obolibrary.org/obo/immaterial_entity>)
+
+# Class: <http://purl.obolibrary.org/obo/spatiotemperol_region> (<http://purl.obolibrary.org/obo/spatiotemperol_region>)
+
+SubClassOf(<http://purl.obolibrary.org/obo/spatiotemperol_region> <http://purl.obolibrary.org/obo/occurent>)
+
+# Class: <http://purl.obolibrary.org/obo/specifically_dependent_continuant> (<http://purl.obolibrary.org/obo/specifically_dependent_continuant>)
+
+SubClassOf(<http://purl.obolibrary.org/obo/specifically_dependent_continuant> <http://purl.obolibrary.org/obo/Continuant>)
+
+# Class: <http://purl.obolibrary.org/obo/temperol_region> (<http://purl.obolibrary.org/obo/temperol_region>)
+
+SubClassOf(<http://purl.obolibrary.org/obo/temperol_region> <http://purl.obolibrary.org/obo/occurent>)
+
+# Class: <http://purl.obolibrary.org/obo/three-dimensional_spatial_region> (<http://purl.obolibrary.org/obo/three-dimensional_spatial_region>)
+
+SubClassOf(<http://purl.obolibrary.org/obo/three-dimensional_spatial_region> <http://purl.obolibrary.org/obo/spatial_region>)
+
+# Class: <http://purl.obolibrary.org/obo/two-dimensional_continuant_fiat_boundary> (<http://purl.obolibrary.org/obo/two-dimensional_continuant_fiat_boundary>)
+
+SubClassOf(<http://purl.obolibrary.org/obo/two-dimensional_continuant_fiat_boundary> <http://purl.obolibrary.org/obo/continuant_fiat_boundary>)
+
+# Class: <http://purl.obolibrary.org/obo/two-dimensional_spatial_region> (<http://purl.obolibrary.org/obo/two-dimensional_spatial_region>)
+
+SubClassOf(<http://purl.obolibrary.org/obo/two-dimensional_spatial_region> <http://purl.obolibrary.org/obo/spatial_region>)
+
+# Class: <http://purl.obolibrary.org/obo/two-dimensional_temporal_region> (<http://purl.obolibrary.org/obo/two-dimensional_temporal_region>)
+
+SubClassOf(<http://purl.obolibrary.org/obo/two-dimensional_temporal_region> <http://purl.obolibrary.org/obo/temperol_region>)
+
+# Class: <http://purl.obolibrary.org/obo/zero-dimensional_continuant_fiat_boundary> (<http://purl.obolibrary.org/obo/zero-dimensional_continuant_fiat_boundary>)
+
+SubClassOf(<http://purl.obolibrary.org/obo/zero-dimensional_continuant_fiat_boundary> <http://purl.obolibrary.org/obo/continuant_fiat_boundary>)
+
+# Class: <http://purl.obolibrary.org/obo/zero-dimensional_spatial_region> (<http://purl.obolibrary.org/obo/zero-dimensional_spatial_region>)
+
+SubClassOf(<http://purl.obolibrary.org/obo/zero-dimensional_spatial_region> <http://purl.obolibrary.org/obo/spatial_region>)
+
+# Class: <http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#Authority> (<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#Authority>)
+
+SubClassOf(<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#Authority> <http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#License>)
+
+# Class: <http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#ClaimingPaymentAccordingEEG> (<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#ClaimingPaymentAccordingEEG>)
+
+SubClassOf(<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#ClaimingPaymentAccordingEEG> <http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#EEGDataWind>)
+
+# Class: <http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#CommunityKey> (<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#CommunityKey>)
+
+SubClassOf(<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#CommunityKey> <http://openenergy-platform.org/ontology/oeo/Land>)
+
+# Class: <http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#ConnectedEntity> (<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#ConnectedEntity>)
+
+SubClassOf(<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#ConnectedEntity> <http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#License>)
+
+# Class: <http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#Data> (<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#Data>)
+
+SubClassOf(<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#Data> <http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#License>)
+
+# Class: <http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#DateOfOperatorChange> (<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#DateOfOperatorChange>)
+
+SubClassOf(<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#DateOfOperatorChange> <http://openenergy-platform.org/ontology/oeo/ElectricityProductionUnit>)
+
+# Class: <http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#EEGCommissioningData> (<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#EEGCommissioningData>)
+
+SubClassOf(<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#EEGCommissioningData> <http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#EEGDataWind>)
+
+# Class: <http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#EEGDataWind> (<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#EEGDataWind>)
+
+SubClassOf(<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#EEGDataWind> <http://openenergy-platform.org/ontology/oeo/InformationArtifact>)
+
+# Class: <http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#FileReference> (<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#FileReference>)
+
+SubClassOf(<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#FileReference> <http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#License>)
+
+# Class: <http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#HouseNumberNotFound> (<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#HouseNumberNotFound>)
+
+SubClassOf(<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#HouseNumberNotFound> <http://openenergy-platform.org/ontology/oeo/Land>)
+
+# Class: <http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#InstalledCapacity> (<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#InstalledCapacity>)
+
+SubClassOf(<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#InstalledCapacity> <http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#EEGDataWind>)
+
+# Class: <http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#License> (<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#License>)
+
+SubClassOf(<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#License> <http://openenergy-platform.org/ontology/oeo/InformationArtifact>)
+
+# Class: <http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#NameWindPark> (<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#NameWindPark>)
+
+SubClassOf(<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#NameWindPark> <http://openenergy-platform.org/ontology/oeo/DateRegistrationOfOperatorChange>)
+
+# Class: <http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#Period> (<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#Period>)
+
+SubClassOf(<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#Period> <http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#License>)
+
+# Class: <http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#PilotPlant> (<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#PilotPlant>)
+
+SubClassOf(<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#PilotPlant> <http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#EEGDataWind>)
+
+# Class: <http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#PlantIdEEG> (<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#PlantIdEEG>)
+
+SubClassOf(<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#PlantIdEEG> <http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#EEGDataWind>)
+
+# Class: <http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#PositionWindEnergyPlant> (<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#PositionWindEnergyPlant>)
+
+SubClassOf(<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#PositionWindEnergyPlant> <http://openenergy-platform.org/ontology/oeo/ElectricityProductionUnit>)
+
+# Class: <http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#PrototypPlant> (<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#PrototypPlant>)
+
+SubClassOf(<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#PrototypPlant> <http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#EEGDataWind>)
+
+# Class: <http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#ReportingDate> (<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#ReportingDate>)
+
+AnnotationAssertion(rdfs:comment <http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#ReportingDate> "auch von License und EEGWind")
+SubClassOf(<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#ReportingDate> <http://openenergy-platform.org/ontology/oeo/DateRegistrationOfOperatorChange>)
+
+# Class: <http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#StreetNotFound> (<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#StreetNotFound>)
+
+SubClassOf(<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#StreetNotFound> <http://openenergy-platform.org/ontology/oeo/Land>)
+
+# Class: <http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#Typ> (<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#Typ>)
+
+SubClassOf(<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#Typ> <http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#License>)
+
+# Class: <http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#WaterRightNumber> (<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#WaterRightNumber>)
+
+SubClassOf(<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#WaterRightNumber> <http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#License>)
+
+# Class: <http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#WaterRightsExpirationDate> (<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#WaterRightsExpirationDate>)
+
+SubClassOf(<http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#WaterRightsExpirationDate> <http://www.semanticweb.org/izzet_kilicarslan/ontologies/2019/10/untitled-ontology-56#License>)
+
+
+)

@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
@@ -16,21 +15,25 @@ __license__ = "GNU Affero General Public License Version 3 (AGPL-3.0)"
 __url__ = "https://www.gnu.org/licenses/agpl-3.0.en.html"
 __author__ = "Ludee; christian-rli"
 __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
-__version__ = "v0.8.0"
+__version__ = "v0.9.0"
 
 from soap_api.config import setup_logger
-# from mastr_power_unit_download import download_parallel_power_unit, download_power_unit
-# from mastr_wind_download import download_unit_wind, download_unit_wind_eeg, download_unit_wind_permit
-# from mastr_wind_process import make_wind
-# from mastr_hydro_download import download_unit_hydro, download_unit_hydro_eeg
-# from mastr_hydro_process import make_hydro
-# from mastr_biomass_download import download_unit_biomass, download_unit_biomass_eeg
-# from mastr_biomass_process import make_biomass
+from soap_api.mastr_general_download import get_mastr_time, get_mastr_time_auth, get_daily_contingent
+from soap_api.mastr_power_unit_download import download_parallel_power_unit, download_power_unit
+from soap_api.mastr_wind_download import setup_power_unit_wind, retry_download_unit_wind, retry_download_unit_wind_eeg, download_unit_wind, download_unit_wind_eeg, download_unit_wind_permit
+from soap_api.mastr_wind_process import make_wind
+# from soap_api.mastr_wind_processing import do_wind
+from soap_api.mastr_hydro_download import setup_power_unit_hydro, retry_download_unit_hydro, retry_download_unit_hydro_eeg, download_unit_hydro, download_unit_hydro_eeg
+from soap_api.mastr_hydro_process import make_hydro
+from soap_api.mastr_biomass_download import setup_power_unit_biomass, retry_download_unit_biomass, retry_download_unit_biomass_eeg, download_unit_biomass, download_unit_biomass_eeg
+from soap_api.mastr_biomass_process import make_biomass
 from soap_api.mastr_gsgk_download import download_unit_gsgk, download_unit_gsgk_eeg
 from soap_api.mastr_gsgk_process import make_gsgk
-# from mastr_solar_download import download_unit_solar, download_parallel_unit_solar, download_unit_solar_eeg, download_parallel_unit_solar_eeg
-# from mastr_solar_process import make_solar
-# from mastr_storage_units_download import get_storage_groups_by_address_or_postal, download_unit_storage, download_parallel_unit_storage
+from soap_api.mastr_solar_download import setup_power_unit_solar, download_unit_solar, download_parallel_unit_solar, download_unit_solar_eeg, download_parallel_unit_solar_eeg
+from soap_api.mastr_solar_process import make_solar
+from soap_api.mastr_storage_units_download import get_storage_groups_by_address_or_postal, download_unit_storage, download_parallel_unit_storage
+from soap_api.mastr_nuclear_download import setup_power_unit_nuclear, download_unit_nuclear
+from soap_api.mastr_nuclear_process import make_nuclear
 
 import time
 
@@ -41,51 +44,108 @@ if __name__ == "__main__":
     log = setup_logger()
     start_time = time.time()
     log.info(f'MaStR script started with data version: {DATA_VERSION}')
-
+    get_mastr_time()
+    get_mastr_time_auth()
+    get_daily_contingent()
     """OEP"""
     #metadata = oep_session()
 
     """MaStR Einheiten"""
+    '''Get maximum number from the web interface and setup utils.py'''
+    # download_power_unit()
 
-    ''' DEFAULT PARAMS: power_unit_list_len=100000, limit=2000, batch_size=20000, start_from=0, overwrite=False '''
-    ''' CURRENT MAX INDEX FOR VAR start_from and power_unit_list_len: 1814000 '''
-    # download_parallel_power_unit(batch_size=10000)
-    #download_power_unit()
+    '''WARNING: Batch download may cause a database error. Extended limit required!'''
+    '''DEFAULT PARAMS: batch_size=20000, limit=2000, start_from=0'''
+    # download_parallel_power_unit(
+    #    batch_size=10000,
+    #    limit=2000,
+    #    wind=False,
+    #    update=False,
+    #    overwrite=False,
+    #    start_from=0)
+
 
     """Wind"""
+    # # setup_power_unit_wind()   # Extract from all power units
+    # download_power_unit(energy_carrier='Wind', power_unit_list_len=51929)
     # download_unit_wind()
     # download_unit_wind_eeg()
     # download_unit_wind_permit()
+    # retry_download_unit_wind()
+    # retry_download_unit_wind_eeg()
     # make_wind()
 
     """Hydro"""
-    # download_unit_hydro()
+    # setup_power_unit_hydro()    # Extract from all power units
+    # download_power_unit(energy_carrier='Wasser', power_unit_list_len=11000)
+    download_unit_hydro()
     # download_unit_hydro_eeg()
+    # retry_download_unit_hydro()
+    # retry_download_unit_hydro_eeg()
     # make_hydro()
 
     """Biomass"""
+    # # setup_power_unit_biomass()  # Extract from all power units
+    # download_power_unit(energy_carrier='Biomasse', power_unit_list_len=28365)
     # download_unit_biomass()
     # download_unit_biomass_eeg()
+    # retry_download_unit_biomass()
+    # retry_download_unit_biomass_eeg()
     # make_biomass()
 
     """Solar"""
-    ''' DEFAULT PARAMS: start_from=0, n_entries=1, parallelism=300, cpu_factor=1, overwrite=False '''
-    # download_parallel_unit_solar(overwrite=True)
-    # download_parallel_unit_solar_eeg(overwrite=True)
+    # setup_power_unit_solar()
+    # download_power_unit(energy_carrier='SolareStrahlungsenergie', power_unit_list_len=2952918)
+    # ''' DEFAULT PARAMS: start_from=0, n_entries=1, parallelism=12 '''
+    # download_parallel_unit_solar(
+    #     start_from=0,
+    #     n_entries=1,
+    #     parallelism=6)
+    # download_parallel_unit_solar_eeg(
+    #    start_from=0,
+    #    n_entries=1,
+    #    parallelism=6)
     # make_solar()
 
-    """ Storages"""
-    #get_solarunit_storages()
-    #get_geocode_address()
-    #download_parallel_unit_storage()
+    """Storages"""
+    # download_power_unit(energy_carrier='Speicher', power_unit_list_len=144594)
+    # get_geocode_address()
+    # get_solarunit_storages()
+    # download_parallel_unit_storage()
 
+    """Nuclear"""
+    # setup_power_unit_nuclear()    # Extract from all power units
+    # download_power_unit(energy_carrier='Kernenergie', power_unit_list_len=9)
+    # download_unit_nuclear()
+    # make_nuclear()
+
+    """Other"""
+    # download_power_unit(energy_carrier='AndereGase', power_unit_list_len=2276)
+    #
+    # download_power_unit(energy_carrier='Braunkohle', power_unit_list_len=96)
+    #
+    # download_power_unit(energy_carrier='Erdgas', power_unit_list_len=37014)
+    #
+    # download_power_unit(energy_carrier='Geothermie', power_unit_list_len=20)
+    # download_power_unit(energy_carrier='Solarthermie', power_unit_list_len=7)
+    # download_power_unit(energy_carrier='Grubengas', power_unit_list_len=193)
+    # download_power_unit(energy_carrier='Klaerschlamm', power_unit_list_len=98)
+    #
+    # download_power_unit(energy_carrier='Mineraloelprodukte', power_unit_list_len=4056)
+    # download_power_unit(energy_carrier='NichtBiogenerAbfall', power_unit_list_len=158)
+    # download_power_unit(energy_carrier='Steinkohle', power_unit_list_len=123)
+    # download_power_unit(energy_carrier='Waerme', power_unit_list_len=195)
+
+    """ Storages"""
+    # get_solarunit_storages()
+    # get_geocode_address()
+    # download_parallel_unit_storage()
 
     """Geothermie Solarthermie Gruben Klaerschlamm (GSGK)"""
     download_unit_gsgk()
     download_unit_gsgk_eeg()
     make_gsgk()
 
-#
     """close"""
     log.info('MaSTR script successfully executed in {:.2f} seconds'
              .format(time.time() - start_time))
