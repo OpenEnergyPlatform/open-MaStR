@@ -17,7 +17,7 @@ __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.9.0"
 
 from soap_api.sessions import mastr_session
-from soap_api.utils import split_to_sublists, get_data_version, write_to_csv, remove_csv, read_power_units
+from soap_api.utils import get_data_version, write_to_csv, remove_csv, read_power_units
 from soap_api.utils import (fname_power_unit,
                             fname_power_unit_solar,
                             fname_solar_unit,
@@ -151,44 +151,20 @@ def download_parallel_unit_solar(start_from=0, n_entries=1, parallelism=12):
     """
     setup_power_unit_solar()
 
-    global proc_list
-    split_solar_list = []
-
     power_unit_solar = read_power_unit_solar(fname_power_unit_solar)
-    mastr_list = power_unit_solar['EinheitMastrNummer'].values.tolist()
-    # mastr_list = list(dict.fromkeys(mastr_list))
-    mastr_list_len = len(mastr_list)
+    mastr_list = power_unit_solar['EinheitMastrNummer'].values.tolist()[start_from:start_from+n_entries]
 
-    # check wether user input
-    if n_entries is 1:
-        n_entries = mastr_list_len
-    # check wether to download more entries than solareinheiten in unit_solar_list starting at start_from
-    if n_entries > (mastr_list_len - start_from):
-        n_entries = mastr_list_len - start_from
-    log.info(f'Download {n_entries} Solareinheit')
-
-    end_at = start_from + n_entries
-    cpu_count = mp.cpu_count()
-    process_pool = mp.Pool(processes=cpu_count)
-    t = time.time()
-    proc_list = split_to_sublists(mastr_list[start_from:end_at], cpu_count)
-    print("This may take a moment. Processing {} data batches.".format(len(proc_list)))
-
-    # wait_for_offtime()
-
-    try:
-        unit_solar = process_pool.map(
-            partial(split_to_threads, process_func=get_power_unit_solar, parallelism=parallelism),
-            proc_list
-        )
-        process_pool.close()
-        process_pool.join()
-
-    except Exception as e:
-        log.error(e)
-
-    log.info('Time needed %s', time.time() - t)
-
+    with multiprocessing.Pool(4) as pool:
+        last_successful = datetime.datetime.now()
+        for res in p.imap_unordered(get_power_unit_solar, mastr_list):
+            # Check if data was retrieved successfully
+            if res is not None:
+                last_successful = datetime.datetime.now()
+                log.info('Unit {} sucessfully retrieved.'.format(res['EinheitMastrNummer']))
+            # Last successful execution was more than 10 minutes ago, so stop execution
+            if last_successful + datetime.timedelta(minutes=10) < datetime.datetime.now():
+                log.error('No response from server in the last 10 minutes. Shutting down.')
+                break
 
 def wait_for_offtime():
     # check if time is between 7:00 and 19:00, wait until 19h
@@ -206,24 +182,6 @@ def wait_for_offtime():
             x *= 60
         log.info(f'Program paused. Waiting for {seconds} seconds')
         time.sleep(seconds)
-
-
-def split_to_threads(sublist, process_func=None, parallelism=12):
-    """ Maps sublist variables to function get_power_unit_solar on parallel threads (number = parallelism)
-
-    Parameters
-    ----------
-    sublist : list
-        list to process in parallel
-    parallelism : int
-        number of threads
-    """
-    pool = ThreadPool(processes=parallelism)
-    results = pool.map(process_func, sublist)
-    pool.close()
-    pool.join()
-    return results
-
 
 def get_power_unit_solar(mastr_unit_solar):
     """Get Solareinheit from API using GetEinheitSolar.
