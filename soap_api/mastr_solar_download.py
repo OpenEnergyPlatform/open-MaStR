@@ -26,7 +26,6 @@ from soap_api.utils import (fname_power_unit,
 import multiprocessing as mp
 from multiprocessing.pool import ThreadPool
 import pandas as pd
-import time
 import datetime
 import os
 from zeep.helpers import serialize_object
@@ -133,55 +132,61 @@ def read_power_unit_solar(csv_name):
 
 
 # Download unit-solar (parallel)
-def download_parallel_unit_solar(start_from=0, n_entries=1, parallelism=12):
-    """Download Solareinheit (solar-unit) with parallel process.
+def download_parallel_unit_solar(unit_list, func, parallelism=4):
+    """Download a list of units using a pool of threads
 
-    Filter EinheitMastrNummer from Stromerzeugungseinheit-Solar.
-    Remove duplicates and count.
-    Loop over list and write download to file.
+    Maps a download function for a single unit onto a list of
+    candidate units that are downloaded in parallel.
 
     Arguments
     ---------
-    start_from : int
-        Start index in the power_unit_list.
-    n_entries : int
-        Number of entries to download.
-    parallelism : int
-        Number of threads.
+    unit_list : 
+        Iterable of 'EinheitMastrNummer' of units to download
+    func :
+        Function to download an individual unit from the list,
+        i.e. get_power_unit_xxx()
+    parallelism :
+        number of threads to download with
     """
-    setup_power_unit_solar()
 
-    power_unit_solar = read_power_unit_solar(fname_power_unit_solar)
-    mastr_list = power_unit_solar['EinheitMastrNummer'].values.tolist()[start_from:start_from+n_entries]
-
-    with multiprocessing.Pool(4) as pool:
+    with multiprocessing.Pool(parallelism) as pool:
         last_successful = datetime.datetime.now()
-        for res in p.imap_unordered(get_power_unit_solar, mastr_list):
+        for unit in p.imap_unordered(func, unit_list):
             # Check if data was retrieved successfully
-            if res is not None:
+            if unit is not None:
                 last_successful = datetime.datetime.now()
-                log.info('Unit {} sucessfully retrieved.'.format(res['EinheitMastrNummer']))
+                log.info('Unit {} sucessfully retrieved.'.format(unit['EinheitMastrNummer']))
             # Last successful execution was more than 10 minutes ago, so stop execution
+            # TODO make timeout value a function parameter
             if last_successful + datetime.timedelta(minutes=10) < datetime.datetime.now():
                 log.error('No response from server in the last 10 minutes. Shutting down.')
                 break
 
-def wait_for_offtime():
-    # check if time is between 7:00 and 19:00, wait until 19h
-    now = time.strftime('%H%M%S', time.localtime(time.time()))
-    limit_lower = time.strftime('%H%M%S', time.strptime('17:00:00', '%H:%M:%S'))
-    limit_upper = time.strftime('%H%M%S', time.strptime('07:00:00', '%H:%M:%S'))
+def is_time_blacklisted(time):
+    times_blacklist = [
+            ('8:00', '18:00'), # BNetzA Business hours
+            ('23:30', '00:10'), # Daily database cronjob
+            # Add more if needed...
+            ]
 
-    if now > limit_upper and now < limit_lower:
-        waiting_time = int(limit_lower) - int(now)
-        timesteps = textwrap.wrap(str(waiting_time)[::-1], 2)
-        x = 1
-        seconds = 0
-        for i in timesteps:
-            seconds += int(i) * x
-            x *= 60
-        log.info(f'Program paused. Waiting for {seconds} seconds')
-        time.sleep(seconds)
+    # check if time is in a given interval between upper and lower
+    def in_interval(lower, upper):
+        # Convert str to datatime object
+        parse_time = lambda t: datetime.datetime.strptime(t, "%H:%M").time()
+        lower = parse_time(lower)
+        upper = parse_time(upper)
+
+        # Handle interval that spans over midnight (i.e. 23:30-0:30)
+        if lower > upper:
+            return (time <= upper or time >= lower)
+        # Handle all other intevals
+        return (lower <= time and upper >= time)
+
+    # check if time is in interval for each interval in the blacklist
+    in_interval = [in_interval(lower, upper) for lower, upper in times_blacklist]
+
+    return any(in_interval)
+      
 
 def get_power_unit_solar(mastr_unit_solar):
     """Get Solareinheit from API using GetEinheitSolar.
