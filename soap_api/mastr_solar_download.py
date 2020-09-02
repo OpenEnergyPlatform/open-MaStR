@@ -23,8 +23,7 @@ from soap_api.utils import (fname_power_unit,
                             fname_solar_unit,
                             fname_solar_eeg)
 
-import multiprocessing as mp
-from multiprocessing.pool import ThreadPool
+import multiprocessing
 import pandas as pd
 import datetime
 import os
@@ -151,11 +150,12 @@ def download_parallel_unit_solar(unit_list, func, parallelism=4):
 
     with multiprocessing.Pool(parallelism) as pool:
         last_successful = datetime.datetime.now()
-        for unit in p.imap_unordered(func, unit_list):
+        for unit in pool.imap_unordered(func, unit_list):
             # Check if data was retrieved successfully
             if unit is not None:
                 last_successful = datetime.datetime.now()
-                log.info('Unit {} sucessfully retrieved.'.format(unit['EinheitMastrNummer']))
+                # TODO Check if low-level access can be done for all subfunctions
+                log.info('Unit {} sucessfully retrieved.'.format(unit.loc[1, 'EinheitMastrNummer']))
             # Last successful execution was more than 10 minutes ago, so stop execution
             # TODO make timeout value a function parameter
             if last_successful + datetime.timedelta(minutes=10) < datetime.datetime.now():
@@ -219,7 +219,8 @@ def get_power_unit_solar(mastr_unit_solar):
         write_to_csv(fname_solar_unit, unit_solar)
         return unit_solar
     except Exception as e:
-        log.info('Download failed for %s', mastr_unit_solar)
+        log.info('Download failed for {}: {}'.format(mastr_unit_solar, e))
+        return None
 
 
 def read_unit_solar(csv_name):
