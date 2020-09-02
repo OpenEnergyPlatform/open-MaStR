@@ -71,6 +71,12 @@ fname_power_unit_gsgk = f'{fname_template}_power-unit_gsgk.csv'
 
 # AndereGase Braunkohle Erdgas Mineraloelprodukte NichtBiogenerAbfall Steinkohle Waerme (AKA Verbrennung)
 fname_power_unit_combustion = f'{fname_template}_power-unit_combustion.csv'
+fname_combustion_unit = f'{fname_template}_unit-combustion.csv'
+fname_combustion_kwk = f'{fname_template}_unit-combustion-kwk.csv'
+fname_combustion = f'{fname_template}_combustion.csv'
+fname_combustion_fail_u = f'{fname_template}_combustion_fail_u.csv'
+fname_combustion_fail_e = f'{fname_template}_combustion_fail_e.csv'
+
 
 def get_data_version():
     """Return current data version. """

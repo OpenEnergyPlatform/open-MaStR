@@ -28,6 +28,19 @@ ALTER TABLE model_draft.bnetza_mastr_rli_v2_5_5_wind_clean
 CREATE INDEX bnetza_mastr_rli_v2_5_5_wind_clean_geom_idx
     ON model_draft.bnetza_mastr_rli_v2_5_5_wind_clean USING gist (geom);
 
+ALTER TABLE model_draft.bnetza_mastr_rli_v2_5_5_wind_clean
+    OWNER to oeuser;
+
+-- Onshore and offshore
+    UPDATE  model_draft.bnetza_mastr_rli_v2_5_5_wind_clean
+    SET     comment =  COALESCE(comment, '') || 'onshore; '
+    WHERE   "Lage" = 'WindAnLand';
+
+    UPDATE  model_draft.bnetza_mastr_rli_v2_5_5_wind_clean
+    SET     comment =  COALESCE(comment, '') || 'offshore; '
+    WHERE   "Lage" = 'WindAufSee';
+
+
 -- clean lat and lon values
 UPDATE  model_draft.bnetza_mastr_rli_v2_5_5_wind_clean
     SET lat =      CAST(
@@ -75,9 +88,15 @@ GROUP BY comment;
 
 
 -- Check geom
-UPDATE  model_draft.bnetza_mastr_rli_v2_5_5_wind_clean AS t1
+    UPDATE  model_draft.bnetza_mastr_rli_v2_5_5_wind_clean AS t1
     SET     comment =  COALESCE(comment, '') || 'has_geom; '
     WHERE   geom IS NOT NULL;
+
+    UPDATE  model_draft.bnetza_mastr_rli_v2_5_5_wind_clean AS t1
+    SET     comment =  COALESCE(comment, '') || 'no_geom; '
+    WHERE   geom IS NULL;
+
+
 
 -- Punkte innerhalb vg250
     UPDATE  model_draft.bnetza_mastr_rli_v2_5_5_wind_clean AS t1
@@ -92,18 +111,16 @@ UPDATE  model_draft.bnetza_mastr_rli_v2_5_5_wind_clean AS t1
     WHERE   t1.id = t2.id;
 
 
-
 -- Punkte außerhalb nicht Offshore
     UPDATE  model_draft.bnetza_mastr_rli_v2_5_5_wind_clean
-    SET     comment =  COALESCE(comment, '') || 'outside_vg250_onshore; '
-    WHERE   comment = 'make_geom; has_geom; ' 
-            AND "Lage" = 'WindAnLand';
+    SET     comment =  COALESCE(comment, '') || 'offside; '
+    WHERE   comment = 'onshore; make_geom; has_geom; ';
 
 -- Reset außerhalb Onshore 
     UPDATE  model_draft.bnetza_mastr_rli_v2_5_5_wind_clean
     SET     geom =  NULL,
             comment =  COALESCE(comment, '') || 'remove_geom; '
-    WHERE   comment = 'make_geom; has_geom; outside_vg250_onshore; ';
+    WHERE   comment = 'onshore; make_geom; has_geom; offside; ';
 
 
 -- Make geom from PLZ
@@ -117,7 +134,8 @@ UPDATE  model_draft.bnetza_mastr_rli_v2_5_5_wind_clean AS t1
             ORDER BY plz
             )AS t2
     WHERE   t1."Postleitzahl" = t2.plz AND
-            t1.geom IS NULL;
+            t1.geom IS NULL AND
+            t1."Lage" = 'WindAnLand';
 
 
 -- Make geom from Standort (Extract PLZ)
@@ -136,10 +154,30 @@ UPDATE  model_draft.bnetza_mastr_rli_v2_5_5_wind_clean AS t1
             ) AS t3
     WHERE   length(t3.plz) = 5 AND
             t3.plz = t2.plz AND
-            t1.geom IS NULL;
+            t1.geom IS NULL AND
+            t1."Lage" = 'WindAnLand';
+-- ToDO: Use regexp_split_to_array to split words and remove single numbers
 
-ALTER TABLE model_draft.bnetza_mastr_rli_v2_5_5_wind_clean
-    OWNER to oeuser;
+
+-- Check Offshore
+    UPDATE  model_draft.bnetza_mastr_rli_v2_5_5_wind_clean AS t1
+    SET     comment =  COALESCE(comment, '') || 'inside_offshore; '
+    FROM    (
+        SELECT  m.id AS id
+        FROM    model_draft.rli_boundaries_offshore AS vg,
+                model_draft.bnetza_mastr_rli_v2_5_5_wind_clean AS m
+        WHERE   m."Lage" = 'WindAufSee' AND
+                m.geom && ST_TRANSFORM(vg.geom,4326) AND
+                ST_CONTAINS(ST_TRANSFORM(vg.geom,4326),m.geom)
+        ) AS t2
+    WHERE   t1.id = t2.id;
+
+-- Reset außerhalb Offshore 
+    UPDATE  model_draft.bnetza_mastr_rli_v2_5_5_wind_clean
+    SET     geom =  NULL,
+            comment =  COALESCE(comment, '') || 'remove_geom; '
+    WHERE   comment = 'offshore; make_geom; has_geom; ';
+
 
 SELECT *
 FROM model_draft.bnetza_mastr_rli_v2_5_5_wind_clean
