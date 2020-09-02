@@ -20,19 +20,21 @@ __version__ = "v0.9.0"
 
 from soap_api.config import setup_logger
 from soap_api.mastr_general_download import get_mastr_time, get_mastr_time_auth, get_daily_contingent
-from soap_api.mastr_power_unit_download import download_parallel_power_unit, download_power_unit
-from soap_api.mastr_wind_download import setup_power_unit_wind, download_unit_wind, download_unit_wind_eeg, download_unit_wind_permit
-from soap_api.mastr_wind_process import make_wind
-from soap_api.mastr_hydro_download import setup_power_unit_hydro, download_unit_hydro, download_unit_hydro_eeg
-from soap_api.mastr_hydro_process import make_hydro
-from soap_api.mastr_biomass_download import setup_power_unit_biomass, download_unit_biomass, download_unit_biomass_eeg
-from soap_api.mastr_biomass_process import make_biomass
-from soap_api.mastr_solar_download import setup_power_unit_solar, download_unit_solar, download_parallel_unit_solar, download_unit_solar_eeg, download_parallel_unit_solar_eeg
-from soap_api.mastr_solar_process import make_solar
-from soap_api.mastr_storage_units_download import download_unit_storage, download_parallel_unit_storage
-from soap_api.mastr_nuclear_download import setup_power_unit_nuclear, download_unit_nuclear
-from soap_api.mastr_nuclear_process import make_nuclear
-# from soap_api.mastr_wind_processing import do_wind
+# from soap_api.mastr_power_unit_download import download_parallel_power_unit, download_power_unit
+# from soap_api.mastr_wind_download import setup_power_unit_wind, download_unit_wind, download_unit_wind_eeg, download_unit_wind_permit
+# from soap_api.mastr_wind_process import make_wind
+# from soap_api.mastr_hydro_download import setup_power_unit_hydro, download_unit_hydro, download_unit_hydro_eeg
+# from soap_api.mastr_hydro_process import make_hydro
+# from soap_api.mastr_biomass_download import setup_power_unit_biomass, download_unit_biomass, download_unit_biomass_eeg
+# from soap_api.mastr_biomass_process import make_biomass
+from soap_api.mastr_solar_download import setup_power_unit_solar, download_parallel_unit_solar, read_power_unit_solar, read_unit_solar
+# from soap_api.mastr_solar_process import make_solar
+# from soap_api.mastr_storage_units_download import download_unit_storage, download_parallel_unit_storage
+# from soap_api.mastr_nuclear_download import setup_power_unit_nuclear, download_unit_nuclear
+# from soap_api.mastr_nuclear_process import make_nuclear
+# # from soap_api.mastr_wind_processing import do_wind
+from soap_api.utils import is_time_blacklisted, fname_solar_unit, fname_power_unit_solar
+import datetime
 import time
 
 
@@ -82,16 +84,28 @@ if __name__ == "__main__":
     # make_biomass()
 
     """Solar"""
+
+    # TODO: Do this as long as there are remaining generators
+    while True:
+        if not is_time_blacklisted(datetime.datetime.now().time()):
+            a = read_power_unit_solar(fname_power_unit_solar)['EinheitMastrNummer'] # all generators
+            b = read_unit_solar(fname_solar_unit)['EinheitMastrNummer'] # already downloaded generators
+            c = a[~a.isin(b)] # remaining generators
+            download_parallel_unit_solar(c)
+        else:
+            log.info('Current time of day in blacklist. Idle.')
+            time.sleep(60)
+
     # setup_power_unit_solar()
     # ''' DEFAULT PARAMS: start_from=0, n_entries=1, parallelism=12 '''
     # download_parallel_unit_solar(
     #     start_from=0,
     #     n_entries=1,
     #     parallelism=12)
-    download_parallel_unit_solar_eeg(
-       start_from=0,
-       n_entries=1,
-       parallelism=12)
+    # download_parallel_unit_solar_eeg(
+    #    start_from=0,
+    #    n_entries=1,
+    #    parallelism=12)
     # make_solar()
 
     """ Storages"""
