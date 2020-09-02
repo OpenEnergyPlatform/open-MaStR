@@ -22,13 +22,12 @@ from soap_api.utils import (fname_power_unit,
                             fname_power_unit_solar,
                             fname_solar_unit,
                             fname_solar_eeg)
+from soap_api.parallel import parallel_download
 
-import multiprocessing
 import pandas as pd
 import datetime
 import os
 from zeep.helpers import serialize_object
-from functools import partial
 import textwrap
 
 import logging
@@ -130,66 +129,8 @@ def read_power_unit_solar(csv_name):
         log.info(f'Error reading {csv_name}')
 
 
-# Download unit-solar (parallel)
-def download_parallel_unit_solar(unit_list, func, filename, parallelism=4):
-    """Download a list of units using a pool of threads
-
-    Maps a download function for a single unit onto a list of
-    candidate units that are downloaded in parallel.
-
-    Arguments
-    ---------
-    unit_list : 
-        Iterable of 'EinheitMastrNummer' of units to download
-    func :
-        Function to download an individual unit from the list,
-        i.e. get_power_unit_xxx()
-    filename :
-        CSV file to write retrieved units to
-    parallelism :
-        number of threads to download with
-    """
-
-    with multiprocessing.Pool(parallelism) as pool:
-        last_successful = datetime.datetime.now()
-        for unit in pool.imap_unordered(func, unit_list):
-            # Check if data was retrieved successfully
-            if unit is not None:
-                last_successful = datetime.datetime.now()
-                # TODO Check if low-level access can be done for all subfunctions
-                log.info('Unit {} sucessfully retrieved.'.format(unit.loc[1, 'EinheitMastrNummer']))
-                write_to_csv(filename, unit)
-            # Last successful execution was more than 10 minutes ago, so stop execution
-            # TODO make timeout value a function parameter
-            if last_successful + datetime.timedelta(minutes=10) < datetime.datetime.now():
-                log.error('No response from server in the last 10 minutes. Shutting down.')
-                break
-
-def is_time_blacklisted(time):
-    times_blacklist = [
-            ('8:00', '18:00'), # BNetzA Business hours
-            ('23:30', '00:10'), # Daily database cronjob
-            # Add more if needed...
-            ]
-
-    # check if time is in a given interval between upper and lower
-    def in_interval(lower, upper):
-        # Convert str to datatime object
-        parse_time = lambda t: datetime.datetime.strptime(t, "%H:%M").time()
-        lower = parse_time(lower)
-        upper = parse_time(upper)
-
-        # Handle interval that spans over midnight (i.e. 23:30-0:30)
-        if lower > upper:
-            return (time <= upper or time >= lower)
-        # Handle all other intevals
-        return (lower <= time and upper >= time)
-
-    # check if time is in interval for each interval in the blacklist
-    in_interval = [in_interval(lower, upper) for lower, upper in times_blacklist]
-
-    return any(in_interval)
-      
+def download_parallel_unit_solar(unit_list, threads=4, timeout=10, time_blacklist=True):
+    return parallel_download(unit_list, get_power_unit_solar, fname_solar_unit, threads=threads, timeout=timeout, time_blacklist=time_blacklist)
 
 def get_power_unit_solar(mastr_unit_solar):
     """Get Solareinheit from API using GetEinheitSolar.
@@ -322,71 +263,8 @@ def read_unit_solar(csv_name):
     # log.info(f'Finished reading data from {csv_name}')
     return unit_solar
 
-
-# Download unit-solar-eeg (parallel)
-def download_parallel_unit_solar_eeg(
-        start_from=0,
-        n_entries=1,
-        parallelism=12
-):
-    """Download GetAnlageEegSolar with parallel process
-
-
-    Arguments
-    ---------
-    start_from : int
-        Start index in the power_unit_list.
-    n_entries : int
-        Number of entries to download
-    parallelism : int
-        number of threads
-
-    Existing units: 31543 (2019-02-10)
-
-    Existing units: 31543 (2019-02-10)
-    """
-
-    global proc_list
-    split_solar_list = []
-
-    #setup_power_unit_solar()
-
-    unit_solar = read_unit_solar(fname_solar_unit)
-    unit_solar = unit_solar.dropna(subset=['EegMastrNummer'])
-
-    unit_solar_list = unit_solar['EegMastrNummer'].values.tolist()
-    mastr_list_len = len(unit_solar_list)
-
-    # check wether user input
-    if n_entries is 1:
-        n_entries = mastr_list_len
-    # check wether to download more entries than solareinheiten in unit_solar_list starting at start_from
-    if n_entries > (mastr_list_len - start_from):
-        n_entries = mastr_list_len - start_from
-    log.info('Found %s solar units eeg', n_entries)
-    end_at = start_from + n_entries
-    cpu_count = mp.cpu_count()
-    proc_list = split_to_sublists(unit_solar_list[start_from:end_at], cpu_count)
-    print("This may take a moment. Processing {} data eeg batches.".format(len(proc_list)))
-
-    t = time.time()
-
-    cpu_count = mp.cpu_count()
-    process_pool = mp.Pool(processes=cpu_count)
-
-    try:
-        unit_solar = process_pool.map(
-            partial(split_to_threads, process_func=get_unit_solar_eeg, parallelism=parallelism),
-            proc_list
-        )
-        process_pool.close()
-        process_pool.join()
-        write_to_csv(fname_solar_eeg, unit_solar)
-    except Exception as e:
-        log.error(e)
-    log.info('time needed %s', time.time() - t)
-
-
+def download_parallel_unit_solar_eeg(unit_list, threads=4, timeout=10, time_blacklist=True):
+    return parallel_download(unit_list, get_unit_solar_eeg, fname_solar_eeg, threads=threads, timeout=timeout, time_blacklist=time_blacklist)
 
 def get_unit_solar_eeg(mastr_solar_eeg):
     """Get EEG-Anlage-Solar from API using GetAnlageEegSolar.
@@ -414,7 +292,7 @@ def get_unit_solar_eeg(mastr_solar_eeg):
         unit_solar_eeg["version"] = data_version
         unit_solar_eeg["timestamp"] = str(datetime.datetime.now())
     except Exception as e:
-        return unit_solar_eeg
+        return None
     return unit_solar_eeg
 
 
@@ -461,7 +339,6 @@ def read_unit_solar_eeg(csv_name):
     # log.info(f'Finished reading data from {csv_name}')
     return unit_solar_eeg
 
-
 # Download unit-solar
 def download_unit_solar():
     """Download Solareinheit.
@@ -482,7 +359,6 @@ def download_unit_solar():
             write_to_csv(fname_solar_unit, unit_solar)
         except:
             log.exception(f'Download failed unit_solar ({i}): {unit_solar_list[i]}')
-
 
 # Download unit-solar-eeg
 def download_unit_solar_eeg():
