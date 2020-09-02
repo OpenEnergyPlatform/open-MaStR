@@ -31,6 +31,8 @@ from soap_api.mastr_solar_process import make_solar
 from soap_api.mastr_storage_units_download import download_unit_storage, download_parallel_unit_storage
 from soap_api.mastr_nuclear_download import setup_power_unit_nuclear, download_unit_nuclear
 from soap_api.mastr_nuclear_process import make_nuclear
+from soap_api.mastr_combustion_download import setup_power_unit_combustion, download_unit_combustion, download_unit_combustion_kwk
+from soap_api.mastr_combustion_process import make_combustion
 # from soap_api.mastr_wind_processing import do_wind
 import time
 
@@ -63,7 +65,7 @@ if __name__ == "__main__":
 
     """Wind"""
     # # setup_power_unit_wind()   # Extract from all power units
-    download_power_unit(energy_carrier='Wind', power_unit_list_len=51929)
+    # download_power_unit(energy_carrier='Wind', power_unit_list_len=51929)
     # download_unit_wind()
     # download_unit_wind_eeg()
     # download_unit_wind_permit()
@@ -73,7 +75,7 @@ if __name__ == "__main__":
 
     """Hydro"""
     # setup_power_unit_hydro()    # Extract from all power units
-    download_power_unit(energy_carrier='Wasser', power_unit_list_len=11000)
+    # download_power_unit(energy_carrier='Wasser', power_unit_list_len=11000)
     # download_unit_hydro()
     # download_unit_hydro_eeg()
     # retry_download_unit_hydro()
@@ -82,7 +84,7 @@ if __name__ == "__main__":
 
     """Biomass"""
     # # setup_power_unit_biomass()  # Extract from all power units
-    download_power_unit(energy_carrier='Biomasse', power_unit_list_len=28365)
+    # download_power_unit(energy_carrier='Biomasse', power_unit_list_len=28365)
     # download_unit_biomass()
     # download_unit_biomass_eeg()
     # retry_download_unit_biomass()
@@ -103,33 +105,34 @@ if __name__ == "__main__":
     #    parallelism=6)
     # make_solar()
 
-    """Storages"""
-    download_power_unit(energy_carrier='Speicher', power_unit_list_len=144594)
+    """Storage"""
+    # download_power_unit(energy_carrier='Speicher', power_unit_list_len=144594)
     # get_solarunit_storages()
     # download_parallel_unit_storage()
 
     """Nuclear"""
     # setup_power_unit_nuclear()    # Extract from all power units
-    download_power_unit(energy_carrier='Kernenergie', power_unit_list_len=9)
-    download_unit_nuclear()
-    make_nuclear()
+    # download_power_unit(energy_carrier='Kernenergie', power_unit_list_len=9)
+    # download_unit_nuclear()
+    # make_nuclear()
 
-    """Other"""
-    download_power_unit(energy_carrier='AndereGase', power_unit_list_len=2276)
+    """GSGK"""
+    # download_power_unit(energy_carrier='Geothermie', power_unit_list_len=20)
+    # download_power_unit(energy_carrier='Solarthermie', power_unit_list_len=7)
+    # download_power_unit(energy_carrier='Grubengas', power_unit_list_len=193)
+    # download_power_unit(energy_carrier='Klaerschlamm', power_unit_list_len=98)
 
-    download_power_unit(energy_carrier='Braunkohle', power_unit_list_len=96)
-
-    download_power_unit(energy_carrier='Erdgas', power_unit_list_len=37014)
-
-    download_power_unit(energy_carrier='Geothermie', power_unit_list_len=20)
-    download_power_unit(energy_carrier='Solarthermie', power_unit_list_len=7)
-    download_power_unit(energy_carrier='Grubengas', power_unit_list_len=193)
-    download_power_unit(energy_carrier='Klaerschlamm', power_unit_list_len=98)
-
-    download_power_unit(energy_carrier='Mineraloelprodukte', power_unit_list_len=4056)
-    download_power_unit(energy_carrier='NichtBiogenerAbfall', power_unit_list_len=158)
-    download_power_unit(energy_carrier='Steinkohle', power_unit_list_len=123)
-    download_power_unit(energy_carrier='Waerme', power_unit_list_len=195)
+    """Combustion"""
+    # download_power_unit(energy_carrier='AndereGase', power_unit_list_len=2276)
+    # download_power_unit(energy_carrier='Braunkohle', power_unit_list_len=96)
+    # download_power_unit(energy_carrier='Erdgas', power_unit_list_len=37014)
+    # download_power_unit(energy_carrier='Mineraloelprodukte', power_unit_list_len=4056)
+    # download_power_unit(energy_carrier='NichtBiogenerAbfall', power_unit_list_len=158)
+    # download_power_unit(energy_carrier='Steinkohle', power_unit_list_len=123)
+    # download_power_unit(energy_carrier='Waerme', power_unit_list_len=195)
+    # download_unit_combustion()
+    # download_unit_combustion_kwk()
+    make_combustion()
 
     """close"""
     log.info('MaSTR script successfully executed in {:.2f} seconds'
