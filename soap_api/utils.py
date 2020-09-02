@@ -58,8 +58,11 @@ fname_solar = f'{fname_template}_solar.csv'
 
 # Speicher
 fname_power_unit_storage = f'{fname_template}_power-unit_storage.csv'
-fname_storage = f'{fname_template}_storage.csv'
 fname_storage_unit = f'{fname_template}_unit-storage.csv'
+fname_storage_eeg = f'{fname_template}_storage-eeg.csv'
+fname_storage = f'{fname_template}_storage.csv'
+fname_storage_fail_u = f'{fname_template}_storage_fail_u.csv'
+fname_storage_fail_e = f'{fname_template}_storage_fail_e.csv'
 
 # Kernenergie
 fname_power_unit_nuclear = f'{fname_template}_power-unit_nuclear.csv'
