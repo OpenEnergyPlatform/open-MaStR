@@ -131,7 +131,7 @@ def read_power_unit_solar(csv_name):
 
 
 # Download unit-solar (parallel)
-def download_parallel_unit_solar(unit_list, func, parallelism=4):
+def download_parallel_unit_solar(unit_list, func, filename, parallelism=4):
     """Download a list of units using a pool of threads
 
     Maps a download function for a single unit onto a list of
@@ -144,6 +144,8 @@ def download_parallel_unit_solar(unit_list, func, parallelism=4):
     func :
         Function to download an individual unit from the list,
         i.e. get_power_unit_xxx()
+    filename :
+        CSV file to write retrieved units to
     parallelism :
         number of threads to download with
     """
@@ -156,6 +158,7 @@ def download_parallel_unit_solar(unit_list, func, parallelism=4):
                 last_successful = datetime.datetime.now()
                 # TODO Check if low-level access can be done for all subfunctions
                 log.info('Unit {} sucessfully retrieved.'.format(unit.loc[1, 'EinheitMastrNummer']))
+                write_to_csv(filename, unit)
             # Last successful execution was more than 10 minutes ago, so stop execution
             # TODO make timeout value a function parameter
             if last_successful + datetime.timedelta(minutes=10) < datetime.datetime.now():
@@ -216,7 +219,6 @@ def get_power_unit_solar(mastr_unit_solar):
         unit_solar.index.names = ['lid']
         unit_solar['version'] = data_version
         unit_solar['timestamp'] = str(datetime.datetime.now())
-        write_to_csv(fname_solar_unit, unit_solar)
         return unit_solar
     except Exception as e:
         log.info('Download failed for {}: {}'.format(mastr_unit_solar, e))
