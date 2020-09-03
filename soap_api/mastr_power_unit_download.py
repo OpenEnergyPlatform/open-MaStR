@@ -76,11 +76,12 @@ def get_power_unit(start_from, wind=False, datum='1900-01-01 00:00:00.00000', li
         s = serialize_object(c)
         power_unit = pd.DataFrame(s['Einheiten'])
         power_unit.index.names = ['lid']
+        power_unit['db_offset'] = [i for i in range(start_from, start_from+len(power_unit))]
         power_unit['version'] = get_data_version()
         power_unit['timestamp'] = str(datetime.now())
+        return power_unit
     except Exception as e:
         log.info(e)
-    return [start_from, power_unit]
 
 
 def download_power_unit(
