@@ -1,6 +1,7 @@
 import datetime
 import multiprocessing
 import logging
+import tqdm
 
 from soap_api.utils import write_to_csv
 from soap_api.utils import is_time_blacklisted
@@ -15,7 +16,7 @@ def _stop_execution(time_blacklist, timeout):
         log.error('No response from server in the last {} minutes. Stopping execution.'.format(timeout))
         raise ConnectionAbortedError
     # Stop execution smoothly if current system time is in blacklist by returning. Calling function can decide to continue running later if needed
-    if time_blacklist and is_time_blacklisted(now.time()):
+    if time_blacklist and is_time_blacklisted(last_successful_download.time()):
         log.info('Current time is in blacklist. Halting.')
         return True
     # ... Add more checks here if needed ...
@@ -50,13 +51,10 @@ def parallel_download(unit_list, func, filename, threads=4, timeout=10, time_bla
 
     _reset_timeout()
     with multiprocessing.Pool(threads) as pool:
-        for unit in pool.imap_unordered(func, unit_list):
+        for unit in tqdm.tqdm(pool.imap_unordered(func, unit_list), total=len(unit_list)):
             # Check if data was retrieved successfully
             if unit is not None:
                 _reset_timeout()
-                # TODO Check if low-level access can be done for all potential subfunctions
-                # Alternatively turn this into a status bar
-                log.info('Unit {} sucessfully retrieved.'.format(unit.loc[1, 'EinheitMastrNummer']))
                 write_to_csv(filename, unit)
             if _stop_execution(time_blacklist, timeout) is True:
                 break
