@@ -28,6 +28,10 @@ ALTER TABLE model_draft.bnetza_mastr_rli_v2_5_5_biomass_clean
 CREATE INDEX bnetza_mastr_rli_v2_5_5_biomass_clean_geom_idx
     ON model_draft.bnetza_mastr_rli_v2_5_5_biomass_clean USING gist (geom);
 
+
+ALTER TABLE model_draft.bnetza_mastr_rli_v2_5_5_biomass_clean
+    OWNER to oeuser;
+
 -- clean lat and lon values
 UPDATE  model_draft.bnetza_mastr_rli_v2_5_5_biomass_clean
     SET lat =      CAST(
@@ -117,9 +121,8 @@ UPDATE  model_draft.bnetza_mastr_rli_v2_5_5_biomass_clean AS t1
     WHERE   t1."Postleitzahl" = t2.plz AND
             t1.geom IS NULL;
 
-ALTER TABLE model_draft.bnetza_mastr_rli_v2_5_5_biomass_clean
-    OWNER to oeuser;
-
+DELETE FROM model_draft.bnetza_mastr_rli_v2_5_5_biomass_clean
+WHERE geom IS NULL;
 
 /*
 -- Analyze Wasser
