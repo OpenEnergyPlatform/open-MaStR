@@ -32,7 +32,7 @@ ALTER TABLE model_draft.bnetza_mastr_rli_v2_5_5_wind_clean
     OWNER to oeuser;
 
 -- Onshore and offshore
-    UPDATE  model_draft.bnetza_mastr_rli_v2_5_5_wind_clean
+UPDATE  model_draft.bnetza_mastr_rli_v2_5_5_wind_clean
     SET     comment =  COALESCE(comment, '') || 'onshore; '
     WHERE   "Lage" = 'WindAnLand';
 
@@ -88,7 +88,7 @@ GROUP BY comment;
 
 
 -- Check geom
-    UPDATE  model_draft.bnetza_mastr_rli_v2_5_5_wind_clean AS t1
+UPDATE  model_draft.bnetza_mastr_rli_v2_5_5_wind_clean AS t1
     SET     comment =  COALESCE(comment, '') || 'has_geom; '
     WHERE   geom IS NOT NULL;
 
@@ -99,7 +99,7 @@ GROUP BY comment;
 
 
 -- Punkte innerhalb vg250
-    UPDATE  model_draft.bnetza_mastr_rli_v2_5_5_wind_clean AS t1
+UPDATE  model_draft.bnetza_mastr_rli_v2_5_5_wind_clean AS t1
     SET     comment =  COALESCE(comment, '') || 'inside_vg250; '
     FROM    (
         SELECT  m.id AS id
@@ -112,12 +112,12 @@ GROUP BY comment;
 
 
 -- Punkte außerhalb nicht Offshore
-    UPDATE  model_draft.bnetza_mastr_rli_v2_5_5_wind_clean
+UPDATE  model_draft.bnetza_mastr_rli_v2_5_5_wind_clean
     SET     comment =  COALESCE(comment, '') || 'offside; '
     WHERE   comment = 'onshore; make_geom; has_geom; ';
 
 -- Reset außerhalb Onshore 
-    UPDATE  model_draft.bnetza_mastr_rli_v2_5_5_wind_clean
+UPDATE  model_draft.bnetza_mastr_rli_v2_5_5_wind_clean
     SET     geom =  NULL,
             comment =  COALESCE(comment, '') || 'remove_geom; '
     WHERE   comment = 'onshore; make_geom; has_geom; offside; ';
@@ -216,3 +216,111 @@ FROM model_draft.bnetza_mastr_rli_v2_5_5_wind_clean_50hertz
 WHERE is_50hertz = TRUE
 GROUP BY "Typenbezeichnung"
 */
+
+
+-- Create a reduced version
+DROP TABLE IF EXISTS model_draft.bnetza_mastr_rli_v2_5_5_wind_clean_reduced CASCADE;
+CREATE TABLE         model_draft.bnetza_mastr_rli_v2_5_5_wind_clean_reduced AS
+    SELECT  "id",
+            "EinheitMastrNummer",
+            "Bruttoleistung",
+            "EinheitBetriebsstatus",
+            "Anlagenbetreiber",
+            "EegMastrNummer",
+            "KwkMastrNummer",
+            "GenMastrNummer",
+            "version",
+            "timestamp",
+            "Ergebniscode",
+            "DatumLetzteAktualisierung",
+            "LokationMastrNummer",
+            "NetzbetreiberpruefungStatus",
+            "NetzbetreiberpruefungDatum",
+            "AnlagenbetreiberMastrNummer",
+            "Land",
+            "Bundesland",
+            "Landkreis",
+            "Gemeinde",
+            "Gemeindeschluessel",
+            "Postleitzahl",
+            "Gemarkung",
+            "FlurFlurstuecknummern",
+            "Strasse",
+            "StrasseNichtGefunden",
+            "Hausnummer",
+            "HausnummerNichtGefunden",
+            "Adresszusatz",
+            "Ort",
+            "Laengengrad",
+            "Breitengrad",
+            "Meldedatum",
+            "Inbetriebnahmedatum",
+            "DatumEndgueltigeStilllegung",
+            "DatumBeginnVoruebergehendeStilllegung",
+            "DatumWiederaufnahmeBetrieb",
+            "EinheitBetriebsstatus_w",
+            "AltAnlagenbetreiberMastrNummer",
+            "DatumDesBetreiberwechsels",
+            "DatumRegistrierungDesBetreiberwechsels",
+            "StatisikFlag_w",
+            "NameStromerzeugungseinheit",
+            "WeicDisplayName",
+            "Bruttoleistung_w",
+            "Nettonennleistung",
+            "AnschlussAnHoechstOderHochSpannung",
+            "FernsteuerbarkeitNb",
+            "FernsteuerbarkeitDv",
+            "FernsteuerbarkeitDr",
+            "Einspeisungsart",
+            "GenMastrNummer_w",
+            "NameWindpark",
+            "Lage",
+            "Seelage",
+            "ClusterOstsee",
+            "ClusterNordsee",
+            "Technologie",
+            "Typenbezeichnung",
+            "Nabenhoehe",
+            "Rotordurchmesser",
+            "AuflageAbschaltungLeistungsbegrenzung",
+            "Wassertiefe",
+            "Kuestenentfernung",
+            "EegMastrNummer_w",
+            "HerstellerID",
+            "HerstellerName",
+            "timestamp_w",
+            "Ergebniscode_e",
+            "Meldedatum_e",
+            "DatumLetzteAktualisierung_e",
+            "EegInbetriebnahmedatum",
+            "AnlagenkennzifferAnlagenregister",
+            "AnlagenschluesselEeg",
+            "InstallierteLeistung",
+            "VerhaeltnisErtragsschaetzungReferenzertrag",
+            "AnlageBetriebsstatus",
+            "VerknuepfteEinheit",
+            "MaStRNummer",
+            "Datum",
+            "Art",
+            "Behoerde",
+            "Aktenzeichen",
+            "Frist",
+            "Meldedatum_p",
+            "lat",
+            "lon",
+            "geom",
+            "comment"
+    FROM    model_draft.bnetza_mastr_rli_v2_5_5_wind_clean
+    WHERE geom IS NOT NULL
+    ORDER BY id;
+
+ALTER TABLE model_draft.bnetza_mastr_rli_v2_5_5_wind_clean_reduced
+    ADD PRIMARY KEY (id);
+
+CREATE INDEX bnetza_mastr_rli_v2_5_5_wind_clean_reduced_geom_idx
+    ON model_draft.bnetza_mastr_rli_v2_5_5_wind_clean_reduced USING gist (geom);
+
+ALTER TABLE model_draft.bnetza_mastr_rli_v2_5_5_wind_clean_reduced
+    OWNER to oeuser;
+
+
