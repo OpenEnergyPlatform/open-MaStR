@@ -123,16 +123,16 @@ if __name__ == "__main__":
     # download_power_unit(energy_carrier='Klaerschlamm', power_unit_list_len=98)
 
     """Combustion"""
-    download_power_unit(energy_carrier='AndereGase', power_unit_list_len=2276)
-    download_power_unit(energy_carrier='Braunkohle', power_unit_list_len=96)
-    download_power_unit(energy_carrier='Erdgas', power_unit_list_len=37014)
-    download_power_unit(energy_carrier='Mineraloelprodukte', power_unit_list_len=4056)
-    download_power_unit(energy_carrier='NichtBiogenerAbfall', power_unit_list_len=158)
-    download_power_unit(energy_carrier='Steinkohle', power_unit_list_len=123)
-    download_power_unit(energy_carrier='Waerme', power_unit_list_len=195)
-    download_unit_combustion()
-    download_unit_combustion_kwk()
-    make_combustion()
+    # download_power_unit(energy_carrier='AndereGase', power_unit_list_len=2276)
+    # download_power_unit(energy_carrier='Braunkohle', power_unit_list_len=96)
+    # download_power_unit(energy_carrier='Erdgas', power_unit_list_len=37014)
+    # download_power_unit(energy_carrier='Mineraloelprodukte', power_unit_list_len=4056)
+    # download_power_unit(energy_carrier='NichtBiogenerAbfall', power_unit_list_len=158)
+    # download_power_unit(energy_carrier='Steinkohle', power_unit_list_len=123)
+    # download_power_unit(energy_carrier='Waerme', power_unit_list_len=195)
+    # download_unit_combustion()
+    # download_unit_combustion_kwk()
+    # make_combustion()
 
     """close"""
     log.info('MaSTR script successfully executed in {:.2f} seconds'
