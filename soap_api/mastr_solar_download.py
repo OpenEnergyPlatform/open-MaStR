@@ -18,14 +18,12 @@ __version__ = "v0.9.0"
 
 from soap_api.sessions import mastr_session
 from soap_api.utils import get_data_version, write_to_csv, remove_csv, read_power_units
-from soap_api.utils import (fname_power_unit,
-                            fname_power_unit_solar,
-                            fname_solar_unit,
-                            fname_solar_eeg)
+from soap_api.utils import is_time_blacklisted, fname_solar_unit, fname_power_unit_solar, fname_solar_eeg
 from soap_api.parallel import parallel_download
 
 import pandas as pd
 import datetime
+import time
 import os
 from zeep.helpers import serialize_object
 import textwrap
@@ -129,14 +127,36 @@ def read_power_unit_solar(csv_name):
         log.info(f'Error reading {csv_name}')
 
 
-def download_parallel_unit_solar(unit_list, threads=4, timeout=10, time_blacklist=True):
-    return parallel_download(
-        unit_list,
-        get_power_unit_solar,
-        fname_solar_unit,
-        threads=threads,
-        timeout=timeout,
-        time_blacklist=time_blacklist)
+def download_parallel_unit_solar(threads=4, timeout=10, time_blacklist=True):
+    all_units = read_power_unit_solar(fname_power_unit_solar)[
+        'EinheitMastrNummer']  # all generators
+
+    # parallel download might return early because of time blacklist, so keep
+    # retrying until all units are finished
+    while True:
+        if time_blacklist is True and is_time_blacklisted(datetime.datetime.now().time()):
+            log.info('Current time of day in blacklist. Idle.')
+            time.sleep(60)
+            continue
+
+        # Generate list of units to download here so that it is updated in every iteration
+        downloaded_units = read_unit_solar(fname_solar_unit)[
+            'EinheitMastrNummer']  # already downloaded generators
+        remain = all_units[~all_units.isin(downloaded_units)]  # remaining generators
+
+        # Exit if there are no (more) elements to download
+        if len(remain) == 0:
+            break
+
+        # Download remaining elements in parallel
+        parallel_download(
+            remain,
+            get_power_unit_solar,
+            fname_solar_unit,
+            threads=threads,
+            timeout=timeout,
+            time_blacklist=time_blacklist)
+
 
 def get_power_unit_solar(mastr_unit_solar):
     """Get Solareinheit from API using GetEinheitSolar.
