@@ -130,7 +130,13 @@ def read_power_unit_solar(csv_name):
 
 
 def download_parallel_unit_solar(unit_list, threads=4, timeout=10, time_blacklist=True):
-    return parallel_download(unit_list, get_power_unit_solar, fname_solar_unit, threads=threads, timeout=timeout, time_blacklist=time_blacklist)
+    return parallel_download(
+        unit_list,
+        get_power_unit_solar,
+        fname_solar_unit,
+        threads=threads,
+        timeout=timeout,
+        time_blacklist=time_blacklist)
 
 def get_power_unit_solar(mastr_unit_solar):
     """Get Solareinheit from API using GetEinheitSolar.
@@ -163,7 +169,6 @@ def get_power_unit_solar(mastr_unit_solar):
         return unit_solar
     except Exception as e:
         log.info('Download failed for {}: {}'.format(mastr_unit_solar, e))
-        return None
 
 
 def read_unit_solar(csv_name):
@@ -263,8 +268,15 @@ def read_unit_solar(csv_name):
     # log.info(f'Finished reading data from {csv_name}')
     return unit_solar
 
+
 def download_parallel_unit_solar_eeg(unit_list, threads=4, timeout=10, time_blacklist=True):
-    return parallel_download(unit_list, get_unit_solar_eeg, fname_solar_eeg, threads=threads, timeout=timeout, time_blacklist=time_blacklist)
+    return parallel_download(
+        unit_list,
+        get_unit_solar_eeg,
+        fname_solar_eeg,
+        threads=threads,
+        timeout=timeout,
+        time_blacklist=time_blacklist)
 
 def get_unit_solar_eeg(mastr_solar_eeg):
     """Get EEG-Anlage-Solar from API using GetAnlageEegSolar.

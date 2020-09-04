@@ -191,17 +191,19 @@ def read_timestamp(wind=False):
             return ts
     return False
 
+
 def is_time_blacklisted(time):
     times_blacklist = [
-            ('8:00', '18:00'), # BNetzA Business hours
-            ('23:30', '00:10'), # Daily database cronjob
-            # Add more if needed...
-            ]
+        ('8:00', '18:00'),  # BNetzA Business hours
+        ('23:30', '00:10'),  # Daily database cronjob
+        # Add more if needed...
+    ]
 
     # check if time is in a given interval between upper and lower
     def in_interval(lower, upper):
         # Convert str to datatime object
-        parse_time = lambda t: datetime.datetime.strptime(t, "%H:%M").time()
+        def parse_time(t): 
+            return datetime.datetime.strptime(t, "%H:%M").time()
         lower = parse_time(lower)
         upper = parse_time(upper)
 
