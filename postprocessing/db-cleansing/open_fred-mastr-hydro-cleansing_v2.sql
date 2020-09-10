@@ -25,6 +25,9 @@ ALTER TABLE model_draft.bnetza_mastr_rli_v2_4_1_hydro_clean
     ADD COLUMN "geom" geometry(Point,4326),
     ADD COLUMN "comment" text;
 
+ALTER TABLE model_draft.bnetza_mastr_rli_v2_4_1_hydro_clean
+    ALTER COLUMN "Bruttoleistung" TYPE double precision USING "Bruttoleistung"::double precision;
+
 CREATE INDEX bnetza_mastr_rli_v2_4_1_hydro_clean_geom_idx
     ON model_draft.bnetza_mastr_rli_v2_4_1_hydro_clean USING gist (geom);
 
