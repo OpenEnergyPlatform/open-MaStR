@@ -16,19 +16,19 @@ __author__ = "Ludee; christian-rli"
 __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.9.0"
 
-import config as lc
 
 # import getpass
 import os
+import sys
 import sqlalchemy as sa
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, Float, DateTime, Boolean
-from collections import namedtuple
 import requests
 import urllib3
 
-#from soap_api.utils import fname_hydro_all, fname_wind_all, fname_hydro_all, fname_biomass_all
+import soap_api.config as lc
 
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Column, Integer, String, Float, DateTime, Boolean
+from collections import namedtuple
 
 from zeep import Client, Settings
 from zeep.cache import SqliteCache
@@ -552,7 +552,6 @@ def oep_config():
         token = lc.config_file_get(config_section, 'token')
         print(f'Load API token')
     except:
-        import sys
         token = input('Token:')
         # token = getpass.getpass(prompt = 'Token:',
         #                         stream = sys.stdin)
@@ -766,10 +765,9 @@ def mastr_config():
 
     # token
     try:
-        from config import config_file_get
-        token = config_file_get(config_section, 'token')
+        token = lc.config_file_get(config_section, 'token')
     except:
-        import sys
+        # import sys
         token = input('Token:')
         # token = getpass.getpass(prompt='apiKey: ',
         #                            stream=sys.stderr)
