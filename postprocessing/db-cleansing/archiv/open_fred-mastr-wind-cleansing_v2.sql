@@ -23,6 +23,7 @@ ALTER TABLE model_draft.bnetza_mastr_rli_v2_5_5_wind_clean
     ADD COLUMN lat double precision,
     ADD COLUMN lon double precision,
     ADD COLUMN "geom" geometry(Point,4326),
+    ADD COLUMN "process" jsonb,
     ADD COLUMN "comment" text;
 
 ALTER TABLE model_draft.bnetza_mastr_rli_v2_5_5_wind_clean
@@ -182,6 +183,19 @@ UPDATE  model_draft.bnetza_mastr_rli_v2_5_5_wind_clean AS t1
     WHERE   comment = 'offshore; make_geom; has_geom; ';
 
 
+-- Manual set geom for NULL
+UPDATE  model_draft.bnetza_mastr_rli_v2_5_5_wind_clean
+    SET geom = ST_TRANSFORM(ST_SetSRID(ST_Point(
+                                                8.0,
+                                                54.0)
+                                                ,4326),4326),
+        comment = COALESCE(comment, '') || 'guess_geom; '
+    WHERE   geom IS NULL;
+
+
+
+-------------------- checks
+
 SELECT *
 FROM model_draft.bnetza_mastr_rli_v2_5_5_wind_clean
 WHERE comment = 'make_geom_standort_plz; ';
@@ -221,6 +235,7 @@ GROUP BY "Typenbezeichnung"
 */
 
 
+-------------------------------------------------------
 -- Create a reduced version
 DROP TABLE IF EXISTS model_draft.bnetza_mastr_rli_v2_5_5_wind_clean_reduced CASCADE;
 CREATE TABLE         model_draft.bnetza_mastr_rli_v2_5_5_wind_clean_reduced AS
