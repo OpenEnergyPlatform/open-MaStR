@@ -25,9 +25,10 @@ ALTER TABLE model_draft.bnetza_mastr_rli_v2_5_5_wind_clean
     ADD PRIMARY KEY (id),
     ADD COLUMN lat double precision,
     ADD COLUMN lon double precision,
-    ADD COLUMN "geom" geometry(Point,4326),
-    ADD COLUMN "tags" jsonb,
-    ADD COLUMN "comment" text;
+    ADD COLUMN geom_wgs geometry(Point,4326),
+    ADD COLUMN geom geometry(Point,3035),
+    ADD COLUMN tags jsonb,
+    ADD COLUMN comment text;
 
 ALTER TABLE model_draft.bnetza_mastr_rli_v2_5_5_wind_clean
     ALTER COLUMN "Bruttoleistung" TYPE double precision USING "Bruttoleistung"::double precision,
@@ -41,6 +42,9 @@ ALTER TABLE model_draft.bnetza_mastr_rli_v2_5_5_wind_clean
 
 CREATE INDEX bnetza_mastr_rli_v2_5_5_wind_clean_geom_idx
     ON model_draft.bnetza_mastr_rli_v2_5_5_wind_clean USING gist (geom);
+
+CREATE INDEX bnetza_mastr_rli_v2_5_5_wind_clean_geom_wgs_idx
+    ON model_draft.bnetza_mastr_rli_v2_5_5_wind_clean USING gist (geom_wgs);
 
 ALTER TABLE model_draft.bnetza_mastr_rli_v2_5_5_wind_clean
     OWNER to oeuser;
@@ -72,6 +76,16 @@ UPDATE  model_draft.bnetza_mastr_rli_v2_5_5_wind_clean
 UPDATE  model_draft.bnetza_mastr_rli_v2_5_5_wind_clean
     SET tags = tags || '{"einheit":"SEE"}'
     WHERE LEFT("EinheitMastrNummer", 3) = 'SEE';
+
+
+-- Tags: Gematchte Einheiten
+UPDATE  model_draft.bnetza_mastr_rli_v2_5_5_wind_clean
+    SET tags = tags || '{"flag":"A"}'
+    WHERE "StatisikFlag_w" = 'A';
+
+UPDATE  model_draft.bnetza_mastr_rli_v2_5_5_wind_clean
+    SET tags = tags || '{"flag":"B"}'
+    WHERE "StatisikFlag_w" = 'B';
 
 
 -- Tags: Betriebsstatus
@@ -109,7 +123,7 @@ UPDATE  model_draft.bnetza_mastr_rli_v2_5_5_wind_clean
 
 -- Make geom
 UPDATE  model_draft.bnetza_mastr_rli_v2_5_5_wind_clean
-    SET geom = ST_TRANSFORM(ST_SetSRID(ST_Point(
+    SET geom_wgs = ST_TRANSFORM(ST_SetSRID(ST_Point(
                                                 lon,
                                                 lat)
                                                 ,4326),4326),
@@ -120,7 +134,7 @@ UPDATE  model_draft.bnetza_mastr_rli_v2_5_5_wind_clean
 -- Tags: geom
 UPDATE  model_draft.bnetza_mastr_rli_v2_5_5_wind_clean
     SET tags = tags || '{"geom":false}'
-    WHERE   geom IS NULL;
+    WHERE   geom_wgs IS NULL;
 
 
 -- Check if geom is inside Germany (vg250)
@@ -132,8 +146,8 @@ UPDATE  model_draft.bnetza_mastr_rli_v2_5_5_wind_clean AS t1
         FROM    boundaries.bkg_vg250_1_sta_union_mview AS vg,
                 model_draft.bnetza_mastr_rli_v2_5_5_wind_clean AS m
         WHERE   tags ->> 'location' = 'onshore' AND
-                m.geom && ST_TRANSFORM(vg.geom,4326) AND
-                ST_CONTAINS(ST_TRANSFORM(vg.geom,4326),m.geom)
+                ST_TRANSFORM(vg.geom, 4326) && m.geom_wgs AND
+                ST_CONTAINS(ST_TRANSFORM(vg.geom, 4326),m.geom_wgs)
         ) AS t2
     WHERE   t1.id = t2.id;
 
@@ -146,11 +160,16 @@ UPDATE  model_draft.bnetza_mastr_rli_v2_5_5_wind_clean
 
 -- Remove geom onshore outside
 UPDATE  model_draft.bnetza_mastr_rli_v2_5_5_wind_clean
-    SET     geom =  NULL,
+    SET     geom_wgs =  NULL,
             tags = tags || '{"geom":false, "geom_remove":true}'
     WHERE   (tags->>'geom')::boolean IS true AND
     tags ->> 'location' = 'onshore'  AND
     (tags->>'inside_germany')::boolean IS false;
+
+-- Transform geom
+UPDATE  model_draft.bnetza_mastr_rli_v2_5_5_wind_clean
+    SET     geom =  ST_TRANSFORM(geom_wgs, 3035)
+    WHERE   geom_wgs IS NOT NULL;
 
 
 -- Make geom from PLZ (Centroid)
@@ -159,7 +178,7 @@ UPDATE  model_draft.bnetza_mastr_rli_v2_5_5_wind_clean AS t1
             comment =  COALESCE(comment, '') || 'onshore_fix_plz; ',
             tags = tags || '{"geom":true, "inside_germany":true,"geom_guess":"plz"}'
     FROM    (SELECT plz,
-            ST_CENTROID(geom) ::geometry(Point,4326) AS geom
+            ST_CENTROID(ST_TRANSFORM(geom,3035)) ::geometry(Point,3035) AS geom
             FROM    boundaries.osm_postcode
             WHERE   stellen = 5
             ORDER BY plz
@@ -175,7 +194,7 @@ UPDATE  model_draft.bnetza_mastr_rli_v2_5_5_wind_clean AS t1
             comment =  COALESCE(comment, '') || 'onshore_fix_plz2; ',
             tags = tags || '{"geom":true, "inside_germany":true,"geom_guess":"standort_plz"}'
     FROM    (SELECT plz,
-            ST_CENTROID(geom) ::geometry(Point,4326) AS geom
+            ST_CENTROID(ST_TRANSFORM(geom,3035)) ::geometry(Point,3035) AS geom
             FROM    boundaries.osm_postcode
             WHERE   stellen = 5
             ORDER BY plz
@@ -202,8 +221,8 @@ UPDATE  model_draft.bnetza_mastr_rli_v2_5_5_wind_clean AS t1
         FROM    model_draft.rli_boundaries_offshore AS vg,
                 model_draft.bnetza_mastr_rli_v2_5_5_wind_clean AS m
         WHERE   m."Lage" = 'WindAufSee' AND
-                m.geom && ST_TRANSFORM(vg.geom,4326) AND
-                ST_CONTAINS(ST_TRANSFORM(vg.geom,4326),m.geom)
+                m.geom && vg.geom AND
+                ST_CONTAINS(vg.geom,m.geom)
         ) AS t2
     WHERE   t1.id = t2.id;
 
@@ -224,7 +243,7 @@ UPDATE  model_draft.bnetza_mastr_rli_v2_5_5_wind_clean
         geom = ST_TRANSFORM(ST_SetSRID(ST_Point(
                                                 8.0,
                                                 54.0)
-                                                ,4326),4326)
+                                                ,4326),3035)
     WHERE   geom IS NULL;
 
 
@@ -234,6 +253,171 @@ UPDATE  model_draft.bnetza_mastr_rli_v2_5_5_wind_clean
 
 
 
+-- OSM power buffer
+DROP TABLE IF EXISTS    model_draft.mastr_osm_deu_point_windpower_buffer CASCADE;
+CREATE TABLE            model_draft.mastr_osm_deu_point_windpower_buffer (
+    id SERIAL,
+    osm_name    text,
+    osm_count   double precision,
+    osm_sum     double precision,
+    mastr_count double precision,
+    mastr_sum   double precision,
+    geom geometry(Polygon,3035),
+    CONSTRAINT osm_deu_point_windpower_buffer_pkey PRIMARY KEY (id));
+
+-- insert buffer
+INSERT INTO model_draft.mastr_osm_deu_point_windpower_buffer (geom)
+    SELECT  (ST_DUMP(ST_MULTI(ST_UNION(
+            ST_BUFFER(geom, 25)
+        )))).geom ::geometry(Polygon,3035) AS geom
+    FROM    model_draft.mastr_osm_deu_point_windpower;
+
+CREATE INDEX mastr_osm_deu_point_windpower_buffer_geom_idx
+    ON model_draft.mastr_osm_deu_point_windpower_buffer USING gist (geom);
+
+ALTER TABLE model_draft.mastr_osm_deu_point_windpower_buffer
+    OWNER to oeuser;
+
+
+-- mastr in OSM buffer
+UPDATE model_draft.mastr_osm_deu_point_windpower_buffer AS t1
+    SET mastr_sum = t2.mastr_sum,
+        mastr_count = t2.mastr_count
+    FROM (
+        SELECT  a.id AS id,
+                SUM(b."Bruttoleistung") AS mastr_sum,
+                COUNT(b.geom)::integer AS mastr_count
+        FROM    model_draft.mastr_osm_deu_point_windpower_buffer AS a,
+                model_draft.bnetza_mastr_rli_v2_5_5_wind_clean AS b
+        WHERE   a.geom && b.geom AND
+                ST_CONTAINS(a.geom,b.geom)
+        GROUP BY a.id
+        )AS t2
+    WHERE   t1.id = t2.id;
+
+
+-- OSM in OSM
+UPDATE model_draft.mastr_osm_deu_point_windpower_buffer AS t1
+    SET osm_count = t2.osm_count
+    FROM (
+        SELECT  a.id AS id,
+                COUNT(b.geom)::integer AS osm_count
+        FROM    model_draft.mastr_osm_deu_point_windpower_buffer AS a,
+                model_draft.mastr_osm_deu_point_windpower AS b
+        WHERE   a.geom && b.geom AND
+                ST_CONTAINS(a.geom,b.geom)
+        GROUP BY a.id
+        )AS t2
+    WHERE   t1.id = t2.id;
+
+
+-- OSM_id -> mastr 
+ALTER TABLE model_draft.bnetza_mastr_rli_v2_5_5_wind_clean
+    ADD COLUMN osm_id integer,
+    ADD COLUMN osm_name text;
+
+UPDATE model_draft.bnetza_mastr_rli_v2_5_5_wind_clean AS t1
+    SET     osm_id = t2.osm_id,
+            osm_name = t2.osm_name,
+            tags = tags || '{"in_osm":true}'
+    FROM (
+        SELECT  b.id AS id,
+                a.id as osm_id,
+                a.osm_name as osm_name
+        FROM    model_draft.mastr_osm_deu_point_windpower_buffer AS a,
+                model_draft.bnetza_mastr_rli_v2_5_5_wind_clean AS b
+        WHERE   a.geom && b.geom AND
+                ST_CONTAINS(a.geom,b.geom)
+        GROUP BY b.id, a.id
+        )AS t2
+    WHERE   t1.id = t2.id;
+
+
+
+-- MaStR buffer
+DROP TABLE IF EXISTS    model_draft.bnetza_mastr_rli_v2_5_5_wind_clean_buffer CASCADE;
+CREATE TABLE            model_draft.bnetza_mastr_rli_v2_5_5_wind_clean_buffer (
+    id SERIAL,
+    osm_name    text,
+    osm_count   double precision,
+    osm_sum     double precision,
+    mastr_count double precision,
+    mastr_sum   double precision,
+    geom geometry(Polygon,3035),
+    CONSTRAINT bnetza_mastr_rli_v2_5_5_wind_clean_buffer_pkey PRIMARY KEY (id));
+
+-- insert buffer
+INSERT INTO model_draft.bnetza_mastr_rli_v2_5_5_wind_clean_buffer (geom)
+    SELECT  (ST_DUMP(ST_MULTI(ST_UNION(
+            ST_BUFFER(geom, 25)
+        )))).geom ::geometry(Polygon,3035) AS geom
+    FROM    model_draft.bnetza_mastr_rli_v2_5_5_wind_clean;
+
+CREATE INDEX bnetza_mastr_rli_v2_5_5_wind_clean_buffer_geom_idx
+    ON model_draft.bnetza_mastr_rli_v2_5_5_wind_clean_buffer USING gist (geom);
+
+ALTER TABLE model_draft.bnetza_mastr_rli_v2_5_5_wind_clean_buffer
+    OWNER to oeuser;
+
+
+-- mastr in mastr buffer
+UPDATE model_draft.bnetza_mastr_rli_v2_5_5_wind_clean_buffer AS t1
+    SET mastr_sum = t2.mastr_sum,
+        mastr_count = t2.mastr_count
+    FROM (
+        SELECT  a.id AS id,
+                SUM(b."Bruttoleistung") AS mastr_sum,
+                COUNT(b.geom)::integer AS mastr_count
+        FROM    model_draft.bnetza_mastr_rli_v2_5_5_wind_clean_buffer AS a,
+                model_draft.bnetza_mastr_rli_v2_5_5_wind_clean AS b
+        WHERE   a.geom && b.geom AND
+                ST_CONTAINS(a.geom,b.geom)
+        GROUP BY a.id
+        )AS t2
+    WHERE   t1.id = t2.id;
+
+-- OSM in mastr buffer
+UPDATE model_draft.bnetza_mastr_rli_v2_5_5_wind_clean_buffer AS t1
+    SET osm_count = t2.osm_count
+    FROM (
+        SELECT  a.id AS id,
+                COUNT(b.geom)::integer AS osm_count
+        FROM    model_draft.bnetza_mastr_rli_v2_5_5_wind_clean_buffer AS a,
+                model_draft.mastr_osm_deu_point_windpower AS b
+        WHERE   a.geom && b.geom AND
+                ST_CONTAINS(a.geom,b.geom)
+        GROUP BY a.id
+        )AS t2
+    WHERE   t1.id = t2.id;
+
+
+
+-- MaStR-Buffer -> mastr 
+ALTER TABLE model_draft.bnetza_mastr_rli_v2_5_5_wind_clean
+    ADD COLUMN mastr_buffer_cnt integer;
+
+UPDATE model_draft.bnetza_mastr_rli_v2_5_5_wind_clean AS t1
+    SET     mastr_buffer_cnt = t2.mastr_buffer_cnt
+    FROM (
+        SELECT  b.id AS id,
+                a.mastr_count as mastr_buffer_cnt
+        FROM    model_draft.bnetza_mastr_rli_v2_5_5_wind_clean_buffer AS a,
+                model_draft.bnetza_mastr_rli_v2_5_5_wind_clean AS b
+        WHERE   a.geom && b.geom AND
+                ST_CONTAINS(a.geom,b.geom)
+        GROUP BY b.id, a.id
+        )AS t2
+    WHERE   t1.id = t2.id;
+
+
+
+
+
+-- Tags: duplicates
+UPDATE  model_draft.bnetza_mastr_rli_v2_5_5_wind_clean
+    SET comment =  COALESCE(comment, '') || 'match_osm; ',
+        tags = tags || '{"match_osm":true}'
+    WHERE   (tags->>'in_osm')::boolean IS true;
 
 
 
