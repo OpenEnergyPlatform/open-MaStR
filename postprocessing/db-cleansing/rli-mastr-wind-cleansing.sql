@@ -103,6 +103,13 @@ UPDATE  model_draft.bnetza_mastr_rli_v2_5_5_wind_clean
             "EinheitBetriebsstatus" = 'VoruebergehendStillgelegt';
 
 
+-- Check capacity
+UPDATE  model_draft.bnetza_mastr_rli_v2_5_5_wind_clean
+    SET     tags = tags || '{"capacity":"reduce/10"}',
+            "Bruttoleistung" =  "Bruttoleistung" / 10
+    WHERE   "Bruttoleistung" > 9500;
+
+
 -- Create the geom from coordinates
 UPDATE  model_draft.bnetza_mastr_rli_v2_5_5_wind_clean
     SET lat =      CAST(
@@ -172,13 +179,13 @@ UPDATE  model_draft.bnetza_mastr_rli_v2_5_5_wind_clean
     WHERE   geom_wgs IS NOT NULL;
 
 
--- Make geom from PLZ (Centroid)
+-- Make geom from PLZ (ST_PointOnSurface)
 UPDATE  model_draft.bnetza_mastr_rli_v2_5_5_wind_clean AS t1
     SET     geom = t2.geom,
             comment =  COALESCE(comment, '') || 'onshore_fix_plz; ',
             tags = tags || '{"geom":true, "inside_germany":true,"geom_guess":"plz"}'
     FROM    (SELECT plz,
-            ST_CENTROID(ST_TRANSFORM(geom,3035)) ::geometry(Point,3035) AS geom
+            ST_PointOnSurface(ST_TRANSFORM(geom,3035)) ::geometry(Point,3035) AS geom
             FROM    boundaries.osm_postcode
             WHERE   stellen = 5
             ORDER BY plz
@@ -194,7 +201,7 @@ UPDATE  model_draft.bnetza_mastr_rli_v2_5_5_wind_clean AS t1
             comment =  COALESCE(comment, '') || 'onshore_fix_plz2; ',
             tags = tags || '{"geom":true, "inside_germany":true,"geom_guess":"standort_plz"}'
     FROM    (SELECT plz,
-            ST_CENTROID(ST_TRANSFORM(geom,3035)) ::geometry(Point,3035) AS geom
+            ST_PointOnSurface(ST_TRANSFORM(geom,3035)) ::geometry(Point,3035) AS geom
             FROM    boundaries.osm_postcode
             WHERE   stellen = 5
             ORDER BY plz
@@ -246,6 +253,24 @@ UPDATE  model_draft.bnetza_mastr_rli_v2_5_5_wind_clean
                                                 ,4326),3035)
     WHERE   geom IS NULL;
 
+
+-- Check all PLZ
+UPDATE  model_draft.bnetza_mastr_rli_v2_5_5_wind_clean AS t1
+    SET     tags = tags || '{"plz_check":true}'
+    FROM    (
+        SELECT  m.id AS id
+        FROM    boundaries.osm_postcode AS plz,
+                model_draft.bnetza_mastr_rli_v2_5_5_wind_clean AS m
+        WHERE   ST_TRANSFORM(plz.geom, 3035) && m.geom AND
+                ST_CONTAINS(ST_TRANSFORM(plz.geom, 3035),m.geom) AND
+                m."Postleitzahl" = plz.plz AND
+                m.tags ->> 'location' = 'onshore'
+        ) AS t2
+    WHERE   t1.id = t2.id;
+
+UPDATE  model_draft.bnetza_mastr_rli_v2_5_5_wind_clean
+    SET tags = tags || '{"plz_check":false}'
+    WHERE NOT tags ? 'plz_check';
 
 ---------------------
 
@@ -418,6 +443,23 @@ UPDATE  model_draft.bnetza_mastr_rli_v2_5_5_wind_clean
     SET comment =  COALESCE(comment, '') || 'match_osm; ',
         tags = tags || '{"match_osm":true}'
     WHERE   (tags->>'in_osm')::boolean IS true;
+
+
+
+
+-- Create 
+DROP TABLE IF EXISTS model_draft.bnetza_mastr_rli_v2_5_5_wind_clean_flagb CASCADE;
+CREATE TABLE         model_draft.bnetza_mastr_rli_v2_5_5_wind_clean_flagb AS
+    SELECT  * 
+    FROM    model_draft.bnetza_mastr_rli_v2_5_5_wind_clean
+    WHERE   "StatisikFlag_w" = 'B' AND
+            "EinheitBetriebsstatus" = 'InBetrieb'
+    ORDER BY id;
+
+
+
+
+
 
 
 
