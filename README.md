@@ -1,4 +1,6 @@
-﻿<a href="https://openenergyplatform.org"><img align="right" width="200" height="200" src="https://avatars2.githubusercontent.com/u/37101913?s=400&u=9b593cfdb6048a05ea6e72d333169a65e7c922be&v=4" alt="OpenEnergyPlatform"></a>
+﻿[![Documentation Status](https://readthedocs.org/projects/open-mastr/badge/?version=latest)](https://open-mastr.readthedocs.io/en/latest/?badge=latest)
+
+<a href="https://openenergyplatform.org"><img align="right" width="200" height="200" src="https://avatars2.githubusercontent.com/u/37101913?s=400&u=9b593cfdb6048a05ea6e72d333169a65e7c922be&v=4" alt="OpenEnergyPlatform"></a>
 
 # Open Energy Family - open_MaStR
 
