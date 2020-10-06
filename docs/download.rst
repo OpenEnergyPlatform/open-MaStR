@@ -2,6 +2,10 @@
 Downloading raw data
 ********************
 
+The intention of open-MaStR is to provide tools to receiving a complete as possible and accurate as possible list of
+power plant units based on `MaStR <https://www.marktstammdatenregister.de>`_.
+Therefore, in particular, methods for bulk download of the entire MaStR database are provided.
+
 Configuration
 =============
 
