@@ -25,3 +25,17 @@ makes sense to decrease *API_MAX_DEMANDS*.
 The parameter *TOTAL_POWER_UNITS* has two functions: (1) it can be set to total number of power generating units (see
 link in above table) to query all power plants available. In a second case (2) it can be used to limit total units
 to be download when calling `soap_api/main.py`.
+You might need to comment in/ comment out some download functions.
+
+Download
+========
+
+In the file `main.py`, function for the download of unit data distinguished by type of technology are collected.
+Call
+
+.. code-block:: bash
+
+   python soap_api/main.py
+
+to start the download process.
+
