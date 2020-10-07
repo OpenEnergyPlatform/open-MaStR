@@ -55,7 +55,6 @@ These steps are also reflected by the following functions from `main.py`.
 .. csv-table:: Download functions on the example of wind power
    :header: "Function", "Description", "Results files"
    :widths: 10, 40, 10
-   :width: 80%
 
    "`setup_power_unit_wind()`", "Read wind unit from existing file. In case it is only available in general power unit file, write it to wind power units file (same data as in `download_power_unit()`).", "bnetza_mastr_<version>_power-unit_wind.csv"
    "`download_power_unit()`", "Download basic information about wind power plants from **GetGefilterteListeStromErzeuger**. Data includes the *MaStR-Nummer*, which is used as identifier for other tables.", "bnetza_mastr_<version>_power-unit_wind.csv"
