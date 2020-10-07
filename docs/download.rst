@@ -39,3 +39,31 @@ Call
 
 to start the download process.
 
+
+Details of the download process
+===============================
+
+The download of power plant data from https://www.marktstammdatenregister.de is split in three to five steps (gray
+boxes), different for each technology.
+For each step the resulting data is saved to CSV files using the names from colored boxes.
+
+.. image:: images/mastr_structure.png
+
+
+These steps are also reflected by the following functions from `main.py`.
+
+.. csv-table:: Download functions on the example of wind power
+   :header: "Function", "Description", "Results files"
+   :widths: 10, 40, 10
+   :width: 80%
+
+   "`setup_power_unit_wind()`", "Read wind unit from existing file. In case it is only available in general power unit file, write it to wind power units file (same data as in `download_power_unit()`).", "bnetza_mastr_<version>_power-unit_wind.csv"
+   "`download_power_unit()`", "Download basic information about wind power plants from **GetGefilterteListeStromErzeuger**. Data includes the *MaStR-Nummer*, which is used as identifier for other tables.", "bnetza_mastr_<version>_power-unit_wind.csv"
+   "`download_unit_wind()`", "Retrieve extended information about wind power plant from **GetEinheitWind**.", "bnetza_mastr_<version>_unit-wind.csv"
+   "`download_unit_wind_eeg()`", "Information collected in context of legal act EEG (**GetAnlageEegWind)**)", "bnetza_mastr_<version>_unit-wind-eeg.csv"
+   "`download_unit_wind_permit()`", "Information about permit of wind power plant (**GetEinheitGenehmigung**)", "bnetza_mastr_<version>_unit-wind-permit.csv"
+   "`make_wind()`", "Join all wind power plant data to one table.", "bnetza_mastr_<version>_wind.csv"
+
+
+All resulting data is stored into `$PWD/data/`.
+New downloads will add data to existing `.csv` files
