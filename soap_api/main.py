@@ -32,7 +32,9 @@ from soap_api.mastr_gsgk_download import download_unit_gsgk, download_unit_gsgk_
 from soap_api.mastr_gsgk_process import make_gsgk
 from soap_api.mastr_solar_download import setup_power_unit_solar, download_unit_solar, download_parallel_unit_solar, download_unit_solar_eeg, download_parallel_unit_solar_eeg
 from soap_api.mastr_solar_process import make_solar
-from soap_api.mastr_storage_units_download import download_unit_storage, download_parallel_unit_storage
+from soap_api.mastr_storage_download import setup_power_unit_storage, retry_download_unit_storage, retry_download_unit_storage_eeg, download_unit_storage, download_unit_storage_eeg
+from soap_api.mastr_storage_process import make_storage
+#from soap_api.mastr_storage_units_download import download_unit_storage, download_parallel_unit_storage
 from soap_api.mastr_nuclear_download import setup_power_unit_nuclear, download_unit_nuclear
 from soap_api.mastr_nuclear_process import make_nuclear
 from soap_api.mastr_combustion_download import setup_power_unit_combustion, download_unit_combustion, download_unit_combustion_kwk
@@ -131,7 +133,13 @@ if __name__ == "__main__":
     # make_solar()
 
     """Storage"""
-    # download_power_unit(energy_carrier='Speicher', power_unit_list_len=144594)
+    # download_power_unit(energy_carrier='Speicher', power_unit_list_len=146000)
+    # download_unit_storage()
+    # download_unit_storage_eeg()
+    # retry_download_unit_storage()
+    # retry_download_unit_storage_eeg()
+    # make_storage()
+
     # get_solarunit_storages()
     # download_parallel_unit_storage()
 
@@ -170,6 +178,7 @@ if __name__ == "__main__":
 
     """Consumer"""
     # download_consumer_unit()
+    
 
     """close"""
     log.info('MaSTR script successfully executed in {:.2f} seconds'
