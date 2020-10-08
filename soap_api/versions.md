@@ -11,6 +11,7 @@ This file logs the numbers. There is "Aktuelle Einheitenübersicht" and "Erweite
 |---|---|---|---|
 | 2020-08-20 | 3206067 |  |  |
 | 2020-08-31 | 3233056 | 1390970 | v2.7.0 |
+| 2020-10-08 | 3334642 | 1492565 | v3.0.0 |
 |  |  |  |  |
 
 
@@ -20,6 +21,7 @@ This file logs the numbers. There is "Aktuelle Einheitenübersicht" and "Erweite
 |---|---|---|---|
 | 2020-08-20 | 51429 | 22035 | Start logging |
 | 2020-08-31 | 51929 | 22489 | v2.7.0 |
+| 2020-10-08 | 53807 | 24361 | v3.0.0 |
 |  |  |  |  |
 
 ### hydro

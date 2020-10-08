@@ -37,7 +37,7 @@ from soap_api.mastr_nuclear_download import setup_power_unit_nuclear, download_u
 from soap_api.mastr_nuclear_process import make_nuclear
 from soap_api.mastr_combustion_download import setup_power_unit_combustion, download_unit_combustion, download_unit_combustion_kwk
 from soap_api.mastr_combustion_process import make_combustion
-from soap_api.mastr_consumer_unit_download import download_consumer_unit
+# from soap_api.mastr_consumer_unit_download import download_consumer_unit
 
 import datetime
 import time
@@ -87,15 +87,18 @@ if __name__ == "__main__":
     # download_unit_biomass()
     # download_unit_biomass_eeg()
 
+
+    """Separate Power Unit Download by Energy Carrier"""
+
     """Wind"""
-    # # setup_power_unit_wind()   # Extract from all power units
-    # download_power_unit(energy_carrier='Wind', power_unit_list_len=51929)
-    # download_unit_wind()
-    # download_unit_wind_eeg()
-    # download_unit_wind_permit()
-    # retry_download_unit_wind()
-    # retry_download_unit_wind_eeg()
-    # make_wind()
+    # setup_power_unit_wind()   # Extract from all power units
+    download_power_unit(energy_carrier='Wind', power_unit_list_len=53807)
+    download_unit_wind()
+    download_unit_wind_eeg()
+    download_unit_wind_permit()
+    retry_download_unit_wind()
+    retry_download_unit_wind_eeg()
+    make_wind()
 
     """Hydro"""
     # setup_power_unit_hydro()    # Extract from all power units
