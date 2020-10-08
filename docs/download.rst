@@ -27,6 +27,7 @@ link in above table) to query all power plants available. In a second case (2) i
 to be download when calling `soap_api/main.py`.
 You might need to comment in/ comment out some download functions.
 
+
 Download
 ========
 
@@ -40,3 +41,12 @@ Backup open-MaStR download docs
    python soap_api/main.py
 
 to start the download process.
+
+Details of the download process
+===============================
+
+The download of power plant data from https://www.marktstammdatenregister.de is split in three to five steps (gray
+boxes), different for each technology.
+For each step the resulting data is saved to CSV files using the names from colored boxes.
+
+.. image:: images/mastr_structure.png
