@@ -17,8 +17,12 @@ __author__ = "Ludee; christian-rli"
 __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.9.0"
 
+import datetime
+import time
+
 from soap_api.config import setup_logger
 from soap_api.mastr_general_download import get_mastr_time, get_mastr_time_auth, get_daily_contingent
+from soap_api.utils import is_time_blacklisted
 from soap_api.mastr_power_unit_download import download_parallel_power_unit, download_power_unit
 from soap_api.mastr_wind_download import setup_power_unit_wind, retry_download_unit_wind, retry_download_unit_wind_eeg, download_unit_wind, download_unit_wind_eeg, download_unit_wind_permit
 from soap_api.mastr_wind_process import make_wind
@@ -55,15 +59,32 @@ if __name__ == "__main__":
     # download_power_unit()
 
     '''WARNING: Batch download may cause a database error. Extended limit required!'''
-    '''DEFAULT PARAMS: batch_size=20000, limit=2000, start_from=0'''
+    '''DEFAULT PARAMS: power_unit_list_len=100000, limit=2000, batch_size=20000, start_from=0, overwrite=False '''
     # download_parallel_power_unit(
-    #    batch_size=10000,
+    #    batch_size=20000,
     #    limit=2000,
     #    wind=False,
     #    update=False,
     #    overwrite=False,
     #    start_from=0)
 
+    """Wind"""
+    # setup_power_unit_wind()
+    # download_unit_wind()
+    # download_unit_wind_eeg()
+    # download_unit_wind_permit()
+    # make_wind()
+
+    """Hydro"""
+    # setup_power_unit_hydro()
+    # download_unit_hydro()
+    # download_unit_hydro_eeg()
+    # make_hydro()
+
+    """Biomass"""
+    # setup_power_unit_biomass()
+    # download_unit_biomass()
+    # download_unit_biomass_eeg()
 
     """Wind"""
     # # setup_power_unit_wind()   # Extract from all power units
@@ -94,6 +115,8 @@ if __name__ == "__main__":
     # make_biomass()
 
     """Solar"""
+
+    download_parallel_unit_solar()
     # setup_power_unit_solar()
     # download_power_unit(energy_carrier='SolareStrahlungsenergie', power_unit_list_len=2952918)
     # ''' DEFAULT PARAMS: start_from=0, n_entries=1, parallelism=12 '''
