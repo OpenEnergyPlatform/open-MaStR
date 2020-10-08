@@ -21,12 +21,18 @@ Here is a template for new release sections
 
 ### Added
 
-
 ### Changed
-
 
 ### Removed
 
+
+## [0.10.0] 2020-10-08
+
+### Added
+- added more technologies
+- added documentation for ReadTheDocs
+- improved parallel download
+- merged all stale branches
 
 ## [0.9.0] 2019-12-05
 
