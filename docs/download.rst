@@ -33,3 +33,10 @@ Download
 In the file `main.py`, function for the download of unit data distinguished by type of technology are collected.
 Call
 
+Backup open-MaStR download docs
+
+.. code-block:: bash
+
+   python soap_api/main.py
+
+to start the download process.
