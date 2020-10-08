@@ -33,7 +33,17 @@ from soap_api.utils import fname_power_unit
 
 log = logging.getLogger(__name__)
 ''' VAR IMPORT '''
-from soap_api.utils import fname_power_unit, fname_wind_unit, TIMESTAMP
+from soap_api.utils import fname_power_unit, \
+    fname_wind_unit, \
+    fname_power_unit_wind, \
+    fname_power_unit_hydro, \
+    fname_power_unit_biomass, \
+    fname_power_unit_solar, \
+    fname_power_unit_nuclear,  \
+    fname_power_unit_storage,  \
+    fname_power_unit_gsgk,  \
+    fname_power_unit_combustion,  \
+    TIMESTAMP
 
 
 """SOAP API"""
@@ -41,33 +51,32 @@ client, client_bind, token, user = mastr_session()
 api_key = token
 my_mastr = user
 
-def get_power_unit(start_from, wind=False, datum='1900-01-01 00:00:00.00000', limit=API_MAX_DEMANDS):
+
+def get_power_unit(start_from, energy_carrier, datum='1900-01-01 00:00:00.00000', limit=API_MAX_DEMANDS):
     """Get Stromerzeugungseinheit from API using GetGefilterteListeStromErzeuger.
 
     Parameters
     ----------
     start_from : int
         Skip first entries.
-    wind : bool
-        Wether only wind data should be retrieved
     datum: String
         the starting datestring to retrieve data, can be used for updating a data set
     limit : int
-        Number of entries to get (default: 2000)
+        Number of power unit to get (default: 2000)
     """
     power_unit = pd.DataFrame()
     status = 'InBetrieb'
-    source = 'Wind'
-    if wind==False:
-        source = 'None'
+    # power = 30
+
     try:
         c = client_bind.GetGefilterteListeStromErzeuger(
             apiKey=api_key,
             marktakteurMastrNummer=my_mastr,
             # einheitBetriebsstatus=status,
             startAb=start_from,
-            energietraeger=source,
-            limit=limit  # Limit of API.
+            energietraeger=energy_carrier,
+            limit=limit
+            #bruttoleistungGroesser=power
             #datumAb = datum
         )
         s = serialize_object(c)
@@ -79,11 +88,18 @@ def get_power_unit(start_from, wind=False, datum='1900-01-01 00:00:00.00000', li
         return power_unit
     except Exception as e:
         log.info(e)
+    # from an old branch:
+    # log.info('Download failed, retrying for %s', start_from)
+    #    power_unit = pd.DataFrame()
+    # remove double quotes from column
+    # power_unit['Standort'] = power_unit['Standort'].str.replace('"', '')
+    #return [start_from, power_unit]
+
 
 def download_power_unit(
         power_unit_list_len=TOTAL_POWER_UNITS,
-        limit=API_MAX_DEMANDS,
-        wind=False
+        pu_limit=API_MAX_DEMANDS,
+        energy_carrier='None'
 ):
     """Download StromErzeuger.
 
@@ -91,15 +107,12 @@ def download_power_unit(
     ---------
     power_unit_list_len : None|int
         Maximum number of units to get. Check MaStR portal for current number.
-    limit : int
+    pu_limit : int
         Number of units to get per call to API (limited to 2000).
-    energietraeger: string
-        None, AndereGase, Biomasse, Braunkohle, Erdgas, Geothermie, Grubengas, Kernenergie,
+    energy_carrier: string
+        Energieträger: None, AndereGase, Biomasse, Braunkohle, Erdgas, Geothermie, Grubengas, Kernenergie,
         Klaerschlamm, Mineraloelprodukte, NichtBiogenerAbfall, SolareStrahlungsenergie, Solarthermie,
         Speicher, Steinkohle, Waerme, Wind, Wasser
-    wind : bool
-        Wether only wind data but all wind data (wind power unit, wind, (wind eeg), wind permit, wind all)
-        should be downloaded and processed
 
     Existing units:
     1822000 (2019-02-10)
@@ -116,20 +129,44 @@ def download_power_unit(
     2487585 (2019-12-05) data-release/2.2.0
     2791367 (2020-03-21) data-release/2.2.1
     2812372 (2020-03-28) data-release/2.4.0
+    3197769 (2020-08-17) data-release/2.5.0
+    3200862 (2020-08-18) data-release/2.5.1
+    3203715 (2020-08-19) data-release/2.5.2
+    3204000 (2020-08-20) data-release/2.5.5
+    3233056 (2020-08-20) data-release/2.7.0
     """
-    log.info('Download MaStR Power Unit')
+    log.info(f'Download MaStR power unit for energy carrier: {energy_carrier}')
     log.info(f'Number of expected power units: {power_unit_list_len}')
 
-    log.info(f'Write to : {fname_power_unit}')
+    if energy_carrier == 'Kernenergie':
+        filename = fname_power_unit_nuclear
+    elif energy_carrier == 'Wind':
+        filename = fname_power_unit_wind
+    elif energy_carrier == 'Wasser':
+        filename = fname_power_unit_hydro
+    elif energy_carrier == 'Biomasse':
+        filename = fname_power_unit_biomass
+    elif energy_carrier == 'SolareStrahlungsenergie':
+        filename = fname_power_unit_solar
+    elif energy_carrier == 'Speicher':
+        filename = fname_power_unit_storage
+    elif energy_carrier == 'Geothermie' or energy_carrier == 'Solarthermie' or energy_carrier == 'Grubengas' or energy_carrier == 'Klaerschlamm':
+        filename = fname_power_unit_gsgk
+    elif energy_carrier == 'AndereGase' or 'Braunkohle' or 'Erdgas' or 'NichtBiogenerAbfall' or 'Steinkohle' or 'Waerme':
+        filename = fname_power_unit_combustion
+    else:
+        filename = fname_power_unit
+
+    log.info(f'Write to: {filename}')
 
     # if the list size is smaller than the limit
-    if limit > power_unit_list_len:
-        limit = power_unit_list_len
+    if pu_limit > power_unit_list_len:
+        pu_limit = power_unit_list_len
 
-    for start_from in range(0, power_unit_list_len, limit):
+    for start_from in range(0, power_unit_list_len, pu_limit):
         try:
-            power_unit = get_power_unit(start_from, wind, limit)
-            write_to_csv(fname_power_unit, power_unit)
+            start_from, power_unit = get_power_unit(start_from, energy_carrier, pu_limit)
+            write_to_csv(filename, pd.DataFrame(power_unit))
             power_unit_len = len(power_unit)
             log.info(f'Download power_unit from {start_from}-{start_from + power_unit_len}')
         except:
@@ -181,17 +218,19 @@ def download_parallel_power_unit(
     update: bool
         Wether a dataset should only be updated
     """
+
     # TODO: Not sure what this does
-    if wind is True:
-        power_unit_list_len=42748
-    update = TIMESTAMP
-    if update is True:
-        datum = get_update_date(wind)
+    # TODO: [LH] This is legacy code and donwloads only the latest updates (I think). It was coded by solar-c without any documentation
+    #if wind is True:
+    #    power_unit_list_len=42748
+    #update = TIMESTAMP
+    #if update is True:
+    #    datum = get_update_date(wind)
 
     log.info('Download MaStR Power Unit')
 
-    if overwrite is True:
-        remove_csv(fname_power_unit)
+    #if overwrite is True:
+    #    remove_csv(fname_power_unit)
 
     # Create a list of tuples with (start_from, limit, wind) to pass to thread. If list is not evenly divisible, the limit value of the last element is adjusted to be below the database limit
     def unit_list(start, num, size):

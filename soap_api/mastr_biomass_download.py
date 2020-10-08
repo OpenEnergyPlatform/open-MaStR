@@ -183,7 +183,7 @@ def retry_download_unit_biomass():
         Write Biomasseeinheit to csv file.
     """
     start_from = 0
-    if os.path.exists(os.path.dirname(fname_biomass_fail_u)):
+    if os.path.isfile(os.path.dirname(fname_biomass_fail_u)):
         unit_fail_csv = pd.read_csv(fname_biomass_fail_u, delimiter=';')
         unit_fail = unit_fail_csv['EinheitMastrNummer']
         unit_fail_list = unit_fail.values.tolist()
@@ -387,7 +387,7 @@ def retry_download_unit_biomass_eeg():
         Write Biomasseeinheit-EEG to csv file.
     """
     start_from = 0
-    if os.path.exists(os.path.dirname(fname_biomass_fail_e)):
+    if os.path.isfile(os.path.dirname(fname_biomass_fail_e)):
         unit_fail_csv = pd.read_csv(fname_biomass_fail_e, delimiter=';')
         unit_fail = unit_fail_csv['EegMastrNummer']
         unit_fail_list = unit_fail.values.tolist()

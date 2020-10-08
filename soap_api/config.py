@@ -27,6 +27,8 @@ cfg = cp.RawConfigParser()
 config_file = 'config.ini'
 log_file = 'open_mastr.log'
 
+_loaded = False
+
 
 def setup_logger():
     """Configure logging in console and log file.

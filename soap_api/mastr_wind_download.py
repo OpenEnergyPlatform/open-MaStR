@@ -190,7 +190,7 @@ def retry_download_unit_wind():
         Write Windeinheit to csv file.
     """
     start_from = 0
-    if os.path.exists(os.path.dirname(fname_wind_fail_u)):
+    if os.path.isfile(os.path.dirname(fname_wind_fail_u)):
         unit_fail_csv = pd.read_csv(fname_wind_fail_u, delimiter=';')
         unit_fail = unit_fail_csv['EinheitMastrNummer']
         unit_fail_list = unit_fail.values.tolist()
@@ -420,7 +420,7 @@ def retry_download_unit_wind_eeg():
         Write Windeinheit to csv file.
     """
     start_from = 0
-    if os.path.exists(os.path.dirname(fname_wind_fail_e)):
+    if os.path.isfile(os.path.dirname(fname_wind_fail_e)):
         unit_fail_csv = pd.read_csv(fname_wind_fail_e, delimiter=';')
         unit_fail = unit_fail_csv['EegMastrNummer']
         unit_fail_list = unit_fail.values.tolist()
@@ -548,7 +548,7 @@ def download_unit_wind_permit():
     mastr_list_1 = power_unit_wind_1.values.tolist()
     mastr_list_1 = list(dict.fromkeys(mastr_list_1))
     mastr_list_len_1 = len(mastr_list_1)
-    log.info(f'Read {mastr_list_len_1} unique GenMastrNummer from Windeinheit')
+    log.info(f'Read {mastr_list_len_1} unique GenMastrNummer from Stromerzeugungseinheit-Wind')
 
     power_unit_wind_2 = read_unit_wind(fname_wind_unit)
     power_unit_wind_2 = power_unit_wind_2.dropna(subset=['GenMastrNummer'])
