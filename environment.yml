@@ -1,0 +1,6 @@
+name: py36_open_mastr
+channels:
+    - conda-forge
+    - defaults
+dependencies:
+    - python=3.6

@@ -14,7 +14,7 @@ __license__ = "GNU Affero General Public License Version 3 (AGPL-3.0)"
 __url__ = "https://www.gnu.org/licenses/agpl-3.0.en.html"
 __author__ = "Ludee; christian-rli"
 __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
-__version__ = "v0.7.0"
+__version__ = "v0.9.0"
 
 import os
 import configparser as cp
@@ -26,6 +26,8 @@ log = logging.getLogger(__name__)
 cfg = cp.RawConfigParser()
 config_file = 'config.ini'
 log_file = 'open_mastr.log'
+
+_loaded = False
 
 
 def setup_logger():

@@ -1,3 +1,5 @@
+numpy
+pandas
 sqlalchemy
 geoalchemy2
 pyshp
@@ -6,3 +8,4 @@ python-dateutil
 psycopg2-binary
 multiprocess
 zeep
+tqdm

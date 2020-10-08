@@ -104,3 +104,4 @@ ENV/
 .idea
 data/
 config.ini
+postprocessing/plots/

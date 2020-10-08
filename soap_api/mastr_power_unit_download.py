@@ -9,29 +9,42 @@ Read data from MaStR API and write to CSV files.
 SPDX-License-Identifier: AGPL-3.0-or-later
 """
 
-__copyright__ = "© Reiner Lemoine Institut"
+__copyright__ = "\xc2 Reiner Lemoine Institut"
 __license__ = "GNU Affero General Public License Version 3 (AGPL-3.0)"
 __url__ = "https://www.gnu.org/licenses/agpl-3.0.en.html"
-__author__ = "Ludee; christian-rli"
+__author__ = "Ludee; christian-rli; Bachibouzouk; solar-c"
 __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
-__version__ = "v0.8.0"
+__version__ = "v0.9.0"
 
-from soap_api.sessions import mastr_session, API_MAX_DEMANDS
 
 import time
-import math
-import multiprocessing as mp
-from multiprocessing.pool import ThreadPool 
-from functools import partial
-import pandas as pd
-import datetime
-from zeep.helpers import serialize_object
+from datetime import datetime as dt
 import logging
+import pandas as pd
+import numpy as np
+from datetime import datetime
+from zeep.helpers import serialize_object
+
+from soap_api.sessions import mastr_session, API_MAX_DEMANDS
+from soap_api.utils import split_to_sublists, write_to_csv, remove_csv, get_data_version, read_timestamp, TOTAL_POWER_UNITS
+from soap_api.parallel import parallel_download
+from soap_api.utils import fname_power_unit
+# from soap_api.mastr_wind_processing import do_wind
+
 log = logging.getLogger(__name__)
-from soap_api.utils import split_to_sublists, get_filename_csv_see, set_filename_csv_see, write_to_csv, remove_csv, get_data_version
-import math
-''' GLOBAL VAR IMPORT '''
-from soap_api.utils import csv_see
+''' VAR IMPORT '''
+from soap_api.utils import fname_power_unit, \
+    fname_wind_unit, \
+    fname_power_unit_wind, \
+    fname_power_unit_hydro, \
+    fname_power_unit_biomass, \
+    fname_power_unit_solar, \
+    fname_power_unit_nuclear,  \
+    fname_power_unit_storage,  \
+    fname_power_unit_gsgk,  \
+    fname_power_unit_combustion,  \
+    TIMESTAMP
+
 
 """SOAP API"""
 client, client_bind, token, user = mastr_session()
@@ -39,63 +52,54 @@ api_key = token
 my_mastr = user
 
 
-def get_power_unit(start_from, limit=API_MAX_DEMANDS):
+def get_power_unit(start_from, energy_carrier, datum='1900-01-01 00:00:00.00000', limit=API_MAX_DEMANDS):
     """Get Stromerzeugungseinheit from API using GetGefilterteListeStromErzeuger.
 
     Parameters
     ----------
     start_from : int
         Skip first entries.
+    datum: String
+        the starting datestring to retrieve data, can be used for updating a data set
     limit : int
-        Number of entries to get (default: 2000)
-    """ 
+        Number of power unit to get (default: 2000)
+    """
+    power_unit = pd.DataFrame()
     status = 'InBetrieb'
+    # power = 30
+
     try:
         c = client_bind.GetGefilterteListeStromErzeuger(
             apiKey=api_key,
             marktakteurMastrNummer=my_mastr,
             # einheitBetriebsstatus=status,
             startAb=start_from,
-            limit=limit  # Limit of API.
+            energietraeger=energy_carrier,
+            limit=limit
+            #bruttoleistungGroesser=power
+            #datumAb = datum
         )
         s = serialize_object(c)
         power_unit = pd.DataFrame(s['Einheiten'])
         power_unit.index.names = ['lid']
+        power_unit['db_offset'] = [i for i in range(start_from, start_from+len(power_unit))]
         power_unit['version'] = get_data_version()
-        power_unit['timestamp'] = str(datetime.datetime.now())
+        power_unit['timestamp'] = str(datetime.now())
+        return power_unit
     except Exception as e:
-        log.info('Download failed, retrying for %s', start_from)
+        log.info(e)
+    # from an old branch:
+    # log.info('Download failed, retrying for %s', start_from)
+    # power_unit = pd.DataFrame()
     # remove double quotes from column
-    #power_unit['Standort'] = power_unit['Standort'].str.replace('"', '')
-    return power_unit
-
-
-def get_all_units(start_from, limit=API_MAX_DEMANDS):
-    
-    try:
-        c = client_bind.GetListeAlleEinheiten(
-        apiKey=api_key,
-        marktakteurMastrNummer=my_mastr,
-        startAb=start_from,
-        limit=limit)  # Limit of API.  
-        s = serialize_object(c)
-
-        power_unit = pd.DataFrame(s['Einheiten'])
-        power_unit.index.names = ['lid']
-        power_unit['version'] = get_data_version()
-        power_unit['timestamp'] = str(datetime.datetime.now())
-    except Exception as e:
-        log.info('Download failed, retrying for %s', start_from)
-        log.debug(e)
-        #log.error(e)
-    # remove double quotes from column
-    return power_unit
+    # power_unit['Standort'] = power_unit['Standort'].str.replace('"', '')
+    # return power_unit
 
 
 def download_power_unit(
-        power_unit_list_len=2363200,
-        limit=API_MAX_DEMANDS,
-        ofname=None
+        power_unit_list_len=TOTAL_POWER_UNITS,
+        pu_limit=API_MAX_DEMANDS,
+        energy_carrier='None'
 ):
     """Download StromErzeuger.
 
@@ -103,10 +107,12 @@ def download_power_unit(
     ---------
     power_unit_list_len : None|int
         Maximum number of units to get. Check MaStR portal for current number.
-    limit : int
+    pu_limit : int
         Number of units to get per call to API (limited to 2000).
-    ofname : string
-        Path to save the downloaded files.
+    energy_carrier: string
+        Energieträger: None, AndereGase, Biomasse, Braunkohle, Erdgas, Geothermie, Grubengas, Kernenergie,
+        Klaerschlamm, Mineraloelprodukte, NichtBiogenerAbfall, SolareStrahlungsenergie, Solarthermie,
+        Speicher, Steinkohle, Waerme, Wind, Wasser
 
     Existing units:
     1822000 (2019-02-10)
@@ -119,97 +125,127 @@ def download_power_unit(
     2331651 (2019-10-01)
     2359365 (2019-10-15)
     2363200 (2019-10-17)
+    2468804 (2019-11-28)
+    2487585 (2019-12-05) data-release/2.2.0
+    2791367 (2020-03-21) data-release/2.2.1
+    2812372 (2020-03-28) data-release/2.4.0
+    3197769 (2020-08-17) data-release/2.5.0
+    3200862 (2020-08-18) data-release/2.5.1
+    3203715 (2020-08-19) data-release/2.5.2
+    3204000 (2020-08-20) data-release/2.5.5
+    3233056 (2020-08-20) data-release/2.7.0
     """
-    log.info('Download MaStR Power Unit')
+    log.info(f'Download MaStR power unit for energy carrier: {energy_carrier}')
     log.info(f'Number of expected power units: {power_unit_list_len}')
 
-    if ofname is None:
-        ofname = csv_see
+    if energy_carrier == 'Kernenergie':
+        filename = fname_power_unit_nuclear
+    elif energy_carrier == 'Wind':
+        filename = fname_power_unit_wind
+    elif energy_carrier == 'Wasser':
+        filename = fname_power_unit_hydro
+    elif energy_carrier == 'Biomasse':
+        filename = fname_power_unit_biomass
+    elif energy_carrier == 'SolareStrahlungsenergie':
+        filename = fname_power_unit_solar
+    elif energy_carrier == 'Speicher':
+        filename = fname_power_unit_storage
+    elif energy_carrier == 'Geothermie' or energy_carrier == 'Solarthermie' or energy_carrier == 'Grubengas' or energy_carrier == 'Klaerschlamm':
+        filename = fname_power_unit_gsgk
+    elif energy_carrier == 'AndereGase' or 'Braunkohle' or 'Erdgas' or 'NichtBiogenerAbfall' or 'Steinkohle' or 'Waerme':
+        filename = fname_power_unit_combustion
+    else:
+        filename = fname_power_unit
 
-    log.info(f'Write to : {ofname}')
+    log.info(f'Write to: {filename}')
 
     # if the list size is smaller than the limit
-    if limit > power_unit_list_len:
-        limit = power_unit_list_len
+    if pu_limit > power_unit_list_len:
+        pu_limit = power_unit_list_len
 
-    for start_from in range(0, power_unit_list_len, limit):
+    for start_from in range(0, power_unit_list_len, pu_limit):
         try:
-            power_unit = get_power_unit(start_from, limit)
-            write_to_csv(ofname, power_unit)
+            start_from, power_unit = get_power_unit(start_from, energy_carrier, pu_limit)
+            write_to_csv(filename, pd.DataFrame(power_unit))
             power_unit_len = len(power_unit)
             log.info(f'Download power_unit from {start_from}-{start_from + power_unit_len}')
         except:
             log.exception(f'Download failed power_unit from {start_from}')
 
 
-''' split power_unit_list_len into batches of 20.000, this number can be changed and was decided on empirically -- 
-a higher batch size number means less threads but more retries
-each batch is processed by a thread pool, where for each subbatch of 2000 (API limit) a new thread is created  '''
-def download_parallel_power_unit(power_unit_list_len=2359365, limit=2000, batch_size=10000, start_from=0, overwrite=True, all_units=False):
-    global csv_see
-    power_unit_list = list()
+# Helper function to pass more than one argument in parallel function call (multiprocess allows only a single argument to be passed, so we pass a tuple and destructure its contents here)
+def get_power_unit_helper(arg):
+    start_from, limit, wind = arg
+    return get_power_unit(start_from, limit=limit, wind=wind)
+
+def download_parallel_power_unit(
+        power_unit_list_len=TOTAL_POWER_UNITS,
+        limit=API_MAX_DEMANDS,
+        start_from=0,
+        threads=4,
+        timeout=10,
+        time_blacklist=True,
+        overwrite=False, 
+        wind=False,
+        update=False
+):
+    """Download StromErzeuger with parallel process
+
+
+    Arguments
+    ---------
+    power_unit_list_len : None|int
+        Maximum number of units to get. Check MaStR portal for current number.
+    limit : int
+        Number of units to get per call to API (limited to 2000).
+    start_from : int
+        Start index in the power_unit_list.
+    threads : int
+        number of parallel threads to download with
+    timeout : int
+        retry for this amount of minutes after the last successful
+        query before stopping
+    time_blacklist : bool
+        exit as soon as current time is blacklisted
+    overwrite : bool
+        Whether or not the data file should be overwritten.
+    wind : bool
+        Wether only wind data but all wind data (wind power unit, wind, (wind eeg), wind permit, wind all)
+        should be downloaded and processed
+        current max entries:
+        42748 (2019-10-27)
+        42481 (2019-11-28)
+    update: bool
+        Wether a dataset should only be updated
+    """
+
+    # TODO: Not sure what this does
+    # TODO: [LH] This is legacy code and donwloads only the latest updates (I think). It was coded by solar-c without any documentation
+    #if wind is True:
+    #    power_unit_list_len=42748
+    #update = TIMESTAMP
+    #if update is True:
+    #    datum = get_update_date(wind)
+
     log.info('Download MaStR Power Unit')
-    if batch_size < API_MAX_DEMANDS:
-        limit = batch_size
 
-    # if the list size is smaller than the limit
-    if limit > power_unit_list_len:
-        limit = power_unit_list_len
+    #if overwrite is True:
+    #    remove_csv(fname_power_unit)
 
-    if power_unit_list_len+start_from > 2359365:
-        deficit = (power_unit_list_len+start_from)-2359365
-        power_unit_list_len = power_unit_list_len-deficit
-        if power_unit_list_len <= 0:
-            log.info('No entries to download. Decrease index size.')
-            return 0
-    end_at = power_unit_list_len+start_from
-    if ofname is None:
-        ofname = set_filename_csv_see('power_units', overwrite)
+    # Create a list of tuples with (start_from, limit, wind) to pass to thread. If list is not evenly divisible, the limit value of the last element is adjusted to be below the database limit
+    def unit_list(start, num, size):
+        items = num-start
+        l = [(i, size, wind) for i in range(start,num,size)]
+        if items % size != 0:
+            idx, size = l.pop()
+            l.append((idx, items%size, wind))
+        return l
 
-    if overwrite:
-        remove_csv(ofname)
+    units = unit_list(start_from, power_unit_list_len, limit)
 
-    if power_unit_list_len < limit:
-        log.info(f'Number of expected power units: {limit}')
-    else:
-        log.info(f'Number of expected power units: {power_unit_list_len}')
-    log.info(f'Starting at index: {start_from}')
-    t = time.time()
-    # assert lists with size < api limit
-    if power_unit_list_len < limit:
-        limit = power_unit_list_len
+    parallel_download(units, get_power_unit_helper, fname_power_unit, threads=threads, timeout=timeout, time_blacklist=time_blacklist)
 
-    partial(get_power_unit, limit)
-    partial(get_all_units, limit)
-    start_from_list = list(range(start_from, end_at, limit))
-    length = len(start_from_list)
-    num = math.ceil(power_unit_list_len/batch_size)
-    assert num >= 1
-    sublists = split_to_sublists(start_from_list, length, num)
-    log.info('Number of batches to process: %s', num)
-    summe = 0
-    length = len(sublists)
-    while sublists:
-        try:
-            pool = mp.Pool(processes=len(sublists[0]))
-            if all_units:
-                result= pool.map(get_all_units,sublists[0])
-            else:
-                result = pool.map(get_power_unit, sublists[0])
-            summe += 1
-            progress = math.floor((summe/length)*100)
-            print('\r[{0}{1}] %'.format('#'*(int(math.floor(progress/10))), '-'*int(math.floor((100-progress)/10))))
-            sublists.pop(0)
-            if result:
-                for mylist in result:
-                    write_to_csv(ofname, pd.DataFrame(mylist))
-                    pool.close()
-                    pool.join()
-        except Exception as e:
-            log.error(e)
-    log.info('Power Unit Download executed in: {0:.2f}'.format(time.time()-t))
-
-
+    
 
 def read_power_units(csv_name):
     """Read Stromerzeugungseinheit from CSV file.
@@ -250,3 +286,31 @@ def read_power_units(csv_name):
     log.info(f'Finished reading data from {csv_name}')
     #log.info(power_unit[1:4])
     return power_unit
+
+  
+""" check for new entries since TIMESTAMP """
+def get_update_date(wind=False):
+    """ Retrieve timestamp to use as update baseline for powerunits - from timestamp until now.
+
+    Parameters
+    ----------
+    wind : bool
+        Wether a wind data timestamp should be retrieved or a general powerunit timestamp
+    """
+    dateTime = datetime.now()
+    date = dateTime.date()
+
+    # retrieve last timestamp from file powerunits or wind units if wind=True
+    ts = read_timestamp(wind)
+    if not ts==False:
+        ts = dt.strptime(ts, '%Y-%m-%d %H:%M:%S.%f')
+        ts_date = ts.date()
+
+        if ts_date is date:
+            log.info("No updates available. Try again on another day.")
+            return TIMESTAMP
+        else:
+            log.info(f"checking database for updates since {ts_date}")
+            return ts
+    return 'NULL'
+  
