@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-BNetzA - MaStR Download - Wind
+BNetzA - MaStR Download - Power Unit
 
 Read data from MaStR API and write to CSV files.
 
@@ -90,10 +90,10 @@ def get_power_unit(start_from, energy_carrier, datum='1900-01-01 00:00:00.00000'
         log.info(e)
     # from an old branch:
     # log.info('Download failed, retrying for %s', start_from)
-    #    power_unit = pd.DataFrame()
+    # power_unit = pd.DataFrame()
     # remove double quotes from column
     # power_unit['Standort'] = power_unit['Standort'].str.replace('"', '')
-    #return [start_from, power_unit]
+    # return power_unit
 
 
 def download_power_unit(
@@ -245,7 +245,49 @@ def download_parallel_power_unit(
 
     parallel_download(units, get_power_unit_helper, fname_power_unit, threads=threads, timeout=timeout, time_blacklist=time_blacklist)
 
+    
 
+def read_power_units(csv_name):
+    """Read Stromerzeugungseinheit from CSV file.
+
+    Parameters
+    ----------
+    csv_name : str
+        Name of file.
+
+    Returns
+    -------
+    power_unit : DataFrame
+        Stromerzeugungseinheit.
+    """
+    # log.info(f'Read data from {csv_name}')
+    power_unit = pd.read_csv(csv_name, header=0, sep=';', index_col=False, encoding='utf-8',
+                             dtype={'id': int,
+                                    'lid': int,
+                                    'EinheitMastrNummer': str,
+                                    'Name': str,
+                                    'Einheitart': str,
+                                    'Einheittyp': str,
+                                    'Standort': str,
+                                    'Bruttoleistung': str,
+                                    'Erzeugungsleistung': str,
+                                    'EinheitBetriebsstatus': str,
+                                    'Anlagenbetreiber': str,
+                                    'EegMastrNummer': str,
+                                    'KwkMastrNummer': str,
+                                    'SpeMastrNummer': str,
+                                    'GenMastrNummer': str,
+                                    'BestandsanlageMastrNummer': str,
+                                    'NichtVorhandenInMigriertenEinheiten': str,
+                                    'StatisikFlag': str,
+                                    'version': str,
+                                    'timestamp': str})
+
+    log.info(f'Finished reading data from {csv_name}')
+    #log.info(power_unit[1:4])
+    return power_unit
+
+  
 """ check for new entries since TIMESTAMP """
 def get_update_date(wind=False):
     """ Retrieve timestamp to use as update baseline for powerunits - from timestamp until now.
@@ -271,3 +313,4 @@ def get_update_date(wind=False):
             log.info(f"checking database for updates since {ts_date}")
             return ts
     return 'NULL'
+  

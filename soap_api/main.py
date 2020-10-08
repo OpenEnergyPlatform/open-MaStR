@@ -17,8 +17,6 @@ __author__ = "Ludee; christian-rli"
 __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.9.0"
 
-import datetime
-import time
 
 from soap_api.config import setup_logger
 from soap_api.mastr_general_download import get_mastr_time, get_mastr_time_auth, get_daily_contingent
@@ -39,6 +37,9 @@ from soap_api.mastr_nuclear_download import setup_power_unit_nuclear, download_u
 from soap_api.mastr_nuclear_process import make_nuclear
 from soap_api.mastr_combustion_download import setup_power_unit_combustion, download_unit_combustion, download_unit_combustion_kwk
 from soap_api.mastr_combustion_process import make_combustion
+from soap_api.mastr_consumer_unit_download import download_consumer_unit
+
+import datetime
 import time
 
 
@@ -115,8 +116,7 @@ if __name__ == "__main__":
     # make_biomass()
 
     """Solar"""
-
-    download_parallel_unit_solar()
+    # download_parallel_unit_solar()
     # setup_power_unit_solar()
     # download_power_unit(energy_carrier='SolareStrahlungsenergie', power_unit_list_len=2952918)
     # ''' DEFAULT PARAMS: start_from=0, n_entries=1, parallelism=12 '''
@@ -167,6 +167,9 @@ if __name__ == "__main__":
     # download_unit_gsgk()
     # download_unit_gsgk_eeg()
     # make_gsgk()
+
+    """Consumer"""
+    # download_consumer_unit()
 
     """close"""
     log.info('MaSTR script successfully executed in {:.2f} seconds'
