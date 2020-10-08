@@ -88,11 +88,11 @@ This file logs the numbers. There is "Aktuelle Einheitenübersicht" and "Erweite
 | 2020-08-31 | 20 | 8 | v2.7.0 |
 |  |  |  |  |
 
-### Klaerschlamm
+### Solarthermie
 
 | Date | Count | Count (Aktuell) | Comment |
 |---|---|---|---|
-| 2020-08-31 | 98 | 97 | v2.7.0 |
+| 2020-08-31 | 7 | 7 | v2.7.0 |
 |  |  |  |  |
 
 ### Grubengas
@@ -102,11 +102,11 @@ This file logs the numbers. There is "Aktuelle Einheitenübersicht" and "Erweite
 | 2020-08-31 | 193 | 116 | v2.7.0 |
 |  |  |  |  |
 
-### Solarthermie
+### Klaerschlamm
 
 | Date | Count | Count (Aktuell) | Comment |
 |---|---|---|---|
-| 2020-08-31 | 7 | 7 | v2.7.0 |
+| 2020-08-31 | 98 | 97 | v2.7.0 |
 |  |  |  |  |
 
 

@@ -68,6 +68,11 @@ fname_nuclear = f'{fname_template}_nuclear.csv'
 
 # Geothermie Solarthermie Grubengas Klaerschlamm (AKA GeoSolarthermieGrubenKlaerschlamm)
 fname_power_unit_gsgk = f'{fname_template}_power-unit_gsgk.csv'
+fname_gsgk_unit = f'{fname_template}_unit-gsgk.csv'
+fname_gsgk_eeg = f'{fname_template}_unit-gsgk-eeg.csv'
+fname_gsgk = f'{fname_template}_gsgk.csv'
+fname_gsgk_fail_u = f'{fname_template}_gsgk_fail_u.csv'
+fname_gsgk_fail_e = f'{fname_template}_gsgk_fail_e.csv'
 
 # AndereGase Braunkohle Erdgas Mineraloelprodukte NichtBiogenerAbfall Steinkohle Waerme (AKA Verbrennung)
 fname_power_unit_combustion = f'{fname_template}_power-unit_combustion.csv'

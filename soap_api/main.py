@@ -26,6 +26,8 @@ from soap_api.mastr_hydro_download import setup_power_unit_hydro, retry_download
 from soap_api.mastr_hydro_process import make_hydro
 from soap_api.mastr_biomass_download import setup_power_unit_biomass, retry_download_unit_biomass, retry_download_unit_biomass_eeg, download_unit_biomass, download_unit_biomass_eeg
 from soap_api.mastr_biomass_process import make_biomass
+from soap_api.mastr_gsgk_download import download_unit_gsgk, download_unit_gsgk_eeg
+from soap_api.mastr_gsgk_process import make_gsgk
 from soap_api.mastr_solar_download import setup_power_unit_solar, download_unit_solar, download_parallel_unit_solar, download_unit_solar_eeg, download_parallel_unit_solar_eeg
 from soap_api.mastr_solar_process import make_solar
 from soap_api.mastr_storage_units_download import download_unit_storage, download_parallel_unit_storage
@@ -33,7 +35,6 @@ from soap_api.mastr_nuclear_download import setup_power_unit_nuclear, download_u
 from soap_api.mastr_nuclear_process import make_nuclear
 from soap_api.mastr_combustion_download import setup_power_unit_combustion, download_unit_combustion, download_unit_combustion_kwk
 from soap_api.mastr_combustion_process import make_combustion
-# from soap_api.mastr_wind_processing import do_wind
 import time
 
 
@@ -62,6 +63,7 @@ if __name__ == "__main__":
     #    update=False,
     #    overwrite=False,
     #    start_from=0)
+
 
     """Wind"""
     # # setup_power_unit_wind()   # Extract from all power units
@@ -133,6 +135,15 @@ if __name__ == "__main__":
     # download_unit_combustion()
     # download_unit_combustion_kwk()
     # make_combustion()
+    
+    """Geothermie Solarthermie Gruben Klaerschlamm (GSGK)"""
+    # download_power_unit(energy_carrier='Geothermie', power_unit_list_len=20)
+    # download_power_unit(energy_carrier='Solarthermie', power_unit_list_len=7)
+    # download_power_unit(energy_carrier='Grubengas', power_unit_list_len=193)
+    # download_power_unit(energy_carrier='Klaerschlamm', power_unit_list_len=98)
+    # download_unit_gsgk()
+    # download_unit_gsgk_eeg()
+    # make_gsgk()
 
     """close"""
     log.info('MaSTR script successfully executed in {:.2f} seconds'
