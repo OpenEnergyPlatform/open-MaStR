@@ -9,6 +9,7 @@ __version__ = "v0.9.0"
 import os
 import pandas as pd
 import logging
+import datetime
 log = logging.getLogger(__name__)
 
 DATA_VERSION = 'rli_v2.7.0'
@@ -71,6 +72,11 @@ fname_nuclear = f'{fname_template}_nuclear.csv'
 
 # Geothermie Solarthermie Grubengas Klaerschlamm (AKA GeoSolarthermieGrubenKlaerschlamm)
 fname_power_unit_gsgk = f'{fname_template}_power-unit_gsgk.csv'
+fname_gsgk_unit = f'{fname_template}_unit-gsgk.csv'
+fname_gsgk_eeg = f'{fname_template}_unit-gsgk-eeg.csv'
+fname_gsgk = f'{fname_template}_gsgk.csv'
+fname_gsgk_fail_u = f'{fname_template}_gsgk_fail_u.csv'
+fname_gsgk_fail_e = f'{fname_template}_gsgk_fail_e.csv'
 
 # AndereGase Braunkohle Erdgas Mineraloelprodukte NichtBiogenerAbfall Steinkohle Waerme (AKA Verbrennung)
 fname_power_unit_combustion = f'{fname_template}_power-unit_combustion.csv'
@@ -85,22 +91,18 @@ def get_data_version():
     """Return current data version. """
     return DATA_VERSION
 
-
-def split_to_sublists(mylist, length, parts):
-    """Read data from config file.
-
-    ToDo: Please document function @solar-c
+def split_to_sublists(mylist, num_sublists):
+    """Split elements in a list into num_sublists.
 
     Parameters
     ----------
     mylist : list
         list to split
-    length : int
-        length of mylist
-    parts : int
+    num_sublists : int
         number of desired sublists
     """
-    s, r = divmod(length, parts)
+    length = len(mylist)
+    s, r = divmod(length, num_sublists)
     k = s+1
     return [mylist[i:i+k] for i in range(0, r*k, k)] + [mylist[i:i+s] for i in range(r*k, length, s)]
 
@@ -215,3 +217,29 @@ def read_timestamp(wind=False):
             ts = ts.timestamp.iloc[-1]
             return ts
     return False
+
+
+def is_time_blacklisted(time):
+    times_blacklist = [
+        ('8:00', '18:00'),  # BNetzA Business hours
+        ('23:30', '00:10'),  # Daily database cronjob
+        # Add more if needed...
+    ]
+
+    # check if time is in a given interval between upper and lower
+    def in_interval(lower, upper):
+        # Convert str to datatime object
+        def parse_time(t): 
+            return datetime.datetime.strptime(t, "%H:%M").time()
+        lower = parse_time(lower)
+        upper = parse_time(upper)
+
+        # Handle interval that spans over midnight (i.e. 23:30-0:30)
+        if lower > upper:
+            return (time <= upper or time >= lower)
+        # Handle all other intevals
+        return (lower <= time and upper >= time)
+
+    # check if time is in interval for each interval in the blacklist
+    in_interval = [in_interval(lower, upper) for lower, upper in times_blacklist]
+    return any(in_interval)

@@ -17,8 +17,10 @@ __author__ = "Ludee; christian-rli"
 __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.9.0"
 
+
 from soap_api.config import setup_logger
 from soap_api.mastr_general_download import get_mastr_time, get_mastr_time_auth, get_daily_contingent
+from soap_api.utils import is_time_blacklisted
 from soap_api.mastr_power_unit_download import download_parallel_power_unit, download_power_unit
 from soap_api.mastr_wind_download import setup_power_unit_wind, retry_download_unit_wind, retry_download_unit_wind_eeg, download_unit_wind, download_unit_wind_eeg, download_unit_wind_permit
 from soap_api.mastr_wind_process import make_wind
@@ -26,6 +28,8 @@ from soap_api.mastr_hydro_download import setup_power_unit_hydro, retry_download
 from soap_api.mastr_hydro_process import make_hydro
 from soap_api.mastr_biomass_download import setup_power_unit_biomass, retry_download_unit_biomass, retry_download_unit_biomass_eeg, download_unit_biomass, download_unit_biomass_eeg
 from soap_api.mastr_biomass_process import make_biomass
+from soap_api.mastr_gsgk_download import download_unit_gsgk, download_unit_gsgk_eeg
+from soap_api.mastr_gsgk_process import make_gsgk
 from soap_api.mastr_solar_download import setup_power_unit_solar, download_unit_solar, download_parallel_unit_solar, download_unit_solar_eeg, download_parallel_unit_solar_eeg
 from soap_api.mastr_solar_process import make_solar
 from soap_api.mastr_storage_download import setup_power_unit_storage, retry_download_unit_storage, retry_download_unit_storage_eeg, download_unit_storage, download_unit_storage_eeg
@@ -35,7 +39,9 @@ from soap_api.mastr_nuclear_download import setup_power_unit_nuclear, download_u
 from soap_api.mastr_nuclear_process import make_nuclear
 from soap_api.mastr_combustion_download import setup_power_unit_combustion, download_unit_combustion, download_unit_combustion_kwk
 from soap_api.mastr_combustion_process import make_combustion
-# from soap_api.mastr_wind_processing import do_wind
+from soap_api.mastr_consumer_unit_download import download_consumer_unit
+
+import datetime
 import time
 
 
@@ -56,14 +62,32 @@ if __name__ == "__main__":
     # download_power_unit()
 
     '''WARNING: Batch download may cause a database error. Extended limit required!'''
-    '''DEFAULT PARAMS: batch_size=20000, limit=2000, start_from=0'''
+    '''DEFAULT PARAMS: power_unit_list_len=100000, limit=2000, batch_size=20000, start_from=0, overwrite=False '''
     # download_parallel_power_unit(
-    #    batch_size=10000,
+    #    batch_size=20000,
     #    limit=2000,
     #    wind=False,
     #    update=False,
     #    overwrite=False,
     #    start_from=0)
+
+    """Wind"""
+    # setup_power_unit_wind()
+    # download_unit_wind()
+    # download_unit_wind_eeg()
+    # download_unit_wind_permit()
+    # make_wind()
+
+    """Hydro"""
+    # setup_power_unit_hydro()
+    # download_unit_hydro()
+    # download_unit_hydro_eeg()
+    # make_hydro()
+
+    """Biomass"""
+    # setup_power_unit_biomass()
+    # download_unit_biomass()
+    # download_unit_biomass_eeg()
 
     """Wind"""
     # # setup_power_unit_wind()   # Extract from all power units
@@ -94,6 +118,7 @@ if __name__ == "__main__":
     # make_biomass()
 
     """Solar"""
+    # download_parallel_unit_solar()
     # setup_power_unit_solar()
     # download_power_unit(energy_carrier='SolareStrahlungsenergie', power_unit_list_len=2952918)
     # ''' DEFAULT PARAMS: start_from=0, n_entries=1, parallelism=12 '''
@@ -109,8 +134,8 @@ if __name__ == "__main__":
 
     """Storage"""
     # download_power_unit(energy_carrier='Speicher', power_unit_list_len=146000)
-    download_unit_storage()
-    download_unit_storage_eeg()
+    # download_unit_storage()
+    # download_unit_storage_eeg()
     # retry_download_unit_storage()
     # retry_download_unit_storage_eeg()
     # make_storage()
@@ -141,6 +166,19 @@ if __name__ == "__main__":
     # download_unit_combustion()
     # download_unit_combustion_kwk()
     # make_combustion()
+    
+    """Geothermie Solarthermie Gruben Klaerschlamm (GSGK)"""
+    # download_power_unit(energy_carrier='Geothermie', power_unit_list_len=20)
+    # download_power_unit(energy_carrier='Solarthermie', power_unit_list_len=7)
+    # download_power_unit(energy_carrier='Grubengas', power_unit_list_len=193)
+    # download_power_unit(energy_carrier='Klaerschlamm', power_unit_list_len=98)
+    # download_unit_gsgk()
+    # download_unit_gsgk_eeg()
+    # make_gsgk()
+
+    """Consumer"""
+    # download_consumer_unit()
+    
 
     """close"""
     log.info('MaSTR script successfully executed in {:.2f} seconds'

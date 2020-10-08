@@ -54,7 +54,7 @@ def download_parallel_unit_storage(start_from=0, end_at=20, overwrite=True):
         log.info('No storages to retrieve')
         return 
     cpu = parts=mp.cpu_count()
-    split_storage_list =  split_to_sublists(storage_units_nr,storage_len,cpu)
+    split_storage_list =  split_to_sublists(storage_units_nr, cpu)
     process_pool = mp.Pool(processes=mp.cpu_count())
     storage = pd.DataFrame()
     try:
