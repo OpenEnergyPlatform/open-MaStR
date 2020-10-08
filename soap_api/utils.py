@@ -3,7 +3,7 @@ __license__ = "GNU Affero General Public License Version 3 (AGPL-3.0)"
 __url__ = "https://www.gnu.org/licenses/agpl-3.0.en.html"
 __author__ = "Ludee; Bachibouzouk; solar-c"
 __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
-__version__ = "v0.9.0"
+__version__ = "v0.10.0"
 
 
 import os
@@ -12,10 +12,14 @@ import logging
 import datetime
 log = logging.getLogger(__name__)
 
-DATA_VERSION = 'rli_v2.7.0'
+""" Specify data version for download"""
+DATA_VERSION = 'rli_v3.0.0'
+
 """ Total Count of Power Units (TOTAL_POWER_UNITS) on date (UPDATE_TIMESTAMP) """
-TOTAL_POWER_UNITS = 3204000
-""" 19.08.2020 """
+TOTAL_POWER_UNITS = 3334642
+""" 2020-10-08 """
+
+
 TIMESTAMP = "1900-01-01 00:00:00.00000"
 """ test string: "2019-10-20 00:00:00.000000" """
 """ dummy stump for other file names """
