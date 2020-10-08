@@ -41,6 +41,8 @@ import logging
 log = logging.getLogger(__name__)
 Base = declarative_base()
 
+on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
+
 
 class Wind(Base):
     __tablename__ = 'mastr_wind'
@@ -792,7 +794,11 @@ def mastr_session():
     user : str
         marktakteurMastrNummer.
     """
-    user, token = mastr_config()
+
+    if on_rtd:
+        user, token = (None, None)
+    else:
+        user, token = mastr_config()
 
     wsdl = 'https://www.marktstammdatenregister.de/MaStRAPI/wsdl/mastr.wsdl'
     session = requests.Session()

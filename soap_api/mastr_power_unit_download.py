@@ -46,14 +46,8 @@ from soap_api.utils import fname_power_unit, \
     fname_power_unit_solar, \
     fname_power_unit_nuclear,  \
     fname_power_unit_storage,  \
-    fname_power_unit_othergas,  \
-    fname_power_unit_lignite,  \
-    fname_power_unit_naturalgas,  \
     fname_power_unit_gsgk,  \
-    fname_power_unit_petroleum,  \
-    fname_power_unit_nonbiowaste,  \
-    fname_power_unit_hardcoal,  \
-    fname_power_unit_heat,  \
+    fname_power_unit_combustion,  \
     TIMESTAMP
 
 
@@ -158,22 +152,10 @@ def download_power_unit(
         filename = fname_power_unit_solar
     elif energy_carrier == 'Speicher':
         filename = fname_power_unit_storage
-    elif energy_carrier == 'AndereGase':
-        filename = fname_power_unit_othergas
-    elif energy_carrier == 'Braunkohle':
-        filename = fname_power_unit_lignite
-    elif energy_carrier == 'Erdgas':
-        filename = fname_power_unit_naturalgas
     elif energy_carrier == 'Geothermie' or energy_carrier == 'Solarthermie' or energy_carrier == 'Grubengas' or energy_carrier == 'Klaerschlamm':
         filename = fname_power_unit_gsgk
-    elif energy_carrier == 'Mineraloelprodukte':
-        filename = fname_power_unit_petroleum
-    elif energy_carrier == 'NichtBiogenerAbfall':
-        filename = fname_power_unit_nonbiowaste
-    elif energy_carrier == 'Steinkohle':
-        filename = fname_power_unit_hardcoal
-    elif energy_carrier == 'Waerme':
-        filename = fname_power_unit_heat
+    elif energy_carrier == 'AndereGase' or 'Braunkohle' or 'Erdgas' or 'NichtBiogenerAbfall' or 'Steinkohle' or 'Waerme':
+        filename = fname_power_unit_combustion
     else:
         filename = fname_power_unit
 
