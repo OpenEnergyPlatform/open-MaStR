@@ -18,7 +18,8 @@ __version__ = "v0.9.0"
 
 from soap_api.sessions import mastr_session
 from soap_api.utils import get_data_version, write_to_csv, remove_csv, read_power_units
-from soap_api.utils import is_time_blacklisted, fname_solar_unit, fname_power_unit_solar, fname_solar_eeg
+from soap_api.utils import is_time_blacklisted, fname_solar_unit, fname_power_unit_solar, fname_solar_eeg, \
+    fname_power_unit
 from soap_api.parallel import parallel_download
 
 import pandas as pd
@@ -140,9 +141,12 @@ def download_parallel_unit_solar(threads=4, timeout=10, time_blacklist=True):
             continue
 
         # Generate list of units to download here so that it is updated in every iteration
-        downloaded_units = read_unit_solar(fname_solar_unit)[
-            'EinheitMastrNummer']  # already downloaded generators
-        remain = all_units[~all_units.isin(downloaded_units)]  # remaining generators
+        if os.path.isfile(fname_solar_unit):
+            downloaded_units = read_unit_solar(fname_solar_unit)[
+                'EinheitMastrNummer']  # already downloaded generators
+            remain = all_units[~all_units.isin(downloaded_units)]  # remaining generators
+        else:
+            remain = all_units
 
         # Exit if there are no (more) elements to download
         if len(remain) == 0:
@@ -343,32 +347,35 @@ def read_unit_solar_eeg(csv_name):
         EEG-Anlage-Solar
     """
     # log.info(f'Read data from {csv_name}')
-    unit_solar_eeg = pd.read_csv(csv_name, header=0, sep=';', index_col=False, encoding='utf-8',
-                                 dtype={'lid': int,
-                                        'Ergebniscode': str,
-                                        'AufrufVeraltet': str,
-                                        'AufrufLebenszeitEnde': str,
-                                        'AufrufVersion': str,
-                                        'Meldedatum': str,
-                                        'DatumLetzteAktualisierung': str,
-                                        'EegInbetriebnahmedatum': str,
-                                        'EegMastrNummer': str,
-                                        'InanspruchnahmeZahlungNachEeg': str,
-                                        'AnlagenschluesselEeg': str,
-                                        'AnlagenkennzifferAnlagenregister': str,
-                                        'InstallierteLeistung': str,
-                                        'RegistrierungsnummerPvMeldeportal': str,
-                                        'MieterstromZugeordnet': str,
-                                        'MieterstromMeldedatum': str,
-                                        'MieterstromErsteZuordnungZuschlag': str,
-                                        'AusschreibungZuschlag': str,
-                                        'ZugeordneteGebotsmenge': str,
-                                        'Zuschlagsnummer': str,
-                                        'AnlageBetriebsstatus': str,
-                                        'VerknuepfteEinheit': str,
-                                        'version': str,
-                                        'timestamp': str})
-    # log.info(f'Finished reading data from {csv_name}')
+    if os.path.isfile(csv_name):
+        unit_solar_eeg = pd.read_csv(csv_name, header=0, sep=';', index_col=False, encoding='utf-8',
+                                     dtype={'lid': int,
+                                            'Ergebniscode': str,
+                                            'AufrufVeraltet': str,
+                                            'AufrufLebenszeitEnde': str,
+                                            'AufrufVersion': str,
+                                            'Meldedatum': str,
+                                            'DatumLetzteAktualisierung': str,
+                                            'EegInbetriebnahmedatum': str,
+                                            'EegMastrNummer': str,
+                                            'InanspruchnahmeZahlungNachEeg': str,
+                                            'AnlagenschluesselEeg': str,
+                                            'AnlagenkennzifferAnlagenregister': str,
+                                            'InstallierteLeistung': str,
+                                            'RegistrierungsnummerPvMeldeportal': str,
+                                            'MieterstromZugeordnet': str,
+                                            'MieterstromMeldedatum': str,
+                                            'MieterstromErsteZuordnungZuschlag': str,
+                                            'AusschreibungZuschlag': str,
+                                            'ZugeordneteGebotsmenge': str,
+                                            'Zuschlagsnummer': str,
+                                            'AnlageBetriebsstatus': str,
+                                            'VerknuepfteEinheit': str,
+                                            'version': str,
+                                            'timestamp': str})
+        # log.info(f'Finished reading data from {csv_name}')
+    else:
+        unit_solar_eeg = pd.DataFrame(columns=["EinheitMastrNummer", "EegMastrNummer"])
     return unit_solar_eeg
 
 # Download unit-solar
