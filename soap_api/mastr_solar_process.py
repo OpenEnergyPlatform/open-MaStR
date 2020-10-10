@@ -37,8 +37,7 @@ def make_solar():
         .join(unit_solar.set_index('EinheitMastrNummer'),
               on='EinheitMastrNummer', how='left', rsuffix='_w') \
         .join(unit_solar_eeg.set_index('EegMastrNummer'),
-              on='EegMastrNummer', how='left', rsuffix='_e') \
-        .join(power_unit_eeg.set_index('EinheitMastrNummer'), on='EinheitMastrNummer', how='left', rsuffix='_w')
+              on='EegMastrNummer', how='left', rsuffix='_e')
 
     write_to_csv(csv_solar, table_solar)
     log.info(f'Join Solar to: {fname_solar}')
