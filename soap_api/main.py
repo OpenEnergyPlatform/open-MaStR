@@ -142,10 +142,10 @@ if __name__ == "__main__":
     # download_parallel_unit_storage()
 
     """Nuclear"""
-    # setup_power_unit_nuclear()    # Extract from all power units
-    # download_power_unit(energy_carrier='Kernenergie', power_unit_list_len=13)
-    # download_unit_nuclear()
-    # make_nuclear()
+    setup_power_unit_nuclear()    # Extract from all power units
+    download_power_unit(energy_carrier='Kernenergie', power_unit_list_len=13)
+    download_unit_nuclear()
+    make_nuclear()
 
     """Combustion"""
     # download_power_unit(energy_carrier='AndereGase', power_unit_list_len=2276)
