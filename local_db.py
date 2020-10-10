@@ -1,5 +1,5 @@
 import pandas as pd
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from geoalchemy2 import Geometry, WKTElement
 import os
 from urllib.request import urlretrieve
@@ -19,6 +19,16 @@ OSM_PLZ = {
     "table": "osm_postcode"
 }
 
+OFFSHORE = {
+    "schema": "model_draft",
+    "table": "rli_boundaries_offshore"
+}
+
+OSM_WINDPOWER = {
+    "schema": "model_draft",
+    "table": "mastr_osm_deu_point_windpower"
+}
+
 OEP_QUERY_PATTERN = "https://openenergy-platform.org/api/v0/schema/{schema}/tables/{table}/rows?form=csv"
 
 DATA_BASE_PATH = "data"
@@ -26,7 +36,7 @@ DATA_BASE_PATH = "data"
 MASTR_RAW_SCHEMA = "model_draft"
 OPEN_MASTR_SCHEMA = "model_draft"
 
-TECHNOLOGIES = ["nuclear", "wind", "hydro", "solar", "biomass", "combustion"] #, "gsgk", "storage"]
+TECHNOLOGIES = ["wind", "hydro", "solar", "biomass", "combustion"] #, "gsgk", "storage"]
 
 
 def engine_local_db():
@@ -146,14 +156,34 @@ def add_geom_col(df, lat_col="Breitengrad", lon_col="Laengengrad", srid=4326):
     return gdf
 
 
+def run_sql_postprocessing():
+
+    with ENGINE_LOCAL.connect().execution_options(autocommit=True) as con:
+
+        for tech_name in ["wind"]: #TECHNOLOGIES:
+            # Read SQL query from file
+            with open("postprocessing/db-cleansing/rli-mastr-{tech_name}-cleansing.sql".format(tech_name=tech_name)) as file:
+                escaped_sql = text(file.read())
+
+            # Execute query
+            con.execute(escaped_sql)
+
+
 if __name__ == "__main__":
 
     import_boundary_data_csv(BKG_VG250["schema"], BKG_VG250["table"])
     import_boundary_data_csv(OSM_PLZ["schema"], OSM_PLZ["table"])
+    import_boundary_data_csv(OFFSHORE["schema"], OFFSHORE["table"])
+    import_boundary_data_csv(OSM_WINDPOWER["schema"], OSM_WINDPOWER["table"])
 
     import_bnetz_mastr_csv()
+
+    run_sql_postprocessing()
+
+
 
     # TODO: replace prints with logger
     # TODO: make entire workflow also work on OEP (for Ludwig)
     # TODO: grant to oeuser: make this optional
     # TODO: Sort functions, rename, find right location in repository
+    # TODO: Move commented SQL code into issues
