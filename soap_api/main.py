@@ -35,7 +35,7 @@ from soap_api.mastr_solar_process import make_solar
 from soap_api.mastr_storage_units_download import download_unit_storage, download_parallel_unit_storage
 from soap_api.mastr_nuclear_download import setup_power_unit_nuclear, download_unit_nuclear
 from soap_api.mastr_nuclear_process import make_nuclear
-from soap_api.mastr_combustion_download import setup_power_unit_combustion, download_unit_combustion, download_unit_combustion_kwk
+from soap_api.mastr_combustion_download import setup_power_unit_combustion, download_unit_combustion, retry_download_unit_combustion, download_unit_combustion_kwk
 from soap_api.mastr_combustion_process import make_combustion
 # from soap_api.mastr_consumer_unit_download import download_consumer_unit
 
@@ -91,18 +91,18 @@ if __name__ == "__main__":
     """Separate Power Unit Download by Energy Carrier"""
 
     """Wind"""
-    # setup_power_unit_wind()   # Extract from all power units
-    download_power_unit(energy_carrier='Wind', power_unit_list_len=53807)
-    download_unit_wind()
-    download_unit_wind_eeg()
-    download_unit_wind_permit()
-    retry_download_unit_wind()
-    retry_download_unit_wind_eeg()
-    make_wind()
+    # # setup_power_unit_wind()   # Extract from all power units
+    # download_power_unit(energy_carrier='Wind', power_unit_list_len=1000)
+    # download_unit_wind()
+    # download_unit_wind_eeg()
+    # download_unit_wind_permit()
+    # retry_download_unit_wind()
+    # retry_download_unit_wind_eeg()
+    # make_wind()
 
     """Hydro"""
-    # setup_power_unit_hydro()    # Extract from all power units
-    # download_power_unit(energy_carrier='Wasser', power_unit_list_len=11000)
+    # # setup_power_unit_hydro()    # Extract from all power units
+    # download_power_unit(energy_carrier='Wasser', power_unit_list_len=1000)
     # download_unit_hydro()
     # download_unit_hydro_eeg()
     # retry_download_unit_hydro()
@@ -111,7 +111,7 @@ if __name__ == "__main__":
 
     """Biomass"""
     # # setup_power_unit_biomass()  # Extract from all power units
-    # download_power_unit(energy_carrier='Biomasse', power_unit_list_len=28365)
+    # download_power_unit(energy_carrier='Biomasse', power_unit_list_len=1000)
     # download_unit_biomass()
     # download_unit_biomass_eeg()
     # retry_download_unit_biomass()
@@ -119,10 +119,11 @@ if __name__ == "__main__":
     # make_biomass()
 
     """Solar"""
-    # download_parallel_unit_solar()
+
     # setup_power_unit_solar()
-    # download_power_unit(energy_carrier='SolareStrahlungsenergie', power_unit_list_len=2952918)
-    # ''' DEFAULT PARAMS: start_from=0, n_entries=1, parallelism=12 '''
+    # download_power_unit(energy_carrier='SolareStrahlungsenergie', power_unit_list_len=3040553)
+    download_parallel_unit_solar()
+    ''' DEFAULT PARAMS: start_from=0, n_entries=1, parallelism=12 '''
     # download_parallel_unit_solar(
     #     start_from=0,
     #     n_entries=1,
@@ -140,15 +141,9 @@ if __name__ == "__main__":
 
     """Nuclear"""
     # setup_power_unit_nuclear()    # Extract from all power units
-    # download_power_unit(energy_carrier='Kernenergie', power_unit_list_len=9)
+    # download_power_unit(energy_carrier='Kernenergie', power_unit_list_len=13)
     # download_unit_nuclear()
     # make_nuclear()
-
-    """GSGK"""
-    # download_power_unit(energy_carrier='Geothermie', power_unit_list_len=20)
-    # download_power_unit(energy_carrier='Solarthermie', power_unit_list_len=7)
-    # download_power_unit(energy_carrier='Grubengas', power_unit_list_len=193)
-    # download_power_unit(energy_carrier='Klaerschlamm', power_unit_list_len=98)
 
     """Combustion"""
     # download_power_unit(energy_carrier='AndereGase', power_unit_list_len=2276)
@@ -159,6 +154,7 @@ if __name__ == "__main__":
     # download_power_unit(energy_carrier='Steinkohle', power_unit_list_len=123)
     # download_power_unit(energy_carrier='Waerme', power_unit_list_len=195)
     # download_unit_combustion()
+    # retry_download_unit_combustion()
     # download_unit_combustion_kwk()
     # make_combustion()
     

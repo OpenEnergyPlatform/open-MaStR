@@ -144,6 +144,7 @@ def download_parallel_unit_solar(threads=4, timeout=10, time_blacklist=True):
             'EinheitMastrNummer']  # already downloaded generators
         remain = all_units[~all_units.isin(downloaded_units)]  # remaining generators
 
+
         # Exit if there are no (more) elements to download
         if len(remain) == 0:
             break

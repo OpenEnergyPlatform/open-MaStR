@@ -167,7 +167,7 @@ def download_power_unit(
             start_from, power_unit = get_power_unit(start_from, energy_carrier, pu_limit)
             write_to_csv(filename, pd.DataFrame(power_unit))
             power_unit_len = len(power_unit)
-            log.info(f'Download power_unit from {start_from}-{start_from + power_unit_len}')
+            log.info(f'Download power_unit from {start_from}-{start_from + pu_limit}')
         except:
             log.exception(f'Download failed power_unit from {start_from}')
 
