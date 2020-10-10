@@ -38,12 +38,7 @@ OPEN_MASTR_SCHEMA = "model_draft"
 
 TECHNOLOGIES = ["wind", "hydro", "solar", "biomass", "combustion", "nuclear", "gsgk", "storage"]
 
-
-def engine_local_db():
-    return create_engine('postgresql+psycopg2://open-mastr:open-mastr@localhost:55443/open-mastr', echo=False)
-
-
-ENGINE_LOCAL = engine_local_db()
+ENGINE_LOCAL = create_engine('postgresql+psycopg2://open-mastr:open-mastr@localhost:55443/open-mastr', echo=False)
 
 
 def table_name_from_file(filename):
@@ -78,7 +73,6 @@ def table_to_db(csv_data, table, schema, conn, geom_col="geom"):
     csv_data.to_sql(table,
                     con=conn,
                     schema=schema,
-                    # dtype={geom_col: Geometry("POINT", srid=4326)},
                     dtype={geom_col: Geometry(srid=4326)},
                     if_exists="replace")
 
@@ -119,13 +113,30 @@ def import_boundary_data_csv(schema, table, index_col="id"):
             print("Table '{schema}.{table}' already exists in local database".format(schema=schema, table=table))
 
 
+def add_geom_col(df, lat_col="Breitengrad", lon_col="Laengengrad", srid=4326):
+
+    df_with_coords = df.loc[~(df["Breitengrad"].isna() | df["Laengengrad"].isna())]
+    df_no_coords = df.loc[(df["Breitengrad"].isna() | df["Laengengrad"].isna())]
+
+    gdf = gpd.GeoDataFrame(
+        df_with_coords, geometry=gpd.points_from_xy(df_with_coords[lon_col], df_with_coords[lat_col]),
+        crs="EPSG:{}".format(srid))
+    gdf["geom"] = gdf["geometry"].apply(lambda x: WKTElement(x.wkt, srid=srid))
+    gdf.drop(columns=["geometry"], inplace=True)
+
+    gdf = gdf.append(df_no_coords)
+
+    return gdf
+
+
 def import_bnetz_mastr_csv():
     csv_db_mapping = get_csv_db_mapping()
 
     with ENGINE_LOCAL.connect() as con:
         for k, d in csv_db_mapping.items():
 
-            csv_file = "soap_api/" + d["file"].replace("data", "data/saved")
+            csv_file = os.path.abspath(
+                os.path.join(os.path.dirname(__file__), "..", "soap_api", d["file"].replace("data", "data/saved")))
 
             if os.path.isfile(csv_file):
                 # Read CSV file
@@ -146,22 +157,6 @@ def import_bnetz_mastr_csv():
                 print("No raw data found for {}, cannot find {},".format(k, csv_file))
 
 
-def add_geom_col(df, lat_col="Breitengrad", lon_col="Laengengrad", srid=4326):
-
-    df_with_coords = df.loc[~(df["Breitengrad"].isna() | df["Laengengrad"].isna())]
-    df_no_coords = df.loc[(df["Breitengrad"].isna() | df["Laengengrad"].isna())]
-
-    gdf = gpd.GeoDataFrame(
-        df_with_coords, geometry=gpd.points_from_xy(df_with_coords[lon_col], df_with_coords[lat_col]),
-        crs="EPSG:{}".format(srid))
-    gdf["geom"] = gdf["geometry"].apply(lambda x: WKTElement(x.wkt, srid=srid))
-    gdf.drop(columns=["geometry"], inplace=True)
-
-    gdf = gdf.append(df_no_coords)
-
-    return gdf
-
-
 def run_sql_postprocessing():
 
     with ENGINE_LOCAL.connect().execution_options(autocommit=True) as con:
@@ -169,15 +164,16 @@ def run_sql_postprocessing():
         for tech_name in TECHNOLOGIES:
             if tech_name not in ["gsgk", "storage", "nuclear"]:
                 # Read SQL query from file
-                with open("postprocessing/db-cleansing/rli-mastr-{tech_name}-cleansing.sql".format(tech_name=tech_name)) as file:
+                with open(os.path.join(os.path.dirname(__file__),
+                                       "db-cleansing",
+                                       "rli-mastr-{tech_name}-cleansing.sql".format(tech_name=tech_name))) as file:
                     escaped_sql = text(file.read())
 
                 # Execute query
                 con.execute(escaped_sql)
 
 
-if __name__ == "__main__":
-
+def postprocess():
     import_boundary_data_csv(BKG_VG250["schema"], BKG_VG250["table"])
     import_boundary_data_csv(OSM_PLZ["schema"], OSM_PLZ["table"])
     import_boundary_data_csv(OFFSHORE["schema"], OFFSHORE["table"])
@@ -186,6 +182,11 @@ if __name__ == "__main__":
     import_bnetz_mastr_csv()
 
     run_sql_postprocessing()
+
+
+if __name__ == "__main__":
+
+    postprocess()
 
 
 
