@@ -36,7 +36,7 @@ DATA_BASE_PATH = "data"
 MASTR_RAW_SCHEMA = "model_draft"
 OPEN_MASTR_SCHEMA = "model_draft"
 
-TECHNOLOGIES = ["wind", "hydro", "solar", "biomass", "combustion"] #, "gsgk", "storage"]
+TECHNOLOGIES = ["wind", "hydro", "solar", "biomass", "combustion", "nuclear", "gsgk", "storage"]
 
 
 def engine_local_db():
@@ -104,7 +104,7 @@ def import_boundary_data_csv(schema, table, index_col="id"):
                     OEP_QUERY_PATTERN.format(schema=schema, table=table),
                     csv_file)
             else:
-                print("CSV file {} exists".format(csv_file))
+                print("Found {} locally.".format(csv_file))
 
             # Read CSV file
             csv_data = pd.read_csv(csv_file,
@@ -124,20 +124,26 @@ def import_bnetz_mastr_csv():
 
     with ENGINE_LOCAL.connect() as con:
         for k, d in csv_db_mapping.items():
-            # Read CSV file
-            csv_data = pd.read_csv("soap_api/" + d["file"].replace("data", "data/saved"),
-                                   index_col="lid",
-                                   sep=";")
 
-            # Create 'geom' column from lat/lon
-            gdf = add_geom_col(csv_data)
+            csv_file = "soap_api/" + d["file"].replace("data", "data/saved")
 
-            # Import to local database
-            table_to_db(gdf,
-                        d["table"],
-                        MASTR_RAW_SCHEMA,
-                        con,
-                        geom_col="geom")
+            if os.path.isfile(csv_file):
+                # Read CSV file
+                csv_data = pd.read_csv(csv_file,
+                                       index_col="lid",
+                                       sep=";")
+
+                # Create 'geom' column from lat/lon
+                gdf = add_geom_col(csv_data)
+
+                # Import to local database
+                table_to_db(gdf,
+                            d["table"],
+                            MASTR_RAW_SCHEMA,
+                            con,
+                            geom_col="geom")
+            else:
+                print("No raw data found for {}, cannot find {},".format(k, csv_file))
 
 
 def add_geom_col(df, lat_col="Breitengrad", lon_col="Laengengrad", srid=4326):
@@ -160,13 +166,14 @@ def run_sql_postprocessing():
 
     with ENGINE_LOCAL.connect().execution_options(autocommit=True) as con:
 
-        for tech_name in ["wind"]: #TECHNOLOGIES:
-            # Read SQL query from file
-            with open("postprocessing/db-cleansing/rli-mastr-{tech_name}-cleansing.sql".format(tech_name=tech_name)) as file:
-                escaped_sql = text(file.read())
+        for tech_name in TECHNOLOGIES:
+            if tech_name not in ["gsgk", "storage", "nuclear"]:
+                # Read SQL query from file
+                with open("postprocessing/db-cleansing/rli-mastr-{tech_name}-cleansing.sql".format(tech_name=tech_name)) as file:
+                    escaped_sql = text(file.read())
 
-            # Execute query
-            con.execute(escaped_sql)
+                # Execute query
+                con.execute(escaped_sql)
 
 
 if __name__ == "__main__":
