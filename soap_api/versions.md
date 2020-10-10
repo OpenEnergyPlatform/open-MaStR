@@ -11,6 +11,7 @@ This file logs the numbers. There is "Aktuelle Einheitenübersicht" and "Erweite
 |---|---|---|---|
 | 2020-08-20 | 3206067 |  |  |
 | 2020-08-31 | 3233056 | 1390970 | v2.7.0 |
+| 2020-10-08 | 3334642 | 1492565 | v3.0.0 |
 |  |  |  |  |
 
 
@@ -20,6 +21,7 @@ This file logs the numbers. There is "Aktuelle Einheitenübersicht" and "Erweite
 |---|---|---|---|
 | 2020-08-20 | 51429 | 22035 | Start logging |
 | 2020-08-31 | 51929 | 22489 | v2.7.0 |
+| 2020-10-08 | 53807 | 24361 | v3.0.0 |
 |  |  |  |  |
 
 ### hydro
@@ -28,6 +30,7 @@ This file logs the numbers. There is "Aktuelle Einheitenübersicht" and "Erweite
 |---|---|---|---|
 | 2020-08-20 | 10931 | 3784 | Start logging |
 | 2020-08-31 | 11000 | 3853 | v2.7.0 |
+| 2020-10-08 | 11541 | 4403 | v3.0.0 |
 |  |  |  |  |
 
 ### biomass
@@ -36,6 +39,7 @@ This file logs the numbers. There is "Aktuelle Einheitenübersicht" and "Erweite
 |---|---|---|---|
 | 2020-08-20 | 28255 | 13279 | Start logging |
 | 2020-08-31 | 28365 | 13397 | v2.7.0 |
+| 2020-10-08 | 28831 | 13866 | v3.0.0 |
 |  |  |  |  |
 
 ### solar
@@ -43,6 +47,7 @@ This file logs the numbers. There is "Aktuelle Einheitenübersicht" and "Erweite
 | Date | Count | Count (Aktuell) | Comment |
 |---|---|---|---|
 | 2020-08-31 | 2952918 | 1187336 | v2.7.0 |
+| 2020-10-08 | 3040553 | 1273961 | v3.0.0 |
 |  |  |  |  |
 
 ### storages

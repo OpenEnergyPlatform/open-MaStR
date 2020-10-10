@@ -14,7 +14,7 @@ __license__ = "GNU Affero General Public License Version 3 (AGPL-3.0)"
 __url__ = "https://www.gnu.org/licenses/agpl-3.0.en.html"
 __author__ = "Ludee; christian-rli; Bachibouzouk; solar-c"
 __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
-__version__ = "v0.9.0"
+__version__ = "v0.10.0"
 
 
 import time
@@ -65,7 +65,7 @@ def get_power_unit(start_from, energy_carrier, datum='1900-01-01 00:00:00.00000'
         Number of power unit to get (default: 2000)
     """
     power_unit = pd.DataFrame()
-    status = 'InBetrieb'
+    # status = 'InBetrieb'
     # power = 30
 
     try:
@@ -82,10 +82,10 @@ def get_power_unit(start_from, energy_carrier, datum='1900-01-01 00:00:00.00000'
         s = serialize_object(c)
         power_unit = pd.DataFrame(s['Einheiten'])
         power_unit.index.names = ['lid']
-        power_unit['db_offset'] = [i for i in range(start_from, start_from+len(power_unit))]
+        # power_unit['db_offset'] = [i for i in range(start_from, start_from+len(power_unit))]
         power_unit['version'] = get_data_version()
         power_unit['timestamp'] = str(datetime.now())
-        return power_unit
+        return [start_from, power_unit]
     except Exception as e:
         log.info(e)
     # from an old branch:
@@ -93,7 +93,6 @@ def get_power_unit(start_from, energy_carrier, datum='1900-01-01 00:00:00.00000'
     # power_unit = pd.DataFrame()
     # remove double quotes from column
     # power_unit['Standort'] = power_unit['Standort'].str.replace('"', '')
-    # return power_unit
 
 
 def download_power_unit(
@@ -168,7 +167,7 @@ def download_power_unit(
             start_from, power_unit = get_power_unit(start_from, energy_carrier, pu_limit)
             write_to_csv(filename, pd.DataFrame(power_unit))
             power_unit_len = len(power_unit)
-            log.info(f'Download power_unit from {start_from}-{start_from + power_unit_len}')
+            log.info(f'Download power_unit from {start_from}-{start_from + pu_limit}')
         except:
             log.exception(f'Download failed power_unit from {start_from}')
 

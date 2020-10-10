@@ -14,7 +14,7 @@ __license__ = "GNU Affero General Public License Version 3 (AGPL-3.0)"
 __url__ = "https://www.gnu.org/licenses/agpl-3.0.en.html"
 __author__ = "Ludee; christian-rli; Bachibouzouk; solar-c"
 __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
-__version__ = "v0.9.0"
+__version__ = "v0.10.0"
 
 from soap_api.sessions import mastr_session
 from soap_api.utils import get_data_version, write_to_csv, remove_csv, read_power_units
@@ -147,6 +147,7 @@ def download_parallel_unit_solar(threads=4, timeout=10, time_blacklist=True):
             remain = all_units[~all_units.isin(downloaded_units)]  # remaining generators
         else:
             remain = all_units
+
 
         # Exit if there are no (more) elements to download
         if len(remain) == 0:

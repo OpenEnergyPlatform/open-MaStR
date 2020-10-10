@@ -14,7 +14,7 @@ __license__ = "GNU Affero General Public License Version 3 (AGPL-3.0)"
 __url__ = "https://www.gnu.org/licenses/agpl-3.0.en.html"
 __author__ = "Ludee; christian-rli; Bachibouzouk; solar-c"
 __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
-__version__ = "v0.9.0"
+__version__ = "v0.10.0"
 
 from soap_api.sessions import mastr_session
 from soap_api.utils import write_to_csv, get_data_version, read_power_units
@@ -190,7 +190,7 @@ def retry_download_unit_wind():
         Write Windeinheit to csv file.
     """
     start_from = 0
-    if os.path.isfile(os.path.dirname(fname_wind_fail_u)):
+    if os.path.isfile(fname_wind_fail_u):
         unit_fail_csv = pd.read_csv(fname_wind_fail_u, delimiter=';')
         unit_fail = unit_fail_csv['EinheitMastrNummer']
         unit_fail_list = unit_fail.values.tolist()
@@ -420,7 +420,7 @@ def retry_download_unit_wind_eeg():
         Write Windeinheit to csv file.
     """
     start_from = 0
-    if os.path.isfile(os.path.dirname(fname_wind_fail_e)):
+    if os.path.isfile(fname_wind_fail_e):
         unit_fail_csv = pd.read_csv(fname_wind_fail_e, delimiter=';')
         unit_fail = unit_fail_csv['EegMastrNummer']
         unit_fail_list = unit_fail.values.tolist()
