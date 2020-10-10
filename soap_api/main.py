@@ -20,7 +20,7 @@ __version__ = "v0.9.0"
 
 from soap_api.config import setup_logger
 from soap_api.mastr_general_download import get_mastr_time, get_mastr_time_auth, get_daily_contingent
-from soap_api.utils import is_time_blacklisted
+from soap_api.utils import is_time_blacklisted, fname_solar_unit
 from soap_api.mastr_power_unit_download import download_parallel_power_unit, download_power_unit
 from soap_api.mastr_wind_download import setup_power_unit_wind, retry_download_unit_wind, retry_download_unit_wind_eeg, download_unit_wind, download_unit_wind_eeg, download_unit_wind_permit
 from soap_api.mastr_wind_process import make_wind
@@ -118,18 +118,13 @@ if __name__ == "__main__":
     # make_biomass()
 
     """Solar"""
-    # download_parallel_unit_solar()
     # setup_power_unit_solar()
-    # download_power_unit(energy_carrier='SolareStrahlungsenergie', power_unit_list_len=2952918)
-    # ''' DEFAULT PARAMS: start_from=0, n_entries=1, parallelism=12 '''
-    # download_parallel_unit_solar(
-    #     start_from=0,
-    #     n_entries=1,
-    #     parallelism=6)
-    # download_parallel_unit_solar_eeg(
-    #    start_from=0,
-    #    n_entries=1,
-    #    parallelism=6)
+    # download_power_unit(energy_carrier='SolareStrahlungsenergie', power_unit_list_len=MAX_UNITS)
+    # ''' DEFAULT PARAMS: start_from=0, n_entries=1, parallelism= '''
+    # download_parallel_unit_solar(threads=8)
+    # downloaded_units = read_unit_solar(fname_solar_unit)[
+    #     'EegMastrNummer']
+    # download_parallel_unit_solar_eeg(downloaded_units, threads=8)
     # make_solar()
 
     """Storage"""
