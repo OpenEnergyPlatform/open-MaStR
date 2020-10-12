@@ -42,12 +42,44 @@ ENGINE_LOCAL = create_engine('postgresql+psycopg2://open-mastr:open-mastr@localh
 
 
 def table_name_from_file(filename):
+    """
+    Hacky file name modification
+
+    Adapts path of file stored.
+
+    .. note::
+
+       This will be replaced soonish.
+
+    Parameters
+    ----------
+    filename : str
+        Original file name
+
+    Returns
+    -------
+    str
+        Modified file name
+    """
 
     table_name = filename.replace(DATA_BASE_PATH + "/", "").replace("_" + DATA_VERSION, "").replace(".csv", "") + "_clean"
     return table_name
 
 
 def get_csv_db_mapping(keys=TECHNOLOGIES):
+    """
+    Retrieve raw data file and desired table name for each technology
+
+    Parameters
+    ----------
+    keys : list
+        List of technologies
+
+    Returns
+    -------
+    dict
+        Table name and file name for each technology, keyed by items of :param:`keys`
+    """
 
     MASTR_CSV_DB_MAPPING = {}
 
@@ -62,10 +94,41 @@ def get_csv_db_mapping(keys=TECHNOLOGIES):
 
 
 def wkb_hexer(line):
+    """
+    Convert WKB to hex format
+
+    Parameters
+    ----------
+    line : shapely
+        Shapely Well Known Binary (WKB) representation
+
+    Returns
+    -------
+    shapely.wkb_hex
+        Hex representation of geo data
+
+    """
     return line.wkb_hex
 
 
 def table_to_db(csv_data, table, schema, conn, geom_col="geom"):
+    """
+    Import data table into PostgreSQL database
+
+    Parameters
+    ----------
+    csv_data : pandas.DataFrame
+        The table data
+    table : str
+        Table name
+    schema : str
+        Schema name
+    conn : sqlalchemy.engine.Connection
+        Database connection
+    geom_col : str
+        Name of column which is expected to hold geom data (defaults to 'geom')
+    """
+
     # Create schemas
     query = "CREATE SCHEMA IF NOT EXISTS {schema}".format(schema=schema)
     conn.execute(query)
@@ -78,6 +141,18 @@ def table_to_db(csv_data, table, schema, conn, geom_col="geom"):
 
 
 def import_boundary_data_csv(schema, table, index_col="id"):
+    """
+    Import additional data for post-processing
+
+    Parameters
+    ----------
+    schema : str
+        Schema of :param:`table`
+    table : str
+        Table name
+    index_col : str
+        Column used as index (defaults to 'id')
+    """
 
     csv_file = "{schema}_{table}.csv".format(schema=schema, table=table)
 
@@ -114,6 +189,25 @@ def import_boundary_data_csv(schema, table, index_col="id"):
 
 
 def add_geom_col(df, lat_col="Breitengrad", lon_col="Laengengrad", srid=4326):
+    """
+    Creates a geometry column based on lat/long
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        Data
+    lat_col : str
+        Column name with lat coordinate
+    lon_col : str
+        Column name with long coordinate
+    srid : int
+        Defines the spatial reference system of geo data (defaults to 4326)
+
+    Returns
+    -------
+    GeoDataFrame
+        Read MaStR raw data with added geom column
+    """
 
     df_with_coords = df.loc[~(df["Breitengrad"].isna() | df["Laengengrad"].isna())]
     df_no_coords = df.loc[(df["Breitengrad"].isna() | df["Laengengrad"].isna())]
@@ -130,6 +224,9 @@ def add_geom_col(df, lat_col="Breitengrad", lon_col="Laengengrad", srid=4326):
 
 
 def import_bnetz_mastr_csv():
+    """
+    Import MaStR raw data and create geom column
+    """
     csv_db_mapping = get_csv_db_mapping()
 
     with ENGINE_LOCAL.connect() as con:
@@ -158,6 +255,9 @@ def import_bnetz_mastr_csv():
 
 
 def run_sql_postprocessing():
+    """
+    Execute SQL scripts ins `db-cleansing/`
+    """
 
     with ENGINE_LOCAL.connect().execution_options(autocommit=True) as con:
 
@@ -174,6 +274,12 @@ def run_sql_postprocessing():
 
 
 def postprocess():
+    """
+    Run post-processing
+
+    Import raw MaStR data to PostgreSQL database, retrieve additional data for post-processing and clean, enrich, and
+    prepare data for further analysis.
+    """
     import_boundary_data_csv(BKG_VG250["schema"], BKG_VG250["table"])
     import_boundary_data_csv(OSM_PLZ["schema"], OSM_PLZ["table"])
     import_boundary_data_csv(OFFSHORE["schema"], OFFSHORE["table"])
@@ -187,8 +293,10 @@ def postprocess():
 if __name__ == "__main__":
 
 
-    # TODO: replace prints with logger
-    # TODO: make entire workflow also work on OEP (for Ludwig)
-    # TODO: grant to oeuser: make this optional
-    # TODO: Sort functions, rename, find right location in repository
     # TODO: Move commented SQL code into issues
+    # TODO: replace prints with logger
+    # TODO: add more logging statements where useful
+    # TODO: make entire workflow also work on OEP (for Ludwig)
+    # TODO: grant to oeuser: make this optional. Maybe move to separate file (document it)
+    # TODO: add path-to-data as option to postprocess() -> do it after restructuring
+    pass
