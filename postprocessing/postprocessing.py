@@ -186,9 +186,6 @@ def postprocess():
 
 if __name__ == "__main__":
 
-    postprocess()
-
-
 
     # TODO: replace prints with logger
     # TODO: make entire workflow also work on OEP (for Ludwig)
