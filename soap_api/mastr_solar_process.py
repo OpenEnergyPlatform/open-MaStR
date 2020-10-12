@@ -14,7 +14,7 @@ __license__ = "GNU Affero General Public License Version 3 (AGPL-3.0)"
 __url__ = "https://www.gnu.org/licenses/agpl-3.0.en.html"
 __author__ = "Ludee; christian-rli"
 __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
-__version__ = "v0.9.0"
+__version__ = "v0.10.0"
 
 from soap_api.mastr_solar_download import *
 from soap_api.utils import fname_power_unit_solar, fname_solar_unit, fname_solar_eeg, fname_solar
@@ -37,8 +37,7 @@ def make_solar():
         .join(unit_solar.set_index('EinheitMastrNummer'),
               on='EinheitMastrNummer', how='left', rsuffix='_w') \
         .join(unit_solar_eeg.set_index('EegMastrNummer'),
-              on='EegMastrNummer', how='left', rsuffix='_e') \
-        .join(power_unit_eeg.set_index('EinheitMastrNummer'), on='EinheitMastrNummer', how='left', rsuffix='_w')
+              on='EegMastrNummer', how='left', rsuffix='_e')
 
     write_to_csv(csv_solar, table_solar)
     log.info(f'Join Solar to: {fname_solar}')

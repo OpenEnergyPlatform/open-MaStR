@@ -1,9 +1,9 @@
 {"name": "supply.bnetza_mastr",
-"title": "Bundesnetzagentur - Marktstammdatenregister - Stromerzeuger",
-"id": "supply.bnetza_mastr_2_1_0",
+"title": "Bundesnetzagentur - Marktstammdatenregister - Stromerzeuger - Biomass",
+"id": "supply.bnetza_mastr_2_4_1",
 "description": "Download and process MaStR data",
 "language": [ "en-GB", "de-DE" ],
-"keywords": [ "powerplants, renewables" ],
+"keywords": [ "powerplants, renewables, biomass" ],
 "publicationDate": "2019-01-31",
 "context":
     {"homepage": "https://www.marktstammdatenregister.de/MaStR/",
@@ -47,7 +47,7 @@
         "attribution": "open_MaStR © Reiner Lemoine Institut | AGPL-3.0"} ] },
     {"title": "RLI - open_MaStR - Logfile",
     "description": "Logging output",
-    "path": "mastr.log", 
+    "path": "open_mastr.log", 
     "licenses": [
         {"name": "CC0-1.0",
         "title": "Creative Commons Zero v1.0 Universal",

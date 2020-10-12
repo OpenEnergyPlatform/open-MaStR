@@ -14,7 +14,7 @@ __license__ = "GNU Affero General Public License Version 3 (AGPL-3.0)"
 __url__ = "https://www.gnu.org/licenses/agpl-3.0.en.html"
 __author__ = "Ludee; christian-rli; Bachibouzouk; solar-c"
 __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
-__version__ = "v0.9.0"
+__version__ = "v0.10.0"
 
 from soap_api.sessions import mastr_session
 #from mastr_power_unit_download import read_power_units
@@ -88,7 +88,7 @@ def download_wind(units, start_from, eeg=False):
     log.info('Download MaStR Wind')
     log.info(f'Number of unit_wind: {wind_list_len}')
 
-    sublists = split_to_sublists(units, len(units), mp.cpu_count()*2)
+    sublists = split_to_sublists(units, mp.cpu_count()*2)
     pool = mp.Pool(processes=mp.cpu_count()*2)
     pool.map(partial(process_partionier, eeg=eeg), sublists)
     pool.close()
