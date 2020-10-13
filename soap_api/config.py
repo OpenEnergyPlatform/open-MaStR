@@ -22,9 +22,7 @@ import configparser as cp
 import logging
 log = logging.getLogger(__name__) 
 
-"""parameter"""
 cfg = cp.RawConfigParser()
-log_file = 'open_mastr.log'
 
 _loaded = False
 
@@ -76,7 +74,7 @@ def setup_logger():
     ch.setFormatter(formatter)
 
     # file handler (fh)
-    fh = logging.FileHandler(log_file)
+    fh = logging.FileHandler(os.path.join(get_project_home_dir(), "logs", 'open_mastr.log'))
     fh.setLevel(logging.INFO)
     fh.setFormatter(formatter)
 
@@ -161,4 +159,4 @@ def config_file_not_found_message():
 
 
 # Define variable to be import in other files
-config_file = os.path.join(get_project_home_dir(), 'config', 'credentials.cffg')
+config_file = os.path.join(get_project_home_dir(), 'config', 'credentials.cfg')
