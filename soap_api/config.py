@@ -30,6 +30,30 @@ log_file = 'open_mastr.log'
 _loaded = False
 
 
+def get_project_home_dir():
+    """Get root dir of project data"""
+
+    project_home = os.path.join(os.path.expanduser('~'), ".open-MaStR")
+
+    return project_home
+
+
+def create_project_home_dir():
+    """Create data root path, if necessary"""
+    project_home = get_project_home_dir()
+
+    # Create root project home path
+    if not os.path.isdir(project_home):
+        # Create project home
+        log.info('Create {} used for config, parameters and data.'.format(project_home))
+        os.mkdir(project_home)
+
+    # Create project home subdirs
+    subdirs = [os.path.join(project_home, s) for s in ['config', 'logs', 'data']]
+    for subdir in subdirs:
+        if not os.path.isdir(subdir):
+            os.mkdir(subdir)
+
 def setup_logger():
     """Configure logging in console and log file.
     
