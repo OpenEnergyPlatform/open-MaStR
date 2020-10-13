@@ -5,9 +5,12 @@ import os
 from urllib.request import urlretrieve
 from soap_api.utils import DATA_VERSION
 import soap_api.utils as soap_utils
+from soap_api.config import setup_logger
 import geopandas as gpd
 from shapely.wkb import loads as wkb_loads
 
+
+log = setup_logger()
 
 BKG_VG250 = {
     "schema": "boundaries",
@@ -169,11 +172,12 @@ def import_boundary_data_csv(schema, table, index_col="id"):
         if not table_exists:
             # Download CSV file if it does not exist
             if not csv_file_exists:
+                log.info("Downloading table {schema}.{table} from OEP".format(schema=schema, table=table))
                 urlretrieve(
                     OEP_QUERY_PATTERN.format(schema=schema, table=table),
                     csv_file)
             else:
-                print("Found {} locally.".format(csv_file))
+                log.info("Found {} locally.".format(csv_file))
 
             # Read CSV file
             csv_data = pd.read_csv(csv_file,
@@ -184,8 +188,9 @@ def import_boundary_data_csv(schema, table, index_col="id"):
 
             # Insert to db
             table_to_db(csv_data, table, schema, con)
+            log.info("Data from {} successfully imported to database.".format(csv_file))
         else:
-            print("Table '{schema}.{table}' already exists in local database".format(schema=schema, table=table))
+            log.info("Table '{schema}.{table}' already exists in local database".format(schema=schema, table=table))
 
 
 def add_geom_col(df, lat_col="Breitengrad", lon_col="Laengengrad", srid=4326):
@@ -250,8 +255,9 @@ def import_bnetz_mastr_csv():
                             MASTR_RAW_SCHEMA,
                             con,
                             geom_col="geom")
+                log.info("Data from {} successfully imported to database.".format(csv_file))
             else:
-                print("No raw data found for {}, cannot find {},".format(k, csv_file))
+                log.warning("No raw data found for {}, cannot find {},".format(k, csv_file))
 
 
 def run_sql_postprocessing():
