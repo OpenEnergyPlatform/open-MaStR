@@ -9,8 +9,11 @@ configure your :ref:`setup`. For downloading the Marktstammdatenregister (MaStR)
 Installation
 ============
 
-Setup
-=====
+Setup and configuration
+=======================
+
+The directory `$HOME/.open-MaStR` is automatically created. It is used to store configuration files and save data.
+Default config files are copied to this directory which can be modified - but with caution.
 
 Creating a MaStR account
 ========================
