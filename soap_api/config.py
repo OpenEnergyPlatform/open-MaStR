@@ -24,7 +24,6 @@ log = logging.getLogger(__name__)
 
 """parameter"""
 cfg = cp.RawConfigParser()
-config_file = 'config.ini'
 log_file = 'open_mastr.log'
 
 _loaded = False
@@ -159,3 +158,7 @@ def config_file_not_found_message():
     """Show error message if file not found."""
 
     print(f'The config file "{config_file}" could not be found')
+
+
+# Define variable to be import in other files
+config_file = os.path.join(get_project_home_dir(), 'config', 'credentials.cffg')
