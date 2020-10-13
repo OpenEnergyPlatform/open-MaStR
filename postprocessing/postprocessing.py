@@ -298,11 +298,4 @@ def postprocess():
 
 if __name__ == "__main__":
 
-
-    # TODO: Move commented SQL code into issues
-    # TODO: replace prints with logger
-    # TODO: add more logging statements where useful
-    # TODO: make entire workflow also work on OEP (for Ludwig)
-    # TODO: grant to oeuser: make this optional. Maybe move to separate file (document it)
-    # TODO: add path-to-data as option to postprocess() -> do it after restructuring
     pass
