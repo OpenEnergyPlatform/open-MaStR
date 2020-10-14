@@ -12,7 +12,7 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../soap_api'))
+sys.path.insert(0, os.path.abspath('../open_mastr'))
 
 
 # -- Project information -----------------------------------------------------
