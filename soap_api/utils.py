@@ -26,8 +26,8 @@ DATA_PATH = os.path.join(get_project_home_dir(), "data", DATA_VERSION)
 TIMESTAMP = "1900-01-01 00:00:00.00000"
 
 """ list of specific power unit file names"""
-fname_template = f'data/bnetza_mastr_{DATA_VERSION}'
-fname_power_unit = f'{fname_template}_power-unit.csv'
+fname_template = f'bnetza_mastr_{DATA_VERSION}'
+fname_power_unit = os.path.join(DATA_PATH, f'{fname_template}_power-unit.csv')
 filenames = get_filenames()
 
 
