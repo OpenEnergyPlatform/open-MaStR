@@ -10,6 +10,9 @@ import os
 import pandas as pd
 import logging
 import datetime
+import yaml
+from soap_api.config import get_project_home_dir
+
 log = logging.getLogger(__name__)
 
 """ Specify data version for download"""
@@ -89,6 +92,65 @@ fname_combustion_kwk = f'{fname_template}_unit-combustion-kwk.csv'
 fname_combustion = f'{fname_template}_combustion.csv'
 fname_combustion_fail_u = f'{fname_template}_combustion_fail_u.csv'
 fname_combustion_fail_e = f'{fname_template}_combustion_fail_e.csv'
+
+
+def get_power_unit_types():
+    return ["wind", "hydro", "solar", "biomass", "combustion", "nuclear", "gsgk", "storage"]
+
+
+def _filenames_generator():
+
+    # How files are prefixed
+    prefix = "bnetza_mastr"
+
+    # Additional data available for certain technologies
+    type_specific_data = {
+        "eeg": ["wind", "hydro", "solar", "biomass", "gsgk", "storage"],
+        "kwk": ["combustion"],
+        "permit": ["wind"]
+    }
+
+    # Template for file names
+    filenames_template = {
+        "raw": {
+            "joined": "{prefix}_{technology}_raw",
+            "basic": "{prefix}_{technology}_basic", # power-unit
+            "extended": "{prefix}_{technology}_extended", # unit
+            "eeg": "{prefix}_{technology}_eeg",
+            "kwk": "{prefix}_{technology}_kwk",
+            "permit": "{prefix}_{technology}_permit",
+            "extended_fail": "{prefix}_{technology}_extended_fail",
+            "eeg_fail": "{prefix}_{technology}_eeg_fail",
+            "kwk_fail": "{prefix}_{technology}_kwk_fail",
+            "permit_fail": "{prefix}_{technology}_permit_fail",
+        }
+    }
+
+    filenames = {}
+
+    # Define filenames .yml with a dict
+    for tech in get_power_unit_types():
+
+        # Files for all technologies
+        files = ["joined", "basic", "extended", "extended_fail"]
+
+        # Additional file for some technologies
+        for t, techs in type_specific_data.items():
+            if tech in techs:
+                files.append(t)
+                files.append(t + "_fail")
+
+        # Create filename dictionary for one technologies
+        tmp = {
+            k: v.format(prefix=prefix, technology=tech) for k, v in filenames_template["raw"].items() if k in files}
+
+        # Collect file names for all technologies
+        filenames.update({tech: tmp})
+
+    filenames_file = os.path.join(get_project_home_dir(), "config", "filenames.yml")
+
+    with open(filenames_file, 'w') as outfile:
+        yaml.dump(filenames, outfile)
 
 
 def get_data_version():
