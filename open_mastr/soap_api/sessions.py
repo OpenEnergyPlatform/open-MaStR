@@ -24,7 +24,7 @@ import sqlalchemy as sa
 import requests
 import urllib3
 
-import soap_api.config as lc
+import open_mastr.soap_api.config as lc
 
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, Float, DateTime, Boolean

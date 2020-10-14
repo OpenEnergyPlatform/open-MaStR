@@ -1,7 +1,7 @@
-soap_api
-========
+open_mastr
+==========
 
 .. toctree::
    :maxdepth: 4
 
-   soap_api
+   open_mastr

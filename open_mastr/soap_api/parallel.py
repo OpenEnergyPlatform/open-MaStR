@@ -3,8 +3,8 @@ import multiprocessing
 import logging
 import tqdm
 
-from soap_api.utils import write_to_csv
-from soap_api.utils import is_time_blacklisted
+from open_mastr.soap_api.utils import write_to_csv
+from open_mastr.soap_api.utils import is_time_blacklisted
 log = logging.getLogger(__name__)
 
 last_successful_download = datetime.datetime.now()

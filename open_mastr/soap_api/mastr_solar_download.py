@@ -16,11 +16,11 @@ __author__ = "Ludee; christian-rli; Bachibouzouk; solar-c"
 __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.10.0"
 
-from soap_api.sessions import mastr_session
-from soap_api.utils import get_data_version, write_to_csv, remove_csv, read_power_units
-from soap_api.utils import is_time_blacklisted, fname_solar_unit, fname_power_unit_solar, fname_solar_eeg, \
+from open_mastr.soap_api.sessions import mastr_session
+from open_mastr.soap_api.utils import get_data_version, write_to_csv, remove_csv, read_power_units
+from open_mastr.soap_api.utils import is_time_blacklisted, fname_solar_unit, fname_power_unit_solar, fname_solar_eeg, \
     fname_power_unit
-from soap_api.parallel import parallel_download
+from open_mastr.soap_api.parallel import parallel_download
 
 import pandas as pd
 import datetime

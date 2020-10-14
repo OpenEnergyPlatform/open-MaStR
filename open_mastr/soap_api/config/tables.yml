@@ -1,0 +1,16 @@
+biomass:
+  raw: bnetza_mastr_biomass_clean
+combustion:
+  raw: bnetza_mastr_combustion_clean
+gsgk:
+  raw: bnetza_mastr_gsgk_clean
+hydro:
+  raw: bnetza_mastr_hydro_clean
+nuclear:
+  raw: bnetza_mastr_nuclear_clean
+solar:
+  raw: bnetza_mastr_solar_clean
+storage:
+  raw: bnetza_mastr_storage_clean
+wind:
+  raw: bnetza_mastr_wind_clean

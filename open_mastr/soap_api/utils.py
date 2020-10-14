@@ -10,7 +10,7 @@ import os
 import pandas as pd
 import logging
 import datetime
-from soap_api.config import get_filenames, get_project_home_dir, get_data_config
+from open_mastr.soap_api.config import get_filenames, get_project_home_dir, get_data_config
 
 
 log = logging.getLogger(__name__)

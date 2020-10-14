@@ -16,10 +16,10 @@ __author__ = "Ludee; christian-rli; Bachibouzouk; solar-c"
 __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.10.0"
 
-from soap_api.sessions import mastr_session
+from open_mastr.soap_api.sessions import mastr_session
 #from mastr_power_unit_download import read_power_units
-from soap_api.utils import write_to_csv, get_data_version
-from soap_api.mastr_wind_process import make_wind
+from open_mastr.soap_api.utils import write_to_csv, get_data_version
+from open_mastr.soap_api.mastr_wind_process import make_wind
 
 import pandas as pd
 import numpy as np
@@ -35,7 +35,7 @@ log = logging.getLogger(__name__)
 import multiprocessing as mp
 
 """ import variables """
-from soap_api.utils import fname_power_unit, fname_wind, fname_wind_unit, fname_wind_eeg, fname_wind_permit, read_power_units, split_to_sublists
+from open_mastr.soap_api.utils import fname_power_unit, fname_wind, fname_wind_unit, fname_wind_eeg, fname_wind_permit, read_power_units, split_to_sublists
 
 """SOAP API"""
 client, client_bind, token, user = mastr_session()

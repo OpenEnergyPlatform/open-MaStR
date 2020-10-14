@@ -16,8 +16,8 @@ __author__ = "Ludee; christian-rli; Bachibouzouk; solar-c"
 __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.10.0"
 
-from soap_api.mastr_hydro_download import *
-from soap_api.utils import fname_power_unit_hydro, fname_hydro_unit, fname_hydro_eeg, fname_hydro
+from open_mastr.soap_api.mastr_hydro_download import *
+from open_mastr.soap_api.utils import fname_power_unit_hydro, fname_hydro_unit, fname_hydro_eeg, fname_hydro
 
 import logging
 

@@ -16,8 +16,8 @@ __author__ = "Ludee; christian-rli"
 __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.10.0"
 
-from soap_api.mastr_solar_download import *
-from soap_api.utils import fname_power_unit_solar, fname_solar_unit, fname_solar_eeg, fname_solar
+from open_mastr.soap_api.mastr_solar_download import *
+from open_mastr.soap_api.utils import fname_power_unit_solar, fname_solar_unit, fname_solar_eeg, fname_solar
 
 import logging
 log = logging.getLogger(__name__)

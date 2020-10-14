@@ -16,8 +16,8 @@ __author__ = "Ludee; christian-rli; Bachibouzouk; solar-c"
 __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.10.0"
 
-from soap_api.mastr_gsgk_download import *
-from soap_api.utils import fname_power_unit_gsgk, fname_gsgk_unit, fname_gsgk_eeg, fname_gsgk
+from open_mastr.soap_api.mastr_gsgk_download import *
+from open_mastr.soap_api.utils import fname_power_unit_gsgk, fname_gsgk_unit, fname_gsgk_eeg, fname_gsgk
 
 import logging
 
