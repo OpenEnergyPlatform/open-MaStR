@@ -69,6 +69,7 @@ def get_power_unit_types():
 
 
 def _filenames_generator():
+    """Write default file names .yml to project home dir"""
 
     filenames_file = os.path.join(get_project_home_dir(), "config", "filenames.yml")
 
@@ -129,8 +130,12 @@ def _filenames_generator():
 
 
 def setup_project_home():
+    """Create open-MaStR home directory structure and save default config files"""
+
+    # Create directory structure of project home dir
     create_project_home_dir()
 
+    # Save default file names
     _filenames_generator()
 
 
