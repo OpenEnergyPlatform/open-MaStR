@@ -87,16 +87,16 @@ def _filenames_generator():
         # Template for file names
         filenames_template = {
             "raw": {
-                "joined": "{prefix}_{technology}_raw",
-                "basic": "{prefix}_{technology}_basic", # power-unit
-                "extended": "{prefix}_{technology}_extended", # unit
-                "eeg": "{prefix}_{technology}_eeg",
-                "kwk": "{prefix}_{technology}_kwk",
-                "permit": "{prefix}_{technology}_permit",
-                "extended_fail": "{prefix}_{technology}_extended_fail",
-                "eeg_fail": "{prefix}_{technology}_eeg_fail",
-                "kwk_fail": "{prefix}_{technology}_kwk_fail",
-                "permit_fail": "{prefix}_{technology}_permit_fail",
+                "joined": "{prefix}_{technology}_raw.csv",
+                "basic": "{prefix}_{technology}_basic.csv", # power-unit
+                "extended": "{prefix}_{technology}_extended.csv", # unit
+                "eeg": "{prefix}_{technology}_eeg.csv",
+                "kwk": "{prefix}_{technology}_kwk.csv",
+                "permit": "{prefix}_{technology}_permit.csv",
+                "extended_fail": "{prefix}_{technology}_extended_fail.csv",
+                "eeg_fail": "{prefix}_{technology}_eeg_fail.csv",
+                "kwk_fail": "{prefix}_{technology}_kwk_fail.csv",
+                "permit_fail": "{prefix}_{technology}_permit_fail.csv",
             }
         }
 
