@@ -148,7 +148,6 @@ def download_parallel_unit_solar(threads=4, timeout=10, time_blacklist=True):
         else:
             remain = all_units
 
-
         # Exit if there are no (more) elements to download
         if len(remain) == 0:
             break

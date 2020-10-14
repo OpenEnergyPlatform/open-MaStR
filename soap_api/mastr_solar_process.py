@@ -26,7 +26,7 @@ log = logging.getLogger(__name__)
 def make_solar():
     """Read solar data from CSV files. Join data and write to file."""
     data_version = get_data_version()
-    csv_solar = f'data/bnetza_mastr_{data_version}_solar_all.csv'
+    csv_solar = f'data/bnetza_mastr_{data_version}_solar.csv'
 
     power_unit_solar = read_power_units(fname_power_unit_solar)
     unit_solar = read_unit_solar(fname_solar_unit)
