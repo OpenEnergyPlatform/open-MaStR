@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 from os import path
 import os
 
@@ -10,7 +10,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='open_mastr',
-    packages=['soap_api'],
+    packages=find_packages(),
     version='0.1',
     description='MaStR data download tool',
     long_description=long_description,
@@ -37,7 +37,6 @@ setup(
         'multiprocess',
         'zeep'
     ],
-    py_modules=['soap_api'],
     project_urls={
         'Bug Reports': 'https://github.com/OpenEnergyPlatform/open-MaStR/issues',
         'Source': 'https://github.com/OpenEnergyPlatform/open-MaStR',
