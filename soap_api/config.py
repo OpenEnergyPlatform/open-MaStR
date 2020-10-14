@@ -69,6 +69,13 @@ def get_data_config():
     return data_config
 
 
+def get_db_tables():
+    with open(os.path.join(get_project_home_dir(), "config", "tables.yml")) as data_fh:
+        db_tables = yaml.safe_load(data_fh)
+
+    return db_tables
+
+
 def create_project_home_dir():
     """Create data root path, if necessary"""
     project_home = get_project_home_dir()
@@ -90,7 +97,7 @@ def create_project_home_dir():
     log.info(f'I will create a default set of config files in {config_path}')
 
     internal_config_dir = os.path.join(pathlib.Path(__file__).parent.absolute(), 'config')
-    files = ["data.yml"]
+    files = ["data.yml", "tables.yml"]
 
     for file in files:
         if not file in os.listdir(config_path):
