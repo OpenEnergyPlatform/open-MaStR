@@ -25,15 +25,15 @@ import numpy as np
 from datetime import datetime
 from zeep.helpers import serialize_object
 
-from soap_api.sessions import mastr_session, API_MAX_DEMANDS
-from soap_api.utils import split_to_sublists, write_to_csv, remove_csv, get_data_version, read_timestamp, TOTAL_POWER_UNITS
-from soap_api.parallel import parallel_download
-from soap_api.utils import fname_power_unit
+from open_mastr.soap_api.sessions import mastr_session, API_MAX_DEMANDS
+from open_mastr.soap_api.utils import split_to_sublists, write_to_csv, remove_csv, get_data_version, read_timestamp, TOTAL_POWER_UNITS
+from open_mastr.soap_api.parallel import parallel_download
+from open_mastr.soap_api.utils import fname_power_unit
 # from soap_api.mastr_wind_processing import do_wind
 
 log = logging.getLogger(__name__)
 ''' VAR IMPORT '''
-from soap_api.utils import fname_power_unit, \
+from open_mastr.soap_api.utils import fname_power_unit, \
     fname_wind_unit, \
     fname_power_unit_wind, \
     fname_power_unit_hydro, \

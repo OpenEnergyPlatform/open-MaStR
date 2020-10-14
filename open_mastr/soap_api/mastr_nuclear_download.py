@@ -16,9 +16,9 @@ __author__ = "Ludee"
 __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.10.0"
 
-from soap_api.sessions import mastr_session
-from soap_api.utils import write_to_csv, get_data_version, read_power_units
-from soap_api.utils import (fname_power_unit,
+from open_mastr.soap_api.sessions import mastr_session
+from open_mastr.soap_api.utils import write_to_csv, get_data_version, read_power_units
+from open_mastr.soap_api.utils import (fname_power_unit,
                             fname_power_unit_nuclear,
                             fname_nuclear_unit)
 

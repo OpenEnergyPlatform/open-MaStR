@@ -16,8 +16,8 @@ __author__ = "Ludee; christian-rli; Bachibouzouk; solar-c"
 __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.10.0"
 
-from soap_api.sessions import mastr_session
-from soap_api.utils import split_to_sublists,get_data_version, write_to_csv, remove_csv, read_power_units
+from open_mastr.soap_api.sessions import mastr_session
+from open_mastr.soap_api.utils import split_to_sublists,get_data_version, write_to_csv, remove_csv, read_power_units
 
 from zeep.helpers import serialize_object
 from functools import partial
@@ -35,7 +35,7 @@ import logging
 log = logging.getLogger(__name__)
 
 """ import variables """
-from soap_api.utils import fname_power_unit, fname_storage, fname_storage_unit
+from open_mastr.soap_api.utils import fname_power_unit, fname_storage, fname_storage_unit
 
 """SOAP API"""
 client, client_bind, token, user = mastr_session()
@@ -110,7 +110,7 @@ def setup_storage_units(overwrite=True):
             log.info('no storageunits found')
             return pd.DataFrame()
     else:
-        power_unit_solar = read_power_units(name_storage)
+        power_unit_solar = read_power_units(fname_power_unit)
     return power_unit_solar
 
 
