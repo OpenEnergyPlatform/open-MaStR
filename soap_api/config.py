@@ -18,9 +18,11 @@ __version__ = "v0.10.0"
 
 import os
 import configparser as cp
+import yaml
 
 import logging
-log = logging.getLogger(__name__) 
+log = logging.getLogger(__name__)
+
 
 cfg = cp.RawConfigParser()
 
@@ -50,6 +52,82 @@ def create_project_home_dir():
     for subdir in subdirs:
         if not os.path.isdir(subdir):
             os.mkdir(subdir)
+
+    # copy default config files
+    # config_path = os.path.join(root_path, get('user_dirs', 'config_dir'))
+    # log.info(f'I will create a default set of config files in {config_path}')
+    # internal_config_dir = os.path.join(package_path, 'config')
+    # for file in glob(os.path.join(internal_config_dir, '*.cfg')):
+    #     shutil.copy(file,
+    #                 os.path.join(config_path,
+    #                              os.path.basename(file)
+    #                              .replace('_default', '')))
+
+
+def get_power_unit_types():
+    return ["wind", "hydro", "solar", "biomass", "combustion", "nuclear", "gsgk", "storage"]
+
+
+def _filenames_generator():
+
+    # How files are prefixed
+    prefix = "bnetza_mastr"
+
+    # Additional data available for certain technologies
+    type_specific_data = {
+        "eeg": ["wind", "hydro", "solar", "biomass", "gsgk", "storage"],
+        "kwk": ["combustion"],
+        "permit": ["wind"]
+    }
+
+    # Template for file names
+    filenames_template = {
+        "raw": {
+            "joined": "{prefix}_{technology}_raw",
+            "basic": "{prefix}_{technology}_basic", # power-unit
+            "extended": "{prefix}_{technology}_extended", # unit
+            "eeg": "{prefix}_{technology}_eeg",
+            "kwk": "{prefix}_{technology}_kwk",
+            "permit": "{prefix}_{technology}_permit",
+            "extended_fail": "{prefix}_{technology}_extended_fail",
+            "eeg_fail": "{prefix}_{technology}_eeg_fail",
+            "kwk_fail": "{prefix}_{technology}_kwk_fail",
+            "permit_fail": "{prefix}_{technology}_permit_fail",
+        }
+    }
+
+    filenames = {}
+
+    # Define filenames .yml with a dict
+    for tech in get_power_unit_types():
+
+        # Files for all technologies
+        files = ["joined", "basic", "extended", "extended_fail"]
+
+        # Additional file for some technologies
+        for t, techs in type_specific_data.items():
+            if tech in techs:
+                files.append(t)
+                files.append(t + "_fail")
+
+        # Create filename dictionary for one technologies
+        tmp = {
+            k: v.format(prefix=prefix, technology=tech) for k, v in filenames_template["raw"].items() if k in files}
+
+        # Collect file names for all technologies
+        filenames.update({tech: tmp})
+
+    filenames_file = os.path.join(get_project_home_dir(), "config", "filenames.yml")
+
+    with open(filenames_file, 'w') as outfile:
+        yaml.dump(filenames, outfile)
+
+
+def setup_project_home():
+    create_project_home_dir()
+
+    _filenames_generator()
+
 
 def setup_logger():
     """Configure logging in console and log file.
@@ -158,5 +236,5 @@ def config_file_not_found_message():
     print(f'The config file "{config_file}" could not be found')
 
 
-# Define variable to be import in other files
+# Define variable to be imported in other files
 config_file = os.path.join(get_project_home_dir(), 'config', 'credentials.cfg')

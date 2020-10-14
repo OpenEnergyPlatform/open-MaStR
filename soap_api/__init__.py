@@ -1,3 +1,4 @@
-from .config import create_project_home_dir
+from .config import setup_project_home
 
-create_project_home_dir()
+setup_project_home()
+
