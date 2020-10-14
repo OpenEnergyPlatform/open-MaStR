@@ -103,23 +103,25 @@ def _filenames_generator():
         filenames = {}
 
         # Define filenames .yml with a dict
-        for tech in get_power_unit_types():
+        for section, section_filenames in filenames_template.items():
+            filenames[section] = {}
+            for tech in get_power_unit_types():
 
-            # Files for all technologies
-            files = ["joined", "basic", "extended", "extended_fail"]
+                # Files for all technologies
+                files = ["joined", "basic", "extended", "extended_fail"]
 
-            # Additional file for some technologies
-            for t, techs in type_specific_data.items():
-                if tech in techs:
-                    files.append(t)
-                    files.append(t + "_fail")
+                # Additional file for some technologies
+                for t, techs in type_specific_data.items():
+                    if tech in techs:
+                        files.append(t)
+                        files.append(t + "_fail")
 
-            # Create filename dictionary for one technologies
-            tmp = {
-                k: v.format(prefix=prefix, technology=tech) for k, v in filenames_template["raw"].items() if k in files}
+                # Create filename dictionary for one technologies
+                    tmp = {
+                        k: v.format(prefix=prefix, technology=tech) for k, v in section_filenames.items() if k in files}
 
-            # Collect file names for all technologies
-            filenames.update({tech: tmp})
+                    # Collect file names for all technologies
+                    filenames[section].update({tech: tmp})
 
         with open(filenames_file, 'w') as outfile:
             yaml.dump(filenames, outfile)
