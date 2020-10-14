@@ -3,9 +3,8 @@ from sqlalchemy import create_engine, text
 from geoalchemy2 import Geometry, WKTElement
 import os
 from urllib.request import urlretrieve
-from soap_api.utils import DATA_VERSION
-import soap_api.utils as soap_utils
-from soap_api.config import setup_logger, get_db_tables, get_project_home_dir, get_filenames
+from open_mastr.soap_api.utils import DATA_VERSION
+from open_mastr.soap_api.config import setup_logger, get_db_tables, get_project_home_dir, get_filenames
 import geopandas as gpd
 from shapely.wkb import loads as wkb_loads
 
