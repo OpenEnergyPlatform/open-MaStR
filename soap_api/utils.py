@@ -32,65 +32,67 @@ filenames = get_filenames()
 
 
 # Wind
-fname_power_unit_wind = f'{fname_template}_power-unit_wind.csv'
-fname_wind_unit = f'{fname_template}_unit-wind.csv'
-fname_wind_eeg = f'{fname_template}_unit-wind-eeg.csv'
-fname_wind_permit = f'{fname_template}_unit-wind-permit.csv'
-fname_wind = f'{fname_template}_wind.csv'
-fname_wind_fail_u = f'{fname_template}_wind_fail_u.csv'
-fname_wind_fail_e = f'{fname_template}_wind_fail_e.csv'
-fname_wind_fail_p = f'{fname_template}_wind_fail_p.csv'
+fname_power_unit_wind = os.path.join(DATA_PATH, filenames["raw"]["wind"]["basic"])
+fname_wind_unit = os.path.join(DATA_PATH, filenames["raw"]["wind"]["extended"])
+fname_wind_eeg = os.path.join(DATA_PATH, filenames["raw"]["wind"]["eeg"])
+fname_wind_permit = os.path.join(DATA_PATH, filenames["raw"]["wind"]["permit"])
+fname_wind = os.path.join(DATA_PATH, filenames["raw"]["wind"]["joined"])
+fname_wind_fail_u = os.path.join(DATA_PATH, filenames["raw"]["wind"]["extended_fail"])
+fname_wind_fail_e = os.path.join(DATA_PATH, filenames["raw"]["wind"]["eeg_fail"])
+fname_wind_fail_p = os.path.join(DATA_PATH, filenames["raw"]["wind"]["permit_fail"])
 
 # Wasser
-fname_power_unit_hydro = f'{fname_template}_power-unit_hydro.csv'
-fname_hydro_unit = f'{fname_template}_unit-hydro.csv'
-fname_hydro_eeg = f'{fname_template}_unit-hydro-eeg.csv'
-fname_hydro = f'{fname_template}_hydro.csv'
-fname_hydro_fail_u = f'{fname_template}_hydro_fail_u.csv'
-fname_hydro_fail_e = f'{fname_template}_hydro_fail_e.csv'
+fname_power_unit_hydro = os.path.join(DATA_PATH, filenames["raw"]["hydro"]["basic"])
+fname_hydro_unit = os.path.join(DATA_PATH, filenames["raw"]["hydro"]["extended"])
+fname_hydro_eeg = os.path.join(DATA_PATH, filenames["raw"]["hydro"]["eeg"])
+fname_hydro = os.path.join(DATA_PATH, filenames["raw"]["hydro"]["joined"])
+fname_hydro_fail_u = os.path.join(DATA_PATH, filenames["raw"]["hydro"]["extended_fail"])
+fname_hydro_fail_e = os.path.join(DATA_PATH, filenames["raw"]["hydro"]["eeg_fail"])
 
 # Biomasse
-fname_power_unit_biomass = f'{fname_template}_power-unit_biomass.csv'
-fname_biomass_unit = f'{fname_template}_unit-biomass.csv'
-fname_biomass_eeg = f'{fname_template}_unit-biomass-eeg.csv'
-fname_biomass = f'{fname_template}_biomass.csv'
-fname_biomass_fail_u = f'{fname_template}_biomass_fail_u.csv'
-fname_biomass_fail_e = f'{fname_template}_biomass_fail_e.csv'
+fname_power_unit_biomass = os.path.join(DATA_PATH, filenames["raw"]["biomass"]["basic"])
+fname_biomass_unit = os.path.join(DATA_PATH, filenames["raw"]["biomass"]["extended"])
+fname_biomass_eeg = os.path.join(DATA_PATH, filenames["raw"]["biomass"]["eeg"])
+fname_biomass = os.path.join(DATA_PATH, filenames["raw"]["biomass"]["joined"])
+fname_biomass_fail_u = os.path.join(DATA_PATH, filenames["raw"]["biomass"]["extended_fail"])
+fname_biomass_fail_e = os.path.join(DATA_PATH, filenames["raw"]["biomass"]["eeg_fail"])
 
 # SolareStrahlungsenergie
-fname_power_unit_solar = f'{fname_template}_power-unit_solar.csv'
-fname_solar_unit = f'{fname_template}_unit-solar.csv'
-fname_solar_eeg = f'{fname_template}_solar-eeg.csv'
-fname_solar = f'{fname_template}_solar.csv'
+fname_power_unit_solar = os.path.join(DATA_PATH, filenames["raw"]["solar"]["basic"])
+fname_solar_unit = os.path.join(DATA_PATH, filenames["raw"]["solar"]["extended"])
+fname_solar_eeg = os.path.join(DATA_PATH, filenames["raw"]["solar"]["eeg"])
+fname_solar = os.path.join(DATA_PATH, filenames["raw"]["solar"]["joined"])
+fname_solar_fail_u = os.path.join(DATA_PATH, filenames["raw"]["solar"]["extended_fail"])
+fname_solar_fail_e = os.path.join(DATA_PATH, filenames["raw"]["solar"]["eeg_fail"])
 
 # Speicher
-fname_power_unit_storage = f'{fname_template}_power-unit_storage.csv'
-fname_storage_unit = f'{fname_template}_unit-storage.csv'
-fname_storage_eeg = f'{fname_template}_storage-eeg.csv'
-fname_storage = f'{fname_template}_storage.csv'
-fname_storage_fail_u = f'{fname_template}_storage_fail_u.csv'
-fname_storage_fail_e = f'{fname_template}_storage_fail_e.csv'
+fname_power_unit_storage = os.path.join(DATA_PATH, filenames["raw"]["storage"]["basic"])
+fname_storage_unit = os.path.join(DATA_PATH, filenames["raw"]["storage"]["extended"])
+fname_storage_eeg = os.path.join(DATA_PATH, filenames["raw"]["storage"]["eeg"])
+fname_storage = os.path.join(DATA_PATH, filenames["raw"]["storage"]["joined"])
+fname_storage_fail_u = os.path.join(DATA_PATH, filenames["raw"]["storage"]["extended_fail"])
+fname_storage_fail_e = os.path.join(DATA_PATH, filenames["raw"]["storage"]["eeg_fail"])
 
 # Kernenergie
-fname_power_unit_nuclear = f'{fname_template}_power-unit_nuclear.csv'
-fname_nuclear_unit = f'{fname_template}_unit-nuclear.csv'
-fname_nuclear = f'{fname_template}_nuclear.csv'
+fname_power_unit_nuclear = os.path.join(DATA_PATH, filenames["raw"]["nuclear"]["basic"])
+fname_nuclear_unit = os.path.join(DATA_PATH, filenames["raw"]["nuclear"]["extended"])
+fname_nuclear = os.path.join(DATA_PATH, filenames["raw"]["nuclear"]["joined"])
 
 # Geothermie Solarthermie Grubengas Klaerschlamm (AKA GeoSolarthermieGrubenKlaerschlamm)
-fname_power_unit_gsgk = f'{fname_template}_power-unit_gsgk.csv'
-fname_gsgk_unit = f'{fname_template}_unit-gsgk.csv'
-fname_gsgk_eeg = f'{fname_template}_unit-gsgk-eeg.csv'
-fname_gsgk = f'{fname_template}_gsgk.csv'
-fname_gsgk_fail_u = f'{fname_template}_gsgk_fail_u.csv'
-fname_gsgk_fail_e = f'{fname_template}_gsgk_fail_e.csv'
+fname_power_unit_gsgk = os.path.join(DATA_PATH, filenames["raw"]["gsgk"]["basic"])
+fname_gsgk_unit = os.path.join(DATA_PATH, filenames["raw"]["gsgk"]["extended"])
+fname_gsgk_eeg = os.path.join(DATA_PATH, filenames["raw"]["gsgk"]["eeg"])
+fname_gsgk = os.path.join(DATA_PATH, filenames["raw"]["gsgk"]["joined"])
+fname_gsgk_fail_u = os.path.join(DATA_PATH, filenames["raw"]["gsgk"]["extended_fail"])
+fname_gsgk_fail_e = os.path.join(DATA_PATH, filenames["raw"]["gsgk"]["eeg_fail"])
 
 # AndereGase Braunkohle Erdgas Mineraloelprodukte NichtBiogenerAbfall Steinkohle Waerme (AKA Verbrennung)
-fname_power_unit_combustion = f'{fname_template}_power-unit_combustion.csv'
-fname_combustion_unit = f'{fname_template}_unit-combustion.csv'
-fname_combustion_kwk = f'{fname_template}_unit-combustion-kwk.csv'
-fname_combustion = f'{fname_template}_combustion.csv'
-fname_combustion_fail_u = f'{fname_template}_combustion_fail_u.csv'
-fname_combustion_fail_e = f'{fname_template}_combustion_fail_e.csv'
+fname_power_unit_combustion = os.path.join(DATA_PATH, filenames["raw"]["combustion"]["basic"])
+fname_combustion_unit = os.path.join(DATA_PATH, filenames["raw"]["combustion"]["extended"])
+fname_combustion_kwk = os.path.join(DATA_PATH, filenames["raw"]["combustion"]["kwk"])
+fname_combustion = os.path.join(DATA_PATH, filenames["raw"]["combustion"]["joined"])
+fname_combustion_fail_u = os.path.join(DATA_PATH, filenames["raw"]["combustion"]["extended_fail"])
+fname_combustion_fail_e = os.path.join(DATA_PATH, filenames["raw"]["combustion"]["kwk_fail"])
 
 
 def get_data_version():
