@@ -5,7 +5,7 @@ import os
 from urllib.request import urlretrieve
 from soap_api.utils import DATA_VERSION
 import soap_api.utils as soap_utils
-from soap_api.config import setup_logger
+from soap_api.config import setup_logger, get_db_tables, get_project_home_dir, get_filenames
 import geopandas as gpd
 from shapely.wkb import loads as wkb_loads
 
@@ -44,31 +44,6 @@ TECHNOLOGIES = ["wind", "hydro", "solar", "biomass", "combustion", "nuclear", "g
 ENGINE_LOCAL = create_engine('postgresql+psycopg2://open-mastr:open-mastr@localhost:55443/open-mastr', echo=False)
 
 
-def table_name_from_file(filename):
-    """
-    Hacky file name modification
-
-    Adapts path of file stored.
-
-    .. note::
-
-       This will be replaced soonish.
-
-    Parameters
-    ----------
-    filename : str
-        Original file name
-
-    Returns
-    -------
-    str
-        Modified file name
-    """
-
-    table_name = filename.replace(DATA_BASE_PATH + "/", "").replace("_" + DATA_VERSION, "").replace(".csv", "") + "_clean"
-    return table_name
-
-
 def get_csv_db_mapping(keys=TECHNOLOGIES):
     """
     Retrieve raw data file and desired table name for each technology
@@ -84,14 +59,16 @@ def get_csv_db_mapping(keys=TECHNOLOGIES):
         Table name and file name for each technology, keyed by items of :param:`keys`
     """
 
+    db_tables = get_db_tables()
+    defined_filenames = get_filenames()
+
     MASTR_CSV_DB_MAPPING = {}
 
     for k in keys:
-        defined_filename = getattr(soap_utils, "fname_" + k)
         MASTR_CSV_DB_MAPPING.update({
             k: {
-                "table": table_name_from_file(defined_filename),
-                "file": defined_filename}})
+                "table": db_tables[k]["raw"],
+                "file": defined_filenames["raw"][k]["joined"]}})
 
     return MASTR_CSV_DB_MAPPING
 
@@ -238,7 +215,7 @@ def import_bnetz_mastr_csv():
         for k, d in csv_db_mapping.items():
 
             csv_file = os.path.abspath(
-                os.path.join(os.path.dirname(__file__), "..", "soap_api", d["file"].replace("data", "data/saved")))
+                os.path.join(get_project_home_dir(), "data", DATA_VERSION, d["file"]))
 
             if os.path.isfile(csv_file):
                 # Read CSV file

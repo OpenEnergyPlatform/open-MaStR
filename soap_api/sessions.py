@@ -35,7 +35,7 @@ from zeep.cache import SqliteCache
 from zeep.transports import Transport
 
 UserToken = namedtuple('UserToken', ['user', 'token'])
-API_MAX_DEMANDS = 2000
+API_MAX_DEMANDS = lc.get_data_config()["max_api_demands"]
 
 import logging
 log = logging.getLogger(__name__)

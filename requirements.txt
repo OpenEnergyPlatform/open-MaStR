@@ -10,3 +10,4 @@ multiprocess
 zeep
 tqdm
 geopandas
+yaml
