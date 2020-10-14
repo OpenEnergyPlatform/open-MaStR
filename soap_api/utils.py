@@ -10,26 +10,26 @@ import os
 import pandas as pd
 import logging
 import datetime
+from soap_api.config import get_filenames, get_project_home_dir, get_data_config
 
 
 log = logging.getLogger(__name__)
 
-""" Specify data version for download"""
-DATA_VERSION = 'rli_v3.0.0'
+DATA_VERSION = get_data_config()["data_version"]
 
 """ Total Count of Power Units (TOTAL_POWER_UNITS) on date (UPDATE_TIMESTAMP) """
-TOTAL_POWER_UNITS = 3334642
-""" 2020-10-08 """
+TOTAL_POWER_UNITS = get_data_config()["total_power_units"]
+
+DATA_PATH = os.path.join(get_project_home_dir(), "data", DATA_VERSION)
 
 
 TIMESTAMP = "1900-01-01 00:00:00.00000"
-""" test string: "2019-10-20 00:00:00.000000" """
-""" dummy stump for other file names """
-fname_template = f'data/bnetza_mastr_{DATA_VERSION}'
-ts_path = f'data/update/bnetza_mastr_ts.csv'
 
 """ list of specific power unit file names"""
+fname_template = f'data/bnetza_mastr_{DATA_VERSION}'
 fname_power_unit = f'{fname_template}_power-unit.csv'
+filenames = get_filenames()
+
 
 # Wind
 fname_power_unit_wind = f'{fname_template}_power-unit_wind.csv'

@@ -19,6 +19,8 @@ __version__ = "v0.10.0"
 import os
 import configparser as cp
 import yaml
+import shutil
+import pathlib
 
 import logging
 log = logging.getLogger(__name__)
@@ -35,6 +37,36 @@ def get_project_home_dir():
     project_home = os.path.join(os.path.expanduser('~'), ".open-MaStR")
 
     return project_home
+
+
+def get_filenames():
+    """
+    Get file names define in config
+
+    Returns
+    -------
+    dict
+        File names used in open-MaStR
+    """
+    with open(os.path.join(get_project_home_dir(), "config", "filenames.yml")) as filename_fh:
+        filenames = yaml.safe_load(filename_fh)
+
+    return filenames
+
+
+def get_data_config():
+    """
+    Get data version and more parameters
+
+    Returns
+    -------
+    dict
+        File names used in open-MaStR
+    """
+    with open(os.path.join(get_project_home_dir(), "config", "data.yml")) as data_fh:
+        data_config = yaml.safe_load(data_fh)
+
+    return data_config
 
 
 def create_project_home_dir():
@@ -54,14 +86,17 @@ def create_project_home_dir():
             os.mkdir(subdir)
 
     # copy default config files
-    # config_path = os.path.join(root_path, get('user_dirs', 'config_dir'))
-    # log.info(f'I will create a default set of config files in {config_path}')
-    # internal_config_dir = os.path.join(package_path, 'config')
-    # for file in glob(os.path.join(internal_config_dir, '*.cfg')):
-    #     shutil.copy(file,
-    #                 os.path.join(config_path,
-    #                              os.path.basename(file)
-    #                              .replace('_default', '')))
+    config_path = os.path.join(get_project_home_dir(), "config")
+    log.info(f'I will create a default set of config files in {config_path}')
+
+    internal_config_dir = os.path.join(pathlib.Path(__file__).parent.absolute(), 'config')
+    files = ["data.yml"]
+
+    for file in files:
+        if not file in os.listdir(config_path):
+            shutil.copy(os.path.join(internal_config_dir, file),
+                        os.path.join(config_path,
+                                     os.path.basename(file)))
 
 
 def get_power_unit_types():
