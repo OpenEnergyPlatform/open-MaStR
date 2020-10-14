@@ -9,4 +9,5 @@ psycopg2-binary
 multiprocess
 zeep
 tqdm
+geopandas
 yaml
