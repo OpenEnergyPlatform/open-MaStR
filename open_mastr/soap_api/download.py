@@ -66,8 +66,17 @@ class MaStRAPI(object):
 
         # Bind MaStR SOAP API functions as instance methods
         client, client_bind = _mastr_bindings()
+
+        # First, all services of registered service_port (i.e. 'Anlage')
         for n, f in client_bind:
             setattr(self, n, self._mastr_wrapper(f))
+
+        # Second, general functions like 'GetLokaleUhrzeit'
+        for n, f in client.service:
+            if n == "GetLokaleUhrzeit":
+                setattr(self, n, f)
+            else:
+                setattr(self, n, self._mastr_wrapper(f))
 
         # Assign MaStR credentials
         if user:
