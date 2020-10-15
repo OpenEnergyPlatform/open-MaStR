@@ -25,6 +25,7 @@ import requests
 import urllib3
 
 import open_mastr.soap_api.config as lc
+from open_mastr.utils import credentials as cred
 
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, Float, DateTime, Boolean
@@ -755,26 +756,30 @@ def mastr_config():
     token : str
         API token (key).
     """
-    config_section = 'MaStR'
+    # config_section = 'MaStR'
+    #
+    # # user
+    # try:
+    #     lc.config_file_load()
+    #     user = lc.config_file_get(config_section, 'user')
+    #     # print('Hello ' + user)
+    # except:
+    #     user = input('Please provide your MaStR Nummer:')
+    #
+    # # token
+    # try:
+    #     token = lc.config_file_get(config_section, 'token')
+    # except:
+    #     # import sys
+    #     token = input('Token:')
+    #     # token = getpass.getpass(prompt='apiKey: ',
+    #     #                            stream=sys.stderr)
+    #     lc.config_section_set(config_section, value=user, key=token)
+    #     print('Config file created.')
 
-    # user
-    try:
-        lc.config_file_load()
-        user = lc.config_file_get(config_section, 'user')
-        # print('Hello ' + user)
-    except:
-        user = input('Please provide your MaStR Nummer:')
+    user = cred.get_mastr_user()
+    token = cred.get_mastr_token(user)
 
-    # token
-    try:
-        token = lc.config_file_get(config_section, 'token')
-    except:
-        # import sys
-        token = input('Token:')
-        # token = getpass.getpass(prompt='apiKey: ',
-        #                            stream=sys.stderr)
-        lc.config_section_set(config_section, value=user, key=token)
-        print('Config file created.')
     return user, token
 
 
