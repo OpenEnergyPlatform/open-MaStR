@@ -83,17 +83,50 @@ def get_mastr_token(user):
     str : Token (password)
     """
 
+    # Try to get password from keyring
     keyring.get_keyring()
-
     password = keyring.get_password("MaStR", user)
+
+    # No password stored in keyring, try config file
     if not password:
-        password = getpass.getpass(
-            "No token found for MaStR with user {}\n\n"
-            "Please enter a valid access token of a role (Benutzerrolle) "
-            "associated to the above user.\n"
-            "The token might look like: "
-            "koo5eixeiQuoi'w8deighai8ahsh1Ha3eib3coqu7ceeg%ies...\n"
-        )
-        keyring.set_password("MaStR", user, password)
+        cfg = _load_config_file()
+        try:
+            password = cfg.get("MaStR", "token")
+        except (cp.NoSectionError, cp.NoOptionError):
+            # If also no password in config file, ask the user to input password
+            # Two options: (1) storing in keyring; (2) storing in config file
+            password = input('Cannot not find a MaStR password, neither in keyring nor in {config_file}.\n\n'
+                             "Please enter a valid access token of a role (Benutzerrolle) "
+                             "associated to the user {user}.\n"
+                             "The token might look like: "
+                             "koo5eixeiQuoi'w8deighai8ahsh1Ha3eib3coqu7ceeg%ies...\n".format(
+                config_file=config_file,
+                user=user))
+
+            # let the user decide where to store the password
+            # (1) keyring
+            # (2) credentials.cfg
+            # (0) don't store, abort
+            # Wait for correct input
+            while True:
+                choice = int(input("Where do you want to store your password?\n"
+                                "\t(1) Keyring (default, hit ENTER to select)\n"
+                                "\t(2) Config file (credendials.cfg)\n"
+                                "\t(0) Abort. Don't store password\n") or "1\n")
+                # check if choice is valid input
+                if choice in [0, 1, 2]:
+                    break
+
+            # Do action according to input
+            if choice == 0:
+                pass
+            elif choice == 1:
+                keyring.set_password("MaStR", user, password)
+            elif choice == 2:
+                cfg["MaStR"] = {"user": user, "token": password}
+                with open(config_file, 'w') as configfile:
+                    cfg.write(configfile)
+            else:
+                log.error("No clue what happened here!?")
 
     return password

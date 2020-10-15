@@ -18,8 +18,18 @@ Default config files are copied to this directory which can be modified - but wi
 Credentials
 -----------
 
-Credentials for the MaStR-API are stored in `$HOME/.open-MaStR/config/credentials.cfg` (plain text).
-If this file does not exist, you're asked to enter your data on the command-line.
+There are three options to provide/store credentials for the MaStR-API
+
+.. csv-table:: Configuration parameters MaStR downloader
+   :header: "Choice #", "Name", "Description"
+   :widths: 3, 5, 30
+
+   "\(1\)", "Keyring", "Use the `keyring library <https://pypi.org/project/keyring/>`_ to store the password encrypted."
+   "\(2\)", "Config file", "Use the config file (`$HOME/.open-MaStR/config/credentials.cfg`) to store the password in plain text."
+   "\(0\)", "Don't store", "Just use the password for one query and forget it."
+
+There is also the option to provide user and password to :py:class:`open_mastr.soap_api.download.MaStRAPI`.
+Instantiate with :code:`MaStRAPI(user='USERNAME', key='TOKEN')` to provide user and password in a script.
 
 Data
 ----
