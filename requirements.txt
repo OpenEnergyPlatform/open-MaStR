@@ -12,3 +12,4 @@ tqdm
 geopandas
 yaml
 requests
+keyring
