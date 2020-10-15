@@ -10,6 +10,6 @@ multiprocess
 zeep
 tqdm
 geopandas
-yaml
+pyyaml
 requests
 keyring

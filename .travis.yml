@@ -10,14 +10,12 @@ python:
 #  apt:
 #    update: true
 
-# command to install dependencies
-install:
-  - pip install -r tests/test_requirements.txt
-
-# command to run tests
-script:
-  - flake8
-  - pylint */*.py
+# Pylint and flake8 tests
+#install:
+#  - pip install -r tests/test_requirements.txt
+#script:
+#  - flake8
+#  - pylint */*.py
 #jobs:
 #  include:
 #    - stage: "Tests"                # naming the Tests stage
@@ -42,3 +40,9 @@ script:
 #  only:
 #  - branch_name1
 #  - branch_name2
+
+# Run test with pytest
+install:
+  - pip install -r requirements.txt
+script:
+  - pytest -vv
