@@ -11,3 +11,4 @@ zeep
 tqdm
 geopandas
 yaml
+requests
