@@ -24,6 +24,10 @@ Here is a template for new release sections
 - Introduce project home `~/.open-MaStR/config/` [#120](https://github.com/OpenEnergyPlatform/open-MaStR/issues/120)
 - Documentation of post-processing [#117](https://github.com/OpenEnergyPlatform/open-MaStR/issues/117)
 - Local execution of post-processing now possible, optionally in dockered database [#116](https://github.com/OpenEnergyPlatform/open-MaStR/issues/116)
+- Introduce a python wrapper for 
+  [MaStRAPI](https://www.marktstammdatenregister.de/MaStRHilfe/files/webdienst/Funktionen_MaStR_Webdienste_V1.2.26.html) 
+  for low-level access [#83](https://github.com/OpenEnergyPlatform/open-MaStR/issues/83)
+- Configure Travis-CI [#132](https://github.com/OpenEnergyPlatform/open-MaStR/issues/132)
 
 ### Changed
 

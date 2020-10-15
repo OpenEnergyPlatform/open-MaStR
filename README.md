@@ -1,5 +1,5 @@
 ﻿[![Documentation Status](https://readthedocs.org/projects/open-mastr/badge/?version=latest)](https://open-mastr.readthedocs.io/en/latest/?badge=latest)
-
+[![Build Status](https://travis-ci.org/OpenEnergyPlatform/open-MaStR.svg?branch=dev)](https://travis-ci.org/OpenEnergyPlatform/open-MaStR)
 <a href="https://openenergyplatform.org"><img align="right" width="200" height="200" src="https://avatars2.githubusercontent.com/u/37101913?s=400&u=9b593cfdb6048a05ea6e72d333169a65e7c922be&v=4" alt="OpenEnergyPlatform"></a>
 
 # Open Energy Family - open_MaStR
@@ -15,7 +15,7 @@ _[open_MaStR](https://github.com/OpenEnergyPlatform/open-MaStR)_ © [Reiner Lemo
 
 ## Installation
 
-The package is intended to be used for python 3.6
+The package is intended to be used with Python >=3.6
 
 - with conda
 
@@ -35,28 +35,45 @@ The package is intended to be used for python 3.6
     python setup.py install
    ```
 
-## Download
+# Using open-MaStR
 
-### User config
-In order to connect to the MastR SOAP API you need a `user` name and a `token`. <br>
-The first time you run the code you will be prompted for that information and a `config.ini` file will be generated automatically for you.
-Handle this file carefully.
+Tools for downloading data from MaStR data base, data cleansing and analysis are provided
 
-The `config.ini` file at the repository's root level should have the following structure:
+## Data download
+
+The MaStR data can be [browsed online](https://www.marktstammdatenregister.de/MaStR), 
+taken from [irregularly provided dumps](https://www.bundesnetzagentur.de/DE/Sachgebiete/ElektrizitaetundGas/Unternehmen_Institutionen/DatenaustauschundMonitoring/Marktstammdatenregister/MaStR_node.html) 
+or be access via the [web service](https://www.marktstammdatenregister.de/MaStRHilfe/subpages/webdienst.html).
+Here, we aim for the latter. The SOAP API of the MaStR web service is wrapped by some python to ease downloading of data.
+
+### Low-level download
+
+`MaStRAPI()` binds SOAP queries as methods and automatically passes credentials to these. After 
+instantiating the class with your credentials 
+
+    from open_mastr.soap_api.sessions import MaStRAPI
+    
+    mastr_api = MaStRAPI(
+        user="SOM123456789012",
+        key=""koo5eixeiQuoi'w8deighai8ahsh1Ha3eib3coqu7ceeg%ies..."
+    )
+
+or calling it blank (asks for credentials on the first time and saves them safely)
+
+    mastr_api = MaStRAPI() 
+
+you're able to query data from MaStR, for example with
+
+    mastr_api.GetListeAlleEinheiten(limit=2)
+    
+See the [MaStR reference](https://www.marktstammdatenregister.de/MaStRHilfe/files/webdienst/Funktionen_MaStR_Webdienste_V1.2.26.html) for all available queries.
+
+### Bulk download
+
+Set the version number in `utils.py`.
+
 ```
-[MaStR]
-token = <your token>
-user = <your user name>
-```
-
-### Data version
-
-Create a new branch named `data-release/x.x.x`
-
-Set the data version number in `utils.py`.
-
-```
-python soap_api/utils.py
+python open_mastr/soap_api/utils.py
 ```
 
 ### Technologies 
@@ -64,7 +81,7 @@ python soap_api/utils.py
 You can select the technologies and run the download code in `main.py`.
 
 ```
-python soap_api/main.py
+python open_mastr/soap_api/main.py
 ```
 
 ## Tests
