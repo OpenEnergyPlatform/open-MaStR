@@ -5,11 +5,110 @@ from zeep.cache import SqliteCache
 from zeep.transports import Transport
 import requests
 import logging
+import pandas as pd
 
 from open_mastr.utils import credentials as cred
 
 
 log = logging.getLogger(__name__)
+
+unit_download_title_default = "Download data for  a specific type of " \
+                              "energy carrier"
+unit_download_desc_default = ""
+unit_download_parameter_energy_carrier = (
+        '    energy_carrier : str\n'
+        '        Retrieve unit data per type of energy carrier.\n\n'
+        '        Power plants are grouped to following energy carriers\n\n'
+        '        * nuclear\n'
+        '        * hydro\n'
+        '        * solar\n'
+        '        * wind\n'
+        '        * biomass\n'
+        '        * combustion\n')
+unit_download_parameters_common = (
+        '    unit_mastr_id : str or list of str, optional\n'
+        '        MaStR identifier of a unit that looks like "SME963513379837"\n'
+        '        If not given, data for all units is retrieved (considering \n'
+        '        for :attr:`.limit`)\n'
+        '    limit : int, optional\n'
+        '        Limit number of requests. One requests equals downloading of \n'
+        '        data of one unit\n')
+
+unit_download_parameters_default = unit_download_parameter_energy_carrier + \
+                                   unit_download_parameters_common
+
+unit_doc_template = '\n' \
+                    '    {title}\n' \
+                    '\n' \
+                    '{description}' \
+                    '    Parameters\n' \
+                    '    ----------\n' \
+                    '{parameters}' \
+                    '\n' \
+                    '    Returns\n' \
+                    '    -------\n' \
+                    '    Unit data : `dict`\n' \
+                    '\n' \
+                    '    '
+
+UNIT_SPECS = {
+    "biomass": {
+        "unit_data": "GetEinheitBiomasse",
+        "energietraeger": ["Biomasse"],
+        "docs": {
+            "title": "Download biomass power plant unit data",
+            "parameters": unit_download_parameters_default,
+        }
+    },
+    "combustion": {
+        "unit_data": "GetEinheitVerbrennung",
+        "energietraeger": ["Steinkohle", "Braunkohle", "Erdgas", "AndereGase", "Mineraloelprodukte", "NichtBiogenerAbfall", "Waerme"],
+        "docs": {
+            "title": "Download conventional power plant unit data",
+            "parameters": unit_download_parameters_default,
+        }
+    },
+    "geo_and_other": {
+        "unit_data": "GetEinheitGeoSolarthermieGrubenKlaerschlamm",
+        "energietraeger": ["Geothermie", "Solarthermie", "Grubengas", "Klaerschlamm"],
+        "docs": {
+            "title": "Download geo and other power plant unit data",
+            "parameters": unit_download_parameters_default,
+        }
+    },
+    "nuclear": {
+        "unit_data": "GetEinheitKernkraft",
+        "energietraeger": ["Kernenergie"],
+        "docs": {
+            "title": "Download nuclear power plant unit data",
+            "parameters": unit_download_parameters_default,
+        }
+    },
+    "solar": {
+        "unit_data": "GetEinheitSolar",
+        "energietraeger": ["SolareStrahlungsenergie"],
+        "docs": {
+            "title": "Download PV power plant unit data",
+            "parameters": unit_download_parameters_default,
+        }
+    },
+    "wind": {
+        "unit_data": "GetEinheitWind",
+        "energietraeger": ["Wind"],
+        "docs": {
+            "title": "Download wind power plant unit data",
+            "parameters": unit_download_parameters_default},
+        "eeg_data": "GetAnlageEegWind"
+    },
+    "hydro": {
+        "unit_data": "GetEinheitWasser",
+        "energietraeger": ["Wasser"],
+        "docs": {
+            "title": "Download hydro power plant unit data",
+            "parameters": unit_download_parameters_default,
+        }
+    },
+}
 
 
 class MaStRAPI(object):
@@ -196,3 +295,146 @@ def _mastr_suppress_parsing_errors(which_errors):
     zplogger = logging.getLogger('zeep.xsd.types.simple')
     zplogger.filters = ([f for f in zplogger.filters if not isinstance(f, FilterExceptions)] +
                         [f for f in error_filters if f.name in which_errors])
+
+
+def _build_docstring(ec):
+    unit_docstring = unit_doc_template.format(
+        title=UNIT_SPECS[ec]["docs"]["title"],
+        description=UNIT_SPECS[ec]["docs"].get("description", ""),
+        parameters=unit_download_parameters_common
+    )
+    return unit_docstring
+
+
+def _unit_data_wrapper(unit_data_func, mastr_api, name):
+    """
+    Wraps around _unit_data() and passes parameters for each unit type
+    """
+
+    @wraps(unit_data_func)
+    def unit_data_creator(*args, **kwargs):
+        # return unit_data_func(*args, **kwargs)
+        return unit_data_func(mastr_api, name, **kwargs)
+
+    return unit_data_creator
+
+
+def _unit_data(mastr_api, energy_carrier, unit_mastr_id=[], eeg=True, limit=None):
+    """
+    Download data for  a specific type of energy carrier
+
+    Parameters
+    ----------
+    mastr_api : :class:`.MaStRAPI()`
+        Low-level download API
+    energy_carrier : str
+        Retrieve unit data per type of energy carrier.
+    unit_mastr_id : str, optional
+    limit : str, optional
+
+    Returns
+    -------
+
+    """
+
+    # In case no unit mastr id is specified, get list of all units and download data
+    if not unit_mastr_id:
+        # units = []
+        for et in UNIT_SPECS[energy_carrier]["energietraeger"]:
+            units = mastr_api.GetGefilterteListeStromErzeuger(
+                energietraeger=et,
+                limit=limit)["Einheiten"]
+
+        unit_mastr_id_dict = {}
+        for unit in units:
+            unit_mastr_id_dict[unit["EinheitMastrNummer"]] = {}
+
+            # Save foreign keys for extra data retrieval
+            if "eeg_data" in UNIT_SPECS[energy_carrier]:
+                unit_mastr_id_dict[unit["EinheitMastrNummer"]]["eeg"] = unit["EegMastrNummer"] = \
+                    unit["EegMastrNummer"]
+
+    # In case a single unit is requested by user
+    if not isinstance(unit_mastr_id, list):
+        unit_mastr_id = list(unit_mastr_id_dict.keys())
+
+    # Get unit data
+    unit_data = []
+    eeg_data = []
+    for unit_id, data_ext in unit_mastr_id_dict.items():
+        unit_data.append(mastr_api.__getattribute__(UNIT_SPECS[energy_carrier]["unit_data"])(einheitMastrNummer=unit_id))
+
+        # Get unit EEG data
+        if eeg:
+            # eeg_mastr_id = unit_mastr_id_dict[unit].get("EegMastrNummer", None)
+            if "eeg" in data_ext.keys():
+                eeg_data.append(mastr_api.__getattribute__(UNIT_SPECS[energy_carrier]["eeg_data"])(
+                    eegMastrNummer=data_ext["eeg"])
+                )
+            else:
+                log.info("No EEG data available for unit type {}".format(energy_carrier))
+
+    # Flatten dictionaries
+    # TODO: use existing code in soap_api/
+
+    # merge data
+    unit_data_df = pd.DataFrame(unit_data).set_index("EinheitMastrNummer")
+
+    # return unit_data
+    return unit_data, eeg_data
+
+
+class _MaStRDownloadFactory(type):
+    def __new__(cls, name, bases, dct):
+        # Assign factory properties to concrete object
+        x = super().__new__(cls, name, bases, dct)
+
+        # Assign mastr_api
+        x._mastr_api = MaStRAPI()
+
+        for ec in UNIT_SPECS.keys():
+            # Define methods
+            setattr(x, ec, _unit_data_wrapper(_unit_data, x._mastr_api, ec))
+
+            # Define docstring for method
+            docstring = _build_docstring(ec)
+            getattr(x, ec).__doc__ = docstring
+
+        return x
+
+
+class MaStRDownload(metaclass=_MaStRDownloadFactory):
+    """Use the higher level interface of MaStRDownload to download unit data
+
+    :class:`.MaStRDownload` builds on top of :class:`.MaStRAPI()` and provides
+    an interface for easier downloading.
+    Use methods documented below to retrieve specific data. On the example of
+    data for nuclear power plants, this looks like
+
+    .. code-block:: python
+
+        from open_mastr.soap_api.download import MaStRDownload
+
+        mastr_dl = MaStRDownload()
+        mastr_dl.nuclear()
+
+    This downloads power plant unit data for all nuclear power plants
+    registered in MaStR.
+
+    Note
+    ----
+    Be careful with download data without limit. This might exceed your daily
+    contigent of requests!
+
+    """
+
+    def __init__(self):
+        """Init docstring"""
+        pass
+
+
+if __name__ == "__main__":
+    pass
+
+
+# TODO: Pass through kargs to _unit_data() that are possible to use with GetGefilterteListeStromErzeuger() and mention in docs
