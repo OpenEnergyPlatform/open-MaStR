@@ -372,6 +372,34 @@ def _unit_data(mastr_api, energy_carrier, unit_mastr_id=[], eeg=True, limit=None
 
 
 def _retrieve_additional_unit_data(units, energy_carrier, mastr_api):
+    """
+    Retrieve addtional informations about units
+
+    Extended information on units is available. Depending on type, additional data from EEG and KWK subsidy program
+    are available. Furthermore, for wind energy converters, data about permit is retrievable.
+
+    Parameters
+    ----------
+    units : dict
+        Keyed by MaStR-Nummer with optional sub-keys 'eeg', 'kwk', 'permit'. Each having the respective identifier as 
+        value
+    energy_carrier : str
+        Retrieve unit data per type of energy carrier.
+    mastr_api : :class:`.MaStRAPI()`
+        Low-level download API
+
+    Returns
+    -------
+    tuple of list of dict
+        Returns additional data in dictionaries that are packed into a tuple. Format
+        
+        .. code-block:: python
+        
+           return = (
+                [additional_unit_data_dict1, additional_unit_data_dict2, ...],
+                [eeg_unit_data_dict1, eeg_unit_data_dict2, ...],
+                )
+    """
     # Get unit data
     unit_data = []
     eeg_data = []
