@@ -359,20 +359,7 @@ def _unit_data(mastr_api, energy_carrier, unit_mastr_id=[], eeg=True, limit=None
         unit_mastr_id = list(unit_mastr_id_dict.keys())
 
     # Get unit data
-    unit_data = []
-    eeg_data = []
-    for unit_id, data_ext in unit_mastr_id_dict.items():
-        unit_data.append(mastr_api.__getattribute__(UNIT_SPECS[energy_carrier]["unit_data"])(einheitMastrNummer=unit_id))
-
-        # Get unit EEG data
-        if eeg:
-            # eeg_mastr_id = unit_mastr_id_dict[unit].get("EegMastrNummer", None)
-            if "eeg" in data_ext.keys():
-                eeg_data.append(mastr_api.__getattribute__(UNIT_SPECS[energy_carrier]["eeg_data"])(
-                    eegMastrNummer=data_ext["eeg"])
-                )
-            else:
-                log.info("No EEG data available for unit type {}".format(energy_carrier))
+    unit_data, eeg_data = _retrieve_additional_unit_data(unit_mastr_id_dict, energy_carrier, mastr_api)
 
     # Flatten dictionaries
     # TODO: use existing code in soap_api/
@@ -381,6 +368,24 @@ def _unit_data(mastr_api, energy_carrier, unit_mastr_id=[], eeg=True, limit=None
     unit_data_df = pd.DataFrame(unit_data).set_index("EinheitMastrNummer")
 
     # return unit_data
+    return unit_data, eeg_data
+
+
+def _retrieve_additional_unit_data(units, energy_carrier, mastr_api):
+    # Get unit data
+    unit_data = []
+    eeg_data = []
+    for unit_id, data_ext in units.items():
+        unit_data.append(mastr_api.__getattribute__(UNIT_SPECS[energy_carrier]["unit_data"])(einheitMastrNummer=unit_id))
+
+        # Get unit EEG data
+        if "eeg" in data_ext.keys():
+            eeg_data.append(mastr_api.__getattribute__(UNIT_SPECS[energy_carrier]["eeg_data"])(
+                eegMastrNummer=data_ext["eeg"])
+            )
+        else:
+            log.info("No EEG data available for unit type {}".format(energy_carrier))
+
     return unit_data, eeg_data
 
 
