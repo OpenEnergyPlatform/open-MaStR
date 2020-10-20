@@ -57,8 +57,9 @@ UNIT_SPECS = {
         "energietraeger": ["Biomasse"],
         "docs": {
             "title": "Download biomass power plant unit data",
-            "parameters": unit_download_parameters_default,
-        }
+            "parameters": unit_download_parameters_default},
+        "kwk_data": "GetAnlageKwk",
+
     },
     "combustion": {
         "unit_data": "GetEinheitVerbrennung",
@@ -351,15 +352,16 @@ def _unit_data(mastr_api, energy_carrier, unit_mastr_id=[], eeg=True, limit=None
 
             # Save foreign keys for extra data retrieval
             if "eeg_data" in UNIT_SPECS[energy_carrier]:
-                unit_mastr_id_dict[unit["EinheitMastrNummer"]]["eeg"] = unit["EegMastrNummer"] = \
-                    unit["EegMastrNummer"]
+                unit_mastr_id_dict[unit["EinheitMastrNummer"]]["eeg"] = unit["EegMastrNummer"]
+            elif "kwk_data" in UNIT_SPECS[energy_carrier]:
+                unit_mastr_id_dict[unit["EinheitMastrNummer"]]["kwk"] = unit["KwkMastrNummer"]
 
     # In case a single unit is requested by user
     if not isinstance(unit_mastr_id, list):
         unit_mastr_id = list(unit_mastr_id_dict.keys())
 
     # Get unit data
-    unit_data, eeg_data = _retrieve_additional_unit_data(unit_mastr_id_dict, energy_carrier, mastr_api)
+    unit_data, eeg_data, kwk_data = _retrieve_additional_unit_data(unit_mastr_id_dict, energy_carrier, mastr_api)
 
     # Flatten dictionaries
     # TODO: use existing code in soap_api/
@@ -368,7 +370,7 @@ def _unit_data(mastr_api, energy_carrier, unit_mastr_id=[], eeg=True, limit=None
     unit_data_df = pd.DataFrame(unit_data).set_index("EinheitMastrNummer")
 
     # return unit_data
-    return unit_data, eeg_data
+    return unit_data, eeg_data, kwk_data
 
 
 def _retrieve_additional_unit_data(units, energy_carrier, mastr_api):
@@ -398,11 +400,14 @@ def _retrieve_additional_unit_data(units, energy_carrier, mastr_api):
            return = (
                 [additional_unit_data_dict1, additional_unit_data_dict2, ...],
                 [eeg_unit_data_dict1, eeg_unit_data_dict2, ...],
+                [kwk_unit_data_dict1, kwk_unit_data_dict2, ...],
+                [permit_unit_data_dict1, permit_unit_data_dict2, ...]
                 )
     """
     # Get unit data
     unit_data = []
     eeg_data = []
+    kwk_data = []
     for unit_id, data_ext in units.items():
         unit_data.append(mastr_api.__getattribute__(UNIT_SPECS[energy_carrier]["unit_data"])(einheitMastrNummer=unit_id))
 
@@ -414,7 +419,15 @@ def _retrieve_additional_unit_data(units, energy_carrier, mastr_api):
         else:
             log.info("No EEG data available for unit type {}".format(energy_carrier))
 
-    return unit_data, eeg_data
+        # Get unit KWK data
+        if "kwk" in data_ext.keys():
+            kwk_data.append(mastr_api.__getattribute__(UNIT_SPECS[energy_carrier]["kwk_data"])(
+                kwkMastrNummer=data_ext["kwk"])
+            )
+        else:
+            log.info("No KWK data available for unit type {}".format(energy_carrier))
+
+    return unit_data, eeg_data, kwk_data
 
 
 class _MaStRDownloadFactory(type):
