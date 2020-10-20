@@ -412,7 +412,7 @@ def _retrieve_additional_unit_data(units, energy_carrier, mastr_api):
         unit_data.append(mastr_api.__getattribute__(UNIT_SPECS[energy_carrier]["unit_data"])(einheitMastrNummer=unit_id))
 
         # Get unit EEG data
-        if "eeg" in data_ext.keys():
+        if "eeg" in data_ext.keys() and data_ext["eeg"] is not None:
             eeg_data.append(mastr_api.__getattribute__(UNIT_SPECS[energy_carrier]["eeg_data"])(
                 eegMastrNummer=data_ext["eeg"])
             )
@@ -420,7 +420,7 @@ def _retrieve_additional_unit_data(units, energy_carrier, mastr_api):
             log.info("No EEG data available for unit type {}".format(energy_carrier))
 
         # Get unit KWK data
-        if "kwk" in data_ext.keys():
+        if "kwk" in data_ext.keys() and data_ext["kwk"] is not None:
             kwk_data.append(mastr_api.__getattribute__(UNIT_SPECS[energy_carrier]["kwk_data"])(
                 kwkMastrNummer=data_ext["kwk"])
             )
