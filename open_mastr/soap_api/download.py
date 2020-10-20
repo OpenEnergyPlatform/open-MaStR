@@ -66,16 +66,16 @@ UNIT_SPECS = {
         "energietraeger": ["Steinkohle", "Braunkohle", "Erdgas", "AndereGase", "Mineraloelprodukte", "NichtBiogenerAbfall", "Waerme"],
         "docs": {
             "title": "Download conventional power plant unit data",
-            "parameters": unit_download_parameters_default,
-        }
+            "parameters": unit_download_parameters_default},
+        "kwk_data": "GetAnlageKwk",
     },
-    "geo_and_other": {
+    "gsgk": {
         "unit_data": "GetEinheitGeoSolarthermieGrubenKlaerschlamm",
         "energietraeger": ["Geothermie", "Solarthermie", "Grubengas", "Klaerschlamm"],
         "docs": {
             "title": "Download geo and other power plant unit data",
-            "parameters": unit_download_parameters_default,
-        }
+            "parameters": unit_download_parameters_default},
+        "kwk_data": "GetAnlageKwk",
     },
     "nuclear": {
         "unit_data": "GetEinheitKernkraft",
