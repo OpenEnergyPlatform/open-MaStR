@@ -59,6 +59,7 @@ UNIT_SPECS = {
             "title": "Download biomass power plant unit data",
             "parameters": unit_download_parameters_default},
         "kwk_data": "GetAnlageKwk",
+        "eeg_data": "GetAnlageEegWind"
 
     },
     "combustion": {
@@ -76,6 +77,7 @@ UNIT_SPECS = {
             "title": "Download geo and other power plant unit data",
             "parameters": unit_download_parameters_default},
         "kwk_data": "GetAnlageKwk",
+        "eeg_data": "GetAnlageEegGeoSolarthermieGrubenKlaerschlamm"
     },
     "nuclear": {
         "unit_data": "GetEinheitKernkraft",
@@ -90,8 +92,8 @@ UNIT_SPECS = {
         "energietraeger": ["SolareStrahlungsenergie"],
         "docs": {
             "title": "Download PV power plant unit data",
-            "parameters": unit_download_parameters_default,
-        }
+            "parameters": unit_download_parameters_default},
+        "eeg_data": "GetAnlageEegSolar"
     },
     "wind": {
         "unit_data": "GetEinheitWind",
@@ -106,8 +108,8 @@ UNIT_SPECS = {
         "energietraeger": ["Wasser"],
         "docs": {
             "title": "Download hydro power plant unit data",
-            "parameters": unit_download_parameters_default,
-        }
+            "parameters": unit_download_parameters_default},
+        "eeg_data": "GetAnlageEegWasser"
     },
 }
 
