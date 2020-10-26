@@ -367,12 +367,15 @@ def _unit_data(mastr_api, energy_carrier, unit_mastr_id=[], eeg=True, limit=None
 
     # Flatten dictionaries
     # TODO: use existing code in soap_api/
+    # TODO: permit is not checked for flattening requirements
+    unit_data = _flatten_dict(unit_data)
+    eeg_data = _flatten_dict(eeg_data)
 
     # merge data
     unit_data_df = pd.DataFrame(unit_data).set_index("EinheitMastrNummer")
 
     # return unit_data
-    return unit_data, eeg_data, kwk_data
+    return units, unit_data, eeg_data, kwk_data
 
 
 def _retrieve_additional_unit_data(units, energy_carrier, mastr_api):
@@ -430,6 +433,79 @@ def _retrieve_additional_unit_data(units, energy_carrier, mastr_api):
             log.info("No KWK data available for unit type {}".format(energy_carrier))
 
     return unit_data, eeg_data, kwk_data
+
+
+def _flatten_dict(data):
+    """
+    Flattens MaStR data dictionary to depth of one
+
+    Parameters
+    ----------
+    data : list of dict
+        Data returned from MaStR-API query
+
+    Returns
+    -------
+    list of dict
+        Flattened data dictionary
+    """
+
+    # The rule describes which of the second-level keys are used to replace first-level data
+    flatten_rule_replace = {
+        'Hausnummer': "Wert",
+        "Kraftwerksnummer": "Wert",
+        "Weic": "Wert",
+        "WeitereBrennstoffe": "Wert",
+        "WeitererHauptbrennstoff": "Wert",
+        "AnlagenkennzifferAnlagenregister": "Wert",
+        "VerhaeltnisErtragsschaetzungReferenzertrag": "Wert",
+        "VerhaeltnisReferenzertragErtrag10Jahre": "Wert",
+        "VerhaeltnisReferenzertragErtrag15Jahre": "Wert",
+        "VerhaeltnisReferenzertragErtrag5Jahre": "Wert",
+    }
+
+    flatten_rule_replace_list = {
+        "VerknuepfteEinheit": "MaStRNummer"
+    }
+
+    flatten_rule_expand = {
+        "Ertuechtigung": "Id"}
+
+    flatten_rule_move_up_and_merge = ["Hersteller"]
+
+    for dic in data:
+        # Replacements with second-level values
+        for k, v in flatten_rule_replace.items():
+            if k in dic.keys():
+                dic[k] = dic[k][v]
+
+        # Replacement with second-level value from second-level list
+        for k, v in flatten_rule_replace_list.items():
+            if k in dic.keys():
+                dic[k] = dic[k][0][v]
+
+        # Expands multiple entries (via list items) to separate new columns (might explode)
+        # Assumes a list of dicts below key (example: Ertuechtigung in hydro power)
+        for k, v in flatten_rule_expand.items():
+            if k in dic.keys():
+                dic.update({k + "_number": len(dic[k])})
+                for sub_data in dic[k]:
+                    sub_data_id = sub_data[v]
+                    for k_sub_data, v_sub_data in sub_data.items():
+                        if k_sub_data != v:
+                            dic.update({k_sub_data + "_" + sub_data_id: v_sub_data})
+
+                # Remove original data
+                dic.pop(k)
+
+        # Join 'Id' with original key to new column
+        # and overwrite original data with 'Wert'
+        for k in flatten_rule_move_up_and_merge:
+            if k in dic.keys():
+                dic.update({k + "Id": dic[k]["Id"]})
+                dic.update({k: dic[k]["Wert"]})
+
+    return data
 
 
 class _MaStRDownloadFactory(type):
