@@ -60,7 +60,8 @@ UNIT_SPECS = {
             "title": "Download biomass power plant unit data",
             "parameters": unit_download_parameters_default},
         "kwk_data": "GetAnlageKwk",
-        "eeg_data": "GetAnlageEegBiomasse"
+        "eeg_data": "GetAnlageEegBiomasse",
+        "permit_data": "GetEinheitGenehmigung"
 
     },
     "combustion": {
@@ -70,6 +71,7 @@ UNIT_SPECS = {
             "title": "Download conventional power plant unit data",
             "parameters": unit_download_parameters_default},
         "kwk_data": "GetAnlageKwk",
+        "permit_data": "GetEinheitGenehmigung"
     },
     "gsgk": {
         "unit_data": "GetEinheitGeoSolarthermieGrubenKlaerschlammDruckentspannung",
@@ -78,7 +80,8 @@ UNIT_SPECS = {
             "title": "Download geo and other power plant unit data",
             "parameters": unit_download_parameters_default},
         "kwk_data": "GetAnlageKwk",
-        "eeg_data": "GetAnlageEegGeoSolarthermieGrubenKlaerschlammDruckentspannung"
+        "eeg_data": "GetAnlageEegGeoSolarthermieGrubenKlaerschlammDruckentspannung",
+        "permit_data": "GetEinheitGenehmigung"
     },
     "nuclear": {
         "unit_data": "GetEinheitKernkraft",
@@ -86,7 +89,8 @@ UNIT_SPECS = {
         "docs": {
             "title": "Download nuclear power plant unit data",
             "parameters": unit_download_parameters_default,
-        }
+        },
+        "permit_data": "GetEinheitGenehmigung"
     },
     "solar": {
         "unit_data": "GetEinheitSolar",
@@ -94,7 +98,8 @@ UNIT_SPECS = {
         "docs": {
             "title": "Download PV power plant unit data",
             "parameters": unit_download_parameters_default},
-        "eeg_data": "GetAnlageEegSolar"
+        "eeg_data": "GetAnlageEegSolar",
+        "permit_data": "GetEinheitGenehmigung"
     },
     "wind": {
         "unit_data": "GetEinheitWind",
@@ -102,7 +107,8 @@ UNIT_SPECS = {
         "docs": {
             "title": "Download wind power plant unit data",
             "parameters": unit_download_parameters_default},
-        "eeg_data": "GetAnlageEegWind"
+        "eeg_data": "GetAnlageEegWind",
+        "permit_data": "GetEinheitGenehmigung"
     },
     "hydro": {
         "unit_data": "GetEinheitWasser",
@@ -110,7 +116,8 @@ UNIT_SPECS = {
         "docs": {
             "title": "Download hydro power plant unit data",
             "parameters": unit_download_parameters_default},
-        "eeg_data": "GetAnlageEegWasser"
+        "eeg_data": "GetAnlageEegWasser",
+        "permit_data": "GetEinheitGenehmigung"
     },
 }
 
@@ -356,27 +363,31 @@ def _unit_data(mastr_api, energy_carrier, unit_mastr_id=[], eeg=True, limit=None
             # Save foreign keys for extra data retrieval
             if "eeg_data" in UNIT_SPECS[energy_carrier]:
                 unit_mastr_id_dict[unit["EinheitMastrNummer"]]["eeg"] = unit["EegMastrNummer"]
-            elif "kwk_data" in UNIT_SPECS[energy_carrier]:
+            if "kwk_data" in UNIT_SPECS[energy_carrier]:
                 unit_mastr_id_dict[unit["EinheitMastrNummer"]]["kwk"] = unit["KwkMastrNummer"]
+            if "permit_data" in UNIT_SPECS[energy_carrier]:
+                unit_mastr_id_dict[unit["EinheitMastrNummer"]]["permit"] = unit["GenMastrNummer"]
 
     # In case a single unit is requested by user
     if not isinstance(unit_mastr_id, list):
         unit_mastr_id = list(unit_mastr_id_dict.keys())
 
     # Get unit data
-    unit_data, eeg_data, kwk_data = _retrieve_additional_unit_data(unit_mastr_id_dict, energy_carrier, mastr_api)
+    unit_data, eeg_data, kwk_data, permit_data = _retrieve_additional_unit_data(unit_mastr_id_dict,
+                                                                                energy_carrier,
+                                                                                mastr_api)
 
     # Flatten dictionaries
-    # TODO: permit is not checked for flattening requirements
     unit_data = _flatten_dict(unit_data)
     eeg_data = _flatten_dict(eeg_data)
     kwk_data = _flatten_dict(kwk_data)
+    permit_data = _flatten_dict(permit_data)
 
     # merge data
     unit_data_df = pd.DataFrame(unit_data).set_index("EinheitMastrNummer")
 
     # return unit_data
-    return units, unit_data, eeg_data, kwk_data
+    return units, unit_data, eeg_data, kwk_data, permit_data
 
 
 def _retrieve_additional_unit_data(units, energy_carrier, mastr_api):
@@ -415,6 +426,7 @@ def _retrieve_additional_unit_data(units, energy_carrier, mastr_api):
     unit_data = []
     eeg_data = []
     kwk_data = []
+    permit_data = []
     for unit_id, data_ext in units.items():
         # TODO: If such exception handling is required for eeg, kwk, permit data as well, then generalize it and considere to move it to MaStRAPI()
         try:
@@ -440,7 +452,15 @@ def _retrieve_additional_unit_data(units, energy_carrier, mastr_api):
         else:
             log.info("No KWK data available for unit type {}".format(energy_carrier))
 
-    return unit_data, eeg_data, kwk_data
+        # Get unit permit data
+        if "permit" in data_ext.keys() and data_ext["permit"] is not None:
+            permit_data.append(mastr_api.__getattribute__(UNIT_SPECS[energy_carrier]["permit_data"])(
+                genMastrNummer=data_ext["permit"])
+            )
+        else:
+            log.info("No permit data available for unit type {}".format(energy_carrier))
+
+    return unit_data, eeg_data, kwk_data, permit_data
 
 
 def _flatten_dict(data):
@@ -473,10 +493,13 @@ def _flatten_dict(data):
         "RegistrierungsnummerPvMeldeportal": "Wert",
         "BiogasGaserzeugungskapazitaet": "Wert",
         "BiomethanErstmaligerEinsatz": "Wert",
+        "Frist": "Wert",
+        "WasserrechtAblaufdatum": "Wert",
     }
 
     flatten_rule_replace_list = {
-        "VerknuepfteEinheit": "MaStRNummer"
+        "VerknuepfteEinheit": "MaStRNummer",
+        "VerknuepfteEinheiten": "MaStRNummer"
     }
 
     flatten_rule_expand = {
