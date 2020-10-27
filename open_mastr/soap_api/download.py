@@ -462,6 +462,9 @@ def _flatten_dict(data):
         "VerhaeltnisReferenzertragErtrag10Jahre": "Wert",
         "VerhaeltnisReferenzertragErtrag15Jahre": "Wert",
         "VerhaeltnisReferenzertragErtrag5Jahre": "Wert",
+        "RegistrierungsnummerPvMeldeportal": "Wert",
+        "BiogasGaserzeugungskapazitaet": "Wert",
+        "BiomethanErstmaligerEinsatz": "Wert",
     }
 
     flatten_rule_replace_list = {
