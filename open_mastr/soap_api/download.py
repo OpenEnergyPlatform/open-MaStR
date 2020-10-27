@@ -59,7 +59,7 @@ UNIT_SPECS = {
             "title": "Download biomass power plant unit data",
             "parameters": unit_download_parameters_default},
         "kwk_data": "GetAnlageKwk",
-        "eeg_data": "GetAnlageEegWind"
+        "eeg_data": "GetAnlageEegBiomasse"
 
     },
     "combustion": {
@@ -71,13 +71,13 @@ UNIT_SPECS = {
         "kwk_data": "GetAnlageKwk",
     },
     "gsgk": {
-        "unit_data": "GetEinheitGeoSolarthermieGrubenKlaerschlamm",
+        "unit_data": "GetEinheitGeoSolarthermieGrubenKlaerschlammDruckentspannung",
         "energietraeger": ["Geothermie", "Solarthermie", "Grubengas", "Klaerschlamm"],
         "docs": {
             "title": "Download geo and other power plant unit data",
             "parameters": unit_download_parameters_default},
         "kwk_data": "GetAnlageKwk",
-        "eeg_data": "GetAnlageEegGeoSolarthermieGrubenKlaerschlamm"
+        "eeg_data": "GetAnlageEegGeoSolarthermieGrubenKlaerschlammDruckentspannung"
     },
     "nuclear": {
         "unit_data": "GetEinheitKernkraft",
