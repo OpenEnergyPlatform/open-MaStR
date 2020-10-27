@@ -6,6 +6,7 @@ from zeep.transports import Transport
 import requests
 import logging
 import pandas as pd
+from zeep.exceptions import XMLParseError
 
 from open_mastr.utils import credentials as cred
 
@@ -366,10 +367,10 @@ def _unit_data(mastr_api, energy_carrier, unit_mastr_id=[], eeg=True, limit=None
     unit_data, eeg_data, kwk_data = _retrieve_additional_unit_data(unit_mastr_id_dict, energy_carrier, mastr_api)
 
     # Flatten dictionaries
-    # TODO: use existing code in soap_api/
     # TODO: permit is not checked for flattening requirements
     unit_data = _flatten_dict(unit_data)
     eeg_data = _flatten_dict(eeg_data)
+    kwk_data = _flatten_dict(kwk_data)
 
     # merge data
     unit_data_df = pd.DataFrame(unit_data).set_index("EinheitMastrNummer")
@@ -409,12 +410,19 @@ def _retrieve_additional_unit_data(units, energy_carrier, mastr_api):
                 [permit_unit_data_dict1, permit_unit_data_dict2, ...]
                 )
     """
+
     # Get unit data
     unit_data = []
     eeg_data = []
     kwk_data = []
     for unit_id, data_ext in units.items():
-        unit_data.append(mastr_api.__getattribute__(UNIT_SPECS[energy_carrier]["unit_data"])(einheitMastrNummer=unit_id))
+        # TODO: If such exception handling is required for eeg, kwk, permit data as well, then generalize it and considere to move it to MaStRAPI()
+        try:
+            unit_data.append(mastr_api.__getattribute__(UNIT_SPECS[energy_carrier]["unit_data"])(einheitMastrNummer=unit_id))
+        except XMLParseError as e:
+            log.exception(
+                f"Failed to download unit data for {energy_carrier} {unit_id} because of SOAP API exception: {e}",
+                exc_info=False)
 
         # Get unit EEG data
         if "eeg" in data_ext.keys() and data_ext["eeg"] is not None:
