@@ -210,7 +210,21 @@ class MaStRAPI(object):
         def wrapper(*args, **kwargs):
             kwargs.setdefault("apiKey", self._key)
             kwargs.setdefault("marktakteurMastrNummer", self._user)
-            return serialize_object(soap_func(*args, **kwargs), target_cls=dict)
+
+            # Catch weird MaStR SOAP response
+            try:
+                response = soap_func(*args, **kwargs)
+            except Fault as e:
+                log.warning(f"MaStR SOAP API gives a weird response: {e}. Trying again...")
+                time.sleep(1.5)
+                try:
+                    response = soap_func(*args, **kwargs)
+                except Fault as e:
+                    log.exception(f"MaStR SOAP API still gives a weird response: '{e}'.\n"
+                                  "We have to stop the program!")
+                    exit(0)
+
+            return serialize_object(response, target_cls=dict)
 
         return wrapper
 
