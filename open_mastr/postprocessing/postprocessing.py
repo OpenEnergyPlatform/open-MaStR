@@ -219,8 +219,8 @@ def import_bnetz_mastr_csv():
             if os.path.isfile(csv_file):
                 # Read CSV file
                 csv_data = pd.read_csv(csv_file,
-                                       index_col="lid",
-                                       sep=";")
+                                       index_col="EinheitMastrNummer",
+                                       sep=",")
 
                 # Create 'geom' column from lat/lon
                 gdf = add_geom_col(csv_data)

@@ -12,7 +12,8 @@ __author__  = "Ludwig Hülk"
 */
 
 ALTER TABLE model_draft.bnetza_mastr_hydro_clean
-    ADD PRIMARY KEY (lid),
+    ADD COLUMN id SERIAL,
+    ADD PRIMARY KEY (id),
     ADD COLUMN "comment" text;
 
 ALTER TABLE model_draft.bnetza_mastr_hydro_clean
@@ -48,13 +49,13 @@ UPDATE  model_draft.bnetza_mastr_hydro_clean AS t1
     UPDATE  model_draft.bnetza_mastr_hydro_clean AS t1
     SET     comment =  COALESCE(comment, '') || 'inside_vg250; '
     FROM    (
-        SELECT  m.lid AS id
+        SELECT  m.id AS id
         FROM    boundaries.bkg_vg250_1_sta_union_mview AS vg,
                 model_draft.bnetza_mastr_hydro_clean AS m
         WHERE   m.geom && ST_TRANSFORM(vg.geom,4326) AND
                 ST_CONTAINS(ST_TRANSFORM(vg.geom,4326),m.geom)
         ) AS t2
-    WHERE   t1.lid = t2.id;
+    WHERE   t1.id = t2.id;
 
 
 -- Punkte außerhalb
@@ -93,15 +94,15 @@ FROM model_draft.bnetza_mastr_hydro_clean
 GROUP BY "Technologie";
 
 -- Analyze Wasser
-SELECT  "HerstellerID", "HerstellerName", COUNT(*) AS cnt
+SELECT  "HerstellerId", "Hersteller", COUNT(*) AS cnt
 FROM model_draft.bnetza_mastr_hydro_clean
-GROUP BY "HerstellerID","HerstellerName"
+GROUP BY "HerstellerId","Hersteller"
 ORDER BY COUNT(*) DESC;
 
 -- Analyze Wasser
-SELECT  "HerstellerID", "HerstellerName", "Typenbezeichnung", COUNT(*) AS cnt
+SELECT  "HerstellerId", "Hersteller", "Typenbezeichnung", COUNT(*) AS cnt
 FROM model_draft.bnetza_mastr_hydro_clean
-GROUP BY "HerstellerID","HerstellerName", "Typenbezeichnung"
+GROUP BY "HerstellerId","Hersteller", "Typenbezeichnung"
 ORDER BY COUNT(*) DESC;
 
 
