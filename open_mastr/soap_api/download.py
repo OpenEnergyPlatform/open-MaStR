@@ -577,6 +577,8 @@ def _flatten_dict(data):
             if k in dic.keys():
                 if dic[k] == []:
                     dic[k] = None
+                else:
+                    dic[k] = ",".join(dic[k])
 
     return data
 
