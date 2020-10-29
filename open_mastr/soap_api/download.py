@@ -413,6 +413,9 @@ def _unit_data(mastr_api, energy_carrier, unit_mastr_id=[], eeg=True, limit=None
         if dat:
             joined_data = joined_data.join(pd.DataFrame(dat).set_index(idx_col), rsuffix=suf)
 
+    # Remove duplicates
+    joined_data.drop_duplicates(inplace=True)
+
     to_csv(joined_data, energy_carrier)
 
 
@@ -533,6 +536,10 @@ def _flatten_dict(data):
 
     flatten_rule_move_up_and_merge = ["Hersteller"]
 
+    flatten_rule_none_if_empty_list = ["ArtDerFlaeche",
+                                       "WeitereBrennstoffe",
+                                       "VerknuepfteErzeugungseinheiten"]
+
     for dic in data:
         # Replacements with second-level values
         for k, v in flatten_rule_replace.items():
@@ -564,6 +571,12 @@ def _flatten_dict(data):
             if k in dic.keys():
                 dic.update({k + "Id": dic[k]["Id"]})
                 dic.update({k: dic[k]["Wert"]})
+
+        # Avoid empty lists as values
+        for k in flatten_rule_none_if_empty_list:
+            if k in dic.keys():
+                if dic[k] == []:
+                    dic[k] = None
 
     return data
 
