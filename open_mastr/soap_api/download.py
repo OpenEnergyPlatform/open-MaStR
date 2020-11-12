@@ -360,6 +360,30 @@ def to_csv(df, technology):
     df.to_csv(csv_file, index=True, index_label="EinheitMastrNummer", encoding='utf-8')
 
 
+def _missed_units_to_file(technology, data_type, missed_units):
+    """
+    Write IDs of missed units to file
+
+    Parameters
+    ----------
+    technology : str
+        Technology, see :meth:`MaStRDownload.download_power_plants`
+    data_type : str
+        Which type of additional data. Options: 'extended', 'eeg', 'kwk', 'permit'
+    missed_units : list
+        Unit IDs of missed data
+    """
+
+    DATA_VERSION = get_data_config()["data_version"]
+    DATA_PATH = os.path.join(get_project_home_dir(), "data", DATA_VERSION)
+    filenames = get_filenames()
+    missed_units_file = os.path.join(DATA_PATH, filenames["raw"][technology][f"{data_type}_fail"])
+
+    with open(missed_units_file, 'w') as f:
+        for item in missed_units:
+            f.write(f"{item}\n")
+
+
 class _MaStRDownloadFactory(type):
     def __new__(cls, name, bases, dct):
         # Assign factory properties to concrete object
@@ -492,6 +516,37 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         kwk_data, kwk_missed = self._additional_data(technology, kwk_ids, "_kwk_unit_data")
         permit_data, permit_missed = self._additional_data(technology, permit_ids, "_permit_unit_data")
 
+
+        # Retry missed additional unit data
+        if extended_missed:
+            extended_data_retry, extended_missed_retry = self._retry_missed_additional_data(
+                technology,
+                extended_missed,
+                "_extended_unit_data")
+            extended_data.extend(extended_data_retry)
+            _missed_units_to_file(technology, "extended", extended_missed_retry)
+        if eeg_missed:
+            eeg_data_retry, eeg_missed_retry = self._retry_missed_additional_data(
+                technology,
+                eeg_missed,
+                "_eeg_unit_data")
+            eeg_data.extend(eeg_data_retry)
+            _missed_units_to_file(technology, "eeg", eeg_missed_retry)
+        if kwk_missed:
+            kwk_data_retry, kwk_missed_retry = self._retry_missed_additional_data(
+                technology,
+                kwk_missed,
+                "_kwk_unit_data")
+            kwk_data.extend(kwk_data_retry)
+            _missed_units_to_file(technology, "kwk", kwk_missed_retry)
+        if permit_missed:
+            permit_data_retry, permit_missed_retry = self._retry_missed_additional_data(
+                technology,
+                permit_missed,
+                "_permit_unit_data")
+            permit_data.extend(permit_data_retry)
+            _missed_units_to_file(technology, "permit", permit_missed_retry)
+
         # Flatten data
         extended_data = _flatten_dict(extended_data)
         eeg_data = _flatten_dict(eeg_data)
@@ -567,7 +622,7 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
             # Download data unit data
             for args in prepared_args:
                 data_tmp.append(pool.apply_async(self.__getattribute__(data_fcn), args))
-                time.sleep(0.1)
+                # time.sleep(0.1)
 
             # Retrieve data
             data = []
@@ -577,9 +632,9 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
                                      desc=f"Downloading{data_fcn} ({technology})".replace("_", " "),
                                      unit="unit"):
                 try:
-                    data.append(res.get())
-                except requests.exceptions.ConnectionError as e:
-                    # log.exception(f"Connection aborted: {e}")
+                    data.append(res.get(timeout=1))
+                except (requests.exceptions.ConnectionError, multiprocessing.context.TimeoutError) as e:
+                    log.debug(f"Connection aborted: {e}")
                     data_missed.append(unit_id)
 
         return data, data_missed
@@ -618,7 +673,25 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
 
         return permit_data
 
+    def _retry_missed_additional_data(self, technology, missed_ids, data_fcn, retries=3):
 
+        log.info(f"Retrying to download additional data for {len(missed_ids)} "
+                 f"{technology} units with {retries} retries")
+
+        data = []
+
+        missed_ids_remaining = missed_ids
+        for retry in range(1, retries + 1):
+            data_tmp, missed_ids_tmp = self._additional_data(
+                technology, missed_ids_remaining, data_fcn)
+            if data_tmp:
+                data.extend(data_tmp)
+            missed_ids_remaining = missed_ids_tmp
+
+            if not missed_ids_remaining:
+                break
+
+        return data, missed_ids_remaining
 
 
 if __name__ == "__main__":

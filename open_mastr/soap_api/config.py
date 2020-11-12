@@ -123,8 +123,8 @@ def _filenames_generator():
         # Additional data available for certain technologies
         type_specific_data = {
             "eeg": ["wind", "hydro", "solar", "biomass", "gsgk", "storage"],
-            "kwk": ["combustion"],
-            "permit": ["wind"]
+            "kwk": ["combustion", "biomass", "gsgk"],
+            "permit": ["wind", "biomass", "combustion", "gsgk", "nuclear", "solar", "hydro"]
         }
 
         # Template for file names
