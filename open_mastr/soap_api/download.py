@@ -4,9 +4,12 @@ from zeep import Client, Settings
 from zeep.cache import SqliteCache
 from zeep.transports import Transport
 import requests
+from itertools import product
 import logging
 import pandas as pd
+import multiprocessing
 import time
+from tqdm import tqdm
 from zeep.exceptions import XMLParseError, Fault
 import os
 
@@ -54,75 +57,6 @@ unit_doc_template = '\n' \
                     '    Unit data : `dict`\n' \
                     '\n' \
                     '    '
-
-UNIT_SPECS = {
-    "biomass": {
-        "unit_data": "GetEinheitBiomasse",
-        "energietraeger": ["Biomasse"],
-        "docs": {
-            "title": "Download biomass power plant unit data",
-            "parameters": unit_download_parameters_default},
-        "kwk_data": "GetAnlageKwk",
-        "eeg_data": "GetAnlageEegBiomasse",
-        "permit_data": "GetEinheitGenehmigung"
-
-    },
-    "combustion": {
-        "unit_data": "GetEinheitVerbrennung",
-        "energietraeger": ["Steinkohle", "Braunkohle", "Erdgas", "AndereGase", "Mineraloelprodukte", "NichtBiogenerAbfall", "Waerme"],
-        "docs": {
-            "title": "Download conventional power plant unit data",
-            "parameters": unit_download_parameters_default},
-        "kwk_data": "GetAnlageKwk",
-        "permit_data": "GetEinheitGenehmigung"
-    },
-    "gsgk": {
-        "unit_data": "GetEinheitGeoSolarthermieGrubenKlaerschlammDruckentspannung",
-        "energietraeger": ["Geothermie", "Solarthermie", "Grubengas", "Klaerschlamm"],
-        "docs": {
-            "title": "Download geo and other power plant unit data",
-            "parameters": unit_download_parameters_default},
-        "kwk_data": "GetAnlageKwk",
-        "eeg_data": "GetAnlageEegGeoSolarthermieGrubenKlaerschlammDruckentspannung",
-        "permit_data": "GetEinheitGenehmigung"
-    },
-    "nuclear": {
-        "unit_data": "GetEinheitKernkraft",
-        "energietraeger": ["Kernenergie"],
-        "docs": {
-            "title": "Download nuclear power plant unit data",
-            "parameters": unit_download_parameters_default,
-        },
-        "permit_data": "GetEinheitGenehmigung"
-    },
-    "solar": {
-        "unit_data": "GetEinheitSolar",
-        "energietraeger": ["SolareStrahlungsenergie"],
-        "docs": {
-            "title": "Download PV power plant unit data",
-            "parameters": unit_download_parameters_default},
-        "eeg_data": "GetAnlageEegSolar",
-        "permit_data": "GetEinheitGenehmigung"
-    },
-    "wind": {
-        "unit_data": "GetEinheitWind",
-        "energietraeger": ["Wind"],
-        "docs": {
-            "title": "Download wind power plant unit data",
-            "parameters": unit_download_parameters_default},
-        "eeg_data": "GetAnlageEegWind",
-        "permit_data": "GetEinheitGenehmigung"
-    },
-    "hydro": {
-        "unit_data": "GetEinheitWasser",
-        "energietraeger": ["Wasser"],
-        "docs": {
-            "title": "Download hydro power plant unit data",
-            "parameters": unit_download_parameters_default},
-        "eeg_data": "GetAnlageEegWasser",
-        "permit_data": "GetEinheitGenehmigung"
-    },
-}
 
 
 class MaStRAPI(object):
@@ -325,173 +259,6 @@ def _mastr_suppress_parsing_errors(which_errors):
                         [f for f in error_filters if f.name in which_errors])
 
 
-def _build_docstring(ec):
-    unit_docstring = unit_doc_template.format(
-        title=UNIT_SPECS[ec]["docs"]["title"],
-        description=UNIT_SPECS[ec]["docs"].get("description", ""),
-        parameters=unit_download_parameters_common
-    )
-    return unit_docstring
-
-
-def _unit_data_wrapper(unit_data_func, mastr_api, name):
-    """
-    Wraps around _unit_data() and passes parameters for each unit type
-    """
-
-    @wraps(unit_data_func)
-    def unit_data_creator(*args, **kwargs):
-        # return unit_data_func(*args, **kwargs)
-        return unit_data_func(mastr_api, name, **kwargs)
-
-    return unit_data_creator
-
-
-def _unit_data(mastr_api, energy_carrier, unit_mastr_id=[], eeg=True, limit=None):
-    """
-    Download data for  a specific type of energy carrier
-
-    Parameters
-    ----------
-    mastr_api : :class:`.MaStRAPI()`
-        Low-level download API
-    energy_carrier : str
-        Retrieve unit data per type of energy carrier.
-    unit_mastr_id : str, optional
-    limit : str, optional
-
-    Returns
-    -------
-
-    """
-
-    # In case no unit mastr id is specified, get list of all units and download data
-    if not unit_mastr_id:
-        # units = []
-        for et in UNIT_SPECS[energy_carrier]["energietraeger"]:
-            units = mastr_api.GetGefilterteListeStromErzeuger(
-                energietraeger=et,
-                limit=limit)["Einheiten"]
-
-        unit_mastr_id_dict = {}
-        for unit in units:
-            unit_mastr_id_dict[unit["EinheitMastrNummer"]] = {}
-
-            # Save foreign keys for extra data retrieval
-            if "eeg_data" in UNIT_SPECS[energy_carrier]:
-                unit_mastr_id_dict[unit["EinheitMastrNummer"]]["eeg"] = unit["EegMastrNummer"]
-            if "kwk_data" in UNIT_SPECS[energy_carrier]:
-                unit_mastr_id_dict[unit["EinheitMastrNummer"]]["kwk"] = unit["KwkMastrNummer"]
-            if "permit_data" in UNIT_SPECS[energy_carrier]:
-                unit_mastr_id_dict[unit["EinheitMastrNummer"]]["permit"] = unit["GenMastrNummer"]
-
-    # In case a single unit is requested by user
-    if not isinstance(unit_mastr_id, list):
-        unit_mastr_id = list(unit_mastr_id_dict.keys())
-
-    # Get unit data
-    unit_data, eeg_data, kwk_data, permit_data = _retrieve_additional_unit_data(unit_mastr_id_dict,
-                                                                                energy_carrier,
-                                                                                mastr_api)
-
-    # Flatten dictionaries
-    unit_data = _flatten_dict(unit_data)
-    eeg_data = _flatten_dict(eeg_data)
-    kwk_data = _flatten_dict(kwk_data)
-    permit_data = _flatten_dict(permit_data)
-
-    # Join data to a single dataframe
-    idx_cols = [(units, "EinheitMastrNummer", ""),
-                (unit_data, "EinheitMastrNummer", "_unit"),
-                (eeg_data, "VerknuepfteEinheit", "_eeg"),
-                (kwk_data, "VerknuepfteEinheiten", "_kwk"),
-                (permit_data, "VerknuepfteEinheiten", "_permit")]
-
-    joined_data = pd.DataFrame(idx_cols[0][0]).set_index(idx_cols[0][1])
-
-    for dat, idx_col, suf in idx_cols[1:]:
-        if dat:
-            joined_data = joined_data.join(pd.DataFrame(dat).set_index(idx_col), rsuffix=suf)
-
-    # Remove duplicates
-    joined_data.drop_duplicates(inplace=True)
-
-    to_csv(joined_data, energy_carrier)
-
-
-def _retrieve_additional_unit_data(units, energy_carrier, mastr_api):
-    """
-    Retrieve addtional informations about units
-
-    Extended information on units is available. Depending on type, additional data from EEG and KWK subsidy program
-    are available. Furthermore, for wind energy converters, data about permit is retrievable.
-
-    Parameters
-    ----------
-    units : dict
-        Keyed by MaStR-Nummer with optional sub-keys 'eeg', 'kwk', 'permit'. Each having the respective identifier as 
-        value
-    energy_carrier : str
-        Retrieve unit data per type of energy carrier.
-    mastr_api : :class:`.MaStRAPI()`
-        Low-level download API
-
-    Returns
-    -------
-    tuple of list of dict
-        Returns additional data in dictionaries that are packed into a tuple. Format
-        
-        .. code-block:: python
-        
-           return = (
-                [additional_unit_data_dict1, additional_unit_data_dict2, ...],
-                [eeg_unit_data_dict1, eeg_unit_data_dict2, ...],
-                [kwk_unit_data_dict1, kwk_unit_data_dict2, ...],
-                [permit_unit_data_dict1, permit_unit_data_dict2, ...]
-                )
-    """
-
-    # Get unit data
-    unit_data = []
-    eeg_data = []
-    kwk_data = []
-    permit_data = []
-    for unit_id, data_ext in units.items():
-        # TODO: If such exception handling is required for eeg, kwk, permit data as well, then generalize it and considere to move it to MaStRAPI()
-        try:
-            unit_data.append(mastr_api.__getattribute__(UNIT_SPECS[energy_carrier]["unit_data"])(einheitMastrNummer=unit_id))
-        except XMLParseError as e:
-            log.exception(
-                f"Failed to download unit data for {energy_carrier} {unit_id} because of SOAP API exception: {e}",
-                exc_info=False)
-
-        # Get unit EEG data
-        if "eeg" in data_ext.keys() and data_ext["eeg"] is not None:
-            eeg_data.append(mastr_api.__getattribute__(UNIT_SPECS[energy_carrier]["eeg_data"])(
-                eegMastrNummer=data_ext["eeg"])
-            )
-        else:
-            log.info("No EEG data available for unit type {}".format(energy_carrier))
-
-        # Get unit KWK data
-        if "kwk" in data_ext.keys() and data_ext["kwk"] is not None:
-            kwk_data.append(mastr_api.__getattribute__(UNIT_SPECS[energy_carrier]["kwk_data"])(
-                kwkMastrNummer=data_ext["kwk"])
-            )
-        else:
-            log.info("No KWK data available for unit type {}".format(energy_carrier))
-
-        # Get unit permit data
-        if "permit" in data_ext.keys() and data_ext["permit"] is not None:
-            permit_data.append(mastr_api.__getattribute__(UNIT_SPECS[energy_carrier]["permit_data"])(
-                genMastrNummer=data_ext["permit"])
-            )
-        else:
-            log.info("No permit data available for unit type {}".format(energy_carrier))
-
-    return unit_data, eeg_data, kwk_data, permit_data
-
-
 def _flatten_dict(data):
     """
     Flattens MaStR data dictionary to depth of one
@@ -601,14 +368,6 @@ class _MaStRDownloadFactory(type):
         # Assign mastr_api
         x._mastr_api = MaStRAPI()
 
-        for ec in UNIT_SPECS.keys():
-            # Define methods
-            setattr(x, ec, _unit_data_wrapper(_unit_data, x._mastr_api, ec))
-
-            # Define docstring for method
-            docstring = _build_docstring(ec)
-            getattr(x, ec).__doc__ = docstring
-
         return x
 
 
@@ -638,12 +397,231 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
     """
 
     def __init__(self):
-        """Init docstring"""
-        pass
+
+        # Specify which additional data for each unit type is available
+        # and which SOAP service has to be used to query it
+        self._unit_data_specs = {
+            "biomass": {
+                "unit_data": "GetEinheitBiomasse",
+                "energietraeger": ["Biomasse"],
+                "kwk_data": "GetAnlageKwk",
+                "eeg_data": "GetAnlageEegBiomasse",
+                "permit_data": "GetEinheitGenehmigung"
+
+            },
+            "combustion": {
+                "unit_data": "GetEinheitVerbrennung",
+                "energietraeger": ["Steinkohle", "Braunkohle", "Erdgas", "AndereGase", "Mineraloelprodukte",
+                                   "NichtBiogenerAbfall", "Waerme"],
+                "kwk_data": "GetAnlageKwk",
+                "permit_data": "GetEinheitGenehmigung"
+            },
+            "gsgk": {
+                "unit_data": "GetEinheitGeoSolarthermieGrubenKlaerschlammDruckentspannung",
+                "energietraeger": ["Geothermie", "Solarthermie", "Grubengas", "Klaerschlamm"],
+                "kwk_data": "GetAnlageKwk",
+                "eeg_data": "GetAnlageEegGeoSolarthermieGrubenKlaerschlammDruckentspannung",
+                "permit_data": "GetEinheitGenehmigung"
+            },
+            "nuclear": {
+                "unit_data": "GetEinheitKernkraft",
+                "energietraeger": ["Kernenergie"],
+                "permit_data": "GetEinheitGenehmigung"
+            },
+            "solar": {
+                "unit_data": "GetEinheitSolar",
+                "energietraeger": ["SolareStrahlungsenergie"],
+                "eeg_data": "GetAnlageEegSolar",
+                "permit_data": "GetEinheitGenehmigung"
+            },
+            "wind": {
+                "unit_data": "GetEinheitWind",
+                "energietraeger": ["Wind"],
+                "eeg_data": "GetAnlageEegWind",
+                "permit_data": "GetEinheitGenehmigung"
+            },
+            "hydro": {
+                "unit_data": "GetEinheitWasser",
+                "energietraeger": ["Wasser"],
+                "eeg_data": "GetAnlageEegWasser",
+                "permit_data": "GetEinheitGenehmigung"
+            },
+        }
+
+    def download_power_plants(self, technology, limit=None):
+        """
+
+        Parameters
+        ----------
+        technology
+        limit
+
+        Returns
+        -------
+        pd.DataFrame
+            Joined data tables
+        """
+
+        # Retrieve basic power plant unit data
+        units = self._basic_unit_data(technology, limit)
+
+        # Prepare list of unit ID for different additional data (extended, eeg, kwk, permit)
+        mastr_ids = [basic['EinheitMastrNummer'] for basic in units]
+
+        # Prepare list of EEG data unit IDs
+        if "eeg_data" in self._unit_data_specs[technology].keys():
+            eeg_ids = [basic['EegMastrNummer'] for basic in units if basic['EegMastrNummer']]
+        else:
+            eeg_ids = []
+
+        # Prepare list of KWK data unit IDs
+        if "kwk_data" in self._unit_data_specs[technology].keys():
+            kwk_ids = [basic['KwkMastrNummer'] for basic in units if basic['KwkMastrNummer']]
+        else:
+            kwk_ids = []
+
+        # Prepare list of permit data unit IDs
+        if "permit_data" in self._unit_data_specs[technology].keys():
+            permit_ids = [basic['GenMastrNummer'] for basic in units if basic['GenMastrNummer']]
+        else:
+            permit_ids = []
+
+        # Download additional data for unit
+        extended_data, extended_missed = self._additional_data(technology, mastr_ids, "_extended_unit_data")
+        eeg_data, eeg_missed = self._additional_data(technology, eeg_ids, "_eeg_unit_data")
+        kwk_data, kwk_missed = self._additional_data(technology, kwk_ids, "_kwk_unit_data")
+        permit_data, permit_missed = self._additional_data(technology, permit_ids, "_permit_unit_data")
+
+        # Flatten data
+        extended_data = _flatten_dict(extended_data)
+        eeg_data = _flatten_dict(eeg_data)
+        kwk_data = _flatten_dict(kwk_data)
+        permit_data = _flatten_dict(permit_data)
+
+        # Join data to a single dataframe
+        idx_cols = [(units, "EinheitMastrNummer", ""),
+                    (extended_data, "EinheitMastrNummer", "_unit"),
+                    (eeg_data, "VerknuepfteEinheit", "_eeg"),
+                    (kwk_data, "VerknuepfteEinheiten", "_kwk"),
+                    (permit_data, "VerknuepfteEinheiten", "_permit")
+                    ]
+
+        joined_data = pd.DataFrame(idx_cols[0][0]).set_index(idx_cols[0][1])
+
+        for dat, idx_col, suf in idx_cols[1:]:
+            # Make sure at least on non-empty dict is in dat
+            if any(dat):
+                joined_data = joined_data.join(pd.DataFrame(dat).set_index(idx_col), rsuffix=suf)
+
+        # Remove duplicates
+        joined_data.drop_duplicates(inplace=True)
+
+        to_csv(joined_data, technology)
+
+        return joined_data
+
+    def _basic_unit_data(self, technology, limit):
+
+        for et in self._unit_data_specs[technology]["energietraeger"]:
+            log.info(f"Get list of units with basic information for technology {technology} ({et})")
+            units = self._mastr_api.GetGefilterteListeStromErzeuger(
+                energietraeger=et,
+                limit=limit)["Einheiten"]
+        return units
+
+    def _additional_data(self, technology, unit_ids, data_fcn):
+        """
+        Retrieve addtional informations about units.
+
+        Extended information on units is available. Depending on type, additional data from EEG and KWK subsidy program
+        are available. Furthermore, for some units, data about permit is retrievable.
+
+        Parameters
+        ----------
+        technology : str
+            Technology, see :meth:`MaStRDownload.download_power_plants`
+        unit_ids : list
+            Unit identifier for additional data
+        data_fcn : str
+            Name of method from :class:`MaStRDownload` to be used for querying additional data
+
+        Returns
+        -------
+        tuple of list of dict or str
+            Returns additional data in dictionaries that are packed into a list. Format
+
+            .. code-block:: python
+
+               return = (
+                    [additional_unit_data_dict1, additional_unit_data_dict2, ...],
+                    [missed_unit1, missed_unit2, ...]
+                    )
+        """
+        prepared_args = list(product(unit_ids, [technology]))
+
+        with multiprocessing.Pool() as pool:
+
+            # Apply extended data download functions
+            data_tmp = []
+
+            # Download data unit data
+            for args in prepared_args:
+                data_tmp.append(pool.apply_async(self.__getattribute__(data_fcn), args))
+                time.sleep(0.1)
+
+            # Retrieve data
+            data = []
+            data_missed = []
+            for res, unit_id in tqdm(zip(data_tmp, unit_ids),
+                                     total=len(prepared_args),
+                                     desc=f"Downloading{data_fcn} ({technology})".replace("_", " "),
+                                     unit="unit"):
+                try:
+                    data.append(res.get())
+                except requests.exceptions.ConnectionError as e:
+                    # log.exception(f"Connection aborted: {e}")
+                    data_missed.append(unit_id)
+
+        return data, data_missed
+
+    def _extended_unit_data(self, mastr_id, technology):
+        # print(f"Downoading additional unit data for {mastr_id} (technology: {specs})")
+
+        try:
+            unit_data = self._mastr_api.__getattribute__(
+                self._unit_data_specs[technology]["unit_data"])(einheitMastrNummer=mastr_id)
+        except XMLParseError as e:
+            log.exception(
+                f"Failed to download unit data for {mastr_id} because of SOAP API exception: {e}",
+                exc_info=False)
+            unit_data = {}
+
+        return unit_data
+
+    def _eeg_unit_data(self, eeg_id, technology):
+
+        eeg_data = self._mastr_api.__getattribute__(
+            self._unit_data_specs[technology]["eeg_data"])(eegMastrNummer=eeg_id)
+
+        return eeg_data
+
+    def _kwk_unit_data(self, kwk_id, technology):
+
+        kwk_data = self._mastr_api.__getattribute__(
+            self._unit_data_specs[technology]["kwk_data"])(kwkMastrNummer=kwk_id)
+
+        return kwk_data
+
+    def _permit_unit_data(self, permit_id, technology):
+        permit_data = self._mastr_api.__getattribute__(
+            self._unit_data_specs[technology]["permit_data"])(genMastrNummer=permit_id)
+
+        return permit_data
+
+
 
 
 if __name__ == "__main__":
     pass
-
 
 # TODO: Pass through kargs to _unit_data() that are possible to use with GetGefilterteListeStromErzeuger() and mention in docs
