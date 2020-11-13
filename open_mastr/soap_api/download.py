@@ -474,6 +474,8 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         pd.DataFrame
             Joined data tables
         """
+        # Check requests contingent
+        self.daily_contingent()
 
         # Retrieve basic power plant unit data
         units = self._basic_unit_data(technology, limit)
@@ -791,6 +793,12 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
                 break
 
         return data, missed_ids_remaining
+
+    def daily_contingent(self):
+        contingent = self._mastr_api.GetAktuellerStandTageskontingent()
+        log.info(f"Daily requests contigent: "
+                 f"{contingent['AktuellerStandTageskontingent']} "
+                 f"/ {contingent['AktuellesLimitTageskontingent']}")
 
 
 if __name__ == "__main__":
