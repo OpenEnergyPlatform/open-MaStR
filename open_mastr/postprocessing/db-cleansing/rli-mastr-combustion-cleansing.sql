@@ -12,6 +12,8 @@ __author__  = "Ludwig Hülk"
 */
 
 ALTER TABLE model_draft.bnetza_mastr_combustion_clean
+    ADD COLUMN id SERIAL,
+    ADD PRIMARY KEY (id),
     ADD COLUMN "comment" text;
 
 ALTER TABLE model_draft.bnetza_mastr_combustion_clean
@@ -56,13 +58,13 @@ UPDATE  model_draft.bnetza_mastr_combustion_clean AS t1
 UPDATE  model_draft.bnetza_mastr_combustion_clean AS t1
     SET     comment =  COALESCE(comment, '') || 'inside_vg250; '
     FROM    (
-        SELECT  m.lid AS id
+        SELECT  m.id AS id
         FROM    boundaries.bkg_vg250_1_sta_union_mview AS vg,
                 model_draft.bnetza_mastr_combustion_clean AS m
         WHERE   m.geom && ST_TRANSFORM(vg.geom,4326) AND
                 ST_CONTAINS(ST_TRANSFORM(vg.geom,4326),m.geom)
         ) AS t2
-    WHERE   t1.lid = t2.id;
+    WHERE   t1.id = t2.id;
 
 
 -- Punkte außerhalb
@@ -133,7 +135,7 @@ GROUP BY "Technologie";
 -- Create a reduced version
 DROP TABLE IF EXISTS model_draft.bnetza_mastr_combustion_clean_reduced CASCADE;
 CREATE TABLE         model_draft.bnetza_mastr_combustion_clean_reduced AS
-    SELECT  "lid",
+    SELECT  "id",
             "EinheitMastrNummer",
             "Bruttoleistung",
             "EinheitBetriebsstatus",
@@ -141,8 +143,6 @@ CREATE TABLE         model_draft.bnetza_mastr_combustion_clean_reduced AS
             "EegMastrNummer",
             "KwkMastrNummer",
             "GenMastrNummer",
-            "version",
-            "timestamp",
             "Ergebniscode",
             "DatumLetzteAktualisierung",
             "LokationMastrNummer",
@@ -170,31 +170,30 @@ CREATE TABLE         model_draft.bnetza_mastr_combustion_clean_reduced AS
             "DatumEndgueltigeStilllegung",
             "DatumBeginnVoruebergehendeStilllegung",
             "DatumWiederaufnahmeBetrieb",
-            "EinheitBetriebsstatus_w",
+            "EinheitBetriebsstatus_unit",
             "AltAnlagenbetreiberMastrNummer",
             "DatumDesBetreiberwechsels",
             "DatumRegistrierungDesBetreiberwechsels",
-            "StatisikFlag_w",
+            "StatisikFlag_unit",
             "NameStromerzeugungseinheit",
             "WeicDisplayName",
-            "Bruttoleistung_w",
+            "Bruttoleistung_unit",
             "Nettonennleistung",
             "AnschlussAnHoechstOderHochSpannung",
             "FernsteuerbarkeitNb",
             "FernsteuerbarkeitDv",
             "FernsteuerbarkeitDr",
             "Einspeisungsart",
-            "GenMastrNummer_w",
-            "timestamp_w",
-            "Ergebniscode_e",
-            "Meldedatum_e",
-            "DatumLetzteAktualisierung_e",
+            "GenMastrNummer_unit",
+            "Ergebniscode_kwk",
+            "Meldedatum_kwk",
+            "DatumLetzteAktualisierung_kwk",
             "AnlageBetriebsstatus",
             "geom",
             "comment"
     FROM    model_draft.bnetza_mastr_combustion_clean
     WHERE geom IS NOT NULL
-    ORDER BY lid;
+    ORDER BY id;
 
 CREATE INDEX bnetza_mastr_combustion_clean_reduced_geom_idx
     ON model_draft.bnetza_mastr_combustion_clean_reduced USING gist (geom);

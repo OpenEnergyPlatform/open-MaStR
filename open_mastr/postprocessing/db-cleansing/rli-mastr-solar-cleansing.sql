@@ -13,7 +13,8 @@ __author__  = "Ludwig Hülk"
 
 
 ALTER TABLE model_draft.bnetza_mastr_solar_clean
-    ADD PRIMARY KEY (lid),
+    ADD COLUMN id SERIAL,
+    ADD PRIMARY KEY (id),
     ADD COLUMN "comment" text;
 
 ALTER TABLE model_draft.bnetza_mastr_solar_clean
@@ -49,7 +50,7 @@ UPDATE  model_draft.bnetza_mastr_solar_clean AS t1
     UPDATE  model_draft.bnetza_mastr_solar_clean AS t1
     SET     comment =  COALESCE(comment, '') || 'inside_vg250; '
     FROM    (
-        SELECT  m.lid AS id
+        SELECT  m.id AS id
         FROM    boundaries.bkg_vg250_1_sta_union_mview AS vg,
                 model_draft.bnetza_mastr_solar_clean AS m
         --WHERE   vg.geom && ST_TRANSFORM(m.geom,3035) AND
@@ -57,7 +58,7 @@ UPDATE  model_draft.bnetza_mastr_solar_clean AS t1
 		WHERE   vg.geom && m.geom AND
 		ST_CONTAINS(vg.geom, m.geom)
         ) AS t2
-    WHERE   t1.lid = t2.id;
+    WHERE   t1.id = t2.id;
 
 
 -- Punkte außerhalb
