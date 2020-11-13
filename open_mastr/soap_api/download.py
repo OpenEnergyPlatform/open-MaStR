@@ -14,10 +14,10 @@ from zeep.exceptions import XMLParseError, Fault
 import os
 
 from open_mastr.utils import credentials as cred
-from open_mastr.soap_api.config import get_filenames, get_project_home_dir, get_data_config
+from open_mastr.soap_api.config import get_filenames, get_project_home_dir, get_data_config, setup_logger
 
 
-log = logging.getLogger(__name__)
+log = setup_logger()
 
 unit_download_title_default = "Download data for  a specific type of " \
                               "energy carrier"

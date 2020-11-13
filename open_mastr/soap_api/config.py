@@ -181,7 +181,7 @@ def setup_project_home():
     _filenames_generator()
 
 
-def setup_logger():
+def setup_logger(log_level=logging.INFO):
     """Configure logging in console and log file.
     
     Returns
@@ -191,7 +191,7 @@ def setup_logger():
     """
 
     rl = logging.getLogger()
-    rl.setLevel(logging.INFO)
+    rl.setLevel(log_level)
     rl.propagate = False
 
     # set format
