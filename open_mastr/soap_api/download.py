@@ -154,9 +154,10 @@ class MaStRAPI(object):
                 try:
                     response = soap_func(*args, **kwargs)
                 except Fault as e:
-                    log.exception(f"MaStR SOAP API still gives a weird response: '{e}'.\n"
-                                  "We have to stop the program!")
-                    exit(0)
+                    msg = f"MaStR SOAP API still gives a weird response: '{e}'.\n"
+                                  "We have to stop the program!"
+                    log.exception(msg)
+                    raise Fault(msg)
 
             return serialize_object(response, target_cls=dict)
 
