@@ -286,7 +286,3 @@ def config_file_not_found_message():
     """Show error message if file not found."""
 
     print(f'The config file "{config_file}" could not be found')
-
-
-# Define variable to be imported in other files
-config_file = os.path.join(get_project_home_dir(), 'config', 'credentials.cfg')

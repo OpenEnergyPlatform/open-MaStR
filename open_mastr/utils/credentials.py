@@ -17,7 +17,7 @@ __version__ = "v0.10.0"
 import os
 import configparser as cp
 # from open_mastr.utils.tools import open_mastr_home, create_open_mastr_dir
-from open_mastr.soap_api.config import config_file
+from open_mastr.soap_api.config import get_project_home_dir
 import keyring
 import getpass
 
@@ -26,6 +26,8 @@ log = logging.getLogger(__name__)
 
 
 def _load_config_file():
+
+    config_file = os.path.join(get_project_home_dir(), 'config', 'credentials.cfg')
     cfg = cp.ConfigParser()
 
     # if not os.path.isdir(open_mastr_home):
@@ -57,6 +59,7 @@ def get_mastr_user():
     try:
         user = cfg.get("MaStR", "user")
     except (cp.NoSectionError, cp.NoOptionError):
+        config_file = os.path.join(get_project_home_dir(), 'config', 'credentials.cfg')
         user = input('Cannot not find a MaStR user name in {config_file}.\n\n'
                      'Please enter MaStR-ID (pattern: SOM123456789012): '
                      ''.format(config_file=config_file))
@@ -93,6 +96,8 @@ def get_mastr_token(user):
         try:
             password = cfg.get("MaStR", "token")
         except (cp.NoSectionError, cp.NoOptionError):
+            config_file = os.path.join(get_project_home_dir(), 'config', 'credentials.cfg')
+
             # If also no password in config file, ask the user to input password
             # Two options: (1) storing in keyring; (2) storing in config file
             password = input('Cannot not find a MaStR password, neither in keyring nor in {config_file}.\n\n'
