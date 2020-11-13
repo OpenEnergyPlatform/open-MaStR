@@ -475,11 +475,36 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
 
     def download_power_plants(self, technology, limit=None):
         """
+        Download power plant unit data for one technology.
+
+        Based on list with basic information about each unit, subsequently additional
+        data is retrieved:
+
+        * Extended unit data
+        * EEG data is collected during support of renewable energy installations
+          by the Erneuerbare-Energie-Gesetz.
+        * KWK data is collected to the support program Kraft-Waerme-Kopplung
+        * Permit data is available for some installations (German: Genehmigungsdaten)
+
+        Data is stored in CSV file format in `~/open-MaStR/data/<version>/` by
+        default.
 
         Parameters
         ----------
-        technology
-        limit
+        technology : str
+            Retrieve unit data for one power system unit. Power plants are
+            grouped by following technologies:
+
+            * 'nuclear'
+            * 'hydro'
+            * 'solar'
+            * 'wind'
+            * 'biomass'
+            * 'combustion'
+            * 'gsgk'
+
+        limit : int
+            Maximum number of units to be downloaded. Defaults to :code:`None`.
 
         Returns
         -------
@@ -577,13 +602,35 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         return joined_data
 
     def _basic_unit_data(self, technology, limit):
+        """
+        Download basic unit information for one technology.
+
+        Retrieves basic information about units. The number of unit in
+        bound to `limit`.
+
+        Parameters
+        ----------
+        technology : str
+            Technology, see :meth:`MaStRDownload.download_power_plants`
+        limit : int
+            Maximum number of units to download.
+
+        Returns
+        -------
+        list of dict
+            A list of dicts is returned with each dictionary containing
+            information about one unit.
+        """
 
         units = []
+        # In case multiple energy carriers (energietraeger) exist for one technology,
+        # loop over these and join data to one list
         for et in self._unit_data_specs[technology]["energietraeger"]:
             log.info(f"Get list of units with basic information for technology {technology} ({et})")
             units.extend(self._mastr_api.GetGefilterteListeStromErzeuger(
                 energietraeger=et,
                 limit=limit)["Einheiten"])
+
         return units
 
     def _additional_data(self, technology, unit_ids, data_fcn):
@@ -642,8 +689,23 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         return data, data_missed
 
     def _extended_unit_data(self, mastr_id, technology):
-        # print(f"Downoading additional unit data for {mastr_id} (technology: {specs})")
+        """
+        Download extended data for a unit.
 
+        This extended unit information is provided separately.
+
+        Parameters
+        ----------
+        mastr_id : str
+            Unit identifiers for extended unit data. This ID is also called *MastrNummer*.
+        technology : str
+            Technology, see :meth:`MaStRDownload.download_power_plants`
+
+        Returns
+        -------
+        dict
+            Extended information about unit
+        """
         try:
             unit_data = self._mastr_api.__getattribute__(
                 self._unit_data_specs[technology]["unit_data"])(einheitMastrNummer=mastr_id)
@@ -656,6 +718,24 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         return unit_data
 
     def _eeg_unit_data(self, eeg_id, technology):
+        """
+        Download EEG (Erneuerbare Energien Gesetz) data for a unit.
+
+        Additional data collected during a subsidy program for supporting
+        installations of renewable energy power plants.
+
+        Parameters
+        ----------
+        eeg_id : str
+            Unit identifiers for EEG data. This ID is also called *EegMastrnummer*.
+        technology : str
+            Technology, see :meth:`MaStRDownload.download_power_plants`
+
+        Returns
+        -------
+        dict
+            EEG details about unit
+        """
 
         eeg_data = self._mastr_api.__getattribute__(
             self._unit_data_specs[technology]["eeg_data"])(eegMastrNummer=eeg_id)
@@ -663,6 +743,24 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         return eeg_data
 
     def _kwk_unit_data(self, kwk_id, technology):
+        """
+        Download KWK (Kraft-Wärme-Kopplung) data for a unit.
+
+        Additional data collected during a subsidy program for supporting
+        combined heat power plants.
+
+        Parameters
+        ----------
+        kwk_id : str
+            Unit identifiers for KWK data. This ID is also called *KwkMastrnummer*.
+        technology : str
+            Technology, see :meth:`MaStRDownload.download_power_plants`
+
+        Returns
+        -------
+        dict
+            KWK details about unit
+        """
 
         kwk_data = self._mastr_api.__getattribute__(
             self._unit_data_specs[technology]["kwk_data"])(kwkMastrNummer=kwk_id)
@@ -670,12 +768,48 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         return kwk_data
 
     def _permit_unit_data(self, permit_id, technology):
+        """
+        Download permit data for a unit.
+
+        Parameters
+        ----------
+        permit_id : str
+            Unit identifiers for permit data (Genehmigung). This ID is also called *GenMastrnummer*.
+        technology : str
+            Technology, see :meth:`MaStRDownload.download_power_plants`
+
+        Returns
+        -------
+        dict
+            Permit details about unit
+        """
         permit_data = self._mastr_api.__getattribute__(
             self._unit_data_specs[technology]["permit_data"])(genMastrNummer=permit_id)
 
         return permit_data
 
     def _retry_missed_additional_data(self, technology, missed_ids, data_fcn, retries=3):
+        """
+        Retry to download extended data that was missed earlier.
+
+        Tries three times (default) to download data.
+
+        Parameters
+        ----------
+        technology : str
+            Technology, see :meth:`MaStRDownload.download_power_plants`
+        missed_ids : list
+            Unit identifiers for additional data
+        data_fcn : str
+            Name of method from :class:`MaStRDownload` to be used for querying additional data
+        retries : int
+            Number of retries (default: 3).
+
+        Returns
+        -------
+        tuple of lists
+            Queried data and still missed unit IDs are returned as :code:`(data, missed_units)`.
+        """
 
         log.info(f"Retrying to download additional data for {len(missed_ids)} "
                  f"{technology} units with {retries} retries")
