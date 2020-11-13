@@ -370,7 +370,9 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         from open_mastr.soap_api.download import MaStRDownload
 
         mastr_dl = MaStRDownload()
-        mastr_dl.nuclear()
+
+        power_plants = mastr_dl.download_power_plants("nuclear", limit=10)
+        print(power_plants.head())
 
     This downloads power plant unit data for all nuclear power plants
     registered in MaStR.
