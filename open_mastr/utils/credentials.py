@@ -16,10 +16,8 @@ __version__ = "v0.10.0"
 
 import os
 import configparser as cp
-# from open_mastr.utils.tools import open_mastr_home, create_open_mastr_dir
 from open_mastr.soap_api.config import get_project_home_dir
 import keyring
-import getpass
 
 import logging
 log = logging.getLogger(__name__)
@@ -34,7 +32,6 @@ def _load_config_file():
     #     create_open_mastr_dir(open_mastr_home)
 
     if os.path.isfile(config_file):
-        # return cfg.read(config_file)
         cfg.read(config_file)
         return cfg
     else:
