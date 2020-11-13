@@ -639,7 +639,7 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
             # Download data unit data
             for args in prepared_args:
                 data_tmp.append(pool.apply_async(self.__getattribute__(data_fcn), args))
-                time.sleep(0.1)
+                # time.sleep(0.1)
 
             # Retrieve data
             data = []
@@ -649,7 +649,7 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
                                      desc=f"Downloading{data_fcn} ({technology})".replace("_", " "),
                                      unit="unit"):
                 try:
-                    data.append(res.get(timeout=1))
+                    data.append(res.get())
                 except (requests.exceptions.ConnectionError, multiprocessing.context.TimeoutError) as e:
                     log.debug(f"Connection aborted: {e}")
                     data_missed.append(unit_id)
