@@ -578,11 +578,12 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
 
     def _basic_unit_data(self, technology, limit):
 
+        units = []
         for et in self._unit_data_specs[technology]["energietraeger"]:
             log.info(f"Get list of units with basic information for technology {technology} ({et})")
-            units = self._mastr_api.GetGefilterteListeStromErzeuger(
+            units.extend(self._mastr_api.GetGefilterteListeStromErzeuger(
                 energietraeger=et,
-                limit=limit)["Einheiten"]
+                limit=limit)["Einheiten"])
         return units
 
     def _additional_data(self, technology, unit_ids, data_fcn):
