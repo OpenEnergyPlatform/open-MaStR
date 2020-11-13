@@ -19,45 +19,6 @@ from open_mastr.soap_api.config import get_filenames, get_project_home_dir, get_
 
 log = setup_logger()
 
-unit_download_title_default = "Download data for  a specific type of " \
-                              "energy carrier"
-unit_download_desc_default = ""
-unit_download_parameter_energy_carrier = (
-        '    energy_carrier : str\n'
-        '        Retrieve unit data per type of energy carrier.\n\n'
-        '        Power plants are grouped to following energy carriers\n\n'
-        '        * nuclear\n'
-        '        * hydro\n'
-        '        * solar\n'
-        '        * wind\n'
-        '        * biomass\n'
-        '        * combustion\n')
-unit_download_parameters_common = (
-        '    unit_mastr_id : str or list of str, optional\n'
-        '        MaStR identifier of a unit that looks like "SME963513379837"\n'
-        '        If not given, data for all units is retrieved (considering \n'
-        '        for :attr:`.limit`)\n'
-        '    limit : int, optional\n'
-        '        Limit number of requests. One requests equals downloading of \n'
-        '        data of one unit\n')
-
-unit_download_parameters_default = unit_download_parameter_energy_carrier + \
-                                   unit_download_parameters_common
-
-unit_doc_template = '\n' \
-                    '    {title}\n' \
-                    '\n' \
-                    '{description}' \
-                    '    Parameters\n' \
-                    '    ----------\n' \
-                    '{parameters}' \
-                    '\n' \
-                    '    Returns\n' \
-                    '    -------\n' \
-                    '    Unit data : `dict`\n' \
-                    '\n' \
-                    '    '
-
 
 class MaStRAPI(object):
     """
