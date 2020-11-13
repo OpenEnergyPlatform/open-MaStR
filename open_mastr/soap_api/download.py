@@ -624,7 +624,7 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
             # Download data unit data
             for args in prepared_args:
                 data_tmp.append(pool.apply_async(self.__getattribute__(data_fcn), args))
-                # time.sleep(0.1)
+                time.sleep(0.1)
 
             # Retrieve data
             data = []
