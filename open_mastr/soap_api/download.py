@@ -589,15 +589,34 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
             A list of dicts is returned with each dictionary containing
             information about one unit.
         """
+        # Split download of basic unit data in chunks of 2000
+        # Reason: the API limits retrieval of data to 2000 items
+        chunksize = 2000
+        chunks_start = list(range(1, limit + 1, chunksize))
+
+        # chucksize is used to define the limit of one chunk that is downloaded
+        # Since, the download is always done in chunks, chunksize
+        # can be understood as temporary limit
+        if chunksize > limit:
+            chunksize = limit
 
         units = []
         # In case multiple energy carriers (energietraeger) exist for one technology,
         # loop over these and join data to one list
         for et in self._unit_data_specs[technology]["energietraeger"]:
             log.info(f"Get list of units with basic information for technology {technology} ({et})")
-            units.extend(self._mastr_api.GetGefilterteListeStromErzeuger(
-                energietraeger=et,
-                limit=limit)["Einheiten"])
+            for chunk_start in chunks_start:
+                response = self._mastr_api.GetGefilterteListeStromErzeuger(
+                    energietraeger=et,
+                    startAb=chunk_start,
+                    limit=chunksize)
+                units.extend(response["Einheiten"])
+
+                # Stop querying more data, if no further data available
+                if response["Ergebniscode"] == 'OkWeitereDatenVorhanden':
+                    continue
+                else:
+                    break
 
         return units
 
