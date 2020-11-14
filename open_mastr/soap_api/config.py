@@ -39,6 +39,12 @@ def get_project_home_dir():
     return project_home
 
 
+def get_data_version_dir():
+    data_version = get_data_config()["data_version"]
+    data_path = os.path.join(get_project_home_dir(), "data", data_version)
+    return data_path
+
+
 def get_filenames():
     """
     Get file names define in config
@@ -104,6 +110,10 @@ def create_project_home_dir():
             shutil.copy(os.path.join(internal_config_dir, file),
                         os.path.join(config_path,
                                      os.path.basename(file)))
+
+
+def create_data_dir():
+    os.makedirs(get_data_version_dir(), exist_ok=True)
 
 
 def get_power_unit_types():

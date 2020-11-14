@@ -14,7 +14,8 @@ from zeep.exceptions import XMLParseError, Fault
 import os
 
 from open_mastr.utils import credentials as cred
-from open_mastr.soap_api.config import get_filenames, get_project_home_dir, get_data_config, setup_logger
+from open_mastr.soap_api.config import get_filenames, get_project_home_dir, get_data_config, \
+    setup_logger, get_data_version_dir, create_data_dir
 
 
 log = setup_logger()
@@ -313,11 +314,10 @@ def _flatten_dict(data):
 
 
 def to_csv(df, technology):
-    DATA_VERSION = get_data_config()["data_version"]
-    DATA_PATH = os.path.join(get_project_home_dir(), "data", DATA_VERSION)
+    data_path = get_data_version_dir()
     filenames = get_filenames()
 
-    csv_file = os.path.join(DATA_PATH, filenames["raw"][technology]["joined"])
+    csv_file = os.path.join(data_path, filenames["raw"][technology]["joined"])
 
     df.to_csv(csv_file, index=True, index_label="EinheitMastrNummer", encoding='utf-8')
 
@@ -336,10 +336,9 @@ def _missed_units_to_file(technology, data_type, missed_units):
         Unit IDs of missed data
     """
 
-    DATA_VERSION = get_data_config()["data_version"]
-    DATA_PATH = os.path.join(get_project_home_dir(), "data", DATA_VERSION)
+    data_path = get_data_version_dir()
     filenames = get_filenames()
-    missed_units_file = os.path.join(DATA_PATH, filenames["raw"][technology][f"{data_type}_fail"])
+    missed_units_file = os.path.join(data_path, filenames["raw"][technology][f"{data_type}_fail"])
 
     with open(missed_units_file, 'w') as f:
         for item in missed_units:
@@ -477,6 +476,9 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         pd.DataFrame
             Joined data tables
         """
+        # Create data version directory
+        create_data_dir()
+
         # Check requests contingent
         self.daily_contingent()
 
