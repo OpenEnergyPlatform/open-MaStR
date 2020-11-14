@@ -85,7 +85,12 @@ def get_mastr_token(user):
 
     # Try to get password from keyring
     keyring.get_keyring()
-    password = keyring.get_password("MaStR", user)
+    # Retrieving password from keyring does currently fail on headless systems
+    # Prevent from breaking program execution with following try/except clause
+    try:
+        password = keyring.get_password("MaStR", user)
+    except:
+        password = None
 
     # No password stored in keyring, try config file
     if not password:
