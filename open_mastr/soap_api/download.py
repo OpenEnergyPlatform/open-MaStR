@@ -725,9 +725,14 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         dict
             EEG details about unit
         """
-
-        eeg_data = self._mastr_api.__getattribute__(
-            self._unit_data_specs[technology]["eeg_data"])(eegMastrNummer=eeg_id)
+        try:
+            eeg_data = self._mastr_api.__getattribute__(
+                self._unit_data_specs[technology]["eeg_data"])(eegMastrNummer=eeg_id)
+        except XMLParseError as e:
+            log.exception(
+                f"Failed to download eeg data for {eeg_id} because of SOAP API exception: {e}",
+                exc_info=False)
+            eeg_data = {}
 
         return eeg_data
 
@@ -750,9 +755,14 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         dict
             KWK details about unit
         """
-
-        kwk_data = self._mastr_api.__getattribute__(
-            self._unit_data_specs[technology]["kwk_data"])(kwkMastrNummer=kwk_id)
+        try:
+            kwk_data = self._mastr_api.__getattribute__(
+                self._unit_data_specs[technology]["kwk_data"])(kwkMastrNummer=kwk_id)
+        except XMLParseError as e:
+            log.exception(
+                f"Failed to download unit data for {kwk_id} because of SOAP API exception: {e}",
+                exc_info=False)
+            kwk_data = {}
 
         return kwk_data
 
@@ -772,8 +782,14 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         dict
             Permit details about unit
         """
-        permit_data = self._mastr_api.__getattribute__(
-            self._unit_data_specs[technology]["permit_data"])(genMastrNummer=permit_id)
+        try:
+            permit_data = self._mastr_api.__getattribute__(
+                self._unit_data_specs[technology]["permit_data"])(genMastrNummer=permit_id)
+        except XMLParseError as e:
+            log.exception(
+                f"Failed to download unit data for {permit_id} because of SOAP API exception: {e}",
+                exc_info=False)
+            permit_data = {}
 
         return permit_data
 
