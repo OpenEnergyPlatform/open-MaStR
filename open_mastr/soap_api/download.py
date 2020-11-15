@@ -698,7 +698,7 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         try:
             unit_data = self._mastr_api.__getattribute__(
                 self._unit_data_specs[technology]["unit_data"])(einheitMastrNummer=mastr_id)
-        except XMLParseError as e:
+        except (XMLParseError, Fault) as e:
             log.exception(
                 f"Failed to download unit data for {mastr_id} because of SOAP API exception: {e}",
                 exc_info=False)
@@ -728,7 +728,7 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         try:
             eeg_data = self._mastr_api.__getattribute__(
                 self._unit_data_specs[technology]["eeg_data"])(eegMastrNummer=eeg_id)
-        except XMLParseError as e:
+        except (XMLParseError, Fault) as e:
             log.exception(
                 f"Failed to download eeg data for {eeg_id} because of SOAP API exception: {e}",
                 exc_info=False)
@@ -758,7 +758,7 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         try:
             kwk_data = self._mastr_api.__getattribute__(
                 self._unit_data_specs[technology]["kwk_data"])(kwkMastrNummer=kwk_id)
-        except XMLParseError as e:
+        except (XMLParseError, Fault) as e:
             log.exception(
                 f"Failed to download unit data for {kwk_id} because of SOAP API exception: {e}",
                 exc_info=False)
@@ -785,7 +785,7 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         try:
             permit_data = self._mastr_api.__getattribute__(
                 self._unit_data_specs[technology]["permit_data"])(genMastrNummer=permit_id)
-        except XMLParseError as e:
+        except (XMLParseError, Fault) as e:
             log.exception(
                 f"Failed to download unit data for {permit_id} because of SOAP API exception: {e}",
                 exc_info=False)
