@@ -384,6 +384,17 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
     """
 
     def __init__(self, parallel_processes=multiprocessing.cpu_count()):
+        """
+
+        Parameters
+        ----------
+        parallel_processes : int or bool, optional
+            Specify number of parallel unit data download, respectively
+            the number of processes you want to use for downloading.
+            For single-process download (avoiding the use of python
+            multiprocessing package) choose False.
+            Defaults to number of cores (including hyperthreading).
+        """
 
         # Number of parallel processes
         self.parallel_processes = parallel_processes
@@ -652,25 +663,38 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         """
         prepared_args = list(product(unit_ids, [technology]))
 
-        with multiprocessing.Pool(processes=self.parallel_processes) as pool:
+        data = []
+        data_missed = []
 
-            # Apply extended data download functions
-            data_tmp = []
+        if self.parallel_processes:
+            with multiprocessing.Pool(processes=self.parallel_processes) as pool:
 
-            # Download data unit data
-            for args in prepared_args:
-                data_tmp.append(pool.apply_async(self.__getattribute__(data_fcn), args))
-                # time.sleep(0.1)
+                # Apply extended data download functions
+                data_tmp = []
 
-            # Retrieve data
-            data = []
-            data_missed = []
-            for res, unit_id in tqdm(zip(data_tmp, unit_ids),
+                # Download data unit data
+                for args in prepared_args:
+                    data_tmp.append(pool.apply_async(self.__getattribute__(data_fcn), args))
+                    # time.sleep(0.1)
+
+                # Retrieve data
+                for res, unit_id in tqdm(zip(data_tmp, unit_ids),
+                                         total=len(prepared_args),
+                                         desc=f"Downloading{data_fcn} ({technology})".replace("_", " "),
+                                         unit="unit"):
+                    try:
+                        data.append(res.get())
+                    except (requests.exceptions.ConnectionError, multiprocessing.context.TimeoutError) as e:
+                        log.debug(f"Connection aborted: {e}")
+                        data_missed.append(unit_id)
+        else:
+            # Retrieve data in a single process
+            for unit_id in tqdm(unit_ids,
                                      total=len(prepared_args),
                                      desc=f"Downloading{data_fcn} ({technology})".replace("_", " "),
                                      unit="unit"):
                 try:
-                    data.append(res.get())
+                    data.append(self.__getattribute__(data_fcn)(unit_id, technology))
                 except (requests.exceptions.ConnectionError, multiprocessing.context.TimeoutError) as e:
                     log.debug(f"Connection aborted: {e}")
                     data_missed.append(unit_id)
