@@ -641,30 +641,48 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         # Reason: the API limits retrieval of data to 2000 items
         chunksize = 2000
         chunks_start = list(range(1, limit + 1, chunksize))
-
-        # chucksize is used to define the limit of one chunk that is downloaded
-        # Since, the download is always done in chunks, chunksize
-        # can be understood as temporary limit
-        if chunksize > limit:
-            chunksize = limit
+        limits = [chunksize if (x + chunksize) <= limit
+                  else limit - x + 1 for x in chunks_start]
 
         units = []
         # In case multiple energy carriers (energietraeger) exist for one technology,
         # loop over these and join data to one list
         for et in self._unit_data_specs[technology]["energietraeger"]:
             log.info(f"Get list of units with basic information for technology {technology} ({et})")
-            for chunk_start in chunks_start:
+
+            units_tech = []
+
+            pbar = tqdm(total=limit,
+                        desc=f"Get list of units with basic information for technology {technology} ({et})",
+                        unit=" units")
+
+            # Iterate over chunks and download data
+            # Results are first collected per 'et' (units_tech) for properly
+            # displaying download progress.
+            # Later, all units of a single technology are collected in 'units'
+            for chunk_start, limit_iter in zip(chunks_start, limits):
                 response = self._mastr_api.GetGefilterteListeStromErzeuger(
                     energietraeger=et,
                     startAb=chunk_start,
-                    limit=chunksize)
-                units.extend(response["Einheiten"])
+                    limit=limit_iter)
+                units_tech.extend(response["Einheiten"])
+                pbar.update(len(response["Einheiten"]))
 
                 # Stop querying more data, if no further data available
                 if response["Ergebniscode"] == 'OkWeitereDatenVorhanden':
                     continue
                 else:
+                    # Update progress bar and move on with next et or technology
+                    pbar.total = len(units_tech)
+                    pbar.refresh()
+                    pbar.close()
                     break
+
+            # Make sure progress bar is closed properly
+            pbar.close()
+
+            # Put units of 'technology' in units list
+            units.extend(units_tech)
 
         return units
 
