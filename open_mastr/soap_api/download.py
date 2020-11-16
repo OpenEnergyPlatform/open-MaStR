@@ -12,6 +12,7 @@ import time
 from tqdm import tqdm
 from zeep.exceptions import XMLParseError, Fault
 import os
+import math
 
 from open_mastr.utils import credentials as cred
 from open_mastr.soap_api.config import get_filenames, get_project_home_dir, get_data_config, \
@@ -345,6 +346,31 @@ def _missed_units_to_file(technology, data_type, missed_units):
             f.write(f"{item}\n")
 
 
+def _chunksize(length, processes):
+    """
+    Estimate a useful chunksize for parallel download.
+
+    Depends on the list `length` and the number fo `processes`.
+
+    Parameters
+    ----------
+    length : int
+        Length of list items to be downloaded
+    processes : int
+        Number of parallel processes
+
+    Returns
+    -------
+    int
+        Chunksize
+    """
+    if processes > 1:
+        chunksize = int(math.ceil(length / (processes * 20)))
+    else:
+        chunksize = 1
+
+    return chunksize
+
 class _MaStRDownloadFactory(type):
     def __new__(cls, name, bases, dct):
         # Assign factory properties to concrete object
@@ -519,9 +545,18 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
 
         # Download additional data for unit
         extended_data, extended_missed = self._additional_data(technology, mastr_ids, "_extended_unit_data")
-        eeg_data, eeg_missed = self._additional_data(technology, eeg_ids, "_eeg_unit_data")
-        kwk_data, kwk_missed = self._additional_data(technology, kwk_ids, "_kwk_unit_data")
-        permit_data, permit_missed = self._additional_data(technology, permit_ids, "_permit_unit_data")
+        if eeg_ids:
+            eeg_data, eeg_missed = self._additional_data(technology, eeg_ids, "_eeg_unit_data")
+        else:
+            eeg_data = eeg_missed = []
+        if kwk_ids:
+            kwk_data, kwk_missed = self._additional_data(technology, kwk_ids, "_kwk_unit_data")
+        else:
+            kwk_data = kwk_missed = []
+        if permit_ids:
+            permit_data, permit_missed = self._additional_data(technology, permit_ids, "_permit_unit_data")
+        else:
+            permit_data = permit_missed = []
 
 
         # Retry missed additional unit data
@@ -661,32 +696,31 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
                     [missed_unit1, missed_unit2, ...]
                     )
         """
+        # Prepare a list of unit IDs packed as tuple associated with technology
         prepared_args = list(product(unit_ids, [technology]))
 
+        # Prepare results lists
         data = []
         data_missed = []
 
+
         if self.parallel_processes:
-            with multiprocessing.Pool(processes=self.parallel_processes) as pool:
+            # Estimate a suitable chunksize
+            chunksize = _chunksize(len(prepared_args), self.parallel_processes)
 
-                # Apply extended data download functions
-                data_tmp = []
+            # Open a pool of workers and retrieve data in parallel
+            with multiprocessing.Pool(processes=self.parallel_processes,
+                                      maxtasksperchild=1) as pool:
 
-                # Download data unit data
-                for args in prepared_args:
-                    data_tmp.append(pool.apply_async(self.__getattribute__(data_fcn), args))
-                    # time.sleep(0.1)
-
-                # Retrieve data
-                for res, unit_id in tqdm(zip(data_tmp, unit_ids),
-                                         total=len(prepared_args),
-                                         desc=f"Downloading{data_fcn} ({technology})".replace("_", " "),
-                                         unit="unit"):
-                    try:
-                        data.append(res.get())
-                    except (requests.exceptions.ConnectionError, multiprocessing.context.TimeoutError) as e:
-                        log.debug(f"Connection aborted: {e}")
-                        data_missed.append(unit_id)
+                for unit_result in tqdm(pool.imap_unordered(self.__getattribute__(data_fcn),
+                                                            prepared_args,
+                                                            chunksize=chunksize),
+                                        total=len(prepared_args),
+                                        desc=f"Downloading{data_fcn} ({technology})".replace("_", " "),
+                                        unit="unit"):
+                    data_tmp, data_missed_tmp = unit_result
+                    data.append(data_tmp)
+                    data_missed.append(data_missed_tmp)
         else:
             # Retrieve data in a single process
             for unit_id in tqdm(unit_ids,
@@ -699,9 +733,13 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
                     log.debug(f"Connection aborted: {e}")
                     data_missed.append(unit_id)
 
+        # Remove Nones and empty dicts
+        data = [dat for dat in data if dat]
+        data_missed = [dat for dat in data_missed if dat]
+
         return data, data_missed
 
-    def _extended_unit_data(self, mastr_id, technology):
+    def _extended_unit_data(self, unit_specs):
         """
         Download extended data for a unit.
 
@@ -709,28 +747,37 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
 
         Parameters
         ----------
-        mastr_id : str
-            Unit identifiers for extended unit data. This ID is also called *MastrNummer*.
-        technology : str
-            Technology, see :meth:`MaStRDownload.download_power_plants`
+        unit_specs : tuple
+            *EinheitMastrNummer* and technology as tuple that for example looks like
+
+            .. code-block:: python
+
+               tuple("SME930865355925", "hydro")
 
         Returns
         -------
         dict
-            Extended information about unit
+            Extended information about unit, if download successful,
+            otherwise empty dict
+        str
+            *EinheitMastrNummer*, if download failed, otherwise None
         """
+
+        mastr_id, technology = unit_specs
         try:
             unit_data = self._mastr_api.__getattribute__(
                 self._unit_data_specs[technology]["unit_data"])(einheitMastrNummer=mastr_id)
-        except (XMLParseError, Fault) as e:
+            unit_missed = None
+        except (XMLParseError, Fault, requests.exceptions.ConnectionError) as e:
             log.exception(
                 f"Failed to download unit data for {mastr_id} because of SOAP API exception: {e}",
                 exc_info=False)
             unit_data = {}
+            unit_missed = mastr_id
 
-        return unit_data
+        return unit_data, unit_missed
 
-    def _eeg_unit_data(self, eeg_id, technology):
+    def _eeg_unit_data(self, unit_specs):
         """
         Download EEG (Erneuerbare Energien Gesetz) data for a unit.
 
@@ -739,28 +786,37 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
 
         Parameters
         ----------
-        eeg_id : str
-            Unit identifiers for EEG data. This ID is also called *EegMastrnummer*.
-        technology : str
-            Technology, see :meth:`MaStRDownload.download_power_plants`
+        unit_specs : tuple
+            *EegMastrnummer* and technology as tuple that for example looks like
+
+            .. code-block:: python
+
+               tuple("EEG961554380393", "hydro")
 
         Returns
         -------
         dict
-            EEG details about unit
+            EEG details about unit, if download successful,
+            otherwise empty dict
+        str
+            *EegMastrNummer*, if download failed, otherwise None
         """
+        # TODO: Update docstring to change arguments
+        eeg_id, technology = unit_specs
         try:
             eeg_data = self._mastr_api.__getattribute__(
                 self._unit_data_specs[technology]["eeg_data"])(eegMastrNummer=eeg_id)
-        except (XMLParseError, Fault) as e:
+            eeg_missed = None
+        except (XMLParseError, Fault, requests.exceptions.ConnectionError) as e:
             log.exception(
                 f"Failed to download eeg data for {eeg_id} because of SOAP API exception: {e}",
                 exc_info=False)
             eeg_data = {}
+            eeg_missed = eeg_id
 
-        return eeg_data
+        return eeg_data, eeg_missed
 
-    def _kwk_unit_data(self, kwk_id, technology):
+    def _kwk_unit_data(self, unit_specs):
         """
         Download KWK (Kraft-Wärme-Kopplung) data for a unit.
 
@@ -769,53 +825,73 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
 
         Parameters
         ----------
-        kwk_id : str
-            Unit identifiers for KWK data. This ID is also called *KwkMastrnummer*.
-        technology : str
-            Technology, see :meth:`MaStRDownload.download_power_plants`
+        unit_specs : tuple
+            *KwkMastrnummer* and technology as tuple that for example looks like
+
+            .. code-block:: python
+
+               tuple("KWK910493229164", "biomass")
+
 
         Returns
         -------
+        Returns
+        -------
         dict
-            KWK details about unit
+            KWK details about unit, if download successful,
+            otherwise empty dict
+        str
+            *EegMastrNummer*, if download failed, otherwise None
         """
+        kwk_id, technology = unit_specs
         try:
             kwk_data = self._mastr_api.__getattribute__(
                 self._unit_data_specs[technology]["kwk_data"])(kwkMastrNummer=kwk_id)
-        except (XMLParseError, Fault) as e:
+            kwk_missed = None
+        except (XMLParseError, Fault, requests.exceptions.ConnectionError) as e:
             log.exception(
                 f"Failed to download unit data for {kwk_id} because of SOAP API exception: {e}",
                 exc_info=False)
             kwk_data = {}
+            kwk_missed = kwk_id
 
-        return kwk_data
+        return kwk_data, kwk_missed
 
-    def _permit_unit_data(self, permit_id, technology):
+    def _permit_unit_data(self, unit_specs):
         """
         Download permit data for a unit.
 
         Parameters
         ----------
-        permit_id : str
-            Unit identifiers for permit data (Genehmigung). This ID is also called *GenMastrnummer*.
-        technology : str
-            Technology, see :meth:`MaStRDownload.download_power_plants`
+        unit_specs : tuple
+            *GenMastrnummer* and technology as tuple that for example looks like
+
+            .. code-block:: python
+
+               tuple("SGE952474728808", "biomass")
+
 
         Returns
         -------
         dict
-            Permit details about unit
+            Permit details about unit, if download successful,
+            otherwise empty dict
+        str
+            *GenMastrNummer*, if download failed, otherwise None
         """
+        permit_id, technology = unit_specs
         try:
             permit_data = self._mastr_api.__getattribute__(
                 self._unit_data_specs[technology]["permit_data"])(genMastrNummer=permit_id)
-        except (XMLParseError, Fault) as e:
+            permit_missed = None
+        except (XMLParseError, Fault, requests.exceptions.ConnectionError) as e:
             log.exception(
                 f"Failed to download unit data for {permit_id} because of SOAP API exception: {e}",
                 exc_info=False)
             permit_data = {}
+            permit_missed = permit_id
 
-        return permit_data
+        return permit_data, permit_missed
 
     def _retry_missed_additional_data(self, technology, missed_ids, data_fcn, retries=3):
         """
