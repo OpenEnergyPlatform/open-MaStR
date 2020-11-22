@@ -128,9 +128,10 @@ class MaStRAPI(object):
 
 
 def _mastr_bindings(max_retries=3,
-                    pool_connections=2000,
-                    pool_maxsize=2000,
-                    timeout=600,
+                    pool_connections=100,
+                    pool_maxsize=100,
+                    timeout=10,
+                    operation_timeout=30,
                     wsdl='https://www.marktstammdatenregister.de/MaStRAPI/wsdl/mastr.wsdl',
                     service_name='Marktstammdatenregister',
                     service_port='Anlage'):
@@ -148,8 +149,11 @@ def _mastr_bindings(max_retries=3,
         Maximum pool size. Parameters is passed to
         requests.adapters.HTTPAdapter
     timeout : int
-        Time out in milliseconds. Parameters is passed to
-        zeep.transports.Transport
+        Timeout for loading wsdl sfn xsd documents in seconds. Parameter
+        is passed to `zeep.transports.Transport`.
+    operation_timeout : int
+        Timeout for API requests (GET/POST in underlying requests package)
+        in seconds. Parameter is passed to `zeep.transports.Transport`.
     wsdl : str
         Url of wsdl file to be used. Parameters is passed to zeep.Client
     service_name : str
@@ -174,7 +178,10 @@ def _mastr_bindings(max_retries=3,
         pool_connections=pool_connections,
         pool_maxsize=pool_maxsize)
     session.mount('https://', a)
-    transport = Transport(cache=SqliteCache(), timeout=timeout, session=session)
+    transport = Transport(cache=SqliteCache(),
+                          timeout=timeout,
+                          operation_timeout=operation_timeout,
+                          session=session)
     settings = Settings(strict=True, xml_huge_tree=True)
     client = Client(wsdl=wsdl, transport=transport, settings=settings)
     client_bind = client.bind(service_name, service_port)
