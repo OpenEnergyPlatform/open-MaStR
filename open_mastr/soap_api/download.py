@@ -748,15 +748,13 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
                     data_missed.append(data_missed_tmp)
         else:
             # Retrieve data in a single process
-            for unit_id in tqdm(unit_ids,
+            for unit_specs in tqdm(prepared_args,
                                      total=len(prepared_args),
                                      desc=f"Downloading{data_fcn} ({technology})".replace("_", " "),
                                      unit="unit"):
-                try:
-                    data.append(self.__getattribute__(data_fcn)(unit_id, technology))
-                except (requests.exceptions.ConnectionError, multiprocessing.context.TimeoutError) as e:
-                    log.debug(f"Connection aborted: {e}")
-                    data_missed.append(unit_id)
+                data_tmp, data_missed_tmp = self.__getattribute__(data_fcn)(unit_specs)
+                data.append(data_tmp)
+                data_missed.append(data_missed_tmp)
 
         # Remove Nones and empty dicts
         data = [dat for dat in data if dat]
