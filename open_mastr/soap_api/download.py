@@ -130,8 +130,8 @@ class MaStRAPI(object):
 def _mastr_bindings(max_retries=3,
                     pool_connections=100,
                     pool_maxsize=100,
-                    timeout=10,
-                    operation_timeout=30,
+                    timeout=60,
+                    operation_timeout=600,
                     wsdl='https://www.marktstammdatenregister.de/MaStRAPI/wsdl/mastr.wsdl',
                     service_name='Marktstammdatenregister',
                     service_port='Anlage'):
