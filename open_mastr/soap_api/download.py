@@ -793,7 +793,10 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
             unit_data = self._mastr_api.__getattribute__(
                 self._unit_data_specs[technology]["unit_data"])(einheitMastrNummer=mastr_id)
             unit_missed = None
-        except (XMLParseError, Fault, requests.exceptions.ConnectionError) as e:
+        except (XMLParseError,
+                Fault,
+                requests.exceptions.ConnectionError,
+                requests.exceptions.ReadTimeout) as e:
             log.exception(
                 f"Failed to download unit data for {mastr_id} because of SOAP API exception: {e}",
                 exc_info=False)
@@ -832,7 +835,10 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
             eeg_data = self._mastr_api.__getattribute__(
                 self._unit_data_specs[technology]["eeg_data"])(eegMastrNummer=eeg_id)
             eeg_missed = None
-        except (XMLParseError, Fault, requests.exceptions.ConnectionError) as e:
+        except (XMLParseError,
+                Fault,
+                requests.exceptions.ConnectionError,
+                requests.exceptions.ReadTimeout) as e:
             log.exception(
                 f"Failed to download eeg data for {eeg_id} because of SOAP API exception: {e}",
                 exc_info=False)
@@ -873,7 +879,10 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
             kwk_data = self._mastr_api.__getattribute__(
                 self._unit_data_specs[technology]["kwk_data"])(kwkMastrNummer=kwk_id)
             kwk_missed = None
-        except (XMLParseError, Fault, requests.exceptions.ConnectionError) as e:
+        except (XMLParseError,
+                Fault,
+                requests.exceptions.ConnectionError,
+                requests.exceptions.ReadTimeout) as e:
             log.exception(
                 f"Failed to download unit data for {kwk_id} because of SOAP API exception: {e}",
                 exc_info=False)
@@ -909,7 +918,10 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
             permit_data = self._mastr_api.__getattribute__(
                 self._unit_data_specs[technology]["permit_data"])(genMastrNummer=permit_id)
             permit_missed = None
-        except (XMLParseError, Fault, requests.exceptions.ConnectionError) as e:
+        except (XMLParseError,
+                Fault,
+                requests.exceptions.ConnectionError,
+                requests.exceptions.ReadTimeout) as e:
             log.exception(
                 f"Failed to download unit data for {permit_id} because of SOAP API exception: {e}",
                 exc_info=False)
