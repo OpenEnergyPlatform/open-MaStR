@@ -26,11 +26,6 @@ import logging
 log = logging.getLogger(__name__)
 
 
-cfg = cp.RawConfigParser()
-
-_loaded = False
-
-
 def get_project_home_dir():
     """Get root dir of project data"""
 
@@ -221,78 +216,3 @@ def setup_logger(log_level=logging.INFO):
     rl.handlers = [ch, fh]
 
     return rl
-
-
-def config_section_set(config_section, key, value):
-    """Create a config file.
-
-    Sets input values to a [db_section] key - pair.
-
-    Parameters
-    ----------
-    config_section : str
-        Section in config file.
-    key : str
-        The username.
-    value : str
-        The pw.
-    """
-
-    with open(config_file, 'w') as config:  # save
-        if not cfg.has_section(config_section):
-            cfg.add_section(config_section)
-            cfg.set(config_section, 'token', key)
-            cfg.set(config_section, 'user', value)
-            cfg.write(config)
-
-
-def config_file_load():
-    """Load the username and pw from config file."""
-
-    if os.path.isfile(config_file):
-        config_file_init()
-    else:
-        config_file_not_found_message()
-
-
-def config_file_init():
-    """Read config file."""
-
-    try:
-        # print('Load ' + config_file)
-        cfg.read(config_file)
-        global _loaded
-        _loaded = True
-    except FileNotFoundError:
-        config_file_not_found_message()
-
-
-def config_file_get(config_section, key):
-    """Read data from config file.
-
-    Parameters
-    ----------
-    config_section : str
-        Section in config file.
-    key : str
-        Config entries.
-    """
-
-    if not _loaded:
-        config_file_init()
-    try:
-        return cfg.getfloat(config_section, key)
-    except Exception:
-        try:
-            return cfg.getint(config_section, key)
-        except:
-            try:
-                return cfg.getboolean(config_section, key)
-            except:
-                return cfg.get(config_section, key)
-
-
-def config_file_not_found_message():
-    """Show error message if file not found."""
-
-    print(f'The config file "{config_file}" could not be found')
