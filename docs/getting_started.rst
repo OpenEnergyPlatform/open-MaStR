@@ -28,6 +28,9 @@ There are three options to provide/store credentials for the MaStR-API
    "\(2\)", "Config file", "Use the config file (`$HOME/.open-MaStR/config/credentials.cfg`) to store the password in plain text."
    "\(0\)", "Don't store", "Just use the password for one query and forget it."
 
+During instantiation of :py:class:`open_mastr.soap_api.download.MaStRDownload` you get asked for a user name and
+a token, see :ref:`Download`.
+
 There is also the option to provide user and password to :py:class:`open_mastr.soap_api.download.MaStRAPI`.
 Instantiate with :code:`MaStRAPI(user='USERNAME', key='TOKEN')` to provide user and password in a script.
 
