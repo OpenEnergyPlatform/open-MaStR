@@ -480,6 +480,11 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
                 "eeg_data": "GetAnlageEegWasser",
                 "permit_data": "GetEinheitGenehmigung"
             },
+            "storage": {
+                "unit_data": "GetEinheitStromSpeicher",
+                "energietraeger": ["Speicher"],
+                "eeg_data": "GetAnlageEegSpeicher",
+            }
         }
 
         # Check if MaStR credentials are available and otherwise ask
@@ -517,6 +522,7 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
             * 'biomass'
             * 'combustion'
             * 'gsgk'
+            * 'storage'
 
         limit : int
             Maximum number of units to be downloaded. Defaults to :code:`None`.
