@@ -15,57 +15,6 @@ import datetime
 log = logging.getLogger(__name__)
 
 
-def read_power_units(csv_name):
-    """Read Stromerzeugungseinheit from CSV file.
-
-    Parameters
-    ----------
-    csv_name : str
-        Name of file.
-
-    Returns
-    -------
-    power_unit : DataFrame
-        Stromerzeugungseinheit.
-    """
-
-    if os.path.isfile(csv_name):
-        power_unit = pd.read_csv(
-            csv_name,
-            header=0,
-            sep=';',
-            index_col=False,
-            encoding='utf-8',
-            dtype={
-                'pu-id': int,
-                'lid': int,
-                'EinheitMastrNummer': str,
-                'Name': str,
-                'Einheitart': str,
-                'Einheittyp': str,
-                'Standort': str,
-                'Bruttoleistung': str,
-                'Erzeugungsleistung': str,
-                'EinheitBetriebsstatus': str,
-                'Anlagenbetreiber': str,
-                'EegMastrNummer': str,
-                'KwkMastrNummer': str,
-                'SpeMastrNummer': str,
-                'GenMastrNummer': str,
-                'BestandsanlageMastrNummer': str,
-                'NichtVorhandenInMigriertenEinheiten': str,
-                'StatisikFlag': str,
-                'version': str,
-                'timestamp': str})
-
-        power_unit_cnt = power_unit['timestamp'].count()
-        log.info(f'Read {power_unit_cnt} Stromerzeugungseinheiten from {csv_name}')
-        return power_unit
-
-    else:
-        log.info(f'Error reading {csv_name}')
-
-
 def is_time_blacklisted(time):
     times_blacklist = [
         ('8:00', '18:00'),  # BNetzA Business hours
