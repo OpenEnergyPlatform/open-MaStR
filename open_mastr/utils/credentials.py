@@ -52,17 +52,43 @@ def get_mastr_user():
     str : MaStR user name (MaStR Nummer/ MaStR Akteursnummer)
     """
     cfg = _load_config_file()
+    section = "MaStR"
+    cfg_path = os.path.join(get_project_home_dir(), 'config', 'credentials.cfg')
 
     try:
-        user = cfg.get("MaStR", "user")
+        user = cfg.get(section, "user")
+        return user
     except (cp.NoSectionError, cp.NoOptionError):
-        config_file = os.path.join(get_project_home_dir(), 'config', 'credentials.cfg')
-        user = input('Cannot not find a MaStR user name in {config_file}.\n\n'
+        # Actually, an error should be raised here. But this conflicts
+        # with automatic calls from MaStRDownloadFactory
+        # except cp.NoSectionError:
+        #     raise cp.Error(f"Section {section} not found in {cfg_path}")
+        # except cp.NoOptionError:
+        #     raise cp.Error(f"The option 'user' could not by found in the section "
+        #                    f"{section} in file {cfg_path}.")
+        log.warning(f"The option 'user' could not by found in the section "
+                    f"{section} in file {cfg_path}. "
+                    f"You might run into trouble when downloading data.")
+        return None
+
+
+def _check_and_set_mastr_user():
+    """Checks if MaStR user is stored, otherwise asks for it."""
+
+    user = get_mastr_user()
+
+    if not user:
+        credentials_file = os.path.join(get_project_home_dir(), 'config', 'credentials.cfg')
+        cfg = _load_config_file()
+
+        user = input('\n\nCannot not find a MaStR user name in {config_file}.\n\n'
                      'Please enter MaStR-ID (pattern: SOM123456789012): '
-                     ''.format(config_file=config_file))
+                     ''.format(config_file=credentials_file))
         cfg["MaStR"] = {"user": user}
-        with open(config_file, 'w') as configfile:
+
+        with open(credentials_file, 'w') as configfile:
             cfg.write(configfile)
+
     return user
 
 

@@ -482,6 +482,11 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
             },
         }
 
+        # Check if MaStR credentials are available and otherwise ask
+        # for user input
+        cred._check_and_set_mastr_user()
+
+
     def download_power_plants(self, technology, limit=None):
         """
         Download power plant unit data for one technology.
