@@ -484,7 +484,8 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
 
         # Check if MaStR credentials are available and otherwise ask
         # for user input
-        cred._check_and_set_mastr_user()
+        self._mastr_api._user = cred.check_and_set_mastr_user()
+        self._mastr_api._key = cred.check_and_set_mastr_token(self._mastr_api._user)
 
 
     def download_power_plants(self, technology, limit=None):
