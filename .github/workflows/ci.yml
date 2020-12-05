@@ -1,6 +1,14 @@
 name: CI
 
-on: [pull_request]
+on:
+  push:
+    branches:
+      - dev
+      - feature/#131-MaStRAPI-tests
+  pull_request:
+    branches:
+      - dev
+      - master
 
 jobs:
   build:
