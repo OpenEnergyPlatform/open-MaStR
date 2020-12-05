@@ -31,8 +31,8 @@ jobs:
         if [ -f tests/test_requirements.txt ]; then pip install -r tests/test_requirements.txt; fi
     - name: Create credentials file
       env:
-        - MASTR_TOKEN: ${{ secrets.MASTR_TOKEN }}
-        - MASTR_USER: ${{ secrets.MASTR_User }}
+        MASTR_TOKEN: ${{ secrets.MASTR_TOKEN }}
+        MASTR_USER: ${{ secrets.MASTR_User }}
       run: |
         python -c "from tests import preparation; preparation.create_credentials_file()"
     - name: Test with pytest
