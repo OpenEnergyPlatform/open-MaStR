@@ -636,7 +636,7 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
 
         return joined_data
 
-    def _basic_unit_data(self, technology, limit):
+    def _basic_unit_data(self, technology, limit, date_from=None):
         """
         Download basic unit information for one technology.
 
@@ -683,7 +683,8 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
                 response = self._mastr_api.GetGefilterteListeStromErzeuger(
                     energietraeger=et,
                     startAb=chunk_start,
-                    limit=limit_iter)
+                    limit=limit_iter,
+                    datumAb=date_from)
                 units_tech.extend(response["Einheiten"])
                 pbar.update(len(response["Einheiten"]))
 
