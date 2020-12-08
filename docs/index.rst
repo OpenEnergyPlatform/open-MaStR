@@ -12,6 +12,7 @@ Welcome to open-MaStR's documentation!
    :caption: Documentation
 
    getting_started
+   configuration
    download
    postprocessing
    analyze
