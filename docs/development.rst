@@ -33,7 +33,7 @@ Make sure you have test requirements installed.
 
 Some tests query data from `MaStR <https://www.marktstammdatenregister.de>`_. Therefore, user name and the token must
 be provided by credentials file `credentials.cfg` (with token optionally stored in keyring).
-Further explanation :ref:`here <Credentials>`.
+Further explanation :ref:`here <MaStR account>`.
 
 `PyTest <https://docs.pytest.org/en/stable/index.html>`_ is used to run the test suite.
 
