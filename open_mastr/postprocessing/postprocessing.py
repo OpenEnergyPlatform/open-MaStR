@@ -54,7 +54,7 @@ def get_csv_db_mapping(keys=TECHNOLOGIES):
     Returns
     -------
     dict
-        Table name and file name for each technology, keyed by items of :param:`keys`
+        Table name and file name for each technology, keyed by items of `keys`
     """
 
     db_tables = get_db_tables()
@@ -125,7 +125,7 @@ def import_boundary_data_csv(schema, table, index_col="id"):
     Parameters
     ----------
     schema : str
-        Schema of :param:`table`
+        Schema of `table`
     table : str
         Table name
     index_col : str
