@@ -35,7 +35,9 @@ setup(
         'numpy',
         'sqlalchemy',
         'multiprocess',
-        'zeep'
+        'zeep',
+        'bokeh',
+        # 'geoviews'
     ],
     project_urls={
         'Bug Reports': 'https://github.com/OpenEnergyPlatform/open-MaStR/issues',
