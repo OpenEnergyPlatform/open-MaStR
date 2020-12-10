@@ -17,6 +17,7 @@ Welcome to open-MaStR's documentation!
    postprocessing
    analyze
    development
+   changelog
    API <modules>
 
 
