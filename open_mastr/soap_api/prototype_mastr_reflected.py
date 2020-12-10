@@ -1,14 +1,19 @@
 import datetime
 import json
 import os
+from requests.exceptions import ConnectionError
 from sqlalchemy.orm import sessionmaker, Query
 from sqlalchemy import and_, create_engine
 import shlex
 import subprocess
+import time
 
+from open_mastr.soap_api.config import setup_logger
 from open_mastr.soap_api.download import MaStRDownload, _flatten_dict
 import open_mastr.soap_api.db_models as db
 
+
+log = setup_logger()
 
 engine = create_engine(
     "postgresql+psycopg2://open-mastr:open-mastr@localhost:55443/open-mastr", echo=False
@@ -110,7 +115,19 @@ class MaStRReflected:
         # Retrieve data for each technology separately
         for tech in technology:
 
-            basic_units = self.mastr_dl._basic_unit_data(tech, limit, date_from=date)
+            # Catch weird MaStR SOAP response
+            try:
+                basic_units = self.mastr_dl._basic_unit_data(tech, limit, date_from=date)
+            except ConnectionError as e:
+                log.warning(f"MaStR SOAP API gives a weird response: {e}. Trying again...")
+                time.sleep(1.5)
+                try:
+                    basic_units = self.mastr_dl._basic_unit_data(tech, limit, date_from=date)
+                except ConnectionError as e:
+                    msg = (f"MaStR SOAP API still gives a weird response: '{e}'.\n"
+                                  "We have to stop the program!")
+                    log.exception(msg)
+                    raise ConnectionError(msg)
 
             # Remove duplicates
             basic_units = [
