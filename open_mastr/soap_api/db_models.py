@@ -93,13 +93,6 @@ class Extended(object):
     DatumDesBetreiberwechsels = Column(DateTime(timezone=True))
     DatumRegistrierungDesBetreiberwechsels = Column(DateTime(timezone=True))
     StatisikFlag = Column(String)
-    download_date = Column(DateTime(timezone=True), default=func.now())
-
-
-class WindExtended(Extended, Base):
-    __tablename__ = 'mastr_wind'
-
-    # wind specific attributes
     NameStromerzeugungseinheit = Column(String)
     Weic = Column(String)
     WeicDisplayName = Column(String)
@@ -117,6 +110,13 @@ class WindExtended(Extended, Base):
     Einspeisungsart = Column(String)
     PraequalifiziertFuerRegelenergie = Column(Boolean)
     GenMastrNummer = Column(String)
+    download_date = Column(DateTime(timezone=True), default=func.now())
+
+
+class WindExtended(Extended, Base):
+    __tablename__ = 'mastr_wind'
+
+    # wind specific attributes
     NameWindpark = Column(String)
     Lage = Column(String)
     Seelage = Column(String)
