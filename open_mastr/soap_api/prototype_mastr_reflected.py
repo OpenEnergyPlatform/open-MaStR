@@ -249,10 +249,8 @@ class MaStRReflected:
         """
         # Interpret file name and path
         dump_file_dir, dump_file = os.path.split(dumpfile)
-        if dump_file_dir:
-            cwd = dump_file_dir
-        else:
-            cwd = os.path.dirname(__file__)
+        cwd = os.path.abspath(os.path.dirname(dump_file_dir))
+
 
         # Define import of SQL dump with pg_restore
         restore_cmd = f"pg_restore -h localhost -U open-mastr -p 55443 -d open-mastr {dump_file}"
