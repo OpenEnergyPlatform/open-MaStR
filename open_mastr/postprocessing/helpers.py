@@ -1,8 +1,8 @@
 from bokeh.palettes import Category10_10 as palette
-import geoviews as gv
+# import geoviews as gv
 import bokeh
 
-gv.extension('bokeh')
+# gv.extension('bokeh')
 
 
 def plotPowerPlants(df):

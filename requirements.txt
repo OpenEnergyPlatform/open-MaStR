@@ -1,13 +1,11 @@
-numpy
 pandas
 sqlalchemy
 geoalchemy2
-pyshp
 shapely
-python-dateutil
 psycopg2-binary
-multiprocess
 zeep
 tqdm
 geopandas
-yaml
+pyyaml
+requests
+keyring

@@ -3,8 +3,7 @@ from sqlalchemy import create_engine, text
 from geoalchemy2 import Geometry, WKTElement
 import os
 from urllib.request import urlretrieve
-from open_mastr.soap_api.utils import DATA_VERSION
-from open_mastr.soap_api.config import setup_logger, get_db_tables, get_project_home_dir, get_filenames
+from open_mastr.soap_api.config import setup_logger, get_db_tables, get_filenames, get_data_version_dir
 import geopandas as gpd
 from shapely.wkb import loads as wkb_loads
 
@@ -55,7 +54,7 @@ def get_csv_db_mapping(keys=TECHNOLOGIES):
     Returns
     -------
     dict
-        Table name and file name for each technology, keyed by items of :param:`keys`
+        Table name and file name for each technology, keyed by items of `keys`
     """
 
     db_tables = get_db_tables()
@@ -126,7 +125,7 @@ def import_boundary_data_csv(schema, table, index_col="id"):
     Parameters
     ----------
     schema : str
-        Schema of :param:`table`
+        Schema of `table`
     table : str
         Table name
     index_col : str
@@ -214,13 +213,13 @@ def import_bnetz_mastr_csv():
         for k, d in csv_db_mapping.items():
 
             csv_file = os.path.abspath(
-                os.path.join(get_project_home_dir(), "data", DATA_VERSION, d["file"]))
+                os.path.join(get_data_version_dir(), d["file"]))
 
             if os.path.isfile(csv_file):
                 # Read CSV file
                 csv_data = pd.read_csv(csv_file,
-                                       index_col="lid",
-                                       sep=";")
+                                       index_col="EinheitMastrNummer",
+                                       sep=",")
 
                 # Create 'geom' column from lat/lon
                 gdf = add_geom_col(csv_data)

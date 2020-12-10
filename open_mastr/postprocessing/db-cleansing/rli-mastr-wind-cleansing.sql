@@ -15,14 +15,15 @@ __author__  = "Ludwig Hülk"
 
 
 ALTER TABLE model_draft.bnetza_mastr_wind_clean
-    ADD PRIMARY KEY (lid),
+    ADD COLUMN id SERIAL,
+    ADD PRIMARY KEY (id),
     ADD COLUMN tags jsonb,
     ADD COLUMN geom_3035 geometry(Point,3035),
     ADD COLUMN comment text;
 
 ALTER TABLE model_draft.bnetza_mastr_wind_clean
     ALTER COLUMN "Bruttoleistung" TYPE double precision USING "Bruttoleistung"::double precision,
-    ALTER COLUMN "Bruttoleistung_w" TYPE double precision USING "Bruttoleistung_w"::double precision,
+    ALTER COLUMN "Bruttoleistung_unit" TYPE double precision USING "Bruttoleistung_unit"::double precision,
     ALTER COLUMN "Nettonennleistung" TYPE double precision USING "Nettonennleistung"::double precision,
     ALTER COLUMN "Nabenhoehe" TYPE double precision USING "Nabenhoehe"::double precision,
     ALTER COLUMN "Rotordurchmesser" TYPE double precision USING "Rotordurchmesser"::double precision,
@@ -73,11 +74,11 @@ UPDATE  model_draft.bnetza_mastr_wind_clean
 -- Tags: Gematchte Einheiten
 UPDATE  model_draft.bnetza_mastr_wind_clean
     SET tags = tags || '{"flag":"A"}'
-    WHERE "StatisikFlag_w" = 'A';
+    WHERE "StatisikFlag_unit" = 'A';
 
 UPDATE  model_draft.bnetza_mastr_wind_clean
     SET tags = tags || '{"flag":"B"}'
-    WHERE "StatisikFlag_w" = 'B';
+    WHERE "StatisikFlag_unit" = 'B';
 
 
 -- Tags: Betriebsstatus
@@ -112,14 +113,14 @@ UPDATE  model_draft.bnetza_mastr_wind_clean AS t1
     SET     comment =  COALESCE(comment, '') || 'onshore_inside; ',
             tags = tags || '{"inside_germany": true}'
     FROM    (
-        SELECT  m.lid AS id
+        SELECT  m.id AS id
         FROM    boundaries.bkg_vg250_1_sta_union_mview AS vg,
                 model_draft.bnetza_mastr_wind_clean AS m
         WHERE   tags ->> 'location' = 'onshore' AND
                 ST_TRANSFORM(vg.geom, 4326) && m.geom AND
                 ST_CONTAINS(ST_TRANSFORM(vg.geom, 4326),m.geom)
         ) AS t2
-    WHERE   t1.lid = t2.id;
+    WHERE   t1.id = t2.id;
 
 
 -- Tags: geom outside Germany
@@ -187,14 +188,14 @@ UPDATE  model_draft.bnetza_mastr_wind_clean AS t1
     SET     comment =  COALESCE(comment, '') || 'offshore_inside; ',
             tags = tags || '{"inside_germany": true}'
     FROM    (
-        SELECT  m.lid AS id
+        SELECT  m.id AS id
         FROM    model_draft.rli_boundaries_offshore AS vg,
                 model_draft.bnetza_mastr_wind_clean AS m
         WHERE   m."Lage" = 'WindAufSee' AND
                 m.geom_3035 && vg.geom AND
                 ST_CONTAINS(vg.geom,m.geom_3035)
         ) AS t2
-    WHERE   t1.lid = t2.id;
+    WHERE   t1.id = t2.id;
 
 -- Remove geom offshore outside
 UPDATE  model_draft.bnetza_mastr_wind_clean
@@ -221,7 +222,7 @@ UPDATE  model_draft.bnetza_mastr_wind_clean
 UPDATE  model_draft.bnetza_mastr_wind_clean AS t1
     SET     tags = tags || '{"plz_check": true}'
     FROM    (
-        SELECT  m.lid AS id
+        SELECT  m.id AS id
         FROM    boundaries.osm_postcode AS plz,
                 model_draft.bnetza_mastr_wind_clean AS m
         WHERE   ST_TRANSFORM(plz.geom, 3035) && m.geom_3035 AND
@@ -229,7 +230,7 @@ UPDATE  model_draft.bnetza_mastr_wind_clean AS t1
                 m."Postleitzahl" = plz.plz AND
                 m.tags ->> 'location' = 'onshore'
         ) AS t2
-    WHERE   t1.lid = t2.id;
+    WHERE   t1.id = t2.id;
 
 UPDATE  model_draft.bnetza_mastr_wind_clean
     SET tags = tags || '{"plz_check": false}'
@@ -314,16 +315,16 @@ UPDATE model_draft.bnetza_mastr_wind_clean AS t1
             osm_name = t2.osm_name,
             tags = tags || '{"in_osm": true}'
     FROM (
-        SELECT  b.lid AS id,
+        SELECT  b.id AS id,
                 a.id as osm_id,
                 a.osm_name as osm_name
         FROM    model_draft.mastr_osm_deu_point_windpower_buffer AS a,
                 model_draft.bnetza_mastr_wind_clean AS b
         WHERE   a.geom && b.geom_3035 AND
                 ST_CONTAINS(a.geom,b.geom_3035)
-        GROUP BY b.lid, a.id
+        GROUP BY b.id, a.id
         )AS t2
-    WHERE   t1.lid = t2.id;
+    WHERE   t1.id = t2.id;
 
 
 
@@ -394,15 +395,15 @@ ALTER TABLE model_draft.bnetza_mastr_wind_clean
 UPDATE model_draft.bnetza_mastr_wind_clean AS t1
     SET     mastr_buffer_cnt = t2.mastr_buffer_cnt
     FROM (
-        SELECT  b.lid AS id,
+        SELECT  b.id AS id,
                 a.mastr_count as mastr_buffer_cnt
         FROM    model_draft.bnetza_mastr_wind_clean_buffer AS a,
                 model_draft.bnetza_mastr_wind_clean AS b
         WHERE   a.geom && b.geom_3035 AND
                 ST_CONTAINS(a.geom,b.geom_3035)
-        GROUP BY b.lid, a.id
+        GROUP BY b.id, a.id
         )AS t2
-    WHERE   t1.lid = t2.id;
+    WHERE   t1.id = t2.id;
 
 
 
@@ -421,9 +422,9 @@ DROP TABLE IF EXISTS model_draft.bnetza_mastr_wind_clean_flagb CASCADE;
 CREATE TABLE         model_draft.bnetza_mastr_wind_clean_flagb AS
     SELECT  *
     FROM    model_draft.bnetza_mastr_wind_clean
-    WHERE   "StatisikFlag_w" = 'B' AND
+    WHERE   "StatisikFlag_unit" = 'B' AND
             "EinheitBetriebsstatus" = 'InBetrieb'
-    ORDER BY lid;
+    ORDER BY id;
 
 
 
@@ -481,15 +482,15 @@ FROM model_draft.bnetza_mastr_wind_clean
 GROUP BY "Technologie";
 
 -- Analyze Wind
-SELECT  "HerstellerID", "HerstellerName", COUNT(*) AS cnt
+SELECT  "HerstellerId", "Hersteller", COUNT(*) AS cnt
 FROM model_draft.bnetza_mastr_wind_clean
-GROUP BY "HerstellerID","HerstellerName"
+GROUP BY "HerstellerId","Hersteller"
 ORDER BY COUNT(*) DESC;
 
 -- Analyze Wind
-SELECT  "HerstellerID", "HerstellerName", "Typenbezeichnung", COUNT(*) AS cnt
+SELECT  "HerstellerId", "Hersteller", "Typenbezeichnung", COUNT(*) AS cnt
 FROM model_draft.bnetza_mastr_wind_clean
-GROUP BY "HerstellerID","HerstellerName", "Typenbezeichnung"
+GROUP BY "HerstellerId","Hersteller", "Typenbezeichnung"
 ORDER BY COUNT(*) DESC;
 
 /*
@@ -526,7 +527,7 @@ GROUP BY comment;
 -- Create a reduced version
 DROP TABLE IF EXISTS model_draft.bnetza_mastr_wind_clean_reduced CASCADE;
 CREATE TABLE         model_draft.bnetza_mastr_wind_clean_reduced AS
-    SELECT  "lid",
+    SELECT  "id",
             "EinheitMastrNummer",
             "Bruttoleistung",
             "EinheitBetriebsstatus",
@@ -534,8 +535,6 @@ CREATE TABLE         model_draft.bnetza_mastr_wind_clean_reduced AS
             "EegMastrNummer",
             "KwkMastrNummer",
             "GenMastrNummer",
-            "version",
-            "timestamp",
             "Ergebniscode",
             "DatumLetzteAktualisierung",
             "LokationMastrNummer",
@@ -563,21 +562,21 @@ CREATE TABLE         model_draft.bnetza_mastr_wind_clean_reduced AS
             "DatumEndgueltigeStilllegung",
             "DatumBeginnVoruebergehendeStilllegung",
             "DatumWiederaufnahmeBetrieb",
-            "EinheitBetriebsstatus_w",
+            "EinheitBetriebsstatus_unit",
             "AltAnlagenbetreiberMastrNummer",
             "DatumDesBetreiberwechsels",
             "DatumRegistrierungDesBetreiberwechsels",
-            "StatisikFlag_w",
+            "StatisikFlag_unit",
             "NameStromerzeugungseinheit",
             "WeicDisplayName",
-            "Bruttoleistung_w",
+            "Bruttoleistung_unit",
             "Nettonennleistung",
             "AnschlussAnHoechstOderHochSpannung",
             "FernsteuerbarkeitNb",
             "FernsteuerbarkeitDv",
             "FernsteuerbarkeitDr",
             "Einspeisungsart",
-            "GenMastrNummer_w",
+            "GenMastrNummer_unit",
             "NameWindpark",
             "Lage",
             "Seelage",
@@ -590,35 +589,32 @@ CREATE TABLE         model_draft.bnetza_mastr_wind_clean_reduced AS
             "AuflageAbschaltungLeistungsbegrenzung",
             "Wassertiefe",
             "Kuestenentfernung",
-            "EegMastrNummer_w",
-            "HerstellerID",
-            "HerstellerName",
-            "timestamp_w",
-            "Ergebniscode_e",
-            "Meldedatum_e",
-            "DatumLetzteAktualisierung_e",
+            "EegMastrNummer_unit",
+            "HerstellerId",
+            "Hersteller",
+            "Ergebniscode_eeg",
+            "Meldedatum_eeg",
+            "DatumLetzteAktualisierung_eeg",
             "EegInbetriebnahmedatum",
             "AnlagenkennzifferAnlagenregister",
             "AnlagenschluesselEeg",
             "InstallierteLeistung",
             "VerhaeltnisErtragsschaetzungReferenzertrag",
             "AnlageBetriebsstatus",
-            "VerknuepfteEinheit",
-            "MaStRNummer",
             "Datum",
             "Art",
             "Behoerde",
             "Aktenzeichen",
             "Frist",
-            "Meldedatum_p",
+            "Meldedatum_permit",
             "geom",
             "comment"
     FROM    model_draft.bnetza_mastr_wind_clean
     WHERE geom IS NOT NULL
-    ORDER BY lid;
+    ORDER BY id;
 
 ALTER TABLE model_draft.bnetza_mastr_wind_clean_reduced
-    ADD PRIMARY KEY (lid);
+    ADD PRIMARY KEY (id);
 
 CREATE INDEX bnetza_mastr_wind_clean_reduced_geom_idx
     ON model_draft.bnetza_mastr_wind_clean_reduced USING gist (geom);
