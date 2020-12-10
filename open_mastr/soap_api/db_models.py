@@ -123,6 +123,7 @@ class WindExtended(Extended, Base):
     ClusterOstsee = Column(String)
     ClusterNordsee = Column(String)
     Hersteller = Column(String)
+    HerstellerId = Column(String)
     Technologie = Column(String)
     Typenbezeichnung = Column(String)
     Nabenhoehe = Column(Float)

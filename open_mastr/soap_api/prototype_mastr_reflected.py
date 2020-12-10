@@ -6,7 +6,7 @@ from sqlalchemy import and_, create_engine
 import shlex
 import subprocess
 
-from open_mastr.soap_api.download import MaStRDownload, MaStRAPI
+from open_mastr.soap_api.download import MaStRDownload, _flatten_dict
 import open_mastr.soap_api.db_models as db
 
 
@@ -187,17 +187,13 @@ class MaStRReflected:
             if ids:
                 # Retrieve data
                 unit_data, missed_units = self.mastr_dl._additional_data(technology, ids, download_functions[data_type])
+                unit_data = _flatten_dict(unit_data)
 
                 # Prepare data and add to database table
                 for unit_dat in unit_data:
                     # Remove query status information from response
                     for exclude in ["Ergebniscode", "AufrufVeraltet", "AufrufVersion", "AufrufLebenszeitEnde"]:
                         del unit_dat[exclude]
-
-                    # A temporary hack to store dicts in the database. Will be replaced by dict flattening
-                    for k, v in unit_dat.items():
-                        if isinstance(v, dict):
-                            unit_dat[k] = json.dumps(v)
 
                     # Create new instance and update potentially existing one
                     unit = getattr(db, self.orm_map[technology][data_type])(**unit_dat)
