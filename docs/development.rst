@@ -25,7 +25,7 @@ The you can build the docs with
 Testing
 =======
 
-Make sure you have test requirements installed.
+Make sure you have test requirements installed (in addition to the package itself).
 
 .. code-block:: bash
 
