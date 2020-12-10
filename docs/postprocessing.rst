@@ -53,9 +53,7 @@ To run the postprocessing, use the following code snippet.
 
 .. note::
 
-   The raw data is assumed to reside in `soap_api/data/`.
-   This hard-coded assumption will be replaced very soon during restructuring of configuration and paths.
-   Until then, please move your raw data to the respective location in order to run the post-processing.
+   It is assumed raw data resides in `~/.open-MaStR/data/<data version>/` as explained in :ref:`Configuration`.
 
 
 Database import

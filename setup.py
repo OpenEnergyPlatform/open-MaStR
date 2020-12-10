@@ -34,9 +34,19 @@ setup(
         'pandas',
         'numpy',
         'sqlalchemy',
-        'multiprocess',
-        'zeep'
+        "geoalchemy2",
+        'zeep',
+        "tqdm",
+        "geopandas",
+        "pyyaml",
+        "requests",
+        "keyring",
+        'bokeh',
+        # 'geoviews'
     ],
+    package_data = {
+        "open_mastr": [os.path.join("soap_api", "config", "*.yml")]
+    },
     project_urls={
         'Bug Reports': 'https://github.com/OpenEnergyPlatform/open-MaStR/issues',
         'Source': 'https://github.com/OpenEnergyPlatform/open-MaStR',
