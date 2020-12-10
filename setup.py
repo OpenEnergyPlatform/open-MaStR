@@ -39,6 +39,9 @@ setup(
         'bokeh',
         # 'geoviews'
     ],
+    package_data = {
+        "": ["*.yml"]
+    },
     project_urls={
         'Bug Reports': 'https://github.com/OpenEnergyPlatform/open-MaStR/issues',
         'Source': 'https://github.com/OpenEnergyPlatform/open-MaStR',
