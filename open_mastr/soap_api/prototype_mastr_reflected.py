@@ -57,7 +57,10 @@ class MaStRReflected:
         self.orm_map = {
             "wind": {
                 "unit_data": "WindExtended"
-            }
+            },
+            "solar": {
+                "unit_data": "SolarExtended"
+            },
         }
 
     def initdb(self):
@@ -113,7 +116,7 @@ class MaStRReflected:
                 not in [_["EinheitMastrNummer"] for _ in basic_units[n + 1 :]]
             ]
 
-            # Store data in datadb.Base
+            # Store data in database
             for basic_unit in basic_units:
                 # Add basic unit information
                 basic = db.BasicUnit(**basic_unit)

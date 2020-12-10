@@ -138,3 +138,23 @@ class WindExtended(Extended, Base):
     Wassertiefe = Column(Float)
     Kuestenentfernung = Column(Float)
     EegMastrNummer = Column(String)
+
+
+class SolarExtended(Extended, Base):
+    __tablename__ = "mastr_solar"
+
+    zugeordneteWirkleistungWechselrichter = Column(Float)
+    GemeinsamerWechselrichterMitSpeicher = Column(String)
+    AnzahlModule = Column(Integer)
+    Lage = Column(String)
+    Leistungsbegrenzung = Column(String)
+    EinheitlicheAusrichtungUndNeigungswinkel = Column(Boolean)
+    Hauptausrichtung = Column(String)
+    HauptausrichtungNeigungswinkel = Column(String)
+    Nebenausrichtung = Column(String)
+    NebenausrichtungNeigungswinkel = Column(String)
+    InAnspruchGenommeneFlaeche = Column(String)
+    ArtDerFlaeche = Column(String)
+    InAnspruchGenommeneAckerflaeche = Column(Float)
+    Nutzungsbereich = Column(String)
+    EegMastrNummer = Column(String)
