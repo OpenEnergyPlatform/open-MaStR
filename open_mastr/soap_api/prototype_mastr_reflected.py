@@ -37,9 +37,13 @@ def chunks(lst, n):
 
 
 class MaStRReflected:
-    def __init__(self, empty_schema=False, restore_dump=None):
+    def __init__(self, empty_schema=False, restore_dump=None, initialize_db=True):
 
-        # Create datadb.Base tables
+        # Spin up database container
+        if initialize_db:
+            self.initdb()
+
+        # Create database tables
         with engine.connect().execution_options(autocommit=True) as con:
             if empty_schema:
                 con.execute(f"DROP SCHEMA IF EXISTS {db.Base.metadata.schema} CASCADE;")
@@ -265,19 +269,19 @@ class MaStRReflected:
                                 )
         proc.wait()
 
-limit = 150000
+limit = 1
+technology = "wind"
 
 mastr_refl = MaStRReflected(empty_schema=True)
 # mastr_refl.backfill_basic("solar", datetime.datetime(2020, 11, 27, 22, 0, 0), limit=10)
-mastr_refl.initdb()
-mastr_refl.backfill_basic("wind", limit=limit)
+mastr_refl.backfill_basic(technology, limit=limit)
 
 # Dump + restore data
-dump_file = "open-mastr-continuous-update_wind-120000.backup"
+# dump_file = "open-mastr-continuous-update_wind-120000.backup"
 # mastr_refl.restore(dump_file)
 
 # Download additional unit data
-mastr_refl.retrieve_additional_data("wind", "unit_data", limit=limit)
+mastr_refl.retrieve_additional_data(technology, "unit_data", limit=limit)
 
 # Dump
-mastr_refl.dump(dump_file)
+# mastr_refl.dump(dump_file)
