@@ -40,7 +40,7 @@ setup(
         # 'geoviews'
     ],
     package_data = {
-        "": ["*.yml"]
+        "open_mastr": [os.path.join("soap_api", "config", "*.yml")]
     },
     project_urls={
         'Bug Reports': 'https://github.com/OpenEnergyPlatform/open-MaStR/issues',
