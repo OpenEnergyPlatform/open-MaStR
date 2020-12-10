@@ -11,7 +11,7 @@ provided by the BNetzA keeping track of all power and gas units.
 The MaStR data can be [browsed online](https://www.marktstammdatenregister.de/MaStR),
 taken from [irregularly provided dumps](https://www.bundesnetzagentur.de/DE/Sachgebiete/ElektrizitaetundGas/Unternehmen_Institutionen/DatenaustauschundMonitoring/Marktstammdatenregister/MaStR_node.html)
 or be access via the [web service](https://www.marktstammdatenregister.de/MaStRHilfe/subpages/webdienst.html).
-This package package focuses on the latter.
+This package focuses on the latter.
 It provides a python interface for accessing the web service API, methods to clean and enrich data and functions to
 analyze it.
 
