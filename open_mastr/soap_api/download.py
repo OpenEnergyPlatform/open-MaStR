@@ -26,36 +26,35 @@ class MaStRAPI(object):
     """
     Access the Marktstammdatenregister (MaStR) SOAP API via a Python wrapper
 
-    `Read about <https://www.marktstammdatenregister.de/MaStRHilfe/index.html>`_
+    :ref:`Read about <MaStR account>`
     how to create a user account and a role including a token to access the
     MaStR SOAP API.
 
     Create an :class:`.MaStRAPI()` instance with your role credentials
 
-    .. code:
+    .. code-block:: python
 
-        mastr_api = MaStRAPI(
+       mastr_api = MaStRAPI(
             user="SOM123456789012",
             key=""koo5eixeiQuoi'w8deighai8ahsh1Ha3eib3coqu7ceeg%ies..."
-        )
+       )
 
-    Alternatively, leave `user` and `key` empty. Then, you be asked to
-    provide your credentials which will be save to the config file
-    `~/.open-MaStR/config.ini` (user) and to the keyring (key).
+    Alternatively, leave `user` and `key` empty if user and token are accessible via `credentials.cfg`.
+    How to configure this is described :ref:`here <MaStR account>`.
 
-        .. code:
+    .. code-block:: python
 
         mastr_api = MaStRAPI()
 
     Now, you can use the MaStR API instance to call `pre-defined SOAP API
     queries
-    <https://www.marktstammdatenregister.de/MaStRHilfe/files/webdienst/Funktionen_MaStR_Webdienste_V1.2.26.html>`_
+    <https://www.marktstammdatenregister.de/MaStRHilfe/files/webdienst/Funktionen_MaStR_Webdienste_V1.2.39.html>`_
     via the class' methods.
     For example, get a list of units limited to two entries.
 
-    .. code:
+    .. code-block:: python
 
-        mastr_api.GetListeAlleEinheiten(limit=2)
+       mastr_api.GetListeAlleEinheiten(limit=2)
 
     Note, as the example shows, you don't have to pass credentials for calling
     wrapped SOAP queries. This is handled internally.
@@ -390,7 +389,7 @@ class _MaStRDownloadFactory(type):
 
 
 class MaStRDownload(metaclass=_MaStRDownloadFactory):
-    """Use the higher level interface of MaStRDownload to download unit data
+    """Use the higher level interface for bulk download
 
     :class:`.MaStRDownload` builds on top of :class:`.MaStRAPI()` and provides
     an interface for easier downloading.
@@ -403,16 +402,13 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
 
         mastr_dl = MaStRDownload()
 
-        power_plants = mastr_dl.download_power_plants("nuclear", limit=10)
-        print(power_plants.head())
+        for tech in ["nuclear", "hydro", "wind", "solar", "biomass", "combustion", "gsgk"]:
+            power_plants = mastr_dl.download_power_plants(tech, limit=10)
+            print(power_plants.head())
 
-    This downloads power plant unit data for all nuclear power plants
-    registered in MaStR.
+    .. warning::
 
-    Note
-    ----
-    Be careful with download data without limit. This might exceed your daily
-    contigent of requests!
+        Be careful with increasing `limit`. Typically, your account allows only for 10.000 API request per day.
 
     """
 

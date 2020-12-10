@@ -17,7 +17,6 @@ __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.10.0"
 
 import os
-import configparser as cp
 import yaml
 import shutil
 import pathlib

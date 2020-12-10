@@ -1,41 +1,49 @@
 # Changelog
-All notable changes to this project will be documented in this file.
 
-The format is inpired from [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
-and the versiong aim to respect [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
-
-Here is a template for new release sections
-
-```
-## [_._._] - 20XX-MM-DD
-
-### Added
--
-### Changed
--
-### Removed
--
-```
+For each version important additions, changes and removals are listed here. 
 
 ## [Unreleased]
+
+A complete refactoring took place! Downloading data was entirely changed; introducing layers of code and removing 
+duplicated code while more of less following DRY. 
+Moreover, post-processing was changed to be more accessible and easier to execute. For example, docker now helps to 
+spin up a database container.
+The documention on RTD was extended, update and improved to be more helpful for new users.
+Read more about the details:
 
 ### Added
 
 - Introduce project home `~/.open-MaStR/config/` [#120](https://github.com/OpenEnergyPlatform/open-MaStR/issues/120)
 - Documentation of post-processing [#117](https://github.com/OpenEnergyPlatform/open-MaStR/issues/117)
-- Local execution of post-processing now possible, optionally in dockered database [#116](https://github.com/OpenEnergyPlatform/open-MaStR/issues/116)
-- Introduce a python wrapper for 
-  [MaStRAPI](https://www.marktstammdatenregister.de/MaStRHilfe/files/webdienst/Funktionen_MaStR_Webdienste_V1.2.26.html) 
-  for low-level access [#83](https://github.com/OpenEnergyPlatform/open-MaStR/issues/83)
-- Configure Travis-CI [#132](https://github.com/OpenEnergyPlatform/open-MaStR/issues/132)
+- Updated documentation of downloading data
+  [#124](https://github.com/OpenEnergyPlatform/open-MaStR/issues/124) which is harmonized with the other parts of docs
+  and with GitHubs README [#135](https://github.com/OpenEnergyPlatform/open-MaStR/issues/135)
+- Local execution of post-processing now possible, optionally in dockered database 
+  [#116](https://github.com/OpenEnergyPlatform/open-MaStR/issues/116)
+- Test for changed download code are added [#131](https://github.com/OpenEnergyPlatform/open-MaStR/issues/131)
+- The CHANGELOG is now included in the documentation
 
 ### Changed
 
-- configuration through config filen in `~/.open-MaStR/config/` [#120](https://github.com/OpenEnergyPlatform/open-MaStR/issues/120)
+- Download of raw data has entirely been refactored. A 
+  [python wrapper](https://open-mastr.readthedocs.io/en/latest/download.html#mastr-api-wrapper) for querying 
+  the MaStR API was introduced
+  [#83](https://github.com/OpenEnergyPlatform/open-MaStR/issues/83)
+- Based on that, for bulk data download, 
+  [MaStRDownload](https://open-mastr.readthedocs.io/en/latest/download.html#bulk-download) provides handy query 
+  functions for power unit data
+  [#86](https://github.com/OpenEnergyPlatform/open-MaStR/issues/86). See also
+  [#128](https://github.com/OpenEnergyPlatform/open-MaStR/issues/128)
+- configuration through config filen in `~/.open-MaStR/config/` with less hard-coded parameters in source files
+  [#120](https://github.com/OpenEnergyPlatform/open-MaStR/issues/120), 
+  [#112](https://github.com/OpenEnergyPlatform/open-MaStR/issues/112)
 - move code into one package named `open_mastr` [#123](https://github.com/OpenEnergyPlatform/open-MaStR/issues/123)
+- Switch to GitHub Actions for CI instead of Travis [#143](https://github.com/OpenEnergyPlatform/open-MaStR/issues/143)
 
 
 ### Removed
+
+- Most of prior code for downloading data
 
 
 ## [0.10.0] 2020-10-08
