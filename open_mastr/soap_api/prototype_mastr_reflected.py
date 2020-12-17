@@ -38,7 +38,7 @@ def chunks(lst, n):
     else:
         length = len(lst)
     for i in range(0, length, n):
-        yield lst[i:i + n]
+        yield lst[i: i + n]
 
 
 class MaStRReflected:
