@@ -632,7 +632,7 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
 
         return joined_data
 
-    def _basic_unit_data(self, technology, limit, date_from=None):
+    def _basic_unit_data(self, technology, limit, date_from=None, max_retries=3):
         """
         Download basic unit information for one technology.
 
@@ -676,13 +676,30 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
             # displaying download progress.
             # Later, all units of a single technology are collected in 'units'
             for chunk_start, limit_iter in zip(chunks_start, limits):
-                response = self._mastr_api.GetGefilterteListeStromErzeuger(
-                    energietraeger=et,
-                    startAb=chunk_start,
-                    limit=limit_iter,
-                    datumAb=date_from)
-                units_tech.extend(response["Einheiten"])
-                pbar.update(len(response["Einheiten"]))
+                # Use a retry loop to retry on connection errors
+                for try_number in range(max_retries + 1):
+                    try:
+                        response = self._mastr_api.GetGefilterteListeStromErzeuger(
+                            energietraeger=et,
+                            startAb=chunk_start,
+                            limit=limit_iter,
+                            datumAb=date_from)
+                    except (requests.exceptions.ConnectionError, Fault) as e:
+                        try_number += 1
+                        log.warning(f"MaStR SOAP API does not respond properly: {e}. Retry {try_number}")
+                        time.sleep(5)
+                    else:
+                        # If it does run into the except clause, break out of the for loop
+                        # This also means query was successful
+                        units_tech.extend(response["Einheiten"])
+                        pbar.update(len(response["Einheiten"]))
+                        break
+                else:
+                    log.error(f"Finally failed to download data."
+                              f"Basic unit data of index {chunk_start} to {limit_iter} will be missing.")
+                    # TODO: this has potential risk! Please change
+                    # If the download continuously fails on the last chunk, this query will run forever
+                    response = {"Ergebniscode": 'OkWeitereDatenVorhanden'}
 
                 # Stop querying more data, if no further data available
                 if response["Ergebniscode"] == 'OkWeitereDatenVorhanden':

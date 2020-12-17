@@ -116,18 +116,7 @@ class MaStRReflected:
         for tech in technology:
 
             # Catch weird MaStR SOAP response
-            try:
-                basic_units = self.mastr_dl._basic_unit_data(tech, limit, date_from=date)
-            except ConnectionError as e:
-                log.warning(f"MaStR SOAP API gives a weird response: {e}. Trying again...")
-                time.sleep(1.5)
-                try:
-                    basic_units = self.mastr_dl._basic_unit_data(tech, limit, date_from=date)
-                except ConnectionError as e:
-                    msg = (f"MaStR SOAP API still gives a weird response: '{e}'.\n"
-                                  "We have to stop the program!")
-                    log.exception(msg)
-                    raise ConnectionError(msg)
+            basic_units = self.mastr_dl._basic_unit_data(tech, limit, date_from=date)
 
             # Remove duplicates
             basic_units = [
