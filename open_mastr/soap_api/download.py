@@ -535,7 +535,7 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         self.daily_contingent()
 
         # Retrieve basic power plant unit data
-        units = self._basic_unit_data(technology, limit)
+        units = self.basic_unit_data(technology, limit)
 
         # Prepare list of unit ID for different additional data (extended, eeg, kwk, permit)
         mastr_ids = [basic['EinheitMastrNummer'] for basic in units]
@@ -632,7 +632,7 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
 
         return joined_data
 
-    def _basic_unit_data(self, technology, limit, date_from=None, max_retries=3):
+    def basic_unit_data(self, technology, limit, date_from=None, max_retries=3):
         """
         Download basic unit information for one technology.
 
