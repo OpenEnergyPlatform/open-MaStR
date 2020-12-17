@@ -117,7 +117,7 @@ class MaStRAPI(object):
                     response = soap_func(*args, **kwargs)
                 except Fault as e:
                     msg = (f"MaStR SOAP API still gives a weird response: '{e}'.\n"
-                                  "We have to stop the program!")
+                                  "Retry failed!")
                     log.exception(msg)
                     raise Fault(msg)
 
