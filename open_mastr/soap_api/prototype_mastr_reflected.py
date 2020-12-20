@@ -114,7 +114,7 @@ class MaStRReflected:
 
         # Retrieve data for each technology separately
         for tech in technology:
-            log.info(f"Retrieve data for technology {tech}")
+            log.info(f"Backfill data for technology {tech}")
 
             # Catch weird MaStR SOAP response
             basic_units = self.mastr_dl.basic_unit_data(tech, limit, date_from=date)
@@ -128,12 +128,13 @@ class MaStRReflected:
             ]
 
             # Insert basic data into databse
-            log.info(f"Insert basic data about {len(basic_units)} into DB and submit additional data requests")
+            log.info(f"Insert basic data about {len(basic_units)} units into DB and submit additional data requests")
             for basic_units_chunk in chunks(basic_units, 10000):
                 session.bulk_insert_mappings(db.BasicUnit, basic_units_chunk)
 
                 # Submit additional data requests
                 # Extended unit data
+                log.info("Submit data request for extended unit data")
                 extended_data = [
                     {
                         "EinheitMastrNummer": basic_unit["EinheitMastrNummer"],
@@ -147,6 +148,7 @@ class MaStRReflected:
                 session.bulk_insert_mappings(db.AdditionalDataRequested, extended_data)
 
                 # EEG unit data
+                log.info("Submit data request for EEG unit data")
                 eeg_data = [
                     {
                         "EinheitMastrNummer": basic_unit["EinheitMastrNummer"],
@@ -160,6 +162,7 @@ class MaStRReflected:
                 session.bulk_insert_mappings(db.AdditionalDataRequested, eeg_data)
 
                 # KWK unit data
+                log.info("Submit data request for KWK unit data")
                 kwk_data = [
                     {
                         "EinheitMastrNummer": basic_unit["EinheitMastrNummer"],
@@ -173,6 +176,7 @@ class MaStRReflected:
                 session.bulk_insert_mappings(db.AdditionalDataRequested, kwk_data)
                 
                 # Permit unit data
+                log.info("Submit data request for permit unit data")
                 permit_data = [
                     {
                         "EinheitMastrNummer": basic_unit["EinheitMastrNummer"],
