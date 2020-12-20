@@ -192,7 +192,6 @@ class MaStRReflected:
 
     def retrieve_additional_data(self, technology, data_type, limit=None, chunksize=1000):
 
-        # TODO: flatten dictionary
         # Mapping of download from MaStRDownload
         download_functions = {
             "unit_data": "_extended_unit_data",
