@@ -185,12 +185,6 @@ class MaStRReflected:
                     if basic_unit["GenMastrNummer"]]
                 session.bulk_insert_mappings(db.AdditionalDataRequested, permit_data)
 
-            # # Store data in database
-            # for basic_unit in basic_units:
-            #     # Add basic unit information
-            #     # basic = db.BasicUnit(**basic_unit)
-            #     # session.add(basic)
-
             log.info("Flush collected data to database")
             session.commit()
             session.close()
