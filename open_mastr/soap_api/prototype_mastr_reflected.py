@@ -114,6 +114,7 @@ class MaStRReflected:
 
         # Retrieve data for each technology separately
         for tech in technology:
+            log.info(f"Retrieve data for technology {tech}")
 
             # Catch weird MaStR SOAP response
             basic_units = self.mastr_dl.basic_unit_data(tech, limit, date_from=date)
@@ -123,52 +124,77 @@ class MaStRReflected:
                 unit
                 for n, unit in enumerate(basic_units)
                 if unit["EinheitMastrNummer"]
-                not in [_["EinheitMastrNummer"] for _ in basic_units[n + 1 :]]
+                not in [_["EinheitMastrNummer"] for _ in basic_units[n + 1:]]
             ]
 
-            # Store data in database
-            for basic_unit in basic_units:
-                # Add basic unit information
-                basic = db.BasicUnit(**basic_unit)
-                session.add(basic)
+            # Insert basic data into databse
+            log.info(f"Insert basic data about {len(basic_units)} into DB and submit additional data requests")
+            for basic_units_chunk in chunks(basic_units, 10000):
+                session.bulk_insert_mappings(db.BasicUnit, basic_units_chunk)
 
-                # Save unit identifiers for later additional data request
-                data_request = db.AdditionalDataRequested(
-                    EinheitMastrNummer=basic.EinheitMastrNummer,
-                    additional_data_id=basic.EinheitMastrNummer,
-                    technology=tech,
-                    data_type="unit_data",
-                    request_date=datetime.datetime.now(tz=datetime.timezone.utc),
-                )
-                session.add(data_request)
-                if basic.EegMastrNummer:
-                    data_request = db.AdditionalDataRequested(
-                        EinheitMastrNummer=basic.EinheitMastrNummer,
-                        additional_data_id=basic.EegMastrNummer,
-                        technology=tech,
-                        data_type="eeg_data",
-                        request_date=datetime.datetime.now(tz=datetime.timezone.utc),
-                    )
-                    session.add(data_request)
-                if basic.KwkMastrNummer:
-                    data_request = db.AdditionalDataRequested(
-                        EinheitMastrNummer=basic.EinheitMastrNummer,
-                        additional_data_id=basic.KwkMastrNummer,
-                        technology=tech,
-                        data_type="kwk_data",
-                        request_date=datetime.datetime.now(tz=datetime.timezone.utc),
-                    )
-                    session.add(data_request)
-                if basic.GenMastrNummer:
-                    data_request = db.AdditionalDataRequested(
-                        EinheitMastrNummer=basic.EinheitMastrNummer,
-                        additional_data_id=basic.GenMastrNummer,
-                        technology=tech,
-                        data_type="permit_data",
-                        request_date=datetime.datetime.now(tz=datetime.timezone.utc),
-                    )
-                    session.add(data_request)
+                # Submit additional data requests
+                # Extended unit data
+                extended_data = [
+                    {
+                        "EinheitMastrNummer": basic_unit["EinheitMastrNummer"],
+                        "additional_data_id": basic_unit["EinheitMastrNummer"],
+                        "technology": tech,
+                        "data_type": "unit_data",
+                        "request_date": datetime.datetime.now(tz=datetime.timezone.utc),
+                    }
+                    for basic_unit in basic_units_chunk
+                ]
+                session.bulk_insert_mappings(db.AdditionalDataRequested, extended_data)
+
+                # EEG unit data
+                eeg_data = [
+                    {
+                        "EinheitMastrNummer": basic_unit["EinheitMastrNummer"],
+                        "additional_data_id": basic_unit["EegMastrNummer"],
+                        "technology": tech,
+                        "data_type": "eeg_data",
+                        "request_date": datetime.datetime.now(tz=datetime.timezone.utc),
+                    }
+                    for basic_unit in basic_units_chunk
+                    if basic_unit["EegMastrNummer"]]
+                session.bulk_insert_mappings(db.AdditionalDataRequested, eeg_data)
+
+                # KWK unit data
+                kwk_data = [
+                    {
+                        "EinheitMastrNummer": basic_unit["EinheitMastrNummer"],
+                        "additional_data_id": basic_unit["KwkMastrNummer"],
+                        "technology": tech,
+                        "data_type": "kwk_data",
+                        "request_date": datetime.datetime.now(tz=datetime.timezone.utc),
+                    }
+                    for basic_unit in basic_units_chunk
+                    if basic_unit["KwkMastrNummer"]]
+                session.bulk_insert_mappings(db.AdditionalDataRequested, kwk_data)
+                
+                # Permit unit data
+                permit_data = [
+                    {
+                        "EinheitMastrNummer": basic_unit["EinheitMastrNummer"],
+                        "additional_data_id": basic_unit["GenMastrNummer"],
+                        "technology": tech,
+                        "data_type": "permit_data",
+                        "request_date": datetime.datetime.now(tz=datetime.timezone.utc),
+                    }
+                    for basic_unit in basic_units_chunk
+                    if basic_unit["GenMastrNummer"]]
+                session.bulk_insert_mappings(db.AdditionalDataRequested, permit_data)
+
+            # # Store data in database
+            # for basic_unit in basic_units:
+            #     # Add basic unit information
+            #     # basic = db.BasicUnit(**basic_unit)
+            #     # session.add(basic)
+
+            log.info("Flush collected data to database")
             session.commit()
+            session.close()
+            log.info("Backfill successfully finished")
 
     def retrieve_additional_data(self, technology, data_type, limit=None, chunksize=1000):
 
