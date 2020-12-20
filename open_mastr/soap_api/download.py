@@ -684,7 +684,10 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
                             startAb=chunk_start,
                             limit=limit_iter,
                             datumAb=date_from)
-                    except (requests.exceptions.ConnectionError, Fault) as e:
+                    except (requests.exceptions.ConnectionError, 
+                            Fault,
+                            requests.exceptions.ReadTimeout
+                            ) as e:
                         try_number += 1
                         log.warning(f"MaStR SOAP API does not respond properly: {e}. Retry {try_number}")
                         time.sleep(5)
