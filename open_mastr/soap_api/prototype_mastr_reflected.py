@@ -119,22 +119,24 @@ class MaStRReflected:
             # Catch weird MaStR SOAP response
             basic_units = self.mastr_dl.basic_unit_data(tech, limit, date_from=date)
 
-            # Remove duplicates
-            basic_units = [
-                unit
-                for n, unit in enumerate(basic_units)
-                if unit["EinheitMastrNummer"]
-                not in [_["EinheitMastrNummer"] for _ in basic_units[n + 1:]]
-            ]
+            # Remember units that are already downloaded and added to the session
+            already_added_units = []
 
             # Insert basic data into databse
-            log.info(f"Insert basic data about {len(basic_units)} units into DB and submit additional data requests")
-            for basic_units_chunk in chunks(basic_units, 10000):
+            log.info("Insert basic unit data into DB and submit additional data requests")
+            for basic_units_chunk in basic_units:
+                basic_units_chunk = [
+                    unit
+                    for n, unit in enumerate(basic_units_chunk)
+                    if unit["EinheitMastrNummer"]
+                       not in [_["EinheitMastrNummer"] for _ in basic_units_chunk[n + 1:]]
+                       and unit["EinheitMastrNummer"] not in already_added_units
+                ]
+                already_added_units += [_["EinheitMastrNummer"] for _ in basic_units_chunk]
                 session.bulk_insert_mappings(db.BasicUnit, basic_units_chunk)
 
                 # Submit additional data requests
                 # Extended unit data
-                log.info("Submit data request for extended unit data")
                 extended_data = [
                     {
                         "EinheitMastrNummer": basic_unit["EinheitMastrNummer"],
@@ -148,7 +150,6 @@ class MaStRReflected:
                 session.bulk_insert_mappings(db.AdditionalDataRequested, extended_data)
 
                 # EEG unit data
-                log.info("Submit data request for EEG unit data")
                 eeg_data = [
                     {
                         "EinheitMastrNummer": basic_unit["EinheitMastrNummer"],
@@ -162,7 +163,6 @@ class MaStRReflected:
                 session.bulk_insert_mappings(db.AdditionalDataRequested, eeg_data)
 
                 # KWK unit data
-                log.info("Submit data request for KWK unit data")
                 kwk_data = [
                     {
                         "EinheitMastrNummer": basic_unit["EinheitMastrNummer"],
@@ -176,7 +176,6 @@ class MaStRReflected:
                 session.bulk_insert_mappings(db.AdditionalDataRequested, kwk_data)
                 
                 # Permit unit data
-                log.info("Submit data request for permit unit data")
                 permit_data = [
                     {
                         "EinheitMastrNummer": basic_unit["EinheitMastrNummer"],

@@ -535,7 +535,9 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         self.daily_contingent()
 
         # Retrieve basic power plant unit data
-        units = self.basic_unit_data(technology, limit)
+        # The return value is casted into a list, because a generator gets returned
+        # This was introduced later, after creation of this method
+        units = [unit for sublist in self.basic_unit_data(technology, limit) for unit in sublist]
 
         # Prepare list of unit ID for different additional data (extended, eeg, kwk, permit)
         mastr_ids = [basic['EinheitMastrNummer'] for basic in units]
@@ -651,10 +653,10 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         max_retries: int, optional
             Maximum number of retries in case of errors with the connection to the server.
 
-        Returns
-        -------
+        Yields
+        ------
         list of dict
-            A list of dicts is returned with each dictionary containing
+            A generator of dicts is returned with each dictionary containing
             information about one unit.
         """
         # Split download of basic unit data in chunks of 2000
@@ -664,13 +666,10 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         limits = [chunksize if (x + chunksize) <= limit
                   else limit - x + 1 for x in chunks_start]
 
-        units = []
         # In case multiple energy carriers (energietraeger) exist for one technology,
         # loop over these and join data to one list
         for et in self._unit_data_specs[technology]["energietraeger"]:
             log.info(f"Get list of units with basic information for technology {technology} ({et})")
-
-            units_tech = []
 
             pbar = tqdm(total=limit,
                         desc=f"Get list of units with basic information for technology {technology} ({et})",
@@ -699,8 +698,10 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
                     else:
                         # If it does run into the except clause, break out of the for loop
                         # This also means query was successful
-                        units_tech.extend(response["Einheiten"])
-                        pbar.update(len(response["Einheiten"]))
+                        units_tech = response["Einheiten"]
+                        # TODO: what happens when multiple energietraeger exist? Test with combustion (CSV download) if this approach works
+                        yield units_tech
+                        pbar.update(len(units_tech))
                         break
                 else:
                     log.error(f"Finally failed to download data."
@@ -714,18 +715,13 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
                     continue
                 else:
                     # Update progress bar and move on with next et or technology
-                    pbar.total = len(units_tech)
+                    pbar.total = pbar.n
                     pbar.refresh()
                     pbar.close()
                     break
 
             # Make sure progress bar is closed properly
             pbar.close()
-
-            # Put units of 'technology' in units list
-            units.extend(units_tech)
-
-        return units
 
     def _additional_data(self, technology, unit_ids, data_fcn):
         """
