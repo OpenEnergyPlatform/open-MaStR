@@ -699,7 +699,6 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
                         # If it does run into the except clause, break out of the for loop
                         # This also means query was successful
                         units_tech = response["Einheiten"]
-                        # TODO: what happens when multiple energietraeger exist? Test with combustion (CSV download) if this approach works
                         yield units_tech
                         pbar.update(len(units_tech))
                         break
