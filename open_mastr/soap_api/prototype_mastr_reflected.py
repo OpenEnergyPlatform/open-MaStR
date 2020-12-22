@@ -188,8 +188,7 @@ class MaStRReflected:
                     if basic_unit["GenMastrNummer"]]
                 session.bulk_insert_mappings(db.AdditionalDataRequested, permit_data)
 
-            log.info("Flush collected data to database")
-            session.commit()
+                session.commit()
             session.close()
             log.info("Backfill successfully finished")
 
