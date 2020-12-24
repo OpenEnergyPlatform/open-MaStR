@@ -704,7 +704,7 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
                         break
                 else:
                     log.error(f"Finally failed to download data."
-                              f"Basic unit data of index {chunk_start} to {chunk_start + limit_iter} will be missing.")
+                              f"Basic unit data of index {chunk_start} to {chunk_start + limit_iter - 1} will be missing.")
                     # TODO: this has potential risk! Please change
                     # If the download continuously fails on the last chunk, this query will run forever
                     response = {"Ergebniscode": 'OkWeitereDatenVorhanden'}
