@@ -293,20 +293,3 @@ class MaStRReflected:
                                 stderr=subprocess.PIPE,
                                 )
         proc.wait()
-
-limit = 1
-technology = "wind"
-
-mastr_refl = MaStRReflected(empty_schema=True)
-# mastr_refl.backfill_basic("solar", datetime.datetime(2020, 11, 27, 22, 0, 0), limit=10)
-mastr_refl.backfill_basic(technology, limit=limit)
-
-# Dump + restore data
-# dump_file = "open-mastr-continuous-update_wind-120000.backup"
-# mastr_refl.restore(dump_file)
-
-# Download additional unit data
-mastr_refl.retrieve_additional_data(technology, "unit_data", limit=limit)
-
-# Dump
-# mastr_refl.dump(dump_file)
