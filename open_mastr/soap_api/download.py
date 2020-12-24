@@ -634,7 +634,7 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
 
         return joined_data
 
-    def basic_unit_data(self, technology, limit, date_from=None, max_retries=3):
+    def basic_unit_data(self, technology=None, limit=2000, date_from=None, max_retries=3):
         """
         Download basic unit information for one technology.
 
@@ -643,9 +643,9 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
 
         Parameters
         ----------
-        technology : str
+        technology : str, optional
             Technology, see :meth:`MaStRDownload.download_power_plants`
-        limit : int
+        limit : int, optional
             Maximum number of units to download.
         date_from: :any:`datetime.datetime()`, optional
             If specified, only units with latest change date newer than this are queried.
@@ -666,9 +666,15 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         limits = [chunksize if (x + chunksize) <= limit
                   else limit - x + 1 for x in chunks_start]
 
+        # Deal with or w/o technology being specified
+        if not technology:
+            energietraeger = [None]
+        else:
+            energietraeger = self._unit_data_specs[technology]["energietraeger"]
+
         # In case multiple energy carriers (energietraeger) exist for one technology,
         # loop over these and join data to one list
-        for et in self._unit_data_specs[technology]["energietraeger"]:
+        for et in energietraeger:
             log.info(f"Get list of units with basic information for technology {technology} ({et})")
 
             pbar = tqdm(total=limit,
@@ -683,8 +689,12 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
                 # Use a retry loop to retry on connection errors
                 for try_number in range(max_retries + 1):
                     try:
-                        response = self._mastr_api.GetGefilterteListeStromErzeuger(
-                            energietraeger=et,
+                        # response = self._mastr_api.GetGefilterteListeStromErzeuger(
+                        #     energietraeger=et,
+                        #     startAb=chunk_start,
+                        #     limit=limit_iter,
+                        #     datumAb=date_from)
+                        response = self._mastr_api.GetListeAlleEinheiten(
                             startAb=chunk_start,
                             limit=limit_iter,
                             datumAb=date_from)

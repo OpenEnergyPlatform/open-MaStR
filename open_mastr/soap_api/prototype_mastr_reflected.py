@@ -65,11 +65,24 @@ class MaStRReflected:
         # Map technologies on ORMs
         self.orm_map = {
             "wind": {
-                "unit_data": "WindExtended"
+                "unit_data": "WindExtended",
             },
             "solar": {
-                "unit_data": "SolarExtended"
+                "unit_data": "SolarExtended",
             },
+        }
+
+        # Map technology and MaStR unit type
+        # Map technologies on ORMs
+        self.unit_type_map = {
+            "Windeinheit": "wind",
+            "Solareinheit": "solar",
+            "Biomasse": "biomass",
+            "Wasser": "hydro",
+            "Geothermie": "gsgk",
+            "Verbrennung": "combustion",
+            "Kernenergie": "nuclear",
+            "Stromspeichereinheit": "storage"
         }
 
     def initdb(self):
@@ -83,7 +96,7 @@ class MaStRReflected:
             cwd=conf_file_path,
         )
 
-    def backfill_basic(self, technology, date=None, limit=None):
+    def backfill_basic(self, technology=None, date=None, limit=None):
         """Loads basic unit information for all units until `date`.
 
         Parameters
@@ -106,6 +119,8 @@ class MaStRReflected:
         # Process arguments
         if isinstance(technology, str):
             technology = [technology]
+        elif technology == None:
+            technology = [None]
         # Set limit to a number >> number of units of technology with most units
         if limit is None:
             limit = 10 ** 8
@@ -141,7 +156,7 @@ class MaStRReflected:
                     {
                         "EinheitMastrNummer": basic_unit["EinheitMastrNummer"],
                         "additional_data_id": basic_unit["EinheitMastrNummer"],
-                        "technology": tech,
+                        "technology": self.unit_type_map[basic_unit["Einheittyp"]],
                         "data_type": "unit_data",
                         "request_date": datetime.datetime.now(tz=datetime.timezone.utc),
                     }
@@ -154,7 +169,7 @@ class MaStRReflected:
                     {
                         "EinheitMastrNummer": basic_unit["EinheitMastrNummer"],
                         "additional_data_id": basic_unit["EegMastrNummer"],
-                        "technology": tech,
+                        "technology": self.unit_type_map[basic_unit["Einheittyp"]],
                         "data_type": "eeg_data",
                         "request_date": datetime.datetime.now(tz=datetime.timezone.utc),
                     }
@@ -167,20 +182,20 @@ class MaStRReflected:
                     {
                         "EinheitMastrNummer": basic_unit["EinheitMastrNummer"],
                         "additional_data_id": basic_unit["KwkMastrNummer"],
-                        "technology": tech,
+                        "technology": self.unit_type_map[basic_unit["Einheittyp"]],
                         "data_type": "kwk_data",
                         "request_date": datetime.datetime.now(tz=datetime.timezone.utc),
                     }
                     for basic_unit in basic_units_chunk
                     if basic_unit["KwkMastrNummer"]]
                 session.bulk_insert_mappings(db.AdditionalDataRequested, kwk_data)
-                
+
                 # Permit unit data
                 permit_data = [
                     {
                         "EinheitMastrNummer": basic_unit["EinheitMastrNummer"],
                         "additional_data_id": basic_unit["GenMastrNummer"],
-                        "technology": tech,
+                        "technology": self.unit_type_map[basic_unit["Einheittyp"]],
                         "data_type": "permit_data",
                         "request_date": datetime.datetime.now(tz=datetime.timezone.utc),
                     }
