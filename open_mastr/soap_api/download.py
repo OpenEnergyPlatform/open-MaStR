@@ -480,6 +480,10 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
                 "unit_data": "GetEinheitStromSpeicher",
                 "energietraeger": ["Speicher"],
                 "eeg_data": "GetAnlageEegSpeicher",
+            },
+            "gas_storage": {
+                "unit_data": "GetEinheitGasSpeicher",
+                "energietraeger": ["Speicher"],
             }
         }
 

@@ -82,7 +82,8 @@ class MaStRReflected:
             "Geothermie": "gsgk",
             "Verbrennung": "combustion",
             "Kernenergie": "nuclear",
-            "Stromspeichereinheit": "storage"
+            "Stromspeichereinheit": "storage",
+            "Gasspeichereinheit": "gas_storage",
         }
 
     def initdb(self):
