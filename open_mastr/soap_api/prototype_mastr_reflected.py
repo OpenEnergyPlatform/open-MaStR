@@ -85,6 +85,8 @@ class MaStRReflected:
             "Stromspeichereinheit": "storage",
             "Gasspeichereinheit": "gas_storage",
             "Gasverbrauchseinheit": "gas_consumer",
+            "Stromverbrauchseinheit": "consumer",
+            "Gaserzeugungseinheit": "gas_producer",
         }
 
     def initdb(self):

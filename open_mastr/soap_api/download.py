@@ -490,6 +490,14 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
                 "unit_data": "GetEinheitGasVerbraucher",
                 "energietraeger": ["Erdgas"],
             },
+            "consumer": {
+                "unit_data": "GetEinheitStromVerbraucher",
+                "energietraeger": ["Strom"],
+            },
+            "gas_producer": {
+                "unit_data": "GetEinheitGasErzeuger",
+                "energietraeger": [None],
+            },
         }
 
         # Check if MaStR credentials are available and otherwise ask
