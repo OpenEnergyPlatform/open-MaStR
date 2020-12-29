@@ -51,8 +51,11 @@ def test_soap_wrapper_power_plant_list(mastr_api):
 
 
 def test_basic_unit_data(mastr_download):
-    data = list(mastr_download.basic_unit_data("nuclear", 1))
+    data = [unit for sublist in mastr_download.basic_unit_data(
+        technology="nuclear",
+        limit=1
+    ) for unit in sublist]
 
     assert len(data) == 1
-    assert data[0]["Energietraeger"] == "Kernenergie"
+    assert data[0]["Einheittyp"] == "Kernenergie"
 
