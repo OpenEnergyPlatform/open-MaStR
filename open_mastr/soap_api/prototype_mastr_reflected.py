@@ -106,6 +106,9 @@ class MaStRReflected:
             * `None`: Complete backfill
 
             Defaults to `None`.
+        limit: int
+            Maximum number of units.
+            Defaults to `None`.
         """
         # TODO: add keyword argument overwrite. If true, queried data overwrites existing without checking
         # TODO: Default is False, which refers to only inserting new or updated data (with newer timestamp than existing)
