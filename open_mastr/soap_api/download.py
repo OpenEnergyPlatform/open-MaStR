@@ -484,7 +484,12 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
             "gas_storage": {
                 "unit_data": "GetEinheitGasSpeicher",
                 "energietraeger": ["Speicher"],
-            }
+            },
+            # TODO: unsure if energietraeger Ergdas makes sense
+            "gas_consumer": {
+                "unit_data": "GetEinheitGasVerbraucher",
+                "energietraeger": ["Erdgas"],
+            },
         }
 
         # Check if MaStR credentials are available and otherwise ask

@@ -84,6 +84,7 @@ class MaStRReflected:
             "Kernenergie": "nuclear",
             "Stromspeichereinheit": "storage",
             "Gasspeichereinheit": "gas_storage",
+            "Gasverbrauchseinheit": "gas_consumer",
         }
 
     def initdb(self):
