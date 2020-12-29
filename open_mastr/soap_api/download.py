@@ -554,7 +554,10 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         # Retrieve basic power plant unit data
         # The return value is casted into a list, because a generator gets returned
         # This was introduced later, after creation of this method
-        units = [unit for sublist in self.basic_unit_data(technology, limit) for unit in sublist]
+        units = [unit for sublist in self.basic_unit_data(
+            technology=technology,
+            limit=limit
+        ) for unit in sublist]
 
         # Prepare list of unit ID for different additional data (extended, eeg, kwk, permit)
         mastr_ids = [basic['EinheitMastrNummer'] for basic in units]
@@ -661,9 +664,18 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         Parameters
         ----------
         technology : str, optional
-            Technology, see :meth:`MaStRDownload.download_power_plants`
+            Technology data is requested for. See :meth:`MaStRDownload.download_power_plants` for options.
+            Data is retrieved using :meth:`MaStRAPI.GetGefilterteListeStromErzeuger`.
+            If not given, it defaults to `None`. This implies data for all available technologies is retrieved using
+            the web service function :meth:`MaStRAPI.GetListeAlleEinheiten`.
         limit : int, optional
             Maximum number of units to download.
+            If not provided, data for all units is downloaded.
+
+            .. warning:
+
+               Mind the daily request limit for your MaStR account.
+
         date_from: :any:`datetime.datetime()`, optional
             If specified, only units with latest change date newer than this are queried.
             Defaults to :any:`None`.
@@ -706,15 +718,18 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
                 # Use a retry loop to retry on connection errors
                 for try_number in range(max_retries + 1):
                     try:
-                        # response = self._mastr_api.GetGefilterteListeStromErzeuger(
-                        #     energietraeger=et,
-                        #     startAb=chunk_start,
-                        #     limit=limit_iter,
-                        #     datumAb=date_from)
-                        response = self._mastr_api.GetListeAlleEinheiten(
-                            startAb=chunk_start,
-                            limit=limit_iter,
-                            datumAb=date_from)
+                        if et is None:
+                            response = self._mastr_api.GetListeAlleEinheiten(
+                                startAb=chunk_start,
+                                limit=limit_iter,
+                                datumAb=date_from)
+                        else:
+                            response = self._mastr_api.GetGefilterteListeStromErzeuger(
+                                energietraeger=et,
+                                startAb=chunk_start,
+                                limit=limit_iter,
+                                datumAb=date_from)
+
                     except (requests.exceptions.ConnectionError, 
                             Fault,
                             requests.exceptions.ReadTimeout
