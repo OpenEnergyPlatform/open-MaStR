@@ -1,12 +1,9 @@
 import datetime
-import json
 import os
-from requests.exceptions import ConnectionError
 from sqlalchemy.orm import sessionmaker, Query
 from sqlalchemy import and_, create_engine
 import shlex
 import subprocess
-import time
 
 from open_mastr.soap_api.config import setup_logger
 from open_mastr.soap_api.download import MaStRDownload, _flatten_dict
@@ -20,12 +17,6 @@ engine = create_engine(
 )
 Session = sessionmaker(bind=engine)
 session = Session()
-
-# Create datadb.Base table
-# with engine.connect().execution_options(autocommit=True) as con:
-#     con.execute(f"CREATE SCHEMA IF NOT EXISTS {db.Base.metadata.schema}")
-# db.Base.metadata.create_all(engine)
-# db.BasicUnit.metadata.create_all(engine)
 
 
 def chunks(lst, n):
