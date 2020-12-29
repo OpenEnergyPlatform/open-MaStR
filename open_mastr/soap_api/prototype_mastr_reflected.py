@@ -1,12 +1,9 @@
 import datetime
-import json
 import os
-from requests.exceptions import ConnectionError
 from sqlalchemy.orm import sessionmaker, Query
 from sqlalchemy import and_, create_engine
 import shlex
 import subprocess
-import time
 
 from open_mastr.soap_api.config import setup_logger
 from open_mastr.soap_api.download import MaStRDownload, _flatten_dict
@@ -20,12 +17,6 @@ engine = create_engine(
 )
 Session = sessionmaker(bind=engine)
 session = Session()
-
-# Create datadb.Base table
-# with engine.connect().execution_options(autocommit=True) as con:
-#     con.execute(f"CREATE SCHEMA IF NOT EXISTS {db.Base.metadata.schema}")
-# db.Base.metadata.create_all(engine)
-# db.BasicUnit.metadata.create_all(engine)
 
 
 def chunks(lst, n):
@@ -65,11 +56,28 @@ class MaStRReflected:
         # Map technologies on ORMs
         self.orm_map = {
             "wind": {
-                "unit_data": "WindExtended"
+                "unit_data": "WindExtended",
             },
             "solar": {
-                "unit_data": "SolarExtended"
+                "unit_data": "SolarExtended",
             },
+        }
+
+        # Map technology and MaStR unit type
+        # Map technologies on ORMs
+        self.unit_type_map = {
+            "Windeinheit": "wind",
+            "Solareinheit": "solar",
+            "Biomasse": "biomass",
+            "Wasser": "hydro",
+            "Geothermie": "gsgk",
+            "Verbrennung": "combustion",
+            "Kernenergie": "nuclear",
+            "Stromspeichereinheit": "storage",
+            "Gasspeichereinheit": "gas_storage",
+            "Gasverbrauchseinheit": "gas_consumer",
+            "Stromverbrauchseinheit": "consumer",
+            "Gaserzeugungseinheit": "gas_producer",
         }
 
     def initdb(self):
@@ -83,7 +91,7 @@ class MaStRReflected:
             cwd=conf_file_path,
         )
 
-    def backfill_basic(self, technology, date=None, limit=None):
+    def backfill_basic(self, technology=None, date=None, limit=None):
         """Loads basic unit information for all units until `date`.
 
         Parameters
@@ -98,6 +106,9 @@ class MaStRReflected:
             * `None`: Complete backfill
 
             Defaults to `None`.
+        limit: int
+            Maximum number of units.
+            Defaults to `None`.
         """
         # TODO: add keyword argument overwrite. If true, queried data overwrites existing without checking
         # TODO: Default is False, which refers to only inserting new or updated data (with newer timestamp than existing)
@@ -106,6 +117,8 @@ class MaStRReflected:
         # Process arguments
         if isinstance(technology, str):
             technology = [technology]
+        elif technology == None:
+            technology = [None]
         # Set limit to a number >> number of units of technology with most units
         if limit is None:
             limit = 10 ** 8
@@ -141,7 +154,7 @@ class MaStRReflected:
                     {
                         "EinheitMastrNummer": basic_unit["EinheitMastrNummer"],
                         "additional_data_id": basic_unit["EinheitMastrNummer"],
-                        "technology": tech,
+                        "technology": self.unit_type_map[basic_unit["Einheittyp"]],
                         "data_type": "unit_data",
                         "request_date": datetime.datetime.now(tz=datetime.timezone.utc),
                     }
@@ -154,7 +167,7 @@ class MaStRReflected:
                     {
                         "EinheitMastrNummer": basic_unit["EinheitMastrNummer"],
                         "additional_data_id": basic_unit["EegMastrNummer"],
-                        "technology": tech,
+                        "technology": self.unit_type_map[basic_unit["Einheittyp"]],
                         "data_type": "eeg_data",
                         "request_date": datetime.datetime.now(tz=datetime.timezone.utc),
                     }
@@ -167,20 +180,20 @@ class MaStRReflected:
                     {
                         "EinheitMastrNummer": basic_unit["EinheitMastrNummer"],
                         "additional_data_id": basic_unit["KwkMastrNummer"],
-                        "technology": tech,
+                        "technology": self.unit_type_map[basic_unit["Einheittyp"]],
                         "data_type": "kwk_data",
                         "request_date": datetime.datetime.now(tz=datetime.timezone.utc),
                     }
                     for basic_unit in basic_units_chunk
                     if basic_unit["KwkMastrNummer"]]
                 session.bulk_insert_mappings(db.AdditionalDataRequested, kwk_data)
-                
+
                 # Permit unit data
                 permit_data = [
                     {
                         "EinheitMastrNummer": basic_unit["EinheitMastrNummer"],
                         "additional_data_id": basic_unit["GenMastrNummer"],
-                        "technology": tech,
+                        "technology": self.unit_type_map[basic_unit["Einheittyp"]],
                         "data_type": "permit_data",
                         "request_date": datetime.datetime.now(tz=datetime.timezone.utc),
                     }
@@ -293,20 +306,3 @@ class MaStRReflected:
                                 stderr=subprocess.PIPE,
                                 )
         proc.wait()
-
-limit = 1
-technology = "wind"
-
-mastr_refl = MaStRReflected(empty_schema=True)
-# mastr_refl.backfill_basic("solar", datetime.datetime(2020, 11, 27, 22, 0, 0), limit=10)
-mastr_refl.backfill_basic(technology, limit=limit)
-
-# Dump + restore data
-# dump_file = "open-mastr-continuous-update_wind-120000.backup"
-# mastr_refl.restore(dump_file)
-
-# Download additional unit data
-mastr_refl.retrieve_additional_data(technology, "unit_data", limit=limit)
-
-# Dump
-# mastr_refl.dump(dump_file)

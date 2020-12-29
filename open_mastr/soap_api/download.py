@@ -480,7 +480,24 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
                 "unit_data": "GetEinheitStromSpeicher",
                 "energietraeger": ["Speicher"],
                 "eeg_data": "GetAnlageEegSpeicher",
-            }
+            },
+            "gas_storage": {
+                "unit_data": "GetEinheitGasSpeicher",
+                "energietraeger": ["Speicher"],
+            },
+            # TODO: unsure if energietraeger Ergdas makes sense
+            "gas_consumer": {
+                "unit_data": "GetEinheitGasVerbraucher",
+                "energietraeger": ["Erdgas"],
+            },
+            "consumer": {
+                "unit_data": "GetEinheitStromVerbraucher",
+                "energietraeger": ["Strom"],
+            },
+            "gas_producer": {
+                "unit_data": "GetEinheitGasErzeuger",
+                "energietraeger": [None],
+            },
         }
 
         # Check if MaStR credentials are available and otherwise ask
@@ -537,7 +554,10 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         # Retrieve basic power plant unit data
         # The return value is casted into a list, because a generator gets returned
         # This was introduced later, after creation of this method
-        units = [unit for sublist in self.basic_unit_data(technology, limit) for unit in sublist]
+        units = [unit for sublist in self.basic_unit_data(
+            technology=technology,
+            limit=limit
+        ) for unit in sublist]
 
         # Prepare list of unit ID for different additional data (extended, eeg, kwk, permit)
         mastr_ids = [basic['EinheitMastrNummer'] for basic in units]
@@ -634,7 +654,7 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
 
         return joined_data
 
-    def basic_unit_data(self, technology, limit, date_from=None, max_retries=3):
+    def basic_unit_data(self, technology=None, limit=2000, date_from=None, max_retries=3):
         """
         Download basic unit information for one technology.
 
@@ -643,10 +663,19 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
 
         Parameters
         ----------
-        technology : str
-            Technology, see :meth:`MaStRDownload.download_power_plants`
-        limit : int
+        technology : str, optional
+            Technology data is requested for. See :meth:`MaStRDownload.download_power_plants` for options.
+            Data is retrieved using :meth:`MaStRAPI.GetGefilterteListeStromErzeuger`.
+            If not given, it defaults to `None`. This implies data for all available technologies is retrieved using
+            the web service function :meth:`MaStRAPI.GetListeAlleEinheiten`.
+        limit : int, optional
             Maximum number of units to download.
+            If not provided, data for all units is downloaded.
+
+            .. warning:
+
+               Mind the daily request limit for your MaStR account.
+
         date_from: :any:`datetime.datetime()`, optional
             If specified, only units with latest change date newer than this are queried.
             Defaults to :any:`None`.
@@ -666,9 +695,15 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         limits = [chunksize if (x + chunksize) <= limit
                   else limit - x + 1 for x in chunks_start]
 
+        # Deal with or w/o technology being specified
+        if not technology:
+            energietraeger = [None]
+        else:
+            energietraeger = self._unit_data_specs[technology]["energietraeger"]
+
         # In case multiple energy carriers (energietraeger) exist for one technology,
         # loop over these and join data to one list
-        for et in self._unit_data_specs[technology]["energietraeger"]:
+        for et in energietraeger:
             log.info(f"Get list of units with basic information for technology {technology} ({et})")
 
             pbar = tqdm(total=limit,
@@ -683,11 +718,18 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
                 # Use a retry loop to retry on connection errors
                 for try_number in range(max_retries + 1):
                     try:
-                        response = self._mastr_api.GetGefilterteListeStromErzeuger(
-                            energietraeger=et,
-                            startAb=chunk_start,
-                            limit=limit_iter,
-                            datumAb=date_from)
+                        if et is None:
+                            response = self._mastr_api.GetListeAlleEinheiten(
+                                startAb=chunk_start,
+                                limit=limit_iter,
+                                datumAb=date_from)
+                        else:
+                            response = self._mastr_api.GetGefilterteListeStromErzeuger(
+                                energietraeger=et,
+                                startAb=chunk_start,
+                                limit=limit_iter,
+                                datumAb=date_from)
+
                     except (requests.exceptions.ConnectionError, 
                             Fault,
                             requests.exceptions.ReadTimeout
@@ -704,7 +746,7 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
                         break
                 else:
                     log.error(f"Finally failed to download data."
-                              f"Basic unit data of index {chunk_start} to {chunk_start + limit_iter} will be missing.")
+                              f"Basic unit data of index {chunk_start} to {chunk_start + limit_iter - 1} will be missing.")
                     # TODO: this has potential risk! Please change
                     # If the download continuously fails on the last chunk, this query will run forever
                     response = {"Ergebniscode": 'OkWeitereDatenVorhanden'}
