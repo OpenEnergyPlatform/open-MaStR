@@ -412,7 +412,7 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
 
     """
 
-    def __init__(self, parallel_processes=multiprocessing.cpu_count()):
+    def __init__(self, parallel_processes=None):
         """
 
         Parameters
@@ -426,7 +426,10 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         """
 
         # Number of parallel processes
-        self.parallel_processes = parallel_processes
+        if parallel_processes is None:
+            self.parallel_processes = multiprocessing.cpu_count()
+        else:
+            self.parallel_processes = parallel_processes
 
         # Specify which additional data for each unit type is available
         # and which SOAP service has to be used to query it
