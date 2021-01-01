@@ -138,15 +138,31 @@ class MaStRReflected:
             # Insert basic data into databse
             log.info("Insert basic unit data into DB and submit additional data requests")
             for basic_units_chunk in basic_units:
-                basic_units_chunk = [
-                    unit
-                    for n, unit in enumerate(basic_units_chunk)
-                    if unit["EinheitMastrNummer"]
-                       not in [_["EinheitMastrNummer"] for _ in basic_units_chunk[n + 1:]]
-                       and unit["EinheitMastrNummer"] not in already_added_units
-                ]
-                already_added_units += [_["EinheitMastrNummer"] for _ in basic_units_chunk]
-                session.bulk_insert_mappings(db.BasicUnit, basic_units_chunk)
+                # Make sure that no duplicates get inserted into database (would result in an error)
+                # Only new data gets inserted or data with newer modifcation date gets updated
+                already_added_units_db = session.query(db.BasicUnit.EinheitMastrNummer, db.BasicUnit.DatumLetzeAktualisierung)
+                already_added_units = [_.EinheitMastrNummer for _ in already_added_units_db]
+                # basic_units_chunk = [
+                #     unit
+                #     for n, unit in enumerate(basic_units_chunk)
+                #     if unit["EinheitMastrNummer"]
+                #        not in [_["EinheitMastrNummer"] for _ in basic_units_chunk[n + 1:]]
+                #        and unit["EinheitMastrNummer"] not in already_added_units
+                # ]
+                insert = update = []
+                for n, unit in enumerate(basic_units_chunk):
+                    if unit["EinheitMastrNummer"] not in [_["EinheitMastrNummer"] for _ in basic_units_chunk[n + 1:]]:
+                        if unit["EinheitMastrNummer"] not in already_added_units:
+                            insert.append(db.BasicUnit(**unit))
+                        else:
+                            pass
+                            # TODO: if unit has newer timestamp than existing unit, add to update list
+
+
+
+                # already_added_units += [_["EinheitMastrNummer"] for _ in basic_units_chunk]
+                # session.bulk_insert_mappings(db.BasicUnit, basic_units_chunk)
+                session.bulk_save_objects(insert)
 
                 # Submit additional data requests
                 # Extended unit data
