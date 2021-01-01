@@ -11,7 +11,7 @@ class BasicUnit(Base):
     __tablename__ = "basic_units"
 
     EinheitMastrNummer = Column(String, primary_key=True)
-    DatumLetzeAktualisierung = Column(String)
+    DatumLetzeAktualisierung = Column(DateTime(timezone=True))
     Name = Column(String)
     Einheitart = Column(String)
     Einheittyp = Column(String)
@@ -79,7 +79,7 @@ class Extended(object):
     UtmNorth = Column(String)
     GaussKruegerHoch = Column(String)
     GaussKruegerRechts = Column(String)
-    Meldedatum = Column(String)
+    Meldedatum = Column(DateTime(timezone=True))
     GeplantesInbetriebnahmedatum = Column(DateTime(timezone=True))
     Inbetriebnahmedatum = Column(DateTime(timezone=True))
     DatumEndgueltigeStilllegung = Column(DateTime(timezone=True))
