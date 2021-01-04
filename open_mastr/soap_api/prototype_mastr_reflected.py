@@ -33,7 +33,7 @@ def chunks(lst, n):
 
 
 class MaStRReflected:
-    def __init__(self, empty_schema=False, restore_dump=None, initialize_db=True):
+    def __init__(self, empty_schema=False, restore_dump=None, initialize_db=True, parallel_processes=None):
 
         # Spin up database container
         if initialize_db:
@@ -47,7 +47,7 @@ class MaStRReflected:
         db.Base.metadata.create_all(engine)
 
         # Associate downloader
-        self.mastr_dl = MaStRDownload()
+        self.mastr_dl = MaStRDownload(parallel_processes=parallel_processes)
 
         # Restore datadb.Base from a dump
         if restore_dump:
