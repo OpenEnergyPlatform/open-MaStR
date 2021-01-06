@@ -171,56 +171,70 @@ class MaStRReflected:
                 inserted_and_updated = insert + updated
 
                 # Submit additional data requests
-                # Extended unit data
-                extended_data = [
-                    {
-                        "EinheitMastrNummer": basic_unit["EinheitMastrNummer"],
-                        "additional_data_id": basic_unit["EinheitMastrNummer"],
-                        "technology": self.unit_type_map[basic_unit["Einheittyp"]],
-                        "data_type": "unit_data",
-                        "request_date": datetime.datetime.now(tz=datetime.timezone.utc),
-                    }
-                    for basic_unit in inserted_and_updated
-                ]
+                extended_data = []
+                eeg_data = []
+                kwk_data = []
+                permit_data = []
+
+                for basic_unit in inserted_and_updated:
+                    # Extended unit data
+                    extended_data.append(
+                        {
+                            "EinheitMastrNummer": basic_unit["EinheitMastrNummer"],
+                            "additional_data_id": basic_unit["EinheitMastrNummer"],
+                            "technology": self.unit_type_map[basic_unit["Einheittyp"]],
+                            "data_type": "unit_data",
+                            "request_date": datetime.datetime.now(tz=datetime.timezone.utc),
+                        }
+                    )
+
+                    # EEG unit data
+                    if basic_unit["EegMastrNummer"]:
+                        eeg_data.append(
+                            {
+                                "EinheitMastrNummer": basic_unit["EinheitMastrNummer"],
+                                "additional_data_id": basic_unit["EegMastrNummer"],
+                                "technology": self.unit_type_map[basic_unit["Einheittyp"]],
+                                "data_type": "eeg_data",
+                                "request_date": datetime.datetime.now(tz=datetime.timezone.utc),
+                            }
+                        )
+
+                    # KWK unit data
+                    if basic_unit["KwkMastrNummer"]:
+                        kwk_data.append(
+                            {
+                                "EinheitMastrNummer": basic_unit["EinheitMastrNummer"],
+                                "additional_data_id": basic_unit["KwkMastrNummer"],
+                                "technology": self.unit_type_map[basic_unit["Einheittyp"]],
+                                "data_type": "kwk_data",
+                                "request_date": datetime.datetime.now(tz=datetime.timezone.utc),
+                            }
+                        )
+
+                    # Permit unit data
+                    if basic_unit["GenMastrNummer"]:
+                        permit_data.append(
+                            {
+                                "EinheitMastrNummer": basic_unit["EinheitMastrNummer"],
+                                "additional_data_id": basic_unit["GenMastrNummer"],
+                                "technology": self.unit_type_map[basic_unit["Einheittyp"]],
+                                "data_type": "permit_data",
+                                "request_date": datetime.datetime.now(tz=datetime.timezone.utc),
+                            }
+                        )
+
+                    # Delete old entries for additional data requests
+                    session.query(db.AdditionalDataRequested).filter(
+                        db.AdditionalDataRequested.EinheitMastrNummer == basic_unit["EinheitMastrNummer"],
+                        db.AdditionalDataRequested.technology == self.unit_type_map[basic_unit["Einheittyp"]],
+                        db.AdditionalDataRequested.request_date < datetime.datetime.now(tz=datetime.timezone.utc)
+                    ).delete()
+
+                # Insert new requests for additional data
                 session.bulk_insert_mappings(db.AdditionalDataRequested, extended_data)
-
-                # EEG unit data
-                eeg_data = [
-                    {
-                        "EinheitMastrNummer": basic_unit["EinheitMastrNummer"],
-                        "additional_data_id": basic_unit["EegMastrNummer"],
-                        "technology": self.unit_type_map[basic_unit["Einheittyp"]],
-                        "data_type": "eeg_data",
-                        "request_date": datetime.datetime.now(tz=datetime.timezone.utc),
-                    }
-                    for basic_unit in inserted_and_updated
-                    if basic_unit["EegMastrNummer"]]
                 session.bulk_insert_mappings(db.AdditionalDataRequested, eeg_data)
-
-                # KWK unit data
-                kwk_data = [
-                    {
-                        "EinheitMastrNummer": basic_unit["EinheitMastrNummer"],
-                        "additional_data_id": basic_unit["KwkMastrNummer"],
-                        "technology": self.unit_type_map[basic_unit["Einheittyp"]],
-                        "data_type": "kwk_data",
-                        "request_date": datetime.datetime.now(tz=datetime.timezone.utc),
-                    }
-                    for basic_unit in inserted_and_updated
-                    if basic_unit["KwkMastrNummer"]]
                 session.bulk_insert_mappings(db.AdditionalDataRequested, kwk_data)
-
-                # Permit unit data
-                permit_data = [
-                    {
-                        "EinheitMastrNummer": basic_unit["EinheitMastrNummer"],
-                        "additional_data_id": basic_unit["GenMastrNummer"],
-                        "technology": self.unit_type_map[basic_unit["Einheittyp"]],
-                        "data_type": "permit_data",
-                        "request_date": datetime.datetime.now(tz=datetime.timezone.utc),
-                    }
-                    for basic_unit in inserted_and_updated
-                    if basic_unit["GenMastrNummer"]]
                 session.bulk_insert_mappings(db.AdditionalDataRequested, permit_data)
 
                 session.commit()
