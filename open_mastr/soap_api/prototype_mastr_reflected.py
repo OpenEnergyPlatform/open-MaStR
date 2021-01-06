@@ -2,6 +2,7 @@ import datetime
 import os
 from sqlalchemy.orm import sessionmaker, Query
 from sqlalchemy import and_, create_engine
+from sqlalchemy.sql import exists
 import shlex
 import subprocess
 
@@ -132,37 +133,42 @@ class MaStRReflected:
             # Catch weird MaStR SOAP response
             basic_units = self.mastr_dl.basic_unit_data(tech, limit, date_from=date)
 
-            # Remember units that are already downloaded and added to the session
-            already_added_units = []
-
             # Insert basic data into databse
             log.info("Insert basic unit data into DB and submit additional data requests")
             for basic_units_chunk in basic_units:
                 # Make sure that no duplicates get inserted into database (would result in an error)
-                # Only new data gets inserted or data with newer modifcation date gets updated
-                already_added_units_db = session.query(db.BasicUnit.EinheitMastrNummer, db.BasicUnit.DatumLetzeAktualisierung)
-                already_added_units = [_.EinheitMastrNummer for _ in already_added_units_db]
-                # basic_units_chunk = [
-                #     unit
-                #     for n, unit in enumerate(basic_units_chunk)
-                #     if unit["EinheitMastrNummer"]
-                #        not in [_["EinheitMastrNummer"] for _ in basic_units_chunk[n + 1:]]
-                #        and unit["EinheitMastrNummer"] not in already_added_units
-                # ]
-                insert = update = []
-                for n, unit in enumerate(basic_units_chunk):
-                    if unit["EinheitMastrNummer"] not in [_["EinheitMastrNummer"] for _ in basic_units_chunk[n + 1:]]:
-                        if unit["EinheitMastrNummer"] not in already_added_units:
-                            insert.append(db.BasicUnit(**unit))
-                        else:
-                            pass
-                            # TODO: if unit has newer timestamp than existing unit, add to update list
+                # Only new data gets inserted or data with newer modification date gets updated
 
+                # Remove duplicates returned from API
+                basic_units_chunk_unique = [
+                    unit
+                    for n, unit in enumerate(basic_units_chunk)
+                    if unit["EinheitMastrNummer"]
+                       not in [_["EinheitMastrNummer"] for _ in basic_units_chunk[n + 1:]]
+                ]
+                basic_units_chunk_unique_ids = [_["EinheitMastrNummer"] for _ in basic_units_chunk_unique]
 
+                # Find units that are already in the DB
+                common_ids = [_.EinheitMastrNummer for _ in session.query(db.BasicUnit.EinheitMastrNummer).filter(
+                    db.BasicUnit.EinheitMastrNummer.in_(basic_units_chunk_unique_ids))]
 
-                # already_added_units += [_["EinheitMastrNummer"] for _ in basic_units_chunk]
-                # session.bulk_insert_mappings(db.BasicUnit, basic_units_chunk)
-                session.bulk_save_objects(insert)
+                # Create instances for new data and for updated data
+                insert = []
+                updated = []
+                for unit in basic_units_chunk_unique:
+                    # In case data for the unit already exists, only update if new data is newer
+                    if unit["EinheitMastrNummer"] in common_ids:
+                        if session.query(exists().where(
+                                and_(db.BasicUnit.EinheitMastrNummer == unit["EinheitMastrNummer"],
+                                     db.BasicUnit.DatumLetzeAktualisierung < unit[
+                                         "DatumLetzeAktualisierung"]))).scalar():
+                            updated.append(unit)
+                            session.merge(db.BasicUnit(**unit))
+                    # In case of new data, just insert
+                    else:
+                        insert.append(unit)
+                session.bulk_save_objects([db.BasicUnit(**u) for u in insert])
+                inserted_and_updated = insert + updated
 
                 # Submit additional data requests
                 # Extended unit data
@@ -174,7 +180,7 @@ class MaStRReflected:
                         "data_type": "unit_data",
                         "request_date": datetime.datetime.now(tz=datetime.timezone.utc),
                     }
-                    for basic_unit in basic_units_chunk
+                    for basic_unit in inserted_and_updated
                 ]
                 session.bulk_insert_mappings(db.AdditionalDataRequested, extended_data)
 
@@ -187,7 +193,7 @@ class MaStRReflected:
                         "data_type": "eeg_data",
                         "request_date": datetime.datetime.now(tz=datetime.timezone.utc),
                     }
-                    for basic_unit in basic_units_chunk
+                    for basic_unit in inserted_and_updated
                     if basic_unit["EegMastrNummer"]]
                 session.bulk_insert_mappings(db.AdditionalDataRequested, eeg_data)
 
@@ -200,7 +206,7 @@ class MaStRReflected:
                         "data_type": "kwk_data",
                         "request_date": datetime.datetime.now(tz=datetime.timezone.utc),
                     }
-                    for basic_unit in basic_units_chunk
+                    for basic_unit in inserted_and_updated
                     if basic_unit["KwkMastrNummer"]]
                 session.bulk_insert_mappings(db.AdditionalDataRequested, kwk_data)
 
@@ -213,7 +219,7 @@ class MaStRReflected:
                         "data_type": "permit_data",
                         "request_date": datetime.datetime.now(tz=datetime.timezone.utc),
                     }
-                    for basic_unit in basic_units_chunk
+                    for basic_unit in inserted_and_updated
                     if basic_unit["GenMastrNummer"]]
                 session.bulk_insert_mappings(db.AdditionalDataRequested, permit_data)
 
