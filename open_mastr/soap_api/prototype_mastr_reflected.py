@@ -93,23 +93,40 @@ class MaStRReflected:
         )
 
     def backfill_basic(self, technology=None, date=None, limit=None):
-        """Loads basic unit information for all units until `date`.
+        """Backfill basic unit data.
+
+        Fill database table 'basic_units' with data. It allows specification of which data should be retrieved via
+        the described parameter options.
 
         Parameters
         ----------
         technology: str or list
-            Specify technologies for which data should be backfilled
+            Specify technologies for which data should be backfilled.
+
+            * 'solar' (`str`): Backfill data for a single technology.
+            * ['solar', 'wind'] (`list`):  Backfill data for multiple technologies given in a list.
+            * `None`: Backfill data for all technologies
+
+            Defaults to `None`.
         date: None, :class:`datetime.datetime`, str
-            Specify backfiill date to which data is retrieved
+            Specify backfill date from which on data is retrieved
+
+            Only data with modification time stamp greater that `date` is retrieved.
 
             * `datetime.datetime(2020, 11, 27)`: Retrieve data which is is newer than this time stamp
-            * 'latest': Retrieve data which is newer than the newest data already in the table
+            * 'latest': Retrieve data which is newer than the newest data already in the table.
+              It is aware of a different 'latest date' for each technology. Hence, it works in combination with
+              `technology=None` and `technology=["wind", "solar"]` for example.
+
+              .. warning::
+
+                 Don't use 'latest' in combination with `limit`. This might lead to unexpected results.
             * `None`: Complete backfill
 
             Defaults to `None`.
         limit: int
             Maximum number of units.
-            Defaults to `None`.
+            Defaults to `None` which means no limit is set and all available data is queried. Use with care!
         """
         reversed_unit_type_map = {v: k for k, v in self.unit_type_map.items()}
 
