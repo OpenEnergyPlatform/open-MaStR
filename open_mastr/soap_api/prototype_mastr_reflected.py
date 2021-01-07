@@ -1,7 +1,7 @@
 import datetime
 import os
 from sqlalchemy.orm import sessionmaker, Query
-from sqlalchemy import and_, create_engine
+from sqlalchemy import and_, create_engine, func
 from sqlalchemy.sql import exists
 import shlex
 import subprocess
@@ -113,36 +113,48 @@ class MaStRReflected:
         """
         reversed_unit_type_map = {v: k for k, v in self.unit_type_map.items()}
 
-        # TODO: add option to only consider units with StatistikFlag=="B"
-        # Process arguments
+        # Create list of technologies to backfill
         if isinstance(technology, str):
-            technology = [technology]
+            technology_list = [technology]
         elif technology == None:
-            technology = [None]
+            technology_list = [None]
+        elif isinstance(technology, list):
+            technology_list = technology
+
         # Set limit to a number >> number of units of technology with most units
         if limit is None:
             limit = 10 ** 8
-        # TODO: there is a bug!
+
         if date == "latest":
             dates = []
-            for tech in technology:
+            for tech in technology_list:
                 if tech:
+                    # In case technologies are specified, latest data date gets queried per technology
                     newest_date = session.query(db.BasicUnit.DatumLetzeAktualisierung).filter(
                         db.BasicUnit.Einheittyp == reversed_unit_type_map[tech]).order_by(
                         db.BasicUnit.DatumLetzeAktualisierung.desc()).first()
                 else:
-                    newest_date = session.query(db.BasicUnit.DatumLetzeAktualisierung).order_by(
-                        db.BasicUnit.DatumLetzeAktualisierung.desc()).first()
+                    # If technologies aren't defined ([None]) latest date per technology is queried in query
+                    # This also leads that the remainder of the loop body is skipped
+                    subquery = session.query(db.BasicUnit.Einheittyp,
+                                             func.max(db.BasicUnit.DatumLetzeAktualisierung).label("maxdate")).group_by(
+                        db.BasicUnit.Einheittyp)
+                    dates = [s[1] for s in subquery]
+                    technology_list = [self.unit_type_map[s[0]] for s in subquery]
+                    # Break the for loop over technology here, because we write technology_list and dates at once
+                    break
 
+                # Add date to dates list
                 if newest_date:
                     dates.append(newest_date[0])
+                # Cover the case where no data is in the database and latest is still used
                 else:
                     dates.append(None)
         else:
-            dates = [date] * len(technology)
+            dates = [date] * len(technology_list)
 
         # Retrieve data for each technology separately
-        for tech, date in zip(technology, dates):
+        for tech, date in zip(technology_list, dates):
             log.info(f"Backfill data for technology {tech}")
 
             # Catch weird MaStR SOAP response
