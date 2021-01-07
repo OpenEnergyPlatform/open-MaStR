@@ -111,8 +111,7 @@ class MaStRReflected:
             Maximum number of units.
             Defaults to `None`.
         """
-        # TODO: add keyword argument overwrite. If true, queried data overwrites existing without checking
-        # TODO: Default is False, which refers to only inserting new or updated data (with newer timestamp than existing)
+        reversed_unit_type_map = {v: k for k, v in self.unit_type_map.items()}
 
         # TODO: add option to only consider units with StatistikFlag=="B"
         # Process arguments
@@ -123,11 +122,27 @@ class MaStRReflected:
         # Set limit to a number >> number of units of technology with most units
         if limit is None:
             limit = 10 ** 8
+        # TODO: there is a bug!
         if date == "latest":
-            raise NotImplementedError
+            dates = []
+            for tech in technology:
+                if tech:
+                    newest_date = session.query(db.BasicUnit.DatumLetzeAktualisierung).filter(
+                        db.BasicUnit.Einheittyp == reversed_unit_type_map[tech]).order_by(
+                        db.BasicUnit.DatumLetzeAktualisierung.desc()).first()
+                else:
+                    newest_date = session.query(db.BasicUnit.DatumLetzeAktualisierung).order_by(
+                        db.BasicUnit.DatumLetzeAktualisierung.desc()).first()
+
+                if newest_date:
+                    dates.append(newest_date[0])
+                else:
+                    dates.append(None)
+        else:
+            dates = [date] * len(technology)
 
         # Retrieve data for each technology separately
-        for tech in technology:
+        for tech, date in zip(technology, dates):
             log.info(f"Backfill data for technology {tech}")
 
             # Catch weird MaStR SOAP response
