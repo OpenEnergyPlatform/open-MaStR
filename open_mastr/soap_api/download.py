@@ -869,9 +869,9 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
                 Fault,
                 requests.exceptions.ConnectionError,
                 requests.exceptions.ReadTimeout) as e:
-            log.exception(
-                f"Failed to download unit data for {mastr_id} because of SOAP API exception: {e}",
-                exc_info=False)
+            # log.exception(
+            #     f"Failed to download unit data for {mastr_id} because of SOAP API exception: {e}",
+            #     exc_info=False)
             unit_data = {}
             unit_missed = mastr_id
 
@@ -911,9 +911,9 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
                 Fault,
                 requests.exceptions.ConnectionError,
                 requests.exceptions.ReadTimeout) as e:
-            log.exception(
-                f"Failed to download eeg data for {eeg_id} because of SOAP API exception: {e}",
-                exc_info=False)
+            # log.exception(
+            #     f"Failed to download eeg data for {eeg_id} because of SOAP API exception: {e}",
+            #     exc_info=False)
             eeg_data = {}
             eeg_missed = eeg_id
 
@@ -955,9 +955,9 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
                 Fault,
                 requests.exceptions.ConnectionError,
                 requests.exceptions.ReadTimeout) as e:
-            log.exception(
-                f"Failed to download unit data for {kwk_id} because of SOAP API exception: {e}",
-                exc_info=False)
+            # log.exception(
+            #     f"Failed to download unit data for {kwk_id} because of SOAP API exception: {e}",
+            #     exc_info=False)
             kwk_data = {}
             kwk_missed = kwk_id
 
@@ -994,9 +994,9 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
                 Fault,
                 requests.exceptions.ConnectionError,
                 requests.exceptions.ReadTimeout) as e:
-            log.exception(
-                f"Failed to download unit data for {permit_id} because of SOAP API exception: {e}",
-                exc_info=False)
+            # log.exception(
+            #     f"Failed to download unit data for {permit_id} because of SOAP API exception: {e}",
+            #     exc_info=False)
             permit_data = {}
             permit_missed = permit_id
 
