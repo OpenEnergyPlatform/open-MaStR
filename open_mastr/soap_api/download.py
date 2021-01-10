@@ -815,8 +815,8 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
                           desc=f"Downloading{data_fcn} ({technology})".replace("_", " "),
                           unit="unit") as pbar:
                     unit_result = pool.imap_unordered(self.__getattribute__(data_fcn),
-                                                           prepared_args,
-                                                           chunksize=chunksize)
+                                                      prepared_args,
+                                                      chunksize=1)
                     while True:
                         try:
                             # Try to retrieve data from concurrent processes
