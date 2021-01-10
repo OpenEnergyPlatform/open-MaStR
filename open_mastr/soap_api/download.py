@@ -820,7 +820,7 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
                     while True:
                         try:
                             # Try to retrieve data from concurrent processes
-                            data_tmp, data_missed_tmp = unit_result.next(timeout=5)
+                            data_tmp, data_missed_tmp = unit_result.next(timeout=2)
                             data.append(data_tmp)
                             data_missed.append(data_missed_tmp)
                             pbar.update()
