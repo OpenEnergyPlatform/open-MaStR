@@ -811,15 +811,25 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
             with multiprocessing.Pool(processes=self.parallel_processes,
                                       maxtasksperchild=1) as pool:
 
-                for unit_result in tqdm(pool.imap_unordered(self.__getattribute__(data_fcn),
-                                                            prepared_args,
-                                                            chunksize=chunksize),
-                                        total=len(prepared_args),
-                                        desc=f"Downloading{data_fcn} ({technology})".replace("_", " "),
-                                        unit="unit"):
-                    data_tmp, data_missed_tmp = unit_result
-                    data.append(data_tmp)
-                    data_missed.append(data_missed_tmp)
+                with tqdm(total=len(prepared_args),
+                          desc=f"Downloading{data_fcn} ({technology})".replace("_", " "),
+                          unit="unit") as pbar:
+                    unit_result = pool.imap_unordered(self.__getattribute__(data_fcn),
+                                                           prepared_args,
+                                                           chunksize=chunksize)
+                    while True:
+                        try:
+                            # Try to retrieve data from concurrent processes
+                            data_tmp, data_missed_tmp = unit_result.next(timeout=5)
+                            data.append(data_tmp)
+                            data_missed.append(data_missed_tmp)
+                            pbar.update()
+                        except StopIteration:
+                            # Multiprocessing returns StropIteration when results list gets empty
+                            break
+                        except multiprocessing.TimeoutError:
+                            # If retrieval time exceeds timeout of next(), pass on
+                            pass
         else:
             # Retrieve data in a single process
             for unit_specs in tqdm(prepared_args,
@@ -833,6 +843,11 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         # Remove Nones and empty dicts
         data = [dat for dat in data if dat]
         data_missed = [dat for dat in data_missed if dat]
+
+        # Add units missed due to timeout to data_missed
+        units_retrieved = [_["EinheitMastrNummer"] for _ in data]
+        units_missed_timeout = [u for u in unit_ids if u not in units_retrieved + data_missed]
+        data_missed = data_missed + units_missed_timeout
 
         return data, data_missed
 
