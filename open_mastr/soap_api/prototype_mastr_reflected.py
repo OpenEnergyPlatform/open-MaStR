@@ -275,6 +275,9 @@ class MaStRReflected:
                         db.AdditionalDataRequested.request_date < datetime.datetime.now(tz=datetime.timezone.utc)
                     ).delete()
 
+                # Flush delete statements to database
+                session.commit()
+
                 # Insert new requests for additional data
                 session.bulk_insert_mappings(db.AdditionalDataRequested, extended_data)
                 session.bulk_insert_mappings(db.AdditionalDataRequested, eeg_data)
