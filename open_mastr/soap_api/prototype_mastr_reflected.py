@@ -315,6 +315,7 @@ class MaStRReflected:
                 # Retrieve data
                 unit_data, missed_units = self.mastr_dl._additional_data(technology, ids, download_functions[data_type])
                 unit_data = _flatten_dict(unit_data)
+                log.info(f"Additional data retrieved for {len(unit_data)}")
 
                 # Prepare data and add to database table
                 for unit_dat in unit_data:
@@ -326,16 +327,20 @@ class MaStRReflected:
                     unit = getattr(db, self.orm_map[technology][data_type])(**unit_dat)
                     session.merge(unit)
 
+                session.commit()
+                log.info("Units merged and committed")
                 # Log units where data retrieval was not successful
                 for missed_unit in missed_units:
                     missed = db.MissedAdditionalData(additional_data_id=missed_unit)
                     session.add(missed)
 
+                log.info(f"Missed units ({len(missed_units)} logged")
                 # Remove units from additional data request table if additional data was retrieved
                 for requested_unit in requested_chunk:
                     if requested_unit.additional_data_id not in missed_units:
                         session.delete(requested_unit)
 
+                log.info("Units deleted")
                 # Send to datadb.Base complete transactions
                 session.commit()
 
