@@ -344,6 +344,9 @@ class MaStRReflected:
                 log.info("Units deleted")
                 # Send to datadb.Base complete transactions
                 session.commit()
+            else:
+                log.info("No further data is requested")
+                break
 
     def dump(self, dumpfile="open-mastr-continuous-update.backup"):
         """
