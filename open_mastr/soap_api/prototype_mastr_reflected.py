@@ -331,7 +331,7 @@ class MaStRReflected:
                     number_units_merged += 1
 
                 session.commit()
-                log.info(f"{len(number_units_merged)} units merged and committed")
+                log.info(f"{number_units_merged} units merged and committed")
                 # Log units where data retrieval was not successful
                 for missed_unit in missed_units:
                     missed = db.MissedAdditionalData(additional_data_id=missed_unit)
