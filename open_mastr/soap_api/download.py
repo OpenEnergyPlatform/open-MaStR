@@ -5,6 +5,7 @@ from zeep.cache import SqliteCache
 from zeep.transports import Transport
 import requests
 from itertools import product
+import json
 import logging
 import pandas as pd
 import multiprocessing
@@ -229,7 +230,7 @@ def _mastr_suppress_parsing_errors(which_errors):
                         [f for f in error_filters if f.name in which_errors])
 
 
-def _flatten_dict(data):
+def _flatten_dict(data, serialize_with_json=False):
     """
     Flattens MaStR data dictionary to depth of one
 
@@ -268,8 +269,7 @@ def _flatten_dict(data):
         "VerknuepfteEinheiten": "MaStRNummer"
     }
 
-    flatten_rule_expand = {
-        "Ertuechtigung": "Id"}
+    flatten_rule_serialize = ["Ertuechtigung"]
 
     flatten_rule_move_up_and_merge = ["Hersteller"]
 
@@ -288,19 +288,12 @@ def _flatten_dict(data):
             if k in dic.keys():
                 dic[k] = dic[k][0][v]
 
-        # Expands multiple entries (via list items) to separate new columns (might explode)
-        # Assumes a list of dicts below key (example: Ertuechtigung in hydro power)
-        for k, v in flatten_rule_expand.items():
-            if k in dic.keys():
-                dic.update({k + "_number": len(dic[k])})
-                for sub_data in dic[k]:
-                    sub_data_id = sub_data[v]
-                    for k_sub_data, v_sub_data in sub_data.items():
-                        if k_sub_data != v:
-                            dic.update({k_sub_data + "_" + sub_data_id: v_sub_data})
-
-                # Remove original data
-                dic.pop(k)
+        # Serilializes dictionary entries with unknown number of sub-entries into JSON string
+        # This affects "Ertuechtigung" in extended unit data of hydro
+        if serialize_with_json:
+            for k in flatten_rule_serialize:
+                if k in dic.keys():
+                    dic[k] = json.dumps(dic[k], indent=4, sort_keys=True, default=str)
 
         # Join 'Id' with original key to new column
         # and overwrite original data with 'Wert'
@@ -638,10 +631,10 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
             _missed_units_to_file(technology, "permit", permit_missed_retry)
 
         # Flatten data
-        extended_data = _flatten_dict(extended_data)
-        eeg_data = _flatten_dict(eeg_data)
-        kwk_data = _flatten_dict(kwk_data)
-        permit_data = _flatten_dict(permit_data)
+        extended_data = _flatten_dict(extended_data, serialize_with_json=True)
+        eeg_data = _flatten_dict(eeg_data, serialize_with_json=True)
+        kwk_data = _flatten_dict(kwk_data, serialize_with_json=True)
+        permit_data = _flatten_dict(permit_data, serialize_with_json=True)
 
         # Join data to a single dataframe
         idx_cols = [(units, "EinheitMastrNummer", ""),
