@@ -319,6 +319,7 @@ class MaStRReflected:
                 log.info(f"Additional data retrieved for {len(unit_data)}")
 
                 # Prepare data and add to database table
+                number_units_merged = 0
                 for unit_dat in unit_data:
                     # Remove query status information from response
                     for exclude in ["Ergebniscode", "AufrufVeraltet", "AufrufVersion", "AufrufLebenszeitEnde"]:
@@ -327,9 +328,10 @@ class MaStRReflected:
                     # Create new instance and update potentially existing one
                     unit = getattr(db, self.orm_map[technology][data_type])(**unit_dat)
                     session.merge(unit)
+                    number_units_merged += 1
 
                 session.commit()
-                log.info("Units merged and committed")
+                log.info(f"{len(number_units_merged)} units merged and committed")
                 # Log units where data retrieval was not successful
                 for missed_unit in missed_units:
                     missed = db.MissedAdditionalData(additional_data_id=missed_unit)
@@ -344,7 +346,8 @@ class MaStRReflected:
                 log.info("Units deleted")
                 # Send to datadb.Base complete transactions
                 session.commit()
-            else:
+
+            if number_units_merged == 0:
                 log.info("No further data is requested")
                 break
 
