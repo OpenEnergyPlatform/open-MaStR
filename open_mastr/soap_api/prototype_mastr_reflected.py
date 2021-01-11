@@ -298,16 +298,17 @@ class MaStRReflected:
             "permit_data": "_permit_unit_data",
         }
 
-        # Get list of IDs
-        requested = session.query(db.AdditionalDataRequested).filter(
-            and_(db.AdditionalDataRequested.data_type == data_type,
-                 db.AdditionalDataRequested.technology == technology)).limit(limit)
-
         if limit:
             if chunksize > limit:
                 chunksize = limit
 
-        for requested_chunk in list(chunks(requested, chunksize)):
+        chunks_queried = 0
+        while chunks_queried <= limit:
+
+            requested_chunk = session.query(db.AdditionalDataRequested).filter(
+                and_(db.AdditionalDataRequested.data_type == data_type,
+                     db.AdditionalDataRequested.technology == technology)).limit(chunksize)
+            chunks_queried += chunksize
 
             ids = [_.additional_data_id for _ in requested_chunk]
 
