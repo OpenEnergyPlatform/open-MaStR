@@ -503,6 +503,14 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
             },
         }
 
+        # Map additional data to primary key via data_fcn
+        self._additional_data_primary_key = {
+            "_extended_unit_data": "EinheitMastrNummer",
+            "_kwk_unit_data": "KwkMastrNummer",
+            "_eeg_unit_data": "EegMastrNummer",
+            "_permit_unit_data": "GenMastrNummer"
+        }
+
         # Check if MaStR credentials are available and otherwise ask
         # for user input
         self._mastr_api._user = cred.check_and_set_mastr_user()
@@ -845,7 +853,7 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         data_missed = [dat for dat in data_missed if dat]
 
         # Add units missed due to timeout to data_missed
-        units_retrieved = [_["EinheitMastrNummer"] for _ in data]
+        units_retrieved = [_[self._additional_data_primary_key[data_fcn]] for _ in data]
         units_missed_timeout = [u for u in unit_ids if u not in units_retrieved + data_missed]
         data_missed = data_missed + units_missed_timeout
 
