@@ -196,3 +196,17 @@ class SolarEeg(Eeg, Base):
     MieterstromErsteZuordnungZuschlag = Column(Date)
     ZugeordneteGebotsmenge = Column(Float)
 
+
+class BiomassEeg(Eeg, Base):
+    __tablename__ = "biomass_eeg"
+
+    AusschliesslicheVerwendungBiomasse = Column(Boolean)
+    BiogasInanspruchnahmeFlexiPraemie = Column(Boolean)
+    BiogasDatumInanspruchnahmeFlexiPraemie = Column(Date)
+    BiogasLeistungserhoehung = Column(Boolean)
+    BiogasDatumLeistungserhoehung = Column(Date)
+    BiogasUmfangLeistungserhoehung = Column(Float)
+    BiogasGaserzeugungskapazitaet = Column(Float)
+    BiogasHoechstbemessungsleistung = Column(Float)
+    BiomethanErstmaligerEinsatz = Column(Date)
+

@@ -64,6 +64,9 @@ class MaStRReflected:
                 "unit_data": "SolarExtended",
                 "eeg_data": "SolarEeg",
             },
+            "biomass": {
+                "eeg_data": "BiomassEeg"
+            }
         }
 
         # Map technology and MaStR unit type
