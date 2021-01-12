@@ -210,3 +210,18 @@ class BiomassEeg(Eeg, Base):
     BiogasHoechstbemessungsleistung = Column(Float)
     BiomethanErstmaligerEinsatz = Column(Date)
 
+
+class Permit(Base):
+    __tablename__ = "permit"
+
+    GenMastrNummer = Column(String, primary_key=True)
+    DatumLetzteAktualisierung = Column(DateTime(timezone=True))
+    Art = Column(String)
+    Datum = Column(Date)
+    Behoerde = Column(String)
+    Aktenzeichen = Column(String)
+    Frist = Column(Date)
+    WasserrechtsNummer = Column(String)
+    WasserrechtAblaufdatum = Column(Date)
+    Meldedatum = Column(Date)
+    VerknuepfteEinheiten = Column(String)

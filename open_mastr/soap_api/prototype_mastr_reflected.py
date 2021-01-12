@@ -59,13 +59,16 @@ class MaStRReflected:
             "wind": {
                 "unit_data": "WindExtended",
                 "eeg_data": "WindEeg",
+                "permit_data": "Permit"
             },
             "solar": {
                 "unit_data": "SolarExtended",
                 "eeg_data": "SolarEeg",
+                "permit_data": "Permit"
             },
             "biomass": {
-                "eeg_data": "BiomassEeg"
+                "eeg_data": "BiomassEeg",
+                "permit_data": "Permit"
             }
         }
 
