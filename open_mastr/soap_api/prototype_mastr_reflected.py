@@ -58,9 +58,11 @@ class MaStRReflected:
         self.orm_map = {
             "wind": {
                 "unit_data": "WindExtended",
+                "eeg_data": "WindEeg",
             },
             "solar": {
                 "unit_data": "SolarExtended",
+                "eeg_data": "SolarEeg",
             },
         }
 

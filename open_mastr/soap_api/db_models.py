@@ -1,6 +1,6 @@
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.schema import MetaData
-from sqlalchemy import Column, Integer, String, Float, Sequence, DateTime, Boolean, func
+from sqlalchemy import Column, Integer, String, Float, Sequence, DateTime, Boolean, func, Date
 
 mirror_schema = "mastr_mirrored"
 meta = MetaData(schema=mirror_schema)
@@ -159,3 +159,40 @@ class SolarExtended(Extended, Base):
     InAnspruchGenommeneAckerflaeche = Column(Float)
     Nutzungsbereich = Column(String)
     EegMastrNummer = Column(String)
+
+
+class Eeg(object):
+    EegMastrNummer = Column(String, primary_key=True)
+    Meldedatum = Column(Date)
+    DatumLetzteAktualisierung = Column(DateTime(timezone=True))
+    EegInbetriebnahmedatum = Column(Date)
+    AnlagenkennzifferAnlagenregister = Column(String)
+    AnlagenschluesselEeg = Column(String)
+    PrototypAnlage = Column(Boolean)
+    PilotAnlage = Column(Boolean)
+    InstallierteLeistung = Column(Float)
+    AusschreibungZuschlag = Column(Boolean)
+    Zuschlagsnummer = Column(String)
+    AnlageBetriebsstatus = Column(String)
+    VerknuepfteEinheit = Column(String)
+
+
+class WindEeg(Eeg, Base):
+    __tablename__ = "wind_eeg"
+
+    VerhaeltnisErtragsschaetzungReferenzertrag = Column(Float)
+    VerhaeltnisReferenzertragErtrag5Jahre = Column(Float)
+    VerhaeltnisReferenzertragErtrag10Jahre = Column(Float)
+    VerhaeltnisReferenzertragErtrag15Jahre = Column(Float)
+
+
+class SolarEeg(Eeg, Base):
+    __tablename__ = "solar_eeg"
+
+    InanspruchnahmeZahlungNachEeg = Column(Boolean)
+    RegistrierungsnummerPvMeldeportal = Column(String)
+    MieterstromZugeordnet = Column(Boolean)
+    MieterstromMeldedatum = Column(Date)
+    MieterstromErsteZuordnungZuschlag = Column(Date)
+    ZugeordneteGebotsmenge = Column(Float)
+
