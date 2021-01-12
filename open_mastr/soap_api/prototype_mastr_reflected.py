@@ -302,13 +302,12 @@ class MaStRReflected:
             if chunksize > limit:
                 chunksize = limit
 
-        chunks_queried = 0
-        while chunks_queried <= limit:
+        units_queried = 0
+        while units_queried < limit:
 
             requested_chunk = session.query(db.AdditionalDataRequested).filter(
                 and_(db.AdditionalDataRequested.data_type == data_type,
                      db.AdditionalDataRequested.technology == technology)).limit(chunksize)
-            chunks_queried += chunksize
 
             ids = [_.additional_data_id for _ in requested_chunk]
 
@@ -346,6 +345,9 @@ class MaStRReflected:
                 log.info("Units deleted")
                 # Send to datadb.Base complete transactions
                 session.commit()
+
+                # Update while iteration condition
+                units_queried += len(ids)
 
             if number_units_merged == 0:
                 log.info("No further data is requested")
