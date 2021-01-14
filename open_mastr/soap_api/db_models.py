@@ -161,6 +161,16 @@ class SolarExtended(Extended, Base):
     EegMastrNummer = Column(String)
 
 
+class BiomassExtended(Extended, Base):
+    __tablename__ = "biomass_extended"
+
+    Hauptbrennstoff = Column(String)
+    Biomasseart = Column(String)
+    Technologie = Column(String)
+    EegMastrNummer = Column(String)
+    KwkMastrNummer = Column(String)
+
+
 class Eeg(object):
     EegMastrNummer = Column(String, primary_key=True)
     Meldedatum = Column(Date)

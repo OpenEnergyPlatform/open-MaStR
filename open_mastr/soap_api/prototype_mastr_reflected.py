@@ -67,6 +67,7 @@ class MaStRReflected:
                 "permit_data": "Permit"
             },
             "biomass": {
+                "unit_data": "BiomassExtended",
                 "eeg_data": "BiomassEeg",
                 "permit_data": "Permit"
             }
