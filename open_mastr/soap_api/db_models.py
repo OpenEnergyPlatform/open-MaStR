@@ -221,6 +221,21 @@ class BiomassEeg(Eeg, Base):
     BiomethanErstmaligerEinsatz = Column(Date)
 
 
+class Kwk(Base):
+    __tablename__ = "kwk"
+
+    KwkMastrNummer = Column(String, primary_key=True)
+    AusschreibungZuschlag = Column(Boolean)
+    Zuschlagnummer = Column(String)
+    DatumLetzteAktualisierung = Column(DateTime(timezone=True))
+    Inbetriebnahmedatum = Column(Date)
+    Meldedatum = Column(Date)
+    ThermischeNutzleistung = Column(Float)
+    ElektrischeKwkLeistung = Column(Float)
+    VerknuepfteEinheiten = Column(String)
+    AnlageBetriebsstatus = Column(String)
+
+
 class Permit(Base):
     __tablename__ = "permit"
 

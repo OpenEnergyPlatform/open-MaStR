@@ -69,7 +69,14 @@ class MaStRReflected:
             "biomass": {
                 "unit_data": "BiomassExtended",
                 "eeg_data": "BiomassEeg",
+                "kwk_data": "Kwk",
                 "permit_data": "Permit"
+            },
+            "combustion": {
+                "kwk_data": "Kwk",
+            },
+            "gsgk": {
+                "kwk_data": "Kwk",
             }
         }
 
