@@ -343,6 +343,7 @@ class MaStRReflected:
 
             ids = [_.additional_data_id for _ in requested_chunk]
 
+            number_units_merged = 0
             if ids:
                 # Retrieve data
                 unit_data, missed_units = self.mastr_dl._additional_data(technology, ids, download_functions[data_type])
@@ -350,7 +351,7 @@ class MaStRReflected:
                 log.info(f"Additional data retrieved for {len(unit_data)}")
 
                 # Prepare data and add to database table
-                number_units_merged = 0
+
                 for unit_dat in unit_data:
                     # Remove query status information from response
                     for exclude in ["Ergebniscode", "AufrufVeraltet", "AufrufVersion", "AufrufLebenszeitEnde"]:
