@@ -250,45 +250,57 @@ class StorageExtended(Extended, Base):
 
 
 class Eeg(object):
+
     EegMastrNummer = Column(String, primary_key=True)
     Meldedatum = Column(Date)
     DatumLetzteAktualisierung = Column(DateTime(timezone=True))
     EegInbetriebnahmedatum = Column(Date)
-    AnlagenkennzifferAnlagenregister = Column(String)
-    AnlagenschluesselEeg = Column(String)
-    PrototypAnlage = Column(Boolean)
-    PilotAnlage = Column(Boolean)
-    InstallierteLeistung = Column(Float)
-    AusschreibungZuschlag = Column(Boolean)
-    Zuschlagsnummer = Column(String)
-    AnlageBetriebsstatus = Column(String)
     VerknuepfteEinheit = Column(String)
 
 
 class WindEeg(Eeg, Base):
     __tablename__ = "wind_eeg"
 
+    AnlagenkennzifferAnlagenregister = Column(String)
+    AnlagenschluesselEeg = Column(String)
+    PrototypAnlage = Column(Boolean)
+    PilotAnlage = Column(Boolean)
+    InstallierteLeistung = Column(Float)
     VerhaeltnisErtragsschaetzungReferenzertrag = Column(Float)
     VerhaeltnisReferenzertragErtrag5Jahre = Column(Float)
     VerhaeltnisReferenzertragErtrag10Jahre = Column(Float)
     VerhaeltnisReferenzertragErtrag15Jahre = Column(Float)
+    AusschreibungZuschlag = Column(Boolean)
+    Zuschlagsnummer = Column(String)
+    AnlageBetriebsstatus = Column(String)
 
 
 class SolarEeg(Eeg, Base):
     __tablename__ = "solar_eeg"
 
     InanspruchnahmeZahlungNachEeg = Column(Boolean)
+    AnlagenschluesselEeg = Column(String)
+    AnlagenkennzifferAnlagenregister = Column(String)
+    InstallierteLeistung = Column(Float)
     RegistrierungsnummerPvMeldeportal = Column(String)
     MieterstromZugeordnet = Column(Boolean)
     MieterstromMeldedatum = Column(Date)
     MieterstromErsteZuordnungZuschlag = Column(Date)
+    AusschreibungZuschlag = Column(Boolean)
     ZugeordneteGebotsmenge = Column(Float)
+    Zuschlagsnummer = Column(String)
+    AnlageBetriebsstatus = Column(String)
 
 
 class BiomassEeg(Eeg, Base):
     __tablename__ = "biomass_eeg"
 
+    AnlagenschluesselEeg = Column(String)
+    AnlagenkennzifferAnlagenregister = Column(String)
+    InstallierteLeistung = Column(Float)
     AusschliesslicheVerwendungBiomasse = Column(Boolean)
+    AusschreibungZuschlag = Column(Boolean)
+    Zuschlagsnummer = Column(String)
     BiogasInanspruchnahmeFlexiPraemie = Column(Boolean)
     BiogasDatumInanspruchnahmeFlexiPraemie = Column(Date)
     BiogasLeistungserhoehung = Column(Boolean)
@@ -297,6 +309,7 @@ class BiomassEeg(Eeg, Base):
     BiogasGaserzeugungskapazitaet = Column(Float)
     BiogasHoechstbemessungsleistung = Column(Float)
     BiomethanErstmaligerEinsatz = Column(Date)
+    AnlageBetriebsstatus = Column(String)
 
 
 class Kwk(Base):
