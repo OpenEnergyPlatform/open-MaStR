@@ -1,6 +1,6 @@
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.schema import MetaData
-from sqlalchemy import Column, Integer, String, Float, Sequence, DateTime, Boolean, func, Date
+from sqlalchemy import Column, Integer, String, Float, Sequence, DateTime, Boolean, func, Date, JSON
 
 mirror_schema = "mastr_mirrored"
 meta = MetaData(schema=mirror_schema)
@@ -310,6 +310,30 @@ class BiomassEeg(Eeg, Base):
     BiogasHoechstbemessungsleistung = Column(Float)
     BiomethanErstmaligerEinsatz = Column(Date)
     AnlageBetriebsstatus = Column(String)
+
+
+class GsgkEeg(Eeg, Base):
+    __tablename__ = "gsgk_eeg"
+
+    AnlagenschluesselEeg = Column(String)
+    AnlagenkennzifferAnlagenregister = Column(String)
+    InstallierteLeistung = Column(Float)
+    AnlageBetriebsstatus = Column(String)
+
+
+class HydroEeg(Eeg, Base):
+    __tablename__ = "hydro_eeg"
+
+    AnlagenschluesselEeg = Column(String)
+    AnlagenkennzifferAnlagenregister = Column(String)
+    InstallierteLeistung = Column(Float)
+    AnlageBetriebsstatus = Column(String)
+    # TODO: this is entirely untested! Make sure a dict arives for Ertuechtigung
+    Ertuechtigung = Column(JSON)
+
+
+class StorageEeg(Eeg, Base):
+    __tablename__ = "storage_eeg"
 
 
 class Kwk(Base):

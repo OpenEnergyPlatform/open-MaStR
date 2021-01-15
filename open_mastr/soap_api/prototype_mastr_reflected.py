@@ -79,11 +79,13 @@ class MaStRReflected:
             },
             "gsgk": {
                 "unit_data": "GsgkExtended",
+                "eeg_data": "GsgkEeg",
                 "kwk_data": "Kwk",
                 "permit_data": "Permit"
             },
             "hydro": {
                 "unit_data": "HydroExtended",
+                "eeg_data": "HydroEeg",
                 "permit_data": "Permit"
             },
             "nuclear": {
@@ -92,6 +94,7 @@ class MaStRReflected:
             },
             "storage": {
                 "unit_data": "StorageExtended",
+                "eeg_data": "StorageEeg",
                 "permit_data": "Permit"
             },
         }
