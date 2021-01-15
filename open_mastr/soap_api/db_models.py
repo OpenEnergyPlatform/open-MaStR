@@ -171,6 +171,84 @@ class BiomassExtended(Extended, Base):
     KwkMastrNummer = Column(String)
 
 
+class CombustionExtended(Extended, Base):
+    __tablename__ = "combustion_extended"
+
+    NameKraftwerk = Column(String)
+    NameKraftwerksblock = Column(String)
+    DatumBaubeginn = Column(Date)
+    AnzeigeEinerStilllegung = Column(Boolean)
+    ArtDerStilllegung = Column(String)
+    DatumBeginnVorlaeufigenOderEndgueltigenStilllegung = Column(Date)
+    SteigerungNettonennleistungKombibetrieb = Column(Float)
+    AnlageIstImKombibetrieb = Column(Boolean)
+    MastrNummernKombibetrieb = Column(String)
+    NetzreserveAbDatum = Column(Date)
+    SicherheitsbereitschaftAbDatum = Column(Date)
+    Hauptbrennstoff = Column(String)
+    WeitererHauptbrennstoff = Column(String)
+    WeitereBrennstoffe = Column(String)
+    VerknuepfteErzeugungseinheiten = Column(String)
+    BestandteilGrenzkraftwerk = Column(Boolean)
+    NettonennleistungDeutschland = Column(Float)
+    AnteiligNutzungsberechtigte = Column(String)
+    Notstromaggregat = Column(Boolean)
+    Einsatzort = Column(String)
+    KwkMastrNummer = Column(String)
+    Technologie = Column(String)
+
+
+class GsgkExtended(Extended, Base):
+    __tablename__ = "gsgk_extended"
+
+    Technologie = Column(String)
+    KwkMastrNummer = Column(String)
+    EegMastrNummer = Column(String)
+
+
+class HydroExtended(Extended, Base):
+    __tablename__ = "hydro_extended"
+
+    NameKraftwerk = Column(String)
+    ArtDerWasserkraftanlage = Column(String)
+    AnzeigeEinerStilllegung = Column(Boolean)
+    ArtDerStilllegung = Column(String)
+    DatumBeginnVorlaeufigenOderEndgueltigenStilllegung = Column(Date)
+    MinderungStromerzeugung = Column(Boolean)
+    BestandteilGrenzkraftwerk = Column(Boolean)
+    NettonennleistungDeutschland = Column(Float)
+    ArtDesZuflusses = Column(String)
+    EegMastrNummer = Column(String)
+
+
+class NuclearExtended(Extended, Base):
+    __tablename__ = "nuclear_extended"
+
+    NameKraftwerk = Column(String)
+    NameKraftwerksblock = Column(String)
+    Technologie = Column(String)
+
+
+class StorageExtended(Extended, Base):
+    __tablename__ = "storage_extended"
+
+    Einsatzort = Column(String)
+    AcDcKoppelung = Column(String)
+    Batterietechnologie = Column(String)
+    PumpbetriebLeistungsaufnahme = Column(Float)
+    PumpbetriebKontinuierlichRegelbar = Column(Boolean)
+    Pumpspeichertechnologie = Column(String)
+    Notstromaggregat = Column(Boolean)
+    BestandteilGrenzkraftwerk = Column(Boolean)
+    NettonennleistungDeutschland = Column(Float)
+    ZugeordnenteWirkleistungWechselrichter = Column(Float)
+    NutzbareSpeicherkapazitaet = Column(Float)
+    SpeMastrNummer = Column(String)
+    EegMastrNummer = Column(String)
+    EegAnlagentyp = Column(String)
+    Technologie = Column(String)
+
+
 class Eeg(object):
     EegMastrNummer = Column(String, primary_key=True)
     Meldedatum = Column(Date)

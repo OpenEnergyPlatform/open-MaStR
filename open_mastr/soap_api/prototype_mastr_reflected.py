@@ -73,11 +73,21 @@ class MaStRReflected:
                 "permit_data": "Permit"
             },
             "combustion": {
+                "unit_data": "CombustionExtended",
                 "kwk_data": "Kwk",
             },
             "gsgk": {
+                "unit_data": "GsgkExtended",
                 "kwk_data": "Kwk",
-            }
+            },
+            "hydro": {
+                "unit_data": "HydroExtended",
+            },
+            "nuclear": {
+                "unit_data": "NuclearExtended",
+            "storage": {
+                "unit_data": "StorageExtended",
+            },
         }
 
         # Map technology and MaStR unit type
