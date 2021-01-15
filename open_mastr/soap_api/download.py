@@ -476,6 +476,8 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
                 "unit_data": "GetEinheitStromSpeicher",
                 "energietraeger": ["Speicher"],
                 "eeg_data": "GetAnlageEegSpeicher",
+                # todo: additional data request not created for permit, create manually
+                "permit_data": "GetEinheitGenehmigung",
             },
             "gas_storage": {
                 "unit_data": "GetEinheitGasSpeicher",
