@@ -75,18 +75,24 @@ class MaStRReflected:
             "combustion": {
                 "unit_data": "CombustionExtended",
                 "kwk_data": "Kwk",
+                "permit_data": "Permit"
             },
             "gsgk": {
                 "unit_data": "GsgkExtended",
                 "kwk_data": "Kwk",
+                "permit_data": "Permit"
             },
             "hydro": {
                 "unit_data": "HydroExtended",
+                "permit_data": "Permit"
             },
             "nuclear": {
                 "unit_data": "NuclearExtended",
+                "permit_data": "Permit"
+            },
             "storage": {
                 "unit_data": "StorageExtended",
+                "permit_data": "Permit"
             },
         }
 
