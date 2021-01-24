@@ -1,13 +1,14 @@
 import datetime
 import os
-from sqlalchemy.orm import sessionmaker, Query
+import pandas as pd
+from sqlalchemy.orm import sessionmaker, Query, defer
 from sqlalchemy import and_, create_engine, func
 from sqlalchemy.sql import exists
 import shlex
 import subprocess
 
 from open_mastr.soap_api.config import setup_logger
-from open_mastr.soap_api.download import MaStRDownload, _flatten_dict
+from open_mastr.soap_api.download import MaStRDownload, _flatten_dict, to_csv
 import open_mastr.soap_api.db_models as db
 
 
@@ -439,3 +440,121 @@ class MaStRReflected:
                                 stderr=subprocess.PIPE,
                                 )
         proc.wait()
+
+    def to_csv(self,
+               technology=None,
+               limit=None,
+               additional_data=["unit_data", "eeg_data", "kwk_data", "permit_data"],
+               statistic_flag="B",
+               exclude_colums=[]
+               ):
+
+        reversed_unit_type_map = {v: k for k, v in self.unit_type_map.items()}
+
+        # Make sure input in either str or list
+        if isinstance(technology, str):
+            technology = [technology]
+        elif not isinstance(technology, (list, None)):
+            raise TypeError("Parameter technology must be of type `str` or `list`")
+
+        for tech in technology:
+            unit_data_orm = getattr(db, self.orm_map[tech]["unit_data"], None)
+            eeg_data_orm = getattr(db, self.orm_map[tech].get("eeg_data", "KeyNotAvailable"), None)
+            kwk_data_orm = getattr(db, self.orm_map[tech].get("kwk_data", "KeyNotAvailable"), None)
+            permit_data_orm = getattr(db, self.orm_map[tech].get("permit_data", "KeyNotAvailable"), None)
+
+            # Define query based on available tables for tech and user input
+            subtables = [db.BasicUnit]
+            if unit_data_orm and "unit_data" in additional_data:
+                subtables.append(unit_data_orm)
+            if eeg_data_orm and "eeg_data" in additional_data:
+                subtables.append(eeg_data_orm)
+            if kwk_data_orm and "kwk_data" in additional_data:
+                subtables.append(kwk_data_orm)
+            if permit_data_orm and "permit_data" in additional_data:
+                subtables.append(permit_data_orm)
+            query = Query(subtables, session=session)
+
+            # Define joins based on available tables for tech and user input
+            duplicates_exclude = [
+                # TODO: for most of the columns it needs to be decided newly which one is dropped
+                # TODO: therefore it should be checked where is more data included (the other one(s) should be dropped)
+
+                # TODO: change dropping of columns to consequently suffixing them. Whereever, also in a table for a single technology, a duplicate occurs, use a suffix for this column in all tables
+                db.BasicUnit.EegMastrNummer,
+                db.BasicUnit.BestandsanlageMastrNummer, # TODO: needs check
+                db.BasicUnit.StatisikFlag,
+            ]
+            if unit_data_orm and "unit_data" in additional_data:
+                query = query.join(
+                    unit_data_orm,
+                    db.BasicUnit.EinheitMastrNummer == unit_data_orm.EinheitMastrNummer,
+                    isouter=True
+                )
+                duplicates_exclude += [
+                    unit_data_orm.EinheitMastrNummer,
+                    unit_data_orm.GenMastrNummer,
+                    unit_data_orm.EinheitBetriebsstatus,  # TODO: needs check
+                    unit_data_orm.NichtVorhandenInMigriertenEinheiten,  # TODO: needs check
+                    unit_data_orm.Bruttoleistung,  # TODO: needs check
+                    unit_data_orm.download_date,
+                ]
+            if eeg_data_orm and "eeg_data" in additional_data:
+                query = query.join(
+                    eeg_data_orm,
+                    db.BasicUnit.EegMastrNummer == eeg_data_orm.EegMastrNummer,
+                    isouter=True
+                )
+                duplicates_exclude += [
+                    eeg_data_orm.EegMastrNummer,
+                    eeg_data_orm.DatumLetzteAktualisierung,  # TODO: maybe re-include with suffix
+                    eeg_data_orm.Meldedatum,  # TODO: maybe re-include with suffix
+                ]
+            if kwk_data_orm and "kwk_data" in additional_data:
+                query = query.join(
+                    kwk_data_orm,
+                    db.BasicUnit.KwkMastrNummer == kwk_data_orm.KwkMastrNummer,
+                    isouter=True
+                )
+                duplicates_exclude += [
+                    kwk_data_orm.KwkMastrNummer,
+                    kwk_data_orm.Meldedatum,
+                    kwk_data_orm.Inbetriebnahmedatum,
+                    kwk_data_orm.DatumLetzteAktualisierung,
+                    kwk_data_orm.AnlageBetriebsstatus,
+                    kwk_data_orm.VerknuepfteEinheiten,
+                    kwk_data_orm.AusschreibungZuschlag,
+                ]
+            if permit_data_orm and "permit_data" in additional_data:
+                query = query.join(
+                    permit_data_orm,
+                    db.BasicUnit.GenMastrNummer == permit_data_orm.GenMastrNummer,
+                    isouter=True
+                )
+                duplicates_exclude += [
+                    permit_data_orm.GenMastrNummer,
+                    permit_data_orm.DatumLetzteAktualisierung,  # TODO: maybe re-include with suffix
+                    permit_data_orm.Meldedatum,  # TODO: maybe re-include with suffix
+                ]
+            # Restriced to technology
+            query = query.filter(db.BasicUnit.Einheittyp == reversed_unit_type_map[tech])
+
+            # Decide if migrated data or data of newly registered units or both is selected
+            if statistic_flag and "unit_data" in additional_data:
+                query = query.filter(unit_data_orm.StatisikFlag == statistic_flag)
+
+            # Exclude certain columns that are duplicated
+            for excl in duplicates_exclude:
+                query = query.options(defer(excl))
+
+            # Limit returned rows of query
+            if limit:
+                query = query.limit(limit)
+
+
+            df = pd.read_sql(query.statement, query.session.bind, index_col="EinheitMastrNummer")
+
+            # todo: add assert no duplicate column. This is important because right now it isn't sure if there are no duplicate columns in some of the tables
+
+            to_csv(df, tech)
+
