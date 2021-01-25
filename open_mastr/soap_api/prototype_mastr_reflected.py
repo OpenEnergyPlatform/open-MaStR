@@ -450,25 +450,26 @@ class MaStRReflected:
                         additional_data_orm,
                         db.BasicUnit.EinheitMastrNummer == additional_data_orm.EinheitMastrNummer).filter(
                         db.BasicUnit.Einheittyp == reversed_unit_type_map[technology]).filter(
-                        additional_data_orm.EinheitMastrNummer.is_(None))
+                        additional_data_orm.EinheitMastrNummer.is_(None)).filter(
+                        db.BasicUnit.EinheitMastrNummer.isnot(None))
                 elif data_type == "eeg_data":
                     units_for_request = session.query(db.BasicUnit).outerjoin(
                         additional_data_orm,
                         db.BasicUnit.EegMastrNummer == additional_data_orm.EegMastrNummer).filter(
                         db.BasicUnit.Einheittyp == reversed_unit_type_map[technology]).filter(
-                        additional_data_orm.EegMastrNummer.is_(None))
+                        additional_data_orm.EegMastrNummer.is_(None)).filter(db.BasicUnit.EegMastrNummer.isnot(None))
                 elif data_type == "kwk_data":
                     units_for_request = session.query(db.BasicUnit).outerjoin(
                         additional_data_orm,
                         db.BasicUnit.KwkMastrNummer == additional_data_orm.KwkMastrNummer).filter(
                         db.BasicUnit.Einheittyp == reversed_unit_type_map[technology]).filter(
-                        additional_data_orm.KwkMastrNummer.is_(None))
+                        additional_data_orm.KwkMastrNummer.is_(None)).filter(db.BasicUnit.KwkMastrNummer.isnot(None))
                 elif data_type == "permit_data":
                     units_for_request = session.query(db.BasicUnit).outerjoin(
                         additional_data_orm,
                         db.BasicUnit.GenMastrNummer == additional_data_orm.GenMastrNummer).filter(
                         db.BasicUnit.Einheittyp == reversed_unit_type_map[technology]).filter(
-                        additional_data_orm.GenMastrNummer.is_(None))
+                        additional_data_orm.GenMastrNummer.is_(None)).filter(db.BasicUnit.GenMastrNummer.isnot(None))
                 else:
                     raise ValueError(f"Data type {data_type} is not a valid option.")
 
