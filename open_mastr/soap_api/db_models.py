@@ -328,7 +328,6 @@ class HydroEeg(Eeg, Base):
     AnlagenkennzifferAnlagenregister = Column(String)
     InstallierteLeistung = Column(Float)
     AnlageBetriebsstatus = Column(String)
-    # TODO: this is entirely untested! Make sure a dict arives for Ertuechtigung
     Ertuechtigung = Column(JSON)
 
 
