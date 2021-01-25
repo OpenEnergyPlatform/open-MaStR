@@ -303,12 +303,16 @@ class MaStRReflected:
                             }
                         )
 
-                    # Delete old entries for additional data requests
-                    session.query(db.AdditionalDataRequested).filter(
-                        db.AdditionalDataRequested.EinheitMastrNummer == basic_unit["EinheitMastrNummer"],
-                        db.AdditionalDataRequested.technology == self.unit_type_map[basic_unit["Einheittyp"]],
-                        db.AdditionalDataRequested.request_date < datetime.datetime.now(tz=datetime.timezone.utc)
-                    ).delete()
+                # Delete old entries for additional data requests
+                additional_data_table = db.AdditionalDataRequested.__table__
+                ids_to_delete = [_["EinheitMastrNummer"] for _ in inserted_and_updated]
+                session.execute(
+                    additional_data_table.delete().where(
+                        additional_data_table.c.EinheitMastrNummer.in_(ids_to_delete)).where(
+                        additional_data_table.c.technology == "wind").where(
+                        additional_data_table.c.request_date < datetime.datetime.now(tz=datetime.timezone.utc)
+                               )
+                )
 
                 # Flush delete statements to database
                 session.commit()
