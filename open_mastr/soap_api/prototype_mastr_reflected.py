@@ -402,6 +402,97 @@ class MaStRReflected:
                 log.info("No further data is requested")
                 break
 
+    def create_additional_data_requests(self, technology,
+                                        data_types=["unit_data", "eeg_data", "kwk_data", "permit_data"],
+                                        delete_existing=True):
+        """
+        Create new requests for additional unit data
+
+        For units that exist in basic_units but not in the table for additional data of `data_type`, a new data request
+        is submitted.
+
+        Parameters
+        ----------
+        technology: str
+            Specify technology additional data should be requested for.
+        data_types: list
+            Select type of additional data that is to be requested. Defaults to all data that is available for a
+            technology.
+        delete_existing: bool
+            Toggle deletion of already existing requests for additional data.
+            Defaults to True.
+        """
+        reversed_unit_type_map = {v: k for k, v in self.unit_type_map.items()}
+
+        data_requests = []
+
+        # Check which additional data is missing
+        for data_type in data_types:
+            data_type_available = self.orm_map[technology].get(data_type, None)
+
+            # Only proceed if this data type is available for this technology
+            if data_type_available:
+                # Get ORM for additional data by technology and data_type
+                additional_data_orm = getattr(db, data_type_available)
+
+                # Delete prior additional data requests for this technology and data_type
+                if delete_existing:
+                    session.query(db.AdditionalDataRequested).filter(
+                        db.AdditionalDataRequested.technology == technology,
+                        db.AdditionalDataRequested.data_type == data_type).delete()
+                    session.commit()
+
+                # Query database for missing additional data
+                if data_type == "unit_data":
+                    units_for_request = session.query(db.BasicUnit).outerjoin(
+                        additional_data_orm,
+                        db.BasicUnit.EinheitMastrNummer == additional_data_orm.EinheitMastrNummer).filter(
+                        db.BasicUnit.Einheittyp == reversed_unit_type_map[technology]).filter(
+                        additional_data_orm.EinheitMastrNummer.is_(None))
+                elif data_type == "eeg_data":
+                    units_for_request = session.query(db.BasicUnit).outerjoin(
+                        additional_data_orm,
+                        db.BasicUnit.EegMastrNummer == additional_data_orm.EegMastrNummer).filter(
+                        db.BasicUnit.Einheittyp == reversed_unit_type_map[technology]).filter(
+                        additional_data_orm.EegMastrNummer.is_(None))
+                elif data_type == "kwk_data":
+                    units_for_request = session.query(db.BasicUnit).outerjoin(
+                        additional_data_orm,
+                        db.BasicUnit.KwkMastrNummer == additional_data_orm.KwkMastrNummer).filter(
+                        db.BasicUnit.Einheittyp == reversed_unit_type_map[technology]).filter(
+                        additional_data_orm.KwkMastrNummer.is_(None))
+                elif data_type == "permit_data":
+                    units_for_request = session.query(db.BasicUnit).outerjoin(
+                        additional_data_orm,
+                        db.BasicUnit.GenMastrNummer == additional_data_orm.GenMastrNummer).filter(
+                        db.BasicUnit.Einheittyp == reversed_unit_type_map[technology]).filter(
+                        additional_data_orm.GenMastrNummer.is_(None))
+                else:
+                    raise ValueError(f"Data type {data_type} is not a valid option.")
+
+                # Prepare data for additional data request
+                for basic_unit in units_for_request:
+                    data_request = {
+                        "EinheitMastrNummer": basic_unit.EinheitMastrNummer,
+                        "technology": self.unit_type_map[basic_unit.Einheittyp],
+                        "data_type": data_type,
+                        "request_date": datetime.datetime.now(tz=datetime.timezone.utc),
+                    }
+                    if data_type == "unit_data":
+                        data_request["additional_data_id"] = basic_unit.EinheitMastrNummer
+                    elif data_type == "eeg_data":
+                        data_request["additional_data_id"] = basic_unit.EegMastrNummer
+                    elif data_type == "kwk_data":
+                        data_request["additional_data_id"] = basic_unit.KwkMastrNummer
+                    elif data_type == "permit_data":
+                        data_request["additional_data_id"] = basic_unit.GenMastrNummer
+                    data_requests.append(data_request)
+
+        # Insert new requests for additional data into database
+        session.bulk_insert_mappings(db.AdditionalDataRequested, data_requests)
+        session.commit()
+        session.close()
+
     def dump(self, dumpfile="open-mastr-continuous-update.backup"):
         """
         Dump MaStR datadb.Base.
