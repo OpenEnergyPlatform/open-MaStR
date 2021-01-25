@@ -364,6 +364,15 @@ class MaStRReflected:
                     for exclude in ["Ergebniscode", "AufrufVeraltet", "AufrufVersion", "AufrufLebenszeitEnde"]:
                         del unit_dat[exclude]
 
+                    # Pre-serialize dates/datetimes and decimal in hydro Ertuechtigung
+                    # This is required because sqlalchemy does not know how serialize dates/decimal of a JSON
+                    if "Ertuechtigung" in unit_dat.keys():
+                        for ertuechtigung in unit_dat['Ertuechtigung']:
+                            if ertuechtigung['DatumWiederinbetriebnahme']:
+                                ertuechtigung['DatumWiederinbetriebnahme'] = ertuechtigung[
+                                    'DatumWiederinbetriebnahme'].isoformat()
+                            ertuechtigung['ProzentualeErhoehungDesLv'] = float(ertuechtigung['ProzentualeErhoehungDesLv'])
+
                     # Create new instance and update potentially existing one
                     unit = getattr(db, self.orm_map[technology][data_type])(**unit_dat)
                     session.merge(unit)
