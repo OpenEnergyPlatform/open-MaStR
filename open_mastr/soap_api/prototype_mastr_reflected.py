@@ -432,6 +432,8 @@ class MaStRReflected:
 
             # Only proceed if this data type is available for this technology
             if data_type_available:
+                log.info(f"Create requests for additional data of type {data_type} for {technology}")
+
                 # Get ORM for additional data by technology and data_type
                 additional_data_orm = getattr(db, data_type_available)
 
