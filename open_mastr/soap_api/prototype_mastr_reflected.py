@@ -355,10 +355,8 @@ class MaStRReflected:
                 # Retrieve data
                 unit_data, missed_units = self.mastr_dl._additional_data(technology, ids, download_functions[data_type])
                 unit_data = _flatten_dict(unit_data)
-                log.info(f"Additional data retrieved for {len(unit_data)}")
 
                 # Prepare data and add to database table
-
                 for unit_dat in unit_data:
                     # Remove query status information from response
                     for exclude in ["Ergebniscode", "AufrufVeraltet", "AufrufVersion", "AufrufLebenszeitEnde"]:
@@ -379,25 +377,29 @@ class MaStRReflected:
                     number_units_merged += 1
 
                 session.commit()
-                log.info(f"{number_units_merged} units merged and committed")
                 # Log units where data retrieval was not successful
                 for missed_unit in missed_units:
                     missed = db.MissedAdditionalData(additional_data_id=missed_unit)
                     session.add(missed)
 
-                log.info(f"Missed units ({len(missed_units)} logged")
                 # Remove units from additional data request table if additional data was retrieved
                 for requested_unit in requested_chunk:
                     if requested_unit.additional_data_id not in missed_units:
                         session.delete(requested_unit)
 
-                log.info("Units deleted")
-                # Send to datadb.Base complete transactions
+                # Send to database complete transactions
                 session.commit()
 
                 # Update while iteration condition
                 units_queried += len(ids)
 
+                # Report on chunk
+                deleted_units = [requested_unit.additional_data_id for requested_unit in requested_chunk
+                                 if requested_unit.additional_data_id not in missed_units]
+                log.info(f"Downloaded data for {len(unit_data)} units ({len(ids)} requested). "
+                         f"Missed units: {len(missed_units)}. Deleted requests: {len(deleted_units)}.")
+
+            # Emergency break out: if now new data gets inserted/update, don't retrieve any further data
             if number_units_merged == 0:
                 log.info("No further data is requested")
                 break
