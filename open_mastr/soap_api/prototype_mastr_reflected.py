@@ -420,6 +420,12 @@ class MaStRReflected:
         ----------
         dumpfile : str or path-like, optional
             Save path for dump including filename. When only a filename is given, the dump is restored from CWD.
+
+
+        Warnings
+        --------
+        If tables that are restored from the dump contain data, restore doesn't work!
+
         """
         # Interpret file name and path
         dump_file_dir, dump_file = os.path.split(dumpfile)
