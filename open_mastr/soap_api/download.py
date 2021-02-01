@@ -770,7 +770,7 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
             # Make sure progress bar is closed properly
             pbar.close()
 
-    def _additional_data(self, technology, unit_ids, data_fcn):
+    def _additional_data(self, technology, unit_ids, data_fcn, timeout=3):
         """
         Retrieve addtional informations about units.
 
@@ -785,6 +785,8 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
             Unit identifier for additional data
         data_fcn : str
             Name of method from :class:`MaStRDownload` to be used for querying additional data
+        timeout: int, optional
+            Timeout limit for data retrieval for each unit when using multiprocessing
 
         Returns
         -------
@@ -823,7 +825,7 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
                     while True:
                         try:
                             # Try to retrieve data from concurrent processes
-                            data_tmp, data_missed_tmp = unit_result.next(timeout=2)
+                            data_tmp, data_missed_tmp = unit_result.next(timeout=timeout)
                             data.append(data_tmp)
                             data_missed.append(data_missed_tmp)
                             pbar.update()
