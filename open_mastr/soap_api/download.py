@@ -341,8 +341,8 @@ def _missed_units_to_file(technology, data_type, missed_units):
     missed_units_file = os.path.join(data_path, filenames["raw"][technology][f"{data_type}_fail"])
 
     with open(missed_units_file, 'w') as f:
-        for item in missed_units:
-            f.write(f"{item}\n")
+        for i, error in missed_units:
+            f.write(f"{i},{error}\n")
 
 
 def _chunksize(length, processes):
@@ -606,28 +606,28 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         if extended_missed:
             extended_data_retry, extended_missed_retry = self._retry_missed_additional_data(
                 technology,
-                extended_missed,
+                [_[0] for _ in extended_missed],
                 "_extended_unit_data")
             extended_data.extend(extended_data_retry)
             _missed_units_to_file(technology, "extended", extended_missed_retry)
         if eeg_missed:
             eeg_data_retry, eeg_missed_retry = self._retry_missed_additional_data(
                 technology,
-                eeg_missed,
+                [_[0] for _ in eeg_missed],
                 "_eeg_unit_data")
             eeg_data.extend(eeg_data_retry)
             _missed_units_to_file(technology, "eeg", eeg_missed_retry)
         if kwk_missed:
             kwk_data_retry, kwk_missed_retry = self._retry_missed_additional_data(
                 technology,
-                kwk_missed,
+                [_[0] for _ in kwk_missed],
                 "_kwk_unit_data")
             kwk_data.extend(kwk_data_retry)
             _missed_units_to_file(technology, "kwk", kwk_missed_retry)
         if permit_missed:
             permit_data_retry, permit_missed_retry = self._retry_missed_additional_data(
                 technology,
-                permit_missed,
+                [_[0] for _ in permit_missed],
                 "_permit_unit_data")
             permit_data.extend(permit_data_retry)
             _missed_units_to_file(technology, "permit", permit_missed_retry)
@@ -826,6 +826,11 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
                         try:
                             # Try to retrieve data from concurrent processes
                             data_tmp, data_missed_tmp = unit_result.next(timeout=timeout)
+
+                            if not data_tmp:
+                                log.warning(
+                                    f"Download for additional data for {data_missed_tmp[0]} ({technology}) failed. "
+                                    f"Traceback of caught error:\n{data_missed_tmp[1]}")
                             data.append(data_tmp)
                             data_missed.append(data_missed_tmp)
                             pbar.update()
@@ -834,7 +839,7 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
                             break
                         except multiprocessing.TimeoutError:
                             # If retrieval time exceeds timeout of next(), pass on
-                            pass
+                            log.warning(f"Data request for 1 {technology} unit timed out")
         else:
             # Retrieve data in a single process
             for unit_specs in tqdm(prepared_args,
@@ -842,6 +847,10 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
                                      desc=f"Downloading{data_fcn} ({technology})".replace("_", " "),
                                      unit="unit"):
                 data_tmp, data_missed_tmp = self.__getattribute__(data_fcn)(unit_specs)
+                if not data_tmp:
+                    log.warning(
+                        f"Download for additional data for {data_missed_tmp[0]} ({technology}) failed. "
+                        f"Traceback of caught error:\n{data_missed_tmp[1]}")
                 data.append(data_tmp)
                 data_missed.append(data_missed_tmp)
 
@@ -851,7 +860,8 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
 
         # Add units missed due to timeout to data_missed
         units_retrieved = [_[self._additional_data_primary_key[data_fcn]] for _ in data]
-        units_missed_timeout = [u for u in unit_ids if u not in units_retrieved + data_missed]
+        units_missed_timeout = [(u, "Timeout") for u in unit_ids if
+                                u not in units_retrieved + [_[0] for _ in data_missed]]
         data_missed = data_missed + units_missed_timeout
 
         return data, data_missed
@@ -893,7 +903,7 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
             #     f"Failed to download unit data for {mastr_id} because of SOAP API exception: {e}",
             #     exc_info=False)
             unit_data = {}
-            unit_missed = mastr_id
+            unit_missed = (mastr_id, e)
 
         return unit_data, unit_missed
 
@@ -935,7 +945,7 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
             #     f"Failed to download eeg data for {eeg_id} because of SOAP API exception: {e}",
             #     exc_info=False)
             eeg_data = {}
-            eeg_missed = eeg_id
+            eeg_missed = (eeg_id, e)
 
         return eeg_data, eeg_missed
 
@@ -979,7 +989,7 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
             #     f"Failed to download unit data for {kwk_id} because of SOAP API exception: {e}",
             #     exc_info=False)
             kwk_data = {}
-            kwk_missed = kwk_id
+            kwk_missed = (kwk_id, e)
 
         return kwk_data, kwk_missed
 
@@ -1018,7 +1028,7 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
             #     f"Failed to download unit data for {permit_id} because of SOAP API exception: {e}",
             #     exc_info=False)
             permit_data = {}
-            permit_missed = permit_id
+            permit_missed = (permit_id, e)
 
         return permit_data, permit_missed
 
@@ -1056,12 +1066,12 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
                 technology, missed_ids_remaining, data_fcn)
             if data_tmp:
                 data.extend(data_tmp)
-            missed_ids_remaining = missed_ids_tmp
+            missed_ids_remaining = [_[0] for _ in missed_ids_tmp]
 
-            if not missed_ids_remaining:
+            if not any(missed_ids_remaining):
                 break
 
-        return data, missed_ids_remaining
+        return data, missed_ids_tmp
 
     def daily_contingent(self):
         contingent = self._mastr_api.GetAktuellerStandTageskontingent()
