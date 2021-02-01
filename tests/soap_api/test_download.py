@@ -71,3 +71,17 @@ def test_additional_data_nuclear(mastr_download):
 
         assert len(units_downloaded) + len(units_missed) == 1
 
+
+def test_additional_data_biomass(mastr_download):
+
+    data_fcns = [
+        ("SEE936595511945", "_extended_unit_data"),
+        ("EEG929630520224", "_extended_unit_data"),
+        ("KWK998480117397", "_kwk_unit_data"),
+        ("SGE974254715891", "_permit_unit_data")]
+
+    for mastr_nummer, data_fcn in data_fcns:
+        units_downloaded, units_missed = mastr_download._additional_data("biomass", [mastr_nummer], data_fcn)
+
+        assert len(units_downloaded) + len(units_missed) == 1
+
