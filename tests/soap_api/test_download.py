@@ -59,3 +59,15 @@ def test_basic_unit_data(mastr_download):
     assert len(data) == 1
     assert data[0]["Einheittyp"] == "Kernenergie"
 
+
+def test_additional_data_nuclear(mastr_download):
+
+    data_fcns = [
+        ("SME963513379837", "_extended_unit_data"),
+        ("SGE951929415553", "_permit_unit_data")]
+
+    for mastr_nummer, data_fcn in data_fcns:
+        units_downloaded, units_missed = mastr_download._additional_data("nuclear", [mastr_nummer], data_fcn)
+
+        assert len(units_downloaded) + len(units_missed) == 1
+
