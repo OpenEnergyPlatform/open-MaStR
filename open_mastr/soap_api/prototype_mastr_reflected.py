@@ -7,7 +7,7 @@ from sqlalchemy.sql import exists
 import shlex
 import subprocess
 
-from open_mastr.soap_api.config import setup_logger
+from open_mastr.soap_api.config import setup_logger, create_data_dir
 from open_mastr.soap_api.download import MaStRDownload, _flatten_dict, to_csv
 import open_mastr.soap_api.db_models as db
 
@@ -454,6 +454,7 @@ class MaStRReflected:
                statistic_flag="B",
                exclude_colums=[]
                ):
+        create_data_dir()
 
         reversed_unit_type_map = {v: k for k, v in self.unit_type_map.items()}
 
