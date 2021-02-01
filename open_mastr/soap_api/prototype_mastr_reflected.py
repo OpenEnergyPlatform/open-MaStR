@@ -452,8 +452,37 @@ class MaStRReflected:
                limit=None,
                additional_data=["unit_data", "eeg_data", "kwk_data", "permit_data"],
                statistic_flag="B",
-               exclude_colums=[]
                ):
+        """
+        Export a snapshot MaStR data from mirrored database to CSV
+
+        During the export, additional available data is joined on list of basic units. A CSV file for each technology is
+        created separately because of multiple non-overlapping columns.
+
+        The data in the database probably has duplicates because of the history how data was collected in the
+        Marktstammdatenregister. Consider to use the parameter `statistic_flag`. Read more in the
+        `documentation <https://www.marktstammdatenregister.de/MaStRHilfe/subpages/statistik.html>`_ of the original
+        data source.
+
+        Parameters
+        ----------
+        technology: `str` or `list` of `str`
+            See list of available technologies in
+            :meth:`open_mastr.soap_api.download.py.MaStRDownload.download_power_plants`
+        limit: int
+            Limit number of rows
+        additional_data: `list`
+            Defaults to "export all available additional data" which is described by
+            `["unit_data", "eeg_data", "kwk_data", "permit_data"]`.
+        statistic_flag: `str`
+            Choose between 'A' or 'B' (default) to select a subset of the data for the export to CSV.
+
+            * 'B': Migrated that was migrated to the Martstammdatenregister + newly registered units with commissioning
+              date after 31.01.2019 (recommended for statistical purposes).
+            * 'A':  Newly registered units with commissioning date before 31.01.2019
+            * None: Export all data
+        """
+
         create_data_dir()
 
         reversed_unit_type_map = {v: k for k, v in self.unit_type_map.items()}
@@ -547,7 +576,8 @@ class MaStRReflected:
                     permit_data_orm.DatumLetzteAktualisierung,  # TODO: maybe re-include with suffix
                     permit_data_orm.Meldedatum,  # TODO: maybe re-include with suffix
                 ]
-            # Restriced to technology
+
+            # Restricted to technology
             query = query.filter(db.BasicUnit.Einheittyp == reversed_unit_type_map[tech])
 
             # Decide if migrated data or data of newly registered units or both is selected
@@ -562,11 +592,12 @@ class MaStRReflected:
             if limit:
                 query = query.limit(limit)
 
-
+            # Read data into pandas.DataFrame
             df = pd.read_sql(query.statement, query.session.bind, index_col="EinheitMastrNummer")
 
             # Make sure no duplicate column names exist
             assert not any(df.columns.duplicated())
 
+            # Save to CSV
             to_csv(df, tech)
 
