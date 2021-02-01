@@ -506,6 +506,10 @@ class MaStRReflected:
                     unit_data_orm.Bruttoleistung,  # TODO: needs check
                     unit_data_orm.download_date,
                 ]
+                if "KwkMastrNummer" in  unit_data_orm.__table__.columns:
+                    duplicates_exclude.append(unit_data_orm.KwkMastrNummer)
+                if "SpeMastrNummer" in unit_data_orm.__table__.columns:
+                    duplicates_exclude.append(unit_data_orm.SpeMastrNummer)
             if eeg_data_orm and "eeg_data" in additional_data:
                 query = query.join(
                     eeg_data_orm,
@@ -561,7 +565,8 @@ class MaStRReflected:
 
             df = pd.read_sql(query.statement, query.session.bind, index_col="EinheitMastrNummer")
 
-            # todo: add assert no duplicate column. This is important because right now it isn't sure if there are no duplicate columns in some of the tables
+            # Make sure no duplicate column names exist
+            assert not any(df.columns.duplicated())
 
             to_csv(df, tech)
 
