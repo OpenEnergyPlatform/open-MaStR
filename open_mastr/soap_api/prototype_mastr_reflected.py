@@ -1,13 +1,14 @@
 import datetime
 import os
-from sqlalchemy.orm import sessionmaker, Query
+import pandas as pd
+from sqlalchemy.orm import sessionmaker, Query, defer
 from sqlalchemy import and_, create_engine, func
 from sqlalchemy.sql import exists
 import shlex
 import subprocess
 
-from open_mastr.soap_api.config import setup_logger
-from open_mastr.soap_api.download import MaStRDownload, _flatten_dict
+from open_mastr.soap_api.config import setup_logger, create_data_dir
+from open_mastr.soap_api.download import MaStRDownload, _flatten_dict, to_csv
 import open_mastr.soap_api.db_models as db
 
 
@@ -528,6 +529,12 @@ class MaStRReflected:
         ----------
         dumpfile : str or path-like, optional
             Save path for dump including filename. When only a filename is given, the dump is restored from CWD.
+
+
+        Warnings
+        --------
+        If tables that are restored from the dump contain data, restore doesn't work!
+
         """
         # Interpret file name and path
         dump_file_dir, dump_file = os.path.split(dumpfile)
@@ -548,3 +555,158 @@ class MaStRReflected:
                                 stderr=subprocess.PIPE,
                                 )
         proc.wait()
+
+    def to_csv(self,
+               technology=None,
+               limit=None,
+               additional_data=["unit_data", "eeg_data", "kwk_data", "permit_data"],
+               statistic_flag="B",
+               ):
+        """
+        Export a snapshot MaStR data from mirrored database to CSV
+
+        During the export, additional available data is joined on list of basic units. A CSV file for each technology is
+        created separately because of multiple non-overlapping columns.
+
+        The data in the database probably has duplicates because of the history how data was collected in the
+        Marktstammdatenregister. Consider to use the parameter `statistic_flag`. Read more in the
+        `documentation <https://www.marktstammdatenregister.de/MaStRHilfe/subpages/statistik.html>`_ of the original
+        data source.
+
+        Parameters
+        ----------
+        technology: `str` or `list` of `str`
+            See list of available technologies in
+            :meth:`open_mastr.soap_api.download.py.MaStRDownload.download_power_plants`
+        limit: int
+            Limit number of rows
+        additional_data: `list`
+            Defaults to "export all available additional data" which is described by
+            `["unit_data", "eeg_data", "kwk_data", "permit_data"]`.
+        statistic_flag: `str`
+            Choose between 'A' or 'B' (default) to select a subset of the data for the export to CSV.
+
+            * 'B': Migrated that was migrated to the Martstammdatenregister + newly registered units with commissioning
+              date after 31.01.2019 (recommended for statistical purposes).
+            * 'A':  Newly registered units with commissioning date before 31.01.2019
+            * None: Export all data
+        """
+
+        create_data_dir()
+
+        reversed_unit_type_map = {v: k for k, v in self.unit_type_map.items()}
+
+        # Make sure input in either str or list
+        if isinstance(technology, str):
+            technology = [technology]
+        elif not isinstance(technology, (list, None)):
+            raise TypeError("Parameter technology must be of type `str` or `list`")
+
+        for tech in technology:
+            unit_data_orm = getattr(db, self.orm_map[tech]["unit_data"], None)
+            eeg_data_orm = getattr(db, self.orm_map[tech].get("eeg_data", "KeyNotAvailable"), None)
+            kwk_data_orm = getattr(db, self.orm_map[tech].get("kwk_data", "KeyNotAvailable"), None)
+            permit_data_orm = getattr(db, self.orm_map[tech].get("permit_data", "KeyNotAvailable"), None)
+
+            # Define query based on available tables for tech and user input
+            subtables = [db.BasicUnit]
+            if unit_data_orm and "unit_data" in additional_data:
+                subtables.append(unit_data_orm)
+            if eeg_data_orm and "eeg_data" in additional_data:
+                subtables.append(eeg_data_orm)
+            if kwk_data_orm and "kwk_data" in additional_data:
+                subtables.append(kwk_data_orm)
+            if permit_data_orm and "permit_data" in additional_data:
+                subtables.append(permit_data_orm)
+            query = Query(subtables, session=session)
+
+            # Define joins based on available tables for tech and user input
+            duplicates_exclude = [
+                # TODO: for most of the columns it needs to be decided newly which one is dropped
+                # TODO: therefore it should be checked where is more data included (the other one(s) should be dropped)
+
+                # TODO: change dropping of columns to consequently suffixing them. Whereever, also in a table for a single technology, a duplicate occurs, use a suffix for this column in all tables
+                db.BasicUnit.EegMastrNummer,
+                db.BasicUnit.BestandsanlageMastrNummer, # TODO: needs check
+                db.BasicUnit.StatisikFlag,
+            ]
+            if unit_data_orm and "unit_data" in additional_data:
+                query = query.join(
+                    unit_data_orm,
+                    db.BasicUnit.EinheitMastrNummer == unit_data_orm.EinheitMastrNummer,
+                    isouter=True
+                )
+                duplicates_exclude += [
+                    unit_data_orm.EinheitMastrNummer,
+                    unit_data_orm.GenMastrNummer,
+                    unit_data_orm.EinheitBetriebsstatus,  # TODO: needs check
+                    unit_data_orm.NichtVorhandenInMigriertenEinheiten,  # TODO: needs check
+                    unit_data_orm.Bruttoleistung,  # TODO: needs check
+                    unit_data_orm.download_date,
+                ]
+                if "KwkMastrNummer" in  unit_data_orm.__table__.columns:
+                    duplicates_exclude.append(unit_data_orm.KwkMastrNummer)
+                if "SpeMastrNummer" in unit_data_orm.__table__.columns:
+                    duplicates_exclude.append(unit_data_orm.SpeMastrNummer)
+            if eeg_data_orm and "eeg_data" in additional_data:
+                query = query.join(
+                    eeg_data_orm,
+                    db.BasicUnit.EegMastrNummer == eeg_data_orm.EegMastrNummer,
+                    isouter=True
+                )
+                duplicates_exclude += [
+                    eeg_data_orm.EegMastrNummer,
+                    eeg_data_orm.DatumLetzteAktualisierung,  # TODO: maybe re-include with suffix
+                    eeg_data_orm.Meldedatum,  # TODO: maybe re-include with suffix
+                ]
+            if kwk_data_orm and "kwk_data" in additional_data:
+                query = query.join(
+                    kwk_data_orm,
+                    db.BasicUnit.KwkMastrNummer == kwk_data_orm.KwkMastrNummer,
+                    isouter=True
+                )
+                duplicates_exclude += [
+                    kwk_data_orm.KwkMastrNummer,
+                    kwk_data_orm.Meldedatum,
+                    kwk_data_orm.Inbetriebnahmedatum,
+                    kwk_data_orm.DatumLetzteAktualisierung,
+                    kwk_data_orm.AnlageBetriebsstatus,
+                    kwk_data_orm.VerknuepfteEinheiten,
+                    kwk_data_orm.AusschreibungZuschlag,
+                ]
+            if permit_data_orm and "permit_data" in additional_data:
+                query = query.join(
+                    permit_data_orm,
+                    db.BasicUnit.GenMastrNummer == permit_data_orm.GenMastrNummer,
+                    isouter=True
+                )
+                duplicates_exclude += [
+                    permit_data_orm.GenMastrNummer,
+                    permit_data_orm.DatumLetzteAktualisierung,  # TODO: maybe re-include with suffix
+                    permit_data_orm.Meldedatum,  # TODO: maybe re-include with suffix
+                ]
+
+            # Restricted to technology
+            query = query.filter(db.BasicUnit.Einheittyp == reversed_unit_type_map[tech])
+
+            # Decide if migrated data or data of newly registered units or both is selected
+            if statistic_flag and "unit_data" in additional_data:
+                query = query.filter(unit_data_orm.StatisikFlag == statistic_flag)
+
+            # Exclude certain columns that are duplicated
+            for excl in duplicates_exclude:
+                query = query.options(defer(excl))
+
+            # Limit returned rows of query
+            if limit:
+                query = query.limit(limit)
+
+            # Read data into pandas.DataFrame
+            df = pd.read_sql(query.statement, query.session.bind, index_col="EinheitMastrNummer")
+
+            # Make sure no duplicate column names exist
+            assert not any(df.columns.duplicated())
+
+            # Save to CSV
+            to_csv(df, tech)
+
