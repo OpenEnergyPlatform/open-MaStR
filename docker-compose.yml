@@ -16,3 +16,4 @@ services:
     volumes:
     - $HOME/docker/volumes/postgres/open-MaStR:/var/lib/postgresql/data
     - ./entrypoints:/docker-entrypoint-initdb.d/
+    shm_size: 2g
