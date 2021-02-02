@@ -770,7 +770,7 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
             # Make sure progress bar is closed properly
             pbar.close()
 
-    def _additional_data(self, technology, unit_ids, data_fcn, timeout=3):
+    def _additional_data(self, technology, unit_ids, data_fcn, timeout=10):
         """
         Retrieve addtional informations about units.
 
