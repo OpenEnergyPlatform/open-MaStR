@@ -903,7 +903,7 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
             #     f"Failed to download unit data for {mastr_id} because of SOAP API exception: {e}",
             #     exc_info=False)
             unit_data = {}
-            unit_missed = (mastr_id, e)
+            unit_missed = (mastr_id, repr(e))
 
         return unit_data, unit_missed
 
@@ -945,7 +945,7 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
             #     f"Failed to download eeg data for {eeg_id} because of SOAP API exception: {e}",
             #     exc_info=False)
             eeg_data = {}
-            eeg_missed = (eeg_id, e)
+            eeg_missed = (eeg_id, repr(e))
 
         return eeg_data, eeg_missed
 
@@ -989,7 +989,7 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
             #     f"Failed to download unit data for {kwk_id} because of SOAP API exception: {e}",
             #     exc_info=False)
             kwk_data = {}
-            kwk_missed = (kwk_id, e)
+            kwk_missed = (kwk_id, repr(e))
 
         return kwk_data, kwk_missed
 
@@ -1028,7 +1028,7 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
             #     f"Failed to download unit data for {permit_id} because of SOAP API exception: {e}",
             #     exc_info=False)
             permit_data = {}
-            permit_missed = (permit_id, e)
+            permit_missed = (permit_id, repr(e))
 
         return permit_data, permit_missed
 
