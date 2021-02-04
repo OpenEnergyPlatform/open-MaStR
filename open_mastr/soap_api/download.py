@@ -182,7 +182,7 @@ def _mastr_bindings(max_retries=3,
                           timeout=timeout,
                           operation_timeout=operation_timeout,
                           session=session)
-    settings = Settings(strict=True, xml_huge_tree=True)
+    settings = Settings(strict=False, xml_huge_tree=True)
     client = Client(wsdl=wsdl, transport=transport, settings=settings)
     client_bind = client.bind(service_name, service_port)
 
