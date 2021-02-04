@@ -741,7 +741,7 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
                             requests.exceptions.ReadTimeout
                             ) as e:
                         try_number += 1
-                        log.warning(f"MaStR SOAP API does not respond properly: {e}. Retry {try_number}")
+                        log.debug(f"MaStR SOAP API does not respond properly: {e}. Retry {try_number}")
                         time.sleep(5)
                     else:
                         # If it does run into the except clause, break out of the for loop
@@ -828,7 +828,7 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
                             data_tmp, data_missed_tmp = unit_result.next(timeout=timeout)
 
                             if not data_tmp:
-                                log.warning(
+                                log.debug(
                                     f"Download for additional data for {data_missed_tmp[0]} ({technology}) failed. "
                                     f"Traceback of caught error:\n{data_missed_tmp[1]}")
                             data.append(data_tmp)
@@ -839,7 +839,7 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
                             break
                         except multiprocessing.TimeoutError:
                             # If retrieval time exceeds timeout of next(), pass on
-                            log.warning(f"Data request for 1 {technology} unit timed out")
+                            log.debug(f"Data request for 1 {technology} unit timed out")
         else:
             # Retrieve data in a single process
             for unit_specs in tqdm(prepared_args,
@@ -848,7 +848,7 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
                                      unit="unit"):
                 data_tmp, data_missed_tmp = self.__getattribute__(data_fcn)(unit_specs)
                 if not data_tmp:
-                    log.warning(
+                    log.debug(
                         f"Download for additional data for {data_missed_tmp[0]} ({technology}) failed. "
                         f"Traceback of caught error:\n{data_missed_tmp[1]}")
                 data.append(data_tmp)
