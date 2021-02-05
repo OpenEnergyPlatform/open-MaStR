@@ -114,7 +114,7 @@ class Extended(object):
 
 
 class WindExtended(Extended, Base):
-    __tablename__ = 'mastr_wind'
+    __tablename__ = 'wind_extended'
 
     # wind specific attributes
     NameWindpark = Column(String)
@@ -142,7 +142,7 @@ class WindExtended(Extended, Base):
 
 
 class SolarExtended(Extended, Base):
-    __tablename__ = "mastr_solar"
+    __tablename__ = "solar_extended"
 
     zugeordneteWirkleistungWechselrichter = Column(Float)
     GemeinsamerWechselrichterMitSpeicher = Column(String)
