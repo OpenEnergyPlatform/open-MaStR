@@ -34,7 +34,7 @@ def chunks(lst, n):
         yield lst[i: i + n]
 
 
-class MaStRReflected:
+class MaStRMirror:
     def __init__(self, empty_schema=False, restore_dump=None, initialize_db=True, parallel_processes=None):
 
         # Spin up database container
