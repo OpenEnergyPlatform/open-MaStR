@@ -817,7 +817,7 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
                                       maxtasksperchild=1) as pool:
 
                 with tqdm(total=len(prepared_args),
-                          desc=f"Downloading{data_fcn} ({technology})".replace("_", " "),
+                          desc=f"Downloading {data_fcn} ({technology})",
                           unit="unit") as pbar:
                     unit_result = pool.imap_unordered(self.__getattribute__(data_fcn),
                                                       prepared_args,
@@ -844,7 +844,7 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
             # Retrieve data in a single process
             for unit_specs in tqdm(prepared_args,
                                      total=len(prepared_args),
-                                     desc=f"Downloading{data_fcn} ({technology})".replace("_", " "),
+                                     desc=f"Downloading {data_fcn} ({technology})",
                                      unit="unit"):
                 data_tmp, data_missed_tmp = self.__getattribute__(data_fcn)(unit_specs)
                 if not data_tmp:
