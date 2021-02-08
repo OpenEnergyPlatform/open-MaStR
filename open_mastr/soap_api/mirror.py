@@ -9,7 +9,7 @@ import subprocess
 
 from open_mastr.soap_api.config import setup_logger, create_data_dir
 from open_mastr.soap_api.download import MaStRDownload, flatten_dict, to_csv
-import open_mastr.soap_api.db_models as db
+from open_mastr.soap_api import orm
 
 
 log = setup_logger()
@@ -44,14 +44,14 @@ class MaStRMirror:
         # Create database tables
         with engine.connect().execution_options(autocommit=True) as con:
             if empty_schema:
-                con.execute(f"DROP SCHEMA IF EXISTS {db.Base.metadata.schema} CASCADE;")
-            con.execute(f"CREATE SCHEMA IF NOT EXISTS {db.Base.metadata.schema};")
-        db.Base.metadata.create_all(engine)
+                con.execute(f"DROP SCHEMA IF EXISTS {orm.Base.metadata.schema} CASCADE;")
+            con.execute(f"CREATE SCHEMA IF NOT EXISTS {orm.Base.metadata.schema};")
+        orm.Base.metadata.create_all(engine)
 
         # Associate downloader
         self.mastr_dl = MaStRDownload(parallel_processes=parallel_processes)
 
-        # Restore datadb.Base from a dump
+        # Restore database from a dump
         if restore_dump:
             self.restore(restore_dump)
 
@@ -119,7 +119,7 @@ class MaStRMirror:
         self.unit_type_map_reversed = {v: k for k, v in self.unit_type_map.items()}
 
     def initdb(self):
-        """ Initialize the local datadb.Base used for data processing."""
+        """ Initialize the local database used for data processing."""
         conf_file_path = os.path.abspath(
             os.path.join(os.path.dirname(__file__), "..", "..")
         )
@@ -183,15 +183,15 @@ class MaStRMirror:
             for tech in technology_list:
                 if tech:
                     # In case technologies are specified, latest data date gets queried per technology
-                    newest_date = session.query(db.BasicUnit.DatumLetzeAktualisierung).filter(
-                        db.BasicUnit.Einheittyp == self.unit_type_map_reversed[tech]).order_by(
-                        db.BasicUnit.DatumLetzeAktualisierung.desc()).first()
+                    newest_date = session.query(orm.BasicUnit.DatumLetzeAktualisierung).filter(
+                        orm.BasicUnit.Einheittyp == self.unit_type_map_reversed[tech]).order_by(
+                        orm.BasicUnit.DatumLetzeAktualisierung.desc()).first()
                 else:
                     # If technologies aren't defined ([None]) latest date per technology is queried in query
                     # This also leads that the remainder of the loop body is skipped
-                    subquery = session.query(db.BasicUnit.Einheittyp,
-                                             func.max(db.BasicUnit.DatumLetzeAktualisierung).label("maxdate")).group_by(
-                        db.BasicUnit.Einheittyp)
+                    subquery = session.query(orm.BasicUnit.Einheittyp,
+                                             func.max(orm.BasicUnit.DatumLetzeAktualisierung).label("maxdate")).group_by(
+                        orm.BasicUnit.Einheittyp)
                     dates = [s[1] for s in subquery]
                     technology_list = [self.unit_type_map[s[0]] for s in subquery]
                     # Break the for loop over technology here, because we write technology_list and dates at once
@@ -229,8 +229,8 @@ class MaStRMirror:
                 basic_units_chunk_unique_ids = [_["EinheitMastrNummer"] for _ in basic_units_chunk_unique]
 
                 # Find units that are already in the DB
-                common_ids = [_.EinheitMastrNummer for _ in session.query(db.BasicUnit.EinheitMastrNummer).filter(
-                    db.BasicUnit.EinheitMastrNummer.in_(basic_units_chunk_unique_ids))]
+                common_ids = [_.EinheitMastrNummer for _ in session.query(orm.BasicUnit.EinheitMastrNummer).filter(
+                    orm.BasicUnit.EinheitMastrNummer.in_(basic_units_chunk_unique_ids))]
 
                 # Create instances for new data and for updated data
                 insert = []
@@ -239,15 +239,15 @@ class MaStRMirror:
                     # In case data for the unit already exists, only update if new data is newer
                     if unit["EinheitMastrNummer"] in common_ids:
                         if session.query(exists().where(
-                                and_(db.BasicUnit.EinheitMastrNummer == unit["EinheitMastrNummer"],
-                                     db.BasicUnit.DatumLetzeAktualisierung < unit[
+                                and_(orm.BasicUnit.EinheitMastrNummer == unit["EinheitMastrNummer"],
+                                     orm.BasicUnit.DatumLetzeAktualisierung < unit[
                                          "DatumLetzeAktualisierung"]))).scalar():
                             updated.append(unit)
-                            session.merge(db.BasicUnit(**unit))
+                            session.merge(orm.BasicUnit(**unit))
                     # In case of new data, just insert
                     else:
                         insert.append(unit)
-                session.bulk_save_objects([db.BasicUnit(**u) for u in insert])
+                session.bulk_save_objects([orm.BasicUnit(**u) for u in insert])
                 inserted_and_updated = insert + updated
 
                 # Submit additional data requests
@@ -305,7 +305,7 @@ class MaStRMirror:
                         )
 
                 # Delete old entries for additional data requests
-                additional_data_table = db.AdditionalDataRequested.__table__
+                additional_data_table = orm.AdditionalDataRequested.__table__
                 ids_to_delete = [_["EinheitMastrNummer"] for _ in inserted_and_updated]
                 session.execute(
                     additional_data_table.delete().where(
@@ -319,10 +319,10 @@ class MaStRMirror:
                 session.commit()
 
                 # Insert new requests for additional data
-                session.bulk_insert_mappings(db.AdditionalDataRequested, extended_data)
-                session.bulk_insert_mappings(db.AdditionalDataRequested, eeg_data)
-                session.bulk_insert_mappings(db.AdditionalDataRequested, kwk_data)
-                session.bulk_insert_mappings(db.AdditionalDataRequested, permit_data)
+                session.bulk_insert_mappings(orm.AdditionalDataRequested, extended_data)
+                session.bulk_insert_mappings(orm.AdditionalDataRequested, eeg_data)
+                session.bulk_insert_mappings(orm.AdditionalDataRequested, kwk_data)
+                session.bulk_insert_mappings(orm.AdditionalDataRequested, permit_data)
 
                 session.commit()
             session.close()
@@ -345,9 +345,9 @@ class MaStRMirror:
         units_queried = 0
         while units_queried < limit:
 
-            requested_chunk = session.query(db.AdditionalDataRequested).filter(
-                and_(db.AdditionalDataRequested.data_type == data_type,
-                     db.AdditionalDataRequested.technology == technology)).limit(chunksize)
+            requested_chunk = session.query(orm.AdditionalDataRequested).filter(
+                and_(orm.AdditionalDataRequested.data_type == data_type,
+                     orm.AdditionalDataRequested.technology == technology)).limit(chunksize)
 
             ids = [_.additional_data_id for _ in requested_chunk]
 
@@ -373,14 +373,14 @@ class MaStRMirror:
                             ertuechtigung['ProzentualeErhoehungDesLv'] = float(ertuechtigung['ProzentualeErhoehungDesLv'])
 
                     # Create new instance and update potentially existing one
-                    unit = getattr(db, self.orm_map[technology][data_type])(**unit_dat)
+                    unit = getattr(orm, self.orm_map[technology][data_type])(**unit_dat)
                     session.merge(unit)
                     number_units_merged += 1
 
                 session.commit()
                 # Log units where data retrieval was not successful
                 for missed_unit in missed_units:
-                    missed = db.MissedAdditionalData(additional_data_id=missed_unit)
+                    missed = orm.MissedAdditionalData(additional_data_id=missed_unit)
                     session.add(missed)
 
                 # Remove units from additional data request table if additional data was retrieved
@@ -437,41 +437,41 @@ class MaStRMirror:
                 log.info(f"Create requests for additional data of type {data_type} for {technology}")
 
                 # Get ORM for additional data by technology and data_type
-                additional_data_orm = getattr(db, data_type_available)
+                additional_data_orm = getattr(orm, data_type_available)
 
                 # Delete prior additional data requests for this technology and data_type
                 if delete_existing:
-                    session.query(db.AdditionalDataRequested).filter(
-                        db.AdditionalDataRequested.technology == technology,
-                        db.AdditionalDataRequested.data_type == data_type).delete()
+                    session.query(orm.AdditionalDataRequested).filter(
+                        orm.AdditionalDataRequested.technology == technology,
+                        orm.AdditionalDataRequested.data_type == data_type).delete()
                     session.commit()
 
                 # Query database for missing additional data
                 if data_type == "unit_data":
-                    units_for_request = session.query(db.BasicUnit).outerjoin(
+                    units_for_request = session.query(orm.BasicUnit).outerjoin(
                         additional_data_orm,
-                        db.BasicUnit.EinheitMastrNummer == additional_data_orm.EinheitMastrNummer).filter(
-                        db.BasicUnit.Einheittyp == self.unit_type_map_reversed[technology]).filter(
+                        orm.BasicUnit.EinheitMastrNummer == additional_data_orm.EinheitMastrNummer).filter(
+                        orm.BasicUnit.Einheittyp == self.unit_type_map_reversed[technology]).filter(
                         additional_data_orm.EinheitMastrNummer.is_(None)).filter(
-                        db.BasicUnit.EinheitMastrNummer.isnot(None))
+                        orm.BasicUnit.EinheitMastrNummer.isnot(None))
                 elif data_type == "eeg_data":
-                    units_for_request = session.query(db.BasicUnit).outerjoin(
+                    units_for_request = session.query(orm.BasicUnit).outerjoin(
                         additional_data_orm,
-                        db.BasicUnit.EegMastrNummer == additional_data_orm.EegMastrNummer).filter(
-                        db.BasicUnit.Einheittyp == self.unit_type_map_reversed[technology]).filter(
-                        additional_data_orm.EegMastrNummer.is_(None)).filter(db.BasicUnit.EegMastrNummer.isnot(None))
+                        orm.BasicUnit.EegMastrNummer == additional_data_orm.EegMastrNummer).filter(
+                        orm.BasicUnit.Einheittyp == self.unit_type_map_reversed[technology]).filter(
+                        additional_data_orm.EegMastrNummer.is_(None)).filter(orm.BasicUnit.EegMastrNummer.isnot(None))
                 elif data_type == "kwk_data":
-                    units_for_request = session.query(db.BasicUnit).outerjoin(
+                    units_for_request = session.query(orm.BasicUnit).outerjoin(
                         additional_data_orm,
-                        db.BasicUnit.KwkMastrNummer == additional_data_orm.KwkMastrNummer).filter(
-                        db.BasicUnit.Einheittyp == self.unit_type_map_reversed[technology]).filter(
-                        additional_data_orm.KwkMastrNummer.is_(None)).filter(db.BasicUnit.KwkMastrNummer.isnot(None))
+                        orm.BasicUnit.KwkMastrNummer == additional_data_orm.KwkMastrNummer).filter(
+                        orm.BasicUnit.Einheittyp == self.unit_type_map_reversed[technology]).filter(
+                        additional_data_orm.KwkMastrNummer.is_(None)).filter(orm.BasicUnit.KwkMastrNummer.isnot(None))
                 elif data_type == "permit_data":
-                    units_for_request = session.query(db.BasicUnit).outerjoin(
+                    units_for_request = session.query(orm.BasicUnit).outerjoin(
                         additional_data_orm,
-                        db.BasicUnit.GenMastrNummer == additional_data_orm.GenMastrNummer).filter(
-                        db.BasicUnit.Einheittyp == self.unit_type_map_reversed[technology]).filter(
-                        additional_data_orm.GenMastrNummer.is_(None)).filter(db.BasicUnit.GenMastrNummer.isnot(None))
+                        orm.BasicUnit.GenMastrNummer == additional_data_orm.GenMastrNummer).filter(
+                        orm.BasicUnit.Einheittyp == self.unit_type_map_reversed[technology]).filter(
+                        additional_data_orm.GenMastrNummer.is_(None)).filter(orm.BasicUnit.GenMastrNummer.isnot(None))
                 else:
                     raise ValueError(f"Data type {data_type} is not a valid option.")
 
@@ -494,13 +494,13 @@ class MaStRMirror:
                     data_requests.append(data_request)
 
         # Insert new requests for additional data into database
-        session.bulk_insert_mappings(db.AdditionalDataRequested, data_requests)
+        session.bulk_insert_mappings(orm.AdditionalDataRequested, data_requests)
         session.commit()
         session.close()
 
     def dump(self, dumpfile="open-mastr-continuous-update.backup"):
         """
-        Dump MaStR datadb.Base.
+        Dump MaStR database.
 
         Parameters
         ----------
@@ -522,7 +522,7 @@ class MaStRMirror:
 
     def restore(self, dumpfile):
         """
-        Restore the MaStR datadb.Base from an SQL dump.
+        Restore the MaStR database from an SQL dump.
 
         Parameters
         ----------
@@ -600,13 +600,13 @@ class MaStRMirror:
             raise TypeError("Parameter technology must be of type `str` or `list`")
 
         for tech in technology:
-            unit_data_orm = getattr(db, self.orm_map[tech]["unit_data"], None)
-            eeg_data_orm = getattr(db, self.orm_map[tech].get("eeg_data", "KeyNotAvailable"), None)
-            kwk_data_orm = getattr(db, self.orm_map[tech].get("kwk_data", "KeyNotAvailable"), None)
-            permit_data_orm = getattr(db, self.orm_map[tech].get("permit_data", "KeyNotAvailable"), None)
+            unit_data_orm = getattr(orm, self.orm_map[tech]["unit_data"], None)
+            eeg_data_orm = getattr(orm, self.orm_map[tech].get("eeg_data", "KeyNotAvailable"), None)
+            kwk_data_orm = getattr(orm, self.orm_map[tech].get("kwk_data", "KeyNotAvailable"), None)
+            permit_data_orm = getattr(orm, self.orm_map[tech].get("permit_data", "KeyNotAvailable"), None)
 
             # Define query based on available tables for tech and user input
-            subtables = [db.BasicUnit]
+            subtables = [orm.BasicUnit]
             if unit_data_orm and "unit_data" in additional_data:
                 subtables.append(unit_data_orm)
             if eeg_data_orm and "eeg_data" in additional_data:
@@ -623,14 +623,14 @@ class MaStRMirror:
                 # TODO: therefore it should be checked where is more data included (the other one(s) should be dropped)
 
                 # TODO: change dropping of columns to consequently suffixing them. Whereever, also in a table for a single technology, a duplicate occurs, use a suffix for this column in all tables
-                db.BasicUnit.EegMastrNummer,
-                db.BasicUnit.BestandsanlageMastrNummer, # TODO: needs check
-                db.BasicUnit.StatisikFlag,
+                orm.BasicUnit.EegMastrNummer,
+                orm.BasicUnit.BestandsanlageMastrNummer, # TODO: needs check
+                orm.BasicUnit.StatisikFlag,
             ]
             if unit_data_orm and "unit_data" in additional_data:
                 query = query.join(
                     unit_data_orm,
-                    db.BasicUnit.EinheitMastrNummer == unit_data_orm.EinheitMastrNummer,
+                    orm.BasicUnit.EinheitMastrNummer == unit_data_orm.EinheitMastrNummer,
                     isouter=True
                 )
                 duplicates_exclude += [
@@ -648,7 +648,7 @@ class MaStRMirror:
             if eeg_data_orm and "eeg_data" in additional_data:
                 query = query.join(
                     eeg_data_orm,
-                    db.BasicUnit.EegMastrNummer == eeg_data_orm.EegMastrNummer,
+                    orm.BasicUnit.EegMastrNummer == eeg_data_orm.EegMastrNummer,
                     isouter=True
                 )
                 duplicates_exclude += [
@@ -659,7 +659,7 @@ class MaStRMirror:
             if kwk_data_orm and "kwk_data" in additional_data:
                 query = query.join(
                     kwk_data_orm,
-                    db.BasicUnit.KwkMastrNummer == kwk_data_orm.KwkMastrNummer,
+                    orm.BasicUnit.KwkMastrNummer == kwk_data_orm.KwkMastrNummer,
                     isouter=True
                 )
                 duplicates_exclude += [
@@ -674,7 +674,7 @@ class MaStRMirror:
             if permit_data_orm and "permit_data" in additional_data:
                 query = query.join(
                     permit_data_orm,
-                    db.BasicUnit.GenMastrNummer == permit_data_orm.GenMastrNummer,
+                    orm.BasicUnit.GenMastrNummer == permit_data_orm.GenMastrNummer,
                     isouter=True
                 )
                 duplicates_exclude += [
@@ -684,7 +684,7 @@ class MaStRMirror:
                 ]
 
             # Restricted to technology
-            query = query.filter(db.BasicUnit.Einheittyp == self.unit_type_map_reversed[tech])
+            query = query.filter(orm.BasicUnit.Einheittyp == self.unit_type_map_reversed[tech])
 
             # Decide if migrated data or data of newly registered units or both is selected
             if statistic_flag and "unit_data" in additional_data:
