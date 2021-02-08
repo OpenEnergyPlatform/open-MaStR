@@ -8,7 +8,7 @@ import shlex
 import subprocess
 
 from open_mastr.soap_api.config import setup_logger, create_data_dir
-from open_mastr.soap_api.download import MaStRDownload, _flatten_dict, to_csv
+from open_mastr.soap_api.download import MaStRDownload, flatten_dict, to_csv
 import open_mastr.soap_api.db_models as db
 
 
@@ -332,10 +332,10 @@ class MaStRReflected:
 
         # Mapping of download from MaStRDownload
         download_functions = {
-            "unit_data": "_extended_unit_data",
-            "eeg_data": "_eeg_unit_data",
-            "kwk_data": "_kwk_unit_data",
-            "permit_data": "_permit_unit_data",
+            "unit_data": "extended_unit_data",
+            "eeg_data": "eeg_unit_data",
+            "kwk_data": "kwk_unit_data",
+            "permit_data": "permit_unit_data",
         }
 
         if limit:
@@ -354,8 +354,8 @@ class MaStRReflected:
             number_units_merged = 0
             if ids:
                 # Retrieve data
-                unit_data, missed_units = self.mastr_dl._additional_data(technology, ids, download_functions[data_type])
-                unit_data = _flatten_dict(unit_data)
+                unit_data, missed_units = self.mastr_dl.additional_data(technology, ids, download_functions[data_type])
+                unit_data = flatten_dict(unit_data)
 
                 # Prepare data and add to database table
                 for unit_dat in unit_data:

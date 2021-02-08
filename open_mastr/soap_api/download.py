@@ -230,7 +230,7 @@ def _mastr_suppress_parsing_errors(which_errors):
                         [f for f in error_filters if f.name in which_errors])
 
 
-def _flatten_dict(data, serialize_with_json=False):
+def flatten_dict(data, serialize_with_json=False):
     """
     Flattens MaStR data dictionary to depth of one
 
@@ -500,10 +500,10 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
 
         # Map additional data to primary key via data_fcn
         self._additional_data_primary_key = {
-            "_extended_unit_data": "EinheitMastrNummer",
-            "_kwk_unit_data": "KwkMastrNummer",
-            "_eeg_unit_data": "EegMastrNummer",
-            "_permit_unit_data": "GenMastrNummer"
+            "extended_unit_data": "EinheitMastrNummer",
+            "kwk_unit_data": "KwkMastrNummer",
+            "eeg_unit_data": "EegMastrNummer",
+            "permit_unit_data": "GenMastrNummer"
         }
 
         # Check if MaStR credentials are available and otherwise ask
@@ -587,17 +587,17 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
             permit_ids = []
 
         # Download additional data for unit
-        extended_data, extended_missed = self._additional_data(technology, mastr_ids, "_extended_unit_data")
+        extended_data, extended_missed = self.additional_data(technology, mastr_ids, "extended_unit_data")
         if eeg_ids:
-            eeg_data, eeg_missed = self._additional_data(technology, eeg_ids, "_eeg_unit_data")
+            eeg_data, eeg_missed = self.additional_data(technology, eeg_ids, "eeg_unit_data")
         else:
             eeg_data = eeg_missed = []
         if kwk_ids:
-            kwk_data, kwk_missed = self._additional_data(technology, kwk_ids, "_kwk_unit_data")
+            kwk_data, kwk_missed = self.additional_data(technology, kwk_ids, "kwk_unit_data")
         else:
             kwk_data = kwk_missed = []
         if permit_ids:
-            permit_data, permit_missed = self._additional_data(technology, permit_ids, "_permit_unit_data")
+            permit_data, permit_missed = self.additional_data(technology, permit_ids, "permit_unit_data")
         else:
             permit_data = permit_missed = []
 
@@ -607,36 +607,36 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
             extended_data_retry, extended_missed_retry = self._retry_missed_additional_data(
                 technology,
                 [_[0] for _ in extended_missed],
-                "_extended_unit_data")
+                "extended_unit_data")
             extended_data.extend(extended_data_retry)
             _missed_units_to_file(technology, "extended", extended_missed_retry)
         if eeg_missed:
             eeg_data_retry, eeg_missed_retry = self._retry_missed_additional_data(
                 technology,
                 [_[0] for _ in eeg_missed],
-                "_eeg_unit_data")
+                "eeg_unit_data")
             eeg_data.extend(eeg_data_retry)
             _missed_units_to_file(technology, "eeg", eeg_missed_retry)
         if kwk_missed:
             kwk_data_retry, kwk_missed_retry = self._retry_missed_additional_data(
                 technology,
                 [_[0] for _ in kwk_missed],
-                "_kwk_unit_data")
+                "kwk_unit_data")
             kwk_data.extend(kwk_data_retry)
             _missed_units_to_file(technology, "kwk", kwk_missed_retry)
         if permit_missed:
             permit_data_retry, permit_missed_retry = self._retry_missed_additional_data(
                 technology,
                 [_[0] for _ in permit_missed],
-                "_permit_unit_data")
+                "permit_unit_data")
             permit_data.extend(permit_data_retry)
             _missed_units_to_file(technology, "permit", permit_missed_retry)
 
         # Flatten data
-        extended_data = _flatten_dict(extended_data, serialize_with_json=True)
-        eeg_data = _flatten_dict(eeg_data, serialize_with_json=True)
-        kwk_data = _flatten_dict(kwk_data, serialize_with_json=True)
-        permit_data = _flatten_dict(permit_data, serialize_with_json=True)
+        extended_data = flatten_dict(extended_data, serialize_with_json=True)
+        eeg_data = flatten_dict(eeg_data, serialize_with_json=True)
+        kwk_data = flatten_dict(kwk_data, serialize_with_json=True)
+        permit_data = flatten_dict(permit_data, serialize_with_json=True)
 
         # Join data to a single dataframe
         idx_cols = [(units, "EinheitMastrNummer", ""),
@@ -770,7 +770,7 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
             # Make sure progress bar is closed properly
             pbar.close()
 
-    def _additional_data(self, technology, unit_ids, data_fcn, timeout=10):
+    def additional_data(self, technology, unit_ids, data_fcn, timeout=10):
         """
         Retrieve addtional informations about units.
 
@@ -866,7 +866,7 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
 
         return data, data_missed
 
-    def _extended_unit_data(self, unit_specs):
+    def extended_unit_data(self, unit_specs):
         """
         Download extended data for a unit.
 
@@ -907,7 +907,7 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
 
         return unit_data, unit_missed
 
-    def _eeg_unit_data(self, unit_specs):
+    def eeg_unit_data(self, unit_specs):
         """
         Download EEG (Erneuerbare Energien Gesetz) data for a unit.
 
@@ -949,7 +949,7 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
 
         return eeg_data, eeg_missed
 
-    def _kwk_unit_data(self, unit_specs):
+    def kwk_unit_data(self, unit_specs):
         """
         Download KWK (Kraft-Wärme-Kopplung) data for a unit.
 
@@ -993,7 +993,7 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
 
         return kwk_data, kwk_missed
 
-    def _permit_unit_data(self, unit_specs):
+    def permit_unit_data(self, unit_specs):
         """
         Download permit data for a unit.
 
@@ -1062,7 +1062,7 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
 
         missed_ids_remaining = missed_ids
         for retry in range(1, retries + 1):
-            data_tmp, missed_ids_tmp = self._additional_data(
+            data_tmp, missed_ids_tmp = self.additional_data(
                 technology, missed_ids_remaining, data_fcn)
             if data_tmp:
                 data.extend(data_tmp)
