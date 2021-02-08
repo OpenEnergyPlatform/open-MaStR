@@ -116,6 +116,7 @@ class MaStRReflected:
             "Stromverbrauchseinheit": "consumer",
             "Gaserzeugungseinheit": "gas_producer",
         }
+        self.unit_type_map_reversed = {v: k for k, v in self.unit_type_map.items()}
 
     def initdb(self):
         """ Initialize the local datadb.Base used for data processing."""
@@ -164,7 +165,6 @@ class MaStRReflected:
             Maximum number of units.
             Defaults to `None` which means no limit is set and all available data is queried. Use with care!
         """
-        reversed_unit_type_map = {v: k for k, v in self.unit_type_map.items()}
 
         # Create list of technologies to backfill
         if isinstance(technology, str):
@@ -184,7 +184,7 @@ class MaStRReflected:
                 if tech:
                     # In case technologies are specified, latest data date gets queried per technology
                     newest_date = session.query(db.BasicUnit.DatumLetzeAktualisierung).filter(
-                        db.BasicUnit.Einheittyp == reversed_unit_type_map[tech]).order_by(
+                        db.BasicUnit.Einheittyp == self.unit_type_map_reversed[tech]).order_by(
                         db.BasicUnit.DatumLetzeAktualisierung.desc()).first()
                 else:
                     # If technologies aren't defined ([None]) latest date per technology is queried in query
@@ -425,7 +425,6 @@ class MaStRReflected:
             Toggle deletion of already existing requests for additional data.
             Defaults to True.
         """
-        reversed_unit_type_map = {v: k for k, v in self.unit_type_map.items()}
 
         data_requests = []
 
@@ -452,26 +451,26 @@ class MaStRReflected:
                     units_for_request = session.query(db.BasicUnit).outerjoin(
                         additional_data_orm,
                         db.BasicUnit.EinheitMastrNummer == additional_data_orm.EinheitMastrNummer).filter(
-                        db.BasicUnit.Einheittyp == reversed_unit_type_map[technology]).filter(
+                        db.BasicUnit.Einheittyp == self.unit_type_map_reversed[technology]).filter(
                         additional_data_orm.EinheitMastrNummer.is_(None)).filter(
                         db.BasicUnit.EinheitMastrNummer.isnot(None))
                 elif data_type == "eeg_data":
                     units_for_request = session.query(db.BasicUnit).outerjoin(
                         additional_data_orm,
                         db.BasicUnit.EegMastrNummer == additional_data_orm.EegMastrNummer).filter(
-                        db.BasicUnit.Einheittyp == reversed_unit_type_map[technology]).filter(
+                        db.BasicUnit.Einheittyp == self.unit_type_map_reversed[technology]).filter(
                         additional_data_orm.EegMastrNummer.is_(None)).filter(db.BasicUnit.EegMastrNummer.isnot(None))
                 elif data_type == "kwk_data":
                     units_for_request = session.query(db.BasicUnit).outerjoin(
                         additional_data_orm,
                         db.BasicUnit.KwkMastrNummer == additional_data_orm.KwkMastrNummer).filter(
-                        db.BasicUnit.Einheittyp == reversed_unit_type_map[technology]).filter(
+                        db.BasicUnit.Einheittyp == self.unit_type_map_reversed[technology]).filter(
                         additional_data_orm.KwkMastrNummer.is_(None)).filter(db.BasicUnit.KwkMastrNummer.isnot(None))
                 elif data_type == "permit_data":
                     units_for_request = session.query(db.BasicUnit).outerjoin(
                         additional_data_orm,
                         db.BasicUnit.GenMastrNummer == additional_data_orm.GenMastrNummer).filter(
-                        db.BasicUnit.Einheittyp == reversed_unit_type_map[technology]).filter(
+                        db.BasicUnit.Einheittyp == self.unit_type_map_reversed[technology]).filter(
                         additional_data_orm.GenMastrNummer.is_(None)).filter(db.BasicUnit.GenMastrNummer.isnot(None))
                 else:
                     raise ValueError(f"Data type {data_type} is not a valid option.")
@@ -594,8 +593,6 @@ class MaStRReflected:
 
         create_data_dir()
 
-        reversed_unit_type_map = {v: k for k, v in self.unit_type_map.items()}
-
         # Make sure input in either str or list
         if isinstance(technology, str):
             technology = [technology]
@@ -687,7 +684,7 @@ class MaStRReflected:
                 ]
 
             # Restricted to technology
-            query = query.filter(db.BasicUnit.Einheittyp == reversed_unit_type_map[tech])
+            query = query.filter(db.BasicUnit.Einheittyp == self.unit_type_map_reversed[tech])
 
             # Decide if migrated data or data of newly registered units or both is selected
             if statistic_flag and "unit_data" in additional_data:
