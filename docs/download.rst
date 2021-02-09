@@ -11,6 +11,23 @@ Please read in :ref:`Configuration`.
 For downloading data from Marktstammdatenregister (MaStR) registering an account is required.
 Find more information :ref:`here <MaStR account>`.
 
+Three different levels of access to data are offered where the code builds on top of each other.
+
+.. figure:: images/MaStR_downloading.svg
+   :width: 70%
+   :align: center
+   
+   Overview of open-MaStR download functionality.
+
+The most fundamental data access is provided by :class:`open_mastr.soap_api.download.MaStRAPI` that simply
+wraps SOAP webservice functions with python methods.
+Using the methods of the aforementioned, :class:`open_mastr.soap_api.download.MaStRDownload` provides 
+methods for bulk data download and association of data from different sources.
+If one seeks for an option to store the entire data in a local database, 
+:class:`open_mastr.soap_api.download.MaStRMirror` is the right choice. It offers complete data download 
+and updating latest data changes.
+
+
 Bulk download
 =============
 
