@@ -928,8 +928,12 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         dict
             EEG details about unit, if download successful,
             otherwise empty dict
-        str
-            *EegMastrNummer*, if download failed, otherwise None
+        tuple
+            *EegMastrNummer* and message the explains why a download failed. Format
+
+            .. code-block:: python
+
+               tuple("EEG961554380393", "hydro")
         """
         # TODO: Update docstring to change arguments
         eeg_id, technology = unit_specs
@@ -968,13 +972,15 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
 
         Returns
         -------
-        Returns
-        -------
         dict
             KWK details about unit, if download successful,
             otherwise empty dict
-        str
-            *EegMastrNummer*, if download failed, otherwise None
+        tuple
+            *KwkMastrNummer* and message the explains why a download failed. Format
+
+            .. code-block:: python
+
+               tuple("KWK910493229164", "biomass")
         """
         kwk_id, technology = unit_specs
         try:
@@ -1012,8 +1018,12 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         dict
             Permit details about unit, if download successful,
             otherwise empty dict
-        str
-            *GenMastrNummer*, if download failed, otherwise None
+        tuple
+            *GenMastrNummer* and message the explains why a download failed. Format
+
+            .. code-block:: python
+
+               tuple("GEN952474728808", "biomass")
         """
         permit_id, technology = unit_specs
         try:
