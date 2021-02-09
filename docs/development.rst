@@ -21,6 +21,13 @@ The you can build the docs with
 
    sphinx-build -E -a docs docs/_build/
 
+If structure of functions (new added/deleted or names changed) changes, code reference needs
+to be updated. 
+
+.. code-block:: bash
+
+   sphinx-apidoc --no-toc -o docs/reference open_mastr
+
 
 Testing
 =======
