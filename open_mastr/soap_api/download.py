@@ -790,14 +790,14 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
 
         Returns
         -------
-        tuple of list of dict or str
+        tuple of list of dict and tuple
             Returns additional data in dictionaries that are packed into a list. Format
 
             .. code-block:: python
 
                return = (
                     [additional_unit_data_dict1, additional_unit_data_dict2, ...],
-                    [missed_unit1, missed_unit2, ...]
+                    [tuple("SME930865355925", "Reason for failing dowload"), ...]
                     )
         """
         # Prepare a list of unit IDs packed as tuple associated with technology
@@ -886,8 +886,12 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         dict
             Extended information about unit, if download successful,
             otherwise empty dict
-        str
-            *EinheitMastrNummer*, if download failed, otherwise None
+        tuple
+            *EinheitMastrNummer* and message the explains why a download failed. Format
+
+            .. code-block:: python
+
+               tuple("SME930865355925", "Reason for failing dowload")
         """
 
         mastr_id, technology = unit_specs
@@ -933,7 +937,7 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
 
             .. code-block:: python
 
-               tuple("EEG961554380393", "hydro")
+               tuple("EEG961554380393", "Reason for failing dowload")
         """
         # TODO: Update docstring to change arguments
         eeg_id, technology = unit_specs
@@ -980,7 +984,7 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
 
             .. code-block:: python
 
-               tuple("KWK910493229164", "biomass")
+               tuple("KWK910493229164", "Reason for failing dowload")
         """
         kwk_id, technology = unit_specs
         try:
@@ -1023,7 +1027,7 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
 
             .. code-block:: python
 
-               tuple("GEN952474728808", "biomass")
+               tuple("GEN952474728808", "Reason for failing dowload")
         """
         permit_id, technology = unit_specs
         try:
