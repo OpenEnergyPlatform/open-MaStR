@@ -784,7 +784,16 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         unit_ids : list
             Unit identifier for additional data
         data_fcn : str
-            Name of method from :class:`MaStRDownload` to be used for querying additional data
+            Name of method from :class:`MaStRDownload` to be used for querying additional data.
+            Choose from
+            
+            * "extended_unit_data" (:meth:`~.extended_unit_data`): Extended information (i.e. technical, location) 
+              about a unit. The exact set of information depends on the technology.
+            * "eeg_unit_data" (:meth:`~.eeg_unit_data`): Unit Information from EEG unit registry. The exact 
+              set of information depends on the technology.
+            * "kwk_unit_data" (:meth:`~.kwk_unit_data`): Unit information from KWK unit registry.
+            * "permit_unit_data" (:meth:`~.permit_unit_data`): Information about the permit process of a unit.
+              
         timeout: int, optional
             Timeout limit for data retrieval for each unit when using multiprocessing
 
