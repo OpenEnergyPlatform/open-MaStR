@@ -26,7 +26,7 @@ to be updated.
 
 .. code-block:: bash
 
-   sphinx-apidoc --no-toc -o docs/reference open_mastr
+   sphinx-apidoc --no-toc -o docs/reference open_mastr open_mastr/postprocessing
 
 
 Testing
