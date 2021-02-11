@@ -374,6 +374,29 @@ class MaStRMirror:
             log.info("Backfill successfully finished")
 
     def retrieve_additional_data(self, technology, data_type, limit=None, chunksize=1000):
+        """
+        Retrieve additional unit data
+        
+        Execute additional data requests stored in :class:`open_mastr.soap_api.orm.AdditionalDataRequested`.
+        See also docs of :meth:`open_mastr.soap_api.download.py.MaStRDownload.additional_data` for more 
+        information on how data is downloaded.
+        
+        Parameters
+        ----------
+        technology: `str` or `list` of `str`
+            See list of available technologies in
+            :meth:`open_mastr.soap_api.download.py.MaStRDownload.download_power_plants`.
+        data_type: `list`
+            Select type of additional data that is to be retrieved. Choose from
+            "unit_data", "eeg_data", "kwk_data", "permit_data".
+        limit: int
+            Limit number of units that data is download for. Defaults to `None` which refers 
+            to query data for existing data requests, for example created by 
+            :meth:`~.create_additional_data_requests`.
+        chunksize: int
+            Data is downloaded and inserted into the database in chunks of `chunksize`. 
+            Defaults to 1000.
+        """
 
         # Mapping of download from MaStRDownload
         download_functions = {
