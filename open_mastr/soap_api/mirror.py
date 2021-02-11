@@ -43,7 +43,7 @@ class MaStRMirror:
     
     A rough overview is given by the following schema on the example of wind power units.
     
-    .. figure:: ../images/MaStR_Mirror.svg
+    .. figure:: /images/MaStR_Mirror.svg
        :width: 70%
        :align: center
     
