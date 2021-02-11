@@ -191,8 +191,8 @@ def setup_logger():
     
     Returns
     -------
-    rl : logger
-        Logging in console (ch) and file (fh).
+    logging.Logger
+        Logger with two handlers: console and file.
     """
 
     # Read logging config

@@ -17,6 +17,7 @@ The project home directory is structured as follows (files and folders below `da
     │   ├── credentials.cfg
     │   ├── data.yml
     │   ├── filenames.yml
+    │   ├── logging.yml
     │   └── tables.yml
     ├── data
     │   └── rli_v3.0.0
@@ -35,6 +36,8 @@ Configuration files
   Read more in :ref:`MaStR account`.
 * :code:`data.yml`: Specify the name of the data version.
 * :code:`filenames.yml`: File names are defined here.
+* :code:`logging.yml`: Logging configuration. For changing the log level to increase or decrease details of log
+  messages, edit the `level` of the handlers.
 * :code:`tables.yml`: Names of tables where data gets imported to during :ref:`Post-processing`
 
 Data
