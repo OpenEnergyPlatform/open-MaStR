@@ -18,7 +18,7 @@ Welcome to open-MaStR's documentation!
    analyze
    development
    changelog
-   API <reference/open_mastr>
+   Reference <reference/open_mastr>
 
 
 
