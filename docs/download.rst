@@ -37,8 +37,6 @@ Downloading thousands of units is simplified using
 .. autoclass:: open_mastr.soap_api.download.MaStRDownload
    :members:
 
-   .. automethod:: __init__
-
 
 MaStR API wrapper
 =================
