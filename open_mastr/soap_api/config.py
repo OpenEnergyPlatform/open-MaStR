@@ -27,7 +27,16 @@ log = logging.getLogger(__name__)
 
 
 def get_project_home_dir():
-    """Get root dir of project data"""
+    """Get root dir of project data
+    
+    On linux this path equals `$HOME/open-MaStR/`, respectively `~/open-MaStR/` 
+    which is also called `PROJECTHOME`.
+    
+    Returns
+    -------
+    path-like object
+        Absolute path to root dir of open-MaStR project home
+    """
 
     project_home = os.path.join(os.path.expanduser('~'), ".open-MaStR")
 
