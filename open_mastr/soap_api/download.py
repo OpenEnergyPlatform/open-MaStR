@@ -314,6 +314,20 @@ def flatten_dict(data, serialize_with_json=False):
 
 
 def to_csv(df, technology):
+    """
+    Write joined unit data to CSV file
+    
+    Save CSV files to the respective data version directory, see
+    :meth:`open_mastr.soap_api.config.get_data_version_dir`.
+    
+    Parameters
+    ----------
+    df: pd.DataFrame
+        Dataframe of unit data.
+    technology: str
+        See list of available technologies in
+        :meth:`open_mastr.soap_api.download.py.MaStRDownload.download_power_plants`.
+    """
     data_path = get_data_version_dir()
     filenames = get_filenames()
 
