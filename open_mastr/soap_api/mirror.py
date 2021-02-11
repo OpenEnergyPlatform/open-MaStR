@@ -60,6 +60,24 @@ class MaStRMirror:
     """
 
     def __init__(self, empty_schema=False, restore_dump=None, initialize_db=True, parallel_processes=None):
+        """
+        Parameters
+        ----------
+        empty_schema: boolean
+            Remove all data from the MaStR mirror database. Deletes the entire schema and recreates it 
+            including all tables. Be careful!
+            Defaults to False **not** deleting anything.
+        restore_dump: str or path-like, optional
+            Save path of SQL dump file including filename. The database is restored from the SQL dump.
+            Defaults to `None` which means nothing gets restored.
+            Should be used in combination with `empty_schema=True`.
+        initialize_db: boolean
+            Start a PostgreSQL database in a docker container. This calls :meth:`~.initdb` during instantiation.
+            Defaults to `True`.
+        parallel_processes: int
+            Number of parallel processes used to download additional data.
+            Defaults to `None`.
+        """
 
         # Spin up database container
         if initialize_db:
