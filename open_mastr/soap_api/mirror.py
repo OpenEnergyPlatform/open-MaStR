@@ -143,7 +143,8 @@ class MaStRMirror:
         self.unit_type_map_reversed = {v: k for k, v in self.unit_type_map.items()}
 
     def initdb(self):
-        """ Initialize the local database used for data processing."""
+        """ Initialize a PostgreSQL database with docker-compose
+        """
         conf_file_path = os.path.abspath(
             os.path.join(os.path.dirname(__file__), "..", "..")
         )
