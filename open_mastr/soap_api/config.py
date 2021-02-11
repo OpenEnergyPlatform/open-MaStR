@@ -105,7 +105,8 @@ def get_db_tables():
 
 
 def create_project_home_dir():
-    """Create data root path, if necessary"""
+    """Create directory structure of PROJECTHOME
+    """
     project_home = get_project_home_dir()
 
     # Create root project home path
@@ -135,6 +136,11 @@ def create_project_home_dir():
 
 
 def create_data_dir():
+    """
+    Create direct for current data version
+    
+    The directory that is created for this fata version can be returned by :func:`~.get_data_version_dir`.
+    """
     
     os.makedirs(get_data_version_dir(), exist_ok=True)
 
