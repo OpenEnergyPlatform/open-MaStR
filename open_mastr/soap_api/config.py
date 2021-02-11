@@ -80,6 +80,14 @@ def get_data_config():
 
 
 def get_db_tables():
+    """
+    Names of database tables
+    
+    Returns
+    -------
+    dict
+        Table names
+    """
     with open(os.path.join(get_project_home_dir(), "config", "tables.yml")) as data_fh:
         db_tables = yaml.safe_load(data_fh)
 
@@ -117,10 +125,17 @@ def create_project_home_dir():
 
 
 def create_data_dir():
+    
     os.makedirs(get_data_version_dir(), exist_ok=True)
 
 
 def get_power_unit_types():
+    """
+    Returns
+    -------
+    list
+       Technology names 
+    """
     return ["wind", "hydro", "solar", "biomass", "combustion", "nuclear", "gsgk", "storage"]
 
 
