@@ -35,6 +35,30 @@ def chunks(lst, n):
 
 
 class MaStRMirror:
+    """
+    Mirror the Marktstammdatenregister database and keep it up-to-date
+    
+    A PostgreSQL database is used to mirror the MaStR database. It builds on functionality for bulk data download 
+    provided by :class:`open_mastr.soap_api.download.MaStRDownload`.
+    
+    A rough overview is given by the following schema on the example of wind power units.
+    
+    .. figure:: ../images/MaStR_Mirror.svg
+       :width: 70%
+       :align: center
+    
+    Initially, basic unit data gets backfilled with :meth:`~.backfill_basic`. Based on this, requests for 
+    additional data are created. This happens during backilling basic data. But it is also possible to (re-)create 
+    requests for remaining additional data using :meth:`~.create_additional_data_requests`.
+    Additional unit data, in the case of wind power this is extended data, EEG data and permit data, can be
+    retrieved subsequently by :meth:`~.retrieve_additional_data`.
+    
+    The data can be joined to one table for each technology and exported to CSV files using :meth:`~.to_csv`.
+    
+    Also consider to use :meth:`~.dump` and :meth:`~.restore` for specific purposes.
+    
+    """
+
     def __init__(self, empty_schema=False, restore_dump=None, initialize_db=True, parallel_processes=None):
 
         # Spin up database container

@@ -24,8 +24,14 @@ wraps SOAP webservice functions with python methods.
 Using the methods of the aforementioned, :class:`open_mastr.soap_api.download.MaStRDownload` provides 
 methods for bulk data download and association of data from different sources.
 If one seeks for an option to store the entire data in a local database, 
-:class:`open_mastr.soap_api.download.MaStRMirror` is the right choice. It offers complete data download 
+:class:`open_mastr.soap_api.mirror.MaStRMirror` is the right choice. It offers complete data download 
 and updating latest data changes.
+
+Mirror MaStR database
+=====================
+
+.. autoclass:: open_mastr.soap_api.mirror.MaStRMirror
+   :members:
 
 
 Bulk download
