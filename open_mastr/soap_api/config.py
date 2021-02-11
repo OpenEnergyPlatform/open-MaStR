@@ -81,7 +81,7 @@ def get_data_config():
     Returns
     -------
     dict
-        File names used in open-MaStR
+        Configuration parameters
     """
     with open(os.path.join(get_project_home_dir(), "config", "data.yml")) as data_fh:
         data_config = yaml.safe_load(data_fh)
