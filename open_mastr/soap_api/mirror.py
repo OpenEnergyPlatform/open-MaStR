@@ -177,6 +177,8 @@ class MaStRMirror:
 
         Fill database table 'basic_units' with data. It allows specification of which data should be retrieved via
         the described parameter options.
+        
+        Under the hood, :meth:`open_mastr.soap_api.download.MaStRDownload.basic_unit_data` is used.
 
         Parameters
         ----------
@@ -187,7 +189,7 @@ class MaStRMirror:
             * ['solar', 'wind'] (`list`):  Backfill data for multiple technologies given in a list.
             * `None`: Backfill data for all technologies
 
-            Defaults to `None`.
+            Defaults to `None` which is passed to :meth:`open_mastr.soap_api.download.MaStRDownload.basic_unit_data`.
         date: None, :class:`datetime.datetime`, str
             Specify backfill date from which on data is retrieved
 
