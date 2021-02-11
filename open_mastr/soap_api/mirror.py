@@ -48,7 +48,7 @@ class MaStRMirror:
        :align: center
     
     Initially, basic unit data gets backfilled with :meth:`~.backfill_basic`. Based on this, requests for 
-    additional data are created. This happens during backilling basic data. But it is also possible to (re-)create 
+    additional data are created. This happens during backfilling basic data. But it is also possible to (re-)create 
     requests for remaining additional data using :meth:`~.create_additional_data_requests`.
     Additional unit data, in the case of wind power this is extended data, EEG data and permit data, can be
     retrieved subsequently by :meth:`~.retrieve_additional_data`.
