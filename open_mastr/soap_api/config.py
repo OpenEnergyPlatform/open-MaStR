@@ -51,7 +51,7 @@ def get_data_version_dir():
 
 def get_filenames():
     """
-    Get file names define in config
+    Get file names defined in config
 
     Returns
     -------
