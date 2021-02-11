@@ -44,6 +44,16 @@ def get_project_home_dir():
 
 
 def get_data_version_dir():
+    """
+    Subdirectory of data/ in PROJECTHOME
+    
+    See :ref:`docs <Project directory>` for configuration of data version.
+    
+    Returns
+    -------
+    path-like object
+        Absolute path to `PROJECTHOME/data/<data-version>/`
+    """
     data_version = get_data_config()["data_version"]
     data_path = os.path.join(get_project_home_dir(), "data", data_version)
     return data_path
