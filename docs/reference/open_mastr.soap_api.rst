@@ -20,6 +20,22 @@ open\_mastr.soap\_api.download module
    :undoc-members:
    :show-inheritance:
 
+open\_mastr.soap\_api.mirror module
+-----------------------------------
+
+.. automodule:: open_mastr.soap_api.mirror
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+open\_mastr.soap\_api.orm module
+--------------------------------
+
+.. automodule:: open_mastr.soap_api.orm
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 open\_mastr.soap\_api.parallel module
 -------------------------------------
 
@@ -43,7 +59,6 @@ open\_mastr.soap\_api.utils module
    :members:
    :undoc-members:
    :show-inheritance:
-
 
 Module contents
 ---------------

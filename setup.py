@@ -34,6 +34,7 @@ setup(
         'pandas',
         'numpy',
         'sqlalchemy',
+        'psycopg2-binary',
         "geoalchemy2",
         'zeep',
         "tqdm",

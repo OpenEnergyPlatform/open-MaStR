@@ -13,6 +13,9 @@ Read more about the details:
 
 ### Added
 
+- The class [MaStRMirror](https://open-mastr.readthedocs.io/en/latest/download.html#mirror-mastr-database) 
+  was introduced for mirroring MaStR data with latest updates 
+  [#149](https://github.com/OpenEnergyPlatform/open-MaStR/issues/149)
 - Introduce project home `~/.open-MaStR/config/` [#120](https://github.com/OpenEnergyPlatform/open-MaStR/issues/120)
 - Documentation of post-processing [#117](https://github.com/OpenEnergyPlatform/open-MaStR/issues/117)
 - Updated documentation of downloading data
@@ -20,7 +23,7 @@ Read more about the details:
   and with GitHubs README [#135](https://github.com/OpenEnergyPlatform/open-MaStR/issues/135)
 - Local execution of post-processing now possible, optionally in dockered database 
   [#116](https://github.com/OpenEnergyPlatform/open-MaStR/issues/116)
-- Test for changed download code are added [#131](https://github.com/OpenEnergyPlatform/open-MaStR/issues/131)
+- Tests for changed download code are added [#131](https://github.com/OpenEnergyPlatform/open-MaStR/issues/131)
 - The CHANGELOG is now included in the documentation
 
 ### Changed

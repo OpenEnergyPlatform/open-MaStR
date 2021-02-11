@@ -22,11 +22,21 @@ import shutil
 import pathlib
 
 import logging
+import logging.config
 log = logging.getLogger(__name__)
 
 
 def get_project_home_dir():
-    """Get root dir of project data"""
+    """Get root dir of project data
+    
+    On linux this path equals `$HOME/open-MaStR/`, respectively `~/open-MaStR/` 
+    which is also called `PROJECTHOME`.
+    
+    Returns
+    -------
+    path-like object
+        Absolute path to root dir of open-MaStR project home
+    """
 
     project_home = os.path.join(os.path.expanduser('~'), ".open-MaStR")
 
@@ -34,6 +44,16 @@ def get_project_home_dir():
 
 
 def get_data_version_dir():
+    """
+    Subdirectory of data/ in PROJECTHOME
+    
+    See :ref:`docs <Project directory>` for configuration of data version.
+    
+    Returns
+    -------
+    path-like object
+        Absolute path to `PROJECTHOME/data/<data-version>/`
+    """
     data_version = get_data_config()["data_version"]
     data_path = os.path.join(get_project_home_dir(), "data", data_version)
     return data_path
@@ -41,7 +61,7 @@ def get_data_version_dir():
 
 def get_filenames():
     """
-    Get file names define in config
+    Get file names defined in config
 
     Returns
     -------
@@ -61,7 +81,7 @@ def get_data_config():
     Returns
     -------
     dict
-        File names used in open-MaStR
+        Configuration parameters
     """
     with open(os.path.join(get_project_home_dir(), "config", "data.yml")) as data_fh:
         data_config = yaml.safe_load(data_fh)
@@ -70,6 +90,14 @@ def get_data_config():
 
 
 def get_db_tables():
+    """
+    Names of database tables
+    
+    Returns
+    -------
+    dict
+        Table names
+    """
     with open(os.path.join(get_project_home_dir(), "config", "tables.yml")) as data_fh:
         db_tables = yaml.safe_load(data_fh)
 
@@ -77,7 +105,8 @@ def get_db_tables():
 
 
 def create_project_home_dir():
-    """Create data root path, if necessary"""
+    """Create directory structure of PROJECTHOME
+    """
     project_home = get_project_home_dir()
 
     # Create root project home path
@@ -97,7 +126,7 @@ def create_project_home_dir():
     log.info(f'I will create a default set of config files in {config_path}')
 
     internal_config_dir = os.path.join(pathlib.Path(__file__).parent.absolute(), 'config')
-    files = ["data.yml", "tables.yml"]
+    files = ["data.yml", "tables.yml", "logging.yml"]
 
     for file in files:
         if not file in os.listdir(config_path):
@@ -107,10 +136,22 @@ def create_project_home_dir():
 
 
 def create_data_dir():
+    """
+    Create direct for current data version
+    
+    The directory that is created for this fata version can be returned by :func:`~.get_data_version_dir`.
+    """
+    
     os.makedirs(get_data_version_dir(), exist_ok=True)
 
 
 def get_power_unit_types():
+    """
+    Returns
+    -------
+    list
+       Technology names 
+    """
     return ["wind", "hydro", "solar", "biomass", "combustion", "nuclear", "gsgk", "storage"]
 
 
@@ -176,7 +217,11 @@ def _filenames_generator():
 
 
 def setup_project_home():
-    """Create open-MaStR home directory structure and save default config files"""
+    """Create open-MaStR project home directory structure
+
+    Create PROJECTHOME returned by :func:`~.get_project_home_dir`.
+    In addition, default config files are copied to `PROJECTHOME/config/`.
+     """
 
     # Create directory structure of project home dir
     create_project_home_dir()
@@ -185,33 +230,23 @@ def setup_project_home():
     _filenames_generator()
 
 
-def setup_logger(log_level=logging.INFO):
+def setup_logger():
     """Configure logging in console and log file.
     
     Returns
     -------
-    rl : logger
-        Logging in console (ch) and file (fh).
+    logging.Logger
+        Logger with two handlers: console and file.
     """
 
-    rl = logging.getLogger()
-    rl.setLevel(log_level)
-    rl.propagate = False
+    # Read logging config
+    with open(os.path.join(get_project_home_dir(), "config", "logging.yml")) as filename_fh:
+        logging_config = yaml.safe_load(filename_fh)
 
-    # set format
-    formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s',
-                                  datefmt='%Y-%m-%d %H:%M:%S')
+    # Add logfile location
+    logging_config["handlers"]["file"]["filename"] = os.path.join(get_project_home_dir(), "logs", 'open_mastr.log')
 
-    # console handler (ch)
-    ch = logging.StreamHandler()
-    ch.setLevel(logging.INFO)
-    ch.setFormatter(formatter)
-
-    # file handler (fh)
-    fh = logging.FileHandler(os.path.join(get_project_home_dir(), "logs", 'open_mastr.log'))
-    fh.setLevel(logging.INFO)
-    fh.setFormatter(formatter)
-
-    rl.handlers = [ch, fh]
+    logging.config.dictConfig(logging_config)
+    rl = logging.getLogger("open-MaStR")
 
     return rl
