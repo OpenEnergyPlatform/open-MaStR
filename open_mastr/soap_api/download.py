@@ -326,7 +326,7 @@ def to_csv(df, technology):
         Dataframe of unit data.
     technology: str
         See list of available technologies in
-        :meth:`open_mastr.soap_api.download.py.MaStRDownload.download_power_plants`.
+        :meth:`open_mastr.soap_api.download.MaStRDownload.download_power_plants`.
     """
     data_path = get_data_version_dir()
     filenames = get_filenames()
