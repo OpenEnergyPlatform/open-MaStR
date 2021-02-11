@@ -211,7 +211,11 @@ def _filenames_generator():
 
 
 def setup_project_home():
-    """Create open-MaStR home directory structure and save default config files"""
+    """Create open-MaStR project home directory structure
+
+    Create PROJECTHOME returned by :func:`~.get_project_home_dir`.
+    In addition, default config files are copied to `PROJECTHOME/config/`.
+     """
 
     # Create directory structure of project home dir
     create_project_home_dir()
