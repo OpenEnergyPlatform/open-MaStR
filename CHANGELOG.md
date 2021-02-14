@@ -13,7 +13,7 @@ Read more about the details:
 
 ### Added
 
-- The class [MaStRMirror](https://open-mastr.readthedocs.io/en/latest/download.html#mirror-mastr-database) 
+- The class :class:`open_mastr.soap_api.mirror.MaStRMirror` 
   was introduced for mirroring MaStR data with latest updates 
   [#149](https://github.com/OpenEnergyPlatform/open-MaStR/issues/149)
 - Introduce project home `~/.open-MaStR/config/` [#120](https://github.com/OpenEnergyPlatform/open-MaStR/issues/120)
@@ -24,6 +24,8 @@ Read more about the details:
 - Local execution of post-processing now possible, optionally in dockered database 
   [#116](https://github.com/OpenEnergyPlatform/open-MaStR/issues/116)
 - Tests for changed download code are added [#131](https://github.com/OpenEnergyPlatform/open-MaStR/issues/131)
+- Code examples added for :class:`open_mastr.soap_api.mirror.MaStRMirror` explaining basic use of 
+  mirroring database [#164](https://github.com/OpenEnergyPlatform/open-MaStR/issues/164)
 - The CHANGELOG is now included in the documentation
 
 ### Changed

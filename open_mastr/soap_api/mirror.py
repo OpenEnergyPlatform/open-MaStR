@@ -47,11 +47,31 @@ class MaStRMirror:
        :width: 70%
        :align: center
     
-    Initially, basic unit data gets backfilled with :meth:`~.backfill_basic`. Based on this, requests for 
+    Initially, basic unit data gets backfilled with :meth:`~.backfill_basic` (downloads basic unit data for 2,000 
+    units of type 'solar'). 
+    
+    .. code-block:: python
+    
+       from open_mastr.soap_api.prototype_mastr_reflected import MaStRMirror
+       
+       mastr_mirror = MaStRMirror()
+       mastr_mirror.backfill_basic("solar", limit=2000)
+       
+    Based on this, requests for 
     additional data are created. This happens during backfilling basic data. But it is also possible to (re-)create 
     requests for remaining additional data using :meth:`~.create_additional_data_requests`.
+    
+    .. code-block:: python
+       
+       mastr_mirror.create_additional_data_requests("solar")
+    
     Additional unit data, in the case of wind power this is extended data, EEG data and permit data, can be
     retrieved subsequently by :meth:`~.retrieve_additional_data`.
+    
+    .. code-block:: python
+       
+       mastr_mirror.retrieve_additional_data("solar", ["unit_data"])
+    
     
     The data can be joined to one table for each technology and exported to CSV files using :meth:`~.to_csv`.
     

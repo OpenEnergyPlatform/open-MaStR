@@ -1,4 +1,4 @@
-﻿[![Documentation Status](https://readthedocs.org/projects/open-mastr/badge/?version=latest)](https://open-mastr.readthedocs.io/en/latest/?badge=latest)
+﻿[![Documentation Status](https://readthedocs.org/projects/open-mastr/badge/?version=dev)](https://open-mastr.readthedocs.io/en/dev/?badge=latest)
 [![CI](https://github.com/OpenEnergyPlatform/open-MaStR/workflows/CI/badge.svg)](https://github.com/OpenEnergyPlatform/open-MaStR/actions?query=workflow%3ACI)
 <a href="https://openenergyplatform.org"><img align="right" width="200" height="200" src="https://avatars2.githubusercontent.com/u/37101913?s=400&u=9b593cfdb6048a05ea6e72d333169a65e7c922be&v=4" alt="OpenEnergyPlatform"></a>
 
@@ -15,7 +15,7 @@ This package focuses on the latter.
 It provides a python interface for accessing the web service API, methods to clean and enrich data and functions to
 analyze it.
 
-Find the [documentation](https://open-mastr.readthedocs.io/en/latest) hosted of ReadTheDocs.
+Find the [documentation](https://open-mastr.readthedocs.io/en/dev) hosted of ReadTheDocs.
 
 
 ## Installation
