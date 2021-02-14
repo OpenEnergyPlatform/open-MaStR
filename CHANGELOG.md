@@ -24,6 +24,7 @@ Read more about the details:
 - Local execution of post-processing now possible, optionally in dockered database 
   [#116](https://github.com/OpenEnergyPlatform/open-MaStR/issues/116)
 - Tests for changed download code are added [#131](https://github.com/OpenEnergyPlatform/open-MaStR/issues/131)
+- Code examples added for `MaStRMirror` explaining basic use of mirroring database [#164](https://github.com/OpenEnergyPlatform/open-MaStR/issues/164)
 - The CHANGELOG is now included in the documentation
 
 ### Changed
