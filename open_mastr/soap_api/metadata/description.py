@@ -181,12 +181,3 @@ def _collect_columns_of_base_type(base_types, base_type_name, fcn_data):
             fcn_data = _collect_columns_of_base_type(base_types, type_description["extension"]["@base"].split(":")[1], fcn_data)
 
     return fcn_data
-
-
-
-# data_desc = DataDescription()
-functions_data_docs = DataDescription().functions_data_documentation()
-
-functions_data_docs
-
-
