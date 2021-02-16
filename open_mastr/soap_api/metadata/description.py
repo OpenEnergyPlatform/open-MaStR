@@ -149,19 +149,29 @@ class DataDescription(object):
                         fcn_data = _collect_columns_of_base_type(self.types, fcn["@base"].split(":")[1], fcn_data)
                 function_docs[fcn_name] = {}
                 for column in fcn_data:
+                    # Replace MaStR internal types with more general ones
+                    if column["@type"].startswith("mastr:"):
+                        try:
+                            column_type = self.simple_types_prepared[column["@type"].split(":")[1]]["type"]
+                        except KeyError:
+                            column_type = column["@type"]
+                    else:
+                        column_type = column["@type"]
+
                     if "annotation" in column.keys():
-                        function_docs[fcn_name][column["@name"]] = {
-                            "type":  column["@type"],
-                            "description": column["annotation"]["documentation"].get("#text", None),
-                            "example": column["annotation"]["documentation"].get("m-ex", None)
+                            function_docs[fcn_name][column["@name"]] = {
+                                "type":  column_type,
+                                "description": column["annotation"]["documentation"].get("#text", None),
+                                "example": column["annotation"]["documentation"].get("m-ex", None)
                         }
                     else:
                         function_docs[fcn_name][column["@name"]] = {
-                            "type": column["@type"],
+                            "type": column_type,
                             # TODO: insert information from simple type here
                             "description": None,
                             "example": None
                         }
+
         # Hack in a descrition for a column that gets created after download while flattening data
         function_docs["GetEinheitWind"]["HerstellerId"] = {
             "type": "str",
