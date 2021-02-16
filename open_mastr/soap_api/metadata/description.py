@@ -162,6 +162,13 @@ class DataDescription(object):
                             "description": None,
                             "example": None
                         }
+        # Hack in a descrition for a column that gets created after download while flattening data
+        function_docs["GetEinheitWind"]["HerstellerId"] = {
+            "type": "str",
+            "description": "Id des Herstellers der Einheit",
+            "example": 923
+        }
+
         return function_docs
 
 
