@@ -1,4 +1,5 @@
 from io import BytesIO
+import re
 from urllib.request import urlopen
 from zipfile import ZipFile
 import xmltodict
@@ -159,9 +160,12 @@ class DataDescription(object):
                         column_type = column["@type"]
 
                     if "annotation" in column.keys():
-                            function_docs[fcn_name][column["@name"]] = {
+                        description = column["annotation"]["documentation"].get("#text", None)
+                        if description:
+                            description = re.sub(" +", " ", description.replace("\n", ""))
+                        function_docs[fcn_name][column["@name"]] = {
                                 "type":  column_type,
-                                "description": column["annotation"]["documentation"].get("#text", None),
+                                "description": description,
                                 "example": column["annotation"]["documentation"].get("m-ex", None)
                         }
                     else:
