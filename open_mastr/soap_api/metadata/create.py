@@ -1,4 +1,5 @@
 import datetime
+import json
 import uuid
 
 from open_mastr.soap_api.metadata.description import DataDescription
@@ -144,7 +145,7 @@ def datapackag_base(reference_date, publication_date=None, statistik_flag=None):
     return datapackage_meta
 
 
-def datapackage_meta_json(reference_date, statistik_flag=None):
+def datapackage_meta_json(reference_date, statistik_flag=None, json_serialize=True):
     datapackage_base_dict = datapackag_base(reference_date, statistik_flag=statistik_flag)
 
     table_columns = DataDescription().functions_data_documentation()
@@ -193,5 +194,7 @@ def datapackage_meta_json(reference_date, statistik_flag=None):
 
     datapackage_dict = {**datapackage_base_dict, **resources_meta}
 
-    return datapackage_dict
-
+    if json_serialize:
+        return json.dumps(datapackage_dict, ensure_ascii=False)
+    else:
+        return datapackage_dict
