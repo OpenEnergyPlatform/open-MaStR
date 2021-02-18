@@ -1,4 +1,5 @@
 import datetime
+import json
 import os
 import pandas as pd
 from sqlalchemy.orm import sessionmaker, Query, defer
@@ -7,9 +8,10 @@ from sqlalchemy.sql import exists
 import shlex
 import subprocess
 
-from open_mastr.soap_api.config import setup_logger, create_data_dir
+from open_mastr.soap_api.config import setup_logger, create_data_dir, get_filenames, get_data_version_dir
 from open_mastr.soap_api.download import MaStRDownload, flatten_dict, to_csv
 from open_mastr.soap_api import orm
+from open_mastr.soap_api.metadata.create import datapackage_meta_json
 
 
 log = setup_logger()
@@ -795,3 +797,16 @@ class MaStRMirror:
             # Save to CSV
             to_csv(df, tech)
 
+        # Create and save data package metadata file along with data
+        data_path = get_data_version_dir()
+        filenames = get_filenames()
+        metadata_file = os.path.join(data_path, filenames["metadata"])
+
+        mastr_technologies = [self.unit_type_map_reversed[tech] for tech in technology]
+        newest_date = session.query(orm.BasicUnit.DatumLetzeAktualisierung).filter(
+                        orm.BasicUnit.Einheittyp.in_(mastr_technologies)).order_by(
+                        orm.BasicUnit.DatumLetzeAktualisierung.desc()).first()[0]
+        metadata = datapackage_meta_json(newest_date, json_serialize=False)
+
+        with open(metadata_file, 'w', encoding='utf-8') as f:
+            json.dump(metadata, f, ensure_ascii=False, indent=4)

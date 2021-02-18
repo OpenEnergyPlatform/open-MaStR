@@ -211,6 +211,9 @@ def _filenames_generator():
                     # Collect file names for all technologies
                     filenames[section].update({tech: tmp})
 
+        # Add metadata file
+        filenames["metadata"] = "datapackage.json"
+
         with open(filenames_file, 'w') as outfile:
             yaml.dump(filenames, outfile)
         log.info("File names configuration saved to {}".format(filenames_file))
