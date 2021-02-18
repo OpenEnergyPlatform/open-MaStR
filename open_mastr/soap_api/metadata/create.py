@@ -168,6 +168,28 @@ def datapackag_base(reference_date, publication_date=None, statistik_flag=None):
 
 
 def datapackage_meta_json(reference_date, statistik_flag=None, json_serialize=True):
+    """
+    Create a frictionless data conform metadata description
+
+    Parameters
+    ----------
+    reference_date: datetime.datetime
+        Reference date for data
+    statistik_flag: str or None
+        Describe if filtering is applied during CSV export of data. Read in
+        :meth:`~.open_mastr.soap_api.mirror.MaStRMirror.to_csv()` for more details.
+    json_serialize: bool
+        Toggle between returning a JSON string or a dict
+
+        * True: return JSON string
+        * False: return dict
+
+    Returns
+    -------
+    dict or str
+        Set `json_serialize` to False, for returning a dict instead of JSON str.
+    """
+
     datapackage_base_dict = datapackag_base(reference_date, statistik_flag=statistik_flag)
 
     table_columns = DataDescription().functions_data_documentation()
