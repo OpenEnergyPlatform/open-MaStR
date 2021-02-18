@@ -8,6 +8,28 @@ from open_mastr.soap_api.download import MaStRDownload
 
 
 def datapackag_base(reference_date, publication_date=None, statistik_flag=None):
+    """
+    Create datapackage metadata base information
+
+    Includes all information about the data except for key `resources` which describes the actual data files and its
+    columns.
+
+    Parameters
+    ----------
+    reference_date: datetime.datetime
+        Reference date for data
+    publication_date: datetime.datetime
+        Date of data being published. Defaults to `datetime.datetime.now()`, the time when this metadata is being
+        created.
+    statistik_flag: str or None
+        Describe if filtering is applied during CSV export of data. Read in
+        :meth:`~.open_mastr.soap_api.mirror.MaStRMirror.to_csv()` for more details.
+
+    Returns
+    -------
+    dict
+        Datapackage metadata
+    """
 
     if not publication_date:
         publication_date = datetime.datetime.now()
