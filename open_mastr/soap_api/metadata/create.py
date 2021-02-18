@@ -3,7 +3,7 @@ import json
 import uuid
 
 from open_mastr.soap_api.metadata.description import DataDescription
-from open_mastr.soap_api.config import get_data_config, get_filenames
+from open_mastr.soap_api.config import get_data_config, get_filenames, column_renaming
 from open_mastr.soap_api.download import MaStRDownload
 
 
@@ -209,6 +209,8 @@ def datapackage_meta_json(reference_date, technologies=None, statistik_flag=None
 
     filenames = get_filenames()
 
+    renaming = column_renaming()
+
     resources_meta = {"resources": []}
     for tech, specs in unit_data_specs.items():
         fields = []
@@ -216,6 +218,8 @@ def datapackage_meta_json(reference_date, technologies=None, statistik_flag=None
         for data_type in ["unit_data", "eeg_data", "kwk_data", "permit_data"]:
             if data_type in specs.keys():
                 for name, specification in table_columns[specs[data_type]].items():
+                    if name in renaming[data_type]["columns"]:
+                        name = f"{name}_{renaming[data_type]['suffix']}"
                     fields.append({"name": name, **specification, "unit": None})
 
         resource = {
