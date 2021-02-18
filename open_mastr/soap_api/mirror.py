@@ -8,7 +8,8 @@ from sqlalchemy.sql import exists
 import shlex
 import subprocess
 
-from open_mastr.soap_api.config import setup_logger, create_data_dir, get_filenames, get_data_version_dir
+from open_mastr.soap_api.config import setup_logger, create_data_dir, get_filenames, get_data_version_dir, \
+    column_renaming
 from open_mastr.soap_api.download import MaStRDownload, flatten_dict, to_csv
 from open_mastr.soap_api import orm
 from open_mastr.soap_api.metadata.create import datapackage_meta_json
@@ -691,6 +692,8 @@ class MaStRMirror:
         elif not isinstance(technology, (list, None)):
             raise TypeError("Parameter technology must be of type `str` or `list`")
 
+        renaming = column_renaming()
+
         for tech in technology:
             unit_data_orm = getattr(orm, self.orm_map[tech]["unit_data"], None)
             eeg_data_orm = getattr(orm, self.orm_map[tech].get("eeg_data", "KeyNotAvailable"), None)
@@ -698,82 +701,52 @@ class MaStRMirror:
             permit_data_orm = getattr(orm, self.orm_map[tech].get("permit_data", "KeyNotAvailable"), None)
 
             # Define query based on available tables for tech and user input
-            subtables = [orm.BasicUnit]
+            subtables = partially_suffixed_columns(orm.BasicUnit,
+                                                    renaming["basic_data"]["columns"],
+                                                    renaming["basic_data"]["suffix"])
             if unit_data_orm and "unit_data" in additional_data:
-                subtables.append(unit_data_orm)
+                subtables.extend(partially_suffixed_columns(unit_data_orm,
+                                                    renaming["unit_data"]["columns"],
+                                                    renaming["unit_data"]["suffix"]))
             if eeg_data_orm and "eeg_data" in additional_data:
-                subtables.append(eeg_data_orm)
+                subtables.extend(partially_suffixed_columns(eeg_data_orm,
+                                                    renaming["eeg_data"]["columns"],
+                                                    renaming["eeg_data"]["suffix"]))
             if kwk_data_orm and "kwk_data" in additional_data:
-                subtables.append(kwk_data_orm)
+                subtables.extend(partially_suffixed_columns(kwk_data_orm,
+                                                    renaming["kwk_data"]["columns"],
+                                                    renaming["kwk_data"]["suffix"]))
             if permit_data_orm and "permit_data" in additional_data:
-                subtables.append(permit_data_orm)
+                subtables.extend(partially_suffixed_columns(permit_data_orm,
+                                                    renaming["permit_data"]["columns"],
+                                                    renaming["permit_data"]["suffix"]))
             query = Query(subtables, session=session)
 
             # Define joins based on available tables for tech and user input
-            duplicates_exclude = [
-                # TODO: for most of the columns it needs to be decided newly which one is dropped
-                # TODO: therefore it should be checked where is more data included (the other one(s) should be dropped)
-
-                # TODO: change dropping of columns to consequently suffixing them. Whereever, also in a table for a single technology, a duplicate occurs, use a suffix for this column in all tables
-                orm.BasicUnit.EegMastrNummer,
-                orm.BasicUnit.BestandsanlageMastrNummer, # TODO: needs check
-                orm.BasicUnit.StatisikFlag,
-            ]
             if unit_data_orm and "unit_data" in additional_data:
                 query = query.join(
                     unit_data_orm,
                     orm.BasicUnit.EinheitMastrNummer == unit_data_orm.EinheitMastrNummer,
                     isouter=True
                 )
-                duplicates_exclude += [
-                    unit_data_orm.EinheitMastrNummer,
-                    unit_data_orm.GenMastrNummer,
-                    unit_data_orm.EinheitBetriebsstatus,  # TODO: needs check
-                    unit_data_orm.NichtVorhandenInMigriertenEinheiten,  # TODO: needs check
-                    unit_data_orm.Bruttoleistung,  # TODO: needs check
-                    unit_data_orm.download_date,
-                ]
-                if "KwkMastrNummer" in  unit_data_orm.__table__.columns:
-                    duplicates_exclude.append(unit_data_orm.KwkMastrNummer)
-                if "SpeMastrNummer" in unit_data_orm.__table__.columns:
-                    duplicates_exclude.append(unit_data_orm.SpeMastrNummer)
             if eeg_data_orm and "eeg_data" in additional_data:
                 query = query.join(
                     eeg_data_orm,
                     orm.BasicUnit.EegMastrNummer == eeg_data_orm.EegMastrNummer,
                     isouter=True
                 )
-                duplicates_exclude += [
-                    eeg_data_orm.EegMastrNummer,
-                    eeg_data_orm.DatumLetzteAktualisierung,  # TODO: maybe re-include with suffix
-                    eeg_data_orm.Meldedatum,  # TODO: maybe re-include with suffix
-                ]
             if kwk_data_orm and "kwk_data" in additional_data:
                 query = query.join(
                     kwk_data_orm,
                     orm.BasicUnit.KwkMastrNummer == kwk_data_orm.KwkMastrNummer,
                     isouter=True
                 )
-                duplicates_exclude += [
-                    kwk_data_orm.KwkMastrNummer,
-                    kwk_data_orm.Meldedatum,
-                    kwk_data_orm.Inbetriebnahmedatum,
-                    kwk_data_orm.DatumLetzteAktualisierung,
-                    kwk_data_orm.AnlageBetriebsstatus,
-                    kwk_data_orm.VerknuepfteEinheiten,
-                    kwk_data_orm.AusschreibungZuschlag,
-                ]
             if permit_data_orm and "permit_data" in additional_data:
                 query = query.join(
                     permit_data_orm,
                     orm.BasicUnit.GenMastrNummer == permit_data_orm.GenMastrNummer,
                     isouter=True
                 )
-                duplicates_exclude += [
-                    permit_data_orm.GenMastrNummer,
-                    permit_data_orm.DatumLetzteAktualisierung,  # TODO: maybe re-include with suffix
-                    permit_data_orm.Meldedatum,  # TODO: maybe re-include with suffix
-                ]
 
             # Restricted to technology
             query = query.filter(orm.BasicUnit.Einheittyp == self.unit_type_map_reversed[tech])
@@ -781,10 +754,6 @@ class MaStRMirror:
             # Decide if migrated data or data of newly registered units or both is selected
             if statistic_flag and "unit_data" in additional_data:
                 query = query.filter(unit_data_orm.StatisikFlag == statistic_flag)
-
-            # Exclude certain columns that are duplicated
-            for excl in duplicates_exclude:
-                query = query.options(defer(excl))
 
             # Limit returned rows of query
             if limit:
