@@ -214,8 +214,9 @@ def datapackage_meta_json(reference_date, technologies=None, statistik_flag=None
     resources_meta = {"resources": []}
     for tech, specs in unit_data_specs.items():
         fields = []
+        specs["basic_data"] = "GetListeAlleEinheiten"
 
-        for data_type in ["unit_data", "eeg_data", "kwk_data", "permit_data"]:
+        for data_type in ["basic_data", "unit_data", "eeg_data", "kwk_data", "permit_data"]:
             if data_type in specs.keys():
                 for name, specification in table_columns[specs[data_type]].items():
                     if name in renaming[data_type]["columns"]:
