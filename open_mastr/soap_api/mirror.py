@@ -812,3 +812,26 @@ class MaStRMirror:
 
         with open(metadata_file, 'w', encoding='utf-8') as f:
             json.dump(metadata, f, ensure_ascii=False, indent=4)
+
+
+def partially_suffixed_columns(mapper, column_names, suffix):
+    """
+    Add a suffix to a subset of ORM map tables for a query
+
+    Parameters
+    ----------
+    mapper:
+        SQLAlchemy ORM table mapper
+    column_names: list
+        Names of columns to be suffixed
+    suffix: str
+        Suffix that is append like + "_" + suffix
+
+    Returns
+    -------
+    list
+        List of ORM table mapper instance
+    """
+    columns = [_ for _ in mapper.__mapper__.columns]
+    columns_renamed = [_.label(f"{_.name}_{suffix}") if _.name in column_names else _ for _ in columns]
+    return columns_renamed
