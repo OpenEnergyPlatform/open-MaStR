@@ -662,6 +662,8 @@ class MaStRMirror:
         `documentation <https://www.marktstammdatenregister.de/MaStRHilfe/subpages/statistik.html>`_ of the original
         data source.
 
+        Along with the CSV files, metadata is saved in the file `datapackage.json`.
+
         Parameters
         ----------
         technology: `str` or `list` of `str`
