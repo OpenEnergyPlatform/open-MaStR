@@ -657,6 +657,7 @@ class MaStRMirror:
 
         During the export, additional available data is joined on list of basic units. A CSV file for each technology is
         created separately because of multiple non-overlapping columns.
+        Duplicate columns for a single technology (a results on data from different sources) are suffixed.
 
         The data in the database probably has duplicates because of the history how data was collected in the
         Marktstammdatenregister. Consider to use the parameter `statistic_flag`. Read more in the
