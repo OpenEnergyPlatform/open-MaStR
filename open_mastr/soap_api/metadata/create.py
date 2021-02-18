@@ -167,7 +167,7 @@ def datapackag_base(reference_date, publication_date=None, statistik_flag=None):
     return datapackage_meta
 
 
-def datapackage_meta_json(reference_date, statistik_flag=None, json_serialize=True):
+def datapackage_meta_json(reference_date, technologies=None, statistik_flag=None, json_serialize=True):
     """
     Create a frictionless data conform metadata description
 
@@ -175,6 +175,9 @@ def datapackage_meta_json(reference_date, statistik_flag=None, json_serialize=Tr
     ----------
     reference_date: datetime.datetime
         Reference date for data
+    technologies: list
+        Only consider specified technologies in metadata JSON string. If not provided, metadata is created for data
+        of all technologies.
     statistik_flag: str or None
         Describe if filtering is applied during CSV export of data. Read in
         :meth:`~.open_mastr.soap_api.mirror.MaStRMirror.to_csv()` for more details.
@@ -195,12 +198,14 @@ def datapackage_meta_json(reference_date, statistik_flag=None, json_serialize=Tr
     table_columns = DataDescription().functions_data_documentation()
     mastr_dl = MaStRDownload()
 
-    unit_data_specs = {
-        k: v
-        for k, v in mastr_dl._unit_data_specs.items()
-        if k
-        not in ["consumer"] + [f"gas_{t}" for t in ["consumer", "producer", "storage"]]
-    }
+    # Filter specified technologies
+    if technologies:
+        unit_data_specs = {
+            k: v
+            for k, v in mastr_dl._unit_data_specs.items()
+            if k
+            in technologies
+        }
 
     filenames = get_filenames()
 

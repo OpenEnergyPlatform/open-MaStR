@@ -808,7 +808,7 @@ class MaStRMirror:
         newest_date = session.query(orm.BasicUnit.DatumLetzeAktualisierung).filter(
                         orm.BasicUnit.Einheittyp.in_(mastr_technologies)).order_by(
                         orm.BasicUnit.DatumLetzeAktualisierung.desc()).first()[0]
-        metadata = datapackage_meta_json(newest_date, json_serialize=False)
+        metadata = datapackage_meta_json(newest_date, technology, json_serialize=False)
 
         with open(metadata_file, 'w', encoding='utf-8') as f:
             json.dump(metadata, f, ensure_ascii=False, indent=4)
