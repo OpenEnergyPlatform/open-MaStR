@@ -35,7 +35,7 @@ def _generate_data_docs():
         raw_data_string += section + csv_include
     with open("data/raw_data.rst", "w") as raw_data_fh:
         raw_data_fh.write(raw_data_string)
-_generate_data_docs()
+# _generate_data_docs()
 
 
 
