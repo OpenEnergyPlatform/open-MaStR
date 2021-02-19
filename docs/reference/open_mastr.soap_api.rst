@@ -1,6 +1,14 @@
 open\_mastr.soap\_api package
 =============================
 
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   open_mastr.soap_api.metadata
+
 Submodules
 ----------
 

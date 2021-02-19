@@ -24,6 +24,10 @@ Read more about the details:
 - Local execution of post-processing now possible, optionally in dockered database 
   [#116](https://github.com/OpenEnergyPlatform/open-MaStR/issues/116)
 - Tests for changed download code are added [#131](https://github.com/OpenEnergyPlatform/open-MaStR/issues/131)
+- Metadata added for raw data as frictionless data package 
+  [#160](https://github.com/OpenEnergyPlatform/open-MaStR/issues/160)
+- Suffix columns instead of deferring in database CSV export
+  [#157](https://github.com/OpenEnergyPlatform/open-MaStR/issues/157)
 - Code examples added for :class:`open_mastr.soap_api.mirror.MaStRMirror` explaining basic use of 
   mirroring database [#164](https://github.com/OpenEnergyPlatform/open-MaStR/issues/164)
 - The CHANGELOG is now included in the documentation

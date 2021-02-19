@@ -211,6 +211,9 @@ def _filenames_generator():
                     # Collect file names for all technologies
                     filenames[section].update({tech: tmp})
 
+        # Add metadata file
+        filenames["metadata"] = "datapackage.json"
+
         with open(filenames_file, 'w') as outfile:
             yaml.dump(filenames, outfile)
         log.info("File names configuration saved to {}".format(filenames_file))
@@ -250,3 +253,51 @@ def setup_logger():
     rl = logging.getLogger("open-MaStR")
 
     return rl
+
+
+def column_renaming():
+    """
+    Column renaming for CSV export of raw data
+
+    Helps to export duplicate columns from different data sources.
+
+    Returns
+    -------
+    dict
+        Suffix and column to be suffixed keyed by data type.
+    """
+    return {
+        "basic_data": {
+            "columns": ["StatisikFlag", "BestandsanlageMastrNummer"],
+            "suffix": "basic"
+        },
+        "unit_data": {
+            "columns": ["EinheitMastrNummer",
+                        "EegMastrNummer",
+                        "KwkMastrNummer",
+                        "GenMastrNummer",
+                        "SpeMastrNummer",
+                        "EinheitBetriebsstatus",
+                        "NichtVorhandenInMigriertenEinheiten",
+                        "Bruttoleistung"],
+            "suffix": "extended"
+        },
+        "eeg_data": {
+            "columns": ["EegMastrNummer", "DatumLetzteAktualisierung", "Meldedatum"],
+            "suffix": "eeg"
+        },
+        "kwk_data": {
+            "columns": ["KwkMastrNummer",
+                        "Meldedatum",
+                        "Inbetriebnahmedatum",
+                        "DatumLetzteAktualisierung",
+                        "AnlageBetriebsstatus",
+                        "VerknuepfteEinheiten",
+                        "AusschreibungZuschlag"],
+            "suffix": "kwk"
+        },
+        "permit_data": {
+            "columns": ["GenMastrNummer", "DatumLetzteAktualisierung", "Meldedatum"],
+            "suffix": "permit"
+        },
+    }
