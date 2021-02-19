@@ -28,6 +28,16 @@ to be updated.
 
    sphinx-apidoc --no-toc -o docs/reference open_mastr open_mastr/postprocessing
 
+If the SOAP API of MaStR changes, data table metadata documentation needs to be updated as well. From within
+`open-MaStR/docs` execute
+
+.. code-block:: bash
+
+   python -c "from open_mastr.utils.docs import generate_data_docs; generate_data_docs()"
+
+
+to recreate the files.
+
 
 Testing
 =======

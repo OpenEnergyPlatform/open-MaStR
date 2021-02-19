@@ -2,4 +2,4 @@
 Data documentation
 ******************
 
-.. include:: data/raw_data.rst
+.. include:: _data/raw_data.rst
