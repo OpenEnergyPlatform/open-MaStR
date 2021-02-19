@@ -48,3 +48,16 @@ Further explanation :ref:`here <MaStR account>`.
 
    pytest -vv
 
+Validating metadata documentation
+=================================
+
+From with a directory of data (default case: `~/.open-MaStR/data/<data-version>` execute
+
+.. code-block:: bash
+
+   frictionless validate datapackage.json --basepath .
+
+for validating datapackage metadata with
+`Frictionless data specifications
+<https://framework.frictionlessdata.io/docs/guides/validation-guide#validating-package>`_.
+At the moment, there complaints about the format.

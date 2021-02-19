@@ -226,23 +226,17 @@ def datapackage_meta_json(reference_date, technologies=None, statistik_flag=None
 
         resource = {
             "profile": "tabular-data-resource",
-            "name": f"open-mastr_{tech}_raw",
+            "name": f"bnetza_mastr_{tech}_raw",
             "title": f"open-MaStR {tech} units (raw)",
             "path": filenames["raw"][tech]["joined"],
-            "format": "csv",
-            "encoding": "UTF-8",
+            "scheme": "file",
+            "encoding": "utf-8",
             "mediatype": "text/csv",
             "schema": {
                 "fields": fields,
                 "primaryKey": ["EinheitMastrNummer"],
-                "foreignKeys": [
-                    {
-                        "fields": None,
-                        "reference": {"resource": None, "fields": None},
-                    }
-                ],
             },
-            "dialect": {"delimiter": ",", "decimalSeparator": "."},
+            "dialect": {"delimiter": ","},
         }
 
         resources_meta["resources"].append(resource)
