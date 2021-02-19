@@ -45,6 +45,7 @@ Data
 
 Resulting data of download, post-processing and analysis is saved under `$HOME/.open-MaStR/data/<data-version>`.
 Files that are suffixed with `_raw` contain joined data retrieved during :ref:`downloading <Downloading raw data>`.
+The structure of the data is described in :ref:`Data documentation`.
 
 Logs
 ----

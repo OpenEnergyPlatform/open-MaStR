@@ -16,6 +16,7 @@ Welcome to open-MaStR's documentation!
    download
    postprocessing
    analyze
+   data_documentation
    development
    changelog
    Reference <reference/open_mastr>

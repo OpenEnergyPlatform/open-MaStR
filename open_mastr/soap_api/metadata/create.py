@@ -1,5 +1,6 @@
 import datetime
 import json
+import os
 import uuid
 
 from open_mastr.soap_api.metadata.description import DataDescription
@@ -252,3 +253,32 @@ def datapackage_meta_json(reference_date, technologies=None, statistik_flag=None
         return json.dumps(datapackage_dict, ensure_ascii=False)
     else:
         return datapackage_dict
+
+
+def column_docs_csv(technologies, base_path):
+    metadata = datapackage_meta_json(datetime.datetime.now(), technologies, json_serialize=False)
+
+    filenames = []
+
+    # Sort filenames according to technologies
+    raw_data_filenames = get_filenames()["raw"]
+    metadata_resources = []
+
+    for tech in technologies:
+        for metadata_resource in metadata["resources"]:
+            if metadata_resource["path"] == raw_data_filenames[tech]["joined"]:
+                metadata_resources.append(metadata_resource)
+
+    for table in metadata_resources:
+        csv_string = "Column,Description,Type,Example\n"
+        for column in table["schema"]["fields"]:
+            csv_string += f"\"{column['name']}\",\"{column['description']}\",\"{column['type']}\",\"{column['example']}\"\n"
+
+        os.makedirs(base_path, exist_ok=True)
+        filename_base = table["name"] + ".csv"
+        filename = os.path.join(base_path, filename_base)
+        filenames.append(filename_base)
+        with open(filename, "w") as fh:
+            fh.write(csv_string)
+
+    return filenames
