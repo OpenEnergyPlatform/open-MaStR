@@ -48,6 +48,8 @@ Read more about the details:
   [#112](https://github.com/OpenEnergyPlatform/open-MaStR/issues/112)
 - move code into one package named `open_mastr` [#123](https://github.com/OpenEnergyPlatform/open-MaStR/issues/123)
 - Switch to GitHub Actions for CI instead of Travis [#143](https://github.com/OpenEnergyPlatform/open-MaStR/issues/143)
+- Fixed unexpected line breaks during CSV export that corrupted data 
+  [#170](https://github.com/OpenEnergyPlatform/open-MaStR/issues/170)
 
 
 ### Removed
