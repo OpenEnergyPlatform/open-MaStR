@@ -763,6 +763,10 @@ class MaStRMirror:
             # Read data into pandas.DataFrame
             df = pd.read_sql(query.statement, query.session.bind, index_col="EinheitMastrNummer")
 
+            # Remove newline statements from certain strings
+            for col in ["Aktenzeichen", "Behoerde"]:
+                df[col] = df[col].str.replace("\r", "")
+
             # Make sure no duplicate column names exist
             assert not any(df.columns.duplicated())
 
