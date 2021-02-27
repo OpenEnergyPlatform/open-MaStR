@@ -193,8 +193,3 @@ CREATE TABLE         model_draft.bnetza_mastr_combustion_clean_reduced AS
 CREATE INDEX bnetza_mastr_combustion_clean_reduced_geom_idx
     ON model_draft.bnetza_mastr_combustion_clean_reduced USING gist (geom);
 
-/*
-ALTER TABLE model_draft.bnetza_mastr_combustion_clean_reduced
-    OWNER to oeuser;
-*/
-

@@ -37,10 +37,6 @@ CREATE INDEX bnetza_mastr_wind_clean_geom_3035_idx
 CREATE INDEX bnetza_mastr_wind_clean_geom_idx
     ON model_draft.bnetza_mastr_wind_clean USING gist (geom);
 
-/*
-ALTER TABLE model_draft.bnetza_mastr_wind_clean
-    OWNER to oeuser;
-*/
 
 -- Tags: Onshore and offshore
 UPDATE  model_draft.bnetza_mastr_wind_clean
@@ -121,7 +117,6 @@ UPDATE  model_draft.bnetza_mastr_wind_clean AS t1
                 ST_CONTAINS(ST_TRANSFORM(vg.geom, 4326),m.geom)
         ) AS t2
     WHERE   t1.id = t2.id;
-
 
 -- Tags: geom outside Germany
 UPDATE  model_draft.bnetza_mastr_wind_clean
@@ -268,10 +263,6 @@ INSERT INTO model_draft.mastr_osm_deu_point_windpower_buffer (geom)
 CREATE INDEX mastr_osm_deu_point_windpower_buffer_geom_idx
     ON model_draft.mastr_osm_deu_point_windpower_buffer USING gist (geom);
 
-/*
-ALTER TABLE model_draft.mastr_osm_deu_point_windpower_buffer
-    OWNER to oeuser;
-*/
 
 -- mastr in OSM buffer
 UPDATE model_draft.mastr_osm_deu_point_windpower_buffer AS t1
@@ -351,10 +342,6 @@ INSERT INTO model_draft.bnetza_mastr_wind_clean_buffer (geom)
 CREATE INDEX bnetza_mastr_wind_clean_buffer_geom_idx
     ON model_draft.bnetza_mastr_wind_clean_buffer USING gist (geom);
 
-/*
-ALTER TABLE model_draft.bnetza_mastr_wind_clean_buffer
-    OWNER to oeuser;
-*/
 
 -- mastr in mastr buffer
 UPDATE model_draft.bnetza_mastr_wind_clean_buffer AS t1
@@ -613,8 +600,3 @@ ALTER TABLE model_draft.bnetza_mastr_wind_clean_reduced
 
 CREATE INDEX bnetza_mastr_wind_clean_reduced_geom_idx
     ON model_draft.bnetza_mastr_wind_clean_reduced USING gist (geom);
-
-/*
-ALTER TABLE model_draft.bnetza_mastr_wind_clean_reduced
-    OWNER to oeuser;
-*/
