@@ -165,7 +165,7 @@ UPDATE  model_draft.bnetza_mastr_wind_clean AS t1
             comment =  COALESCE(comment, '') || 'onshore_fix_plz2; ',
             tags = tags || '{"geom": true, "inside_germany": true,"geom_guess":"standort_plz"}'
     FROM    (SELECT plz,
-            ST_PointOnSurface(ST_TRANSFORM(geom,3035)) ::geometry(Point,3035) AS geom
+            ST_PointOnSurface(ST_TRANSFORM(ST_MakeValid(geom),3035)) ::geometry(Point,3035) AS geom
             FROM    boundaries.osm_postcode
             WHERE   stellen = 5
             ORDER BY plz
