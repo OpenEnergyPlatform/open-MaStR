@@ -192,8 +192,17 @@ def add_geom_col(df, lat_col="Breitengrad", lon_col="Laengengrad", srid=4326):
         Read MaStR raw data with added geom column
     """
 
+    # Split data into with and without coordinates
     df_with_coords = df.loc[~(df["Breitengrad"].isna() | df["Laengengrad"].isna())]
-    df_no_coords = df.loc[(df["Breitengrad"].isna() | df["Laengengrad"].isna())]
+
+    # Just select data with lat/lon in range [(-90,90), (-180,180)]
+    df_with_coords = df_with_coords[~((df_with_coords["Breitengrad"] < -90)
+                                      | (df_with_coords["Breitengrad"] > 90)
+                                      | (df_with_coords["Laengengrad"] < -180)
+                                      | (df_with_coords["Laengengrad"] > 180))
+    ]
+    df_no_coords = df.loc[~df.index.isin(df_with_coords.index)]
+
 
     gdf = gpd.GeoDataFrame(
         df_with_coords, geometry=gpd.points_from_xy(df_with_coords[lon_col], df_with_coords[lat_col]),
