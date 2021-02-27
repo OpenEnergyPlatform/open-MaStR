@@ -89,7 +89,7 @@ def wkb_hexer(line):
     return line.wkb_hex
 
 
-def table_to_db(csv_data, table, schema, conn, geom_col="geom"):
+def table_to_db(csv_data, table, schema, conn, geom_col="geom", srid=4326):
     """
     Import data table into PostgreSQL database
 
@@ -115,13 +115,14 @@ def table_to_db(csv_data, table, schema, conn, geom_col="geom"):
                     con=conn,
                     schema=schema,
                     dtype={
-                        geom_col: Geometry(srid=4326),
+                        geom_col: Geometry(srid=srid),
                         "plz": String(),
                     },
+                    chunksize=100000,
                     if_exists="replace")
 
 
-def import_boundary_data_csv(schema, table, index_col="id"):
+def import_boundary_data_csv(schema, table, index_col="id", srid=4326):
     """
     Import additional data for post-processing
 
@@ -162,10 +163,10 @@ def import_boundary_data_csv(schema, table, index_col="id"):
                                    index_col=index_col)
 
             # Prepare geom data for DB upload
-            csv_data["geom"] = csv_data["geom"].apply(lambda x: WKTElement(wkb_loads(x, hex=True).wkt, srid=4326))
+            csv_data["geom"] = csv_data["geom"].apply(lambda x: WKTElement(wkb_loads(x, hex=True).wkt, srid=srid))
 
             # Insert to db
-            table_to_db(csv_data, table, schema, con)
+            table_to_db(csv_data, table, schema, con, srid=srid)
             log.info("Data from {} successfully imported to database.".format(csv_file))
         else:
             log.info("Table '{schema}.{table}' already exists in local database".format(schema=schema, table=table))
@@ -229,6 +230,7 @@ def import_bnetz_mastr_csv():
 
             if os.path.isfile(csv_file):
                 # Read CSV file
+                log.info(f"Read raw data from {csv_file}")
                 csv_data = pd.read_csv(csv_file,
                                        index_col="EinheitMastrNummer",
                                        sep=",",
@@ -238,6 +240,7 @@ def import_bnetz_mastr_csv():
                 gdf = add_geom_col(csv_data)
 
                 # Import to local database
+                log.info(f"Import data to database for {k}")
                 table_to_db(gdf,
                             d["table"],
                             MASTR_RAW_SCHEMA,
@@ -274,7 +277,7 @@ def postprocess():
     Import raw MaStR data to PostgreSQL database, retrieve additional data for post-processing and clean, enrich, and
     prepare data for further analysis.
     """
-    import_boundary_data_csv(BKG_VG250["schema"], BKG_VG250["table"])
+    import_boundary_data_csv(BKG_VG250["schema"], BKG_VG250["table"], srid=3035)
     import_boundary_data_csv(OSM_PLZ["schema"], OSM_PLZ["table"])
     import_boundary_data_csv(OFFSHORE["schema"], OFFSHORE["table"])
     import_boundary_data_csv(OSM_WINDPOWER["schema"], OSM_WINDPOWER["table"])
