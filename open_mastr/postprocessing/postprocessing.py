@@ -1,5 +1,5 @@
 import pandas as pd
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine, text, String
 from geoalchemy2 import Geometry, WKTElement
 import os
 from urllib.request import urlretrieve
@@ -114,7 +114,10 @@ def table_to_db(csv_data, table, schema, conn, geom_col="geom"):
     csv_data.to_sql(table,
                     con=conn,
                     schema=schema,
-                    dtype={geom_col: Geometry(srid=4326)},
+                    dtype={
+                        geom_col: Geometry(srid=4326),
+                        "plz": String(),
+                    },
                     if_exists="replace")
 
 
@@ -219,7 +222,8 @@ def import_bnetz_mastr_csv():
                 # Read CSV file
                 csv_data = pd.read_csv(csv_file,
                                        index_col="EinheitMastrNummer",
-                                       sep=",")
+                                       sep=",",
+                                       dtype={"Postleitzahl": str})
 
                 # Create 'geom' column from lat/lon
                 gdf = add_geom_col(csv_data)
