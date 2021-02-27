@@ -135,15 +135,13 @@ GROUP BY "Technologie";
 -- Create a reduced version
 DROP TABLE IF EXISTS model_draft.bnetza_mastr_combustion_clean_reduced CASCADE;
 CREATE TABLE         model_draft.bnetza_mastr_combustion_clean_reduced AS
-    SELECT  "id",
-            "EinheitMastrNummer",
+    SELECT  "EinheitMastrNummer",
             "Bruttoleistung",
             "EinheitBetriebsstatus",
             "Anlagenbetreiber",
             "EegMastrNummer",
             "KwkMastrNummer",
             "GenMastrNummer",
-            "Ergebniscode",
             "DatumLetzteAktualisierung",
             "LokationMastrNummer",
             "NetzbetreiberpruefungStatus",
@@ -170,30 +168,27 @@ CREATE TABLE         model_draft.bnetza_mastr_combustion_clean_reduced AS
             "DatumEndgueltigeStilllegung",
             "DatumBeginnVoruebergehendeStilllegung",
             "DatumWiederaufnahmeBetrieb",
-            "EinheitBetriebsstatus_unit",
+            "EinheitBetriebsstatus_extended",
             "AltAnlagenbetreiberMastrNummer",
             "DatumDesBetreiberwechsels",
             "DatumRegistrierungDesBetreiberwechsels",
-            "StatisikFlag_unit",
+            "StatisikFlag_basic",
             "NameStromerzeugungseinheit",
             "WeicDisplayName",
-            "Bruttoleistung_unit",
+            "Bruttoleistung_extended",
             "Nettonennleistung",
             "AnschlussAnHoechstOderHochSpannung",
             "FernsteuerbarkeitNb",
             "FernsteuerbarkeitDv",
             "FernsteuerbarkeitDr",
             "Einspeisungsart",
-            "GenMastrNummer_unit",
-            "Ergebniscode_kwk",
+            "GenMastrNummer_extended",
             "Meldedatum_kwk",
             "DatumLetzteAktualisierung_kwk",
-            "AnlageBetriebsstatus",
             "geom",
             "comment"
     FROM    model_draft.bnetza_mastr_combustion_clean
-    WHERE geom IS NOT NULL
-    ORDER BY id;
+    WHERE geom IS NOT NULL;
 
 CREATE INDEX bnetza_mastr_combustion_clean_reduced_geom_idx
     ON model_draft.bnetza_mastr_combustion_clean_reduced USING gist (geom);
