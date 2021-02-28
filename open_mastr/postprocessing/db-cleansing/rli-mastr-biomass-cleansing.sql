@@ -14,7 +14,6 @@ __author__  = "Ludwig Hülk"
 
 ALTER TABLE model_draft.bnetza_mastr_biomass_clean
     ADD COLUMN id SERIAL,
-    ADD PRIMARY KEY (id),
     ADD COLUMN "comment" text;
 
 ALTER TABLE model_draft.bnetza_mastr_biomass_clean

@@ -16,7 +16,6 @@ __author__  = "Ludwig Hülk"
 
 ALTER TABLE model_draft.bnetza_mastr_wind_clean
     ADD COLUMN id SERIAL,
-    ADD PRIMARY KEY (id),
     ADD COLUMN tags jsonb,
     ADD COLUMN geom_3035 geometry(Point,3035),
     ADD COLUMN comment text;

@@ -1,9 +1,12 @@
 import pandas as pd
-from sqlalchemy import create_engine, text, String
+from sqlalchemy import text, String
 from geoalchemy2 import Geometry, WKTElement
+import numpy as np
 import os
 from urllib.request import urlretrieve
+from open_mastr.postprocessing import orm
 from open_mastr.soap_api.config import setup_logger, get_db_tables, get_filenames, get_data_version_dir
+from open_mastr.utils.helpers import chunks, session_scope, db_engine
 import geopandas as gpd
 from shapely.wkb import loads as wkb_loads
 
@@ -39,7 +42,32 @@ OPEN_MASTR_SCHEMA = "model_draft"
 
 TECHNOLOGIES = ["wind", "hydro", "solar", "biomass", "combustion", "nuclear", "gsgk", "storage"]
 
-ENGINE_LOCAL = create_engine('postgresql+psycopg2://open-mastr:open-mastr@localhost:55443/open-mastr', echo=False)
+orm_map = {
+    "wind": {
+        "cleaned": "WindCleaned",
+    },
+    "solar": {
+        "cleaned": "SolarCleaned",
+    },
+    "biomass": {
+        "cleaned": "BiomassCleaned",
+    },
+    "combustion": {
+        "cleaned": "CombustionCleaned",
+    },
+    "gsgk": {
+        "cleaned": "GsgkCleaned",
+    },
+    "hydro": {
+        "cleaned": "HydroCleaned",
+    },
+    "nuclear": {
+        "cleaned": "NuclearCleaned",
+    },
+    "storage": {
+        "cleaned": "StorageCleaned",
+    },
+}
 
 
 def get_csv_db_mapping(keys=TECHNOLOGIES):
@@ -122,6 +150,26 @@ def table_to_db(csv_data, table, schema, conn, geom_col="geom", srid=4326):
                     if_exists="replace")
 
 
+def table_to_db_orm(mapper, data, chunksize=10000):
+    """
+    Import data table into PostgreSQL database using ORM bulk insert
+
+    Parameters
+    ----------
+    mapper: SQLAlchemy decarative mapping
+        Table ORM
+    data: pandas.DataFrame
+        Tabular data for one technology
+    chunksize: int, optional
+        Size of data chunks for database insertation. Data gets inserted in chunks of size `chunksize`.
+    """
+
+    with session_scope() as session:
+        for chunk in chunks(data.reset_index().to_dict(orient="records"), chunksize):
+            session.bulk_insert_mappings(mapper, chunk)
+            # Commit each chunk separately
+            session.commit()
+
 def import_boundary_data_csv(schema, table, index_col="id", srid=4326):
     """
     Import additional data for post-processing
@@ -141,7 +189,7 @@ def import_boundary_data_csv(schema, table, index_col="id", srid=4326):
     # Check if file is locally available
     csv_file_exists = os.path.isfile(csv_file)
 
-    with ENGINE_LOCAL.connect() as con:
+    with db_engine().connect() as con:
 
         # Check if table already exists
         table_query = "SELECT to_regclass('{schema}.{table}');".format(schema=schema, table=table)
@@ -222,7 +270,7 @@ def import_bnetz_mastr_csv():
     """
     csv_db_mapping = get_csv_db_mapping()
 
-    with ENGINE_LOCAL.connect() as con:
+    with db_engine().connect() as con:
         for k, d in csv_db_mapping.items():
 
             csv_file = os.path.abspath(
@@ -234,18 +282,19 @@ def import_bnetz_mastr_csv():
                 csv_data = pd.read_csv(csv_file,
                                        index_col="EinheitMastrNummer",
                                        sep=",",
-                                       dtype={"Postleitzahl": str})
+                                       dtype={
+                                           "Postleitzahl": str,
+                                           "Gemeindeschlüssel": str,
+                                       }
+                                       )
 
                 # Create 'geom' column from lat/lon
                 gdf = add_geom_col(csv_data)
 
                 # Import to local database
                 log.info(f"Import data to database for {k}")
-                table_to_db(gdf,
-                            d["table"],
-                            MASTR_RAW_SCHEMA,
-                            con,
-                            geom_col="geom")
+                mapper = getattr(orm, orm_map[k]["cleaned"])
+                table_to_db_orm(mapper, gdf.replace({np.nan: None}), chunksize=100000)
                 log.info("Data from {} successfully imported to database.".format(csv_file))
             else:
                 log.warning("No raw data found for {}, cannot find {},".format(k, csv_file))
@@ -256,7 +305,7 @@ def run_sql_postprocessing():
     Execute SQL scripts ins `db-cleansing/`
     """
 
-    with ENGINE_LOCAL.connect().execution_options(autocommit=True) as con:
+    with db_engine().connect().execution_options(autocommit=True) as con:
 
         for tech_name in TECHNOLOGIES:
             if tech_name not in ["gsgk", "storage", "nuclear"]:
@@ -277,13 +326,23 @@ def postprocess():
     Import raw MaStR data to PostgreSQL database, retrieve additional data for post-processing and clean, enrich, and
     prepare data for further analysis.
     """
+    # Create cleaned tables
+    engine = db_engine()
+    with engine.connect().execution_options(autocommit=True) as con:
+        con.execute(f"DROP SCHEMA IF EXISTS {orm.Base.metadata.schema} CASCADE;")
+        con.execute(f"CREATE SCHEMA {orm.Base.metadata.schema};")
+    orm.Base.metadata.create_all(engine)
+
+    # Import external data (most boundaries)
     import_boundary_data_csv(BKG_VG250["schema"], BKG_VG250["table"], srid=3035)
     import_boundary_data_csv(OSM_PLZ["schema"], OSM_PLZ["table"])
     import_boundary_data_csv(OFFSHORE["schema"], OFFSHORE["table"])
     import_boundary_data_csv(OSM_WINDPOWER["schema"], OSM_WINDPOWER["table"])
 
+    # Import MaStR raw data in o database
     import_bnetz_mastr_csv()
 
+    # Process data
     run_sql_postprocessing()
 
 
