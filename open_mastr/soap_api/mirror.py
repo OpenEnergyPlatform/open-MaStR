@@ -18,18 +18,6 @@ from open_mastr.utils.helpers import session_scope, db_engine
 
 log = setup_logger()
 
-def chunks(lst, n):
-    """Yield successive n-sized chunks from lst.
-
-    `Credits <https://stackoverflow.com/questions/312443/how-do-you-split-a-list-into-evenly-sized-chunks>`_
-    """
-    if isinstance(lst, Query):
-        length = lst.count()
-    else:
-        length = len(lst)
-    for i in range(0, length, n):
-        yield lst[i: i + n]
-
 
 class MaStRMirror:
     """
