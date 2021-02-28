@@ -309,6 +309,7 @@ def run_sql_postprocessing():
 
         for tech_name in TECHNOLOGIES:
             if tech_name not in ["gsgk", "storage", "nuclear"]:
+                log.info(f"Run post-processing on {tech_name} data")
                 # Read SQL query from file
                 with open(os.path.join(os.path.dirname(__file__),
                                        "db-cleansing",
