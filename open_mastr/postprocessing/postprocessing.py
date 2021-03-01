@@ -351,6 +351,19 @@ def postprocess():
 
 
 def to_csv(limit=None):
+    """
+    Write post-processed MaStR data to CSV files
+
+    Write structurally similar data as :meth:`~.open_mastr.soap_api.mirror.MaStRMirror.to_csv`, but with additional
+    columns and post-processed data.
+
+    Metadata gets created decribing post-processed and raw data as one datapackage.
+
+    Parameters
+    ----------
+    limit: int, optional
+        Limit number of rows exported to CSV file. This applied independently for each file/technology.
+    """
     data_path = get_data_version_dir()
     filenames = get_filenames()
     newest_date = datetime.datetime(1900, 0, 0, 0, 0, 0, tzinfo=datetime.timezone.utc)
