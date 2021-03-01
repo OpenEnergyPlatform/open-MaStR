@@ -1,3 +1,5 @@
+import datetime
+import json
 import pandas as pd
 from sqlalchemy import text, String
 from geoalchemy2 import Geometry, WKTElement
@@ -6,6 +8,7 @@ import os
 from urllib.request import urlretrieve
 from open_mastr.postprocessing import orm
 from open_mastr.soap_api.config import setup_logger, get_db_tables, get_filenames, get_data_version_dir
+from open_mastr.soap_api.metadata.create import datapackage_meta_json
 from open_mastr.utils.helpers import chunks, session_scope, db_engine
 import geopandas as gpd
 from shapely.wkb import loads as wkb_loads
@@ -350,6 +353,7 @@ def postprocess():
 def to_csv(limit=None):
     data_path = get_data_version_dir()
     filenames = get_filenames()
+    newest_date = datetime.datetime(1900, 0, 0, 0, 0, 0, tzinfo=datetime.timezone.utc)
 
     for tech in TECHNOLOGIES:
         with session_scope() as session:
@@ -360,6 +364,16 @@ def to_csv(limit=None):
         csv_file = os.path.join(data_path, filenames["postprocessed"][tech])
 
         df.to_csv(csv_file, index=True, index_label="EinheitMastrNummer", encoding='utf-8')
+
+        if df["DatumLetzteAktualisierung"].max() > newest_date:
+            newest_date = df["DatumLetzteAktualisierung"].max()
+
+    # Save metadata along with data
+    metadata_file = os.path.join(data_path, filenames["metadata"])
+    metadata = datapackage_meta_json(newest_date, TECHNOLOGIES, data=["raw", "postprocessed"], json_serialize=False)
+
+    with open(metadata_file, 'w', encoding='utf-8') as f:
+        json.dump(metadata, f, ensure_ascii=False, indent=4)
 
 if __name__ == "__main__":
 
