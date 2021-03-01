@@ -211,6 +211,10 @@ def _filenames_generator():
                     # Collect file names for all technologies
                     filenames[section].update({tech: tmp})
 
+        filenames["postprocessed"] = {
+            tech: f"{prefix}_{tech}.csv" for tech in get_power_unit_types()
+        }
+
         # Add metadata file
         filenames["metadata"] = "datapackage.json"
 
