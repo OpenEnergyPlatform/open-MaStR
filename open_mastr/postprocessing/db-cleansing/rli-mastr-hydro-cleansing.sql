@@ -12,9 +12,7 @@ __author__  = "Ludwig Hülk"
 */
 
 ALTER TABLE model_draft.bnetza_mastr_hydro_clean
-    ADD COLUMN id SERIAL,
-    ADD PRIMARY KEY (id),
-    ADD COLUMN "comment" text;
+    ADD COLUMN id SERIAL;
 
 ALTER TABLE model_draft.bnetza_mastr_hydro_clean
     ALTER COLUMN "Bruttoleistung" TYPE double precision USING "Bruttoleistung"::double precision;

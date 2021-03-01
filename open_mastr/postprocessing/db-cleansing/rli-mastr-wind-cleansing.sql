@@ -13,17 +13,12 @@ __url__     = "https://creativecommons.org/publicdomain/zero/1.0/"
 __author__  = "Ludwig Hülk"
 */
 
-
 ALTER TABLE model_draft.bnetza_mastr_wind_clean
-    ADD COLUMN id SERIAL,
-    ADD PRIMARY KEY (id),
-    ADD COLUMN tags jsonb,
-    ADD COLUMN geom_3035 geometry(Point,3035),
-    ADD COLUMN comment text;
+    ADD COLUMN id SERIAL;
 
 ALTER TABLE model_draft.bnetza_mastr_wind_clean
     ALTER COLUMN "Bruttoleistung" TYPE double precision USING "Bruttoleistung"::double precision,
-    ALTER COLUMN "Bruttoleistung_unit" TYPE double precision USING "Bruttoleistung_unit"::double precision,
+    ALTER COLUMN "Bruttoleistung_extended" TYPE double precision USING "Bruttoleistung_extended"::double precision,
     ALTER COLUMN "Nettonennleistung" TYPE double precision USING "Nettonennleistung"::double precision,
     ALTER COLUMN "Nabenhoehe" TYPE double precision USING "Nabenhoehe"::double precision,
     ALTER COLUMN "Rotordurchmesser" TYPE double precision USING "Rotordurchmesser"::double precision,
@@ -37,10 +32,6 @@ CREATE INDEX bnetza_mastr_wind_clean_geom_3035_idx
 CREATE INDEX bnetza_mastr_wind_clean_geom_idx
     ON model_draft.bnetza_mastr_wind_clean USING gist (geom);
 
-/*
-ALTER TABLE model_draft.bnetza_mastr_wind_clean
-    OWNER to oeuser;
-*/
 
 -- Tags: Onshore and offshore
 UPDATE  model_draft.bnetza_mastr_wind_clean
@@ -74,11 +65,11 @@ UPDATE  model_draft.bnetza_mastr_wind_clean
 -- Tags: Gematchte Einheiten
 UPDATE  model_draft.bnetza_mastr_wind_clean
     SET tags = tags || '{"flag":"A"}'
-    WHERE "StatisikFlag_unit" = 'A';
+    WHERE "StatisikFlag" = 'A';
 
 UPDATE  model_draft.bnetza_mastr_wind_clean
     SET tags = tags || '{"flag":"B"}'
-    WHERE "StatisikFlag_unit" = 'B';
+    WHERE "StatisikFlag" = 'B';
 
 
 -- Tags: Betriebsstatus
@@ -122,7 +113,6 @@ UPDATE  model_draft.bnetza_mastr_wind_clean AS t1
         ) AS t2
     WHERE   t1.id = t2.id;
 
-
 -- Tags: geom outside Germany
 UPDATE  model_draft.bnetza_mastr_wind_clean
     SET tags = tags || '{"inside_germany": false}'
@@ -165,7 +155,7 @@ UPDATE  model_draft.bnetza_mastr_wind_clean AS t1
             comment =  COALESCE(comment, '') || 'onshore_fix_plz2; ',
             tags = tags || '{"geom": true, "inside_germany": true,"geom_guess":"standort_plz"}'
     FROM    (SELECT plz,
-            ST_PointOnSurface(ST_TRANSFORM(geom,3035)) ::geometry(Point,3035) AS geom
+            ST_PointOnSurface(ST_TRANSFORM(ST_MakeValid(geom),3035)) ::geometry(Point,3035) AS geom
             FROM    boundaries.osm_postcode
             WHERE   stellen = 5
             ORDER BY plz
@@ -268,10 +258,6 @@ INSERT INTO model_draft.mastr_osm_deu_point_windpower_buffer (geom)
 CREATE INDEX mastr_osm_deu_point_windpower_buffer_geom_idx
     ON model_draft.mastr_osm_deu_point_windpower_buffer USING gist (geom);
 
-/*
-ALTER TABLE model_draft.mastr_osm_deu_point_windpower_buffer
-    OWNER to oeuser;
-*/
 
 -- mastr in OSM buffer
 UPDATE model_draft.mastr_osm_deu_point_windpower_buffer AS t1
@@ -351,10 +337,6 @@ INSERT INTO model_draft.bnetza_mastr_wind_clean_buffer (geom)
 CREATE INDEX bnetza_mastr_wind_clean_buffer_geom_idx
     ON model_draft.bnetza_mastr_wind_clean_buffer USING gist (geom);
 
-/*
-ALTER TABLE model_draft.bnetza_mastr_wind_clean_buffer
-    OWNER to oeuser;
-*/
 
 -- mastr in mastr buffer
 UPDATE model_draft.bnetza_mastr_wind_clean_buffer AS t1
@@ -422,7 +404,7 @@ DROP TABLE IF EXISTS model_draft.bnetza_mastr_wind_clean_flagb CASCADE;
 CREATE TABLE         model_draft.bnetza_mastr_wind_clean_flagb AS
     SELECT  *
     FROM    model_draft.bnetza_mastr_wind_clean
-    WHERE   "StatisikFlag_unit" = 'B' AND
+    WHERE   "StatisikFlag" = 'B' AND
             "EinheitBetriebsstatus" = 'InBetrieb'
     ORDER BY id;
 
@@ -527,15 +509,13 @@ GROUP BY comment;
 -- Create a reduced version
 DROP TABLE IF EXISTS model_draft.bnetza_mastr_wind_clean_reduced CASCADE;
 CREATE TABLE         model_draft.bnetza_mastr_wind_clean_reduced AS
-    SELECT  "id",
-            "EinheitMastrNummer",
+    SELECT  "EinheitMastrNummer",
             "Bruttoleistung",
             "EinheitBetriebsstatus",
             "Anlagenbetreiber",
             "EegMastrNummer",
             "KwkMastrNummer",
             "GenMastrNummer",
-            "Ergebniscode",
             "DatumLetzteAktualisierung",
             "LokationMastrNummer",
             "NetzbetreiberpruefungStatus",
@@ -562,21 +542,21 @@ CREATE TABLE         model_draft.bnetza_mastr_wind_clean_reduced AS
             "DatumEndgueltigeStilllegung",
             "DatumBeginnVoruebergehendeStilllegung",
             "DatumWiederaufnahmeBetrieb",
-            "EinheitBetriebsstatus_unit",
+            "EinheitBetriebsstatus_extended",
             "AltAnlagenbetreiberMastrNummer",
             "DatumDesBetreiberwechsels",
             "DatumRegistrierungDesBetreiberwechsels",
-            "StatisikFlag_unit",
+            "StatisikFlag",
             "NameStromerzeugungseinheit",
             "WeicDisplayName",
-            "Bruttoleistung_unit",
+            "Bruttoleistung_extended",
             "Nettonennleistung",
             "AnschlussAnHoechstOderHochSpannung",
             "FernsteuerbarkeitNb",
             "FernsteuerbarkeitDv",
             "FernsteuerbarkeitDr",
             "Einspeisungsart",
-            "GenMastrNummer_unit",
+            "GenMastrNummer_extended",
             "NameWindpark",
             "Lage",
             "Seelage",
@@ -589,10 +569,9 @@ CREATE TABLE         model_draft.bnetza_mastr_wind_clean_reduced AS
             "AuflageAbschaltungLeistungsbegrenzung",
             "Wassertiefe",
             "Kuestenentfernung",
-            "EegMastrNummer_unit",
+            "EegMastrNummer_extended",
             "HerstellerId",
             "Hersteller",
-            "Ergebniscode_eeg",
             "Meldedatum_eeg",
             "DatumLetzteAktualisierung_eeg",
             "EegInbetriebnahmedatum",
@@ -607,19 +586,12 @@ CREATE TABLE         model_draft.bnetza_mastr_wind_clean_reduced AS
             "Aktenzeichen",
             "Frist",
             "Meldedatum_permit",
-            "geom",
-            "comment"
+            "geom"
     FROM    model_draft.bnetza_mastr_wind_clean
-    WHERE geom IS NOT NULL
-    ORDER BY id;
+    WHERE geom IS NOT NULL;
 
 ALTER TABLE model_draft.bnetza_mastr_wind_clean_reduced
-    ADD PRIMARY KEY (id);
+    ADD PRIMARY KEY ("EinheitMastrNummer");
 
 CREATE INDEX bnetza_mastr_wind_clean_reduced_geom_idx
     ON model_draft.bnetza_mastr_wind_clean_reduced USING gist (geom);
-
-/*
-ALTER TABLE model_draft.bnetza_mastr_wind_clean_reduced
-    OWNER to oeuser;
-*/

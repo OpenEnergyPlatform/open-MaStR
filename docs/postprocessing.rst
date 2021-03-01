@@ -51,9 +51,26 @@ To run the postprocessing, use the following code snippet.
    postprocess()
 
 
+As a result, tables named like `bnetza_mastr_<technology>_cleaned` appear in the schema `model_draft". Use
+
+.. code-block:: python
+
+   from postprocessing.postprocessing import to_csv
+
+   to_csv()
+
+to export data in CSV format.
+
 .. note::
 
    It is assumed raw data resides in `~/.open-MaStR/data/<data version>/` as explained in :ref:`Configuration`.
+
+.. warning::
+
+   Raw data downloaded with :class:`open_mastr.soap_api.download.MaStRDownload` is
+   currently not supported.
+   Please use raw data from a CSV export(:meth:`open_mastr.soap_api.mirror.MaStRMirror.to_csv`)
+   of :class:`open_mastr.soap_api.mirror.MaStRMirror` data.
 
 
 Database import

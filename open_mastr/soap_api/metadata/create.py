@@ -168,7 +168,7 @@ def datapackag_base(reference_date, publication_date=None, statistik_flag=None):
     return datapackage_meta
 
 
-def datapackage_meta_json(reference_date, technologies=None, statistik_flag=None, json_serialize=True):
+def datapackage_meta_json(reference_date, technologies=None, data=["raw"], statistik_flag=None, json_serialize=True):
     """
     Create a frictionless data conform metadata description
 
@@ -179,6 +179,8 @@ def datapackage_meta_json(reference_date, technologies=None, statistik_flag=None
     technologies: list
         Only consider specified technologies in metadata JSON string. If not provided, metadata is created for data
         of all technologies.
+    data: list, optional
+        Specify which data should be documented by this metadata.
     statistik_flag: str or None
         Describe if filtering is applied during CSV export of data. Read in
         :meth:`~.open_mastr.soap_api.mirror.MaStRMirror.to_csv()` for more details.
@@ -213,8 +215,11 @@ def datapackage_meta_json(reference_date, technologies=None, statistik_flag=None
     renaming = column_renaming()
 
     resources_meta = {"resources": []}
+
+
+    # Add resources of raw data files
     for tech, specs in unit_data_specs.items():
-        fields = []
+        raw_fields = []
         specs["basic_data"] = "GetListeAlleEinheiten"
 
         for data_type in ["basic_data", "unit_data", "eeg_data", "kwk_data", "permit_data"]:
@@ -222,24 +227,68 @@ def datapackage_meta_json(reference_date, technologies=None, statistik_flag=None
                 for name, specification in table_columns[specs[data_type]].items():
                     if name in renaming[data_type]["columns"]:
                         name = f"{name}_{renaming[data_type]['suffix']}"
-                    fields.append({"name": name, **specification, "unit": None})
+                    raw_fields.append({"name": name, **specification, "unit": None})
 
-        resource = {
-            "profile": "tabular-data-resource",
-            "name": f"bnetza_mastr_{tech}_raw",
-            "title": f"open-MaStR {tech} units (raw)",
-            "path": filenames["raw"][tech]["joined"],
-            "scheme": "file",
-            "encoding": "utf-8",
-            "mediatype": "text/csv",
-            "schema": {
-                "fields": fields,
-                "primaryKey": ["EinheitMastrNummer"],
-            },
-            "dialect": {"delimiter": ","},
-        }
+        if "raw" in data:
+            resource = {
+                "profile": "tabular-data-resource",
+                "name": f"bnetza_mastr_{tech}_raw",
+                "title": f"open-MaStR {tech} units (raw)",
+                "path": filenames["raw"][tech]["joined"],
+                "scheme": "file",
+                "encoding": "utf-8",
+                "mediatype": "text/csv",
+                "schema": {
+                    "fields": raw_fields,
+                    "primaryKey": ["EinheitMastrNummer"],
+                },
+                "dialect": {"delimiter": ","},
+            }
 
-        resources_meta["resources"].append(resource)
+            resources_meta["resources"].append(resource)
+        if "postprocessed" in data:
+            processed_fields = [
+                {"name": "geom",
+                 "unit": None,
+                 "type": "str",
+                 "desciption": "Standort der Anlage als Punktgeometrie im WKB Format",
+                 "examples": "0101000020e610000071fbe59315131c40a2b437f8c20e4a40"},
+                {"name": "comment",
+                 "unit": None,
+                 "type": "str",
+                 "desciption": "Information about data post-processing",
+                 "examples": "has_geom; outside_vg250"}
+            ]
+            if tech == "wind":
+                processed_fields.append(
+                    {"name": "tags",
+                     "unit": None,
+                     "type": "json",
+                     "desciption": "Data insights and report about post-processing steps",
+                     "examples": {'plz_check': False, 'processed': True, 'inside_germany': True}})
+                processed_fields.append({"name": "geom",
+                     "unit": None,
+                     "type": "str",
+                     "desciption": "Standort der Anlage als Punktgeometrie im WKB Format (EPSG 3035)",
+                     "examples": "0101000020e610000071fbe59315131c40a2b437f8c20e4a40"}
+                )
+            resource = {
+                "profile": "tabular-data-resource",
+                "name": f"bnetza_mastr_{tech}",
+                "title": f"open-MaStR {tech} units",
+                "path": filenames["postprocessed"][tech],
+                "scheme": "file",
+                "encoding": "utf-8",
+                "mediatype": "text/csv",
+                "schema": {
+                    "fields": raw_fields + processed_fields,
+                    "primaryKey": ["EinheitMastrNummer"],
+                },
+                "dialect": {"delimiter": ","},
+            }
+
+            resources_meta["resources"].append(resource)
+
 
     datapackage_dict = {**datapackage_base_dict, **resources_meta}
 

@@ -23,6 +23,8 @@ Read more about the details:
   and with GitHubs README [#135](https://github.com/OpenEnergyPlatform/open-MaStR/issues/135)
 - Local execution of post-processing now possible, optionally in dockered database 
   [#116](https://github.com/OpenEnergyPlatform/open-MaStR/issues/116)
+- Post-processing adapted to CSV data from :class:`open_mastr.soap_api.mirror.MaStRMirror`
+  [#172](https://github.com/OpenEnergyPlatform/open-MaStR/issues/172)
 - Tests for changed download code are added [#131](https://github.com/OpenEnergyPlatform/open-MaStR/issues/131)
 - Metadata added for raw data as frictionless data package 
   [#160](https://github.com/OpenEnergyPlatform/open-MaStR/issues/160)
