@@ -347,6 +347,20 @@ def postprocess():
     run_sql_postprocessing()
 
 
+def to_csv(limit=None):
+    data_path = get_data_version_dir()
+    filenames = get_filenames()
+
+    for tech in TECHNOLOGIES:
+        with session_scope() as session:
+            orm_tech = getattr(orm, orm_map[tech]["cleaned"])
+            query = session.query(orm_tech).limit(limit)
+            df = pd.read_sql(query.statement, query.session.bind, index_col="EinheitMastrNummer")
+
+        csv_file = os.path.join(data_path, filenames["postprocessed"][tech])
+
+        df.to_csv(csv_file, index=True, index_label="EinheitMastrNummer", encoding='utf-8')
+
 if __name__ == "__main__":
 
     pass
