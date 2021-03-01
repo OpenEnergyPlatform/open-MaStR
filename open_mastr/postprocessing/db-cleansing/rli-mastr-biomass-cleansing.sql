@@ -13,8 +13,7 @@ __author__  = "Ludwig Hülk"
 
 
 ALTER TABLE model_draft.bnetza_mastr_biomass_clean
-    ADD COLUMN id SERIAL,
-    ADD COLUMN "comment" text;
+    ADD COLUMN id SERIAL;
 
 ALTER TABLE model_draft.bnetza_mastr_biomass_clean
     ALTER COLUMN "Bruttoleistung" TYPE double precision USING "Bruttoleistung"::double precision;

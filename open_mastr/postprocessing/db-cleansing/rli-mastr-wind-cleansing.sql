@@ -13,12 +13,8 @@ __url__     = "https://creativecommons.org/publicdomain/zero/1.0/"
 __author__  = "Ludwig Hülk"
 */
 
-
 ALTER TABLE model_draft.bnetza_mastr_wind_clean
-    ADD COLUMN id SERIAL,
-    ADD COLUMN tags jsonb,
-    ADD COLUMN geom_3035 geometry(Point,3035),
-    ADD COLUMN comment text;
+    ADD COLUMN id SERIAL;
 
 ALTER TABLE model_draft.bnetza_mastr_wind_clean
     ALTER COLUMN "Bruttoleistung" TYPE double precision USING "Bruttoleistung"::double precision,
