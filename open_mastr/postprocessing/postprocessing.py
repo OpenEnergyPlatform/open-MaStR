@@ -7,7 +7,7 @@ import numpy as np
 import os
 from urllib.request import urlretrieve
 from open_mastr.postprocessing import orm
-from open_mastr.soap_api.config import setup_logger, get_db_tables, get_filenames, get_data_version_dir
+from open_mastr.soap_api.config import setup_logger, get_filenames, get_data_version_dir
 from open_mastr.soap_api.metadata.create import datapackage_meta_json
 from open_mastr.utils.helpers import chunks, session_scope, db_engine
 import geopandas as gpd
@@ -71,35 +71,6 @@ orm_map = {
         "cleaned": "StorageCleaned",
     },
 }
-
-
-def get_csv_db_mapping(keys=TECHNOLOGIES):
-    """
-    Retrieve raw data file and desired table name for each technology
-
-    Parameters
-    ----------
-    keys : list
-        List of technologies
-
-    Returns
-    -------
-    dict
-        Table name and file name for each technology, keyed by items of `keys`
-    """
-
-    db_tables = get_db_tables()
-    defined_filenames = get_filenames()
-
-    MASTR_CSV_DB_MAPPING = {}
-
-    for k in keys:
-        MASTR_CSV_DB_MAPPING.update({
-            k: {
-                "table": db_tables[k]["raw"],
-                "file": defined_filenames["raw"][k]["joined"]}})
-
-    return MASTR_CSV_DB_MAPPING
 
 
 def wkb_hexer(line):
@@ -267,40 +238,26 @@ def add_geom_col(df, lat_col="Breitengrad", lon_col="Laengengrad", srid=4326):
     return gdf
 
 
-def import_bnetz_mastr_csv():
+def import_bnetz_mastr_csv(mastr_cleaned):
     """
     Import MaStR raw data and create geom column
+
+    Parameters
+    ----------
+    mastr_cleaned: dict of pandas.DataFrame
+        Cleaned MaStR data in a dictionary of dataframes keyed by technology.
     """
-    csv_db_mapping = get_csv_db_mapping()
 
-    with db_engine().connect() as con:
-        for k, d in csv_db_mapping.items():
+    for k, d in mastr_cleaned.items():
 
-            csv_file = os.path.abspath(
-                os.path.join(get_data_version_dir(), d["file"]))
+        # Create 'geom' column from lat/lon
+        gdf = add_geom_col(d)
 
-            if os.path.isfile(csv_file):
-                # Read CSV file
-                log.info(f"Read raw data from {csv_file}")
-                csv_data = pd.read_csv(csv_file,
-                                       index_col="EinheitMastrNummer",
-                                       sep=",",
-                                       dtype={
-                                           "Postleitzahl": str,
-                                           "Gemeindeschlüssel": str,
-                                       }
-                                       )
-
-                # Create 'geom' column from lat/lon
-                gdf = add_geom_col(csv_data)
-
-                # Import to local database
-                log.info(f"Import data to database for {k}")
-                mapper = getattr(orm, orm_map[k]["cleaned"])
-                table_to_db_orm(mapper, gdf.replace({np.nan: None}), chunksize=100000)
-                log.info("Data from {} successfully imported to database.".format(csv_file))
-            else:
-                log.warning("No raw data found for {}, cannot find {},".format(k, csv_file))
+        # Import to local database
+        log.info(f"Import data to database for {k}")
+        mapper = getattr(orm, orm_map[k]["cleaned"])
+        table_to_db_orm(mapper, gdf.replace({np.nan: None}), chunksize=100000)
+        log.info(f"Data for {k} successfully imported to database.")
 
 
 def run_sql_postprocessing():
@@ -323,12 +280,17 @@ def run_sql_postprocessing():
                 con.execute(escaped_sql)
 
 
-def postprocess():
+def postprocess(mastr_cleaned):
     """
     Run post-processing
 
-    Import raw MaStR data to PostgreSQL database, retrieve additional data for post-processing and clean, enrich, and
+    Import cleaned MaStR data to PostgreSQL database, retrieve additional data for post-processing, enrich, and
     prepare data for further analysis.
+
+    Parameters
+    ----------
+    mastr_cleaned: dict of pandas.DataFrame
+        Cleaned MaStR data in a dictionary of dataframes keyed by technology.
     """
     # Create cleaned tables
     engine = db_engine()
@@ -344,7 +306,7 @@ def postprocess():
     import_boundary_data_csv(OSM_WINDPOWER["schema"], OSM_WINDPOWER["table"])
 
     # Import MaStR raw data in o database
-    import_bnetz_mastr_csv()
+    import_bnetz_mastr_csv(mastr_cleaned)
 
     # Process data
     run_sql_postprocessing()
@@ -366,7 +328,7 @@ def to_csv(limit=None):
     """
     data_path = get_data_version_dir()
     filenames = get_filenames()
-    newest_date = datetime.datetime(1900, 0, 0, 0, 0, 0, tzinfo=datetime.timezone.utc)
+    newest_date = datetime.datetime(1900, 1, 1, 0, 0, 0, tzinfo=datetime.timezone.utc)
 
     for tech in TECHNOLOGIES:
         with session_scope() as session:
@@ -383,10 +345,12 @@ def to_csv(limit=None):
 
     # Save metadata along with data
     metadata_file = os.path.join(data_path, filenames["metadata"])
-    metadata = datapackage_meta_json(newest_date, TECHNOLOGIES, data=["raw", "postprocessed"], json_serialize=False)
+    metadata = datapackage_meta_json(newest_date, TECHNOLOGIES, data=["raw", "cleaned", "postprocessed"],
+                                     json_serialize=False)
 
     with open(metadata_file, 'w', encoding='utf-8') as f:
         json.dump(metadata, f, ensure_ascii=False, indent=4)
+
 
 if __name__ == "__main__":
 

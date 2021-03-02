@@ -1,7 +1,7 @@
-Raw data
-========
+Raw & cleaned data
+==================
 
-Raw data retrieved from MaStR database is structured as follows
+Raw and cleaned data have the same structure. For each of the tables every column is explained.
 
 solar
 -------

@@ -32,6 +32,8 @@ Read more about the details:
   [#157](https://github.com/OpenEnergyPlatform/open-MaStR/issues/157)
 - Code examples added for :class:`open_mastr.soap_api.mirror.MaStRMirror` explaining basic use of 
   mirroring database [#164](https://github.com/OpenEnergyPlatform/open-MaStR/issues/164)
+- CSV file reader for MaStR raw data added
+  [#181](https://github.com/OpenEnergyPlatform/open-MaStR/issues/181)
 - The CHANGELOG is now included in the documentation
 
 ### Changed
@@ -52,6 +54,10 @@ Read more about the details:
 - Switch to GitHub Actions for CI instead of Travis [#143](https://github.com/OpenEnergyPlatform/open-MaStR/issues/143)
 - Fixed unexpected line breaks during CSV export that corrupted data 
   [#170](https://github.com/OpenEnergyPlatform/open-MaStR/issues/170)
+- Filtering of duplicates in MaStR data (see 
+  `MaStR help <https://www.marktstammdatenregister.de/MaStRHilfe/subpages/statistik.html>`_) got changed to filter
+  units by leading three characters and select only directly entered data
+  [#180](https://github.com/OpenEnergyPlatform/open-MaStR/issues/180)
 
 
 ### Removed
