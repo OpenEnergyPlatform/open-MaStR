@@ -111,7 +111,7 @@ def create_project_home_dir():
     log.info(f'I will create a default set of config files in {config_path}')
 
     internal_config_dir = os.path.join(pathlib.Path(__file__).parent.absolute(), 'config')
-    files = ["data.yml", "tables.yml", "logging.yml"]
+    files = ["data.yml", "logging.yml"]
 
     for file in files:
         if not file in os.listdir(config_path):
