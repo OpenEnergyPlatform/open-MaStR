@@ -73,3 +73,20 @@ def read_raw_data():
 
     return raw_data
 
+
+def save_cleaned_data(data):
+    """
+    Save cleaned open-MaStR to CSV files in desired location in project home dir
+
+    Parameters
+    ----------
+    data: dict of pandas.DataFrame
+        Cleaned open-MaStR data in a dict keyed by technology
+    """
+    data_dir = get_data_version_dir()
+    filenames = get_filenames()
+
+    # Iterate through dict and save individual dataframes to CSV
+    for tech, dat in data.items():
+        data_file = os.path.join(data_dir, filenames["cleaned"][tech])
+        dat.to_csv(data_file, index=True, index_label="EinheitMastrNummer", encoding='utf-8')
