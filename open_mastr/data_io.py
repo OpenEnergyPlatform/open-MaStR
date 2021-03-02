@@ -11,6 +11,26 @@ dtypes = {
 }
 
 
+def filter(df):
+    """
+    Filter unit data based on characters of index labels
+
+    Data is filtered by unit category. Only directly in MaStR entered data is considered; migrated data is filtered out.
+    # TODO: Link to data description about migrated, duplicates update process
+
+    Parameters
+    ----------
+    df. pandas.DataFrame
+        Unit data
+
+    Returns
+    -------
+    pandas.DataFrame
+        Filtered dataframe without migrated data
+    """
+    return df[df.index.str.match("^[S,G][E,S,V][E,L]")]
+
+
 def convert_datetime(row):
     """
     String to datetime conversion considering different string formats
