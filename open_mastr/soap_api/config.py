@@ -89,21 +89,6 @@ def get_data_config():
     return data_config
 
 
-def get_db_tables():
-    """
-    Names of database tables
-    
-    Returns
-    -------
-    dict
-        Table names
-    """
-    with open(os.path.join(get_project_home_dir(), "config", "tables.yml")) as data_fh:
-        db_tables = yaml.safe_load(data_fh)
-
-    return db_tables
-
-
 def create_project_home_dir():
     """Create directory structure of PROJECTHOME
     """
@@ -211,6 +196,12 @@ def _filenames_generator():
                     # Collect file names for all technologies
                     filenames[section].update({tech: tmp})
 
+        # Add file names of cleaned data
+        filenames["cleaned"] = {
+            tech: f"{prefix}_{tech}_cleaned.csv" for tech in get_power_unit_types()
+        }
+
+        # Add file names of processed data
         filenames["postprocessed"] = {
             tech: f"{prefix}_{tech}.csv" for tech in get_power_unit_types()
         }
