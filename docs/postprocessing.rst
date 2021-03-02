@@ -40,18 +40,21 @@ Once you're finished with working in/with the database, shut it down with
 Run postprocessing
 ==================
 
-During post-processing downloaded :ref:`raw data <Downloading raw data>` gets imported to a PostgreSQL database,
-cleaned and enriched.
-To run the postprocessing, use the following code snippet.
+During post-processing downloaded :ref:`raw data <Downloading raw data>` gets cleanedimported to a PostgreSQL database,
+ and enriched.
+To run the postprocessing, use the following code snippets.
 
 .. code-block:: python
 
+   from open_mastr.postprocessing.cleaning import cleaned_data
    from postprocessing.postprocessing import postprocess
 
-   postprocess()
+   cleaned = cleaned_data()
+   postprocess(cleaned)
 
-
-As a result, tables named like `bnetza_mastr_<technology>_cleaned` appear in the schema `model_draft". Use
+As a result, cleaned data gets saved as CSV files and  tables named like `bnetza_mastr_<technology>_cleaned`
+appear in the schema `model_draft".
+Use
 
 .. code-block:: python
 
@@ -59,7 +62,7 @@ As a result, tables named like `bnetza_mastr_<technology>_cleaned` appear in the
 
    to_csv()
 
-to export data in CSV format.
+to export processed data in CSV format.
 
 .. note::
 
