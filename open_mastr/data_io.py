@@ -1,8 +1,10 @@
+import datetime
+import json
 import os
 import pandas as pd
 
 from open_mastr.soap_api.config import get_filenames, get_data_version_dir
-
+from open_mastr.soap_api.metadata.create import datapackage_meta_json
 
 dtypes = {
     "Postleitzahl": str,
@@ -86,7 +88,19 @@ def save_cleaned_data(data):
     data_dir = get_data_version_dir()
     filenames = get_filenames()
 
+    newest_date = datetime.datetime(1900, 1, 1, 0, 0, 0, tzinfo=datetime.timezone.utc)
+
     # Iterate through dict and save individual dataframes to CSV
     for tech, dat in data.items():
         data_file = os.path.join(data_dir, filenames["cleaned"][tech])
         dat.to_csv(data_file, index=True, index_label="EinheitMastrNummer", encoding='utf-8')
+
+        if dat["DatumLetzteAktualisierung"].max() > newest_date:
+            newest_date = dat["DatumLetzteAktualisierung"].max()
+
+    # Save metadata along with data
+    metadata_file = os.path.join(data_dir, filenames["metadata"])
+    metadata = datapackage_meta_json(newest_date, data.keys(), data=["raw", "cleaned"], json_serialize=False)
+
+    with open(metadata_file, 'w', encoding='utf-8') as f:
+        json.dump(metadata, f, ensure_ascii=False, indent=4)

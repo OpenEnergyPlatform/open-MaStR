@@ -345,10 +345,12 @@ def to_csv(limit=None):
 
     # Save metadata along with data
     metadata_file = os.path.join(data_path, filenames["metadata"])
-    metadata = datapackage_meta_json(newest_date, TECHNOLOGIES, data=["raw", "postprocessed"], json_serialize=False)
+    metadata = datapackage_meta_json(newest_date, TECHNOLOGIES, data=["raw", "cleaned", "postprocessed"],
+                                     json_serialize=False)
 
     with open(metadata_file, 'w', encoding='utf-8') as f:
         json.dump(metadata, f, ensure_ascii=False, indent=4)
+
 
 if __name__ == "__main__":
 

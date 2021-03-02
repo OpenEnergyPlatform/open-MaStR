@@ -246,6 +246,23 @@ def datapackage_meta_json(reference_date, technologies=None, data=["raw"], stati
             }
 
             resources_meta["resources"].append(resource)
+        if "cleaned" in data:
+            resource = {
+                "profile": "tabular-data-resource",
+                "name": f"bnetza_mastr_{tech}_cleaned",
+                "title": f"open-MaStR {tech} units (cleaned)",
+                "path": filenames["cleaned"][tech],
+                "scheme": "file",
+                "encoding": "utf-8",
+                "mediatype": "text/csv",
+                "schema": {
+                    "fields": raw_fields,
+                    "primaryKey": ["EinheitMastrNummer"],
+                },
+                "dialect": {"delimiter": ","},
+            }
+
+            resources_meta["resources"].append(resource)
         if "postprocessed" in data:
             processed_fields = [
                 {"name": "geom",
