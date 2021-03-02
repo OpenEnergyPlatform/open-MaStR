@@ -366,7 +366,7 @@ def to_csv(limit=None):
     """
     data_path = get_data_version_dir()
     filenames = get_filenames()
-    newest_date = datetime.datetime(1900, 0, 0, 0, 0, 0, tzinfo=datetime.timezone.utc)
+    newest_date = datetime.datetime(1900, 1, 1, 0, 0, 0, tzinfo=datetime.timezone.utc)
 
     for tech in TECHNOLOGIES:
         with session_scope() as session:
