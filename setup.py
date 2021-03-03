@@ -48,7 +48,8 @@ setup(
         'pynodo',
     ],
     package_data = {
-        "open_mastr": [os.path.join("soap_api", "config", "*.yml")]
+        "open_mastr": [os.path.join("soap_api", "config", "*.yml"),
+                       os.path.join("soap_api", "metadata", "LICENSE")]
     },
     project_urls={
         'Bug Reports': 'https://github.com/OpenEnergyPlatform/open-MaStR/issues',
