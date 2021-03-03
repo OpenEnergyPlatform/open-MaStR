@@ -32,8 +32,8 @@ Configuration files
 -------------------
 
 * :code:`credentials.cfg`: Credentials used to access
-  `Marktstammdatenregister (MaStR) <https://www.marktstammdatenregister.de/MaStR>`_ API.
-  Read more in :ref:`MaStR account`.
+  `Marktstammdatenregister (MaStR) <https://www.marktstammdatenregister.de/MaStR>`_ API (read more in
+  :ref:`MaStR account`) and token for Zenodo.
 * :code:`data.yml`: Specify the name of the data version.
 * :code:`filenames.yml`: File names are defined here.
 * :code:`logging.yml`: Logging configuration. For changing the log level to increase or decrease details of log
@@ -94,3 +94,17 @@ It is also possible to create the credentials file by hand using this format
 
 Read in the documentation of the `keyring library <https://pypi.org/project/keyring/>`_ how to store your token in the
 keyring.
+
+
+Zenodo token
+============
+
+Uploading data to `Zenodo <https://www.zenodo.org/>`_ requires authentication. When logged in with your account you can
+`create tokens <https://zenodo.org/account/settings/applications/tokens/new/>`_ for API requests.
+
+The section in `credentials.cfg` looks like:
+
+.. code-block::
+
+    [Zenodo]
+    token = voh6Zo2ohbohReith4ec2iezeiJ9Miefohso0DohK9ohtha6mahfame7hohc

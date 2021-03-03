@@ -124,7 +124,7 @@ def zenodo_upload(data_stages=["raw", "cleaned", "postprocessed"], zenodo_token=
         specified here. Defaults to all data.
     zenodo_token: str, optional
         Uploading to Zenodo requires authentication. Either provide your token here or store it in the credentials.cfg
-        file.
+        file. See also in :ref:`Zenodo token`.
     sandbox: bool
         Flag to toggle between `Zenodo production <https://www.zenodo.org/>`_ and
         `sandbox instance <https://sandbox.zenodo.org>`_. If True, the sandbox instance will be used.
