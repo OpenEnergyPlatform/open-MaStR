@@ -44,7 +44,8 @@ setup(
         "keyring",
         'bokeh',
         # 'geoviews',
-        'xmltodict'
+        'xmltodict',
+        'pynodo',
     ],
     package_data = {
         "open_mastr": [os.path.join("soap_api", "config", "*.yml")]
