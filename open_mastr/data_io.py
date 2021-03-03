@@ -111,7 +111,7 @@ def save_cleaned_data(data):
         json.dump(metadata, f, ensure_ascii=False, indent=4)
 
 
-def zenodo_upload(data_stages=["raw", "cleaned", "postprocessed"], zenodo_token=None):
+def zenodo_upload(data_stages=["raw", "cleaned", "postprocessed"], zenodo_token=None, sandbox=True):
     """
     Upload MaStR data to a new Zenodo deposit
 
@@ -125,6 +125,10 @@ def zenodo_upload(data_stages=["raw", "cleaned", "postprocessed"], zenodo_token=
     zenodo_token: str, optional
         Uploading to Zenodo requires authentication. Either provide your token here or store it in the credentials.cfg
         file.
+    sandbox: bool
+        Flag to toggle between `Zenodo production <https://www.zenodo.org/>`_ and
+        `sandbox instance <https://sandbox.zenodo.org>`_. If True, the sandbox instance will be used.
+        Specify False, to upload a publication ready dataset of the production instance.
     """
 
     data_dir = get_data_version_dir()
@@ -158,7 +162,7 @@ def zenodo_upload(data_stages=["raw", "cleaned", "postprocessed"], zenodo_token=
     }
 
     # Create deposit
-    zen = pynodo.Depositions(access_token=zenodo_token, sandbox=True)
+    zen = pynodo.Depositions(access_token=zenodo_token, sandbox=sandbox)
     deposit = zen.create(data={"metadata": zenodo_required_metadata})
 
     # Access deposit files for uploading files
