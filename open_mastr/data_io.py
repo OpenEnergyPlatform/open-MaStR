@@ -136,7 +136,7 @@ def zenodo_upload(data_stages=["raw", "cleaned", "postprocessed"], zenodo_token=
         zenodo_token = get_zenodo_token()
     # If neither a Zenodo token exists in config, raise Error
     if not zenodo_token:
-        raise ValueError("No Zenodo tokenb provided. Can't upload.")
+        raise ValueError("No Zenodo token provided. Can't upload.")
 
 
     # Prepare metadata for Zenodo deposit
