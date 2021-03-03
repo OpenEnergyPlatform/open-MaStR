@@ -36,6 +36,8 @@ Read more about the details:
   [#181](https://github.com/OpenEnergyPlatform/open-MaStR/issues/181)
 - Zenodo data upload
   [#173](https://github.com/OpenEnergyPlatform/open-MaStR/issues/173)
+  and the missing LICENSE file for Zenodo is fixed in
+  [#186](https://github.com/OpenEnergyPlatform/open-MaStR/issues/186)
 - The CHANGELOG is now included in the documentation
 
 ### Changed
