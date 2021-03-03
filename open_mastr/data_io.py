@@ -112,6 +112,20 @@ def save_cleaned_data(data):
 
 
 def zenodo_upload(data_stages=["raw", "cleaned", "postprocessed"], zenodo_token=None):
+    """
+    Upload MaStR data to a new Zenodo deposit
+
+    Metadata stored in `datapackage.json` is also uploaded.
+
+    Parameters
+    ----------
+    data_stages: list, optional
+        Data is available at three stages: 'raw', 'cleaned' and 'processed'. The data upload only includes data stages
+        specified here. Defaults to all data.
+    zenodo_token: str, optional
+        Uploading to Zenodo requires authentication. Either provide your token here or store it in the credentials.cfg
+        file.
+    """
 
     data_dir = get_data_version_dir()
     filenames = get_filenames()
