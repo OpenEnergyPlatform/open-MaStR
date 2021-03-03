@@ -10,6 +10,17 @@ Subpackages
    open_mastr.soap_api
    open_mastr.utils
 
+Submodules
+----------
+
+open\_mastr.data\_io module
+---------------------------
+
+.. automodule:: open_mastr.data_io
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 

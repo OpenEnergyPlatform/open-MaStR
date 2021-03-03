@@ -2,9 +2,14 @@ import datetime
 import json
 import os
 import pandas as pd
+import pathlib
+import pynodo
+import yaml
 
-from open_mastr.soap_api.config import get_filenames, get_data_version_dir
+from open_mastr.soap_api.config import get_filenames, get_data_version_dir, get_project_home_dir
 from open_mastr.soap_api.metadata.create import datapackage_meta_json
+from open_mastr.utils.credentials import get_zenodo_token
+
 
 dtypes = {
     "Postleitzahl": str,
@@ -104,3 +109,80 @@ def save_cleaned_data(data):
 
     with open(metadata_file, 'w', encoding='utf-8') as f:
         json.dump(metadata, f, ensure_ascii=False, indent=4)
+
+
+def zenodo_upload(data_stages=["raw", "cleaned", "postprocessed"], zenodo_token=None, sandbox=True):
+    """
+    Upload MaStR data to a new Zenodo deposit
+
+    Metadata stored in `datapackage.json` is also uploaded.
+
+    Parameters
+    ----------
+    data_stages: list, optional
+        Data is available at three stages: 'raw', 'cleaned' and 'processed'. The data upload only includes data stages
+        specified here. Defaults to all data.
+    zenodo_token: str, optional
+        Uploading to Zenodo requires authentication. Either provide your token here or store it in the credentials.cfg
+        file. See also in :ref:`Zenodo token`.
+    sandbox: bool
+        Flag to toggle between `Zenodo production <https://www.zenodo.org/>`_ and
+        `sandbox instance <https://sandbox.zenodo.org>`_. If True, the sandbox instance will be used.
+        Specify False, to upload a publication ready dataset of the production instance.
+    """
+
+    data_dir = get_data_version_dir()
+    filenames = get_filenames()
+    metadata_file = os.path.join(data_dir, filenames["metadata"])
+
+    if not zenodo_token:
+        # If no token for Zenodo is given, read from credentials.yml
+        zenodo_token = get_zenodo_token()
+    # If neither a Zenodo token exists in config, raise Error
+    if not zenodo_token:
+        raise ValueError("No Zenodo token provided. Can't upload.")
+
+
+    # Prepare metadata for Zenodo deposit
+    with open(metadata_file, "r") as read_file:
+        metadata = json.load(read_file)
+    zenodo_required_metadata = {
+        "upload_type": "dataset",
+        "publication_date": metadata["created"].split(" ")[0],
+        "creators": [{
+            "name": contributor["title"],
+            "affiliation": contributor["organization"]
+        }
+            for contributor in metadata["contributors"]],
+        "access_right": "open",
+        "license": "other-at",
+        "title": metadata["title"],
+        "description": metadata["description"],
+        "version": metadata["version"],
+    }
+
+    # Create deposit
+    zen = pynodo.Depositions(access_token=zenodo_token, sandbox=sandbox)
+    deposit = zen.create(data={"metadata": zenodo_required_metadata})
+
+    # Access deposit files for uploading files
+    zen_files = pynodo.DepositionFiles(
+        deposition=deposit.id,
+        access_token=zenodo_token,
+        sandbox=True,
+    )
+
+    # Upload LICENSE file
+    zen_files.upload(os.path.join(pathlib.Path(__file__).parent.absolute(), "soap_api", "metadata", "LICENSE"))
+
+    # Upload actual data
+    for data_stage in data_stages:
+        for tech, file_specs in filenames[data_stage].items():
+            if data_stage == "raw":
+                zen_files.upload(os.path.join(data_dir, file_specs["joined"]))
+            else:
+                zen_files.upload(os.path.join(data_dir, file_specs))
+
+    # Upload datapackage.json
+    zen_files.upload(os.path.join(data_dir, filenames["metadata"]))
+

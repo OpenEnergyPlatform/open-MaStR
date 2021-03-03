@@ -12,6 +12,22 @@ open\_mastr.utils.credentials module
    :undoc-members:
    :show-inheritance:
 
+open\_mastr.utils.docs module
+-----------------------------
+
+.. automodule:: open_mastr.utils.docs
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+open\_mastr.utils.helpers module
+--------------------------------
+
+.. automodule:: open_mastr.utils.helpers
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 

@@ -179,3 +179,22 @@ def check_and_set_mastr_token(user):
             log.error("No clue what happened here!?")
 
     return password
+
+
+def get_zenodo_token():
+    """
+    Read Zenodo token from config file (credentials.cfg)
+
+    Returns
+    -------
+    str
+        Zenodo token
+    """
+    cfg = _load_config_file()
+    section = "Zenodo"
+
+    try:
+        user = cfg.get(section, "token")
+        return user
+    except (cp.NoSectionError, cp.NoOptionError):
+        return None
