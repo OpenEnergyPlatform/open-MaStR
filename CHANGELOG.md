@@ -34,6 +34,8 @@ Read more about the details:
   mirroring database [#164](https://github.com/OpenEnergyPlatform/open-MaStR/issues/164)
 - CSV file reader for MaStR raw data added
   [#181](https://github.com/OpenEnergyPlatform/open-MaStR/issues/181)
+- Zenodo data upload
+  [#173](https://github.com/OpenEnergyPlatform/open-MaStR/issues/173)
 - The CHANGELOG is now included in the documentation
 
 ### Changed
