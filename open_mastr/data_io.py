@@ -59,26 +59,38 @@ def convert_datetime(row):
     return datetime_date
 
 
-def read_raw_data():
-    """Read raw open-MaStR data from project home dir"""
+def read_csv_data(data_stage):
+    """Read raw open-MaStR data from project home dir
+
+    Parameters
+    ----------
+    data_stage: str
+        Select which data is loaded from CSV files
+
+        * "raw": Raw MaStR data is read
+        * "cleaned": Cleaned MaStR data is read
+    
+    """
 
     data_dir = get_data_version_dir()
     filenames = get_filenames()
 
-    raw_data = {}
-    for technology, filename in filenames["raw"].items():
-        data_file = os.path.join(data_dir, filename["joined"])
+    data = {}
+    for technology, filename in filenames[data_stage].items():
+        if data_stage == "raw":
+            filename = filename["joined"]
+        data_file = os.path.join(data_dir, filename)
         if os.path.isfile(data_file):
-            raw_data[technology] = pd.read_csv(data_file,
-                                               parse_dates=["Inbetriebnahmedatum",
-                                                            "DatumLetzteAktualisierung"],
-                                               index_col="EinheitMastrNummer",
-                                               sep=",",
-                                               date_parser=convert_datetime,
-                                               dtype=dtypes
-                                               )
+            data[technology] = pd.read_csv(data_file,
+                                           parse_dates=["Inbetriebnahmedatum",
+                                                        "DatumLetzteAktualisierung"],
+                                           index_col="EinheitMastrNummer",
+                                           sep=",",
+                                           date_parser=convert_datetime,
+                                           dtype=dtypes
+                                           )
 
-    return raw_data
+    return data
 
 
 def save_cleaned_data(data):

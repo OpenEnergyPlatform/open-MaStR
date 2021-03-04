@@ -1,4 +1,4 @@
-from open_mastr.data_io import read_raw_data, filter, save_cleaned_data
+from open_mastr.data_io import read_csv_data, filter, save_cleaned_data
 
 
 def cleaned_data(save_csv=True):
@@ -21,7 +21,7 @@ def cleaned_data(save_csv=True):
     """
 
     # Read raw data
-    raw = read_raw_data()
+    raw = read_csv_data("raw")
 
     # Filter data to remove duplicates originating from migrated and directly entered data
     raw_filtered = {k: filter(df) for k, df in raw.items()}

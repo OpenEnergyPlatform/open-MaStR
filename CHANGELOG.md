@@ -62,6 +62,8 @@ Read more about the details:
   `MaStR help <https://www.marktstammdatenregister.de/MaStRHilfe/subpages/statistik.html>`_) got changed to filter
   units by leading three characters and select only directly entered data
   [#180](https://github.com/OpenEnergyPlatform/open-MaStR/issues/180)
+- Generalize CSV reading function 
+  [#188](https://github.com/OpenEnergyPlatform/open-MaStR/issues/188)
 
 
 ### Removed
