@@ -415,12 +415,10 @@ class MaStRMirror:
             "permit_data": "permit_unit_data",
         }
 
-        if limit:
-            if chunksize > limit:
-                chunksize = limit
-        else:
-            limit = float("inf")
-
+        if not limit:
+            limit = 10 ** 8
+        if chunksize > limit:
+            chunksize = limit
 
         units_queried = 0
         while units_queried < limit:
