@@ -10,13 +10,46 @@ on:
 jobs:
   build:
 
+    # Jobs definition
     runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: [3.6, 3.7, 3.8]
     name: pytest (Python ${{ matrix.python-version }})
+
+    # Define PostgreSQL database as container
+    services:
+      open-MaStR:
+        image: postgres:12-postgis
+        container_name: open-MaStR-cleansing-db
+        restart: unless-stopped
+        build:
+          context: .
+          dockerfile: Dockerfile.postgis
+        ports:
+          - "127.0.0.1:55443:5432"
+        environment:
+          POSTGRES_DB: open-mastr
+          POSTGRES_USER: open-mastr
+          POSTGRES_PASSWORD: open-mastr
+        volumes:
+          - $HOME/docker/volumes/postgres/open-MaStR:/var/lib/postgresql/data
+          - ./entrypoints:/docker-entrypoint-initdb.d/
+        shm_size: 2g
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    # Configure tests
     steps:
     - uses: actions/checkout@v2
+    - name: Test DB connection
+      run: |
+        apt-get update
+        apt-get install --yes --no-install-recommends postgresql-client
+        pg_isready -d open-mastr -h <localhost -p 55443 -U open-mastr
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
