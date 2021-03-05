@@ -26,7 +26,7 @@ jobs:
         #  dockerfile: Dockerfile.postgis
         ports:
           - "127.0.0.1:55443:5432"
-        environment:
+        env:
           POSTGRES_DB: open-mastr
           POSTGRES_USER: open-mastr
           POSTGRES_PASSWORD: open-mastr
