@@ -32,7 +32,7 @@ jobs:
           POSTGRES_PASSWORD: open-mastr
         volumes:
           #- $HOME/docker/volumes/postgres/open-MaStR:/var/lib/postgresql/data
-          - ./entrypoints:/docker-entrypoint-initdb.d/
+          - entrypoints:/docker-entrypoint-initdb.d/
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
