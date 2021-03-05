@@ -21,8 +21,6 @@ jobs:
     services:
       open-MaStR:
         image: postgres:12-postgis
-        container_name: open-MaStR-cleansing-db
-        restart: unless-stopped
         build:
           context: .
           dockerfile: Dockerfile.postgis
