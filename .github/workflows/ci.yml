@@ -21,9 +21,9 @@ jobs:
     services:
       open-MaStR:
         image: postgres:12-postgis
-        build:
-          context: .
-          dockerfile: Dockerfile.postgis
+        #build:
+        #  context: .
+        #  dockerfile: Dockerfile.postgis
         ports:
           - "127.0.0.1:55443:5432"
         environment:
