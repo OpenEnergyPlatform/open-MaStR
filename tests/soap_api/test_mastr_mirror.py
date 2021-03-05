@@ -35,11 +35,12 @@ def test_backfill_basic(mastr_mirror):
 
 @pytest.mark.dependency(depends=["backfill_basic"], name="retrieve_additional_data")
 def test_retrieve_additional_data(mastr_mirror):
-    for data_type in DATA_TYPES:
-        mastr_mirror.retrieve_additional_data(
-            technology=TECHNOLOGIES,
-            data_type=data_type
-        )
+    for tech in TECHNOLOGIES:
+        for data_type in DATA_TYPES:
+            mastr_mirror.retrieve_additional_data(
+                technology=tech,
+                data_type=data_type
+            )
 
     with session_scope() as session:
         for tech in TECHNOLOGIES:
