@@ -418,6 +418,9 @@ class MaStRMirror:
         if limit:
             if chunksize > limit:
                 chunksize = limit
+        else:
+            limit = float("inf")
+
 
         units_queried = 0
         while units_queried < limit:
