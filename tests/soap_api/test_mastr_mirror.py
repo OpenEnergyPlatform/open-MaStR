@@ -9,6 +9,7 @@ from open_mastr.utils.helpers import session_scope
 TECHNOLOGIES = ["wind", "hydro", "solar", "biomass", "combustion", "nuclear", "gsgk", "storage"]
 DATA_TYPES = ["unit_data", "eeg_data", "kwk_data", "permit_data"]
 LIMIT = 1
+DATE = datetime.datetime(2020, 11, 27, 0, 0, 0)
 
 
 @pytest.fixture
@@ -24,7 +25,7 @@ def mastr_mirror():
 @pytest.mark.dependency(name="backfill_basic")
 def test_backfill_basic(mastr_mirror):
     mastr_mirror.backfill_basic(technology=TECHNOLOGIES,
-                                date=datetime.datetime(2020, 11, 27),
+                                date=DATE,
                                 limit=LIMIT)
 
     with session_scope() as session:
@@ -32,7 +33,7 @@ def test_backfill_basic(mastr_mirror):
         assert response >= len(TECHNOLOGIES)
 
 
-@pytest.mark.dependency(depends=["backfill_basic"])
+@pytest.mark.dependency(depends=["backfill_basic"], name="retrieve_additional_data")
 def test_retrieve_additional_data(mastr_mirror):
     for data_type in DATA_TYPES:
         mastr_mirror.retrieve_additional_data(
@@ -45,3 +46,15 @@ def test_retrieve_additional_data(mastr_mirror):
             mapper = getattr(orm, mastr_mirror.orm_map[tech]["unit_data"])
             response = session.query(mapper).count()
             assert response >= LIMIT
+
+@pytest.mark.dependency(depends=["retrieve_additional_data"], name="update_latest")
+def test_update_latest(mastr_mirror):
+    mastr_mirror.backfill_basic(technology=TECHNOLOGIES,
+                                date="latest",
+                                limit=LIMIT)
+
+    # Test if latest date is newer that intially requested data in backfill_basic
+    with session_scope() as session:
+        response = session.query(orm.BasicUnit.DatumLetzeAktualisierung).order_by(
+            orm.BasicUnit.DatumLetzeAktualisierung.desc()).first()
+    assert response > pytz.utc.localize(DATE)
