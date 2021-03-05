@@ -26,5 +26,6 @@ def test_backfill_basic(mastr_mirror):
 
     with session_scope() as session:
         response = session.query(BasicUnit).count()
-        assert response == len(TECHNOLOGIES)
+        assert response >= len(TECHNOLOGIES)
+
 
