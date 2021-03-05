@@ -20,7 +20,7 @@ jobs:
     # Define PostgreSQL database as container
     services:
       open-MaStR:
-        image: postgres:12-postgis
+        image: postgis/postgis:12-master
         #build:
         #  context: .
         #  dockerfile: Dockerfile.postgis
