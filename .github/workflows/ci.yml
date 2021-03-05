@@ -21,9 +21,6 @@ jobs:
     services:
       open-MaStR:
         image: postgis/postgis:12-master
-        #build:
-        #  context: .
-        #  dockerfile: Dockerfile.postgis
         ports:
           - "127.0.0.1:55443:5432"
         env:
@@ -31,7 +28,6 @@ jobs:
           POSTGRES_USER: open-mastr
           POSTGRES_PASSWORD: open-mastr
         volumes:
-          #- $HOME/docker/volumes/postgres/open-MaStR:/var/lib/postgresql/data
           - entrypoints:/docker-entrypoint-initdb.d/
         options: >-
           --health-cmd pg_isready
@@ -46,8 +42,8 @@ jobs:
       env:
         PGPASSWORD: open-mastr
       run: |
-        sudo apt update
-        sudo apt install --yes --no-install-recommends postgresql-client
+        sudo apt update -y
+        sudo apt install -y --no-install-recommends postgresql-client
         pg_isready -d open-mastr -h localhost -p 55443 -U open-mastr
         psql -d open-mastr -h localhost -p 55443 -U open-mastr -c "SELECT PostGIS_full_version();"
     - name: Set up Python ${{ matrix.python-version }}
