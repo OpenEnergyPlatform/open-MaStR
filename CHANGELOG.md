@@ -38,6 +38,8 @@ Read more about the details:
   [#173](https://github.com/OpenEnergyPlatform/open-MaStR/issues/173)
   and the missing LICENSE file for Zenodo is fixed in
   [#186](https://github.com/OpenEnergyPlatform/open-MaStR/issues/186)
+- Add postgres database service in CI job for interacting with database in tests
+  [#159](https://github.com/OpenEnergyPlatform/open-MaStR/issues/159)
 - The CHANGELOG is now included in the documentation
 
 ### Changed
