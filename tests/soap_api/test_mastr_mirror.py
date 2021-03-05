@@ -1,5 +1,6 @@
 import datetime
 import pytest
+import pytz
 
 from open_mastr.soap_api.mirror import MaStRMirror
 from open_mastr.soap_api import orm
@@ -60,4 +61,4 @@ def test_update_latest(mastr_mirror):
     with session_scope() as session:
         response = session.query(orm.BasicUnit.DatumLetzeAktualisierung).order_by(
             orm.BasicUnit.DatumLetzeAktualisierung.desc()).first()
-    assert response > pytz.utc.localize(DATE)
+    assert response.DatumLetzeAktualisierung > pytz.utc.localize(DATE)
