@@ -44,8 +44,8 @@ jobs:
     - uses: actions/checkout@v2
     - name: Test DB connection
       run: |
-        apt-get update
-        apt-get install --yes --no-install-recommends postgresql-client
+        sudo apt update
+        sudo apt install --yes --no-install-recommends postgresql-client
         pg_isready -d open-mastr -h <localhost -p 55443 -U open-mastr
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
