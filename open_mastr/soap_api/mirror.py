@@ -395,7 +395,7 @@ class MaStRMirror:
         technology: `str` or `list` of `str`
             See list of available technologies in
             :meth:`open_mastr.soap_api.download.py.MaStRDownload.download_power_plants`.
-        data_type: `list`
+        data_type: `str`
             Select type of additional data that is to be retrieved. Choose from
             "unit_data", "eeg_data", "kwk_data", "permit_data".
         limit: int
@@ -415,9 +415,10 @@ class MaStRMirror:
             "permit_data": "permit_unit_data",
         }
 
-        if limit:
-            if chunksize > limit:
-                chunksize = limit
+        if not limit:
+            limit = 10 ** 8
+        if chunksize > limit:
+            chunksize = limit
 
         units_queried = 0
         while units_queried < limit:
