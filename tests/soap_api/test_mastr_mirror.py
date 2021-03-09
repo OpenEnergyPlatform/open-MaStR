@@ -2,6 +2,7 @@ import datetime
 import pytest
 import pytz
 
+from open_mastr.data_io import read_csv_data
 from open_mastr.soap_api.mirror import MaStRMirror
 from open_mastr.soap_api import orm
 from open_mastr.utils.helpers import session_scope
@@ -72,3 +73,19 @@ def test_create_additional_data_requests(mastr_mirror):
             session.commit()
             mastr_mirror.create_additional_data_requests(tech, data_types=DATA_TYPES)
 
+
+@pytest.mark.dependency(depends=["create_additional_data_requests"], name="export_to_csv")
+def test_to_csv(mastr_mirror):
+    for tech in TECHNOLOGIES:
+        mastr_mirror.to_csv(technology=tech,
+                            additional_data=DATA_TYPES,
+                            statistic_flag=None
+                            )
+    # Test if all EinheitMastrNummer in basic_units are included in CSV file
+    with session_scope() as session:
+        raw_data = read_csv_data("raw")
+        for tech, df in raw_data.items():
+            units = session.query(orm.BasicUnit.EinheitMastrNummer).filter(
+                orm.BasicUnit.Einheittyp == mastr_mirror.unit_type_map_reversed[tech])
+            for unit in units:
+                assert unit.EinheitMastrNummer in df.index
