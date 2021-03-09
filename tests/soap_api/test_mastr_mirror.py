@@ -29,6 +29,7 @@ def test_backfill_basic(mastr_mirror):
                                 date=DATE,
                                 limit=LIMIT)
 
+    # The table basic_units should have at least as much rows as TECHNOLOGIES were queried
     with session_scope() as session:
         response = session.query(orm.BasicUnit).count()
         assert response >= len(TECHNOLOGIES)
@@ -62,3 +63,12 @@ def test_update_latest(mastr_mirror):
         response = session.query(orm.BasicUnit.DatumLetzeAktualisierung).order_by(
             orm.BasicUnit.DatumLetzeAktualisierung.desc()).first()
     assert response.DatumLetzeAktualisierung > pytz.utc.localize(DATE)
+
+@pytest.mark.dependency(depends=["update_latest"], name="create_additional_data_requests")
+def test_create_additional_data_requests(mastr_mirror):
+    with session_scope() as session:
+        for tech in TECHNOLOGIES:
+            session.query(orm.AdditionalDataRequested).filter_by(technology="gsgk").delete()
+            session.commit()
+            mastr_mirror.create_additional_data_requests(tech, data_types=DATA_TYPES)
+
