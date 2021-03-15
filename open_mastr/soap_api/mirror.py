@@ -315,50 +315,50 @@ class MaStRMirror:
                     for basic_unit in inserted_and_updated:
                         # Extended unit data
                         extended_data.append(
-                        {
-                            "EinheitMastrNummer": basic_unit["EinheitMastrNummer"],
-                            "additional_data_id": basic_unit["EinheitMastrNummer"],
-                            "technology": self.unit_type_map[basic_unit["Einheittyp"]],
-                            "data_type": "unit_data",
-                            "request_date": datetime.datetime.now(tz=datetime.timezone.utc),
-                        }
-                    )
-
-                    # EEG unit data
-                    if basic_unit["EegMastrNummer"]:
-                        eeg_data.append(
                             {
                                 "EinheitMastrNummer": basic_unit["EinheitMastrNummer"],
-                                "additional_data_id": basic_unit["EegMastrNummer"],
+                                "additional_data_id": basic_unit["EinheitMastrNummer"],
                                 "technology": self.unit_type_map[basic_unit["Einheittyp"]],
-                                "data_type": "eeg_data",
+                                "data_type": "unit_data",
                                 "request_date": datetime.datetime.now(tz=datetime.timezone.utc),
                             }
                         )
 
-                    # KWK unit data
-                    if basic_unit["KwkMastrNummer"]:
-                        kwk_data.append(
-                            {
-                                "EinheitMastrNummer": basic_unit["EinheitMastrNummer"],
-                                "additional_data_id": basic_unit["KwkMastrNummer"],
-                                "technology": self.unit_type_map[basic_unit["Einheittyp"]],
-                                "data_type": "kwk_data",
-                                "request_date": datetime.datetime.now(tz=datetime.timezone.utc),
-                            }
-                        )
+                        # EEG unit data
+                        if basic_unit["EegMastrNummer"]:
+                            eeg_data.append(
+                                {
+                                    "EinheitMastrNummer": basic_unit["EinheitMastrNummer"],
+                                    "additional_data_id": basic_unit["EegMastrNummer"],
+                                    "technology": self.unit_type_map[basic_unit["Einheittyp"]],
+                                    "data_type": "eeg_data",
+                                    "request_date": datetime.datetime.now(tz=datetime.timezone.utc),
+                                }
+                            )
 
-                    # Permit unit data
-                    if basic_unit["GenMastrNummer"]:
-                        permit_data.append(
-                            {
-                                "EinheitMastrNummer": basic_unit["EinheitMastrNummer"],
-                                "additional_data_id": basic_unit["GenMastrNummer"],
-                                "technology": self.unit_type_map[basic_unit["Einheittyp"]],
-                                "data_type": "permit_data",
-                                "request_date": datetime.datetime.now(tz=datetime.timezone.utc),
-                            }
-                        )
+                        # KWK unit data
+                        if basic_unit["KwkMastrNummer"]:
+                            kwk_data.append(
+                                {
+                                    "EinheitMastrNummer": basic_unit["EinheitMastrNummer"],
+                                    "additional_data_id": basic_unit["KwkMastrNummer"],
+                                    "technology": self.unit_type_map[basic_unit["Einheittyp"]],
+                                    "data_type": "kwk_data",
+                                    "request_date": datetime.datetime.now(tz=datetime.timezone.utc),
+                                }
+                            )
+
+                        # Permit unit data
+                        if basic_unit["GenMastrNummer"]:
+                            permit_data.append(
+                                {
+                                    "EinheitMastrNummer": basic_unit["EinheitMastrNummer"],
+                                    "additional_data_id": basic_unit["GenMastrNummer"],
+                                    "technology": self.unit_type_map[basic_unit["Einheittyp"]],
+                                    "data_type": "permit_data",
+                                    "request_date": datetime.datetime.now(tz=datetime.timezone.utc),
+                                }
+                            )
 
                 # Delete old entries for additional data requests
                 additional_data_table = orm.AdditionalDataRequested.__table__
