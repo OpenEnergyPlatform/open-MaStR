@@ -1073,6 +1073,63 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
 
         return data, missed_ids_tmp
 
+    def basic_location_data(self, limit=2000, date_from=None, max_retries=3):
+        """
+        Retrieve basic location data in chunks
+
+        Retrieves data for all types of locations at once using :meth:`MaStRAPI.GetListeAlleLokationen`.
+        Locations include
+
+        * Electricity generation location (SEL - Stromerzeugungslokation)
+        * Electricity consumption location (SVL - Stromverbrauchslokation)
+        * Gas generation location (GEL - Gaserzeugungslokation)
+        * Gas consumption location (GVL - Gasverbrauchslokation)
+
+        Parameters
+        ----------
+        limit: int, optional
+            Maximum number of locations to download.
+            Defaults to 2000.
+
+            .. warning:
+
+               Mind the daily request limit for your MaStR account.
+
+        date_from: :obj:`datetime.datetime()`, optional
+            If specified, only locations with latest change date newer than this are queried.
+            Defaults to :obj:`None`.
+        max_retries: int, optional
+            Maximum number of retries for each chunk in case of errors with the connection to the server.
+
+        Yields
+        ------
+        generator of generators
+            For each chunk a separate generator is returned all wrapped into another generator. Access with
+
+            .. code-block:: python
+
+                for chunk in chunks:
+                    for location in chunk:
+                        print(location)
+        """
+        # Prepare indices for chunked data retrieval
+        chunksize = 2000
+        chunks_start = list(range(1, limit + 1, chunksize))
+        limits = [chunksize if (x + chunksize) <= limit
+                  else limit - x + 1 for x in chunks_start]
+
+        # Retrieve query results and yield them
+        query_results = basic_data_download(
+            self._mastr_api,
+            "GetListeAlleLokationen",
+            "Lokationen",
+            chunks_start,
+            limits,
+            date_from,
+            max_retries
+        )
+        yield from query_results
+
     def daily_contingent(self):
         contingent = self._mastr_api.GetAktuellerStandTageskontingent()
         log.info(f"Daily requests contigent: "
