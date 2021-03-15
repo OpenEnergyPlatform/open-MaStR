@@ -1095,7 +1095,7 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
 
                Mind the daily request limit for your MaStR account.
 
-        date_from: :obj:`datetime.datetime()`, optional
+        date_from: :obj:`datetime.datetime`, optional
             If specified, only locations with latest change date newer than this are queried.
             Defaults to :obj:`None`.
         max_retries: int, optional
@@ -1108,9 +1108,11 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
 
             .. code-block:: python
 
+                chunks = mastr_dl.basic_location_data(date_from=datetime.datetime(2020, 11, 7, 0, 0, 0), limit=2010)
+
                 for chunk in chunks:
                     for location in chunk:
-                        print(location)
+                        print(location) # print out one dict per location one after another
         """
         # Prepare indices for chunked data retrieval
         chunksize = 2000
