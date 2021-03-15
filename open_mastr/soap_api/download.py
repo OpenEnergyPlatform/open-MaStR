@@ -1151,7 +1151,7 @@ def basic_data_download(mastr_api, fcn_name, category, chunks_start, limits, dat
 
     Parameters
     ----------
-    mastr_api: :class:`~.MaStRApi`
+    mastr_api: :class:`MaStRAPI`
         MaStR API wrapper
     fcn_name: str
         Name of list-returning download function
