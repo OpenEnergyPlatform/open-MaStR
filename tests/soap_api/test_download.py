@@ -67,7 +67,7 @@ def test_additional_data_nuclear(mastr_download):
         ("SGE951929415553", "permit_unit_data")]
 
     for mastr_nummer, data_fcn in data_fcns:
-        units_downloaded, units_missed = mastr_download.additional_data("nuclear", [mastr_nummer], data_fcn)
+        units_downloaded, units_missed = mastr_download.additional_unit_data("nuclear", [mastr_nummer], data_fcn)
 
         assert len(units_downloaded) + len(units_missed) == 1
 
@@ -81,7 +81,7 @@ def test_additional_data_biomass(mastr_download):
         ("SGE974254715891", "permit_unit_data")]
 
     for mastr_nummer, data_fcn in data_fcns:
-        units_downloaded, units_missed = mastr_download.additional_data("biomass", [mastr_nummer], data_fcn)
+        units_downloaded, units_missed = mastr_download.additional_unit_data("biomass", [mastr_nummer], data_fcn)
 
         assert len(units_downloaded) + len(units_missed) == 1
 
