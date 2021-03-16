@@ -510,6 +510,11 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
                 "unit_data": "GetEinheitGasErzeuger",
                 "energietraeger": [None],
             },
+            "location_elec_generation": "GetLokationStromErzeuger",
+            "location_elec_consumption": "GetLokationStromVerbraucher",
+            "location_gas_generation": "GetLokationGasErzeuger",
+            "location_gas_consumption": "GetLokationGasVerbraucher",
+
         }
 
         # Map additional data to primary key via data_fcn
@@ -517,7 +522,8 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
             "extended_unit_data": "EinheitMastrNummer",
             "kwk_unit_data": "KwkMastrNummer",
             "eeg_unit_data": "EegMastrNummer",
-            "permit_unit_data": "GenMastrNummer"
+            "permit_unit_data": "GenMastrNummer",
+            "location_data": "MastrNummer",
         }
 
         # Check if MaStR credentials are available and otherwise ask
@@ -1031,6 +1037,49 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
             permit_missed = (permit_id, repr(e))
 
         return permit_data, permit_missed
+
+    def location_data(self, specs):
+        """
+        Download extended data for a location
+
+        Parameters
+        ----------
+        specs : tuple
+            Location *Mastrnummer* and data_name as tuple that for example looks like
+
+            .. code-block:: python
+
+               tuple("SEL927688371072", "location_elec_generation")
+
+
+        Returns
+        -------
+        dict
+            Detailed information about a location, if download successful,
+            otherwise empty dict
+        tuple
+            Location *MastrNummer* and message the explains why a download failed. Format
+
+            .. code-block:: python
+
+               tuple("SEL927688371072", "Reason for failing dowload")
+        """
+
+        # Unpack tuple argument to two separate variables
+        location_id, data_name = specs
+
+        try:
+            data = self._mastr_api.__getattribute__(
+                self._unit_data_specs[data_name])(lokationMastrNummer=location_id)
+            missed = None
+        except (XMLParseError,
+                Fault,
+                requests.exceptions.ConnectionError,
+                requests.exceptions.ReadTimeout) as e:
+            data = {}
+            missed = (location_id, repr(e))
+
+        return data, missed
 
     def _retry_missed_additional_data(self, technology, missed_ids, data_fcn, retries=3):
         """
