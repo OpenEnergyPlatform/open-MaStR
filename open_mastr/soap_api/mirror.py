@@ -387,7 +387,7 @@ class MaStRMirror:
         Retrieve additional unit data
         
         Execute additional data requests stored in :class:`open_mastr.soap_api.orm.AdditionalDataRequested`.
-        See also docs of :meth:`open_mastr.soap_api.download.py.MaStRDownload.additional_unit_data` for more
+        See also docs of :meth:`open_mastr.soap_api.download.py.MaStRDownload.additional_data` for more
         information on how data is downloaded.
         
         Parameters
@@ -434,7 +434,7 @@ class MaStRMirror:
                 number_units_merged = 0
                 if ids:
                     # Retrieve data
-                    unit_data, missed_units = self.mastr_dl.additional_unit_data(technology, ids, download_functions[data_type])
+                    unit_data, missed_units = self.mastr_dl.additional_data(technology, ids, download_functions[data_type])
                     unit_data = flatten_dict(unit_data)
 
                     # Prepare data and add to database table

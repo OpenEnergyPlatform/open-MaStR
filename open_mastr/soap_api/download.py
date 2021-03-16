@@ -601,17 +601,17 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
             permit_ids = []
 
         # Download additional data for unit
-        extended_data, extended_missed = self.additional_unit_data(technology, mastr_ids, "extended_unit_data")
+        extended_data, extended_missed = self.additional_data(technology, mastr_ids, "extended_unit_data")
         if eeg_ids:
-            eeg_data, eeg_missed = self.additional_unit_data(technology, eeg_ids, "eeg_unit_data")
+            eeg_data, eeg_missed = self.additional_data(technology, eeg_ids, "eeg_unit_data")
         else:
             eeg_data = eeg_missed = []
         if kwk_ids:
-            kwk_data, kwk_missed = self.additional_unit_data(technology, kwk_ids, "kwk_unit_data")
+            kwk_data, kwk_missed = self.additional_data(technology, kwk_ids, "kwk_unit_data")
         else:
             kwk_data = kwk_missed = []
         if permit_ids:
-            permit_data, permit_missed = self.additional_unit_data(technology, permit_ids, "permit_unit_data")
+            permit_data, permit_missed = self.additional_data(technology, permit_ids, "permit_unit_data")
         else:
             permit_data = permit_missed = []
 
@@ -747,7 +747,7 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
                                     et=et)
             yield from query_results
 
-    def additional_unit_data(self, technology, unit_ids, data_fcn, timeout=10):
+    def additional_data(self, technology, unit_ids, data_fcn, timeout=10):
         """
         Retrieve addtional informations about units.
 
@@ -763,14 +763,14 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         data_fcn : str
             Name of method from :class:`MaStRDownload` to be used for querying additional data.
             Choose from
-            
-            * "extended_unit_data" (:meth:`~.extended_unit_data`): Extended information (i.e. technical, location) 
+
+            * "extended_unit_data" (:meth:`~.extended_unit_data`): Extended information (i.e. technical, location)
               about a unit. The exact set of information depends on the technology.
-            * "eeg_unit_data" (:meth:`~.eeg_unit_data`): Unit Information from EEG unit registry. The exact 
+            * "eeg_unit_data" (:meth:`~.eeg_unit_data`): Unit Information from EEG unit registry. The exact
               set of information depends on the technology.
             * "kwk_unit_data" (:meth:`~.kwk_unit_data`): Unit information from KWK unit registry.
             * "permit_unit_data" (:meth:`~.permit_unit_data`): Information about the permit process of a unit.
-              
+
         timeout: int, optional
             Timeout limit for data retrieval for each unit when using multiprocessing
 
@@ -1062,7 +1062,7 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
 
         missed_ids_remaining = missed_ids
         for retry in range(1, retries + 1):
-            data_tmp, missed_ids_tmp = self.additional_unit_data(
+            data_tmp, missed_ids_tmp = self.additional_data(
                 technology, missed_ids_remaining, data_fcn)
             if data_tmp:
                 data.extend(data_tmp)
@@ -1112,7 +1112,7 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
 
                 for chunk in chunks:
                     for location in chunk:
-                        print(location) # print out one dict per location one after another
+                        print(location) # prints out one dict per location one after another
         """
         # Prepare indices for chunked data retrieval
         chunksize = 2000
