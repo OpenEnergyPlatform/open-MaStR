@@ -1042,6 +1042,8 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         """
         Download extended data for a location
 
+        Allows to download additional data for different location types, see *specs*.
+
         Parameters
         ----------
         specs : tuple
