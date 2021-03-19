@@ -387,7 +387,33 @@ class MaStRMirror:
             log.info("Backfill successfully finished")
 
     def backfill_locations_basic(self, limit=None, date=None):
-        # TODO: add logging
+        """
+        Backfill basic location data.
+
+        Fill database table 'locations_basic' with data. It allows specification of which data should be retrieved via
+        the described parameter options.
+
+        Under the hood, :meth:`open_mastr.soap_api.download.MaStRDownload.basic_location_data` is used.
+
+        Parameters
+        ----------
+        date: None, :class:`datetime.datetime`, str
+            Specify backfill date from which on data is retrieved
+
+            Only data with modification time stamp greater that `date` is retrieved.
+
+            * `datetime.datetime(2020, 11, 27)`: Retrieve data which is is newer than this time stamp
+            * 'latest': Retrieve data which is newer than the newest data already in the table.
+              .. warning::
+
+                 Don't use 'latest' in combination with `limit`. This might lead to unexpected results.
+            * `None`: Complete backfill
+
+            Defaults to `None`.
+        limit: int
+            Maximum number of locations to download.
+            Defaults to `None` which means no limit is set and all available data is queried. Use with care!
+        """
 
         # Set limit to a number >> number of locations
         if not limit:
