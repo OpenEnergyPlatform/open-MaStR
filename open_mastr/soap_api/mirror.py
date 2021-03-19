@@ -163,6 +163,10 @@ class MaStRMirror:
             "Gasverbrauchseinheit": "gas_consumer",
             "Stromverbrauchseinheit": "consumer",
             "Gaserzeugungseinheit": "gas_producer",
+            "Stromerzeugungslokation": "location_elec_generation",
+            "Stromverbrauchslokation": "location_elec_consumption",
+            "Gaserzeugungslokation": "location_gas_generation",
+            "Gasverbrauchslokation": "location_gas_consumption",
         }
         self.unit_type_map_reversed = {v: k for k, v in self.unit_type_map.items()}
 
@@ -381,6 +385,62 @@ class MaStRMirror:
                 session.bulk_insert_mappings(orm.AdditionalDataRequested, permit_data)
 
             log.info("Backfill successfully finished")
+
+    def backfill_locations_basic(self, limit=None, date=None):
+        # TODO: add logging
+
+        # Set limit to a number >> number of locations
+        if not limit:
+            limit = 10 ** 7
+
+        locations_basic = self.mastr_dl.basic_location_data(limit, date_from=date)
+
+        for locations_chunk in locations_basic:
+
+            with session_scope() as session:
+                locations_ids = [_["LokationMastrNummer"] for _ in locations_chunk]
+
+                # Find units that are already in the DB
+                common_ids = [_.LokationMastrNummer for _ in session.query(orm.LocationBasic.LokationMastrNummer).filter(
+                    orm.LocationBasic.LokationMastrNummer.in_(locations_ids))]
+
+                # Create instances for new data and for updated data
+                insert = []
+                updated = []
+                for location in locations_chunk:
+                    # In case data for the unit already exists, only update if new data is newer
+                    if location["LokationMastrNummer"] in common_ids:
+                        if session.query(exists().where(
+                                orm.LocationBasic.LokationMastrNummer== location["LokationMastrNummer"])).scalar():
+                            updated.append(location)
+                            session.merge(orm.LocationBasic(**location))
+                    # In case of new data, just insert
+                    else:
+                        insert.append(location)
+                session.bulk_save_objects([orm.LocationBasic(**u) for u in insert])
+                inserted_and_updated = insert + updated
+
+                # Create data requests for all newly inserted and updated locations
+                new_requests = []
+                for location in inserted_and_updated:
+                    new_requests.append(
+                        {
+                            "LokationMastrNummer": location["LokationMastrNummer"],
+                            "location_type": self.unit_type_map[location["Lokationtyp"]],
+                            "request_date": datetime.datetime.now(tz=datetime.timezone.utc)
+                        }
+                    )
+
+                # Delete old data requests
+                ids_to_delete = [_["LokationMastrNummer"] for _ in inserted_and_updated]
+                session.query(orm.AdditionalLocationsRequested).filter(
+                    orm.AdditionalLocationsRequested.LokationMastrNummer.in_(ids_to_delete)
+                ).filter(orm.AdditionalLocationsRequested.request_date < datetime.datetime.now(
+                    tz=datetime.timezone.utc)).delete(synchronize_session="fetch")
+                session.commit()
+
+                # Do bulk insert of new data requests
+                session.bulk_insert_mappings(orm.AdditionalLocationsRequested, new_requests)
 
     def retrieve_additional_data(self, technology, data_type, limit=None, chunksize=1000):
         """

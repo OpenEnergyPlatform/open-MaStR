@@ -364,3 +364,21 @@ class Permit(Base):
     WasserrechtAblaufdatum = Column(Date)
     Meldedatum = Column(Date)
     VerknuepfteEinheiten = Column(String)
+
+
+class LocationBasic(Base):
+    __tablename__ = "locations_basic"
+
+    LokationMastrNummer = Column(String, primary_key=True)
+    NameDerTechnischenLokation = Column(String)
+    Lokationtyp = Column(String)
+    AnzahlNetzanschlusspunkte = Column(Integer)
+
+
+class AdditionalLocationsRequested(Base):
+    __tablename__ = "additional_locations_requested"
+
+    id = Column(Integer, Sequence("additional_locations_requested_id_seq", schema=mirror_schema), primary_key=True)
+    LokationMastrNummer = Column(String)
+    location_type = Column(String)
+    request_date = Column(DateTime(timezone=True), default=func.now())
