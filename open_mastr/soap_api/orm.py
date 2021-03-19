@@ -1,3 +1,4 @@
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.schema import MetaData
 from sqlalchemy import Column, Integer, String, Float, Sequence, DateTime, Boolean, func, Date, JSON
@@ -375,6 +376,16 @@ class LocationBasic(Base):
     AnzahlNetzanschlusspunkte = Column(Integer)
 
 
+class LocationExtended(Base):
+    __tablename__ = "locations_extended"
+
+    MastrNummer = Column(String, primary_key=True)
+    DatumLetzteAktualisierung = Column(DateTime(timezone=True))
+    NameDerTechnischenLokation = Column(String)
+    VerknuepfteEinheiten = Column(JSONB)
+    Netzanschlusspunkte = Column(JSONB)
+
+
 class AdditionalLocationsRequested(Base):
     __tablename__ = "additional_locations_requested"
 
@@ -382,3 +393,13 @@ class AdditionalLocationsRequested(Base):
     LokationMastrNummer = Column(String)
     location_type = Column(String)
     request_date = Column(DateTime(timezone=True), default=func.now())
+
+
+class MissedExtendedLocation(Base):
+
+    __tablename__ = "missed_extended_location_data"
+
+    id = Column(Integer, Sequence("additional_location_data_missed_id_seq", schema=mirror_schema), primary_key=True)
+    LokationMastrNummer = Column(String)
+    reason = Column(String)
+    download_date = Column(DateTime(timezone=True), default=func.now())

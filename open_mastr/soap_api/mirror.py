@@ -542,6 +542,101 @@ class MaStRMirror:
                 log.info("No further data is requested")
                 break
 
+    def retrieve_additional_location_data(self, location_type, limit=None, chunksize=1000):
+        """
+        Retrieve extended location data
+
+        Execute additional data requests stored in :class:`open_mastr.soap_api.orm.AdditionalLocationsRequested`.
+        See also docs of :meth:`open_mastr.soap_api.download.py.MaStRDownload.additional_data` for more
+        information on how data is downloaded.
+
+        Parameters
+        ----------
+        location_type: `str`
+            Select type of location that is to be retrieved. Choose from
+            "location_elec_generation", "location_elec_consumption", "location_gas_generation",
+            "location_gas_consumption".
+        limit: int
+            Limit number of locations that data is download for. Defaults to `None` which refers
+            to query data for existing data requests.
+        chunksize: int
+            Data is downloaded and inserted into the database in chunks of `chunksize`.
+            Defaults to 1000.
+        """
+
+        # Process arguments
+        if not limit:
+            limit = 10 ** 8
+        if chunksize > limit:
+            chunksize = limit
+
+        locations_queried = 0
+        while locations_queried < limit:
+
+            with session_scope() as session:
+                # Get a chunk
+                requested_chunk = session.query(orm.AdditionalLocationsRequested).filter(
+                    orm.AdditionalLocationsRequested.location_type == location_type).limit(chunksize)
+                ids = [_.LokationMastrNummer for _ in requested_chunk]
+
+                # Reset number of locations inserted or updated for this chunk
+                number_locations_merged = 0
+                deleted_locations = []
+                if ids:
+                    # Retrieve data
+                    location_data, missed_locations = self.mastr_dl.additional_data(location_type,
+                                                                            ids,
+                                                                            "location_data")
+                    missed_locations_ids = [loc[0] for loc in missed_locations]
+
+                    # Prepare data and add to database table
+                    for location_dat in location_data:
+                        # Remove query status information from response
+                        for exclude in ["Ergebniscode", "AufrufVeraltet", "AufrufVersion", "AufrufLebenszeitEnde"]:
+                            del location_dat[exclude]
+
+                        # Make data types JSON serializable
+                        location_dat["DatumLetzteAktualisierung"] = location_dat[
+                            "DatumLetzteAktualisierung"].isoformat()
+                        for grid_connection in location_dat["Netzanschlusspunkte"]:
+                            grid_connection['letzteAenderung'] = grid_connection['letzteAenderung'].isoformat()
+                            for field_name in ["MaximaleEinspeiseleistung", "MaximaleAusspeiseleistung",
+                                               "Nettoengpassleistung", "Netzanschlusskapazitaet"]:
+                                if field_name in grid_connection.keys():
+                                    if grid_connection[field_name]:
+                                        grid_connection[field_name] = float(grid_connection[field_name])
+
+                        # Create new instance and update potentially existing one
+                        location = orm.LocationExtended(**location_dat)
+                        session.merge(location)
+                        number_locations_merged += 1
+
+                    session.commit()
+                    # Log locations where data retrieval was not successful
+                    for missed_location in missed_locations:
+                        missed = orm.MissedExtendedLocation(
+                            LokationMastrNummer=missed_location[0],
+                            reason=missed_location[1])
+                        session.add(missed)
+
+                    # Remove locations from additional data request table if additional data was retrieved
+                    for requested_location in requested_chunk:
+                        if requested_location.LokationMastrNummer not in missed_locations_ids:
+                            session.delete(requested_location)
+                            deleted_locations.append(requested_location.LokationMastrNummer)
+
+                    # Update while iteration condition
+                    locations_queried += len(ids)
+
+                    log.info(f"Downloaded data for {len(location_data)} locations ({len(ids)} requested). "
+                             f"Missed locations: {len(missed_locations_ids)}. Deleted requests: "
+                             f"{len(deleted_locations)}.")
+
+            # Emergency break out: if now new data gets inserted/update, don't retrieve any further data
+            if number_locations_merged == 0:
+                log.info("No further data is requested")
+                break
+
     def create_additional_data_requests(self, technology,
                                         data_types=["unit_data", "eeg_data", "kwk_data", "permit_data"],
                                         delete_existing=True):
