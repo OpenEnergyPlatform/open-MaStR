@@ -393,6 +393,16 @@ class MaStRMirror:
         if not limit:
             limit = 10 ** 7
 
+        # Find newest data date if date="latest"
+        if date == "latest":
+            with session_scope() as session:
+                date_queried = session.query(orm.LocationExtended.DatumLetzteAktualisierung).order_by(
+                    orm.LocationExtended.DatumLetzteAktualisierung.desc()).first()
+                if date_queried:
+                    date = date_queried[0]
+                else:
+                    date = None
+
         locations_basic = self.mastr_dl.basic_location_data(limit, date_from=date)
 
         for locations_chunk in locations_basic:
