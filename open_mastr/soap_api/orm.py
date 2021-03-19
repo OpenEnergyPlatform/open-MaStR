@@ -48,6 +48,7 @@ class MissedAdditionalData(Base):
 
     id = Column(Integer, Sequence("additional_data_missed_id_seq", schema=mirror_schema), primary_key=True)
     additional_data_id = Column(String)
+    reason = Column(String)
     download_date = Column(DateTime(timezone=True), default=func.now())
 
 

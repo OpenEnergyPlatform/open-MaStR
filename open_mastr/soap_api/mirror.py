@@ -492,9 +492,11 @@ class MaStRMirror:
                 ids = [_.additional_data_id for _ in requested_chunk]
 
                 number_units_merged = 0
+                deleted_units = []
                 if ids:
                     # Retrieve data
                     unit_data, missed_units = self.mastr_dl.additional_data(technology, ids, download_functions[data_type])
+                    missed_units_ids = [u[0] for u in missed_units]
                     unit_data = flatten_dict(unit_data)
 
                     # Prepare data and add to database table
@@ -520,20 +522,20 @@ class MaStRMirror:
                     session.commit()
                     # Log units where data retrieval was not successful
                     for missed_unit in missed_units:
-                        missed = orm.MissedAdditionalData(additional_data_id=missed_unit)
+                        missed = orm.MissedAdditionalData(
+                            additional_data_id=missed_unit[0],
+                            reason=missed_unit[1])
                         session.add(missed)
 
                     # Remove units from additional data request table if additional data was retrieved
                     for requested_unit in requested_chunk:
-                        if requested_unit.additional_data_id not in missed_units:
+                        if requested_unit.additional_data_id not in missed_units_ids:
                             session.delete(requested_unit)
+                            deleted_units.append(requested_unit.additional_data_id)
 
                     # Update while iteration condition
                     units_queried += len(ids)
 
-                    # Report on chunk
-                    deleted_units = [requested_unit.additional_data_id for requested_unit in requested_chunk
-                                     if requested_unit.additional_data_id not in missed_units]
                     log.info(f"Downloaded data for {len(unit_data)} units ({len(ids)} requested). "
                              f"Missed units: {len(missed_units)}. Deleted requests: {len(deleted_units)}.")
 
