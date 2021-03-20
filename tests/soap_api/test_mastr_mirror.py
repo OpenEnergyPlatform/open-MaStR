@@ -89,3 +89,20 @@ def test_to_csv(mastr_mirror):
                 orm.BasicUnit.Einheittyp == mastr_mirror.unit_type_map_reversed[tech])
             for unit in units:
                 assert unit.EinheitMastrNummer in df.index
+
+
+@pytest.mark.dependency(name="backfill_locations_basic")
+def test_backfill_locations_basic(mastr_mirror):
+    with session_scope() as session:
+        rows_before_download = session.query(orm.LocationBasic).count()
+
+    mastr_mirror.backfill_locations_basic(
+        date="latest",
+        limit=LIMIT
+    )
+
+    # The table locations_basic should have rows_before_download + LIMIT rows
+    with session_scope() as session:
+        rows_after_download = session.query(orm.LocationBasic).count()
+        rows_downloaded = rows_after_download - rows_before_download
+        assert rows_downloaded == LIMIT
