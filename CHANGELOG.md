@@ -42,6 +42,8 @@ Read more about the details:
   [#159](https://github.com/OpenEnergyPlatform/open-MaStR/issues/159)
 - Tests for :class:`open_mastr.soap_api.mirror.MaStRMirror`
   [#191](https://github.com/OpenEnergyPlatform/open-MaStR/issues/191)
+- Download functionality for Lokationen (with focus on :class:`open_mastr.soap_api.mirror.MaStRMirror`)
+  [#162](https://github.com/OpenEnergyPlatform/open-MaStR/issues/162)
 - The CHANGELOG is now included in the documentation
 
 ### Changed

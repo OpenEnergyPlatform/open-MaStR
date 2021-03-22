@@ -510,6 +510,11 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
                 "unit_data": "GetEinheitGasErzeuger",
                 "energietraeger": [None],
             },
+            "location_elec_generation": "GetLokationStromErzeuger",
+            "location_elec_consumption": "GetLokationStromVerbraucher",
+            "location_gas_generation": "GetLokationGasErzeuger",
+            "location_gas_consumption": "GetLokationGasVerbraucher",
+
         }
 
         # Map additional data to primary key via data_fcn
@@ -517,7 +522,8 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
             "extended_unit_data": "EinheitMastrNummer",
             "kwk_unit_data": "KwkMastrNummer",
             "eeg_unit_data": "EegMastrNummer",
-            "permit_unit_data": "GenMastrNummer"
+            "permit_unit_data": "GenMastrNummer",
+            "location_data": "MastrNummer",
         }
 
         # Check if MaStR credentials are available and otherwise ask
@@ -725,64 +731,27 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         # loop over these and join data to one list
         for et in energietraeger:
             log.info(f"Get list of units with basic information for technology {technology} ({et})")
-
-            pbar = tqdm(total=limit,
-                        desc=f"Get list of units with basic information for technology {technology} ({et})",
-                        unit=" units")
-
-            # Iterate over chunks and download data
-            # Results are first collected per 'et' (units_tech) for properly
-            # displaying download progress.
-            # Later, all units of a single technology are collected in 'units'
-            for chunk_start, limit_iter in zip(chunks_start, limits):
-                # Use a retry loop to retry on connection errors
-                for try_number in range(max_retries + 1):
-                    try:
-                        if et is None:
-                            response = self._mastr_api.GetListeAlleEinheiten(
-                                startAb=chunk_start,
-                                limit=limit_iter,
-                                datumAb=date_from)
-                        else:
-                            response = self._mastr_api.GetGefilterteListeStromErzeuger(
-                                energietraeger=et,
-                                startAb=chunk_start,
-                                limit=limit_iter,
-                                datumAb=date_from)
-
-                    except (requests.exceptions.ConnectionError, 
-                            Fault,
-                            requests.exceptions.ReadTimeout
-                            ) as e:
-                        try_number += 1
-                        log.debug(f"MaStR SOAP API does not respond properly: {e}. Retry {try_number}")
-                        time.sleep(5)
-                    else:
-                        # If it does run into the except clause, break out of the for loop
-                        # This also means query was successful
-                        units_tech = response["Einheiten"]
-                        yield units_tech
-                        pbar.update(len(units_tech))
-                        break
-                else:
-                    log.error(f"Finally failed to download data."
-                              f"Basic unit data of index {chunk_start} to {chunk_start + limit_iter - 1} will be missing.")
-                    # TODO: this has potential risk! Please change
-                    # If the download continuously fails on the last chunk, this query will run forever
-                    response = {"Ergebniscode": 'OkWeitereDatenVorhanden'}
-
-                # Stop querying more data, if no further data available
-                if response["Ergebniscode"] == 'OkWeitereDatenVorhanden':
-                    continue
-                else:
-                    # Update progress bar and move on with next et or technology
-                    pbar.total = pbar.n
-                    pbar.refresh()
-                    pbar.close()
-                    break
-
-            # Make sure progress bar is closed properly
-            pbar.close()
+            if et is None:
+                query_results = basic_data_download(self._mastr_api,
+                                    "GetListeAlleEinheiten",
+                                    "Einheiten",
+                                    chunks_start,
+                                    limits,
+                                    date_from,
+                                    max_retries,
+                                    technology,
+                                    et=et)
+            else:
+                query_results = basic_data_download(self._mastr_api,
+                                    "GetGefilterteListeStromErzeuger",
+                                    "Einheiten",
+                                    chunks_start,
+                                    limits,
+                                    date_from,
+                                    max_retries,
+                                    technology,
+                                    et=et)
+            yield from query_results
 
     def additional_data(self, technology, unit_ids, data_fcn, timeout=10):
         """
@@ -800,14 +769,14 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         data_fcn : str
             Name of method from :class:`MaStRDownload` to be used for querying additional data.
             Choose from
-            
-            * "extended_unit_data" (:meth:`~.extended_unit_data`): Extended information (i.e. technical, location) 
+
+            * "extended_unit_data" (:meth:`~.extended_unit_data`): Extended information (i.e. technical, location)
               about a unit. The exact set of information depends on the technology.
-            * "eeg_unit_data" (:meth:`~.eeg_unit_data`): Unit Information from EEG unit registry. The exact 
+            * "eeg_unit_data" (:meth:`~.eeg_unit_data`): Unit Information from EEG unit registry. The exact
               set of information depends on the technology.
             * "kwk_unit_data" (:meth:`~.kwk_unit_data`): Unit information from KWK unit registry.
             * "permit_unit_data" (:meth:`~.permit_unit_data`): Information about the permit process of a unit.
-              
+
         timeout: int, optional
             Timeout limit for data retrieval for each unit when using multiprocessing
 
@@ -1069,6 +1038,51 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
 
         return permit_data, permit_missed
 
+    def location_data(self, specs):
+        """
+        Download extended data for a location
+
+        Allows to download additional data for different location types, see *specs*.
+
+        Parameters
+        ----------
+        specs : tuple
+            Location *Mastrnummer* and data_name as tuple that for example looks like
+
+            .. code-block:: python
+
+               tuple("SEL927688371072", "location_elec_generation")
+
+
+        Returns
+        -------
+        dict
+            Detailed information about a location, if download successful,
+            otherwise empty dict
+        tuple
+            Location *MastrNummer* and message the explains why a download failed. Format
+
+            .. code-block:: python
+
+               tuple("SEL927688371072", "Reason for failing dowload")
+        """
+
+        # Unpack tuple argument to two separate variables
+        location_id, data_name = specs
+
+        try:
+            data = self._mastr_api.__getattribute__(
+                self._unit_data_specs[data_name])(lokationMastrNummer=location_id)
+            missed = None
+        except (XMLParseError,
+                Fault,
+                requests.exceptions.ConnectionError,
+                requests.exceptions.ReadTimeout) as e:
+            data = {}
+            missed = (location_id, repr(e))
+
+        return data, missed
+
     def _retry_missed_additional_data(self, technology, missed_ids, data_fcn, retries=3):
         """
         Retry to download extended data that was missed earlier.
@@ -1110,11 +1124,176 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
 
         return data, missed_ids_tmp
 
+    def basic_location_data(self, limit=2000, date_from=None, max_retries=3):
+        """
+        Retrieve basic location data in chunks
+
+        Retrieves data for all types of locations at once using :meth:`MaStRAPI.GetListeAlleLokationen`.
+        Locations include
+
+        * Electricity generation location (SEL - Stromerzeugungslokation)
+        * Electricity consumption location (SVL - Stromverbrauchslokation)
+        * Gas generation location (GEL - Gaserzeugungslokation)
+        * Gas consumption location (GVL - Gasverbrauchslokation)
+
+        Parameters
+        ----------
+        limit: int, optional
+            Maximum number of locations to download.
+            Defaults to 2000.
+
+            .. warning:
+
+               Mind the daily request limit for your MaStR account.
+
+        date_from: :obj:`datetime.datetime`, optional
+            If specified, only locations with latest change date newer than this are queried.
+            Defaults to :obj:`None`.
+        max_retries: int, optional
+            Maximum number of retries for each chunk in case of errors with the connection to the server.
+
+        Yields
+        ------
+        generator of generators
+            For each chunk a separate generator is returned all wrapped into another generator. Access with
+
+            .. code-block:: python
+
+                chunks = mastr_dl.basic_location_data(date_from=datetime.datetime(2020, 11, 7, 0, 0, 0), limit=2010)
+
+                for chunk in chunks:
+                    for location in chunk:
+                        print(location) # prints out one dict per location one after another
+        """
+        # Prepare indices for chunked data retrieval
+        chunksize = 2000
+        chunks_start = list(range(1, limit + 1, chunksize))
+        limits = [chunksize if (x + chunksize) <= limit
+                  else limit - x + 1 for x in chunks_start]
+
+        # Retrieve query results and yield them
+        query_results = basic_data_download(
+            self._mastr_api,
+            "GetListeAlleLokationen",
+            "Lokationen",
+            chunks_start,
+            limits,
+            date_from,
+            max_retries
+        )
+        yield from query_results
+
     def daily_contingent(self):
         contingent = self._mastr_api.GetAktuellerStandTageskontingent()
         log.info(f"Daily requests contigent: "
                  f"{contingent['AktuellerStandTageskontingent']} "
                  f"/ {contingent['AktuellesLimitTageskontingent']}")
+
+
+def basic_data_download(mastr_api, fcn_name, category, chunks_start, limits, date_from, max_retries, technology=None,
+                        et=None):
+    """
+    Helper function for downloading basic data with MaStR list query
+
+    Helps to query data from list-returning functions like GetListeAlleEinheiten.
+    Automatically
+
+    * respects limit of 2.000 rows returned by MaStR list functions
+    * stops, if no further data is available
+    * nicely integrates dynamic update of tqdm progress bar
+
+    Parameters
+    ----------
+    mastr_api: :class:`MaStRAPI`
+        MaStR API wrapper
+    fcn_name: str
+        Name of list-returning download function
+    category: str
+        Either "Einheiten" or "Lokationen"
+    chunks_start: list of int
+        Start index for each chunk. MaStR data is internally index by an integer index that can be used to start
+        querying data from a certain position. Here, it is used to iterate over the available data.
+    limits: list of int
+        Limit of queried row for each chunk.
+    date_from: datetime.datetime
+        Date for querying only newer data than this date
+    max_retries: int
+        Number of maximum retries for each chunk
+    technology: str, optional
+        Choose a subset from available technologies. Only relevant if category="Einheiten".
+        Defaults to all technologies.
+    et: str
+        Energietraeger of a technology. Some technologies are subdivided into a list of energietraeger.
+        Only relevant if category="Einheiten". Defaults to None.
+
+    Yields
+    ------
+    list
+        Basic unit or location information. Depends on category.
+    """
+
+    # Construct description string
+    description = f"Get basic {category} data information"
+    if technology:
+        description += f"for technology {technology}"
+    if et:
+        description += f" ({et})"
+
+    pbar = tqdm(desc=description, unit=" units")
+
+    # Iterate over chunks and download data
+    # Results are first collected per 'et' (units_tech) for properly
+    # displaying download progress.
+    # Later, all units of a single technology are collected in 'units'
+    for chunk_start, limit_iter in zip(chunks_start, limits):
+        # Use a retry loop to retry on connection errors
+        for try_number in range(max_retries + 1):
+            try:
+                if et is None:
+                    response = getattr(mastr_api, fcn_name)(
+                        startAb=chunk_start,
+                        limit=limit_iter,
+                        datumAb=date_from)
+                else:
+                    response = getattr(mastr_api, fcn_name)(
+                        energietraeger=et,
+                        startAb=chunk_start,
+                        limit=limit_iter,
+                        datumAb=date_from)
+
+            except (requests.exceptions.ConnectionError,
+                    Fault,
+                    requests.exceptions.ReadTimeout
+                    ) as e:
+                try_number += 1
+                log.debug(f"MaStR SOAP API does not respond properly: {e}. Retry {try_number}")
+                time.sleep(5)
+            else:
+                # If it does run into the except clause, break out of the for loop
+                # This also means query was successful
+                units_tech = response[category]
+                yield units_tech
+                pbar.update(len(units_tech))
+                break
+        else:
+            log.error(f"Finally failed to download data."
+                      f"Basic unit data of index {chunk_start} to {chunk_start + limit_iter - 1} will be missing.")
+            # TODO: this has potential risk! Please change
+            # If the download continuously fails on the last chunk, this query will run forever
+            response = {"Ergebniscode": 'OkWeitereDatenVorhanden'}
+
+        # Stop querying more data, if no further data available
+        if response["Ergebniscode"] == 'OkWeitereDatenVorhanden':
+            continue
+        else:
+            # Update progress bar and move on with next et or technology
+            pbar.total = pbar.n
+            pbar.refresh()
+            pbar.close()
+            break
+
+    # Make sure progress bar is closed properly
+    pbar.close()
 
 
 if __name__ == "__main__":

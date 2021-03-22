@@ -163,6 +163,10 @@ class MaStRMirror:
             "Gasverbrauchseinheit": "gas_consumer",
             "Stromverbrauchseinheit": "consumer",
             "Gaserzeugungseinheit": "gas_producer",
+            "Stromerzeugungslokation": "location_elec_generation",
+            "Stromverbrauchslokation": "location_elec_consumption",
+            "Gaserzeugungslokation": "location_gas_generation",
+            "Gasverbrauchslokation": "location_gas_consumption",
         }
         self.unit_type_map_reversed = {v: k for k, v in self.unit_type_map.items()}
 
@@ -315,50 +319,50 @@ class MaStRMirror:
                     for basic_unit in inserted_and_updated:
                         # Extended unit data
                         extended_data.append(
-                        {
-                            "EinheitMastrNummer": basic_unit["EinheitMastrNummer"],
-                            "additional_data_id": basic_unit["EinheitMastrNummer"],
-                            "technology": self.unit_type_map[basic_unit["Einheittyp"]],
-                            "data_type": "unit_data",
-                            "request_date": datetime.datetime.now(tz=datetime.timezone.utc),
-                        }
-                    )
-
-                    # EEG unit data
-                    if basic_unit["EegMastrNummer"]:
-                        eeg_data.append(
                             {
                                 "EinheitMastrNummer": basic_unit["EinheitMastrNummer"],
-                                "additional_data_id": basic_unit["EegMastrNummer"],
+                                "additional_data_id": basic_unit["EinheitMastrNummer"],
                                 "technology": self.unit_type_map[basic_unit["Einheittyp"]],
-                                "data_type": "eeg_data",
+                                "data_type": "unit_data",
                                 "request_date": datetime.datetime.now(tz=datetime.timezone.utc),
                             }
                         )
 
-                    # KWK unit data
-                    if basic_unit["KwkMastrNummer"]:
-                        kwk_data.append(
-                            {
-                                "EinheitMastrNummer": basic_unit["EinheitMastrNummer"],
-                                "additional_data_id": basic_unit["KwkMastrNummer"],
-                                "technology": self.unit_type_map[basic_unit["Einheittyp"]],
-                                "data_type": "kwk_data",
-                                "request_date": datetime.datetime.now(tz=datetime.timezone.utc),
-                            }
-                        )
+                        # EEG unit data
+                        if basic_unit["EegMastrNummer"]:
+                            eeg_data.append(
+                                {
+                                    "EinheitMastrNummer": basic_unit["EinheitMastrNummer"],
+                                    "additional_data_id": basic_unit["EegMastrNummer"],
+                                    "technology": self.unit_type_map[basic_unit["Einheittyp"]],
+                                    "data_type": "eeg_data",
+                                    "request_date": datetime.datetime.now(tz=datetime.timezone.utc),
+                                }
+                            )
 
-                    # Permit unit data
-                    if basic_unit["GenMastrNummer"]:
-                        permit_data.append(
-                            {
-                                "EinheitMastrNummer": basic_unit["EinheitMastrNummer"],
-                                "additional_data_id": basic_unit["GenMastrNummer"],
-                                "technology": self.unit_type_map[basic_unit["Einheittyp"]],
-                                "data_type": "permit_data",
-                                "request_date": datetime.datetime.now(tz=datetime.timezone.utc),
-                            }
-                        )
+                        # KWK unit data
+                        if basic_unit["KwkMastrNummer"]:
+                            kwk_data.append(
+                                {
+                                    "EinheitMastrNummer": basic_unit["EinheitMastrNummer"],
+                                    "additional_data_id": basic_unit["KwkMastrNummer"],
+                                    "technology": self.unit_type_map[basic_unit["Einheittyp"]],
+                                    "data_type": "kwk_data",
+                                    "request_date": datetime.datetime.now(tz=datetime.timezone.utc),
+                                }
+                            )
+
+                        # Permit unit data
+                        if basic_unit["GenMastrNummer"]:
+                            permit_data.append(
+                                {
+                                    "EinheitMastrNummer": basic_unit["EinheitMastrNummer"],
+                                    "additional_data_id": basic_unit["GenMastrNummer"],
+                                    "technology": self.unit_type_map[basic_unit["Einheittyp"]],
+                                    "data_type": "permit_data",
+                                    "request_date": datetime.datetime.now(tz=datetime.timezone.utc),
+                                }
+                            )
 
                 # Delete old entries for additional data requests
                 additional_data_table = orm.AdditionalDataRequested.__table__
@@ -382,12 +386,104 @@ class MaStRMirror:
 
             log.info("Backfill successfully finished")
 
+    def backfill_locations_basic(self, limit=None, date=None):
+        """
+        Backfill basic location data.
+
+        Fill database table 'locations_basic' with data. It allows specification of which data should be retrieved via
+        the described parameter options.
+
+        Under the hood, :meth:`open_mastr.soap_api.download.MaStRDownload.basic_location_data` is used.
+
+        Parameters
+        ----------
+        date: None, :class:`datetime.datetime`, str
+            Specify backfill date from which on data is retrieved
+
+            Only data with modification time stamp greater that `date` is retrieved.
+
+            * `datetime.datetime(2020, 11, 27)`: Retrieve data which is is newer than this time stamp
+            * 'latest': Retrieve data which is newer than the newest data already in the table.
+              .. warning::
+
+                 Don't use 'latest' in combination with `limit`. This might lead to unexpected results.
+            * `None`: Complete backfill
+
+            Defaults to `None`.
+        limit: int
+            Maximum number of locations to download.
+            Defaults to `None` which means no limit is set and all available data is queried. Use with care!
+        """
+
+        # Set limit to a number >> number of locations
+        if not limit:
+            limit = 10 ** 7
+
+        # Find newest data date if date="latest"
+        if date == "latest":
+            with session_scope() as session:
+                date_queried = session.query(orm.LocationExtended.DatumLetzteAktualisierung).order_by(
+                    orm.LocationExtended.DatumLetzteAktualisierung.desc()).first()
+                if date_queried:
+                    date = date_queried[0]
+                else:
+                    date = None
+
+        locations_basic = self.mastr_dl.basic_location_data(limit, date_from=date)
+
+        for locations_chunk in locations_basic:
+
+            with session_scope() as session:
+                locations_ids = [_["LokationMastrNummer"] for _ in locations_chunk]
+
+                # Find units that are already in the DB
+                common_ids = [_.LokationMastrNummer for _ in session.query(orm.LocationBasic.LokationMastrNummer).filter(
+                    orm.LocationBasic.LokationMastrNummer.in_(locations_ids))]
+
+                # Create instances for new data and for updated data
+                insert = []
+                updated = []
+                for location in locations_chunk:
+                    # In case data for the unit already exists, only update if new data is newer
+                    if location["LokationMastrNummer"] in common_ids:
+                        if session.query(exists().where(
+                                orm.LocationBasic.LokationMastrNummer== location["LokationMastrNummer"])).scalar():
+                            updated.append(location)
+                            session.merge(orm.LocationBasic(**location))
+                    # In case of new data, just insert
+                    else:
+                        insert.append(location)
+                session.bulk_save_objects([orm.LocationBasic(**u) for u in insert])
+                inserted_and_updated = insert + updated
+
+                # Create data requests for all newly inserted and updated locations
+                new_requests = []
+                for location in inserted_and_updated:
+                    new_requests.append(
+                        {
+                            "LokationMastrNummer": location["LokationMastrNummer"],
+                            "location_type": self.unit_type_map[location["Lokationtyp"]],
+                            "request_date": datetime.datetime.now(tz=datetime.timezone.utc)
+                        }
+                    )
+
+                # Delete old data requests
+                ids_to_delete = [_["LokationMastrNummer"] for _ in inserted_and_updated]
+                session.query(orm.AdditionalLocationsRequested).filter(
+                    orm.AdditionalLocationsRequested.LokationMastrNummer.in_(ids_to_delete)
+                ).filter(orm.AdditionalLocationsRequested.request_date < datetime.datetime.now(
+                    tz=datetime.timezone.utc)).delete(synchronize_session="fetch")
+                session.commit()
+
+                # Do bulk insert of new data requests
+                session.bulk_insert_mappings(orm.AdditionalLocationsRequested, new_requests)
+
     def retrieve_additional_data(self, technology, data_type, limit=None, chunksize=1000):
         """
         Retrieve additional unit data
         
         Execute additional data requests stored in :class:`open_mastr.soap_api.orm.AdditionalDataRequested`.
-        See also docs of :meth:`open_mastr.soap_api.download.py.MaStRDownload.additional_data` for more 
+        See also docs of :meth:`open_mastr.soap_api.download.py.MaStRDownload.additional_data` for more
         information on how data is downloaded.
         
         Parameters
@@ -432,9 +528,11 @@ class MaStRMirror:
                 ids = [_.additional_data_id for _ in requested_chunk]
 
                 number_units_merged = 0
+                deleted_units = []
                 if ids:
                     # Retrieve data
                     unit_data, missed_units = self.mastr_dl.additional_data(technology, ids, download_functions[data_type])
+                    missed_units_ids = [u[0] for u in missed_units]
                     unit_data = flatten_dict(unit_data)
 
                     # Prepare data and add to database table
@@ -460,25 +558,120 @@ class MaStRMirror:
                     session.commit()
                     # Log units where data retrieval was not successful
                     for missed_unit in missed_units:
-                        missed = orm.MissedAdditionalData(additional_data_id=missed_unit)
+                        missed = orm.MissedAdditionalData(
+                            additional_data_id=missed_unit[0],
+                            reason=missed_unit[1])
                         session.add(missed)
 
                     # Remove units from additional data request table if additional data was retrieved
                     for requested_unit in requested_chunk:
-                        if requested_unit.additional_data_id not in missed_units:
+                        if requested_unit.additional_data_id not in missed_units_ids:
                             session.delete(requested_unit)
+                            deleted_units.append(requested_unit.additional_data_id)
 
                     # Update while iteration condition
                     units_queried += len(ids)
 
-                    # Report on chunk
-                    deleted_units = [requested_unit.additional_data_id for requested_unit in requested_chunk
-                                     if requested_unit.additional_data_id not in missed_units]
                     log.info(f"Downloaded data for {len(unit_data)} units ({len(ids)} requested). "
                              f"Missed units: {len(missed_units)}. Deleted requests: {len(deleted_units)}.")
 
             # Emergency break out: if now new data gets inserted/update, don't retrieve any further data
             if number_units_merged == 0:
+                log.info("No further data is requested")
+                break
+
+    def retrieve_additional_location_data(self, location_type, limit=None, chunksize=1000):
+        """
+        Retrieve extended location data
+
+        Execute additional data requests stored in :class:`open_mastr.soap_api.orm.AdditionalLocationsRequested`.
+        See also docs of :meth:`open_mastr.soap_api.download.py.MaStRDownload.additional_data` for more
+        information on how data is downloaded.
+
+        Parameters
+        ----------
+        location_type: `str`
+            Select type of location that is to be retrieved. Choose from
+            "location_elec_generation", "location_elec_consumption", "location_gas_generation",
+            "location_gas_consumption".
+        limit: int
+            Limit number of locations that data is download for. Defaults to `None` which refers
+            to query data for existing data requests.
+        chunksize: int
+            Data is downloaded and inserted into the database in chunks of `chunksize`.
+            Defaults to 1000.
+        """
+
+        # Process arguments
+        if not limit:
+            limit = 10 ** 8
+        if chunksize > limit:
+            chunksize = limit
+
+        locations_queried = 0
+        while locations_queried < limit:
+
+            with session_scope() as session:
+                # Get a chunk
+                requested_chunk = session.query(orm.AdditionalLocationsRequested).filter(
+                    orm.AdditionalLocationsRequested.location_type == location_type).limit(chunksize)
+                ids = [_.LokationMastrNummer for _ in requested_chunk]
+
+                # Reset number of locations inserted or updated for this chunk
+                number_locations_merged = 0
+                deleted_locations = []
+                if ids:
+                    # Retrieve data
+                    location_data, missed_locations = self.mastr_dl.additional_data(location_type,
+                                                                            ids,
+                                                                            "location_data")
+                    missed_locations_ids = [loc[0] for loc in missed_locations]
+
+                    # Prepare data and add to database table
+                    for location_dat in location_data:
+                        # Remove query status information from response
+                        for exclude in ["Ergebniscode", "AufrufVeraltet", "AufrufVersion", "AufrufLebenszeitEnde"]:
+                            del location_dat[exclude]
+
+                        # Make data types JSON serializable
+                        location_dat["DatumLetzteAktualisierung"] = location_dat[
+                            "DatumLetzteAktualisierung"].isoformat()
+                        for grid_connection in location_dat["Netzanschlusspunkte"]:
+                            grid_connection['letzteAenderung'] = grid_connection['letzteAenderung'].isoformat()
+                            for field_name in ["MaximaleEinspeiseleistung", "MaximaleAusspeiseleistung",
+                                               "Nettoengpassleistung", "Netzanschlusskapazitaet"]:
+                                if field_name in grid_connection.keys():
+                                    if grid_connection[field_name]:
+                                        grid_connection[field_name] = float(grid_connection[field_name])
+
+                        # Create new instance and update potentially existing one
+                        location = orm.LocationExtended(**location_dat)
+                        session.merge(location)
+                        number_locations_merged += 1
+
+                    session.commit()
+                    # Log locations where data retrieval was not successful
+                    for missed_location in missed_locations:
+                        missed = orm.MissedExtendedLocation(
+                            LokationMastrNummer=missed_location[0],
+                            reason=missed_location[1])
+                        session.add(missed)
+
+                    # Remove locations from additional data request table if additional data was retrieved
+                    for requested_location in requested_chunk:
+                        if requested_location.LokationMastrNummer not in missed_locations_ids:
+                            session.delete(requested_location)
+                            deleted_locations.append(requested_location.LokationMastrNummer)
+
+                    # Update while iteration condition
+                    locations_queried += len(ids)
+
+                    log.info(f"Downloaded data for {len(location_data)} locations ({len(ids)} requested). "
+                             f"Missed locations: {len(missed_locations_ids)}. Deleted requests: "
+                             f"{len(deleted_locations)}.")
+
+            # Emergency break out: if now new data gets inserted/update, don't retrieve any further data
+            if number_locations_merged == 0:
                 log.info("No further data is requested")
                 break
 

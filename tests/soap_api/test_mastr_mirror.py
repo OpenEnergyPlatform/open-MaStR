@@ -10,6 +10,8 @@ from open_mastr.utils.helpers import session_scope
 
 TECHNOLOGIES = ["wind", "hydro", "solar", "biomass", "combustion", "nuclear", "gsgk", "storage"]
 DATA_TYPES = ["unit_data", "eeg_data", "kwk_data", "permit_data"]
+LOCATION_TYPES = ["location_elec_generation", "location_elec_consumption", "location_gas_generation",
+            "location_gas_consumption"]
 LIMIT = 1
 DATE = datetime.datetime(2020, 11, 27, 0, 0, 0)
 
@@ -89,3 +91,27 @@ def test_to_csv(mastr_mirror):
                 orm.BasicUnit.Einheittyp == mastr_mirror.unit_type_map_reversed[tech])
             for unit in units:
                 assert unit.EinheitMastrNummer in df.index
+
+
+@pytest.mark.dependency(name="backfill_locations_basic")
+def test_backfill_locations_basic(mastr_mirror):
+    with session_scope() as session:
+        rows_before_download = session.query(orm.LocationBasic).count()
+
+    mastr_mirror.backfill_locations_basic(
+        date="latest",
+        limit=LIMIT
+    )
+
+    # The table locations_basic should have rows_before_download + LIMIT rows
+    with session_scope() as session:
+        rows_after_download = session.query(orm.LocationBasic).count()
+        rows_downloaded = rows_after_download - rows_before_download
+        assert rows_downloaded == LIMIT
+
+
+@pytest.mark.dependency(depends=["backfill_locations_basic"], name="test_retrieve_additional_location_data")
+def test_retrieve_additional_location_data(mastr_mirror):
+    """Test if code runs successfully"""
+    for location_type in LOCATION_TYPES:
+        mastr_mirror.retrieve_additional_location_data(location_type, limit=LIMIT)
