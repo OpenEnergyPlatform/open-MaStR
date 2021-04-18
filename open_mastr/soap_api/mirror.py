@@ -433,21 +433,29 @@ class MaStRMirror:
 
         for locations_chunk in locations_basic:
 
+            # Remove duplicates returned from API
+            locations_chunk_unique = [
+                location
+                for n, location in enumerate(locations_chunk)
+                if location["LokationMastrNummer"]
+                   not in [_["LokationMastrNummer"] for _ in locations_chunk[n + 1:]]
+            ]
+            locations_unique_ids = [_["LokationMastrNummer"] for _ in locations_chunk_unique]
+
             with session_scope() as session:
-                locations_ids = [_["LokationMastrNummer"] for _ in locations_chunk]
 
                 # Find units that are already in the DB
                 common_ids = [_.LokationMastrNummer for _ in session.query(orm.LocationBasic.LokationMastrNummer).filter(
-                    orm.LocationBasic.LokationMastrNummer.in_(locations_ids))]
+                    orm.LocationBasic.LokationMastrNummer.in_(locations_unique_ids))]
 
                 # Create instances for new data and for updated data
                 insert = []
                 updated = []
-                for location in locations_chunk:
+                for location in locations_chunk_unique:
                     # In case data for the unit already exists, only update if new data is newer
                     if location["LokationMastrNummer"] in common_ids:
                         if session.query(exists().where(
-                                orm.LocationBasic.LokationMastrNummer== location["LokationMastrNummer"])).scalar():
+                                orm.LocationBasic.LokationMastrNummer == location["LokationMastrNummer"])).scalar():
                             updated.append(location)
                             session.merge(orm.LocationBasic(**location))
                     # In case of new data, just insert
