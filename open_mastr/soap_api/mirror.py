@@ -386,7 +386,7 @@ class MaStRMirror:
 
             log.info("Backfill successfully finished")
 
-    def backfill_locations_basic(self, limit=None, date=None):
+    def backfill_locations_basic(self, limit=None, date=None, delete_additional_data_requests=True):
         """
         Backfill basic location data.
 
@@ -413,6 +413,9 @@ class MaStRMirror:
         limit: int
             Maximum number of locations to download.
             Defaults to `None` which means no limit is set and all available data is queried. Use with care!
+        delete_additional_data_requests: bool
+            Useful to speed up download of data. Ignores existence of already created requests for additional data and
+            skips deletion these.
         """
 
         # Set limit to a number >> number of locations
@@ -433,21 +436,29 @@ class MaStRMirror:
 
         for locations_chunk in locations_basic:
 
+            # Remove duplicates returned from API
+            locations_chunk_unique = [
+                location
+                for n, location in enumerate(locations_chunk)
+                if location["LokationMastrNummer"]
+                   not in [_["LokationMastrNummer"] for _ in locations_chunk[n + 1:]]
+            ]
+            locations_unique_ids = [_["LokationMastrNummer"] for _ in locations_chunk_unique]
+
             with session_scope() as session:
-                locations_ids = [_["LokationMastrNummer"] for _ in locations_chunk]
 
                 # Find units that are already in the DB
                 common_ids = [_.LokationMastrNummer for _ in session.query(orm.LocationBasic.LokationMastrNummer).filter(
-                    orm.LocationBasic.LokationMastrNummer.in_(locations_ids))]
+                    orm.LocationBasic.LokationMastrNummer.in_(locations_unique_ids))]
 
                 # Create instances for new data and for updated data
                 insert = []
                 updated = []
-                for location in locations_chunk:
+                for location in locations_chunk_unique:
                     # In case data for the unit already exists, only update if new data is newer
                     if location["LokationMastrNummer"] in common_ids:
                         if session.query(exists().where(
-                                orm.LocationBasic.LokationMastrNummer== location["LokationMastrNummer"])).scalar():
+                                orm.LocationBasic.LokationMastrNummer == location["LokationMastrNummer"])).scalar():
                             updated.append(location)
                             session.merge(orm.LocationBasic(**location))
                     # In case of new data, just insert
@@ -468,12 +479,13 @@ class MaStRMirror:
                     )
 
                 # Delete old data requests
-                ids_to_delete = [_["LokationMastrNummer"] for _ in inserted_and_updated]
-                session.query(orm.AdditionalLocationsRequested).filter(
-                    orm.AdditionalLocationsRequested.LokationMastrNummer.in_(ids_to_delete)
-                ).filter(orm.AdditionalLocationsRequested.request_date < datetime.datetime.now(
-                    tz=datetime.timezone.utc)).delete(synchronize_session="fetch")
-                session.commit()
+                if delete_additional_data_requests:
+                    ids_to_delete = [_["LokationMastrNummer"] for _ in inserted_and_updated]
+                    session.query(orm.AdditionalLocationsRequested).filter(
+                        orm.AdditionalLocationsRequested.LokationMastrNummer.in_(ids_to_delete)
+                    ).filter(orm.AdditionalLocationsRequested.request_date < datetime.datetime.now(
+                        tz=datetime.timezone.utc)).delete(synchronize_session="fetch")
+                    session.commit()
 
                 # Do bulk insert of new data requests
                 session.bulk_insert_mappings(orm.AdditionalLocationsRequested, new_requests)
