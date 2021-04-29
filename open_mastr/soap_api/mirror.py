@@ -1033,6 +1033,15 @@ class MaStRMirror:
 
         # Expand data about related units into separate columns (with lists of related units)
         df = df.drop("VerknuepfteEinheiten", axis=1).join(df["VerknuepfteEinheiten"].apply(list_of_dicts_to_columns))
+
+        # Save to file
+        create_data_dir()
+        data_path = get_data_version_dir()
+        filenames = get_filenames()
+        csv_file = os.path.join(data_path, filenames["raw"][location_type])
+        df.to_csv(csv_file, index=False, encoding="utf-8")
+
+
 def partially_suffixed_columns(mapper, column_names, suffix):
     """
     Add a suffix to a subset of ORM map tables for a query

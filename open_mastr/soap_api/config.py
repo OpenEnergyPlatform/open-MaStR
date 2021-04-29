@@ -206,6 +206,11 @@ def _filenames_generator():
             tech: f"{prefix}_{tech}.csv" for tech in get_power_unit_types()
         }
 
+        # Add filenames for location data
+        location_types = ["location_elec_generation", "location_elec_consumption", "location_gas_generation",
+            "location_gas_consumption"]
+        filenames["raw"].update({loc: f"{loc}_raw.csv" for loc in location_types})
+
         # Add metadata file
         filenames["metadata"] = "datapackage.json"
 
