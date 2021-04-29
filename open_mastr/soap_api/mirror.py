@@ -1003,6 +1003,22 @@ class MaStRMirror:
         }
 
         def list_of_dicts_to_columns(row):
+            """
+            Expand data stored in dict to spearate columns
+
+            Parameters
+            ----------
+            row: list of dict
+                Usually apllied using apply on a column of a pandas DataFrame, hence, a Series. This column of the
+                DataFrame should comprise of a single-level dict with an arbitrary number of columns. Each key is
+                transformed into a new column, while data from each dict inside the list is concatenated by key. Such
+                that the data is stored into a list for each key/column.
+
+            Returns
+            -------
+            pd.Series
+                Pandas Series with keys as columns and values concatenated to a list for each key.
+            """
             columns = {k: [] for dic in row for k, _ in dic.items()}
             for dic in row:
                 for k, v in dic.items():
