@@ -1026,6 +1026,13 @@ class MaStRMirror:
 
             df = pd.read_sql(locations_extended.statement, session.bind)
 
+        # Expand data about grid connection points from dict into separate columns
+        df_expanded = pd.concat([pd.DataFrame(x) for x in df["Netzanschlusspunkte"]], keys=df.index).reset_index(
+            level=1, drop=True)
+        df = df.drop("Netzanschlusspunkte", axis=1).join(df_expanded).reset_index(drop=True)
+
+        # Expand data about related units into separate columns (with lists of related units)
+        df = df.drop("VerknuepfteEinheiten", axis=1).join(df["VerknuepfteEinheiten"].apply(list_of_dicts_to_columns))
 def partially_suffixed_columns(mapper, column_names, suffix):
     """
     Add a suffix to a subset of ORM map tables for a query
