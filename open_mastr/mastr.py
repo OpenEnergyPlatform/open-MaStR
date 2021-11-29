@@ -1,4 +1,7 @@
-
+from datetime import date
+import os
+from os.path import expanduser
+from xml_parser.utils import get_url
 
 class Mastr():
     def __init__(self) -> None:
@@ -6,6 +9,15 @@ class Mastr():
         
         
         """
+        self.today = date.today().strftime("%Y%m%d")
+        self.url = get_url()
+        self.save_path = os.path.join(
+            expanduser("~"),
+            ".open-MaStR",
+            "data",
+            "xml_download"
+        )
+
 
 
         pass
@@ -32,9 +44,9 @@ class Mastr():
         At the end, both methods give us a sqlite database, which should be (almost) identical. 
 
         """
+        if method=="bulk":
 
-
-        pass
+            pass
 
     def to_docker():
         """
