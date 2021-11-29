@@ -28,7 +28,11 @@ class Mastr():
             - existing functions from earlier development are taken from soap_api folder
             - start API cleansing functions
 
+
+        At the end, both methods give us a sqlite database, which should be (almost) identical. 
+
         """
+
 
         pass
 
