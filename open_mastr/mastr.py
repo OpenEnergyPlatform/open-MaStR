@@ -26,7 +26,7 @@ class Mastr:
         self._bulk_sql_connection = sqlite3.connect(os.path.join(self._sqlite_folder_path,'bulksqlite.db'))
 
 
-    def download(self, method="bulk") -> None:
+    def download(self, method="bulk",include_tables=None) -> None:
         """
         method in {bulk, API}
 
@@ -58,7 +58,10 @@ class Mastr:
                 print("MaStR is downloaded to %s" % self._xml_folder_path)
                 download_xml_Mastr(self._xml_download_url, self._zipped_xml_file_path)
 
-            #convert_mastr_xml_to_sqlite(con=self._bulk_sql_connection)
+            convert_mastr_xml_to_sqlite(con=self._bulk_sql_connection,zipped_xml_file_path=self._zipped_xml_file_path,include_tables=include_tables,exclude_tables=None)
+
+        if method == "API":
+            pass
 
     def to_docker():
         """
