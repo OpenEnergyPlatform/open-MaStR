@@ -8,7 +8,8 @@ import sqlite3
 
 class Mastr:
     def __init__(self) -> None:
-        self._today_string = date.today().strftime("%Y%m%d")
+        #self._today_string = date.today().strftime("%Y%m%d")
+        self._today_string = "20211130"
         self._xml_download_url = get_url_from_Mastr_website()
         self._xml_folder_path = os.path.join(
             expanduser("~"), ".open-MaStR", "data", "xml_download"

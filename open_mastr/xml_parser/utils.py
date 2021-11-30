@@ -24,7 +24,7 @@ def get_url_from_Mastr_website():
     grabbed from the marktstammdatenregister.de homepage.
     For further details visit https://www.marktstammdatenregister.de/MaStR/Datendownload
     """
-    
+
     html = requests.get("https://www.marktstammdatenregister.de/MaStR/Datendownload")
     soup = BeautifulSoup(html.text, "lxml")
     # find the download button element on the website
@@ -44,7 +44,7 @@ def download_xml_Mastr(url, save_path):
     save_path: str
         The path where the downloaded MaStR zipped folder will be saved.
     """
-    print("Download has started, this can take several minutes.")
+    print("Download has started, this can take several minutes. The download bar is only a rough estimate.")
     time_a = time.perf_counter()
     r = requests.get(url, stream=True)
     with open(save_path, "wb") as zfile:
@@ -61,48 +61,48 @@ def download_xml_Mastr(url, save_path):
     time_b = time.perf_counter()
     print("Download is finished. It took %s seconds." % (time_b - time_a))
 
-def convert_mastr_xml_to_sqlite(con,zippedXMLFilePath,includeTables,excludeTables):
+def convert_mastr_xml_to_sqlite(con,zipped_xml_file_path,include_tables,exclude_tables):
     """Converts the Mastr in xml format into a sqlite database.
     """
     """Writes the local zipped MaStR to a PostgreSQL database.
         
     Parameters
     ------------
-    includeTables : list, default None
+    include_tables : list, default None
         List of tables from the Marktstammdatenregister that should be written into
-        the database. Elements of includeTables are lower case strings without "_" and index. 
+        the database. Elements of include_tables are lower case strings without "_" and index. 
         It is possible to include any table from the zipped local MaStR folder (see MaStR.initialize()). 
         Example: If you do want to write the data from files "AnlagenEegSolar_*.xml" to a table 
         in your database (where * is any number >=1), write the element "anlageneegsolar" into the 
-        includeTables list. Elements of the list that cannot be matched to tables of the MaStR are ignored.
-        If includeTables is given, only the tables listed here are written to the database.
+        include_tables list. Elements of the list that cannot be matched to tables of the MaStR are ignored.
+        If include_tables is given, only the tables listed here are written to the database.
 
-    excludeTables : list, default None
+    exclude_tables : list, default None
         List of tables from the Marktstammdatenregister that should NOT be written into
-        the database. Elements of excludeTables are lower case strings without "_" and index. 
+        the database. Elements of exclude_tables are lower case strings without "_" and index. 
         It is possible to exclude any table from the zipped local MaStR folder (see MaStR.initialize()). 
         Example: If you do not want to write the data from files "AnlagenEegSolar_*.xml" to a table 
         in your database (where * is any number >=1), write the element "anlageneegsolar" into the 
-        excludeTables list. Elements of the list that cannot be matched to tables of the MaStR are ignored.
+        exclude_tables list. Elements of the list that cannot be matched to tables of the MaStR are ignored.
 
     """
 
     # excludeCountReference is important for checking which files are written to the SQL database
-    # if it is 1, all files from the excludeTablesReference are included to be written to the databse,
-    # if it is 0, all files from the excludeTablesReference are excluded.
+    # if it is 1, all files from the exclude_tablesReference are included to be written to the databse,
+    # if it is 0, all files from the exclude_tablesReference are excluded.
 
-    if includeTables:
-        excludeCountReference = 1
-        excludeTablesReference=includeTables
-    elif excludeTables:
-        excludeCountReference = 0
-        excludeTablesReference=excludeTables
+    if include_tables:
+        exclude_count_reference = 1
+        exclude_tables_reference=include_tables
+    elif exclude_tables:
+        exclude_count_reference = 0
+        exclude_tables_reference=exclude_tables
     else:
-        excludeCountReference = 0
-        excludeTablesReference=[]
+        exclude_count_reference = 0
+        exclude_tables_reference=[]
 
 
-    with ZipFile(zippedXMLFilePath, "r") as f:
+    with ZipFile(zipped_xml_file_path, "r") as f:
         for file_name in f.namelist():
             # sql tablename is the beginning of the filename without the number in lowercase
             sql_tablename = file_name.split("_")[0].split(".")[0].lower()
@@ -110,8 +110,8 @@ def convert_mastr_xml_to_sqlite(con,zippedXMLFilePath,includeTables,excludeTable
             # check whether the table exists with current data and append new data or whether to overwrite the existing table
             
 
-            excludeCount = excludeTablesReference.count(sql_tablename)
-            if excludeCount == excludeCountReference:
+            exclude_count = exclude_tables_reference.count(sql_tablename)
+            if exclude_count == exclude_count_reference:
                 
                 if (
                 file_name.split(".")[0].split("_")[-1] == "1"
@@ -128,7 +128,17 @@ def convert_mastr_xml_to_sqlite(con,zippedXMLFilePath,includeTables,excludeTable
                 add_table_to_sqlite_database(f,file_name,sql_tablename,if_exists,con)
 
                 
-
+def add_missing_column_to_table(err,con,sql_tablename):
+    missing_column = str(err).split("«")[0].split("»")[1]
+    cursor = con.cursor()
+    execute_message = 'ALTER TABLE %s ADD "%s" text NULL;' % (
+        sql_tablename,
+        missing_column,
+    )
+    cursor.execute(execute_message)
+    con.commit()
+    cursor.close()
+    con.close()
 
 
 def add_table_to_sqlite_database(f,file_name,sql_tablename,if_exists,con):
@@ -159,19 +169,8 @@ def add_table_to_sqlite_database(f,file_name,sql_tablename,if_exists,con):
             )
             continueloop = False
         except sqlalchemy.exc.ProgrammingError as err:
-            missing_column = str(err).split("«")[0].split("»")[1]
-            con = psycopg2.connect(
-                "dbname=mastrsql user=postgres password='postgres'"
-            )
-            cursor = con.cursor()
-            execute_message = 'ALTER TABLE %s ADD "%s" text NULL;' % (
-                sql_tablename,
-                missing_column,
-            )
-            cursor.execute(execute_message)
-            con.commit()
-            cursor.close()
-            con.close()
+            add_missing_column_to_table(err,con,sql_tablename)
+            
         except sqlalchemy.exc.DataError as err:
             delete_entry = str(err).split("«")[0].split("»")[1]
             print(f"The entry {delete_entry} was deleteted due to its false data type.")
