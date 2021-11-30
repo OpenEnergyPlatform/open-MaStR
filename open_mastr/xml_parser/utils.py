@@ -11,9 +11,12 @@ import dateutil
 from mastrsql.metadata import metadata_dict
 import sqlite3
 from zipfile import ZipFile
+import os
+from os.path import expanduser
+import lxml
 
 
-def getURLFromMastrWebsite():
+def get_url_from_Mastr_website():
     """Get the url of the latest MaStR file from markstammdatenregister.de.
 
     The file and the corresponding url are updated once per day.
@@ -30,7 +33,7 @@ def getURLFromMastrWebsite():
     return url
 
 
-def downloadXMLMastr(url, save_path):
+def download_xml_Mastr(url, save_path):
     """Downloads the zipped MaStR.
 
     Parameters
@@ -57,7 +60,7 @@ def downloadXMLMastr(url, save_path):
     time_b = time.perf_counter()
     print("Download is finished. It took %s seconds." % (time_b - time_a))
 
-def MastrxmlToSQLite(conn,zippedXMLFilePath,includeTables,excludeTables):
+def mastr_xml_to_sqlite(con,zippedXMLFilePath,includeTables,excludeTables):
     """Converts the Mastr in xml format into a sqlite database.
     """
     """Writes the local zipped MaStR to a PostgreSQL database.
@@ -83,35 +86,35 @@ def MastrxmlToSQLite(conn,zippedXMLFilePath,includeTables,excludeTables):
 
     """
 
-    # exclude_count_reference is important for checking which files are written to the SQL database
-    # if it is 1, all files from the excludeTables_reference are included to be written to the databse,
-    # if it is 0, all files from the excludeTables_reference are excluded.
+    # excludeCountReference is important for checking which files are written to the SQL database
+    # if it is 1, all files from the excludeTablesReference are included to be written to the databse,
+    # if it is 0, all files from the excludeTablesReference are excluded.
 
     if includeTables:
-        exclude_count_reference = 1
-        excludeTables_reference=includeTables
+        excludeCountReference = 1
+        excludeTablesReference=includeTables
     elif excludeTables:
-        exclude_count_reference = 0
-        excludeTables_reference=excludeTables
+        excludeCountReference = 0
+        excludeTablesReference=excludeTables
     else:
-        exclude_count_reference = 0
-        excludeTables_reference=[]
+        excludeCountReference = 0
+        excludeTablesReference=[]
 
 
-    with ZipFile(self.save_zip_path, "r") as f:
-        for name in f.namelist():
+    with ZipFile(zippedXMLFilePath, "r") as f:
+        for file_name in f.namelist():
             # sql tablename is the beginning of the filename without the number in lowercase
-            sql_tablename = name.split("_")[0].split(".")[0].lower()
+            sql_tablename = file_name.split("_")[0].split(".")[0].lower()
             
             # check whether the table exists with current data and append new data or whether to overwrite the existing table
             
 
-            exclude_count = excludeTables_reference.count(sql_tablename)
-            if exclude_count == exclude_count_reference:
+            excludeCount = excludeTablesReference.count(sql_tablename)
+            if excludeCount == excludeCountReference:
                 
                 if (
-                name.split(".")[0].split("_")[-1] == "1"
-                or len(name.split(".")[0].split("_")) == 1
+                file_name.split(".")[0].split("_")[-1] == "1"
+                or len(file_name.split(".")[0].split("_")) == 1
                 ):
                     if_exists = "replace"
                     print("New table %s is created in the PostgreSQL database." %sql_tablename)
@@ -121,53 +124,57 @@ def MastrxmlToSQLite(conn,zippedXMLFilePath,includeTables,excludeTables):
                     print(f"File {index_for_printed_message} from {sql_tablename} is parsed.")
                     index_for_printed_message+=1
                 
-                data = f.read(name)
-                save_path_metadata = os.path.join(expanduser("~"),".mastrsql","metadata")
-                try:
-                    df = pd.read_xml(data, encoding="UTF-16", compression="zip")
-                    df, sql_dtype_dict = correction_of_metadata(
-                        df, sql_tablename
-                    )
+                add_table_to_sqlite_database(f,file_name,sql_tablename,if_exists,con)
 
-                except lxml.etree.XMLSyntaxError as err:
-                    df = handle_xml_syntax_error(data, err)
-                    df, sql_dtype_dict = correction_of_metadata(
-                        df, sql_tablename, save_path_metadata
-                    )
-                continueloop = True
-
-                """Some files introduce new columns for existing tables. 
-                If this happens, the error from writing entries into non-existing columns is caught and the column is created."""
-                while continueloop:
-                    try:
-                        df.to_sql(
-                            sql_tablename,
-                            self.engine,
-                            if_exists=if_exists,
-                            dtype=sql_dtype_dict,
-                        )
-                        continueloop = False
-                    except sqlalchemy.exc.ProgrammingError as err:
-                        missing_column = str(err).split("«")[0].split("»")[1]
-                        con = psycopg2.connect(
-                            "dbname=mastrsql user=postgres password='postgres'"
-                        )
-                        cursor = con.cursor()
-                        execute_message = 'ALTER TABLE %s ADD "%s" text NULL;' % (
-                            sql_tablename,
-                            missing_column,
-                        )
-                        cursor.execute(execute_message)
-                        con.commit()
-                        cursor.close()
-                        con.close()
-                    except sqlalchemy.exc.DataError as err:
-                        delete_entry = str(err).split("«")[0].split("»")[1]
-                        print(f"The entry {delete_entry} was deleteted due to its false data type.")
-                        df = df.replace(delete_entry, np.nan)
+                
 
 
-    pass
+
+def add_table_to_sqlite_database(f,file_name,sql_tablename,if_exists,con):
+    data = f.read(file_name)
+    save_path_metadata = os.path.join(expanduser("~"),".mastrsql","metadata")
+    try:
+        df = pd.read_xml(data, encoding="UTF-16", compression="zip")
+        df, sql_dtype_dict = correction_of_metadata(
+            df, sql_tablename
+        )
+
+    except lxml.etree.XMLSyntaxError as err:
+        df = handle_xml_syntax_error(data, err)
+        df, sql_dtype_dict = correction_of_metadata(
+            df, sql_tablename, save_path_metadata
+        )
+    continueloop = True
+
+    """Some files introduce new columns for existing tables. 
+    If this happens, the error from writing entries into non-existing columns is caught and the column is created."""
+    while continueloop:
+        try:
+            df.to_sql(
+                sql_tablename,
+                con,
+                if_exists=if_exists,
+                dtype=sql_dtype_dict,
+            )
+            continueloop = False
+        except sqlalchemy.exc.ProgrammingError as err:
+            missing_column = str(err).split("«")[0].split("»")[1]
+            con = psycopg2.connect(
+                "dbname=mastrsql user=postgres password='postgres'"
+            )
+            cursor = con.cursor()
+            execute_message = 'ALTER TABLE %s ADD "%s" text NULL;' % (
+                sql_tablename,
+                missing_column,
+            )
+            cursor.execute(execute_message)
+            con.commit()
+            cursor.close()
+            con.close()
+        except sqlalchemy.exc.DataError as err:
+            delete_entry = str(err).split("«")[0].split("»")[1]
+            print(f"The entry {delete_entry} was deleteted due to its false data type.")
+            df = df.replace(delete_entry, np.nan)
 
 
 def correction_of_metadata(df, sql_tablename):

@@ -2,7 +2,7 @@ from _typeshed import Self
 from datetime import date
 import os
 from os.path import expanduser
-from xml_parser.utils import getURLFromMastrWebsite, downloadXMLMastr, MastrxmlToSQLite
+from xml_parser.utils import get_url_from_Mastr_website, download_xml_Mastr, mastr_xml_to_sqlite
 import shutil
 import sqlite3
 
@@ -10,19 +10,19 @@ import sqlite3
 class Mastr:
     def __init__(self) -> None:
         """ """
-        self.todayString = date.today().strftime("%Y%m%d")
-        self.xmlDownloadURL = getURLFromMastrWebsite()
-        self.xmlFolderPath = os.path.join(
+        self._today_string = date.today().strftime("%Y%m%d")
+        self._xml_download_url = get_url_from_Mastr_website()
+        self._xml_folder_path = os.path.join(
             expanduser("~"), ".open-MaStR", "data", "xml_download"
         )
 
-        self.zippedXMLFilePath = os.path.join(
-            self.xmlFolderPath, "Gesamtdatenexport_%s.zip" % self.todayString
+        self._zipped_xml_file_path = os.path.join(
+            self._xml_folder_path, "Gesamtdatenexport_%s.zip" % self._today_string
         )
-        self.sqliteFolderPath=os.path.join(
+        self._sqlite_folder_path=os.path.join(
             expanduser("~"), ".open-MaStR", "data", "sqlite"
         )
-        self.BulkSQLConnection = sqlite3.connect(os.path.join(self.sqliteFolderPath,'bulksqlite.db'))
+        self._bulk_sql_connection = sqlite3.connect(os.path.join(self._sqlite_folder_path,'bulksqlite.db'))
 
 
     def download(self, method="bulk") -> None:
@@ -48,16 +48,16 @@ class Mastr:
 
         """
         if method == "bulk":
-            if os.path.exists(self.zippedXMLFilePath):
+            if os.path.exists(self._zipped_xml_file_path):
                 print("MaStR already downloaded.")
 
             else:
-                shutil.rmtree(self.save_path)
-                print("MaStR is downloaded to %s" % self.save_path)
-                os.makedirs(self.save_path, exist_ok=True)
-                downloadXMLMastr(self.url, self.save_zip_path)
+                shutil.rmtree(self._xml_folder_path)
+                print("MaStR is downloaded to %s" % self._xml_folder_path)
+                os.makedirs(self._xml_folder_path, exist_ok=True)
+                download_xml_Mastr(self.url, self._zipped_xml_file_path)
 
-            MastrxmlToSQLite(conn=self.BulkSQLConnection)
+            mastr_xml_to_sqlite(con=self._bulk_sql_connection)
 
     def to_docker():
         """
