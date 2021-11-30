@@ -9,7 +9,7 @@ import pdb
 import psycopg2
 import lxml
 import shutil
-from mastrsql.utils import (
+from utils import (
     get_url,
     download_from_url,
     correction_of_metadata,

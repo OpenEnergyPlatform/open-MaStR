@@ -11,7 +11,7 @@ import dateutil
 from mastrsql.metadata import metadata_dict
 
 
-def get_url():
+def getURLFromMastrWebsite():
     """Get the url of the latest MaStR file from markstammdatenregister.de.
 
     The file and the corresponding url are updated once per day.
@@ -28,7 +28,7 @@ def get_url():
     return url
 
 
-def download_from_url(url, save_path):
+def downloadXMLMastr(url, save_path):
     """Downloads the zipped MaStR.
 
     Parameters

@@ -1,7 +1,9 @@
+from _typeshed import Self
 from datetime import date
 import os
 from os.path import expanduser
-from xml_parser.utils import get_url
+from xml_parser.utils import getURLFromMastrWebsite, downloadXMLMastr 
+import shutil
 
 class Mastr():
     def __init__(self) -> None:
@@ -9,20 +11,23 @@ class Mastr():
         
         
         """
-        self.today = date.today().strftime("%Y%m%d")
-        self.url = get_url()
-        self.save_path = os.path.join(
+        self.todayString = date.today().strftime("%Y%m%d")
+        self.xmlDownloadURL = getURLFromMastrWebsite()
+        self.xmlFolderPath = os.path.join(
             expanduser("~"),
             ".open-MaStR",
             "data",
             "xml_download"
+        )
+        self.zippedXMLFilePath = os.path.join(
+            self.xmlFolderPath, "Gesamtdatenexport_%s.zip" % self.todayString
         )
 
 
 
         pass
 
-    def download(method="bulk") -> None:
+    def download(self,method="bulk") -> None:
         """
         method in {bulk, API}
 
@@ -45,8 +50,15 @@ class Mastr():
 
         """
         if method=="bulk":
+            if os.path.exists(self.zippedXMLFilePath):
+                print("MaStR already downloaded.")
+        else:
 
-            pass
+            shutil.rmtree(self.save_path)
+            print("MaStR is downloaded to %s" % self.save_path)
+            os.makedirs(self.save_path, exist_ok=True)
+            # download data from url
+            downloadXMLMastr(self.url, self.save_zip_path)
 
     def to_docker():
         """
