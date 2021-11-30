@@ -118,7 +118,7 @@ def convert_mastr_xml_to_sqlite(con,zipped_xml_file_path,include_tables,exclude_
                 or len(file_name.split(".")[0].split("_")) == 1
                 ):
                     if_exists = "replace"
-                    print("New table %s is created in the PostgreSQL database." %sql_tablename)
+                    print("New table %s is created in the database." %sql_tablename)
                     index_for_printed_message=1
                 else:
                     if_exists = "append"
@@ -128,7 +128,37 @@ def convert_mastr_xml_to_sqlite(con,zipped_xml_file_path,include_tables,exclude_
                 add_table_to_sqlite_database(f,file_name,sql_tablename,if_exists,con)
 
                 
+def add_table_to_sqlite_database(f,file_name,sql_tablename,if_exists,con):
+    data = f.read(file_name)
+    try:
+        df = pd.read_xml(data, encoding="UTF-16", compression="zip")
+    except lxml.etree.XMLSyntaxError as err:
+        df = handle_xml_syntax_error(data, err)
+
+    df, sql_dtype_dict = correction_of_metadata(
+            df, sql_tablename
+        )
+
+    continueloop = True
+    pdb.set_trace()
+    while continueloop:
+        try:
+            df.to_sql(
+                sql_tablename,
+                con,
+                if_exists=if_exists,
+                #dtype=sql_dtype_dict,
+            )
+            continueloop = False
+        except sqlalchemy.exc.ProgrammingError as err:
+            add_missing_column_to_table(err,con,sql_tablename)
+            
+        except sqlalchemy.exc.DataError as err:
+            delete_wrong_xml_entry(err,df)
+
 def add_missing_column_to_table(err,con,sql_tablename):
+    """Some files introduce new columns for existing tables. 
+    If this happens, the error from writing entries into non-existing columns is caught and the column is created."""
     missing_column = str(err).split("«")[0].split("»")[1]
     cursor = con.cursor()
     execute_message = 'ALTER TABLE %s ADD "%s" text NULL;' % (
@@ -140,42 +170,10 @@ def add_missing_column_to_table(err,con,sql_tablename):
     cursor.close()
     con.close()
 
-
-def add_table_to_sqlite_database(f,file_name,sql_tablename,if_exists,con):
-    data = f.read(file_name)
-    save_path_metadata = os.path.join(expanduser("~"),".mastrsql","metadata")
-    try:
-        df = pd.read_xml(data, encoding="UTF-16", compression="zip")
-        df, sql_dtype_dict = correction_of_metadata(
-            df, sql_tablename
-        )
-
-    except lxml.etree.XMLSyntaxError as err:
-        df = handle_xml_syntax_error(data, err)
-        df, sql_dtype_dict = correction_of_metadata(
-            df, sql_tablename, save_path_metadata
-        )
-    continueloop = True
-
-    """Some files introduce new columns for existing tables. 
-    If this happens, the error from writing entries into non-existing columns is caught and the column is created."""
-    while continueloop:
-        try:
-            df.to_sql(
-                sql_tablename,
-                con,
-                if_exists=if_exists,
-                dtype=sql_dtype_dict,
-            )
-            continueloop = False
-        except sqlalchemy.exc.ProgrammingError as err:
-            add_missing_column_to_table(err,con,sql_tablename)
-            
-        except sqlalchemy.exc.DataError as err:
-            delete_entry = str(err).split("«")[0].split("»")[1]
-            print(f"The entry {delete_entry} was deleteted due to its false data type.")
-            df = df.replace(delete_entry, np.nan)
-
+def delete_wrong_xml_entry(err,df):
+    delete_entry = str(err).split("«")[0].split("»")[1]
+    print(f"The entry {delete_entry} was deleteted due to its false data type.")
+    df = df.replace(delete_entry, np.nan)
 
 def correction_of_metadata(df, sql_tablename):
     """Changes data types of Dataframe columns according to predefined metadata.
