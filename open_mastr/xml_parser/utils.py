@@ -9,11 +9,11 @@ from bs4 import BeautifulSoup
 import pdb
 import dateutil
 from mastrsql.metadata import metadata_dict
-import sqlite3
 from zipfile import ZipFile
 import os
 from os.path import expanduser
 import lxml
+import numpy as np
 
 
 def get_url_from_Mastr_website():
@@ -24,6 +24,7 @@ def get_url_from_Mastr_website():
     grabbed from the marktstammdatenregister.de homepage.
     For further details visit https://www.marktstammdatenregister.de/MaStR/Datendownload
     """
+    pdb.set_trace()
     html = requests.get("https://www.marktstammdatenregister.de/MaStR/Datendownload")
     soup = BeautifulSoup(html.text, "lxml")
     # find the download button element on the website
@@ -60,7 +61,7 @@ def download_xml_Mastr(url, save_path):
     time_b = time.perf_counter()
     print("Download is finished. It took %s seconds." % (time_b - time_a))
 
-def mastr_xml_to_sqlite(con,zippedXMLFilePath,includeTables,excludeTables):
+def convert_mastr_xml_to_sqlite(con,zippedXMLFilePath,includeTables,excludeTables):
     """Converts the Mastr in xml format into a sqlite database.
     """
     """Writes the local zipped MaStR to a PostgreSQL database.

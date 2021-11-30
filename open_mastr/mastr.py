@@ -1,15 +1,13 @@
-from _typeshed import Self
 from datetime import date
 import os
 from os.path import expanduser
-from xml_parser.utils import get_url_from_Mastr_website, download_xml_Mastr, mastr_xml_to_sqlite
+from open_mastr.xml_parser.utils import get_url_from_Mastr_website, download_xml_Mastr, convert_mastr_xml_to_sqlite
 import shutil
 import sqlite3
 
 
 class Mastr:
     def __init__(self) -> None:
-        """ """
         self._today_string = date.today().strftime("%Y%m%d")
         self._xml_download_url = get_url_from_Mastr_website()
         self._xml_folder_path = os.path.join(
@@ -57,7 +55,7 @@ class Mastr:
                 os.makedirs(self._xml_folder_path, exist_ok=True)
                 download_xml_Mastr(self.url, self._zipped_xml_file_path)
 
-            mastr_xml_to_sqlite(con=self._bulk_sql_connection)
+            convert_mastr_xml_to_sqlite(con=self._bulk_sql_connection)
 
     def to_docker():
         """
