@@ -55,6 +55,13 @@ def downloadXMLMastr(url, save_path):
     time_b = time.perf_counter()
     print("Download is finished. It took %s seconds." % (time_b - time_a))
 
+def MastrxmlToSQLite():
+    """Converts the Mastr in xml format into a sqlite database
+
+    
+    """
+    pass
+
 
 def correction_of_metadata(df, sql_tablename):
     """Changes data types of Dataframe columns according to predefined metadata.
