@@ -57,7 +57,7 @@ class Mastr:
                 os.makedirs(self.save_path, exist_ok=True)
                 downloadXMLMastr(self.url, self.save_zip_path)
 
-            MastrxmlToSQLite()
+            MastrxmlToSQLite(conn=self.BulkSQLConnection)
 
     def to_docker():
         """
