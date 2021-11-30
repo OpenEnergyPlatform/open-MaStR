@@ -24,7 +24,7 @@ def get_url_from_Mastr_website():
     grabbed from the marktstammdatenregister.de homepage.
     For further details visit https://www.marktstammdatenregister.de/MaStR/Datendownload
     """
-    pdb.set_trace()
+    
     html = requests.get("https://www.marktstammdatenregister.de/MaStR/Datendownload")
     soup = BeautifulSoup(html.text, "lxml")
     # find the download button element on the website

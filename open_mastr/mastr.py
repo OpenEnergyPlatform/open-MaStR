@@ -20,6 +20,8 @@ class Mastr:
         self._sqlite_folder_path=os.path.join(
             expanduser("~"), ".open-MaStR", "data", "sqlite"
         )
+        
+        os.makedirs(self._sqlite_folder_path, exist_ok=True)
         self._bulk_sql_connection = sqlite3.connect(os.path.join(self._sqlite_folder_path,'bulksqlite.db'))
 
 
@@ -50,12 +52,12 @@ class Mastr:
                 print("MaStR already downloaded.")
 
             else:
-                shutil.rmtree(self._xml_folder_path)
-                print("MaStR is downloaded to %s" % self._xml_folder_path)
+                shutil.rmtree(self._xml_folder_path,ignore_errors=True)
                 os.makedirs(self._xml_folder_path, exist_ok=True)
-                download_xml_Mastr(self.url, self._zipped_xml_file_path)
+                print("MaStR is downloaded to %s" % self._xml_folder_path)
+                download_xml_Mastr(self._xml_download_url, self._zipped_xml_file_path)
 
-            convert_mastr_xml_to_sqlite(con=self._bulk_sql_connection)
+            #convert_mastr_xml_to_sqlite(con=self._bulk_sql_connection)
 
     def to_docker():
         """
