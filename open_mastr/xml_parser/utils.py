@@ -135,19 +135,13 @@ def add_table_to_sqlite_database(f,file_name,sql_tablename,if_exists,con):
     except lxml.etree.XMLSyntaxError as err:
         df = handle_xml_syntax_error(data, err)
 
-    df, sql_dtype_dict = correction_of_metadata(
-            df, sql_tablename
-        )
-
     continueloop = True
-    pdb.set_trace()
     while continueloop:
         try:
             df.to_sql(
                 sql_tablename,
                 con,
                 if_exists=if_exists,
-                #dtype=sql_dtype_dict,
             )
             continueloop = False
         except sqlalchemy.exc.ProgrammingError as err:

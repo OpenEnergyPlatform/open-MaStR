@@ -59,7 +59,7 @@ class Mastr:
                 download_xml_Mastr(self._xml_download_url, self._zipped_xml_file_path)
 
             convert_mastr_xml_to_sqlite(con=self._bulk_sql_connection,zipped_xml_file_path=self._zipped_xml_file_path,include_tables=include_tables,exclude_tables=None)
-
+            
         if method == "API":
             pass
 
