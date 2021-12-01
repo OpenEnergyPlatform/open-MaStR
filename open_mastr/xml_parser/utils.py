@@ -44,7 +44,9 @@ def download_xml_Mastr(url, save_path):
     save_path: str
         The path where the downloaded MaStR zipped folder will be saved.
     """
-    print("Download has started, this can take several minutes. The download bar is only a rough estimate.")
+    print(
+        "Download has started, this can take several minutes. The download bar is only a rough estimate."
+    )
     time_a = time.perf_counter()
     r = requests.get(url, stream=True)
     with open(save_path, "wb") as zfile:
@@ -61,9 +63,11 @@ def download_xml_Mastr(url, save_path):
     time_b = time.perf_counter()
     print("Download is finished. It took %s seconds." % (time_b - time_a))
 
-def convert_mastr_xml_to_sqlite(con,zipped_xml_file_path,include_tables,exclude_tables):
-    """Converts the Mastr in xml format into a sqlite database.
-    """
+
+def convert_mastr_xml_to_sqlite(
+    con, zipped_xml_file_path, include_tables, exclude_tables
+):
+    """Converts the Mastr in xml format into a sqlite database."""
     """Writes the local zipped MaStR to a PostgreSQL database.
         
     Parameters
@@ -93,42 +97,44 @@ def convert_mastr_xml_to_sqlite(con,zipped_xml_file_path,include_tables,exclude_
 
     if include_tables:
         exclude_count_reference = 1
-        exclude_tables_reference=include_tables
+        exclude_tables_reference = include_tables
     elif exclude_tables:
         exclude_count_reference = 0
-        exclude_tables_reference=exclude_tables
+        exclude_tables_reference = exclude_tables
     else:
         exclude_count_reference = 0
-        exclude_tables_reference=[]
-
+        exclude_tables_reference = []
 
     with ZipFile(zipped_xml_file_path, "r") as f:
         for file_name in f.namelist():
             # sql tablename is the beginning of the filename without the number in lowercase
             sql_tablename = file_name.split("_")[0].split(".")[0].lower()
-            
+
             # check whether the table exists with current data and append new data or whether to overwrite the existing table
-            
 
             exclude_count = exclude_tables_reference.count(sql_tablename)
             if exclude_count == exclude_count_reference:
-                
+
                 if (
-                file_name.split(".")[0].split("_")[-1] == "1"
-                or len(file_name.split(".")[0].split("_")) == 1
+                    file_name.split(".")[0].split("_")[-1] == "1"
+                    or len(file_name.split(".")[0].split("_")) == 1
                 ):
                     if_exists = "replace"
-                    print("New table %s is created in the database." %sql_tablename)
-                    index_for_printed_message=1
+                    print("New table %s is created in the database." % sql_tablename)
+                    index_for_printed_message = 1
                 else:
                     if_exists = "append"
-                    print(f"File {index_for_printed_message} from {sql_tablename} is parsed.")
-                    index_for_printed_message+=1
-                
-                add_table_to_sqlite_database(f,file_name,sql_tablename,if_exists,con)
+                    print(
+                        f"File {index_for_printed_message} from {sql_tablename} is parsed."
+                    )
+                    index_for_printed_message += 1
 
-                
-def add_table_to_sqlite_database(f,file_name,sql_tablename,if_exists,con):
+                add_table_to_sqlite_database(
+                    f, file_name, sql_tablename, if_exists, con
+                )
+
+
+def add_table_to_sqlite_database(f, file_name, sql_tablename, if_exists, con):
     data = f.read(file_name)
     try:
         df = pd.read_xml(data, encoding="UTF-16", compression="zip")
@@ -145,13 +151,14 @@ def add_table_to_sqlite_database(f,file_name,sql_tablename,if_exists,con):
             )
             continueloop = False
         except sqlalchemy.exc.ProgrammingError as err:
-            add_missing_column_to_table(err,con,sql_tablename)
-            
-        except sqlalchemy.exc.DataError as err:
-            delete_wrong_xml_entry(err,df)
+            add_missing_column_to_table(err, con, sql_tablename)
 
-def add_missing_column_to_table(err,con,sql_tablename):
-    """Some files introduce new columns for existing tables. 
+        except sqlalchemy.exc.DataError as err:
+            delete_wrong_xml_entry(err, df)
+
+
+def add_missing_column_to_table(err, con, sql_tablename):
+    """Some files introduce new columns for existing tables.
     If this happens, the error from writing entries into non-existing columns is caught and the column is created."""
     missing_column = str(err).split("«")[0].split("»")[1]
     cursor = con.cursor()
@@ -164,10 +171,12 @@ def add_missing_column_to_table(err,con,sql_tablename):
     cursor.close()
     con.close()
 
-def delete_wrong_xml_entry(err,df):
+
+def delete_wrong_xml_entry(err, df):
     delete_entry = str(err).split("«")[0].split("»")[1]
     print(f"The entry {delete_entry} was deleteted due to its false data type.")
     df = df.replace(delete_entry, np.nan)
+
 
 def correction_of_metadata(df, sql_tablename):
     """Changes data types of Dataframe columns according to predefined metadata.
@@ -225,8 +234,18 @@ def correction_of_metadata(df, sql_tablename):
     return df, sql_dtype_dict
 
 
+def cleansing_sqlite_database_from_bulkdownload(con):
+    """The cleansing of the bulk download data consists of the following parts:
+    - replace the katalogeintraege
+    """
+    replace_mastr_katalogeintraege(con)
+    
 
-def initialize_database(user_credentials, postgres_standard_credentials = {}):
+
+def replace_mastr_katalogeintraege():
+    pass   
+
+def initialize_database(user_credentials, postgres_standard_credentials={}):
     """Create new PostgreSQL database if it doesn't exist yet.
 
     Parameters
@@ -244,16 +263,19 @@ def initialize_database(user_credentials, postgres_standard_credentials = {}):
         by the user.
 
     """
-    
+
     postgres_standard_credentials_temp = {
         "dbname": "postgres",
         "user": "postgres",
         "password": "postgres",
         "host": "localhost",
         "port": "5432",
-        }
+    }
 
-    postgres_standard_credentials = {**postgres_standard_credentials_temp, **postgres_standard_credentials}    
+    postgres_standard_credentials = {
+        **postgres_standard_credentials_temp,
+        **postgres_standard_credentials,
+    }
 
     try:
         con = psycopg2.connect(

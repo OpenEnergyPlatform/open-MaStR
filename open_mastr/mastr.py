@@ -1,14 +1,19 @@
 from datetime import date
 import os
 from os.path import expanduser
-from open_mastr.xml_parser.utils import get_url_from_Mastr_website, download_xml_Mastr, convert_mastr_xml_to_sqlite
+from open_mastr.xml_parser.utils import (
+    get_url_from_Mastr_website,
+    download_xml_Mastr,
+    convert_mastr_xml_to_sqlite,
+    cleansing_sqlite_database_from_bulkdownload,
+)
 import shutil
 import sqlite3
 
 
 class Mastr:
     def __init__(self) -> None:
-        #self._today_string = date.today().strftime("%Y%m%d")
+        # self._today_string = date.today().strftime("%Y%m%d")
         self._today_string = "20211130"
         self._xml_download_url = get_url_from_Mastr_website()
         self._xml_folder_path = os.path.join(
@@ -18,15 +23,16 @@ class Mastr:
         self._zipped_xml_file_path = os.path.join(
             self._xml_folder_path, "Gesamtdatenexport_%s.zip" % self._today_string
         )
-        self._sqlite_folder_path=os.path.join(
+        self._sqlite_folder_path = os.path.join(
             expanduser("~"), ".open-MaStR", "data", "sqlite"
         )
-        
+
         os.makedirs(self._sqlite_folder_path, exist_ok=True)
-        self._bulk_sql_connection = sqlite3.connect(os.path.join(self._sqlite_folder_path,'bulksqlite.db'))
+        self._bulk_sql_connection = sqlite3.connect(
+            os.path.join(self._sqlite_folder_path, "bulksqlite.db")
+        )
 
-
-    def download(self, method="bulk",include_tables=None) -> None:
+    def download(self, method="bulk", include_tables=None) -> None:
         """
         method in {bulk, API}
 
@@ -53,13 +59,19 @@ class Mastr:
                 print("MaStR already downloaded.")
 
             else:
-                shutil.rmtree(self._xml_folder_path,ignore_errors=True)
+                shutil.rmtree(self._xml_folder_path, ignore_errors=True)
                 os.makedirs(self._xml_folder_path, exist_ok=True)
                 print("MaStR is downloaded to %s" % self._xml_folder_path)
                 download_xml_Mastr(self._xml_download_url, self._zipped_xml_file_path)
 
-            convert_mastr_xml_to_sqlite(con=self._bulk_sql_connection,zipped_xml_file_path=self._zipped_xml_file_path,include_tables=include_tables,exclude_tables=None)
-            
+            convert_mastr_xml_to_sqlite(
+                con=self._bulk_sql_connection,
+                zipped_xml_file_path=self._zipped_xml_file_path,
+                include_tables=include_tables,
+                exclude_tables=None,
+            )
+            cleansing_sqlite_database_from_bulkdownload(con=self._bulk_sql_connection)
+
         if method == "API":
             pass
 
