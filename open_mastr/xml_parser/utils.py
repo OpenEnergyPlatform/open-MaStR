@@ -239,10 +239,11 @@ def cleansing_sqlite_database_from_bulkdownload(con):
     - replace the katalogeintraege
     """
     replace_mastr_katalogeintraege(con)
+
+
+
+def replace_mastr_katalogeintraege(con):
     
-
-
-def replace_mastr_katalogeintraege():
     pass   
 
 def initialize_database(user_credentials, postgres_standard_credentials={}):
