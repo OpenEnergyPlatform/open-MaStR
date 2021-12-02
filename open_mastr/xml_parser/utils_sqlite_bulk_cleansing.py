@@ -2,20 +2,22 @@ import pathlib
 from collections import ChainMap
 from typing import List, Dict, Tuple
 from defusedxml.ElementTree import parse
+from zipfile import ZipFile
 
 
-def cleansing_sqlite_database_from_bulkdownload(con):
+def cleansing_sqlite_database_from_bulkdownload(con,zipped_xml_file_path):
     """The cleansing of the bulk download data consists of the following parts:
     - replace the katalogeintraege
     """
-    replace_mastr_katalogeintraege(con)
+    replace_mastr_katalogeintraege(con,zipped_xml_file_path)
 
 
 
-def replace_mastr_katalogeintraege(con):
-    catalog = make_catalog_from_mastr_xml_files()
+def replace_mastr_katalogeintraege(con,zipped_xml_file_path):
+    catalog = make_catalog_from_mastr_xml_files(zipped_xml_file_path)
 
-def make_catalog_from_mastr_xml_files():
+
+def make_catalog_from_mastr_xml_files(zipped_xml_file_path):
     CATALOG_MAPPING = {
     "NACEGruppeAbschnitt": "HauptwirtdschaftszweigAbschnitt",
     "NACEGruppeAbteilung": "HauptwirtdschaftszweigAbteilung",
@@ -26,15 +28,20 @@ def make_catalog_from_mastr_xml_files():
     catalog = ChainMap(
         {
             CATALOG_MAPPING.get(category, category): get_values_for_category(
-                category_id
+                category_id,
+                zipped_xml_file_path
             )
-            for category, category_id in get_categories()
+            for category, category_id in get_categories(zipped_xml_file_path)
         },
         CATALOG_MISSING,
     )
+    return catalog
 
-def get_categories():
-    categories_file = pathlib.Path(MASTR_FOLDER) / "Katalogkategorien.xml"
+def get_categories(zipped_xml_file_path):
+    with ZipFile(zipped_xml_file_path, "r") as f:
+        for file_name in f.namelist():
+            if file_name=="Katalogkategorien.xml":
+                categories_file = f.read(file_name)
     if not (categories_file.exists()):
         raise FileNotFoundError(
             f"Kann die Datei '{categories_file}' aus dem MaStR-Datensatz nicht finden."
@@ -46,8 +53,11 @@ def get_categories():
         yield attributes["Name"], attributes["Id"]
 
 
-def get_values_for_category(category_id,):
-    values_file = pathlib.Path(MASTR_FOLDER) / "Katalogwerte.xml"
+def get_values_for_category(category_id,zipped_xml_file_path):
+    with ZipFile(zipped_xml_file_path, "r") as f:
+        for file_name in f.namelist():
+            if file_name=="Katalogwerte.xml":
+                values_file = f.read(file_name)
     if not (values_file.exists()):
         raise FileNotFoundError(
             f"Kann die Datei '{values_file}' aus dem MaStR-Datensatz nicht finden."
@@ -60,3 +70,11 @@ def get_values_for_category(category_id,):
         if attributes["KatalogKategorieId"] == category_id:
             values[attributes["Id"]] = attributes["Wert"]
     return values
+
+def apply_catalog(player,catalog):
+    return {
+        attribute: catalog[attribute].get(value, value)
+        if attribute in catalog
+        else value
+        for attribute, value in player.items()
+    }

@@ -4,9 +4,10 @@ from os.path import expanduser
 from open_mastr.xml_parser.utils_download_bulk import (
     get_url_from_Mastr_website,
     download_xml_Mastr,
-    convert_mastr_xml_to_sqlite,
-    cleansing_sqlite_database_from_bulkdownload,
+
 )
+from open_mastr.xml_parser.utils_write_sqlite import convert_mastr_xml_to_sqlite
+from open_mastr.xml_parser.utils_sqlite_bulk_cleansing import cleansing_sqlite_database_from_bulkdownload
 import shutil
 import sqlite3
 
