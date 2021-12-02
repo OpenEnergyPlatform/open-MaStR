@@ -1,7 +1,7 @@
 from datetime import date
 import os
 from os.path import expanduser
-from open_mastr.xml_parser.utils import (
+from open_mastr.xml_parser.utils_download_bulk import (
     get_url_from_Mastr_website,
     download_xml_Mastr,
     convert_mastr_xml_to_sqlite,
