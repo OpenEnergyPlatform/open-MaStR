@@ -27,8 +27,13 @@ def replace_mastr_katalogeintraege(con,zipped_xml_file_path):
             
 
 def replace_katalogeintraege_in_single_table(con,table_name,catalog):
+    """This still seems to have errors."""
     df = pd.read_sql(table_name,con)
     for column_name in df.columns:
+        if column_name in catalog.keys():
+            df[column_name]=df[column_name].astype('Int64').map(catalog[column_name])
+    
+    return df
 
 
 
@@ -40,7 +45,7 @@ def make_catalog_from_mastr_xml_files(zipped_xml_file_path):
     "NACEGruppe": "HauptwirtdschaftszweigGruppe",
     "RegisterGericht": "Registergericht",
     }  # Achtung: Falsche Schreibweise liegt am MaStR-Datensatz!
-    CATALOG_MISSING = {"Marktfunktion": {"2": "Anlagenbetreiber"}}
+    CATALOG_MISSING = {"Marktfunktion": {2: "Anlagenbetreiber"}}
     catalog = dict(
         {
             CATALOG_MAPPING.get(category, category): get_values_for_category(
@@ -83,5 +88,5 @@ def get_values_for_category(category_id,zipped_xml_file_path):
     for category in root:
         attributes = {attribute.tag: attribute.text for attribute in category}
         if attributes["KatalogKategorieId"] == category_id:
-            values[attributes["Id"]] = attributes["Wert"]
+            values[int(attributes["Id"])] = attributes["Wert"]
     return values
