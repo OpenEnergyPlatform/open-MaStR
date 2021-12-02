@@ -3,6 +3,7 @@ from collections import ChainMap
 from typing import List, Dict, Tuple
 from defusedxml.ElementTree import parse
 from zipfile import ZipFile
+import pandas as pd
 
 
 def cleansing_sqlite_database_from_bulkdownload(con,zipped_xml_file_path):
@@ -15,6 +16,21 @@ def cleansing_sqlite_database_from_bulkdownload(con,zipped_xml_file_path):
 
 def replace_mastr_katalogeintraege(con,zipped_xml_file_path):
     catalog = make_catalog_from_mastr_xml_files(zipped_xml_file_path)
+    execute_message = "SELECT name FROM sqlite_master WHERE TYPE='table';"
+    cursor = con.cursor()
+    cursor.execute(execute_message)
+    tables_list=cursor.fetchall()
+    for table_name_tuple in tables_list:
+        table_name = table_name_tuple[0]
+        if not table_name in ['katalogwerte','katalogkategorien']:
+            replace_katalogeintraege_in_single_table(table_name,catalog)
+            
+
+def replace_katalogeintraege_in_single_table(con,table_name,catalog):
+    df = pd.read_sql(table_name,con)
+    for column_name in df.columns:
+
+
 
 
 def make_catalog_from_mastr_xml_files(zipped_xml_file_path):
@@ -25,16 +41,15 @@ def make_catalog_from_mastr_xml_files(zipped_xml_file_path):
     "RegisterGericht": "Registergericht",
     }  # Achtung: Falsche Schreibweise liegt am MaStR-Datensatz!
     CATALOG_MISSING = {"Marktfunktion": {"2": "Anlagenbetreiber"}}
-    catalog = ChainMap(
+    catalog = dict(
         {
             CATALOG_MAPPING.get(category, category): get_values_for_category(
-                category_id,
-                zipped_xml_file_path
+                category_id
             )
-            for category, category_id in get_categories(zipped_xml_file_path)
-        },
-        CATALOG_MISSING,
-    )
+            for category, category_id in get_categories()
+        })
+    catalog = catalog | CATALOG_MISSING
+
     return catalog
 
 def get_categories(zipped_xml_file_path):
@@ -70,11 +85,3 @@ def get_values_for_category(category_id,zipped_xml_file_path):
         if attributes["KatalogKategorieId"] == category_id:
             values[attributes["Id"]] = attributes["Wert"]
     return values
-
-def apply_catalog(player,catalog):
-    return {
-        attribute: catalog[attribute].get(value, value)
-        if attribute in catalog
-        else value
-        for attribute, value in player.items()
-    }
