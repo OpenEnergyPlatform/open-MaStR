@@ -5,6 +5,8 @@ import lxml
 import numpy as np
 import pandas as pd
 import sqlalchemy
+import sqlite3
+import pdb
 
 
 def convert_mastr_xml_to_sqlite(
@@ -93,7 +95,7 @@ def add_table_to_sqlite_database(f, file_name, sql_tablename, if_exists, con):
                 if_exists=if_exists,
             )
             continueloop = False
-        except sqlalchemy.exc.ProgrammingError as err:
+        except sqlite3.OperationalError as err:
             add_missing_column_to_table(err, con, sql_tablename)
 
         except sqlalchemy.exc.DataError as err:
@@ -103,7 +105,7 @@ def add_table_to_sqlite_database(f, file_name, sql_tablename, if_exists, con):
 def add_missing_column_to_table(err, con, sql_tablename):
     """Some files introduce new columns for existing tables.
     If this happens, the error from writing entries into non-existing columns is caught and the column is created."""
-    missing_column = str(err).split("«")[0].split("»")[1]
+    missing_column = str(err).split("no column named ")[1]
     cursor = con.cursor()
     execute_message = 'ALTER TABLE %s ADD "%s" text NULL;' % (
         sql_tablename,
@@ -112,7 +114,6 @@ def add_missing_column_to_table(err, con, sql_tablename):
     cursor.execute(execute_message)
     con.commit()
     cursor.close()
-    con.close()
 
 
 def delete_wrong_xml_entry(err, df):
