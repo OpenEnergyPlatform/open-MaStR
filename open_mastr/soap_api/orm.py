@@ -54,6 +54,7 @@ class MissedAdditionalData(Base):
 class Extended(object):
 
     NetzbetreiberMastrNummer = Column(String)
+    Registrierungsdatum = Column(Date)
     EinheitMastrNummer = Column(String, primary_key=True)
     DatumLetzteAktualisierung = Column(DateTime(timezone=True))
     LokationMastrNummer = Column(String)
