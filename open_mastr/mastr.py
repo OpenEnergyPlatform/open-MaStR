@@ -6,16 +6,17 @@ from os.path import expanduser
 from open_mastr.xml_parser.utils_download_bulk import (
     get_url_from_Mastr_website,
     download_xml_Mastr,
-
 )
 from open_mastr.xml_parser.utils_write_sqlite import convert_mastr_xml_to_sqlite
-from open_mastr.xml_parser.utils_sqlite_bulk_cleansing import cleansing_sqlite_database_from_bulkdownload
+from open_mastr.xml_parser.utils_sqlite_bulk_cleansing import (
+    cleansing_sqlite_database_from_bulkdownload,
+)
 import shutil
 import sqlite3
 
 
 class Mastr:
-    def __init__(self,date_string="today") -> None:
+    def __init__(self, date_string="today") -> None:
         if date_string == "today":
             self._today_string = date.today().strftime("%Y%m%d")
         else:
@@ -24,7 +25,7 @@ class Mastr:
             except dateutil.parser.ParserError:
                 print("date_string has to be a proper date in the format yyyymmdd.")
                 raise
-            
+
         self._xml_download_url = get_url_from_Mastr_website()
         self._xml_folder_path = os.path.join(
             expanduser("~"), ".open-MaStR", "data", "xml_download"
@@ -80,7 +81,11 @@ class Mastr:
                 include_tables=include_tables,
                 exclude_tables=None,
             )
-            cleansing_sqlite_database_from_bulkdownload(con=self._bulk_sql_connection,zipped_xml_file_path=self._zipped_xml_file_path)
+            cleansing_sqlite_database_from_bulkdownload(
+                con=self._bulk_sql_connection,
+                zipped_xml_file_path=self._zipped_xml_file_path,
+                xml_folder_path=self._xml_folder_path,
+            )
 
         if method == "API":
             pass

@@ -10,6 +10,7 @@ import pdb
 import dateutil
 from mastrsql.metadata import metadata_dict
 
+
 def get_url_from_Mastr_website():
     """Get the url of the latest MaStR file from markstammdatenregister.de.
 
@@ -56,6 +57,7 @@ def download_xml_Mastr(url, save_path):
                 zfile.flush()
     time_b = time.perf_counter()
     print("Download is finished. It took %s seconds." % (time_b - time_a))
+
 
 def correction_of_metadata(df, sql_tablename):
     """Changes data types of Dataframe columns according to predefined metadata.
@@ -112,6 +114,7 @@ def correction_of_metadata(df, sql_tablename):
         df = df.astype(dtype_dict_for_df, errors="ignore")
     return df, sql_dtype_dict
 
+
 def initialize_database(user_credentials, postgres_standard_credentials={}):
     """Create new PostgreSQL database if it doesn't exist yet.
 
@@ -160,6 +163,3 @@ def initialize_database(user_credentials, postgres_standard_credentials={}):
         con.close()
     except psycopg2.errors.DuplicateDatabase:
         print(f"Using existing {name_database} database in PostgreSQL.")
-
-
-
