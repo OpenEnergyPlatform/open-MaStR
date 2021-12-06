@@ -25,12 +25,12 @@ def replace_mastr_katalogeintraege(con, zipped_xml_file_path, xml_folder_path):
     for table_name_tuple in tables_list:
         table_name = table_name_tuple[0]
         if not table_name in ["katalogwerte", "katalogkategorien"]:
-            replace_katalogeintraege_in_single_table(table_name, catalog)
+            replace_katalogeintraege_in_single_table(con, table_name, catalog)
 
 
 def replace_katalogeintraege_in_single_table(con, table_name, catalog):
     """This still seems to have errors."""
-    df = pd.read_sql(table_name, con)
+    df = pd.read_sql(f"SELECT * FROM {table_name};", con)
     for column_name in df.columns:
         if column_name in catalog.keys():
             df[column_name] = df[column_name].astype("Int64").map(catalog[column_name])
@@ -49,7 +49,7 @@ def make_catalog_from_mastr_xml_files(zipped_xml_file_path, xml_folder_path):
     catalog = dict(
         {
             CATALOG_MAPPING.get(category, category): get_values_for_category(
-                category_id, zipped_xml_file_path
+                category_id, zipped_xml_file_path, xml_folder_path
             )
             for category, category_id in get_categories(
                 zipped_xml_file_path, xml_folder_path
@@ -68,12 +68,12 @@ def get_categories(zipped_xml_file_path, xml_folder_path):
                 categories_extracted_filepath = f.extract(
                     file_name, path=xml_folder_path
                 )
-                if not categories_file:
+                
+                if not categories_extracted_filepath:
                     raise FileNotFoundError(
-                        f"Kann die Datei '{categories_file}' aus dem MaStR-Datensatz nicht finden."
+                        f"Kann die Datei '{file_name}' aus dem MaStR-Datensatz nicht finden."
                     )
-                pdb.set_trace()
-                tree = parse(categories_file)
+                tree = parse(categories_extracted_filepath)
                 root = tree.getroot()
                 for category in root:
                     attributes = {
@@ -82,16 +82,18 @@ def get_categories(zipped_xml_file_path, xml_folder_path):
                     yield attributes["Name"], attributes["Id"]
 
 
-def get_values_for_category(category_id, zipped_xml_file_path):
+def get_values_for_category(category_id, zipped_xml_file_path,xml_folder_path):
     with ZipFile(zipped_xml_file_path, "r") as f:
         for file_name in f.namelist():
             if file_name == "Katalogwerte.xml":
-                values_file = f.read(file_name)
-    if not (values_file.exists()):
+                values_extracted_filepath = f.extract(
+                    file_name, path=xml_folder_path
+                )
+    if not values_extracted_filepath:
         raise FileNotFoundError(
-            f"Kann die Datei '{values_file}' aus dem MaStR-Datensatz nicht finden."
+            f"Kann die Datei '{file_name}' aus dem MaStR-Datensatz nicht finden."
         )
-    tree = parse(values_file)
+    tree = parse(values_extracted_filepath)
     root = tree.getroot()
     values = {}
     for category in root:
