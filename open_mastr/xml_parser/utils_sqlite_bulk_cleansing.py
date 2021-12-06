@@ -5,6 +5,7 @@ from defusedxml.ElementTree import parse
 from zipfile import ZipFile
 import pandas as pd
 import pdb
+import re
 
 
 def cleansing_sqlite_database_from_bulkdownload(
@@ -22,9 +23,10 @@ def replace_mastr_katalogeintraege(con, zipped_xml_file_path, xml_folder_path):
     cursor = con.cursor()
     cursor.execute(execute_message)
     tables_list = cursor.fetchall()
+    pattern = re.compile(r'cleansed|katalog')
     for table_name_tuple in tables_list:
         table_name = table_name_tuple[0]
-        if not table_name in ["katalogwerte", "katalogkategorien"]:
+        if not re.search(pattern,table_name):
             replace_katalogeintraege_in_single_table(con, table_name, catalog)
 
 
@@ -34,8 +36,9 @@ def replace_katalogeintraege_in_single_table(con, table_name, catalog):
     for column_name in df.columns:
         if column_name in catalog.keys():
             df[column_name] = df[column_name].astype("Int64").map(catalog[column_name])
-
-    return df
+    cleansed_table_name=table_name + "_cleansed"
+    df.to_sql(cleansed_table_name,con,index=False,if_exists='replace')
+    print(f"Data in table {table_name} was sucessfully cleansed.")
 
 
 def make_catalog_from_mastr_xml_files(zipped_xml_file_path, xml_folder_path):
