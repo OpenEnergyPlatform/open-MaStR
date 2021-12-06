@@ -43,7 +43,6 @@ class AdditionalDataRequested(Base):
 
 
 class MissedAdditionalData(Base):
-
     __tablename__ = "missed_additional_data"
 
     id = Column(Integer, Sequence("additional_data_missed_id_seq", schema=mirror_schema), primary_key=True)
@@ -54,6 +53,7 @@ class MissedAdditionalData(Base):
 
 class Extended(object):
 
+    NetzbetreiberMastrNummer = Column(String)
     EinheitMastrNummer = Column(String, primary_key=True)
     DatumLetzteAktualisierung = Column(DateTime(timezone=True))
     LokationMastrNummer = Column(String)
@@ -252,7 +252,6 @@ class StorageExtended(Extended, Base):
 
 
 class Eeg(object):
-
     EegMastrNummer = Column(String, primary_key=True)
     Meldedatum = Column(Date)
     DatumLetzteAktualisierung = Column(DateTime(timezone=True))
@@ -397,7 +396,6 @@ class AdditionalLocationsRequested(Base):
 
 
 class MissedExtendedLocation(Base):
-
     __tablename__ = "missed_extended_location_data"
 
     id = Column(Integer, Sequence("additional_location_data_missed_id_seq", schema=mirror_schema), primary_key=True)
