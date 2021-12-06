@@ -1,4 +1,6 @@
 from datetime import date
+from dateutil.parser import isoparse
+import dateutil
 import os
 from os.path import expanduser
 from open_mastr.xml_parser.utils_download_bulk import (
@@ -13,9 +15,16 @@ import sqlite3
 
 
 class Mastr:
-    def __init__(self) -> None:
-        # self._today_string = date.today().strftime("%Y%m%d")
-        self._today_string = "20211130"
+    def __init__(self,date_string="today") -> None:
+        if date_string == "today":
+            self._today_string = date.today().strftime("%Y%m%d")
+        else:
+            try:
+                self._today_string = isoparse(date_string).strftime("%Y%m%d")
+            except dateutil.parser.ParserError:
+                print("date_string has to be a proper date in the format yyyymmdd.")
+                raise
+            
         self._xml_download_url = get_url_from_Mastr_website()
         self._xml_folder_path = os.path.join(
             expanduser("~"), ".open-MaStR", "data", "xml_download"
@@ -71,7 +80,7 @@ class Mastr:
                 include_tables=include_tables,
                 exclude_tables=None,
             )
-            cleansing_sqlite_database_from_bulkdownload(con=self._bulk_sql_connection)
+            cleansing_sqlite_database_from_bulkdownload(con=self._bulk_sql_connection,zipped_xml_file_path=self._zipped_xml_file_path)
 
         if method == "API":
             pass

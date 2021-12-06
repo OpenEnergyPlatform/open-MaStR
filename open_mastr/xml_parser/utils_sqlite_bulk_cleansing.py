@@ -4,6 +4,7 @@ from typing import List, Dict, Tuple
 from defusedxml.ElementTree import parse
 from zipfile import ZipFile
 import pandas as pd
+import pdb
 
 
 def cleansing_sqlite_database_from_bulkdownload(con,zipped_xml_file_path):
@@ -49,9 +50,10 @@ def make_catalog_from_mastr_xml_files(zipped_xml_file_path):
     catalog = dict(
         {
             CATALOG_MAPPING.get(category, category): get_values_for_category(
-                category_id
+                category_id,
+                zipped_xml_file_path
             )
-            for category, category_id in get_categories()
+            for category, category_id in get_categories(zipped_xml_file_path)
         })
     catalog = catalog | CATALOG_MISSING
 
@@ -62,15 +64,16 @@ def get_categories(zipped_xml_file_path):
         for file_name in f.namelist():
             if file_name=="Katalogkategorien.xml":
                 categories_file = f.read(file_name)
-    if not (categories_file.exists()):
-        raise FileNotFoundError(
-            f"Kann die Datei '{categories_file}' aus dem MaStR-Datensatz nicht finden."
-        )
-    tree = parse(categories_file)
-    root = tree.getroot()
-    for category in root:
-        attributes = {attribute.tag: attribute.text for attribute in category}
-        yield attributes["Name"], attributes["Id"]
+                if not categories_file:
+                    raise FileNotFoundError(
+                        f"Kann die Datei '{categories_file}' aus dem MaStR-Datensatz nicht finden."
+                    )
+                pdb.set_trace()
+                tree = parse(categories_file)
+                root = tree.getroot()
+                for category in root:
+                    attributes = {attribute.tag: attribute.text for attribute in category}
+                    yield attributes["Name"], attributes["Id"]
 
 
 def get_values_for_category(category_id,zipped_xml_file_path):
