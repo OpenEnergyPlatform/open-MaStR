@@ -13,6 +13,8 @@ from open_mastr.xml_parser.utils_sqlite_bulk_cleansing import (
 )
 import shutil
 import sqlite3
+from zipfile import ZipFile
+import pdb
 
 
 class Mastr:
@@ -43,7 +45,7 @@ class Mastr:
             os.path.join(self._sqlite_folder_path, "bulksqlite.db")
         )
 
-    def download(self, method="bulk", include_tables=None, cleansing=True) -> None:
+    def download(self, method="bulk", include_tables=None, exclude_tables=None, cleansing=True) -> None:
         """
         method in {bulk, API}
 
@@ -66,6 +68,17 @@ class Mastr:
 
         """
         if method == "bulk":
+            if include_tables and exclude_tables:
+                raise Exception("Either include_tables or exclude_tables has to be None.")
+
+            with ZipFile(self._zipped_xml_file_path, "r") as f:
+                    full_list_of_files =  [entry[:-4].lower() for entry in f.namelist() if not entry[-5].isdigit()]
+                    # transforms AnlagenEegBiomasse.xml in anlageneegbiomasse
+            if exclude_tables:
+                include_tables = [entry for entry in full_list_of_files if entry not in exclude_tables]
+            if not include_tables and not exclude_tables:
+                include_tables = full_list_of_files
+            
             if os.path.exists(self._zipped_xml_file_path):
                 print("MaStR already downloaded.")
 
@@ -79,13 +92,13 @@ class Mastr:
                 con=self._bulk_sql_connection,
                 zipped_xml_file_path=self._zipped_xml_file_path,
                 include_tables=include_tables,
-                exclude_tables=None,
             )
             if cleansing:
                 cleansing_sqlite_database_from_bulkdownload(
                     con=self._bulk_sql_connection,
                     zipped_xml_file_path=self._zipped_xml_file_path,
                     xml_folder_path=self._xml_folder_path,
+                    include_tables=include_tables,
                 )
 
         if method == "API":
