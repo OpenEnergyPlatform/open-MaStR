@@ -40,19 +40,10 @@ def convert_mastr_xml_to_sqlite(
 
     """
 
-    # excludeCountReference is important for checking which files are written to the SQL database
-    # if it is 1, all files from the exclude_tablesReference are included to be written to the databse,
-    # if it is 0, all files from the exclude_tablesReference are excluded.
+    
 
-    if include_tables:
-        exclude_count_reference = 1
-        exclude_tables_reference = include_tables
-    elif exclude_tables:
-        exclude_count_reference = 0
-        exclude_tables_reference = exclude_tables
-    else:
-        exclude_count_reference = 0
-        exclude_tables_reference = []
+    tables_reference_list, count_reference = make_reference_list_and_count()
+
 
     with ZipFile(zipped_xml_file_path, "r") as f:
         for file_name in f.namelist():
@@ -61,8 +52,8 @@ def convert_mastr_xml_to_sqlite(
 
             # check whether the table exists with current data and append new data or whether to overwrite the existing table
 
-            exclude_count = exclude_tables_reference.count(sql_tablename)
-            if exclude_count == exclude_count_reference:
+            exclude_count = tables_reference_list.count(sql_tablename)
+            if exclude_count == count_reference:
 
                 if (
                     file_name.split(".")[0].split("_")[-1] == "1"
@@ -82,6 +73,22 @@ def convert_mastr_xml_to_sqlite(
                     f, file_name, sql_tablename, if_exists, con
                 )
 
+def make_reference_list_and_count(include_tables,exclude_tables):
+    '''
+    count_reference and tables_reference_list are important for checking which files are written to the SQL database
+    if count_reference is 1, all files from the tables_reference_list are included to be written to the databse,
+    if it is 0, all files from the tables_reference_list are excluded.
+    '''
+    if include_tables:
+        count_reference = 1
+        tables_reference_list = include_tables
+    elif exclude_tables:
+        count_reference = 0
+        tables_reference_list = exclude_tables
+    else:
+        count_reference = 0
+        tables_reference_list = []
+    return tables_reference_list, count_reference
 
 def add_table_to_sqlite_database(
     f: ZipFile,
