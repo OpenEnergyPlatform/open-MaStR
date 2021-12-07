@@ -9,9 +9,10 @@ from bs4 import BeautifulSoup
 import pdb
 import dateutil
 from mastrsql.metadata import metadata_dict
+from typing import Tuple
 
 
-def get_url_from_Mastr_website():
+def get_url_from_Mastr_website() -> str:
     """Get the url of the latest MaStR file from markstammdatenregister.de.
 
     The file and the corresponding url are updated once per day.
@@ -29,7 +30,7 @@ def get_url_from_Mastr_website():
     return url
 
 
-def download_xml_Mastr(url, save_path):
+def download_xml_Mastr(url: str, save_path: str) -> None:
     """Downloads the zipped MaStR.
 
     Parameters
@@ -59,7 +60,7 @@ def download_xml_Mastr(url, save_path):
     print("Download is finished. It took %s seconds." % (time_b - time_a))
 
 
-def correction_of_metadata(df, sql_tablename):
+def correction_of_metadata(df: pd.DataFrame, sql_tablename: str) -> Tuple[pd.DataFrame, dict]:
     """Changes data types of Dataframe columns according to predefined metadata.
 
     Parameters
@@ -115,6 +116,8 @@ def correction_of_metadata(df, sql_tablename):
     return df, sql_dtype_dict
 
 
+
+'''
 def initialize_database(user_credentials, postgres_standard_credentials={}):
     """Create new PostgreSQL database if it doesn't exist yet.
 
@@ -163,3 +166,4 @@ def initialize_database(user_credentials, postgres_standard_credentials={}):
         con.close()
     except psycopg2.errors.DuplicateDatabase:
         print(f"Using existing {name_database} database in PostgreSQL.")
+'''
