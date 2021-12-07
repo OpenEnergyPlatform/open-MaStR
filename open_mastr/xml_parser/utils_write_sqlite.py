@@ -1,3 +1,4 @@
+from shutil import Error
 from zipfile import ZipFile
 import os
 from os.path import expanduser
@@ -10,8 +11,11 @@ import pdb
 
 
 def convert_mastr_xml_to_sqlite(
-    con, zipped_xml_file_path, include_tables, exclude_tables
-):
+    con: sqlite3.Connection,
+    zipped_xml_file_path: str,
+    include_tables: list,
+    exclude_tables: list,
+) -> None:
     """Converts the Mastr in xml format into a sqlite database."""
     """Writes the local zipped MaStR to a PostgreSQL database.
         
@@ -79,7 +83,13 @@ def convert_mastr_xml_to_sqlite(
                 )
 
 
-def add_table_to_sqlite_database(f, file_name, sql_tablename, if_exists, con):
+def add_table_to_sqlite_database(
+    f: ZipFile,
+    file_name: str,
+    sql_tablename: str,
+    if_exists: bool,
+    con: sqlite3.Connection,
+) -> None:
     data = f.read(file_name)
     try:
         df = pd.read_xml(data, encoding="UTF-16", compression="zip")
@@ -102,7 +112,9 @@ def add_table_to_sqlite_database(f, file_name, sql_tablename, if_exists, con):
             delete_wrong_xml_entry(err, df)
 
 
-def add_missing_column_to_table(err, con, sql_tablename):
+def add_missing_column_to_table(
+    err: Error, con: sqlite3.Connection, sql_tablename: str
+) -> None:
     """Some files introduce new columns for existing tables.
     If this happens, the error from writing entries into non-existing columns is caught and the column is created."""
     missing_column = str(err).split("no column named ")[1]
@@ -116,13 +128,13 @@ def add_missing_column_to_table(err, con, sql_tablename):
     cursor.close()
 
 
-def delete_wrong_xml_entry(err, df):
+def delete_wrong_xml_entry(err: Error, df: pd.DataFrame) -> None:
     delete_entry = str(err).split("«")[0].split("»")[1]
     print(f"The entry {delete_entry} was deleteted due to its false data type.")
     df = df.replace(delete_entry, np.nan)
 
 
-def handle_xml_syntax_error(data, err):
+def handle_xml_syntax_error(data: bytes, err: Error) -> pd.DataFrame:
     """Deletes entries that cause an xml syntax error and produces DataFrame.
 
     Parameters
