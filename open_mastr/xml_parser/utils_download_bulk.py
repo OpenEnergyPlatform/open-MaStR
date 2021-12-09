@@ -60,6 +60,7 @@ def download_xml_Mastr(url: str, save_path: str) -> None:
     print("Download is finished. It took %s seconds." % (time_b - time_a))
 
 
+'''
 def correction_of_metadata(df: pd.DataFrame, sql_tablename: str) -> Tuple[pd.DataFrame, dict]:
     """Changes data types of Dataframe columns according to predefined metadata.
 
@@ -114,7 +115,7 @@ def correction_of_metadata(df: pd.DataFrame, sql_tablename: str) -> Tuple[pd.Dat
         # but all other columns change their data type
         df = df.astype(dtype_dict_for_df, errors="ignore")
     return df, sql_dtype_dict
-
+'''
 
 
 '''

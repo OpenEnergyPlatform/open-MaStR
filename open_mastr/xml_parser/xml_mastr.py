@@ -1,4 +1,3 @@
-
 import csv
 import pathlib
 from collections import ChainMap
@@ -27,7 +26,9 @@ def main():
         export_file(file.stem, headers, data)
 
 
-def get_data_from_xml_file(file: pathlib.Path) -> Tuple[List[str], List[Dict[str, str]]]:
+def get_data_from_xml_file(
+    file: pathlib.Path,
+) -> Tuple[List[str], List[Dict[str, str]]]:
     tree = parse(file)
     root = tree.getroot()
     data = []
@@ -41,10 +42,10 @@ def get_data_from_xml_file(file: pathlib.Path) -> Tuple[List[str], List[Dict[str
 
 
 def export_file(filename: str, headers: List[str], data: List[Dict[str, str]]):
-    with open(f"{OUTPUT_FOLDER}/{filename}.csv", "w", encoding="utf-8", newline="") as csv_file:
-        csv_writer = csv.DictWriter(
-            csv_file, headers, delimiter=";"
-        )
+    with open(
+        f"{OUTPUT_FOLDER}/{filename}.csv", "w", encoding="utf-8", newline=""
+    ) as csv_file:
+        csv_writer = csv.DictWriter(csv_file, headers, delimiter=";")
         csv_writer.writeheader()
         for item in data:
             csv_writer.writerow(item)

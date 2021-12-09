@@ -39,7 +39,7 @@ class Mastr:
         self._sqlite_folder_path = os.path.join(
             expanduser("~"), ".open-MaStR", "data", "sqlite"
         )
-
+        os.makedirs(self._xml_folder_path, exist_ok=True)
         os.makedirs(self._sqlite_folder_path, exist_ok=True)
         self._bulk_sql_connection = sqlite3.connect(
             os.path.join(self._sqlite_folder_path, "bulksqlite.db")

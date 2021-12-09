@@ -9,27 +9,33 @@ import pdb
 import re
 
 
-
 def cleansing_sqlite_database_from_bulkdownload(
-    con: sqlite3.Connection, zipped_xml_file_path: str, xml_folder_path: str, include_tables: list
-                
+    con: sqlite3.Connection,
+    zipped_xml_file_path: str,
+    xml_folder_path: str,
+    include_tables: list,
 ) -> None:
     """The cleansing of the bulk download data consists of the following parts:
     - replace the katalogeintraege
     """
 
     for sql_tablename in include_tables:
-        replace_mastr_katalogeintraege(con, sql_tablename, zipped_xml_file_path, xml_folder_path)
+        replace_mastr_katalogeintraege(
+            con, sql_tablename, zipped_xml_file_path, xml_folder_path
+        )
 
 
 def replace_mastr_katalogeintraege(
-    con: sqlite3.Connection, sql_tablename:str, zipped_xml_file_path: str, xml_folder_path: str
+    con: sqlite3.Connection,
+    sql_tablename: str,
+    zipped_xml_file_path: str,
+    xml_folder_path: str,
 ) -> None:
     catalog = make_catalog_from_mastr_xml_files(zipped_xml_file_path, xml_folder_path)
-    #execute_message = "SELECT name FROM sqlite_master WHERE TYPE='table';"
-    #cursor = con.cursor()
-    #cursor.execute(execute_message)
-    #tables_list = cursor.fetchall()
+    # execute_message = "SELECT name FROM sqlite_master WHERE TYPE='table';"
+    # cursor = con.cursor()
+    # cursor.execute(execute_message)
+    # tables_list = cursor.fetchall()
     pattern = re.compile(r"cleansed|katalog")
     if not re.search(pattern, sql_tablename):
         replace_katalogeintraege_in_single_table(con, sql_tablename, catalog)
