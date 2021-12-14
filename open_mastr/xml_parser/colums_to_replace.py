@@ -1,9 +1,9 @@
-columns_replace_list=[
-    #anlageneegsolar
+columns_replace_list = [
+    # anlageneegsolar
     "AnlageBetriebsstatus",
-    #anlageneegspeicher
-    #anlagenstromspeicher
-    #einheitensolar
+    # anlageneegspeicher
+    # anlagenstromspeicher
+    # einheitensolar
     "Land",
     "Bundesland",
     "EinheitSystemstatus",
@@ -19,13 +19,13 @@ columns_replace_list=[
     "Nebenausrichtung",
     "NebenausrichtungNeigungswinkel",
     "ArtDerFlaecheIds",
-    #einheitenstromspeicher
+    # einheitenstromspeicher
     "AcDcKoppelung",
     "Batterietechnologie",
     "Technologie",
     "Pumpspeichertechnologie",
-    #lokationen
-    #marktakteure
+    # lokationen
+    # marktakteure
     "Personenart",
     "Rechtsform",
     "HauptwirtdschaftszweigAbteilung",
@@ -33,39 +33,39 @@ columns_replace_list=[
     "HauptwirtdschaftszweigAbschnitt",
     "Registergericht",
     "LandAnZustelladresse",
-    #netzanschlusspunkte
+    # netzanschlusspunkte
     "Gasqualitaet",
     "Spannungsebene",
-    #anlageneegbiomasse
-    #anlageneeggeosolarthermiegrubenklaerschlammdruckentspannung
-    #anlageneegwasser
-    #anlageneegwind
-    #anlagengasspeicher
-    #anlagenkwk
-    #bilanzierungsgebiete
-    #einheitenbiomasse
+    # anlageneegbiomasse
+    # anlageneeggeosolarthermiegrubenklaerschlammdruckentspannung
+    # anlageneegwasser
+    # anlageneegwind
+    # anlagengasspeicher
+    # anlagenkwk
+    # bilanzierungsgebiete
+    # einheitenbiomasse
     "Hauptbrennstoff",
     "Biomasseart",
-    #einheitengaserzeuger
-    #einheitengasspeicher
+    # einheitengaserzeuger
+    # einheitengasspeicher
     "Speicherart",
-    #einheitengasverbraucher
-    #einheitengenehmigung
+    # einheitengasverbraucher
+    # einheitengenehmigung
     "Art",
-    #einheitengeosolarthermiegrubenklaerschlammdruckentspannung
-    #einheitenkernkraft
-    #einheitenstromverbraucher
-    #einheitentypen
-    #einheitenverbrennung
+    # einheitengeosolarthermiegrubenklaerschlammdruckentspannung
+    # einheitenkernkraft
+    # einheitenstromverbraucher
+    # einheitentypen
+    # einheitenverbrennung
     "WeitererHauptbrennstoff",
     "WeitereBrennstoffe",
     "ArtDerStilllegung",
-    #einheitenwasser
+    # einheitenwasser
     "ArtDesZuflusses",
-    #marktrollen
-    #netze
+    # marktrollen
+    # netze
     "Sparte",
-    #einheitenwind
+    # einheitenwind
     "Lage",
     "Hersteller",
     "Seelage",

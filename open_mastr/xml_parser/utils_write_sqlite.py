@@ -12,9 +12,7 @@ import pdb
 
 
 def convert_mastr_xml_to_sqlite(
-    con: sqlite3.Connection,
-    zipped_xml_file_path: str,
-    include_tables: list,
+    con: sqlite3.Connection, zipped_xml_file_path: str, include_tables: list,
 ) -> None:
     """Converts the Mastr in xml format into a sqlite database."""
     """Writes the local zipped MaStR to a PostgreSQL database.
@@ -79,10 +77,7 @@ def add_table_to_sqlite_database(
     while continueloop:
         try:
             df.to_sql(
-                sql_tablename,
-                con,
-                index=False,
-                if_exists=if_exists,
+                sql_tablename, con, index=False, if_exists=if_exists,
             )
             continueloop = False
         except sqlite3.OperationalError as err:

@@ -14,8 +14,7 @@ from pandas.core.frame import DataFrame
 
 
 def cleansing_sqlite_database_from_bulkdownload(
-    con: sqlite3.Connection,
-    include_tables: list,
+    con: sqlite3.Connection, include_tables: list,
 ) -> None:
     """The cleansing of the bulk download data consists of the following parts:
     - replace the katalogeintraege
@@ -28,38 +27,44 @@ def cleansing_sqlite_database_from_bulkdownload(
 
 
 def replace_mastr_katalogeintraege(
-    con: sqlite3.Connection,
-    sql_tablename: str,
+    con: sqlite3.Connection, sql_tablename: str,
 ) -> None:
     katalogwerte = create_katalogwerte_from_sqlite(con)
     pattern = re.compile(r"cleansed|katalog")
     if not re.search(pattern, sql_tablename):
-        replace_katalogeintraege_in_single_table(con, sql_tablename, katalogwerte, columns_replace_list)
+        replace_katalogeintraege_in_single_table(
+            con, sql_tablename, katalogwerte, columns_replace_list
+        )
 
 
 def create_katalogwerte_from_sqlite(con):
-     df_katalogwerte = pd.read_sql("SELECT * from katalogwerte", con)
-     katalogwerte_array = np.array(df_katalogwerte[["Id","Wert"]])
-     katalogwerte = dict((katalogwerte_array[n][0],katalogwerte_array[n][1]) for n in range(len(katalogwerte_array)))
-     return katalogwerte
+    df_katalogwerte = pd.read_sql("SELECT * from katalogwerte", con)
+    katalogwerte_array = np.array(df_katalogwerte[["Id", "Wert"]])
+    katalogwerte = dict(
+        (katalogwerte_array[n][0], katalogwerte_array[n][1])
+        for n in range(len(katalogwerte_array))
+    )
+    return katalogwerte
 
 
 def replace_katalogeintraege_in_single_table(
-    con: sqlite3.Connection, table_name: str, katalogwerte: np.ndarray, columns_replace_list: list
+    con: sqlite3.Connection,
+    table_name: str,
+    katalogwerte: np.ndarray,
+    columns_replace_list: list,
 ) -> None:
     df = pd.read_sql(f"SELECT * FROM {table_name};", con)
     for column_name in df.columns:
         if column_name in columns_replace_list:
             df[column_name] = df[column_name].astype("Int64").map(katalogwerte)
     new_tablename = table_name + "_cleansed"
-    df.to_sql(new_tablename,con, index=False, if_exists="replace")
+    df.to_sql(new_tablename, con, index=False, if_exists="replace")
     print(f"Data in table {table_name} was sucessfully cleansed.")
 
 
-
-#def replace_katalogeintraege_in_single_table(
+# def replace_katalogeintraege_in_single_table(
 #    con: sqlite3.Connection, table_name: str, catalog: dict, df_katalogwerte: pd.DataFrame
-#) -> None:
+# ) -> None:
 #    df = pd.read_sql(f"SELECT * FROM {table_name};", con)
 #    for column_name in df.columns:
 #        if column_name in catalog.keys():

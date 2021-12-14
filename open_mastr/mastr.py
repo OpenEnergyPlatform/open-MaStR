@@ -45,7 +45,9 @@ class Mastr:
             os.path.join(self._sqlite_folder_path, "bulksqlite.db")
         )
 
-    def download(self, method="bulk", include_tables=None, exclude_tables=None, cleansing=True) -> None:
+    def download(
+        self, method="bulk", include_tables=None, exclude_tables=None, cleansing=True
+    ) -> None:
         """
         method in {bulk, API}
 
@@ -69,16 +71,24 @@ class Mastr:
         """
         if method == "bulk":
             if include_tables and exclude_tables:
-                raise Exception("Either include_tables or exclude_tables has to be None.")
+                raise Exception(
+                    "Either include_tables or exclude_tables has to be None."
+                )
 
             with ZipFile(self._zipped_xml_file_path, "r") as f:
-                    full_list_of_files =  [entry[:-4].lower() for entry in f.namelist() if not entry[-5].isdigit()]
-                    # transforms AnlagenEegBiomasse.xml in anlageneegbiomasse
+                full_list_of_files = [
+                    entry[:-4].lower()
+                    for entry in f.namelist()
+                    if not entry[-5].isdigit()
+                ]
+                # transforms AnlagenEegBiomasse.xml in anlageneegbiomasse
             if exclude_tables:
-                include_tables = [entry for entry in full_list_of_files if entry not in exclude_tables]
+                include_tables = [
+                    entry for entry in full_list_of_files if entry not in exclude_tables
+                ]
             if not include_tables and not exclude_tables:
                 include_tables = full_list_of_files
-            
+
             if os.path.exists(self._zipped_xml_file_path):
                 print("MaStR already downloaded.")
 
@@ -95,8 +105,7 @@ class Mastr:
             )
             if cleansing:
                 cleansing_sqlite_database_from_bulkdownload(
-                    con=self._bulk_sql_connection,
-                    include_tables=include_tables,
+                    con=self._bulk_sql_connection, include_tables=include_tables,
                 )
 
         if method == "API":

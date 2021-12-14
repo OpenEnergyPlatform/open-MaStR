@@ -58,11 +58,7 @@ class Mastr:
         # self.today = date.today().strftime("%Y%m%d")
         self.today = "20211026"
         self.url = get_url()
-        self.save_path = os.path.join(
-            expanduser("~"),
-            ".mastrsql",
-            "data",
-        )
+        self.save_path = os.path.join(expanduser("~"), ".mastrsql", "data",)
 
         standard_credentials = {
             "dbname": "mastrsql",
