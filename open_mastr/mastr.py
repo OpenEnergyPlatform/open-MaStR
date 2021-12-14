@@ -15,6 +15,7 @@ import shutil
 import sqlite3
 from zipfile import ZipFile
 import pdb
+import numpy as np
 
 
 class Mastr:
@@ -77,11 +78,12 @@ class Mastr:
 
             with ZipFile(self._zipped_xml_file_path, "r") as f:
                 full_list_of_files = [
-                    entry[:-4].lower()
+                    entry.split(".")[0].split("_")[0].lower()
                     for entry in f.namelist()
-                    if not entry[-5].isdigit()
                 ]
-                # transforms AnlagenEegBiomasse.xml in anlageneegbiomasse
+
+                full_list_of_files = list(np.unique(np.array(full_list_of_files)))
+                #full_list_of_files now inlcudes all table_names in the format einheitensolar instead of einheitensolar_12.xml
             if exclude_tables:
                 include_tables = [
                     entry for entry in full_list_of_files if entry not in exclude_tables
@@ -91,7 +93,6 @@ class Mastr:
 
             if os.path.exists(self._zipped_xml_file_path):
                 print("MaStR already downloaded.")
-
             else:
                 shutil.rmtree(self._xml_folder_path, ignore_errors=True)
                 os.makedirs(self._xml_folder_path, exist_ok=True)
