@@ -96,8 +96,6 @@ class Mastr:
             if cleansing:
                 cleansing_sqlite_database_from_bulkdownload(
                     con=self._bulk_sql_connection,
-                    zipped_xml_file_path=self._zipped_xml_file_path,
-                    xml_folder_path=self._xml_folder_path,
                     include_tables=include_tables,
                 )
 

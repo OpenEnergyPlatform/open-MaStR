@@ -81,6 +81,7 @@ def add_table_to_sqlite_database(
             df.to_sql(
                 sql_tablename,
                 con,
+                index=False,
                 if_exists=if_exists,
             )
             continueloop = False
