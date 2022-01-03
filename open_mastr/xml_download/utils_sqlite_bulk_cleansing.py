@@ -8,7 +8,7 @@ import pandas as pd
 import pdb
 import re
 import numpy as np
-from open_mastr.xml_parser.colums_to_replace import columns_replace_list
+from open_mastr.xml_download.colums_to_replace import columns_replace_list
 
 from pandas.core.frame import DataFrame
 
