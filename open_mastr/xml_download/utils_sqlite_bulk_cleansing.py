@@ -37,7 +37,7 @@ def replace_mastr_katalogeintraege(
         )
 
 
-def create_katalogwerte_from_sqlite(con):
+def create_katalogwerte_from_sqlite(con) -> dict:
     df_katalogwerte = pd.read_sql("SELECT * from katalogwerte", con)
     katalogwerte_array = np.array(df_katalogwerte[["Id", "Wert"]])
     katalogwerte = dict(
