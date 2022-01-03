@@ -76,6 +76,15 @@ class Mastr:
                     "Either include_tables or exclude_tables has to be None."
                 )
 
+
+            if os.path.exists(self._zipped_xml_file_path):
+                print("MaStR already downloaded.")
+            else:
+                shutil.rmtree(self._xml_folder_path, ignore_errors=True)
+                os.makedirs(self._xml_folder_path, exist_ok=True)
+                print("MaStR is downloaded to %s" % self._xml_folder_path)
+                download_xml_Mastr(self._xml_download_url, self._zipped_xml_file_path)
+
             with ZipFile(self._zipped_xml_file_path, "r") as f:
                 full_list_of_files = [
                     entry.split(".")[0].split("_")[0].lower()
@@ -90,14 +99,6 @@ class Mastr:
                 ]
             if not include_tables and not exclude_tables:
                 include_tables = full_list_of_files
-
-            if os.path.exists(self._zipped_xml_file_path):
-                print("MaStR already downloaded.")
-            else:
-                shutil.rmtree(self._xml_folder_path, ignore_errors=True)
-                os.makedirs(self._xml_folder_path, exist_ok=True)
-                print("MaStR is downloaded to %s" % self._xml_folder_path)
-                download_xml_Mastr(self._xml_download_url, self._zipped_xml_file_path)
 
             convert_mastr_xml_to_sqlite(
                 con=self._bulk_sql_connection,
