@@ -235,6 +235,7 @@ def flatten_dict(data, serialize_with_json=False):
     Flattens MaStR data dictionary to depth of one
 
     Parameters
+    Parameters
     ----------
     data : list of dict
         Data returned from MaStR-API query
@@ -286,7 +287,14 @@ def flatten_dict(data, serialize_with_json=False):
         # Replacement with second-level value from second-level list
         for k, v in flatten_rule_replace_list.items():
             if k in dic.keys():
-                dic[k] = dic[k][0][v]
+                if len(dic[k]) != 0: # if data point in 'dic' has one or more VerknuepfteEinheit or VerknuepfteEinheiten in its respective dict, then take first MaStRNummer and insert it into key VerknuepfteEinheiten (flatten dict). Discard all other connected MaStRNummer's of data point.
+                    dic[k] = dic[k][0][v]
+                    if dic.get('GenMastrNummer') != None:
+                        print(f"Unit with GenMastrNummer {dic.get('GenMastrNummer')} has VerknuepfteEinheiten {dic.get('VerknuepfteEinheiten')}")
+
+                else: # if data point in 'dic' has no VerknuepfteEinheit or VerknuepfteEinheiten, then pass empty list into key VerknuepfteEinheiten.
+                    print(f"Unit with GenMastrNummer {dic.get('GenMastrNummer')} has no VerknuepfteEinheiten")
+
 
         # Serilializes dictionary entries with unknown number of sub-entries into JSON string
         # This affects "Ertuechtigung" in extended unit data of hydro
