@@ -50,7 +50,7 @@ def create_katalogwerte_from_sqlite(con) -> dict:
 def replace_katalogeintraege_in_single_table(
     con: sqlite3.Connection,
     table_name: str,
-    katalogwerte: np.ndarray,
+    katalogwerte: dict,
     columns_replace_list: list,
 ) -> None:
     df = pd.read_sql(f"SELECT * FROM {table_name};", con)
