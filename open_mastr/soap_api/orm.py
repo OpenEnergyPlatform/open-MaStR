@@ -87,6 +87,7 @@ class Extended(object):
     Inbetriebnahmedatum = Column(DateTime(timezone=True))
     DatumEndgueltigeStilllegung = Column(DateTime(timezone=True))
     DatumBeginnVoruebergehendeStilllegung = Column(DateTime(timezone=True))
+    DatumBeendigungVorlaeufigenStilllegung = Column(DateTime(timezone=True))
     DatumWiederaufnahmeBetrieb = Column(DateTime(timezone=True))
     EinheitSystemstatus = Column(String)
     EinheitBetriebsstatus = Column(String)
@@ -253,6 +254,8 @@ class StorageExtended(Extended, Base):
 
 
 class Eeg(object):
+
+    Registrierungsdatum = Column(Date)
     EegMastrNummer = Column(String, primary_key=True)
     Meldedatum = Column(Date)
     DatumLetzteAktualisierung = Column(DateTime(timezone=True))
@@ -285,6 +288,7 @@ class SolarEeg(Eeg, Base):
     AnlagenkennzifferAnlagenregister = Column(String)
     InstallierteLeistung = Column(Float)
     RegistrierungsnummerPvMeldeportal = Column(String)
+    MieterstromRegistrierungsdatum = Column(Date)
     MieterstromZugeordnet = Column(Boolean)
     MieterstromMeldedatum = Column(Date)
     MieterstromErsteZuordnungZuschlag = Column(Date)
@@ -340,6 +344,7 @@ class StorageEeg(Eeg, Base):
 class Kwk(Base):
     __tablename__ = "kwk"
 
+    Registrierungsdatum = Column(Date)
     KwkMastrNummer = Column(String, primary_key=True)
     AusschreibungZuschlag = Column(Boolean)
     Zuschlagnummer = Column(String)
@@ -355,6 +360,7 @@ class Kwk(Base):
 class Permit(Base):
     __tablename__ = "permit"
 
+    Registrierungsdatum = Column(Date)
     GenMastrNummer = Column(String, primary_key=True)
     DatumLetzteAktualisierung = Column(DateTime(timezone=True))
     Art = Column(String)
