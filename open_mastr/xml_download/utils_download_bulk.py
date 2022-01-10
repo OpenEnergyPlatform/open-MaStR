@@ -1,15 +1,9 @@
 import requests
 from clint.textui import progress
 import time
-import sqlalchemy
-import pandas as pd
-import psycopg2
-from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 from bs4 import BeautifulSoup
 import pdb
-import dateutil
-from mastrsql.metadata import metadata_dict
-from typing import Tuple
+
 
 
 def get_url_from_Mastr_website() -> str:
