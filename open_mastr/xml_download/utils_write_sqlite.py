@@ -1,14 +1,10 @@
 from shutil import Error
-from typing import Tuple
 from zipfile import ZipFile
-import os
-from os.path import expanduser
 import lxml
 import numpy as np
 import pandas as pd
 import sqlalchemy
 import sqlite3
-import pdb
 
 
 def convert_mastr_xml_to_sqlite(
@@ -16,17 +12,22 @@ def convert_mastr_xml_to_sqlite(
 ) -> None:
     """Converts the Mastr in xml format into a sqlite database."""
     """Writes the local zipped MaStR to a PostgreSQL database.
-        
+
     Parameters
     ------------
     include_tables : list, default None
-        List of tables from the Marktstammdatenregister that should be written into
-        the database. Elements of include_tables are lower case strings without "_" and index. 
-        It is possible to include any table from the zipped local MaStR folder (see MaStR.initialize()). 
-        Example: If you do want to write the data from files "AnlagenEegSolar_*.xml" to a table 
-        in your database (where * is any number >=1), write the element "anlageneegsolar" into the 
-        include_tables list. Elements of the list that cannot be matched to tables of the MaStR are ignored.
-        If include_tables is given, only the tables listed here are written to the database.
+        List of tables from the Marktstammdatenregister that
+        should be written into the database. Elements of
+        include_tables are lower case strings without "_" and index.
+        It is possible to include any table from the zipped
+        local MaStR folder (see MaStR.initialize()).
+        Example: If you do want to write the data from
+        files "AnlagenEegSolar_*.xml" to a table in your
+        database (where * is any number >=1), write the
+        element "anlageneegsolar" into the include_tables list.
+        Elements of the list that cannot be matched to tables of
+        the MaStR are ignored. If include_tables is given,
+        only the tables listed here are written to the database.
 
 
     """
@@ -36,7 +37,8 @@ def convert_mastr_xml_to_sqlite(
             # sql tablename is the beginning of the filename without the number in lowercase
             sql_tablename = file_name.split("_")[0].split(".")[0].lower()
 
-            # check whether the table exists with current data and append new data or whether to overwrite the existing table
+            # check whether the table exists with current data and append new data or
+            # whether to overwrite the existing table
 
             include_count = include_tables.count(sql_tablename)
             if include_count == 1:
@@ -91,7 +93,8 @@ def add_missing_column_to_table(
     err: Error, con: sqlite3.Connection, sql_tablename: str
 ) -> None:
     """Some files introduce new columns for existing tables.
-    If this happens, the error from writing entries into non-existing columns is caught and the column is created."""
+    If this happens, the error from writing entries into
+    non-existing columns is caught and the column is created."""
     missing_column = str(err).split("no column named ")[1]
     cursor = con.cursor()
     execute_message = 'ALTER TABLE %s ADD "%s" text NULL;' % (
@@ -145,7 +148,7 @@ def handle_xml_syntax_error(data: bytes, err: Error) -> pd.DataFrame:
         if evaluated_string == "<":
             break
         else:
-            decoded_data = decoded_data[:start_char] + decoded_data[start_char + 1 :]
+            decoded_data = decoded_data[:start_char] + decoded_data[start_char + 1:]
     df = pd.read_xml(decoded_data)
     print("One invalid xml expression was deleted.")
     return df
