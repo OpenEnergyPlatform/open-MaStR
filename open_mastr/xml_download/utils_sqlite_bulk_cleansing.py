@@ -1,16 +1,9 @@
-import pathlib
-from collections import ChainMap
+
 import sqlite3
-from typing import List, Dict, Tuple
-from defusedxml.ElementTree import parse
-from zipfile import ZipFile
 import pandas as pd
-import pdb
 import re
 import numpy as np
 from open_mastr.xml_download.colums_to_replace import columns_replace_list
-
-from pandas.core.frame import DataFrame
 
 
 def cleansing_sqlite_database_from_bulkdownload(
