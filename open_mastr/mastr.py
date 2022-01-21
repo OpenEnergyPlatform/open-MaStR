@@ -14,7 +14,6 @@ from open_mastr.xml_download.utils_sqlite_bulk_cleansing import (
 import shutil
 import sqlite3
 from zipfile import ZipFile
-import pdb
 import numpy as np
 
 
@@ -76,7 +75,6 @@ class Mastr:
                     "Either include_tables or exclude_tables has to be None."
                 )
 
-
             if os.path.exists(self._zipped_xml_file_path):
                 print("MaStR already downloaded.")
             else:
@@ -92,7 +90,8 @@ class Mastr:
                 ]
 
                 full_list_of_files = list(np.unique(np.array(full_list_of_files)))
-                #full_list_of_files now inlcudes all table_names in the format einheitensolar instead of einheitensolar_12.xml
+                # full_list_of_files now inlcudes all table_names in the format
+                # einheitensolar instead of einheitensolar_12.xml
             if exclude_tables:
                 include_tables = [
                     entry for entry in full_list_of_files if entry not in exclude_tables
