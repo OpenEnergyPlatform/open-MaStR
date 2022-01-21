@@ -2,8 +2,6 @@ import requests
 from clint.textui import progress
 import time
 from bs4 import BeautifulSoup
-import pdb
-
 
 
 def get_url_from_Mastr_website() -> str:
@@ -34,9 +32,9 @@ def download_xml_Mastr(url: str, save_path: str) -> None:
     save_path: str
         The path where the downloaded MaStR zipped folder will be saved.
     """
-    print(
-        "Download has started, this can take several minutes. The download bar is only a rough estimate."
-    )
+    print_message = "Download has started, this can take several minutes." \
+                    "The download bar is only a rough estimate."
+    print(print_message)
     time_a = time.perf_counter()
     r = requests.get(url, stream=True)
     with open(save_path, "wb") as zfile:
