@@ -33,7 +33,7 @@ def test_replace_katalogeintraege_in_single_table():
     new_table_name = table_name + "_cleansed"
 
     c = con.cursor()
-    query = f"SELECT count(name) FROM sqlite_master WHERE type='table' AND name='{table_name}'"
+    query = f"SELECT count(name) FROM sqlite_master WHERE type='table' AND name='{new_table_name}'"
     c.execute(query)
 
     assert c.fetchone()[0] == 1
