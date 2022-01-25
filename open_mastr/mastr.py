@@ -2,6 +2,12 @@ from datetime import date
 from dateutil.parser import isoparse
 import dateutil
 import os
+import shutil
+import sqlite3
+from zipfile import ZipFile
+import numpy as np
+
+# import xml dependencies
 from os.path import expanduser
 from open_mastr.xml_download.utils_download_bulk import (
     get_url_from_Mastr_website,
@@ -11,10 +17,8 @@ from open_mastr.xml_download.utils_write_sqlite import convert_mastr_xml_to_sqli
 from open_mastr.xml_download.utils_sqlite_bulk_cleansing import (
     cleansing_sqlite_database_from_bulkdownload,
 )
-import shutil
-import sqlite3
-from zipfile import ZipFile
-import numpy as np
+# import soap_API dependencies
+from open_mastr.soap_api.mirror import MaStRMirror
 
 
 class Mastr:
@@ -46,8 +50,11 @@ class Mastr:
         )
 
     def download(
-        self, method="bulk", include_tables=None, exclude_tables=None, cleansing=True
+        self, method=None, include_tables=None, exclude_tables=None, cleansing=True, processes=None, technology=None, limit=None,
+            date=None, chunksize=None, data_types=None, location_types=None, initialize_db=None
     ) -> None:
+        # todo: To increase clarity discuss whether to rename API-related arguments with prefix "api",
+        #  i.e. api_processes instaed of processes; api_limit instead of limit; ...
         """
         method in {bulk, API}
 
@@ -110,7 +117,33 @@ class Mastr:
                 )
 
         if method == "API":
-            pass
+            print(f'Downloading with soap_API.\n\n   -- Settings --  \nunits after date: {date}\nunit donwnload limit per technology: {limit}\nparallel_processes: {processes}\nchunksize: {chunksize}\ntechnologies: {technology}\ndata_types: {data_types}\nlocation_types: {location_types}')
+            mastr_mirror = MaStRMirror(
+                empty_schema=False,
+                parallel_processes=processes,
+                initialize_db=initialize_db,
+                restore_dump=None
+            )
+            # # Download basic unit data
+            # mastr_mirror.backfill_basic(technology, limit=limit, date=date)
+            #
+            # # Download additional unit data
+            # for tech in technology:
+            #     # mastr_mirror.create_additional_data_requests(tech)
+            #     for data_type in data_types:
+            #         mastr_mirror.retrieve_additional_data(tech, data_type, chunksize=chunksize, limit=limit)
+            #
+            # # Download basic location data
+            # mastr_mirror.backfill_locations_basic(
+            #     limit=limit,
+            #     date="latest"
+            # )
+            #
+            # # Download extended location data
+            # for location_type in location_types:
+            #     mastr_mirror.retrieve_additional_location_data(location_type, limit=limit)
+            #
+            # return
 
     def to_docker():
         """
