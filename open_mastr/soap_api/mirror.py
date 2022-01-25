@@ -64,7 +64,7 @@ class MaStRMirror:
     
     """
 
-    def __init__(self, empty_schema=False, restore_dump=None, initialize_db=True, parallel_processes=None):
+    def __init__(self, empty_schema=False, restore_dump=None, initialize_db=None, parallel_processes=None):
         """
         Parameters
         ----------
@@ -86,7 +86,8 @@ class MaStRMirror:
 
         # Spin up database container
         if initialize_db:
-            self.initdb()
+            self.setup_docker(initialize_db)
+
 
         # Create database tables
         engine = db_engine()
@@ -170,13 +171,14 @@ class MaStRMirror:
         }
         self.unit_type_map_reversed = {v: k for k, v in self.unit_type_map.items()}
 
-    def initdb(self):
+    def setup_docker(self, initialize_db=None):
         """ Initialize a PostgreSQL database with docker-compose
         """
+
         conf_file_path = os.path.abspath(
             os.path.join(os.path.dirname(__file__), "..", "..")
         )
-
+        print(conf_file_path)
         subprocess.run(
             ["docker-compose", "up", "-d"],
             cwd=conf_file_path,
