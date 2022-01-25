@@ -2,6 +2,8 @@ from contextlib import contextmanager
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Query, sessionmaker
 
+from open_mastr.settings import DB_URL
+
 
 def chunks(lst, n):
     """Yield successive n-sized chunks from lst.
@@ -17,9 +19,7 @@ def chunks(lst, n):
 
 
 def db_engine():
-    return create_engine(
-        "postgresql+psycopg2://open-mastr:open-mastr@localhost:55443/open-mastr", echo=False
-    )
+    return create_engine(DB_URL)
 
 
 @contextmanager
