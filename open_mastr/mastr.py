@@ -23,6 +23,7 @@ from open_mastr.soap_api.mirror import MaStRMirror
 
 class Mastr:
     def __init__(self, date_string="today") -> None:
+        #TODO: Should parameter date_string be defined here or later in the download function? 
         if date_string == "today":
             self._today_string = date.today().strftime("%Y%m%d")
         else:
