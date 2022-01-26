@@ -17,13 +17,14 @@ from open_mastr.xml_download.utils_write_sqlite import convert_mastr_xml_to_sqli
 from open_mastr.xml_download.utils_sqlite_bulk_cleansing import (
     cleansing_sqlite_database_from_bulkdownload,
 )
+
 # import soap_API dependencies
 from open_mastr.soap_api.mirror import MaStRMirror
 
 
 class Mastr:
     def __init__(self, date_string="today") -> None:
-        #TODO: Should parameter date_string be defined here or later in the download function? 
+        # TODO: Should parameter date_string be defined here or later in the download function?
         if date_string == "today":
             self._today_string = date.today().strftime("%Y%m%d")
         else:
@@ -51,11 +52,22 @@ class Mastr:
         )
 
     def download(
-        self, method=None, include_tables=None, exclude_tables=None, cleansing=True, processes=None, technology=None, limit=None,
-            date=None, chunksize=None, data_types=None, location_types=None, initialize_db=None
+        self,
+        method=None,
+        include_tables=None,
+        exclude_tables=None,
+        cleansing=True,
+        processes=None,
+        technology=None,
+        limit=None,
+        date=None,
+        chunksize=None,
+        data_types=None,
+        location_types=None,
+        initialize_db=None,
     ) -> None:
-        # todo: To increase clarity discuss whether to rename API-related arguments with prefix "api",
-        #  i.e. api_processes instaed of processes; api_limit instead of limit; ...
+        # todo: To increase clarity discuss whether to rename API-related arguments with
+        # prefix "api", i.e. api_processes instaed of processes; api_limit instead of limit; ...
         """
         method in {bulk, API}
 
@@ -93,8 +105,7 @@ class Mastr:
 
             with ZipFile(self._zipped_xml_file_path, "r") as f:
                 full_list_of_files = [
-                    entry.split(".")[0].split("_")[0].lower()
-                    for entry in f.namelist()
+                    entry.split(".")[0].split("_")[0].lower() for entry in f.namelist()
                 ]
 
                 full_list_of_files = list(np.unique(np.array(full_list_of_files)))
@@ -114,16 +125,19 @@ class Mastr:
             )
             if cleansing:
                 cleansing_sqlite_database_from_bulkdownload(
-                    con=self._bulk_sql_connection, include_tables=include_tables,
+                    con=self._bulk_sql_connection,
+                    include_tables=include_tables,
                 )
 
         if method == "API":
-            print(f'Downloading with soap_API.\n\n   -- Settings --  \nunits after date: {date}\nunit donwnload limit per technology: {limit}\nparallel_processes: {processes}\nchunksize: {chunksize}\ntechnologies: {technology}\ndata_types: {data_types}\nlocation_types: {location_types}')
+            print(
+                f"Downloading with soap_API.\n\n   -- Settings --  \nunits after date: {date}\nunit donwnload limit per technology: {limit}\nparallel_processes: {processes}\nchunksize: {chunksize}\ntechnologies: {technology}\ndata_types: {data_types}\nlocation_types: {location_types}"
+            )
             mastr_mirror = MaStRMirror(
                 empty_schema=False,
                 parallel_processes=processes,
                 initialize_db=initialize_db,
-                restore_dump=None
+                restore_dump=None,
             )
             # # Download basic unit data
             # mastr_mirror.backfill_basic(technology, limit=limit, date=date)
