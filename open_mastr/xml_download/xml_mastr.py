@@ -8,6 +8,8 @@ MASTR_FOLDER = "mastr"
 OUTPUT_FOLDER = "output"
 CSV_CHUNK_SIZE = 10000
 
+# TODO: Decide whether to delte this file
+
 CATALOG_MAPPING = {
     "NACEGruppeAbschnitt": "HauptwirtdschaftszweigAbschnitt",
     "NACEGruppeAbteilung": "HauptwirtdschaftszweigAbteilung",
