@@ -8,6 +8,7 @@ import os
 from open_mastr.xml_download.colums_to_replace import columns_replace_list
 import pytest
 
+
 @pytest.fixture(scope="module")
 def con():
     _sqlite_folder_path = os.path.join(expanduser("~"), ".open-MaStR", "data", "sqlite")
