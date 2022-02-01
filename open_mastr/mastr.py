@@ -66,7 +66,7 @@ class Mastr:
         location_types=None,
         initialize_db=None,
     ) -> None:
-        # todo: To increase clarity discuss whether to rename API-related arguments with
+        # TODO: To increase clarity discuss whether to rename API-related arguments with
         # prefix "api", i.e. api_processes instaed of processes; api_limit instead of limit; ...
         """
         method in {bulk, API}
