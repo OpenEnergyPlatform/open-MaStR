@@ -18,7 +18,7 @@ def chunks(lst, n):
         yield lst[i: i + n]
 
 
-def db_engine():
+def db_engine(): # TODO: Include in _create_database in MaStR() class
     return create_engine(DB_URL)
 
 

@@ -5,7 +5,7 @@ from open_mastr.settings import DB_ENGINE
 mastr = Mastr()
 
 # configure settings for API download
-date='latest'
+date='latest' # TODO: initiate_string -> maybe centralize function
 limit = None
 processes = 12
 chunksize = 1000

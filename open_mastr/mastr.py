@@ -65,8 +65,10 @@ class Mastr:
         data_types=None,
         location_types=None,
         initialize_db=None,
+        empty_schema=None,
     ) -> None:
         # TODO: To increase clarity discuss whether to rename API-related arguments with
+        # TODO: Group variables in dicts for API and BULK
         # prefix "api", i.e. api_processes instaed of processes; api_limit instead of limit; ...
         """
         method in {bulk, API}

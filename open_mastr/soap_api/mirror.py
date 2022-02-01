@@ -89,11 +89,12 @@ class MaStRMirror:
             self.setup_docker(initialize_db)
 
 
-        # Create database tables
+        # Create database tables # TODO: Isolate in new (util) funtion _create_database in MaStR() class
         engine = db_engine()
         with engine.connect().execution_options(autocommit=True) as con:
             if empty_schema:
                 con.execute(f"DROP SCHEMA IF EXISTS {orm.Base.metadata.schema} CASCADE;")
+            #con.dialect.has_schema(con, {orm.Base.metadata.schema})
             con.execute(f"CREATE SCHEMA IF NOT EXISTS {orm.Base.metadata.schema};")
         orm.Base.metadata.create_all(engine)
 
