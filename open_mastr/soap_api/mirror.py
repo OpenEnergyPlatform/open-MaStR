@@ -5,6 +5,7 @@ import pandas as pd
 from sqlalchemy.orm import sessionmaker, Query
 from sqlalchemy import and_, create_engine, func
 from sqlalchemy.sql import exists
+from sqlalchemy.schema import CreateSchema
 import shlex
 import subprocess
 
@@ -95,7 +96,8 @@ class MaStRMirror:
             if empty_schema:
                 con.execute(f"DROP SCHEMA IF EXISTS {orm.Base.metadata.schema} CASCADE;")
             #con.dialect.has_schema(con, {orm.Base.metadata.schema})
-            con.execute(f"CREATE SCHEMA IF NOT EXISTS {orm.Base.metadata.schema};")
+            # con.execute('CREATE SCHEMA IF NOT EXISTS (?);', (orm.Base.metadata.schema))
+            #engine.execute(CreateSchema(orm.Base.metadata.schema)) 
         orm.Base.metadata.create_all(engine)
 
         # Associate downloader

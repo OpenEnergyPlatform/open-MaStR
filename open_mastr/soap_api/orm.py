@@ -2,8 +2,12 @@ from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.schema import MetaData
 from sqlalchemy import Column, Integer, String, Float, Sequence, DateTime, Boolean, func, Date, JSON
+import os
 
-mirror_schema = "mastr_mirrored"
+DB_ENGINE = os.environ.get("DB_ENGINE", "sqlite")
+
+
+mirror_schema = ("mastr_mirrored" if DB_ENGINE == "docker" else None)
 meta = MetaData(schema=mirror_schema)
 Base = declarative_base(metadata=meta)
 
@@ -389,8 +393,8 @@ class LocationExtended(Base):
     MastrNummer = Column(String, primary_key=True)
     DatumLetzteAktualisierung = Column(DateTime(timezone=True))
     NameDerTechnischenLokation = Column(String)
-    VerknuepfteEinheiten = Column(JSONB)
-    Netzanschlusspunkte = Column(JSONB)
+    VerknuepfteEinheiten = (Column(JSONB) if DB_ENGINE == "docker" else Column(String))
+    Netzanschlusspunkte = (Column(JSONB) if DB_ENGINE == "docker" else Column(String))
 
 
 class AdditionalLocationsRequested(Base):
