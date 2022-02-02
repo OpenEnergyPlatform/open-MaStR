@@ -14,9 +14,9 @@ def test_get_url_from_Mastr_website():
     assert "marktstammdaten" in url
 
 
-def test_download_xml_Mastr():
-    save_path = os.path.join(tempfile.gettempdir(), "tempjson.txt")
-    download_xml_Mastr(save_path=save_path)
-    with open(save_path, "r") as f:
-        data = f.read()
-        assert len(data) > 10
+#def test_download_xml_Mastr():
+#    save_path = os.path.join(tempfile.gettempdir(), "tempjson.txt")
+#    download_xml_Mastr(save_path=save_path)
+#    with open(save_path, "r") as f:
+#        data = f.read()
+#        assert len(data) > 10
