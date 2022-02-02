@@ -28,7 +28,7 @@ from sqlalchemy.schema import CreateSchema
 
 class Mastr:
     def __init__(self, empty_schema=False) -> None:
-        # TODO: Should parameter date_string be defined here or later in the download function?
+
         # Define the paths for the zipped xml download and the sql databases
         self._xml_folder_path = os.path.join(
             expanduser("~"), ".open-MaStR", "data", "xml_download"
@@ -51,7 +51,7 @@ class Mastr:
         bulk_date_string="today",
         bulk_include_tables=None,
         bulk_exclude_tables=None,
-        cleansing=True,
+        bulk_cleansing=True,
         processes=None,
         technology=None,
         limit=None,
@@ -140,7 +140,7 @@ class Mastr:
                 zipped_xml_file_path=_zipped_xml_file_path,
                 include_tables=bulk_include_tables,
             )
-            if cleansing:
+            if bulk_cleansing:
                 cleansing_sqlite_database_from_bulkdownload(
                     con=self._bulk_sql_connection,
                     include_tables=bulk_include_tables,
