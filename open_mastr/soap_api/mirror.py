@@ -8,6 +8,7 @@ from sqlalchemy.sql import exists
 from sqlalchemy.schema import CreateSchema
 import shlex
 import subprocess
+from open_mastr.settings import DB_ENGINE
 
 from open_mastr.soap_api.config import setup_logger, create_data_dir, get_filenames, get_data_version_dir, \
     column_renaming
@@ -91,13 +92,15 @@ class MaStRMirror:
 
 
         # Create database tables # TODO: Isolate in new (util) funtion _create_database in MaStR() class
+        DB_ENGINE = os.environ.get("DB_ENGINE", "sqlite")
         engine = db_engine()
         with engine.connect().execution_options(autocommit=True) as con:
             if empty_schema:
                 con.execute(f"DROP SCHEMA IF EXISTS {orm.Base.metadata.schema} CASCADE;")
-            #con.dialect.has_schema(con, {orm.Base.metadata.schema})
+            # con.dialect.has_schema(con, {orm.Base.metadata.schema})
             # con.execute('CREATE SCHEMA IF NOT EXISTS (?);', (orm.Base.metadata.schema))
-            #engine.execute(CreateSchema(orm.Base.metadata.schema)) 
+            if DB_ENGINE == "docker":
+                engine.execute(CreateSchema(orm.Base.metadata.schema)) 
         orm.Base.metadata.create_all(engine)
 
         # Associate downloader
