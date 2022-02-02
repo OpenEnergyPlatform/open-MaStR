@@ -34,7 +34,6 @@ class Mastr:
                 print("date_string has to be a proper date in the format yyyymmdd.")
                 raise
         # Define the paths
-        self._xml_download_url = get_url_from_Mastr_website()
         self._xml_folder_path = os.path.join(
             expanduser("~"), ".open-MaStR", "data", "xml_download"
         )
@@ -103,7 +102,7 @@ class Mastr:
                 shutil.rmtree(self._xml_folder_path, ignore_errors=True)
                 os.makedirs(self._xml_folder_path, exist_ok=True)
                 print("MaStR is downloaded to %s" % self._xml_folder_path)
-                download_xml_Mastr(self._xml_download_url, self._zipped_xml_file_path)
+                download_xml_Mastr(self._zipped_xml_file_path)
 
             with ZipFile(self._zipped_xml_file_path, "r") as f:
                 full_list_of_files = [

@@ -22,19 +22,18 @@ def get_url_from_Mastr_website() -> str:
     return url
 
 
-def download_xml_Mastr(url: str, save_path: str) -> None:
+def download_xml_Mastr(save_path: str) -> None:
     """Downloads the zipped MaStR.
 
     Parameters
     -----------
-    url : str
-        The url where the MaStR can be downloaded.
     save_path: str
         The path where the downloaded MaStR zipped folder will be saved.
     """
     print_message = "Download has started, this can take several minutes." \
                     "The download bar is only a rough estimate."
     print(print_message)
+    url = get_url_from_Mastr_website()
     time_a = time.perf_counter()
     r = requests.get(url, stream=True)
     with open(save_path, "wb") as zfile:

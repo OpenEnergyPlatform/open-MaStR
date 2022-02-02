@@ -15,9 +15,8 @@ def test_get_url_from_Mastr_website():
 
 
 def test_download_xml_Mastr():
-    url = "https://jsonplaceholder.typicode.com/todos/1"
     save_path = os.path.join(tempfile.gettempdir(), "tempjson.txt")
-    download_xml_Mastr(url=url, save_path=save_path)
+    download_xml_Mastr(save_path=save_path)
     with open(save_path, "r") as f:
         data = f.read()
         assert len(data) > 10
