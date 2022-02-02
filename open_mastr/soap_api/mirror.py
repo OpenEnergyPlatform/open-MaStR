@@ -5,17 +5,21 @@ import pandas as pd
 from sqlalchemy.orm import sessionmaker, Query
 from sqlalchemy import and_, create_engine, func
 from sqlalchemy.sql import exists
-from sqlalchemy.schema import CreateSchema
 import shlex
 import subprocess
 from open_mastr.settings import DB_ENGINE
 
-from open_mastr.soap_api.config import setup_logger, create_data_dir, get_filenames, get_data_version_dir, \
-    column_renaming
+from open_mastr.soap_api.config import (
+    setup_logger,
+    create_data_dir,
+    get_filenames,
+    get_data_version_dir,
+    column_renaming,
+)
 from open_mastr.soap_api.download import MaStRDownload, _flatten_dict, to_csv
 from open_mastr.soap_api import orm
 from open_mastr.soap_api.metadata.create import datapackage_meta_json
-from open_mastr.utils.helpers import session_scope, db_engine
+from open_mastr.utils.helpers import session_scope
 
 
 log = setup_logger()
@@ -24,54 +28,60 @@ log = setup_logger()
 class MaStRMirror:
     """
     Mirror the Marktstammdatenregister database and keep it up-to-date
-    
-    A PostgreSQL database is used to mirror the MaStR database. It builds on functionality for bulk data download 
+
+    A PostgreSQL database is used to mirror the MaStR database. It builds on functionality for bulk data download
     provided by :class:`open_mastr.soap_api.download.MaStRDownload`.
-    
+
     A rough overview is given by the following schema on the example of wind power units.
-    
+
     .. figure:: /images/MaStR_Mirror.svg
        :width: 70%
        :align: center
-    
-    Initially, basic unit data gets backfilled with :meth:`~.backfill_basic` (downloads basic unit data for 2,000 
-    units of type 'solar'). 
-    
+
+    Initially, basic unit data gets backfilled with :meth:`~.backfill_basic` (downloads basic unit data for 2,000
+    units of type 'solar').
+
     .. code-block:: python
-    
+
        from open_mastr.soap_api.prototype_mastr_reflected import MaStRMirror
-       
+
        mastr_mirror = MaStRMirror()
        mastr_mirror.backfill_basic("solar", limit=2000)
-       
-    Based on this, requests for 
-    additional data are created. This happens during backfilling basic data. But it is also possible to (re-)create 
+
+    Based on this, requests for
+    additional data are created. This happens during backfilling basic data. But it is also possible to (re-)create
     requests for remaining additional data using :meth:`~.create_additional_data_requests`.
-    
+
     .. code-block:: python
-       
+
        mastr_mirror.create_additional_data_requests("solar")
-    
+
     Additional unit data, in the case of wind power this is extended data, EEG data and permit data, can be
     retrieved subsequently by :meth:`~.retrieve_additional_data`.
-    
+
     .. code-block:: python
-       
+
        mastr_mirror.retrieve_additional_data("solar", ["unit_data"])
-    
-    
+
+
     The data can be joined to one table for each technology and exported to CSV files using :meth:`~.to_csv`.
-    
+
     Also consider to use :meth:`~.dump` and :meth:`~.restore` for specific purposes.
-    
+
     """
 
-    def __init__(self, empty_schema=False, restore_dump=None, initialize_db=None, parallel_processes=None):
+    def __init__(
+        self,
+        empty_schema=False,
+        restore_dump=None,
+        initialize_db=None,
+        parallel_processes=None,
+    ):
         """
         Parameters
         ----------
         empty_schema: boolean
-            Remove all data from the MaStR mirror database. Deletes the entire schema and recreates it 
+            Remove all data from the MaStR mirror database. Deletes the entire schema and recreates it
             including all tables. Be careful!
             Defaults to False **not** deleting anything.
         restore_dump: str or path-like, optional
@@ -90,19 +100,6 @@ class MaStRMirror:
         if initialize_db:
             self.setup_docker(initialize_db)
 
-
-        # Create database tables # TODO: Isolate in new (util) funtion _create_database in MaStR() class
-        DB_ENGINE = os.environ.get("DB_ENGINE", "sqlite")
-        engine = db_engine()
-        with engine.connect().execution_options(autocommit=True) as con:
-            if empty_schema:
-                con.execute(f"DROP SCHEMA IF EXISTS {orm.Base.metadata.schema} CASCADE;")
-            # con.dialect.has_schema(con, {orm.Base.metadata.schema})
-            # con.execute('CREATE SCHEMA IF NOT EXISTS (?);', (orm.Base.metadata.schema))
-            if DB_ENGINE == "docker":
-                engine.execute(CreateSchema(orm.Base.metadata.schema)) 
-        orm.Base.metadata.create_all(engine)
-
         # Associate downloader
         self.mastr_dl = MaStRDownload(parallel_processes=parallel_processes)
 
@@ -115,43 +112,40 @@ class MaStRMirror:
             "wind": {
                 "unit_data": "WindExtended",
                 "eeg_data": "WindEeg",
-                "permit_data": "Permit"
+                "permit_data": "Permit",
             },
             "solar": {
                 "unit_data": "SolarExtended",
                 "eeg_data": "SolarEeg",
-                "permit_data": "Permit"
+                "permit_data": "Permit",
             },
             "biomass": {
                 "unit_data": "BiomassExtended",
                 "eeg_data": "BiomassEeg",
                 "kwk_data": "Kwk",
-                "permit_data": "Permit"
+                "permit_data": "Permit",
             },
             "combustion": {
                 "unit_data": "CombustionExtended",
                 "kwk_data": "Kwk",
-                "permit_data": "Permit"
+                "permit_data": "Permit",
             },
             "gsgk": {
                 "unit_data": "GsgkExtended",
                 "eeg_data": "GsgkEeg",
                 "kwk_data": "Kwk",
-                "permit_data": "Permit"
+                "permit_data": "Permit",
             },
             "hydro": {
                 "unit_data": "HydroExtended",
                 "eeg_data": "HydroEeg",
-                "permit_data": "Permit"
+                "permit_data": "Permit",
             },
-            "nuclear": {
-                "unit_data": "NuclearExtended",
-                "permit_data": "Permit"
-            },
+            "nuclear": {"unit_data": "NuclearExtended", "permit_data": "Permit"},
             "storage": {
                 "unit_data": "StorageExtended",
                 "eeg_data": "StorageEeg",
-                "permit_data": "Permit"
+                "permit_data": "Permit",
             },
         }
 
@@ -178,8 +172,7 @@ class MaStRMirror:
         self.unit_type_map_reversed = {v: k for k, v in self.unit_type_map.items()}
 
     def setup_docker(self, initialize_db=None):
-        """ Initialize a PostgreSQL database with docker-compose
-        """
+        """Initialize a PostgreSQL database with docker-compose"""
 
         conf_file_path = os.path.abspath(
             os.path.join(os.path.dirname(__file__), "..", "..")
@@ -195,7 +188,7 @@ class MaStRMirror:
 
         Fill database table 'basic_units' with data. It allows specification of which data should be retrieved via
         the described parameter options.
-        
+
         Under the hood, :meth:`open_mastr.soap_api.download.MaStRDownload.basic_unit_data` is used.
 
         Parameters
@@ -247,17 +240,25 @@ class MaStRMirror:
                 if tech:
                     # In case technologies are specified, latest data date gets queried per technology
                     with session_scope() as session:
-                        newest_date = session.query(orm.BasicUnit.DatumLetzeAktualisierung).filter(
-                            orm.BasicUnit.Einheittyp == self.unit_type_map_reversed[tech]).order_by(
-                            orm.BasicUnit.DatumLetzeAktualisierung.desc()).first()
+                        newest_date = (
+                            session.query(orm.BasicUnit.DatumLetzeAktualisierung)
+                            .filter(
+                                orm.BasicUnit.Einheittyp
+                                == self.unit_type_map_reversed[tech]
+                            )
+                            .order_by(orm.BasicUnit.DatumLetzeAktualisierung.desc())
+                            .first()
+                        )
                 else:
                     # If technologies aren't defined ([None]) latest date per technology is queried in query
                     # This also leads that the remainder of the loop body is skipped
                     with session_scope() as session:
-                        subquery = session.query(orm.BasicUnit.Einheittyp,
-                                                 func.max(orm.BasicUnit.DatumLetzeAktualisierung).label(
-                                                     "maxdate")).group_by(
-                            orm.BasicUnit.Einheittyp)
+                        subquery = session.query(
+                            orm.BasicUnit.Einheittyp,
+                            func.max(orm.BasicUnit.DatumLetzeAktualisierung).label(
+                                "maxdate"
+                            ),
+                        ).group_by(orm.BasicUnit.Einheittyp)
                         dates = [s[1] for s in subquery]
                         technology_list = [self.unit_type_map[s[0]] for s in subquery]
                         # Break the for loop over technology here, because we write technology_list and dates at once
@@ -282,7 +283,9 @@ class MaStRMirror:
             with session_scope() as session:
 
                 # Insert basic data into databse
-                log.info("Insert basic unit data into DB and submit additional data requests")
+                log.info(
+                    "Insert basic unit data into DB and submit additional data requests"
+                )
                 for basic_units_chunk in basic_units:
                     # Make sure that no duplicates get inserted into database (would result in an error)
                     # Only new data gets inserted or data with newer modification date gets updated
@@ -292,13 +295,23 @@ class MaStRMirror:
                         unit
                         for n, unit in enumerate(basic_units_chunk)
                         if unit["EinheitMastrNummer"]
-                           not in [_["EinheitMastrNummer"] for _ in basic_units_chunk[n + 1:]]
+                        not in [
+                            _["EinheitMastrNummer"] for _ in basic_units_chunk[n + 1 :]
+                        ]
                     ]
-                    basic_units_chunk_unique_ids = [_["EinheitMastrNummer"] for _ in basic_units_chunk_unique]
+                    basic_units_chunk_unique_ids = [
+                        _["EinheitMastrNummer"] for _ in basic_units_chunk_unique
+                    ]
 
                     # Find units that are already in the DB
-                    common_ids = [_.EinheitMastrNummer for _ in session.query(orm.BasicUnit.EinheitMastrNummer).filter(
-                        orm.BasicUnit.EinheitMastrNummer.in_(basic_units_chunk_unique_ids))]
+                    common_ids = [
+                        _.EinheitMastrNummer
+                        for _ in session.query(orm.BasicUnit.EinheitMastrNummer).filter(
+                            orm.BasicUnit.EinheitMastrNummer.in_(
+                                basic_units_chunk_unique_ids
+                            )
+                        )
+                    ]
 
                     # Create instances for new data and for updated data
                     insert = []
@@ -306,10 +319,16 @@ class MaStRMirror:
                     for unit in basic_units_chunk_unique:
                         # In case data for the unit already exists, only update if new data is newer
                         if unit["EinheitMastrNummer"] in common_ids:
-                            if session.query(exists().where(
-                                    and_(orm.BasicUnit.EinheitMastrNummer == unit["EinheitMastrNummer"],
-                                         orm.BasicUnit.DatumLetzeAktualisierung < unit[
-                                             "DatumLetzeAktualisierung"]))).scalar():
+                            if session.query(
+                                exists().where(
+                                    and_(
+                                        orm.BasicUnit.EinheitMastrNummer
+                                        == unit["EinheitMastrNummer"],
+                                        orm.BasicUnit.DatumLetzeAktualisierung
+                                        < unit["DatumLetzeAktualisierung"],
+                                    )
+                                )
+                            ).scalar():
                                 updated.append(unit)
                                 session.merge(orm.BasicUnit(**unit))
                         # In case of new data, just insert
@@ -330,9 +349,13 @@ class MaStRMirror:
                             {
                                 "EinheitMastrNummer": basic_unit["EinheitMastrNummer"],
                                 "additional_data_id": basic_unit["EinheitMastrNummer"],
-                                "technology": self.unit_type_map[basic_unit["Einheittyp"]],
+                                "technology": self.unit_type_map[
+                                    basic_unit["Einheittyp"]
+                                ],
                                 "data_type": "unit_data",
-                                "request_date": datetime.datetime.now(tz=datetime.timezone.utc),
+                                "request_date": datetime.datetime.now(
+                                    tz=datetime.timezone.utc
+                                ),
                             }
                         )
 
@@ -340,11 +363,17 @@ class MaStRMirror:
                         if basic_unit["EegMastrNummer"]:
                             eeg_data.append(
                                 {
-                                    "EinheitMastrNummer": basic_unit["EinheitMastrNummer"],
+                                    "EinheitMastrNummer": basic_unit[
+                                        "EinheitMastrNummer"
+                                    ],
                                     "additional_data_id": basic_unit["EegMastrNummer"],
-                                    "technology": self.unit_type_map[basic_unit["Einheittyp"]],
+                                    "technology": self.unit_type_map[
+                                        basic_unit["Einheittyp"]
+                                    ],
                                     "data_type": "eeg_data",
-                                    "request_date": datetime.datetime.now(tz=datetime.timezone.utc),
+                                    "request_date": datetime.datetime.now(
+                                        tz=datetime.timezone.utc
+                                    ),
                                 }
                             )
 
@@ -352,11 +381,17 @@ class MaStRMirror:
                         if basic_unit["KwkMastrNummer"]:
                             kwk_data.append(
                                 {
-                                    "EinheitMastrNummer": basic_unit["EinheitMastrNummer"],
+                                    "EinheitMastrNummer": basic_unit[
+                                        "EinheitMastrNummer"
+                                    ],
                                     "additional_data_id": basic_unit["KwkMastrNummer"],
-                                    "technology": self.unit_type_map[basic_unit["Einheittyp"]],
+                                    "technology": self.unit_type_map[
+                                        basic_unit["Einheittyp"]
+                                    ],
                                     "data_type": "kwk_data",
-                                    "request_date": datetime.datetime.now(tz=datetime.timezone.utc),
+                                    "request_date": datetime.datetime.now(
+                                        tz=datetime.timezone.utc
+                                    ),
                                 }
                             )
 
@@ -364,11 +399,17 @@ class MaStRMirror:
                         if basic_unit["GenMastrNummer"]:
                             permit_data.append(
                                 {
-                                    "EinheitMastrNummer": basic_unit["EinheitMastrNummer"],
+                                    "EinheitMastrNummer": basic_unit[
+                                        "EinheitMastrNummer"
+                                    ],
                                     "additional_data_id": basic_unit["GenMastrNummer"],
-                                    "technology": self.unit_type_map[basic_unit["Einheittyp"]],
+                                    "technology": self.unit_type_map[
+                                        basic_unit["Einheittyp"]
+                                    ],
                                     "data_type": "permit_data",
-                                    "request_date": datetime.datetime.now(tz=datetime.timezone.utc),
+                                    "request_date": datetime.datetime.now(
+                                        tz=datetime.timezone.utc
+                                    ),
                                 }
                             )
 
@@ -376,11 +417,15 @@ class MaStRMirror:
                 additional_data_table = orm.AdditionalDataRequested.__table__
                 ids_to_delete = [_["EinheitMastrNummer"] for _ in inserted_and_updated]
                 session.execute(
-                    additional_data_table.delete().where(
-                        additional_data_table.c.EinheitMastrNummer.in_(ids_to_delete)).where(
-                        additional_data_table.c.technology == "wind").where(
-                        additional_data_table.c.request_date < datetime.datetime.now(tz=datetime.timezone.utc)
-                               )
+                    additional_data_table.delete()
+                    .where(
+                        additional_data_table.c.EinheitMastrNummer.in_(ids_to_delete)
+                    )
+                    .where(additional_data_table.c.technology == "wind")
+                    .where(
+                        additional_data_table.c.request_date
+                        < datetime.datetime.now(tz=datetime.timezone.utc)
+                    )
                 )
 
                 # Flush delete statements to database
@@ -394,7 +439,9 @@ class MaStRMirror:
 
             log.info("Backfill successfully finished")
 
-    def backfill_locations_basic(self, limit=None, date=None, delete_additional_data_requests=True):
+    def backfill_locations_basic(
+        self, limit=None, date=None, delete_additional_data_requests=True
+    ):
         """
         Backfill basic location data.
 
@@ -433,8 +480,11 @@ class MaStRMirror:
         # Find newest data date if date="latest"
         if date == "latest":
             with session_scope() as session:
-                date_queried = session.query(orm.LocationExtended.DatumLetzteAktualisierung).order_by(
-                    orm.LocationExtended.DatumLetzteAktualisierung.desc()).first()
+                date_queried = (
+                    session.query(orm.LocationExtended.DatumLetzteAktualisierung)
+                    .order_by(orm.LocationExtended.DatumLetzteAktualisierung.desc())
+                    .first()
+                )
                 if date_queried:
                     date = date_queried[0]
                 else:
@@ -449,15 +499,23 @@ class MaStRMirror:
                 location
                 for n, location in enumerate(locations_chunk)
                 if location["LokationMastrNummer"]
-                   not in [_["LokationMastrNummer"] for _ in locations_chunk[n + 1:]]
+                not in [_["LokationMastrNummer"] for _ in locations_chunk[n + 1 :]]
             ]
-            locations_unique_ids = [_["LokationMastrNummer"] for _ in locations_chunk_unique]
+            locations_unique_ids = [
+                _["LokationMastrNummer"] for _ in locations_chunk_unique
+            ]
 
             with session_scope() as session:
 
                 # Find units that are already in the DB
-                common_ids = [_.LokationMastrNummer for _ in session.query(orm.LocationBasic.LokationMastrNummer).filter(
-                    orm.LocationBasic.LokationMastrNummer.in_(locations_unique_ids))]
+                common_ids = [
+                    _.LokationMastrNummer
+                    for _ in session.query(
+                        orm.LocationBasic.LokationMastrNummer
+                    ).filter(
+                        orm.LocationBasic.LokationMastrNummer.in_(locations_unique_ids)
+                    )
+                ]
 
                 # Create instances for new data and for updated data
                 insert = []
@@ -465,8 +523,12 @@ class MaStRMirror:
                 for location in locations_chunk_unique:
                     # In case data for the unit already exists, only update if new data is newer
                     if location["LokationMastrNummer"] in common_ids:
-                        if session.query(exists().where(
-                                orm.LocationBasic.LokationMastrNummer == location["LokationMastrNummer"])).scalar():
+                        if session.query(
+                            exists().where(
+                                orm.LocationBasic.LokationMastrNummer
+                                == location["LokationMastrNummer"]
+                            )
+                        ).scalar():
                             updated.append(location)
                             session.merge(orm.LocationBasic(**location))
                     # In case of new data, just insert
@@ -481,31 +543,47 @@ class MaStRMirror:
                     new_requests.append(
                         {
                             "LokationMastrNummer": location["LokationMastrNummer"],
-                            "location_type": self.unit_type_map[location["Lokationtyp"]],
-                            "request_date": datetime.datetime.now(tz=datetime.timezone.utc)
+                            "location_type": self.unit_type_map[
+                                location["Lokationtyp"]
+                            ],
+                            "request_date": datetime.datetime.now(
+                                tz=datetime.timezone.utc
+                            ),
                         }
                     )
 
                 # Delete old data requests
                 if delete_additional_data_requests:
-                    ids_to_delete = [_["LokationMastrNummer"] for _ in inserted_and_updated]
+                    ids_to_delete = [
+                        _["LokationMastrNummer"] for _ in inserted_and_updated
+                    ]
                     session.query(orm.AdditionalLocationsRequested).filter(
-                        orm.AdditionalLocationsRequested.LokationMastrNummer.in_(ids_to_delete)
-                    ).filter(orm.AdditionalLocationsRequested.request_date < datetime.datetime.now(
-                        tz=datetime.timezone.utc)).delete(synchronize_session="fetch")
+                        orm.AdditionalLocationsRequested.LokationMastrNummer.in_(
+                            ids_to_delete
+                        )
+                    ).filter(
+                        orm.AdditionalLocationsRequested.request_date
+                        < datetime.datetime.now(tz=datetime.timezone.utc)
+                    ).delete(
+                        synchronize_session="fetch"
+                    )
                     session.commit()
 
                 # Do bulk insert of new data requests
-                session.bulk_insert_mappings(orm.AdditionalLocationsRequested, new_requests)
+                session.bulk_insert_mappings(
+                    orm.AdditionalLocationsRequested, new_requests
+                )
 
-    def retrieve_additional_data(self, technology, data_type, limit=None, chunksize=1000):
+    def retrieve_additional_data(
+        self, technology, data_type, limit=None, chunksize=1000
+    ):
         """
         Retrieve additional unit data
-        
+
         Execute additional data requests stored in :class:`open_mastr.soap_api.orm.AdditionalDataRequested`.
         See also docs of :meth:`open_mastr.soap_api.download.py.MaStRDownload.additional_data` for more
         information on how data is downloaded.
-        
+
         Parameters
         ----------
         technology: `str` or `list` of `str`
@@ -515,11 +593,11 @@ class MaStRMirror:
             Select type of additional data that is to be retrieved. Choose from
             "unit_data", "eeg_data", "kwk_data", "permit_data".
         limit: int
-            Limit number of units that data is download for. Defaults to `None` which refers 
-            to query data for existing data requests, for example created by 
+            Limit number of units that data is download for. Defaults to `None` which refers
+            to query data for existing data requests, for example created by
             :meth:`~.create_additional_data_requests`.
         chunksize: int
-            Data is downloaded and inserted into the database in chunks of `chunksize`. 
+            Data is downloaded and inserted into the database in chunks of `chunksize`.
             Defaults to 1000.
         """
 
@@ -541,9 +619,16 @@ class MaStRMirror:
 
             with session_scope() as session:
 
-                requested_chunk = session.query(orm.AdditionalDataRequested).filter(
-                    and_(orm.AdditionalDataRequested.data_type == data_type,
-                         orm.AdditionalDataRequested.technology == technology)).limit(chunksize)
+                requested_chunk = (
+                    session.query(orm.AdditionalDataRequested)
+                    .filter(
+                        and_(
+                            orm.AdditionalDataRequested.data_type == data_type,
+                            orm.AdditionalDataRequested.technology == technology,
+                        )
+                    )
+                    .limit(chunksize)
+                )
 
                 ids = [_.additional_data_id for _ in requested_chunk]
 
@@ -551,27 +636,41 @@ class MaStRMirror:
                 deleted_units = []
                 if ids:
                     # Retrieve data
-                    unit_data, missed_units = self.mastr_dl.additional_data(technology, ids, download_functions[data_type])
+                    unit_data, missed_units = self.mastr_dl.additional_data(
+                        technology, ids, download_functions[data_type]
+                    )
                     missed_units_ids = [u[0] for u in missed_units]
                     unit_data = _flatten_dict(unit_data)
 
                     # Prepare data and add to database table
                     for unit_dat in unit_data:
                         # Remove query status information from response
-                        for exclude in ["Ergebniscode", "AufrufVeraltet", "AufrufVersion", "AufrufLebenszeitEnde"]:
+                        for exclude in [
+                            "Ergebniscode",
+                            "AufrufVeraltet",
+                            "AufrufVersion",
+                            "AufrufLebenszeitEnde",
+                        ]:
                             del unit_dat[exclude]
 
                         # Pre-serialize dates/datetimes and decimal in hydro Ertuechtigung
                         # This is required because sqlalchemy does not know how serialize dates/decimal of a JSON
                         if "Ertuechtigung" in unit_dat.keys():
-                            for ertuechtigung in unit_dat['Ertuechtigung']:
-                                if ertuechtigung['DatumWiederinbetriebnahme']:
-                                    ertuechtigung['DatumWiederinbetriebnahme'] = ertuechtigung[
-                                        'DatumWiederinbetriebnahme'].isoformat()
-                                ertuechtigung['ProzentualeErhoehungDesLv'] = float(ertuechtigung['ProzentualeErhoehungDesLv'])
+                            for ertuechtigung in unit_dat["Ertuechtigung"]:
+                                if ertuechtigung["DatumWiederinbetriebnahme"]:
+                                    ertuechtigung[
+                                        "DatumWiederinbetriebnahme"
+                                    ] = ertuechtigung[
+                                        "DatumWiederinbetriebnahme"
+                                    ].isoformat()
+                                ertuechtigung["ProzentualeErhoehungDesLv"] = float(
+                                    ertuechtigung["ProzentualeErhoehungDesLv"]
+                                )
 
                         # Create new instance and update potentially existing one
-                        unit = getattr(orm, self.orm_map[technology][data_type])(**unit_dat)
+                        unit = getattr(orm, self.orm_map[technology][data_type])(
+                            **unit_dat
+                        )
                         session.merge(unit)
                         number_units_merged += 1
 
@@ -579,8 +678,8 @@ class MaStRMirror:
                     # Log units where data retrieval was not successful
                     for missed_unit in missed_units:
                         missed = orm.MissedAdditionalData(
-                            additional_data_id=missed_unit[0],
-                            reason=missed_unit[1])
+                            additional_data_id=missed_unit[0], reason=missed_unit[1]
+                        )
                         session.add(missed)
 
                     # Remove units from additional data request table if additional data was retrieved
@@ -592,15 +691,19 @@ class MaStRMirror:
                     # Update while iteration condition
                     units_queried += len(ids)
 
-                    log.info(f"Downloaded data for {len(unit_data)} units ({len(ids)} requested). "
-                             f"Missed units: {len(missed_units)}. Deleted requests: {len(deleted_units)}.")
+                    log.info(
+                        f"Downloaded data for {len(unit_data)} units ({len(ids)} requested). "
+                        f"Missed units: {len(missed_units)}. Deleted requests: {len(deleted_units)}."
+                    )
 
             # Emergency break out: if now new data gets inserted/update, don't retrieve any further data
             if number_units_merged == 0:
                 log.info("No further data is requested")
                 break
 
-    def retrieve_additional_location_data(self, location_type, limit=None, chunksize=1000):
+    def retrieve_additional_location_data(
+        self, location_type, limit=None, chunksize=1000
+    ):
         """
         Retrieve extended location data
 
@@ -633,8 +736,13 @@ class MaStRMirror:
 
             with session_scope() as session:
                 # Get a chunk
-                requested_chunk = session.query(orm.AdditionalLocationsRequested).filter(
-                    orm.AdditionalLocationsRequested.location_type == location_type).limit(chunksize)
+                requested_chunk = (
+                    session.query(orm.AdditionalLocationsRequested)
+                    .filter(
+                        orm.AdditionalLocationsRequested.location_type == location_type
+                    )
+                    .limit(chunksize)
+                )
                 ids = [_.LokationMastrNummer for _ in requested_chunk]
 
                 # Reset number of locations inserted or updated for this chunk
@@ -642,27 +750,41 @@ class MaStRMirror:
                 deleted_locations = []
                 if ids:
                     # Retrieve data
-                    location_data, missed_locations = self.mastr_dl.additional_data(location_type,
-                                                                            ids,
-                                                                            "location_data")
+                    location_data, missed_locations = self.mastr_dl.additional_data(
+                        location_type, ids, "location_data"
+                    )
                     missed_locations_ids = [loc[0] for loc in missed_locations]
 
                     # Prepare data and add to database table
                     for location_dat in location_data:
                         # Remove query status information from response
-                        for exclude in ["Ergebniscode", "AufrufVeraltet", "AufrufVersion", "AufrufLebenszeitEnde"]:
+                        for exclude in [
+                            "Ergebniscode",
+                            "AufrufVeraltet",
+                            "AufrufVersion",
+                            "AufrufLebenszeitEnde",
+                        ]:
                             del location_dat[exclude]
 
                         # Make data types JSON serializable
                         location_dat["DatumLetzteAktualisierung"] = location_dat[
-                            "DatumLetzteAktualisierung"].isoformat()
+                            "DatumLetzteAktualisierung"
+                        ].isoformat()
                         for grid_connection in location_dat["Netzanschlusspunkte"]:
-                            grid_connection['letzteAenderung'] = grid_connection['letzteAenderung'].isoformat()
-                            for field_name in ["MaximaleEinspeiseleistung", "MaximaleAusspeiseleistung",
-                                               "Nettoengpassleistung", "Netzanschlusskapazitaet"]:
+                            grid_connection["letzteAenderung"] = grid_connection[
+                                "letzteAenderung"
+                            ].isoformat()
+                            for field_name in [
+                                "MaximaleEinspeiseleistung",
+                                "MaximaleAusspeiseleistung",
+                                "Nettoengpassleistung",
+                                "Netzanschlusskapazitaet",
+                            ]:
                                 if field_name in grid_connection.keys():
                                     if grid_connection[field_name]:
-                                        grid_connection[field_name] = float(grid_connection[field_name])
+                                        grid_connection[field_name] = float(
+                                            grid_connection[field_name]
+                                        )
 
                         # Create new instance and update potentially existing one
                         location = orm.LocationExtended(**location_dat)
@@ -674,30 +796,41 @@ class MaStRMirror:
                     for missed_location in missed_locations:
                         missed = orm.MissedExtendedLocation(
                             LokationMastrNummer=missed_location[0],
-                            reason=missed_location[1])
+                            reason=missed_location[1],
+                        )
                         session.add(missed)
 
                     # Remove locations from additional data request table if additional data was retrieved
                     for requested_location in requested_chunk:
-                        if requested_location.LokationMastrNummer not in missed_locations_ids:
+                        if (
+                            requested_location.LokationMastrNummer
+                            not in missed_locations_ids
+                        ):
                             session.delete(requested_location)
-                            deleted_locations.append(requested_location.LokationMastrNummer)
+                            deleted_locations.append(
+                                requested_location.LokationMastrNummer
+                            )
 
                     # Update while iteration condition
                     locations_queried += len(ids)
 
-                    log.info(f"Downloaded data for {len(location_data)} locations ({len(ids)} requested). "
-                             f"Missed locations: {len(missed_locations_ids)}. Deleted requests: "
-                             f"{len(deleted_locations)}.")
+                    log.info(
+                        f"Downloaded data for {len(location_data)} locations ({len(ids)} requested). "
+                        f"Missed locations: {len(missed_locations_ids)}. Deleted requests: "
+                        f"{len(deleted_locations)}."
+                    )
 
             # Emergency break out: if now new data gets inserted/update, don't retrieve any further data
             if number_locations_merged == 0:
                 log.info("No further data is requested")
                 break
 
-    def create_additional_data_requests(self, technology,
-                                        data_types=["unit_data", "eeg_data", "kwk_data", "permit_data"],
-                                        delete_existing=True):
+    def create_additional_data_requests(
+        self,
+        technology,
+        data_types=["unit_data", "eeg_data", "kwk_data", "permit_data"],
+        delete_existing=True,
+    ):
         """
         Create new requests for additional unit data
 
@@ -725,7 +858,9 @@ class MaStRMirror:
 
                 # Only proceed if this data type is available for this technology
                 if data_type_available:
-                    log.info(f"Create requests for additional data of type {data_type} for {technology}")
+                    log.info(
+                        f"Create requests for additional data of type {data_type} for {technology}"
+                    )
 
                     # Get ORM for additional data by technology and data_type
                     additional_data_orm = getattr(orm, data_type_available)
@@ -734,37 +869,75 @@ class MaStRMirror:
                     if delete_existing:
                         session.query(orm.AdditionalDataRequested).filter(
                             orm.AdditionalDataRequested.technology == technology,
-                            orm.AdditionalDataRequested.data_type == data_type).delete()
+                            orm.AdditionalDataRequested.data_type == data_type,
+                        ).delete()
                         session.commit()
 
                     # Query database for missing additional data
                     if data_type == "unit_data":
-                        units_for_request = session.query(orm.BasicUnit).outerjoin(
-                            additional_data_orm,
-                            orm.BasicUnit.EinheitMastrNummer == additional_data_orm.EinheitMastrNummer).filter(
-                            orm.BasicUnit.Einheittyp == self.unit_type_map_reversed[technology]).filter(
-                            additional_data_orm.EinheitMastrNummer.is_(None)).filter(
-                            orm.BasicUnit.EinheitMastrNummer.isnot(None))
+                        units_for_request = (
+                            session.query(orm.BasicUnit)
+                            .outerjoin(
+                                additional_data_orm,
+                                orm.BasicUnit.EinheitMastrNummer
+                                == additional_data_orm.EinheitMastrNummer,
+                            )
+                            .filter(
+                                orm.BasicUnit.Einheittyp
+                                == self.unit_type_map_reversed[technology]
+                            )
+                            .filter(additional_data_orm.EinheitMastrNummer.is_(None))
+                            .filter(orm.BasicUnit.EinheitMastrNummer.isnot(None))
+                        )
                     elif data_type == "eeg_data":
-                        units_for_request = session.query(orm.BasicUnit).outerjoin(
-                            additional_data_orm,
-                            orm.BasicUnit.EegMastrNummer == additional_data_orm.EegMastrNummer).filter(
-                            orm.BasicUnit.Einheittyp == self.unit_type_map_reversed[technology]).filter(
-                            additional_data_orm.EegMastrNummer.is_(None)).filter(orm.BasicUnit.EegMastrNummer.isnot(None))
+                        units_for_request = (
+                            session.query(orm.BasicUnit)
+                            .outerjoin(
+                                additional_data_orm,
+                                orm.BasicUnit.EegMastrNummer
+                                == additional_data_orm.EegMastrNummer,
+                            )
+                            .filter(
+                                orm.BasicUnit.Einheittyp
+                                == self.unit_type_map_reversed[technology]
+                            )
+                            .filter(additional_data_orm.EegMastrNummer.is_(None))
+                            .filter(orm.BasicUnit.EegMastrNummer.isnot(None))
+                        )
                     elif data_type == "kwk_data":
-                        units_for_request = session.query(orm.BasicUnit).outerjoin(
-                            additional_data_orm,
-                            orm.BasicUnit.KwkMastrNummer == additional_data_orm.KwkMastrNummer).filter(
-                            orm.BasicUnit.Einheittyp == self.unit_type_map_reversed[technology]).filter(
-                            additional_data_orm.KwkMastrNummer.is_(None)).filter(orm.BasicUnit.KwkMastrNummer.isnot(None))
+                        units_for_request = (
+                            session.query(orm.BasicUnit)
+                            .outerjoin(
+                                additional_data_orm,
+                                orm.BasicUnit.KwkMastrNummer
+                                == additional_data_orm.KwkMastrNummer,
+                            )
+                            .filter(
+                                orm.BasicUnit.Einheittyp
+                                == self.unit_type_map_reversed[technology]
+                            )
+                            .filter(additional_data_orm.KwkMastrNummer.is_(None))
+                            .filter(orm.BasicUnit.KwkMastrNummer.isnot(None))
+                        )
                     elif data_type == "permit_data":
-                        units_for_request = session.query(orm.BasicUnit).outerjoin(
-                            additional_data_orm,
-                            orm.BasicUnit.GenMastrNummer == additional_data_orm.GenMastrNummer).filter(
-                            orm.BasicUnit.Einheittyp == self.unit_type_map_reversed[technology]).filter(
-                            additional_data_orm.GenMastrNummer.is_(None)).filter(orm.BasicUnit.GenMastrNummer.isnot(None))
+                        units_for_request = (
+                            session.query(orm.BasicUnit)
+                            .outerjoin(
+                                additional_data_orm,
+                                orm.BasicUnit.GenMastrNummer
+                                == additional_data_orm.GenMastrNummer,
+                            )
+                            .filter(
+                                orm.BasicUnit.Einheittyp
+                                == self.unit_type_map_reversed[technology]
+                            )
+                            .filter(additional_data_orm.GenMastrNummer.is_(None))
+                            .filter(orm.BasicUnit.GenMastrNummer.isnot(None))
+                        )
                     else:
-                        raise ValueError(f"Data type {data_type} is not a valid option.")
+                        raise ValueError(
+                            f"Data type {data_type} is not a valid option."
+                        )
 
                     # Prepare data for additional data request
                     for basic_unit in units_for_request:
@@ -772,16 +945,26 @@ class MaStRMirror:
                             "EinheitMastrNummer": basic_unit.EinheitMastrNummer,
                             "technology": self.unit_type_map[basic_unit.Einheittyp],
                             "data_type": data_type,
-                            "request_date": datetime.datetime.now(tz=datetime.timezone.utc),
+                            "request_date": datetime.datetime.now(
+                                tz=datetime.timezone.utc
+                            ),
                         }
                         if data_type == "unit_data":
-                            data_request["additional_data_id"] = basic_unit.EinheitMastrNummer
+                            data_request[
+                                "additional_data_id"
+                            ] = basic_unit.EinheitMastrNummer
                         elif data_type == "eeg_data":
-                            data_request["additional_data_id"] = basic_unit.EegMastrNummer
+                            data_request[
+                                "additional_data_id"
+                            ] = basic_unit.EegMastrNummer
                         elif data_type == "kwk_data":
-                            data_request["additional_data_id"] = basic_unit.KwkMastrNummer
+                            data_request[
+                                "additional_data_id"
+                            ] = basic_unit.KwkMastrNummer
                         elif data_type == "permit_data":
-                            data_request["additional_data_id"] = basic_unit.GenMastrNummer
+                            data_request[
+                                "additional_data_id"
+                            ] = basic_unit.GenMastrNummer
                         data_requests.append(data_request)
 
             # Insert new requests for additional data into database
@@ -796,17 +979,17 @@ class MaStRMirror:
         dumpfile : str or path-like, optional
             Save path for dump including filename. When only a filename is given, the dump is saved to CWD.
         """
-        dump_cmd = f"pg_dump -Fc " \
-            f"-f {dumpfile} " \
-            f"-n mastr_mirrored " \
-            f"-h localhost " \
-            f"-U open-mastr " \
-            f"-p 55443 " \
+        dump_cmd = (
+            f"pg_dump -Fc "
+            f"-f {dumpfile} "
+            f"-n mastr_mirrored "
+            f"-h localhost "
+            f"-U open-mastr "
+            f"-p 55443 "
             f"open-mastr"
+        )
 
-        proc = subprocess.Popen(dump_cmd, shell=True, env={
-            'PGPASSWORD': "open-mastr"
-        })
+        proc = subprocess.Popen(dump_cmd, shell=True, env={"PGPASSWORD": "open-mastr"})
         proc.wait()
 
     def restore(self, dumpfile):
@@ -828,28 +1011,31 @@ class MaStRMirror:
         dump_file_dir, dump_file = os.path.split(dumpfile)
         cwd = os.path.abspath(os.path.dirname(dump_file_dir))
 
-
         # Define import of SQL dump with pg_restore
-        restore_cmd = f"pg_restore -h localhost -U open-mastr -p 55443 -d open-mastr {dump_file}"
+        restore_cmd = (
+            f"pg_restore -h localhost -U open-mastr -p 55443 -d open-mastr {dump_file}"
+        )
         restore_cmd = shlex.split(restore_cmd)
 
         # Execute restore command
-        proc = subprocess.Popen(restore_cmd,
-                                shell=False,
-                                env={'PGPASSWORD': "open-mastr"},
-                                cwd=cwd,
-                                stdin=subprocess.PIPE,
-                                stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE,
-                                )
+        proc = subprocess.Popen(
+            restore_cmd,
+            shell=False,
+            env={"PGPASSWORD": "open-mastr"},
+            cwd=cwd,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
         proc.wait()
 
-    def to_csv(self,
-               technology=None,
-               limit=None,
-               additional_data=["unit_data", "eeg_data", "kwk_data", "permit_data"],
-               statistic_flag="B",
-               ):
+    def to_csv(
+        self,
+        technology=None,
+        limit=None,
+        additional_data=["unit_data", "eeg_data", "kwk_data", "permit_data"],
+        statistic_flag="B",
+    ):
         """
         Export a snapshot MaStR data from mirrored database to CSV
 
@@ -897,60 +1083,87 @@ class MaStRMirror:
 
             for tech in technology:
                 unit_data_orm = getattr(orm, self.orm_map[tech]["unit_data"], None)
-                eeg_data_orm = getattr(orm, self.orm_map[tech].get("eeg_data", "KeyNotAvailable"), None)
-                kwk_data_orm = getattr(orm, self.orm_map[tech].get("kwk_data", "KeyNotAvailable"), None)
-                permit_data_orm = getattr(orm, self.orm_map[tech].get("permit_data", "KeyNotAvailable"), None)
+                eeg_data_orm = getattr(
+                    orm, self.orm_map[tech].get("eeg_data", "KeyNotAvailable"), None
+                )
+                kwk_data_orm = getattr(
+                    orm, self.orm_map[tech].get("kwk_data", "KeyNotAvailable"), None
+                )
+                permit_data_orm = getattr(
+                    orm, self.orm_map[tech].get("permit_data", "KeyNotAvailable"), None
+                )
 
                 # Define query based on available tables for tech and user input
-                subtables = partially_suffixed_columns(orm.BasicUnit,
-                                                        renaming["basic_data"]["columns"],
-                                                        renaming["basic_data"]["suffix"])
+                subtables = partially_suffixed_columns(
+                    orm.BasicUnit,
+                    renaming["basic_data"]["columns"],
+                    renaming["basic_data"]["suffix"],
+                )
                 if unit_data_orm and "unit_data" in additional_data:
-                    subtables.extend(partially_suffixed_columns(unit_data_orm,
-                                                        renaming["unit_data"]["columns"],
-                                                        renaming["unit_data"]["suffix"]))
+                    subtables.extend(
+                        partially_suffixed_columns(
+                            unit_data_orm,
+                            renaming["unit_data"]["columns"],
+                            renaming["unit_data"]["suffix"],
+                        )
+                    )
                 if eeg_data_orm and "eeg_data" in additional_data:
-                    subtables.extend(partially_suffixed_columns(eeg_data_orm,
-                                                        renaming["eeg_data"]["columns"],
-                                                        renaming["eeg_data"]["suffix"]))
+                    subtables.extend(
+                        partially_suffixed_columns(
+                            eeg_data_orm,
+                            renaming["eeg_data"]["columns"],
+                            renaming["eeg_data"]["suffix"],
+                        )
+                    )
                 if kwk_data_orm and "kwk_data" in additional_data:
-                    subtables.extend(partially_suffixed_columns(kwk_data_orm,
-                                                        renaming["kwk_data"]["columns"],
-                                                        renaming["kwk_data"]["suffix"]))
+                    subtables.extend(
+                        partially_suffixed_columns(
+                            kwk_data_orm,
+                            renaming["kwk_data"]["columns"],
+                            renaming["kwk_data"]["suffix"],
+                        )
+                    )
                 if permit_data_orm and "permit_data" in additional_data:
-                    subtables.extend(partially_suffixed_columns(permit_data_orm,
-                                                        renaming["permit_data"]["columns"],
-                                                        renaming["permit_data"]["suffix"]))
+                    subtables.extend(
+                        partially_suffixed_columns(
+                            permit_data_orm,
+                            renaming["permit_data"]["columns"],
+                            renaming["permit_data"]["suffix"],
+                        )
+                    )
                 query = Query(subtables, session=session)
 
                 # Define joins based on available tables for tech and user input
                 if unit_data_orm and "unit_data" in additional_data:
                     query = query.join(
                         unit_data_orm,
-                        orm.BasicUnit.EinheitMastrNummer == unit_data_orm.EinheitMastrNummer,
-                        isouter=True
+                        orm.BasicUnit.EinheitMastrNummer
+                        == unit_data_orm.EinheitMastrNummer,
+                        isouter=True,
                     )
                 if eeg_data_orm and "eeg_data" in additional_data:
                     query = query.join(
                         eeg_data_orm,
                         orm.BasicUnit.EegMastrNummer == eeg_data_orm.EegMastrNummer,
-                        isouter=True
+                        isouter=True,
                     )
                 if kwk_data_orm and "kwk_data" in additional_data:
                     query = query.join(
                         kwk_data_orm,
                         orm.BasicUnit.KwkMastrNummer == kwk_data_orm.KwkMastrNummer,
-                        isouter=True
+                        isouter=True,
                     )
                 if permit_data_orm and "permit_data" in additional_data:
                     query = query.join(
                         permit_data_orm,
                         orm.BasicUnit.GenMastrNummer == permit_data_orm.GenMastrNummer,
-                        isouter=True
+                        isouter=True,
                     )
 
                 # Restricted to technology
-                query = query.filter(orm.BasicUnit.Einheittyp == self.unit_type_map_reversed[tech])
+                query = query.filter(
+                    orm.BasicUnit.Einheittyp == self.unit_type_map_reversed[tech]
+                )
 
                 # Decide if migrated data or data of newly registered units or both is selected
                 if statistic_flag and "unit_data" in additional_data:
@@ -961,7 +1174,9 @@ class MaStRMirror:
                     query = query.limit(limit)
 
                 # Read data into pandas.DataFrame
-                df = pd.read_sql(query.statement, query.session.bind, index_col="EinheitMastrNummer")
+                df = pd.read_sql(
+                    query.statement, query.session.bind, index_col="EinheitMastrNummer"
+                )
 
                 # Remove newline statements from certain strings
                 for col in ["Aktenzeichen", "Behoerde"]:
@@ -978,13 +1193,18 @@ class MaStRMirror:
             filenames = get_filenames()
             metadata_file = os.path.join(data_path, filenames["metadata"])
 
-            mastr_technologies = [self.unit_type_map_reversed[tech] for tech in technology]
-            newest_date = session.query(orm.BasicUnit.DatumLetzeAktualisierung).filter(
-                            orm.BasicUnit.Einheittyp.in_(mastr_technologies)).order_by(
-                            orm.BasicUnit.DatumLetzeAktualisierung.desc()).first()[0]
+            mastr_technologies = [
+                self.unit_type_map_reversed[tech] for tech in technology
+            ]
+            newest_date = (
+                session.query(orm.BasicUnit.DatumLetzeAktualisierung)
+                .filter(orm.BasicUnit.Einheittyp.in_(mastr_technologies))
+                .order_by(orm.BasicUnit.DatumLetzeAktualisierung.desc())
+                .first()[0]
+            )
         metadata = datapackage_meta_json(newest_date, technology, json_serialize=False)
 
-        with open(metadata_file, 'w', encoding='utf-8') as f:
+        with open(metadata_file, "w", encoding="utf-8") as f:
             json.dump(metadata, f, ensure_ascii=False, indent=4)
 
 
@@ -1007,5 +1227,7 @@ def partially_suffixed_columns(mapper, column_names, suffix):
         List of ORM table mapper instance
     """
     columns = [_ for _ in mapper.__mapper__.columns]
-    columns_renamed = [_.label(f"{_.name}_{suffix}") if _.name in column_names else _ for _ in columns]
+    columns_renamed = [
+        _.label(f"{_.name}_{suffix}") if _.name in column_names else _ for _ in columns
+    ]
     return columns_renamed

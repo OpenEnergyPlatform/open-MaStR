@@ -20,9 +20,14 @@ from open_mastr.xml_download.utils_sqlite_bulk_cleansing import (
 # import soap_API dependencies
 from open_mastr.soap_api.mirror import MaStRMirror
 
+# import initialize_databse dependencies
+from open_mastr.utils.helpers import db_engine
+import open_mastr.soap_api.orm as orm
+from sqlalchemy.schema import CreateSchema
+
 
 class Mastr:
-    def __init__(self) -> None:
+    def __init__(self, empty_schema=False) -> None:
         # TODO: Should parameter date_string be defined here or later in the download function?
         # Define the paths for the zipped xml download and the sql databases
         self._xml_folder_path = os.path.join(
@@ -36,6 +41,9 @@ class Mastr:
         self._bulk_sql_connection = sqlite3.connect(
             os.path.join(self._sqlite_folder_path, "bulksqlite.db")
         )
+
+        # Initialize database structure
+        self._initialize_database(empty_schema)
 
     def download(
         self,
@@ -85,13 +93,16 @@ class Mastr:
                 bulk_date_folder_extension = date.today().strftime("%Y%m%d")
             else:
                 try:
-                    bulk_date_folder_extension = isoparse(bulk_date_string).strftime("%Y%m%d")
+                    bulk_date_folder_extension = isoparse(bulk_date_string).strftime(
+                        "%Y%m%d"
+                    )
                 except dateutil.parser.ParserError:
                     print("date_string has to be a proper date in the format yyyymmdd.")
                     raise
 
             _zipped_xml_file_path = os.path.join(
-                self._xml_folder_path, f"Gesamtdatenexport_{bulk_date_folder_extension}.zip"
+                self._xml_folder_path,
+                f"Gesamtdatenexport_{bulk_date_folder_extension}.zip",
             )
 
             if bulk_include_tables and bulk_exclude_tables:
@@ -117,7 +128,9 @@ class Mastr:
                 # einheitensolar instead of einheitensolar_12.xml
             if bulk_exclude_tables:
                 bulk_include_tables = [
-                    entry for entry in full_list_of_files if entry not in bulk_exclude_tables
+                    entry
+                    for entry in full_list_of_files
+                    if entry not in bulk_exclude_tables
                 ]
             if not bulk_include_tables and not bulk_exclude_tables:
                 bulk_include_tables = full_list_of_files
@@ -167,6 +180,20 @@ class Mastr:
             #     mastr_mirror.retrieve_additional_location_data(location_type, limit=limit)
             #
             # return
+
+    def _initialize_database(self, empty_schema) -> None:
+        DB_ENGINE = os.environ.get("DB_ENGINE", "sqlite")
+        engine = db_engine()
+        with engine.connect().execution_options(autocommit=True) as con:
+            if empty_schema:
+                con.execute(
+                    f"DROP SCHEMA IF EXISTS {orm.Base.metadata.schema} CASCADE;"
+                )
+            # con.dialect.has_schema(con, {orm.Base.metadata.schema})
+            # con.execute('CREATE SCHEMA IF NOT EXISTS (?);', (orm.Base.metadata.schema))
+            if DB_ENGINE == "docker":
+                engine.execute(CreateSchema(orm.Base.metadata.schema))
+        orm.Base.metadata.create_all(engine)
 
     def to_docker():
         """
