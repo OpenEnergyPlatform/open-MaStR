@@ -33,7 +33,7 @@ class Mastr:
             except dateutil.parser.ParserError:
                 print("date_string has to be a proper date in the format yyyymmdd.")
                 raise
-
+        # Define the paths
         self._xml_download_url = get_url_from_Mastr_website()
         self._xml_folder_path = os.path.join(
             expanduser("~"), ".open-MaStR", "data", "xml_download"
@@ -54,8 +54,8 @@ class Mastr:
     def download(
         self,
         method=None,
-        include_tables=None,
-        exclude_tables=None,
+        bulk_include_tables=None,
+        bulk_exclude_tables=None,
         cleansing=True,
         processes=None,
         technology=None,
@@ -92,7 +92,7 @@ class Mastr:
 
         """
         if method == "bulk":
-            if include_tables and exclude_tables:
+            if bulk_include_tables and bulk_exclude_tables:
                 raise Exception(
                     "Either include_tables or exclude_tables has to be None."
                 )
@@ -113,22 +113,22 @@ class Mastr:
                 full_list_of_files = list(np.unique(np.array(full_list_of_files)))
                 # full_list_of_files now inlcudes all table_names in the format
                 # einheitensolar instead of einheitensolar_12.xml
-            if exclude_tables:
-                include_tables = [
-                    entry for entry in full_list_of_files if entry not in exclude_tables
+            if bulk_exclude_tables:
+                bulk_include_tables = [
+                    entry for entry in full_list_of_files if entry not in bulk_exclude_tables
                 ]
-            if not include_tables and not exclude_tables:
-                include_tables = full_list_of_files
+            if not bulk_include_tables and not bulk_exclude_tables:
+                bulk_include_tables = full_list_of_files
 
             convert_mastr_xml_to_sqlite(
                 con=self._bulk_sql_connection,
                 zipped_xml_file_path=self._zipped_xml_file_path,
-                include_tables=include_tables,
+                include_tables=bulk_include_tables,
             )
             if cleansing:
                 cleansing_sqlite_database_from_bulkdownload(
                     con=self._bulk_sql_connection,
-                    include_tables=include_tables,
+                    include_tables=bulk_include_tables,
                 )
 
         if method == "API":
