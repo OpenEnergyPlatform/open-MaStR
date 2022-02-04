@@ -38,7 +38,11 @@ class Mastr:
         )
         os.makedirs(self._xml_folder_path, exist_ok=True)
         os.makedirs(self._sqlite_folder_path, exist_ok=True)
-        self._bulk_sql_connection = sqlite3.connect(
+
+        # setup database engine and connection
+        self.DB_ENGINE = os.environ.get("DB_ENGINE", "sqlite")
+        self._engine = db_engine()
+        self._sql_connection = sqlite3.connect(
             os.path.join(self._sqlite_folder_path, "bulksqlite.db")
         )
 
@@ -137,13 +141,13 @@ class Mastr:
                 bulk_include_tables = full_list_of_files
 
             convert_mastr_xml_to_sqlite(
-                con=self._bulk_sql_connection,
+                con=self._sql_connection,
                 zipped_xml_file_path=_zipped_xml_file_path,
                 include_tables=bulk_include_tables,
             )
             if bulk_cleansing:
                 cleansing_sqlite_database_from_bulkdownload(
-                    con=self._bulk_sql_connection,
+                    con=self._sql_connection,
                     include_tables=bulk_include_tables,
                 )
 
@@ -183,8 +187,7 @@ class Mastr:
             # return
 
     def _initialize_database(self, empty_schema) -> None:
-        DB_ENGINE = os.environ.get("DB_ENGINE", "sqlite")
-        engine = db_engine()
+        engine = self._engine
         with engine.connect().execution_options(autocommit=True) as con:
             if empty_schema:
                 con.execute(
@@ -192,7 +195,7 @@ class Mastr:
                 )
             # con.dialect.has_schema(con, {orm.Base.metadata.schema})
             # con.execute('CREATE SCHEMA IF NOT EXISTS (?);', (orm.Base.metadata.schema))
-            if DB_ENGINE == "docker":
+            if self.DB_ENGINE == "docker":
                 engine.execute(CreateSchema(orm.Base.metadata.schema))
         orm.Base.metadata.create_all(engine)
 
