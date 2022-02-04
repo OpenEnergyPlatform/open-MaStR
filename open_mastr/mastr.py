@@ -43,6 +43,7 @@ class Mastr:
         )
 
         # Initialize database structure
+        self.empty_schema=empty_schema
         self._initialize_database(empty_schema)
 
     def download(
@@ -60,7 +61,6 @@ class Mastr:
         data_types=None,
         location_types=None,
         initialize_db=None,
-        empty_schema=None,
     ) -> None:
         # TODO: To increase clarity discuss whether to rename API-related arguments with
         # TODO: Group variables in dicts for API and BULK
@@ -86,6 +86,7 @@ class Mastr:
         At the end, both methods give us a sqlite database, which should be (almost) identical.
 
         """
+        empty_schema=self.empty_schema
         if method == "bulk":
 
             # Find the name of the zipped xml folder
