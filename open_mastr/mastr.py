@@ -43,7 +43,7 @@ class Mastr:
         )
 
         # Initialize database structure
-        self.empty_schema=empty_schema
+        self.empty_schema = empty_schema
         self._initialize_database(empty_schema)
 
     def download(
@@ -86,7 +86,7 @@ class Mastr:
         At the end, both methods give us a sqlite database, which should be (almost) identical.
 
         """
-        empty_schema=self.empty_schema
+        empty_schema = self.empty_schema
         if method == "bulk":
 
             # Find the name of the zipped xml folder
