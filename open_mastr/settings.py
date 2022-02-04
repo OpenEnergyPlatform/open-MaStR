@@ -5,7 +5,7 @@ from os.path import expanduser
 DB_ENGINE = os.environ.get("DB_ENGINE", "sqlite")
 
 sqlite_database_path = os.path.join(
-            expanduser("~"), ".open-MaStR", "data", "sqlite", "apisqlite.db"
+            expanduser("~"), ".open-MaStR", "data", "sqlite", "open-mastr.db"
         )
 
 print(DB_ENGINE)
