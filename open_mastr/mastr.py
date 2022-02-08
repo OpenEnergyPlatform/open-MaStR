@@ -6,6 +6,7 @@ import shutil
 import sqlite3
 from zipfile import ZipFile
 import numpy as np
+import open_mastr.settings as settings
 
 # import xml dependencies
 from os.path import expanduser
@@ -42,9 +43,8 @@ class Mastr:
         # setup database engine and connection
         self.DB_ENGINE = os.environ.get("DB_ENGINE", "sqlite")
         self._engine = db_engine()
-        self._sql_connection = sqlite3.connect(
-            os.path.join(self._sqlite_folder_path, "bulksqlite.db")
-        )
+        SQLITE_DATABASE_PATH = settings.SQLITE_DATABASE_PATH
+        self._sql_connection = sqlite3.connect(SQLITE_DATABASE_PATH)
 
         # Initialize database structure
         self.empty_schema = empty_schema
