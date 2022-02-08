@@ -5,10 +5,14 @@ import numpy as np
 import pandas as pd
 import sqlalchemy
 import sqlite3
+from sqlalchemy.sql.expression import table
+from open_mastr.soap_api.orm import tablename_mapping
 
 
 def convert_mastr_xml_to_sqlite(
-    con: sqlite3.Connection, zipped_xml_file_path: str, include_tables: list,
+    con: sqlite3.Connection,
+    zipped_xml_file_path: str,
+    include_tables: list,
 ) -> None:
     """Converts the Mastr in xml format into a sqlite database."""
     """Writes the local zipped MaStR to a PostgreSQL database.
@@ -34,31 +38,32 @@ def convert_mastr_xml_to_sqlite(
 
     with ZipFile(zipped_xml_file_path, "r") as f:
         for file_name in f.namelist():
-            # sql tablename is the beginning of the filename without the number in lowercase
-            sql_tablename = file_name.split("_")[0].split(".")[0].lower()
+            # xml_tablename is the beginning of the filename without the number in lowercase
+            xml_tablename = file_name.split("_")[0].split(".")[0].lower()
 
-            # check whether the table exists with current data and append new data or
-            # whether to overwrite the existing table
-
-            include_count = include_tables.count(sql_tablename)
+            include_count = include_tables.count(xml_tablename)
             if include_count == 1:
+
+                sql_tablename = tablename_mapping[xml_tablename]["__name__"]
 
                 if (
                     file_name.split(".")[0].split("_")[-1] == "1"
                     or len(file_name.split(".")[0].split("_")) == 1
                 ):
-                    if_exists = "replace"
-                    print("New table %s is created in the database." % sql_tablename)
+                    sqlalchemy.delete(table(sql_tablename))
+                    print(
+                        f"Table '{sql_tablename}' is filled with data '{xml_tablename}' "
+                        "from the bulk download."
+                    )
                     index_for_printed_message = 1
                 else:
-                    if_exists = "append"
                     print(
-                        f"File {index_for_printed_message} from {sql_tablename} is parsed."
+                        f"File {index_for_printed_message} from '{xml_tablename}' is parsed."
                     )
                     index_for_printed_message += 1
 
                 add_table_to_sqlite_database(
-                    f, file_name, sql_tablename, if_exists, con
+                    f, file_name, sql_tablename, xml_tablename, con
                 )
 
 
@@ -66,7 +71,7 @@ def add_table_to_sqlite_database(
     f: ZipFile,
     file_name: str,
     sql_tablename: str,
-    if_exists: bool,
+    xml_tablename: str,
     con: sqlite3.Connection,
 ) -> None:
     data = f.read(file_name)
@@ -76,17 +81,32 @@ def add_table_to_sqlite_database(
         df = handle_xml_syntax_error(data, err)
 
     continueloop = True
-    while continueloop:
+    if tablename_mapping[xml_tablename]["replace_column_names"]:
+
+        df.rename(tablename_mapping[xml_tablename]["replace_column_names"])
+
+    # the file einheitentypen.xml can be ignored
+    while continueloop and file_name != "Einheitentypen.xml":
+
         try:
-            df.to_sql(
-                sql_tablename, con, index=False, if_exists=if_exists,
-            )
+            df.to_sql(sql_tablename, con, index=False, if_exists="append")
             continueloop = False
         except sqlite3.OperationalError as err:
             add_missing_column_to_table(err, con, sql_tablename)
 
         except sqlalchemy.exc.DataError as err:
             delete_wrong_xml_entry(err, df)
+
+        # except sqlite3.IntegrityError as err:
+        # error resulting from NOT NULL constraint failed
+        # meaning that a unique identifier is not unique
+        #    delete_not_unique_entry(err, df)
+
+
+# def delete_not_unique_entry(err: Error, df: pd.DataFrame) -> None:
+#    column_with_unique_entries = str(err).split("constraint failed: ")[1].split(".")[1]
+#    pdb.set_trace()
+# df
 
 
 def add_missing_column_to_table(
@@ -95,6 +115,7 @@ def add_missing_column_to_table(
     """Some files introduce new columns for existing tables.
     If this happens, the error from writing entries into
     non-existing columns is caught and the column is created."""
+
     missing_column = str(err).split("no column named ")[1]
     cursor = con.cursor()
     execute_message = 'ALTER TABLE %s ADD "%s" text NULL;' % (
