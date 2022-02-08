@@ -413,3 +413,209 @@ class MissedExtendedLocation(Base):
     LokationMastrNummer = Column(String)
     reason = Column(String)
     download_date = Column(DateTime(timezone=True), default=func.now())
+
+class GasStorage(Base):
+    __tablename__="gas_storage"
+
+    MaStRNummer = Column(String, primary_key=True)
+class GasStorageExtended(Base):
+    __tablename__="gas_storage_extended"
+    EinheitMastrNummer = Column(String, primary_key=True)
+    DatumLetzteAktualisierung = Column(DateTime(timezone=True))
+    LokationMaStRNummer = Column(String)
+    NetzbetreiberpruefungStatus = Column(Boolean)
+    NetzbetreiberpruefungDatum = Column(Date)
+    AnlagenbetreiberMastrNummer = Column(String)
+    Land = Column(String)
+    Bundesland = Column(String)
+    Landkreis = Column(String)
+    Gemeinde = Column(String)
+    Gemeindeschluessel = Column(Integer)
+    Postleitzahl = Column(Integer)
+    Strasse = Column(String)
+    StrasseNichtGefunden = Column(Integer)
+    Hausnummer = Column(String)
+    Hausnummer_nv = Column(Integer)
+    HausnummerNichtGefunden = Column(Integer)
+    Ort = Column(String)
+    Laengengrad = Column(Float)
+    Breitengrad = Column(Float)
+    Registrierungsdatum = Column(String)
+    Inbetriebnahmedatum = Column(String)
+    EinheitSystemstatus = Column(Integer)
+    EinheitBetriebsstatus = Column(Integer)
+    NichtVorhandenInMigriertenEinheiten = Column(Integer)
+    NameGasspeicher = Column(String)
+    Speicherart = Column(Integer)
+    MaximalNutzbaresArbeitsgasvolumen = Column(Float)
+    MaximaleEinspeicherleistung = Column(Float)
+    MaximaleAusspeicherleistung = Column(Float)
+    DurchschnittlicherBrennwert = Column(Float)
+    Weic = Column(String)
+    Weic_Na = Column(Integer)
+    SpeicherMaStRNummer = Column(String)
+    Gemarkung = Column(String)
+    FlurFlurstuecknummern = Column(String)
+    Adresszusatz = Column(String)
+    DatumBeginnVoruebergehendeStilllegung = Column(String)
+
+class KwkExtended(Base):
+    __tablename__="kwk_extended"
+
+    KwkMastrNummer = Column(String, primary_key=True)
+
+class StorageUnits(Base):
+    __tablename__="storage_units"
+    MaStRNummer = Column(String, primary_key=True)
+
+
+class Bilanzierungsgebiet(Base):
+    __tablename__="bilanzierungsgebiet"
+
+    Id = Column(Integer, primary_key=True)
+class GasProducer(Base):
+    __tablename__="gas_producer"
+
+    EinheitMaStRNummer = Column(String, primary_key=True)
+class GasConsumer(Base):
+    __tablename__="gas_consumer"
+
+    EinheitMaStRNummer = Column(String, primary_key=True)
+class ElectricityConsumer(Base):
+    __tablename__="electricity_consumer"
+
+    EinheitMaStRNummer = Column(String, primary_key=True)
+
+class MarketRoles(Base):
+    __tablename__="market_roles"
+
+    MastrNummer = Column(String, primary_key=True)
+
+class MarketActors(Base):
+    __tablename__="market_actors"
+
+    MastrNummer = Column(String, primary_key=True)
+
+class Grids(Base):
+    __tablename__="grids"
+
+    MastrNummer = Column(String, primary_key=True)
+
+class GridConnections(Base):
+    __tablename__="grid_connections"
+
+    NetzanschlusspunktMastrNummer = Column(String, primary_key=True)
+
+
+tablename_mapping = {
+    "anlageneegbiomasse": {
+        "__name__": BiomassEeg.__tablename__,
+        "replace_column_names": None,
+    },
+    "einheitenbiomasse": {
+        "__name__": BiomassExtended.__tablename__,
+        "replace_column_names": None,
+    },
+    "anlageneeggeosolarthermiegrubenklaerschlammdruckentspannung": {
+        "__name__": GsgkEeg.__tablename__,
+        "replace_column_names": None,
+    },
+    "einheitengeosolarthermiegrubenklaerschlammdruckentspannung": {
+        "__name__": GsgkExtended.__tablename__,
+        "replace_column_names": None,
+    },
+    "anlageneegsolar": {
+        "__name__": SolarEeg.__tablename__,
+        "replace_column_names": None,
+    },
+    "einheitensolar": {
+        "__name__": SolarExtended.__tablename__,
+        "replace_column_names": None,
+    },
+    "anlageneegspeicher": {
+        "__name__": StorageEeg.__tablename__,
+        "replace_column_names": None,
+    },
+    "anlageneegwasser": {
+        "__name__": HydroEeg.__tablename__,
+        "replace_column_names": None,
+    },
+    "einheitenwasser": {
+        "__name__": HydroExtended.__tablename__,
+        "replace_column_names": None,
+    },
+    "anlageneegwind": {
+        "__name__": WindEeg.__tablename__,
+        "replace_column_names": None,
+    },
+    "einheitenwind": {
+        "__name__": WindExtended.__tablename__,
+        "replace_column_names": None,
+    },
+    "anlagengasspeicher": {
+        "__name__": GasStorage.__tablename__,
+        "replace_column_names": None,
+    },
+    "einheitengasspeicher": {
+        "__name__": GasStorageExtended.__tablename__,
+        "replace_column_names": None,
+    },
+    "anlagenkwk": {"__name__": Kwk.__tablename__, "replace_column_names": None},
+    "einheitenkwk": {
+        "__name__": KwkExtended.__tablename__,
+        "replace_column_names": None,
+    },
+    "anlagenstromspeicher": {
+        "__name__": StorageUnits.__tablename__,
+        "replace_column_names": None,
+    },
+    "bilanzierungsgebiete": {
+        "__name__": Bilanzierungsgebiet.__tablename__,
+        "replace_column_names": None,
+    },
+    "einheitengaserzeuger": {
+        "__name__": GasProducer.__tablename__,
+        "replace_column_names": None,
+    },
+    "einheitengasverbraucher": {
+        "__name__": GasConsumer.__tablename__,
+        "replace_column_names": None,
+    },
+    "einheitengenehmigung": {
+        "__name__": Permit.__tablename__,
+        "replace_column_names": None,
+    },
+    "einheitenkernkraft": {
+        "__name__": NuclearExtended.__tablename__,
+        "replace_column_names": None,
+    },
+    "einheitenstromverbraucher": {
+        "__name__": ElectricityConsumer.__tablename__,
+        "replace_column_names": None,
+    },
+    "einheitenstromspeicher": {
+        "__name__": StorageExtended.__tablename__,
+        "replace_column_names": None,
+    },
+    "einheitenverbrennung": {
+        "__name__": CombustionExtended.__tablename__,
+        "replace_column_names": None,
+    },
+    "marktrollen": {
+        "__name__": MarketRoles.__tablename__,
+        "replace_column_names": None,
+    },
+    "marktakteure": {
+        "__name__": MarketActors.__tablename__,
+        "replace_column_names": None,
+    },
+    "netze": {"__name__": Grids.__tablename__, "replace_column_names": None},
+    "netzanschlusspunkte" : {"__name__": GridConnections.__tablename__, "replace_column_names": None},
+    "katalogkategorien": {"__name__": "katalogkategorien", "replace_column_names": None},
+    "katalogwerte": {"__name__": "katalogwerte", "replace_column_names": None},
+    "lokationen": {
+        "__name__": LocationExtended.__tablename__,
+        "replace_column_names": None,
+    },
+    "einheitentypen": {"__name__": "einheitentypen", "replace_column_names": None},
+}
