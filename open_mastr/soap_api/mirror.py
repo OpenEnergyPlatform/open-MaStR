@@ -278,7 +278,7 @@ class MaStRMirror:
             log.info(f"Backfill data for technology {tech}")
 
             # Catch weird MaStR SOAP response
-            basic_units = self.mastr_dl.basic_unit_data(tech, limit, date_from=date)
+            basic_units = self.mastr_dl._basic_unit_data(tech, limit, date_from=date)
 
             with session_scope() as session:
 
