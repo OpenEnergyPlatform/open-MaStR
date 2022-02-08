@@ -7,6 +7,7 @@ from open_mastr.soap_api.metadata.description import DataDescription
 from open_mastr.soap_api.config import get_data_config, get_filenames, column_renaming
 from open_mastr.soap_api.download import MaStRDownload
 
+# TODO: We should not describe the data in both metadata folder and orm.py
 
 def datapackag_base(reference_date, publication_date=None, statistik_flag=None):
     """
