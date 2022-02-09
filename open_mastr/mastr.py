@@ -144,11 +144,13 @@ class Mastr:
                 con=self._sql_connection,
                 zipped_xml_file_path=_zipped_xml_file_path,
                 include_tables=bulk_include_tables,
+                engine=self._engine
             )
             if bulk_cleansing:
                 cleansing_sqlite_database_from_bulkdownload(
                     con=self._sql_connection,
                     include_tables=bulk_include_tables,
+                    zipped_xml_file_path = _zipped_xml_file_path
                 )
 
         if method == "API":
