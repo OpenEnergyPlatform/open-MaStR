@@ -1,16 +1,26 @@
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.schema import MetaData
-from sqlalchemy import Column, Integer, String, Float, Sequence, DateTime, Boolean, func, Date, JSON
+from sqlalchemy import (
+    Column,
+    Integer,
+    String,
+    Float,
+    Sequence,
+    DateTime,
+    Boolean,
+    func,
+    Date,
+    JSON,
+)
 import os
 
 DB_ENGINE = os.environ.get("DB_ENGINE", "sqlite")
 
 
-mirror_schema = ("mastr_mirrored" if DB_ENGINE == "docker" else None)
+mirror_schema = "mastr_mirrored" if DB_ENGINE == "docker" else None
 meta = MetaData(schema=mirror_schema)
 Base = declarative_base(metadata=meta)
-
 
 class BasicUnit(Base):
     __tablename__ = "basic_units"
@@ -38,7 +48,11 @@ class AdditionalDataRequested(Base):
     __tablename__ = "additional_data_requested"
 
     # TODO: Add foreign key constraint on EinheitMastrNummer
-    id = Column(Integer, Sequence("additional_data_requested_id_seq", schema=mirror_schema), primary_key=True)
+    id = Column(
+        Integer,
+        Sequence("additional_data_requested_id_seq", schema=mirror_schema),
+        primary_key=True,
+    )
     EinheitMastrNummer = Column(String)
     additional_data_id = Column(String)
     technology = Column(String)
@@ -49,7 +63,11 @@ class AdditionalDataRequested(Base):
 class MissedAdditionalData(Base):
     __tablename__ = "missed_additional_data"
 
-    id = Column(Integer, Sequence("additional_data_missed_id_seq", schema=mirror_schema), primary_key=True)
+    id = Column(
+        Integer,
+        Sequence("additional_data_missed_id_seq", schema=mirror_schema),
+        primary_key=True,
+    )
     additional_data_id = Column(String)
     reason = Column(String)
     download_date = Column(DateTime(timezone=True), default=func.now())
@@ -122,7 +140,7 @@ class Extended(object):
 
 
 class WindExtended(Extended, Base):
-    __tablename__ = 'wind_extended'
+    __tablename__ = "wind_extended"
 
     # wind specific attributes
     NameWindpark = Column(String)
@@ -393,14 +411,18 @@ class LocationExtended(Base):
     MastrNummer = Column(String, primary_key=True)
     DatumLetzteAktualisierung = Column(DateTime(timezone=True))
     NameDerTechnischenLokation = Column(String)
-    VerknuepfteEinheiten = (Column(JSONB) if DB_ENGINE == "docker" else Column(String))
-    Netzanschlusspunkte = (Column(JSONB) if DB_ENGINE == "docker" else Column(String))
+    VerknuepfteEinheiten = Column(JSONB) if DB_ENGINE == "docker" else Column(JSON)
+    Netzanschlusspunkte = Column(JSONB) if DB_ENGINE == "docker" else Column(JSON)
 
 
 class AdditionalLocationsRequested(Base):
     __tablename__ = "additional_locations_requested"
 
-    id = Column(Integer, Sequence("additional_locations_requested_id_seq", schema=mirror_schema), primary_key=True)
+    id = Column(
+        Integer,
+        Sequence("additional_locations_requested_id_seq", schema=mirror_schema),
+        primary_key=True,
+    )
     LokationMastrNummer = Column(String)
     location_type = Column(String)
     request_date = Column(DateTime(timezone=True), default=func.now())
@@ -409,17 +431,24 @@ class AdditionalLocationsRequested(Base):
 class MissedExtendedLocation(Base):
     __tablename__ = "missed_extended_location_data"
 
-    id = Column(Integer, Sequence("additional_location_data_missed_id_seq", schema=mirror_schema), primary_key=True)
+    id = Column(
+        Integer,
+        Sequence("additional_location_data_missed_id_seq", schema=mirror_schema),
+        primary_key=True,
+    )
     LokationMastrNummer = Column(String)
     reason = Column(String)
     download_date = Column(DateTime(timezone=True), default=func.now())
 
+
 class GasStorage(Base):
-    __tablename__="gas_storage"
+    __tablename__ = "gas_storage"
 
     MaStRNummer = Column(String, primary_key=True)
+
+
 class GasStorageExtended(Base):
-    __tablename__="gas_storage_extended"
+    __tablename__ = "gas_storage_extended"
     EinheitMastrNummer = Column(String, primary_key=True)
     DatumLetzteAktualisierung = Column(DateTime(timezone=True))
     LokationMaStRNummer = Column(String)
@@ -459,50 +488,55 @@ class GasStorageExtended(Base):
     Adresszusatz = Column(String)
     DatumBeginnVoruebergehendeStilllegung = Column(String)
 
-class KwkExtended(Base):
-    __tablename__="kwk_extended"
-
-    KwkMastrNummer = Column(String, primary_key=True)
-
 class StorageUnits(Base):
-    __tablename__="storage_units"
+    __tablename__ = "storage_units"
     MaStRNummer = Column(String, primary_key=True)
 
 
 class Bilanzierungsgebiet(Base):
-    __tablename__="bilanzierungsgebiet"
+    __tablename__ = "bilanzierungsgebiet"
 
     Id = Column(Integer, primary_key=True)
+
+
 class GasProducer(Base):
-    __tablename__="gas_producer"
+    __tablename__ = "gas_producer"
 
     EinheitMaStRNummer = Column(String, primary_key=True)
+
+
 class GasConsumer(Base):
-    __tablename__="gas_consumer"
+    __tablename__ = "gas_consumer"
 
     EinheitMaStRNummer = Column(String, primary_key=True)
+
+
 class ElectricityConsumer(Base):
-    __tablename__="electricity_consumer"
+    __tablename__ = "electricity_consumer"
 
     EinheitMaStRNummer = Column(String, primary_key=True)
+
 
 class MarketRoles(Base):
-    __tablename__="market_roles"
+    __tablename__ = "market_roles"
 
     MastrNummer = Column(String, primary_key=True)
+
 
 class MarketActors(Base):
-    __tablename__="market_actors"
+    __tablename__ = "market_actors"
 
     MastrNummer = Column(String, primary_key=True)
+
 
 class Grids(Base):
-    __tablename__="grids"
+    __tablename__ = "grids"
 
     MastrNummer = Column(String, primary_key=True)
 
+
 class GridConnections(Base):
-    __tablename__="grid_connections"
+    __tablename__ = "grid_connections"
 
     NetzanschlusspunktMastrNummer = Column(String, primary_key=True)
 
@@ -510,112 +544,160 @@ class GridConnections(Base):
 tablename_mapping = {
     "anlageneegbiomasse": {
         "__name__": BiomassEeg.__tablename__,
+        "__class__": BiomassEeg,
         "replace_column_names": None,
     },
     "einheitenbiomasse": {
         "__name__": BiomassExtended.__tablename__,
+        "__class__": BiomassExtended,
         "replace_column_names": None,
     },
     "anlageneeggeosolarthermiegrubenklaerschlammdruckentspannung": {
         "__name__": GsgkEeg.__tablename__,
+        "__class__": GsgkEeg,
         "replace_column_names": None,
     },
     "einheitengeosolarthermiegrubenklaerschlammdruckentspannung": {
         "__name__": GsgkExtended.__tablename__,
+        "__class__": GsgkExtended,
         "replace_column_names": None,
     },
     "anlageneegsolar": {
         "__name__": SolarEeg.__tablename__,
+        "__class__": SolarEeg,
         "replace_column_names": None,
     },
     "einheitensolar": {
         "__name__": SolarExtended.__tablename__,
+        "__class__": SolarExtended,
         "replace_column_names": None,
     },
     "anlageneegspeicher": {
         "__name__": StorageEeg.__tablename__,
+        "__class__": StorageEeg,
         "replace_column_names": None,
     },
     "anlageneegwasser": {
         "__name__": HydroEeg.__tablename__,
+        "__class__": HydroEeg,
         "replace_column_names": None,
     },
     "einheitenwasser": {
         "__name__": HydroExtended.__tablename__,
+        "__class__": HydroExtended,
         "replace_column_names": None,
     },
     "anlageneegwind": {
         "__name__": WindEeg.__tablename__,
+        "__class__": WindEeg,
         "replace_column_names": None,
     },
     "einheitenwind": {
         "__name__": WindExtended.__tablename__,
+        "__class__": WindExtended,
         "replace_column_names": None,
     },
     "anlagengasspeicher": {
         "__name__": GasStorage.__tablename__,
+        "__class__": GasStorage,
         "replace_column_names": None,
     },
     "einheitengasspeicher": {
         "__name__": GasStorageExtended.__tablename__,
+        "__class__": GasStorageExtended,
         "replace_column_names": None,
     },
-    "anlagenkwk": {"__name__": Kwk.__tablename__, "replace_column_names": None},
-    "einheitenkwk": {
-        "__name__": KwkExtended.__tablename__,
+    "anlagenkwk": {
+        "__name__": Kwk.__tablename__,
+        "__class__": Kwk,
         "replace_column_names": None,
     },
     "anlagenstromspeicher": {
         "__name__": StorageUnits.__tablename__,
+        "__class__": StorageUnits,
         "replace_column_names": None,
     },
     "bilanzierungsgebiete": {
         "__name__": Bilanzierungsgebiet.__tablename__,
+        "__class__": Bilanzierungsgebiet,
         "replace_column_names": None,
     },
     "einheitengaserzeuger": {
         "__name__": GasProducer.__tablename__,
+        "__class__": GasProducer,
         "replace_column_names": None,
     },
     "einheitengasverbraucher": {
         "__name__": GasConsumer.__tablename__,
+        "__class__": GasConsumer,
         "replace_column_names": None,
     },
     "einheitengenehmigung": {
         "__name__": Permit.__tablename__,
+        "__class__": Permit,
         "replace_column_names": None,
     },
     "einheitenkernkraft": {
         "__name__": NuclearExtended.__tablename__,
+        "__class__": NuclearExtended,
         "replace_column_names": None,
     },
     "einheitenstromverbraucher": {
         "__name__": ElectricityConsumer.__tablename__,
+        "__class__": ElectricityConsumer,
         "replace_column_names": None,
     },
     "einheitenstromspeicher": {
         "__name__": StorageExtended.__tablename__,
+        "__class__": StorageExtended,
         "replace_column_names": None,
     },
     "einheitenverbrennung": {
         "__name__": CombustionExtended.__tablename__,
+        "__class__": CombustionExtended,
         "replace_column_names": None,
     },
     "marktrollen": {
         "__name__": MarketRoles.__tablename__,
+        "__class__": MarketRoles,
         "replace_column_names": None,
     },
     "marktakteure": {
         "__name__": MarketActors.__tablename__,
+        "__class__": MarketActors,
         "replace_column_names": None,
     },
-    "netze": {"__name__": Grids.__tablename__, "replace_column_names": None},
-    "netzanschlusspunkte" : {"__name__": GridConnections.__tablename__, "replace_column_names": None},
-    "katalogkategorien": {"__name__": "katalogkategorien", "replace_column_names": None},
-    "katalogwerte": {"__name__": "katalogwerte", "replace_column_names": None},
+    "netze": {
+        "__name__": Grids.__tablename__,
+        "__class__": Grids,
+        "replace_column_names": None,
+    },
+    "netzanschlusspunkte": {
+        "__name__": GridConnections.__tablename__,
+        "__class__": GridConnections,
+        "replace_column_names": None,
+    },
+    "katalogkategorien": {
+        "__name__": "katalogkategorien",
+        "__class__": None,
+        "replace_column_names": None,
+    },
+    "katalogwerte": {
+        "__name__": "katalogwerte",
+        "__class__": None,
+        "replace_column_names": None,
+    },
     "lokationen": {
         "__name__": LocationExtended.__tablename__,
+        "__class__": LocationExtended,
+        "replace_column_names": {
+            "VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheiten",
+            "NetzanschlusspunkteMaStRNummern": "Netzanschlusspunkte",
+        },
+    },
+    "einheitentypen": {
+        "__name__": "einheitentypen",
+        "__class__": None,
         "replace_column_names": None,
     },
-    "einheitentypen": {"__name__": "einheitentypen", "replace_column_names": None},
 }
