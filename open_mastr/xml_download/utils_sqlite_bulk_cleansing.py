@@ -1,37 +1,44 @@
 
+import pdb
 import sqlite3
+from xmlrpc.client import Boolean
 import pandas as pd
 import re
 import numpy as np
 from open_mastr.xml_download.colums_to_replace import columns_replace_list
+from zipfile import ZipFile
+from open_mastr.soap_api.orm import tablename_mapping
 
 
 def cleansing_sqlite_database_from_bulkdownload(
-    con: sqlite3.Connection, include_tables: list,
+    con: sqlite3.Connection, include_tables: list, zipped_xml_file_path: str,
 ) -> None:
     """The cleansing of the bulk download data consists of the following parts:
     - replace the katalogeintraege
     """
 
-    for sql_tablename in include_tables:
+    for xml_tablename in include_tables:
+        sql_tablename = tablename_mapping[xml_tablename]["__name__"]
         replace_mastr_katalogeintraege(
-            con, sql_tablename,
+            con, sql_tablename, zipped_xml_file_path
         )
 
 
 def replace_mastr_katalogeintraege(
-    con: sqlite3.Connection, sql_tablename: str,
+    con: sqlite3.Connection, sql_tablename: str, zipped_xml_file_path: str,
 ) -> None:
-    katalogwerte = create_katalogwerte_from_sqlite(con)
-    pattern = re.compile(r"cleansed|katalog")
+    katalogwerte = create_katalogwerte_from_sqlite(zipped_xml_file_path)
+    pattern = re.compile(r"cleansed|katalog|typen")
     if not re.search(pattern, sql_tablename):
         replace_katalogeintraege_in_single_table(
-            con, sql_tablename, katalogwerte, columns_replace_list
+            con=con, table_name=sql_tablename, katalogwerte=katalogwerte, columns_replace_list=columns_replace_list
         )
 
 
-def create_katalogwerte_from_sqlite(con) -> dict:
-    df_katalogwerte = pd.read_sql("SELECT * from katalogwerte", con)
+def create_katalogwerte_from_sqlite(zipped_xml_file_path) -> dict:
+    with ZipFile(zipped_xml_file_path, "r") as f:
+        data=f.read("Katalogwerte.xml")
+        df_katalogwerte = pd.read_xml(data, encoding="UTF-16", compression="zip")
     katalogwerte_array = np.array(df_katalogwerte[["Id", "Wert"]])
     katalogwerte = dict(
         (katalogwerte_array[n][0], katalogwerte_array[n][1])
@@ -45,12 +52,18 @@ def replace_katalogeintraege_in_single_table(
     table_name: str,
     katalogwerte: dict,
     columns_replace_list: list,
+    overwrite_raw_data: Boolean = False,
 ) -> None:
     df = pd.read_sql(f"SELECT * FROM {table_name};", con)
     for column_name in df.columns:
         if column_name in columns_replace_list:
-            df[column_name] = df[column_name].astype("Int64").map(katalogwerte)
-    new_tablename = table_name + "_cleansed"
+            df[column_name] = df[column_name].astype("float").astype("Int64").map(katalogwerte)
+
+    if overwrite_raw_data:
+        new_tablename = table_name + "_cleansed"
+    else:
+        new_tablename = table_name
+    
     df.to_sql(new_tablename, con, index=False, if_exists="replace")
     print(f"Data in table {table_name} was sucessfully cleansed.")
 
