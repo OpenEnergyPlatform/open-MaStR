@@ -22,6 +22,10 @@ mirror_schema = "mastr_mirrored" if DB_ENGINE == "docker" else None
 meta = MetaData(schema=mirror_schema)
 Base = declarative_base(metadata=meta)
 
+#TODO: Revisit the class structure. We need parent classes that contain basic info,
+# where most of the child classes can inherit from. I think the Extended class has too
+# many attributes which results in too many columns being empty in the final data base.
+
 class BasicUnit(Base):
     __tablename__ = "basic_units"
 
@@ -491,12 +495,20 @@ class GasStorageExtended(Base):
 class StorageUnits(Base):
     __tablename__ = "storage_units"
     MaStRNummer = Column(String, primary_key=True)
+    Registrierungsdatum = Column(Date)
+    DatumLetzteAktualisierung = Column(DateTime(timezone=True))
+    NutzbareSpeicherkapazitaet = Column(Float)
+    VerknuepfteEinheitenMaStRNummern = Column(String)
+    AnlageBetriebsstatus = Column(Boolean)
 
 
-class Bilanzierungsgebiet(Base):
-    __tablename__ = "bilanzierungsgebiet"
+class BalancingArea(Base):
+    __tablename__ = "balancing_area"
 
     Id = Column(Integer, primary_key=True)
+    Yeic = Column(String)
+    RegelzoneNetzanschlusspunkt = Column(String)
+    BilanzierungsgebietNetzanschlusspunkt = Column(String)
 
 
 class GasProducer(Base):
@@ -617,9 +629,9 @@ tablename_mapping = {
         "__class__": StorageUnits,
         "replace_column_names": None,
     },
-    "bilanzierungsgebiete": {
-        "__name__": Bilanzierungsgebiet.__tablename__,
-        "__class__": Bilanzierungsgebiet,
+    "Bilanzierungsgebiet": {
+        "__name__": BalancingArea.__tablename__,
+        "__class__": BalancingArea,
         "replace_column_names": None,
     },
     "einheitengaserzeuger": {
