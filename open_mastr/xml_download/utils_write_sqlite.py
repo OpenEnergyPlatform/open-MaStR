@@ -5,10 +5,7 @@ import numpy as np
 import pandas as pd
 import sqlalchemy
 import sqlite3
-from sqlalchemy.sql.expression import table
 from open_mastr.soap_api.orm import tablename_mapping
-import open_mastr.soap_api.orm as orm
-import pdb
 from sqlalchemy import (
     Integer,
     String,
@@ -26,15 +23,12 @@ dtypes_mapping = {
     DateTime: "datetime64[s]",
     Boolean: "bool",
     Date: "datetime64[s]",
-    JSON: "string"
+    JSON: "string",
 }
 
 
 def convert_mastr_xml_to_sqlite(
-    con: sqlite3.Connection,
-    zipped_xml_file_path: str,
-    include_tables: list,
-    engine,
+    con: sqlite3.Connection, zipped_xml_file_path: str, include_tables: list, engine,
 ) -> None:
     """Converts the Mastr in xml format into a sqlite database."""
     """Writes the local zipped MaStR to a PostgreSQL database.
@@ -63,10 +57,10 @@ def convert_mastr_xml_to_sqlite(
             # xml_tablename is the beginning of the filename without the number in lowercase
             xml_tablename = file_name.split("_")[0].split(".")[0].lower()
 
-            # few tables are only needed for data cleansing of the xml files and contain no 
+            # few tables are only needed for data cleansing of the xml files and contain no
             # information of relevance
             boolean_write_table_to_sql_database = False
-            if tablename_mapping[xml_tablename]["__class__"] != None:
+            if tablename_mapping[xml_tablename]["__class__"] is not None:
                 boolean_write_table_to_sql_database = True
 
             # check if the table should be written to sql database (depends on user input)
@@ -75,12 +69,18 @@ def convert_mastr_xml_to_sqlite(
             if include_count == 1 and boolean_write_table_to_sql_database:
 
                 sql_tablename = tablename_mapping[xml_tablename]["__name__"]
-
+                # check if the file name indicates that it is the first file from the
+                # table
                 if (
                     file_name.split(".")[0].split("_")[-1] == "1"
                     or len(file_name.split(".")[0].split("_")) == 1
                 ):
-                    sqlalchemy.delete(table(sql_tablename))
+                    orm_class = tablename_mapping[xml_tablename]["__class__"]
+                    # drop the content from table
+                    orm_class.__table__.drop(engine, checkfirst=True)
+                    # create table schema
+                    orm_class.__table__.create(engine)
+
                     print(
                         f"Table '{sql_tablename}' is filled with data '{xml_tablename}' "
                         "from the bulk download."
@@ -113,33 +113,34 @@ def add_table_to_sqlite_database(
 
     continueloop = True
     if tablename_mapping[xml_tablename]["replace_column_names"]:
-    
+
         df = df.rename(columns=tablename_mapping[xml_tablename]["replace_column_names"])
 
     # get a dictionary for the data types
 
-    #dtypes_for_writing_sql = {}
-    #dtypes_for_converting_dataframe = {}
+    # dtypes_for_writing_sql = {}
+    # dtypes_for_converting_dataframe = {}
 
-    
-    #for column in list(tablename_mapping[xml_tablename]["__class__"].__table__.columns):
+    # for column in list(tablename_mapping[xml_tablename]["__class__"].__table__.columns):
     #    if column.name in df.columns:
     #        dtypes_for_writing_sql[column.name] = column.type
     #        dtypes_for_converting_dataframe[column.name] = dtypes_mapping[type(column.type)]
-    #try:
+    # try:
     #    df = df.astype("string")#dtype=dtypes_for_converting_dataframe, copy=False)
-    #except pd._libs.tslibs.np_datetime.OutOfBoundsDatetime:
-        # The datetimes are given in nanoseconds with exceeds the possible range
-        # Hence the nanosecond and milisecond information is dropped
+    # except pd._libs.tslibs.np_datetime.OutOfBoundsDatetime:
+    # The datetimes are given in nanoseconds with exceeds the possible range
+    # Hence the nanosecond and milisecond information is dropped
     #    df["DatumLetzteAktualisierung"] = df["DatumLetzteAktualisierung"].str[:-8]
     #    pdb.set_trace()
     #    df = df.astype(dtype=dtypes_for_converting_dataframe, copy=False)
-    
-        # the file einheitentypen.xml can be ignored
+
+    # the file einheitentypen.xml can be ignored
     while continueloop and file_name != "Einheitentypen.xml":
-        
+
         try:
-            df.to_sql(sql_tablename, con=engine, index=False, if_exists="append")#, dtype=dtypes_for_writing_sql)
+            df.to_sql(
+                sql_tablename, con=engine, index=False, if_exists="append"
+            )  # , dtype=dtypes_for_writing_sql)
             continueloop = False
         except sqlalchemy.exc.OperationalError as err:
             add_missing_column_to_table(err, con, sql_tablename)
@@ -147,19 +148,24 @@ def add_table_to_sqlite_database(
         except sqlalchemy.exc.DataError as err:
             delete_wrong_xml_entry(err, df)
 
-        
-            #delete_nanosecond_information(err, df)
-
-        # except sqlite3.IntegrityError as err:
-        # error resulting from NOT NULL constraint failed
-        # meaning that a unique identifier is not unique
-        #    delete_not_unique_entry(err, df)
+        except sqlalchemy.exc.IntegrityError:
+            # error resulting from Unique constraint failed
+            df = write_single_entries_until_not_unique_comes_up(
+                df=df, sql_tablename=sql_tablename, engine=engine
+            )
 
 
-# def delete_not_unique_entry(err: Error, df: pd.DataFrame) -> None:
-#    column_with_unique_entries = str(err).split("constraint failed: ")[1].split(".")[1]
-#    pdb.set_trace()
-# df
+def write_single_entries_until_not_unique_comes_up(
+    df: pd.DataFrame, sql_tablename: str, engine: sqlalchemy.engine.Engine
+) -> None:
+    for index, row in df.iterrows():
+        try:
+            row = row.to_frame().transpose()
+            row.to_sql(name=sql_tablename, con=engine, if_exists="append", index=False)
+            df = df.drop(labels=index, axis=0)
+        except sqlalchemy.exc.IntegrityError:
+            df = df.drop(labels=index, axis=0)
+            return df
 
 
 def add_missing_column_to_table(
@@ -207,9 +213,6 @@ def handle_xml_syntax_error(data: bytes, err: Error) -> pd.DataFrame:
     df : pandas.DataFrame
         DataFrame which is read from the changed xml data.
     """
-
-    # Actually it is unclear if there are still invalid xml files in the recent MaStR.
-
     wrong_char_position = int(str(err).split()[-4])
     decoded_data = data.decode("utf-16")
     loop_condition = True
