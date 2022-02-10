@@ -147,6 +147,7 @@ class Mastr:
                 engine=self._engine
             )
             if bulk_cleansing:
+                print("Data cleansing started.")
                 cleansing_sqlite_database_from_bulkdownload(
                     con=self._sql_connection,
                     include_tables=bulk_include_tables,
