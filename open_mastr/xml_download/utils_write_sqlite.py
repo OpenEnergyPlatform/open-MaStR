@@ -111,7 +111,19 @@ def add_table_to_sqlite_database(
     except lxml.etree.XMLSyntaxError as err:
         df = handle_xml_syntax_error(data, err)
 
-    continueloop = True
+    # Change data types in dataframe
+    dict_of_tables_and_string_length = {
+        "Gemeindeschluessel": 8,
+        "Postleitzahl": 5,
+    }
+    for table_name in dict_of_tables_and_string_length.keys():
+        if table_name in df.columns:
+            string_length = dict_of_tables_and_string_length[table_name]
+            df = add_zero_as_first_character_for_too_short_string(
+                df, table_name, string_length
+            )
+
+    # Change column names according to orm data model
     if tablename_mapping[xml_tablename]["replace_column_names"]:
 
         df = df.rename(columns=tablename_mapping[xml_tablename]["replace_column_names"])
@@ -135,6 +147,7 @@ def add_table_to_sqlite_database(
     #    df = df.astype(dtype=dtypes_for_converting_dataframe, copy=False)
 
     # the file einheitentypen.xml can be ignored
+    continueloop = True
     while continueloop and file_name != "Einheitentypen.xml":
 
         try:
@@ -153,6 +166,26 @@ def add_table_to_sqlite_database(
             df = write_single_entries_until_not_unique_comes_up(
                 df=df, sql_tablename=sql_tablename, engine=engine
             )
+
+
+def add_zero_as_first_character_for_too_short_string(df, table_name, string_length):
+    # Gemeindeschluessel or PLZ are read as float, but they are actually strings
+    # if they start with a 0 this gets lost
+    try:
+        df[table_name] = df[table_name].astype("Int64").astype(str)
+    except ValueError:
+        # some Plz are in the format DK-9999 for danish Postleitzahl
+        # They cannot be converted to integer
+        df[table_name] = df[table_name].astype(str)
+
+    df[table_name] = df[table_name].where(cond=df[table_name] != "<NA>", other=None)
+
+    string_adding_series = pd.Series(["0"] * len(df))
+    string_adding_series = string_adding_series.where(
+        cond=df[table_name].str.len() == string_length - 1, other=""
+    )
+    df[table_name] = string_adding_series + df[table_name]
+    return df
 
 
 def write_single_entries_until_not_unique_comes_up(
