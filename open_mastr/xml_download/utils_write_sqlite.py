@@ -6,6 +6,7 @@ import pandas as pd
 import sqlalchemy
 import sqlite3
 from open_mastr.soap_api.orm import tablename_mapping
+from open_mastr.xml_download.colums_to_replace import system_catalog
 from sqlalchemy import (
     Integer,
     String,
@@ -123,6 +124,11 @@ def add_table_to_sqlite_database(
                 df, table_name, string_length
             )
 
+    # Replace IDs with names from system_catalogue
+    for table_name in system_catalog.keys():
+        if table_name in df.columns:
+            df[table_name] = df[table_name].replace(system_catalog[table_name])
+
     # Change column names according to orm data model
     if tablename_mapping[xml_tablename]["replace_column_names"]:
 
@@ -178,7 +184,7 @@ def add_zero_as_first_character_for_too_short_string(df, table_name, string_leng
         # They cannot be converted to integer
         df[table_name] = df[table_name].astype(str)
 
-    df[table_name] = df[table_name].where(cond=df[table_name] != "<NA>", other=None)
+    df[table_name] = df[table_name].where(cond=df[table_name] != "<NA>" and df[table_name] != "None", other=None)
 
     string_adding_series = pd.Series(["0"] * len(df))
     string_adding_series = string_adding_series.where(
