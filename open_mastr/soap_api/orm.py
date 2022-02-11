@@ -464,7 +464,7 @@ class GasStorageExtended(Base):
     Bundesland = Column(String)
     Landkreis = Column(String)
     Gemeinde = Column(String)
-    Gemeindeschluessel = Column(Integer)
+    Gemeindeschluessel = Column(String)
     Postleitzahl = Column(Integer)
     Strasse = Column(String)
     StrasseNichtGefunden = Column(Integer)
