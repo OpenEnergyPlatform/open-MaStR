@@ -7,7 +7,7 @@ import re
 import numpy as np
 from open_mastr.xml_download.colums_to_replace import columns_replace_list
 from zipfile import ZipFile
-from open_mastr.soap_api.orm import tablename_mapping
+from open_mastr.orm import tablename_mapping
 
 
 def cleansing_sqlite_database_from_bulkdownload(

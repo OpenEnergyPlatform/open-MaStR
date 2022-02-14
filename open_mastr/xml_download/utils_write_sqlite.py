@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 import sqlalchemy
 import sqlite3
-from open_mastr.soap_api.orm import tablename_mapping
+from open_mastr.orm import tablename_mapping
 from open_mastr.xml_download.colums_to_replace import system_catalog
 from sqlalchemy import (
     Integer,
@@ -184,7 +184,8 @@ def add_zero_as_first_character_for_too_short_string(df, table_name, string_leng
         # They cannot be converted to integer
         df[table_name] = df[table_name].astype(str)
 
-    df[table_name] = df[table_name].where(cond=df[table_name] != "<NA>" and df[table_name] != "None", other=None)
+    df[table_name] = df[table_name].where(cond=df[table_name] != "None", other=None)
+    df[table_name] = df[table_name].where(cond=df[table_name] != "<NA>", other=None)
 
     string_adding_series = pd.Series(["0"] * len(df))
     string_adding_series = string_adding_series.where(

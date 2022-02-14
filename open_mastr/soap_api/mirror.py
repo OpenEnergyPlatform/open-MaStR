@@ -17,7 +17,7 @@ from open_mastr.soap_api.config import (
     column_renaming,
 )
 from open_mastr.soap_api.download import MaStRDownload, _flatten_dict, to_csv
-from open_mastr.soap_api import orm
+from open_mastr import orm
 from open_mastr.soap_api.metadata.create import datapackage_meta_json
 from open_mastr.utils.helpers import session_scope
 

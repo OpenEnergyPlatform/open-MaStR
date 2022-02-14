@@ -23,7 +23,7 @@ from open_mastr.soap_api.mirror import MaStRMirror
 
 # import initialize_databse dependencies
 from open_mastr.utils.helpers import db_engine
-import open_mastr.soap_api.orm as orm
+import open_mastr.orm as orm
 from sqlalchemy.schema import CreateSchema
 
 

@@ -4,7 +4,7 @@ import pytz
 
 from open_mastr.data_io import read_csv_data
 from open_mastr.soap_api.mirror import MaStRMirror
-from open_mastr.soap_api import orm
+from open_mastr import orm
 from open_mastr.utils.helpers import session_scope
 
 
