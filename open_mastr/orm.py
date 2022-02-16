@@ -547,13 +547,33 @@ class Grids(Base):
     __tablename__ = "grids"
 
     MastrNummer = Column(String, primary_key=True)
+    DatumLetzteAktualisierung = Column(DateTime(timezone=True))
+    Sparte = Column(String)
+    KundenAngeschlossen = Column(String)
+    GeschlossenesVerteilnetz = Column(String)
+    Bezeichnung = Column(String)
+    Marktgebiet = Column(String)
 
 
 class GridConnections(Base):
     __tablename__ = "grid_connections"
 
     NetzanschlusspunktMastrNummer = Column(String, primary_key=True)
-
+    NetzanschlusspunktBezeichnung = Column(String)
+    LetzteAenderung = Column(DateTime(timezone=True))
+    LokationMaStRNummer = Column(String)
+    Lokationtyp = Column(String)
+    MaximaleEinspeiseleistung = Column(Float)
+    Gasqualitaet = Column(String)
+    NetzMaStRNummer = Column(String)
+    NochInPlanung = Column(Boolean)
+    NameDerTechnischenLokation = Column(String)
+    MaximaleAusspeiseleistung = Column(Float)
+    Messlokation = Column(String)
+    Spannungsebene = Column(String)
+    BilanzierungsgebietNetzanschlusspunktId = Column(Integer)
+    Nettoengpassleistung = Column(Float)
+    Netzanschlusskapazitaet = Column(Float)
 
 tablename_mapping = {
     "anlageneegbiomasse": {
