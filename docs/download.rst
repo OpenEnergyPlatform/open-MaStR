@@ -2,10 +2,36 @@
 Downloading raw data
 ********************
 
-The intention of open-MaStR is to provide tools to receiving a complete as possible and accurate as possible list of
-power plant units based on `MaStR <https://www.marktstammdatenregister.de>`_.
-Therefore, in particular, methods for bulk download of the entire MaStR database are provided.
+The intention of open-MaStR is to provide tools for receiving a complete as possible and accurate as possible list of
+power plant units based on the public registry Marktstammdatenregister (short: `MaStR <https://www.marktstammdatenregister.de>`_). 
+For downloading the MaStR and saving 
+it in a sqlite database, you will use the `MaStR` class and its `download` method.
 
+.. autoclass:: open_mastr.mastr.Mastr
+   :members:
+
+As you see, the `download` function offers two different ways by changing the method parameter:
+1. method = "bulk": Get data via the bulk download from `MaStR/Datendownload <https://www.marktstammdatenregister.de/MaStR/Datendownload>`_
+2. method = "API": Get data via the MaStR-API
+
+Keep in mind: While the data from both methods is quiet similar, it is not exactly the same!
+
+Get data via the bulk download
+-------------------------------
+On the homepage `MaStR/Datendownload <https://www.marktstammdatenregister.de/MaStR/Datendownload>`_ a zipped folder containing the whole 
+MaStR is offered. The data is delivered as xml-files. The official documentation can be found 
+`here [in german] <https://www.marktstammdatenregister.de/MaStRHilfe/files/gesamtdatenexport/Dokumentation%20MaStR%20Gesamtdatenexport.pdf>`_. 
+This data is updated on a daily base.
+
+Advantages of the bulk download:
+* No registration for an API key is needed
+
+Disantvantages of the bulk download:
+* No single tables or entries can be downloaded
+
+
+Get data via the MaStR-API
+---------------------------
 Prior to starting the download of data from MaStR-API, you might want to adjust parameters in the config file.
 Please read in :ref:`Configuration`.
 For downloading data from Marktstammdatenregister (MaStR) registering an account is required.
