@@ -155,13 +155,15 @@ def add_table_to_sqlite_database(
     # the file einheitentypen.xml can be ignored
     continueloop = True
     while continueloop and file_name != "Einheitentypen.xml":
-
         try:
             df.to_sql(
                 sql_tablename, con=engine, index=False, if_exists="append"
             )  # , dtype=dtypes_for_writing_sql)
             continueloop = False
         except sqlalchemy.exc.OperationalError as err:
+            add_missing_column_to_table(err, con, sql_tablename)
+
+        except sqlite3.OperationalError as err:
             add_missing_column_to_table(err, con, sql_tablename)
 
         except sqlalchemy.exc.DataError as err:
@@ -222,8 +224,7 @@ def add_missing_column_to_table(
     missing_column = str(err).split("has no column named ")[1].split("\n[SQL: ")[0]
 
     cursor = con.cursor()
-
-    execute_message = 'ALTER TABLE %s ADD "%s" text NULL;' % (
+    execute_message = 'ALTER TABLE %s ADD "%s" VARCHAR NULL;' % (
         sql_tablename,
         missing_column,
     )
