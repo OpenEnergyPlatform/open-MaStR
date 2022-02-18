@@ -16,7 +16,7 @@ from open_mastr.soap_api.config import (
     get_data_version_dir,
     column_renaming,
 )
-from open_mastr.soap_api.download import MaStRDownload, _flatten_dict, to_csv
+from open_mastr.soap_api.download import MaStRDownload, flatten_dict, to_csv
 from open_mastr import orm
 from open_mastr.soap_api.metadata.create import datapackage_meta_json
 from open_mastr.utils.helpers import session_scope
@@ -278,7 +278,7 @@ class MaStRMirror:
             log.info(f"Backfill data for technology {tech}")
 
             # Catch weird MaStR SOAP response
-            basic_units = self.mastr_dl._basic_unit_data(tech, limit, date_from=date)
+            basic_units = self.mastr_dl.basic_unit_data(tech, limit, date_from=date)
 
             with session_scope() as session:
 
@@ -640,7 +640,7 @@ class MaStRMirror:
                         technology, ids, download_functions[data_type]
                     )
                     missed_units_ids = [u[0] for u in missed_units]
-                    unit_data = _flatten_dict(unit_data)
+                    unit_data = flatten_dict(unit_data)
 
                     # Prepare data and add to database table
                     for unit_dat in unit_data:
