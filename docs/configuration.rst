@@ -20,10 +20,14 @@ The project home directory is structured as follows (files and folders below `da
     │   ├── logging.yml
     │   └── tables.yml
     ├── data
-    │   └── rli_v3.0.0
+    │   ├── rli_v3.0.0
     │       ├── bnetza_mastr_solar_eeg_fail.csv
     │       ├── bnetza_mastr_solar_extended_fail.csv
     │       └── bnetza_mastr_solar_raw.csv
+    │   ├── sqlite
+    │       └── open-mastr.db
+        └── xml_download
+            └── Gesamtdatenexport.zip
     └── logs
         └── open_mastr.log
 

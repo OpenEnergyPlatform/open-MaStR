@@ -5,14 +5,14 @@ Downloading raw data
 The intention of open-MaStR is to provide tools for receiving a complete as possible and accurate as possible list of
 power plant units based on the public registry Marktstammdatenregister (short: `MaStR <https://www.marktstammdatenregister.de>`_). 
 For downloading the MaStR and saving 
-it in a sqlite database, you will use the `MaStR` class and its `download` method.
+it in a sqlite database, you will use the :class:`MaStR` class and its :function:`download` method.
 
 .. autoclass:: open_mastr.mastr.Mastr
    :members:
 
 As you see, the `download` function offers two different ways by changing the method parameter:
-1. method = "bulk": Get data via the bulk download from `MaStR/Datendownload <https://www.marktstammdatenregister.de/MaStR/Datendownload>`_
-2. method = "API": Get data via the MaStR-API
+ #. method = "bulk": Get data via the bulk download from `MaStR/Datendownload <https://www.marktstammdatenregister.de/MaStR/Datendownload>`_
+ #. method = "API": Get data via the MaStR-API
 
 Keep in mind: While the data from both methods is quiet similar, it is not exactly the same!
 
@@ -24,10 +24,10 @@ MaStR is offered. The data is delivered as xml-files. The official documentation
 This data is updated on a daily base.
 
 Advantages of the bulk download:
-* No registration for an API key is needed
+ * No registration for an API key is needed
 
 Disantvantages of the bulk download:
-* No single tables or entries can be downloaded
+ * No single tables or entries can be downloaded
 
 
 Get data via the MaStR-API

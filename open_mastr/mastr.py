@@ -28,6 +28,19 @@ from sqlalchemy.schema import CreateSchema
 
 
 class Mastr:
+    """
+    Mirror the MaStR database and keep it up-to-date.
+
+    A sqlite database is used to mirror the MaStR database. It can be filled with
+    data either from the MaStR-bulk download or from the MaStR-API.
+
+    .. code-block:: python
+
+       from open_mastr.mastr import Mastr
+
+       db = Mastr()
+       db.download()
+    """
     def __init__(self, empty_schema=False) -> None:
 
         # Define the paths for the zipped xml download and the sql databases
@@ -151,7 +164,7 @@ class Mastr:
                 cleansing_sqlite_database_from_bulkdownload(
                     con=self._sql_connection,
                     include_tables=bulk_include_tables,
-                    zipped_xml_file_path = _zipped_xml_file_path
+                    zipped_xml_file_path=_zipped_xml_file_path
                 )
 
         if method == "API":
@@ -201,19 +214,3 @@ class Mastr:
             if self.DB_ENGINE == "docker":
                 engine.execute(CreateSchema(orm.Base.metadata.schema))
         orm.Base.metadata.create_all(engine)
-
-    def to_docker():
-        """
-
-        - check whether docker is installed, if it can be initialized or already exists
-        - transfer the database into a docker container postgres database
-        """
-
-    def postprocess(method="all"):
-        """
-        if method == all, all postprocessing functions are run.
-        Otherwise single functions can be selected manually (?)
-        The functions themselfs are collected in the postprocessing folder.
-        """
-
-        pass
