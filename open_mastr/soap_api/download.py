@@ -5,6 +5,7 @@ from zeep.cache import SqliteCache
 from zeep.transports import Transport
 import requests
 from itertools import product
+import json
 import logging
 import pandas as pd
 import multiprocessing
@@ -26,36 +27,35 @@ class MaStRAPI(object):
     """
     Access the Marktstammdatenregister (MaStR) SOAP API via a Python wrapper
 
-    `Read about <https://www.marktstammdatenregister.de/MaStRHilfe/index.html>`_
+    :ref:`Read about <MaStR account>`
     how to create a user account and a role including a token to access the
     MaStR SOAP API.
 
     Create an :class:`.MaStRAPI()` instance with your role credentials
 
-    .. code:
+    .. code-block:: python
 
-        mastr_api = MaStRAPI(
+       mastr_api = MaStRAPI(
             user="SOM123456789012",
             key=""koo5eixeiQuoi'w8deighai8ahsh1Ha3eib3coqu7ceeg%ies..."
-        )
+       )
 
-    Alternatively, leave `user` and `key` empty. Then, you be asked to
-    provide your credentials which will be save to the config file
-    `~/.open-MaStR/config.ini` (user) and to the keyring (key).
+    Alternatively, leave `user` and `key` empty if user and token are accessible via `credentials.cfg`.
+    How to configure this is described :ref:`here <MaStR account>`.
 
-        .. code:
+    .. code-block:: python
 
         mastr_api = MaStRAPI()
 
     Now, you can use the MaStR API instance to call `pre-defined SOAP API
     queries
-    <https://www.marktstammdatenregister.de/MaStRHilfe/files/webdienst/Funktionen_MaStR_Webdienste_V1.2.26.html>`_
+    <https://www.marktstammdatenregister.de/MaStRHilfe/files/webdienst/Funktionen_MaStR_Webdienste_V1.2.39.html>`_
     via the class' methods.
     For example, get a list of units limited to two entries.
 
-    .. code:
+    .. code-block:: python
 
-        mastr_api.GetListeAlleEinheiten(limit=2)
+       mastr_api.GetListeAlleEinheiten(limit=2)
 
     Note, as the example shows, you don't have to pass credentials for calling
     wrapped SOAP queries. This is handled internally.
@@ -112,14 +112,14 @@ class MaStRAPI(object):
             try:
                 response = soap_func(*args, **kwargs)
             except Fault as e:
-                log.warning(f"MaStR SOAP API gives a weird response: {e}. Trying again...")
+                # log.warning(f"MaStR SOAP API gives a weird response: {e}. Trying again...")
                 time.sleep(1.5)
                 try:
                     response = soap_func(*args, **kwargs)
                 except Fault as e:
                     msg = (f"MaStR SOAP API still gives a weird response: '{e}'.\n"
-                                  "We have to stop the program!")
-                    log.exception(msg)
+                                  "Retry failed!")
+                    # log.exception(msg)
                     raise Fault(msg)
 
             return serialize_object(response, target_cls=dict)
@@ -182,7 +182,7 @@ def _mastr_bindings(max_retries=3,
                           timeout=timeout,
                           operation_timeout=operation_timeout,
                           session=session)
-    settings = Settings(strict=True, xml_huge_tree=True)
+    settings = Settings(strict=False, xml_huge_tree=True)
     client = Client(wsdl=wsdl, transport=transport, settings=settings)
     client_bind = client.bind(service_name, service_port)
 
@@ -230,10 +230,11 @@ def _mastr_suppress_parsing_errors(which_errors):
                         [f for f in error_filters if f.name in which_errors])
 
 
-def _flatten_dict(data):
+def flatten_dict(data, serialize_with_json=False):
     """
     Flattens MaStR data dictionary to depth of one
 
+    Parameters
     Parameters
     ----------
     data : list of dict
@@ -269,8 +270,7 @@ def _flatten_dict(data):
         "VerknuepfteEinheiten": "MaStRNummer"
     }
 
-    flatten_rule_expand = {
-        "Ertuechtigung": "Id"}
+    flatten_rule_serialize = ["Ertuechtigung"]
 
     flatten_rule_move_up_and_merge = ["Hersteller"]
 
@@ -287,21 +287,21 @@ def _flatten_dict(data):
         # Replacement with second-level value from second-level list
         for k, v in flatten_rule_replace_list.items():
             if k in dic.keys():
-                dic[k] = dic[k][0][v]
+                if len(dic[k]) != 0: # if data point in 'dic' has one or more VerknuepfteEinheit or VerknuepfteEinheiten in its respective dict, then take first MaStRNummer and insert it into key VerknuepfteEinheiten (flatten dict). Discard all other connected MaStRNummer's of data point.
+                    dic[k] = dic[k][0][v]
+                    if dic.get('GenMastrNummer') != None:
+                        print(f"Unit with GenMastrNummer {dic.get('GenMastrNummer')} has VerknuepfteEinheiten {dic.get('VerknuepfteEinheiten')}")
 
-        # Expands multiple entries (via list items) to separate new columns (might explode)
-        # Assumes a list of dicts below key (example: Ertuechtigung in hydro power)
-        for k, v in flatten_rule_expand.items():
-            if k in dic.keys():
-                dic.update({k + "_number": len(dic[k])})
-                for sub_data in dic[k]:
-                    sub_data_id = sub_data[v]
-                    for k_sub_data, v_sub_data in sub_data.items():
-                        if k_sub_data != v:
-                            dic.update({k_sub_data + "_" + sub_data_id: v_sub_data})
+                else: # if data point in 'dic' has no VerknuepfteEinheit or VerknuepfteEinheiten, then pass empty list into key VerknuepfteEinheiten.
+                    print(f"Unit with GenMastrNummer {dic.get('GenMastrNummer')} has no VerknuepfteEinheiten")
 
-                # Remove original data
-                dic.pop(k)
+
+        # Serilializes dictionary entries with unknown number of sub-entries into JSON string
+        # This affects "Ertuechtigung" in extended unit data of hydro
+        if serialize_with_json:
+            for k in flatten_rule_serialize:
+                if k in dic.keys():
+                    dic[k] = json.dumps(dic[k], indent=4, sort_keys=True, default=str)
 
         # Join 'Id' with original key to new column
         # and overwrite original data with 'Wert'
@@ -322,6 +322,20 @@ def _flatten_dict(data):
 
 
 def to_csv(df, technology):
+    """
+    Write joined unit data to CSV file
+    
+    Save CSV files to the respective data version directory, see
+    :meth:`open_mastr.soap_api.config.get_data_version_dir`.
+    
+    Parameters
+    ----------
+    df: pd.DataFrame
+        Dataframe of unit data.
+    technology: str
+        See list of available technologies in
+        :meth:`open_mastr.soap_api.download.MaStRDownload.download_power_plants`.
+    """
     data_path = get_data_version_dir()
     filenames = get_filenames()
 
@@ -349,8 +363,8 @@ def _missed_units_to_file(technology, data_type, missed_units):
     missed_units_file = os.path.join(data_path, filenames["raw"][technology][f"{data_type}_fail"])
 
     with open(missed_units_file, 'w') as f:
-        for item in missed_units:
-            f.write(f"{item}\n")
+        for i, error in missed_units:
+            f.write(f"{i},{error}\n")
 
 
 def _chunksize(length, processes):
@@ -390,7 +404,7 @@ class _MaStRDownloadFactory(type):
 
 
 class MaStRDownload(metaclass=_MaStRDownloadFactory):
-    """Use the higher level interface of MaStRDownload to download unit data
+    """Use the higher level interface for bulk download
 
     :class:`.MaStRDownload` builds on top of :class:`.MaStRAPI()` and provides
     an interface for easier downloading.
@@ -403,20 +417,17 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
 
         mastr_dl = MaStRDownload()
 
-        power_plants = mastr_dl.download_power_plants("nuclear", limit=10)
-        print(power_plants.head())
+        for tech in ["nuclear", "hydro", "wind", "solar", "biomass", "combustion", "gsgk"]:
+            power_plants = mastr_dl.download_power_plants(tech, limit=10)
+            print(power_plants.head())
 
-    This downloads power plant unit data for all nuclear power plants
-    registered in MaStR.
+    .. warning::
 
-    Note
-    ----
-    Be careful with download data without limit. This might exceed your daily
-    contigent of requests!
+        Be careful with increasing `limit`. Typically, your account allows only for 10.000 API request per day.
 
     """
 
-    def __init__(self, parallel_processes=multiprocessing.cpu_count()):
+    def __init__(self, parallel_processes=None):
         """
 
         Parameters
@@ -430,7 +441,10 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         """
 
         # Number of parallel processes
-        self.parallel_processes = parallel_processes
+        if parallel_processes is None:
+            self.parallel_processes = multiprocessing.cpu_count()
+        else:
+            self.parallel_processes = parallel_processes
 
         # Specify which additional data for each unit type is available
         # and which SOAP service has to be used to query it
@@ -484,7 +498,40 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
                 "unit_data": "GetEinheitStromSpeicher",
                 "energietraeger": ["Speicher"],
                 "eeg_data": "GetAnlageEegSpeicher",
-            }
+                # todo: additional data request not created for permit, create manually
+                "permit_data": "GetEinheitGenehmigung",
+            },
+            "gas_storage": {
+                "unit_data": "GetEinheitGasSpeicher",
+                "energietraeger": ["Speicher"],
+            },
+            # TODO: unsure if energietraeger Ergdas makes sense
+            "gas_consumer": {
+                "unit_data": "GetEinheitGasVerbraucher",
+                "energietraeger": ["Erdgas"],
+            },
+            "consumer": {
+                "unit_data": "GetEinheitStromVerbraucher",
+                "energietraeger": ["Strom"],
+            },
+            "gas_producer": {
+                "unit_data": "GetEinheitGasErzeuger",
+                "energietraeger": [None],
+            },
+            "location_elec_generation": "GetLokationStromErzeuger",
+            "location_elec_consumption": "GetLokationStromVerbraucher",
+            "location_gas_generation": "GetLokationGasErzeuger",
+            "location_gas_consumption": "GetLokationGasVerbraucher",
+
+        }
+
+        # Map additional data to primary key via data_fcn
+        self._additional_data_primary_key = {
+            "extended_unit_data": "EinheitMastrNummer",
+            "kwk_unit_data": "KwkMastrNummer",
+            "eeg_unit_data": "EegMastrNummer",
+            "permit_unit_data": "GenMastrNummer",
+            "location_data": "MastrNummer",
         }
 
         # Check if MaStR credentials are available and otherwise ask
@@ -539,7 +586,12 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         self.daily_contingent()
 
         # Retrieve basic power plant unit data
-        units = self._basic_unit_data(technology, limit)
+        # The return value is casted into a list, because a generator gets returned
+        # This was introduced later, after creation of this method
+        units = [unit for sublist in self.basic_unit_data(
+            technology=technology,
+            limit=limit
+        ) for unit in sublist]
 
         # Prepare list of unit ID for different additional data (extended, eeg, kwk, permit)
         mastr_ids = [basic['EinheitMastrNummer'] for basic in units]
@@ -563,17 +615,17 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
             permit_ids = []
 
         # Download additional data for unit
-        extended_data, extended_missed = self._additional_data(technology, mastr_ids, "_extended_unit_data")
+        extended_data, extended_missed = self.additional_data(technology, mastr_ids, "extended_unit_data")
         if eeg_ids:
-            eeg_data, eeg_missed = self._additional_data(technology, eeg_ids, "_eeg_unit_data")
+            eeg_data, eeg_missed = self.additional_data(technology, eeg_ids, "eeg_unit_data")
         else:
             eeg_data = eeg_missed = []
         if kwk_ids:
-            kwk_data, kwk_missed = self._additional_data(technology, kwk_ids, "_kwk_unit_data")
+            kwk_data, kwk_missed = self.additional_data(technology, kwk_ids, "kwk_unit_data")
         else:
             kwk_data = kwk_missed = []
         if permit_ids:
-            permit_data, permit_missed = self._additional_data(technology, permit_ids, "_permit_unit_data")
+            permit_data, permit_missed = self.additional_data(technology, permit_ids, "permit_unit_data")
         else:
             permit_data = permit_missed = []
 
@@ -582,37 +634,37 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         if extended_missed:
             extended_data_retry, extended_missed_retry = self._retry_missed_additional_data(
                 technology,
-                extended_missed,
-                "_extended_unit_data")
+                [_[0] for _ in extended_missed],
+                "extended_unit_data")
             extended_data.extend(extended_data_retry)
             _missed_units_to_file(technology, "extended", extended_missed_retry)
         if eeg_missed:
             eeg_data_retry, eeg_missed_retry = self._retry_missed_additional_data(
                 technology,
-                eeg_missed,
-                "_eeg_unit_data")
+                [_[0] for _ in eeg_missed],
+                "eeg_unit_data")
             eeg_data.extend(eeg_data_retry)
             _missed_units_to_file(technology, "eeg", eeg_missed_retry)
         if kwk_missed:
             kwk_data_retry, kwk_missed_retry = self._retry_missed_additional_data(
                 technology,
-                kwk_missed,
-                "_kwk_unit_data")
+                [_[0] for _ in kwk_missed],
+                "kwk_unit_data")
             kwk_data.extend(kwk_data_retry)
             _missed_units_to_file(technology, "kwk", kwk_missed_retry)
         if permit_missed:
             permit_data_retry, permit_missed_retry = self._retry_missed_additional_data(
                 technology,
-                permit_missed,
-                "_permit_unit_data")
+                [_[0] for _ in permit_missed],
+                "permit_unit_data")
             permit_data.extend(permit_data_retry)
             _missed_units_to_file(technology, "permit", permit_missed_retry)
 
         # Flatten data
-        extended_data = _flatten_dict(extended_data)
-        eeg_data = _flatten_dict(eeg_data)
-        kwk_data = _flatten_dict(kwk_data)
-        permit_data = _flatten_dict(permit_data)
+        extended_data = flatten_dict(extended_data, serialize_with_json=True)
+        eeg_data = flatten_dict(eeg_data, serialize_with_json=True)
+        kwk_data = flatten_dict(kwk_data, serialize_with_json=True)
+        permit_data = flatten_dict(permit_data, serialize_with_json=True)
 
         # Join data to a single dataframe
         idx_cols = [(units, "EinheitMastrNummer", ""),
@@ -636,7 +688,7 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
 
         return joined_data
 
-    def _basic_unit_data(self, technology, limit, date_from=None):
+    def basic_unit_data(self, technology=None, limit=2000, date_from=None, max_retries=3):
         """
         Download basic unit information for one technology.
 
@@ -645,15 +697,29 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
 
         Parameters
         ----------
-        technology : str
-            Technology, see :meth:`MaStRDownload.download_power_plants`
-        limit : int
+        technology : str, optional
+            Technology data is requested for. See :meth:`MaStRDownload.download_power_plants` for options.
+            Data is retrieved using :meth:`MaStRAPI.GetGefilterteListeStromErzeuger`.
+            If not given, it defaults to `None`. This implies data for all available technologies is retrieved using
+            the web service function :meth:`MaStRAPI.GetListeAlleEinheiten`.
+        limit : int, optional
             Maximum number of units to download.
+            If not provided, data for all units is downloaded.
 
-        Returns
-        -------
+            .. warning:
+
+               Mind the daily request limit for your MaStR account.
+
+        date_from: :any:`datetime.datetime()`, optional
+            If specified, only units with latest change date newer than this are queried.
+            Defaults to :any:`None`.
+        max_retries: int, optional
+            Maximum number of retries in case of errors with the connection to the server.
+
+        Yields
+        ------
         list of dict
-            A list of dicts is returned with each dictionary containing
+            A generator of dicts is returned with each dictionary containing
             information about one unit.
         """
         # Split download of basic unit data in chunks of 2000
@@ -663,50 +729,39 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         limits = [chunksize if (x + chunksize) <= limit
                   else limit - x + 1 for x in chunks_start]
 
-        units = []
+        # Deal with or w/o technology being specified
+        if not technology:
+            energietraeger = [None]
+        else:
+            energietraeger = self._unit_data_specs[technology]["energietraeger"]
+
         # In case multiple energy carriers (energietraeger) exist for one technology,
         # loop over these and join data to one list
-        for et in self._unit_data_specs[technology]["energietraeger"]:
+        for et in energietraeger:
             log.info(f"Get list of units with basic information for technology {technology} ({et})")
+            if et is None:
+                query_results = basic_data_download(self._mastr_api,
+                                    "GetListeAlleEinheiten",
+                                    "Einheiten",
+                                    chunks_start,
+                                    limits,
+                                    date_from,
+                                    max_retries,
+                                    technology,
+                                    et=et)
+            else:
+                query_results = basic_data_download(self._mastr_api,
+                                    "GetGefilterteListeStromErzeuger",
+                                    "Einheiten",
+                                    chunks_start,
+                                    limits,
+                                    date_from,
+                                    max_retries,
+                                    technology,
+                                    et=et)
+            yield from query_results
 
-            units_tech = []
-
-            pbar = tqdm(total=limit,
-                        desc=f"Get list of units with basic information for technology {technology} ({et})",
-                        unit=" units")
-
-            # Iterate over chunks and download data
-            # Results are first collected per 'et' (units_tech) for properly
-            # displaying download progress.
-            # Later, all units of a single technology are collected in 'units'
-            for chunk_start, limit_iter in zip(chunks_start, limits):
-                response = self._mastr_api.GetGefilterteListeStromErzeuger(
-                    energietraeger=et,
-                    startAb=chunk_start,
-                    limit=limit_iter,
-                    datumAb=date_from)
-                units_tech.extend(response["Einheiten"])
-                pbar.update(len(response["Einheiten"]))
-
-                # Stop querying more data, if no further data available
-                if response["Ergebniscode"] == 'OkWeitereDatenVorhanden':
-                    continue
-                else:
-                    # Update progress bar and move on with next et or technology
-                    pbar.total = len(units_tech)
-                    pbar.refresh()
-                    pbar.close()
-                    break
-
-            # Make sure progress bar is closed properly
-            pbar.close()
-
-            # Put units of 'technology' in units list
-            units.extend(units_tech)
-
-        return units
-
-    def _additional_data(self, technology, unit_ids, data_fcn):
+    def additional_data(self, technology, unit_ids, data_fcn, timeout=10):
         """
         Retrieve addtional informations about units.
 
@@ -720,18 +775,29 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         unit_ids : list
             Unit identifier for additional data
         data_fcn : str
-            Name of method from :class:`MaStRDownload` to be used for querying additional data
+            Name of method from :class:`MaStRDownload` to be used for querying additional data.
+            Choose from
+
+            * "extended_unit_data" (:meth:`~.extended_unit_data`): Extended information (i.e. technical, location)
+              about a unit. The exact set of information depends on the technology.
+            * "eeg_unit_data" (:meth:`~.eeg_unit_data`): Unit Information from EEG unit registry. The exact
+              set of information depends on the technology.
+            * "kwk_unit_data" (:meth:`~.kwk_unit_data`): Unit information from KWK unit registry.
+            * "permit_unit_data" (:meth:`~.permit_unit_data`): Information about the permit process of a unit.
+
+        timeout: int, optional
+            Timeout limit for data retrieval for each unit when using multiprocessing
 
         Returns
         -------
-        tuple of list of dict or str
+        tuple of list of dict and tuple
             Returns additional data in dictionaries that are packed into a list. Format
 
             .. code-block:: python
 
                return = (
                     [additional_unit_data_dict1, additional_unit_data_dict2, ...],
-                    [missed_unit1, missed_unit2, ...]
+                    [tuple("SME930865355925", "Reason for failing dowload"), ...]
                     )
         """
         # Prepare a list of unit IDs packed as tuple associated with technology
@@ -750,22 +816,41 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
             with multiprocessing.Pool(processes=self.parallel_processes,
                                       maxtasksperchild=1) as pool:
 
-                for unit_result in tqdm(pool.imap_unordered(self.__getattribute__(data_fcn),
-                                                            prepared_args,
-                                                            chunksize=chunksize),
-                                        total=len(prepared_args),
-                                        desc=f"Downloading{data_fcn} ({technology})".replace("_", " "),
-                                        unit="unit"):
-                    data_tmp, data_missed_tmp = unit_result
-                    data.append(data_tmp)
-                    data_missed.append(data_missed_tmp)
+                with tqdm(total=len(prepared_args),
+                          desc=f"Downloading {data_fcn} ({technology})",
+                          unit="unit") as pbar:
+                    unit_result = pool.imap_unordered(self.__getattribute__(data_fcn),
+                                                      prepared_args,
+                                                      chunksize=1)
+                    while True:
+                        try:
+                            # Try to retrieve data from concurrent processes
+                            data_tmp, data_missed_tmp = unit_result.next(timeout=timeout)
+
+                            if not data_tmp:
+                                log.debug(
+                                    f"Download for additional data for {data_missed_tmp[0]} ({technology}) failed. "
+                                    f"Traceback of caught error:\n{data_missed_tmp[1]}")
+                            data.append(data_tmp)
+                            data_missed.append(data_missed_tmp)
+                            pbar.update()
+                        except StopIteration:
+                            # Multiprocessing returns StropIteration when results list gets empty
+                            break
+                        except multiprocessing.TimeoutError:
+                            # If retrieval time exceeds timeout of next(), pass on
+                            log.debug(f"Data request for 1 {technology} unit timed out")
         else:
             # Retrieve data in a single process
             for unit_specs in tqdm(prepared_args,
                                      total=len(prepared_args),
-                                     desc=f"Downloading{data_fcn} ({technology})".replace("_", " "),
+                                     desc=f"Downloading {data_fcn} ({technology})",
                                      unit="unit"):
                 data_tmp, data_missed_tmp = self.__getattribute__(data_fcn)(unit_specs)
+                if not data_tmp:
+                    log.debug(
+                        f"Download for additional data for {data_missed_tmp[0]} ({technology}) failed. "
+                        f"Traceback of caught error:\n{data_missed_tmp[1]}")
                 data.append(data_tmp)
                 data_missed.append(data_missed_tmp)
 
@@ -773,9 +858,15 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         data = [dat for dat in data if dat]
         data_missed = [dat for dat in data_missed if dat]
 
+        # Add units missed due to timeout to data_missed
+        units_retrieved = [_[self._additional_data_primary_key[data_fcn]] for _ in data]
+        units_missed_timeout = [(u, "Timeout") for u in unit_ids if
+                                u not in units_retrieved + [_[0] for _ in data_missed]]
+        data_missed = data_missed + units_missed_timeout
+
         return data, data_missed
 
-    def _extended_unit_data(self, unit_specs):
+    def extended_unit_data(self, unit_specs):
         """
         Download extended data for a unit.
 
@@ -795,8 +886,12 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         dict
             Extended information about unit, if download successful,
             otherwise empty dict
-        str
-            *EinheitMastrNummer*, if download failed, otherwise None
+        tuple
+            *EinheitMastrNummer* and message the explains why a download failed. Format
+
+            .. code-block:: python
+
+               tuple("SME930865355925", "Reason for failing dowload")
         """
 
         mastr_id, technology = unit_specs
@@ -808,15 +903,15 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
                 Fault,
                 requests.exceptions.ConnectionError,
                 requests.exceptions.ReadTimeout) as e:
-            log.exception(
-                f"Failed to download unit data for {mastr_id} because of SOAP API exception: {e}",
-                exc_info=False)
+            # log.exception(
+            #     f"Failed to download unit data for {mastr_id} because of SOAP API exception: {e}",
+            #     exc_info=False)
             unit_data = {}
-            unit_missed = mastr_id
+            unit_missed = (mastr_id, repr(e))
 
         return unit_data, unit_missed
 
-    def _eeg_unit_data(self, unit_specs):
+    def eeg_unit_data(self, unit_specs):
         """
         Download EEG (Erneuerbare Energien Gesetz) data for a unit.
 
@@ -837,8 +932,12 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         dict
             EEG details about unit, if download successful,
             otherwise empty dict
-        str
-            *EegMastrNummer*, if download failed, otherwise None
+        tuple
+            *EegMastrNummer* and message the explains why a download failed. Format
+
+            .. code-block:: python
+
+               tuple("EEG961554380393", "Reason for failing dowload")
         """
         # TODO: Update docstring to change arguments
         eeg_id, technology = unit_specs
@@ -850,15 +949,15 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
                 Fault,
                 requests.exceptions.ConnectionError,
                 requests.exceptions.ReadTimeout) as e:
-            log.exception(
-                f"Failed to download eeg data for {eeg_id} because of SOAP API exception: {e}",
-                exc_info=False)
+            # log.exception(
+            #     f"Failed to download eeg data for {eeg_id} because of SOAP API exception: {e}",
+            #     exc_info=False)
             eeg_data = {}
-            eeg_missed = eeg_id
+            eeg_missed = (eeg_id, repr(e))
 
         return eeg_data, eeg_missed
 
-    def _kwk_unit_data(self, unit_specs):
+    def kwk_unit_data(self, unit_specs):
         """
         Download KWK (Kraft-Wärme-Kopplung) data for a unit.
 
@@ -877,13 +976,15 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
 
         Returns
         -------
-        Returns
-        -------
         dict
             KWK details about unit, if download successful,
             otherwise empty dict
-        str
-            *EegMastrNummer*, if download failed, otherwise None
+        tuple
+            *KwkMastrNummer* and message the explains why a download failed. Format
+
+            .. code-block:: python
+
+               tuple("KWK910493229164", "Reason for failing dowload")
         """
         kwk_id, technology = unit_specs
         try:
@@ -894,15 +995,15 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
                 Fault,
                 requests.exceptions.ConnectionError,
                 requests.exceptions.ReadTimeout) as e:
-            log.exception(
-                f"Failed to download unit data for {kwk_id} because of SOAP API exception: {e}",
-                exc_info=False)
+            # log.exception(
+            #     f"Failed to download unit data for {kwk_id} because of SOAP API exception: {e}",
+            #     exc_info=False)
             kwk_data = {}
-            kwk_missed = kwk_id
+            kwk_missed = (kwk_id, repr(e))
 
         return kwk_data, kwk_missed
 
-    def _permit_unit_data(self, unit_specs):
+    def permit_unit_data(self, unit_specs):
         """
         Download permit data for a unit.
 
@@ -921,8 +1022,12 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         dict
             Permit details about unit, if download successful,
             otherwise empty dict
-        str
-            *GenMastrNummer*, if download failed, otherwise None
+        tuple
+            *GenMastrNummer* and message the explains why a download failed. Format
+
+            .. code-block:: python
+
+               tuple("GEN952474728808", "Reason for failing dowload")
         """
         permit_id, technology = unit_specs
         try:
@@ -933,13 +1038,58 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
                 Fault,
                 requests.exceptions.ConnectionError,
                 requests.exceptions.ReadTimeout) as e:
-            log.exception(
-                f"Failed to download unit data for {permit_id} because of SOAP API exception: {e}",
-                exc_info=False)
+            # log.exception(
+            #     f"Failed to download unit data for {permit_id} because of SOAP API exception: {e}",
+            #     exc_info=False)
             permit_data = {}
-            permit_missed = permit_id
+            permit_missed = (permit_id, repr(e))
 
         return permit_data, permit_missed
+
+    def location_data(self, specs):
+        """
+        Download extended data for a location
+
+        Allows to download additional data for different location types, see *specs*.
+
+        Parameters
+        ----------
+        specs : tuple
+            Location *Mastrnummer* and data_name as tuple that for example looks like
+
+            .. code-block:: python
+
+               tuple("SEL927688371072", "location_elec_generation")
+
+
+        Returns
+        -------
+        dict
+            Detailed information about a location, if download successful,
+            otherwise empty dict
+        tuple
+            Location *MastrNummer* and message the explains why a download failed. Format
+
+            .. code-block:: python
+
+               tuple("SEL927688371072", "Reason for failing dowload")
+        """
+
+        # Unpack tuple argument to two separate variables
+        location_id, data_name = specs
+
+        try:
+            data = self._mastr_api.__getattribute__(
+                self._unit_data_specs[data_name])(lokationMastrNummer=location_id)
+            missed = None
+        except (XMLParseError,
+                Fault,
+                requests.exceptions.ConnectionError,
+                requests.exceptions.ReadTimeout) as e:
+            data = {}
+            missed = (location_id, repr(e))
+
+        return data, missed
 
     def _retry_missed_additional_data(self, technology, missed_ids, data_fcn, retries=3):
         """
@@ -971,22 +1121,187 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
 
         missed_ids_remaining = missed_ids
         for retry in range(1, retries + 1):
-            data_tmp, missed_ids_tmp = self._additional_data(
+            data_tmp, missed_ids_tmp = self.additional_data(
                 technology, missed_ids_remaining, data_fcn)
             if data_tmp:
                 data.extend(data_tmp)
-            missed_ids_remaining = missed_ids_tmp
+            missed_ids_remaining = [_[0] for _ in missed_ids_tmp]
 
-            if not missed_ids_remaining:
+            if not any(missed_ids_remaining):
                 break
 
-        return data, missed_ids_remaining
+        return data, missed_ids_tmp
+
+    def basic_location_data(self, limit=2000, date_from=None, max_retries=3):
+        """
+        Retrieve basic location data in chunks
+
+        Retrieves data for all types of locations at once using :meth:`MaStRAPI.GetListeAlleLokationen`.
+        Locations include
+
+        * Electricity generation location (SEL - Stromerzeugungslokation)
+        * Electricity consumption location (SVL - Stromverbrauchslokation)
+        * Gas generation location (GEL - Gaserzeugungslokation)
+        * Gas consumption location (GVL - Gasverbrauchslokation)
+
+        Parameters
+        ----------
+        limit: int, optional
+            Maximum number of locations to download.
+            Defaults to 2000.
+
+            .. warning:
+
+               Mind the daily request limit for your MaStR account.
+
+        date_from: :obj:`datetime.datetime`, optional
+            If specified, only locations with latest change date newer than this are queried.
+            Defaults to :obj:`None`.
+        max_retries: int, optional
+            Maximum number of retries for each chunk in case of errors with the connection to the server.
+
+        Yields
+        ------
+        generator of generators
+            For each chunk a separate generator is returned all wrapped into another generator. Access with
+
+            .. code-block:: python
+
+                chunks = mastr_dl.basic_location_data(date_from=datetime.datetime(2020, 11, 7, 0, 0, 0), limit=2010)
+
+                for chunk in chunks:
+                    for location in chunk:
+                        print(location) # prints out one dict per location one after another
+        """
+        # Prepare indices for chunked data retrieval
+        chunksize = 2000
+        chunks_start = list(range(1, limit + 1, chunksize))
+        limits = [chunksize if (x + chunksize) <= limit
+                  else limit - x + 1 for x in chunks_start]
+
+        # Retrieve query results and yield them
+        query_results = basic_data_download(
+            self._mastr_api,
+            "GetListeAlleLokationen",
+            "Lokationen",
+            chunks_start,
+            limits,
+            date_from,
+            max_retries
+        )
+        yield from query_results
 
     def daily_contingent(self):
         contingent = self._mastr_api.GetAktuellerStandTageskontingent()
         log.info(f"Daily requests contigent: "
                  f"{contingent['AktuellerStandTageskontingent']} "
                  f"/ {contingent['AktuellesLimitTageskontingent']}")
+
+
+def basic_data_download(mastr_api, fcn_name, category, chunks_start, limits, date_from, max_retries, technology=None,
+                        et=None):
+    """
+    Helper function for downloading basic data with MaStR list query
+
+    Helps to query data from list-returning functions like GetListeAlleEinheiten.
+    Automatically
+
+    * respects limit of 2.000 rows returned by MaStR list functions
+    * stops, if no further data is available
+    * nicely integrates dynamic update of tqdm progress bar
+
+    Parameters
+    ----------
+    mastr_api: :class:`MaStRAPI`
+        MaStR API wrapper
+    fcn_name: str
+        Name of list-returning download function
+    category: str
+        Either "Einheiten" or "Lokationen"
+    chunks_start: list of int
+        Start index for each chunk. MaStR data is internally index by an integer index that can be used to start
+        querying data from a certain position. Here, it is used to iterate over the available data.
+    limits: list of int
+        Limit of queried row for each chunk.
+    date_from: datetime.datetime
+        Date for querying only newer data than this date
+    max_retries: int
+        Number of maximum retries for each chunk
+    technology: str, optional
+        Choose a subset from available technologies. Only relevant if category="Einheiten".
+        Defaults to all technologies.
+    et: str
+        Energietraeger of a technology. Some technologies are subdivided into a list of energietraeger.
+        Only relevant if category="Einheiten". Defaults to None.
+
+    Yields
+    ------
+    list
+        Basic unit or location information. Depends on category.
+    """
+
+    # Construct description string
+    description = f"Get basic {category} data information"
+    if technology:
+        description += f"for technology {technology}"
+    if et:
+        description += f" ({et})"
+
+    pbar = tqdm(desc=description, unit=" units")
+
+    # Iterate over chunks and download data
+    # Results are first collected per 'et' (units_tech) for properly
+    # displaying download progress.
+    # Later, all units of a single technology are collected in 'units'
+    for chunk_start, limit_iter in zip(chunks_start, limits):
+        # Use a retry loop to retry on connection errors
+        for try_number in range(max_retries + 1):
+            try:
+                if et is None:
+                    response = getattr(mastr_api, fcn_name)(
+                        startAb=chunk_start,
+                        limit=limit_iter,
+                        datumAb=date_from)
+                else:
+                    response = getattr(mastr_api, fcn_name)(
+                        energietraeger=et,
+                        startAb=chunk_start,
+                        limit=limit_iter,
+                        datumAb=date_from)
+
+            except (requests.exceptions.ConnectionError,
+                    Fault,
+                    requests.exceptions.ReadTimeout
+                    ) as e:
+                try_number += 1
+                log.debug(f"MaStR SOAP API does not respond properly: {e}. Retry {try_number}")
+                time.sleep(5)
+            else:
+                # If it does run into the except clause, break out of the for loop
+                # This also means query was successful
+                units_tech = response[category]
+                yield units_tech
+                pbar.update(len(units_tech))
+                break
+        else:
+            log.error(f"Finally failed to download data."
+                      f"Basic unit data of index {chunk_start} to {chunk_start + limit_iter - 1} will be missing.")
+            # TODO: this has potential risk! Please change
+            # If the download continuously fails on the last chunk, this query will run forever
+            response = {"Ergebniscode": 'OkWeitereDatenVorhanden'}
+
+        # Stop querying more data, if no further data available
+        if response["Ergebniscode"] == 'OkWeitereDatenVorhanden':
+            continue
+        else:
+            # Update progress bar and move on with next et or technology
+            pbar.total = pbar.n
+            pbar.refresh()
+            pbar.close()
+            break
+
+    # Make sure progress bar is closed properly
+    pbar.close()
 
 
 if __name__ == "__main__":
