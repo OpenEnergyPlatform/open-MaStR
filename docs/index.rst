@@ -12,10 +12,9 @@ Welcome to open-MaStR's documentation!
    :caption: Documentation
 
    readme
+   basic_usage
    configuration
    download
-   postprocessing
-   analyze
    data_documentation
    development
    changelog
