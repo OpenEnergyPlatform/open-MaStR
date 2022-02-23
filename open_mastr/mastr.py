@@ -36,7 +36,7 @@ class Mastr:
 
     .. code-block:: python
 
-       from open_mastr.mastr import Mastr
+       from open_mastr import Mastr
 
        db = Mastr()
        db.download()
@@ -103,6 +103,11 @@ class Mastr:
         At the end, both methods give us a sqlite database, which should be (almost) identical.
 
         """
+        if method != "bulk" and method != "API":
+            raise Exception(
+                    "method has to be either 'bulk' or 'API'."
+                )
+
         empty_schema = self.empty_schema
         if method == "bulk":
 
