@@ -105,3 +105,6 @@ ENV/
 data/
 config.ini
 postprocessing/plots/
+
+# VS Code
+.vscode
