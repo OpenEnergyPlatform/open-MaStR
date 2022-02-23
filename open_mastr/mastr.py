@@ -83,24 +83,13 @@ class Mastr:
         # TODO: Group variables in dicts for API and BULK
         # prefix "api", i.e. api_processes instaed of processes; api_limit instead of limit; ...
         """
-        method in {bulk, API}
-
-        if method==bulk:
-            - download folder
-            - write to sqlite database
-            - existing functions from earlier development are taken from a new bulk_download folder
-            - start bulk cleansing functions
-
-
-
-        if method==API:
-            - download data via API
-            - write to sqlite database
-            - existing functions from earlier development are taken from soap_api folder
-            - start API cleansing functions
-
-
-        At the end, both methods give us a sqlite database, which should be (almost) identical.
+        Download the MaStR either via the bulk download or via the MaStR API and write it to a 
+        sqlite database.
+        Parameters
+        ----------
+        method: {"bulk", "API"} 
+            Determines whether the data is downloaded via the zipped bulk download or via the MaStR API.
+            The latter requires an account from marktstammdatenregister.de
 
         """
         if method != "bulk" and method != "API":
