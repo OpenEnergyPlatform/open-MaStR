@@ -1,3 +1,7 @@
+# system catalog is the mapping for the entries within the two columns
+# Marktfunktionen und Lokationstyp (entry 1 is mapped to Stromnetzbetreiber
+# in the column Marktfunktionen)
+
 system_catalog = {
     "Marktfunktion": {
         1: "Stromnetzbetreiber",
@@ -18,6 +22,10 @@ system_catalog = {
         4: "Gasverbrauchslokation",
     },
 }
+
+# columns to replace lists all columns where the entries have
+# to be replaced according to the tables katalogwerte and katalogeinträge
+# from the bulk download of the MaStR
 
 columns_replace_list = [
     # anlageneegsolar
