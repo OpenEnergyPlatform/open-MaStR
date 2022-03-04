@@ -175,26 +175,26 @@ class Mastr:
                 initialize_db=initialize_db,
                 restore_dump=None,
             )
-            # # Download basic unit data
-            # mastr_mirror.backfill_basic(technology, limit=limit, date=api_date)
-            #
-            # # Download additional unit data
-            # for tech in technology:
-            #     # mastr_mirror.create_additional_data_requests(tech)
-            #     for data_type in data_types:
-            #         mastr_mirror.retrieve_additional_data(tech, data_type, chunksize=chunksize, limit=limit)
-            #
-            # # Download basic location data
-            # mastr_mirror.backfill_locations_basic(
-            #     limit=limit,
-            #     date="latest"
-            # )
-            #
-            # # Download extended location data
-            # for location_type in location_types:
-            #     mastr_mirror.retrieve_additional_location_data(location_type, limit=limit)
-            #
-            # return
+            # Download basic unit data
+            mastr_mirror.backfill_basic(technology, limit=limit, date=api_date)
+
+            # Download additional unit data
+            for tech in technology:
+                # mastr_mirror.create_additional_data_requests(tech)
+                for data_type in data_types:
+                    mastr_mirror.retrieve_additional_data(tech, data_type, chunksize=chunksize, limit=limit)
+
+            # Download basic location data
+            mastr_mirror.backfill_locations_basic(
+                limit=limit,
+                date="latest"
+            )
+
+            # Download extended location data
+            for location_type in location_types:
+                mastr_mirror.retrieve_additional_location_data(location_type, limit=limit)
+
+            return
 
     def _initialize_database(self, empty_schema) -> None:
         engine = self._engine
