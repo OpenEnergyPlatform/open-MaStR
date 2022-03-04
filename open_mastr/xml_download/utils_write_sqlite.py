@@ -134,8 +134,21 @@ def add_table_to_sqlite_database(
 
         df = df.rename(columns=tablename_mapping[xml_tablename]["replace_column_names"])
 
-    if "DatumLetzteAktualisierung" in df.columns:
-        df["DatumLetzteAktualisierung"]=pd.to_datetime(df["DatumLetzteAktualisierung"])
+    sqlalchemy_columnlist = tablename_mapping[xml_tablename][
+        "__class__"
+    ].__table__.columns.items()
+
+    # Iterate over all columns from the orm data class
+    # If the column has data type = date, the function
+    # pd.to_datetime is applied
+    for column in sqlalchemy_columnlist:
+        if (
+            type(column[1].type) == sqlalchemy.sql.sqltypes.Date
+            or type(column[1].type) == sqlalchemy.sql.sqltypes.DateTime
+        ):
+            column_name = column[0]
+            if column_name in df.columns:
+                df[column_name] = pd.to_datetime(df[column_name])
 
     # get a dictionary for the data types
 
@@ -275,7 +288,7 @@ def handle_xml_syntax_error(data: bytes, err: Error) -> pd.DataFrame:
         if evaluated_string == "<":
             break
         else:
-            decoded_data = decoded_data[:start_char] + decoded_data[start_char + 1:]
+            decoded_data = decoded_data[:start_char] + decoded_data[start_char + 1 :]
     df = pd.read_xml(decoded_data)
     print("One invalid xml expression was deleted.")
     return df
