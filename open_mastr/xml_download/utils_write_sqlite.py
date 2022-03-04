@@ -134,6 +134,9 @@ def add_table_to_sqlite_database(
 
         df = df.rename(columns=tablename_mapping[xml_tablename]["replace_column_names"])
 
+    if "DatumLetzteAktualisierung" in df.columns:
+        df["DatumLetzteAktualisierung"]=pd.to_datetime(df["DatumLetzteAktualisierung"])
+
     # get a dictionary for the data types
 
     # dtypes_for_writing_sql = {}
