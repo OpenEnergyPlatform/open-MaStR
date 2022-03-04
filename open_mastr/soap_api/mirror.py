@@ -666,6 +666,12 @@ class MaStRMirror:
                                 ertuechtigung["ProzentualeErhoehungDesLv"] = float(
                                     ertuechtigung["ProzentualeErhoehungDesLv"]
                                 )
+                        # The NetzbetreiberMastrNummer is handed over as type:list, hence non-compatible with sqlite)
+                        # This replaces the list with the first (string)element in the list to make it sqlite compatible
+                        if "NetzbetreiberMastrNummer" in unit_dat.keys():
+                            unit_dat["NetzbetreiberMastrNummer"] = unit_dat[
+                                "NetzbetreiberMastrNummer"
+                            ][0]
 
                         # Create new instance and update potentially existing one
                         unit = getattr(orm, self.orm_map[technology][data_type])(
@@ -785,6 +791,14 @@ class MaStRMirror:
                                         grid_connection[field_name] = float(
                                             grid_connection[field_name]
                                         )
+                        # This converts dates of type:string to type:datetime to match column data types in orm.py
+                        if type(location_dat["DatumLetzteAktualisierung"]) == str:
+                            location_dat[
+                                "DatumLetzteAktualisierung"
+                            ] = datetime.datetime.strptime(
+                                location_dat["DatumLetzteAktualisierung"],
+                                "%Y-%m-%dT%H:%M:%S.%f",
+                            )
 
                         # Create new instance and update potentially existing one
                         location = orm.LocationExtended(**location_dat)
