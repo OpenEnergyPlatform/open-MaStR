@@ -123,6 +123,11 @@ class Mastr:
             if os.path.exists(_zipped_xml_file_path):
                 print("MaStR already downloaded.")
             else:
+                if bulk_date_string != "today":
+                    raise Exception(
+                        "There exists no file for given date. MaStR can only be downloaded from the website if "
+                        "today's date is given."
+                    )
                 shutil.rmtree(self._xml_folder_path, ignore_errors=True)
                 os.makedirs(self._xml_folder_path, exist_ok=True)
                 download_xml_Mastr(_zipped_xml_file_path)
