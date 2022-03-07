@@ -29,7 +29,10 @@ dtypes_mapping = {
 
 
 def convert_mastr_xml_to_sqlite(
-    con: sqlite3.Connection, zipped_xml_file_path: str, include_tables: list, engine,
+    con: sqlite3.Connection,
+    zipped_xml_file_path: str,
+    include_tables: list,
+    engine,
 ) -> None:
     """Converts the Mastr in xml format into a sqlite database."""
     """Writes the local zipped MaStR to a PostgreSQL database.
@@ -139,7 +142,7 @@ def add_table_to_sqlite_database(
     ].__table__.columns.items()
 
     # Iterate over all columns from the orm data class
-    # If the column has data type = date, the function
+    # If the column has data type = date or datetime, the function
     # pd.to_datetime is applied
     for column in sqlalchemy_columnlist:
         if (
@@ -148,7 +151,8 @@ def add_table_to_sqlite_database(
         ):
             column_name = column[0]
             if column_name in df.columns:
-                df[column_name] = pd.to_datetime(df[column_name])
+                # Convert column to datetime64, invalid string -> NaT
+                df[column_name] = pd.to_datetime(df[column_name], errors="coerce")
 
     # get a dictionary for the data types
 
