@@ -21,7 +21,7 @@ from open_mastr.xml_download.utils_sqlite_bulk_cleansing import (
 # import soap_API dependencies
 from open_mastr.soap_api.mirror import MaStRMirror
 
-# import initialize_databse dependencies
+# import initialize_database dependencies
 from open_mastr.utils.helpers import db_engine
 import open_mastr.orm as orm
 from sqlalchemy.schema import CreateSchema
@@ -41,6 +41,7 @@ class Mastr:
        db = Mastr()
        db.download()
     """
+
     def __init__(self, empty_schema=False) -> None:
 
         # Define the paths for the zipped xml download and the sql databases
@@ -81,23 +82,20 @@ class Mastr:
     ) -> None:
         # TODO: To increase clarity discuss whether to rename API-related arguments with
         # TODO: Group variables in dicts for API and BULK
-        # prefix "api", i.e. api_processes instaed of processes; api_limit instead of limit; ...
+        # prefix "api", i.e. api_processes instead of processes; api_limit instead of limit; ...
         """
-        Download the MaStR either via the bulk download or via the MaStR API and write it to a 
+        Download the MaStR either via the bulk download or via the MaStR API and write it to a
         sqlite database.
         Parameters
         ----------
-        method: {"bulk", "API"} 
+        method: {"bulk", "API"}
             Determines whether the data is downloaded via the zipped bulk download or via the MaStR API.
             The latter requires an account from marktstammdatenregister.de
 
         """
         if method != "bulk" and method != "API":
-            raise Exception(
-                    "method has to be either 'bulk' or 'API'."
-                )
+            raise Exception("method has to be either 'bulk' or 'API'.")
 
-        empty_schema = self.empty_schema
         if method == "bulk":
 
             # Find the name of the zipped xml folder
@@ -127,8 +125,8 @@ class Mastr:
             else:
                 shutil.rmtree(self._xml_folder_path, ignore_errors=True)
                 os.makedirs(self._xml_folder_path, exist_ok=True)
-                print("MaStR is downloaded to %s" % self._xml_folder_path)
                 download_xml_Mastr(_zipped_xml_file_path)
+                print(f"MaStR was successfully downloaded to {self._xml_folder_path}.")
 
             with ZipFile(_zipped_xml_file_path, "r") as f:
                 full_list_of_files = [
@@ -136,7 +134,7 @@ class Mastr:
                 ]
 
                 full_list_of_files = list(np.unique(np.array(full_list_of_files)))
-                # full_list_of_files now inlcudes all table_names in the format
+                # full_list_of_files now includes all table_names in the format
                 # einheitensolar instead of einheitensolar_12.xml
             if bulk_exclude_tables:
                 bulk_include_tables = [
@@ -151,20 +149,21 @@ class Mastr:
                 con=self._sql_connection,
                 zipped_xml_file_path=_zipped_xml_file_path,
                 include_tables=bulk_include_tables,
-                engine=self._engine
+                engine=self._engine,
             )
             if bulk_cleansing:
                 print("Data cleansing started.")
                 cleansing_sqlite_database_from_bulkdownload(
                     con=self._sql_connection,
                     include_tables=bulk_include_tables,
-                    zipped_xml_file_path=_zipped_xml_file_path
+                    zipped_xml_file_path=_zipped_xml_file_path,
                 )
+                print("Data cleansing done successfully.")
 
         if method == "API":
             print(
                 f"Downloading with soap_API.\n\n   -- Settings --  \nunits after date: "
-                f"{api_date}\nunit donwnload limit per technology: "
+                f"{api_date}\nunit download limit per technology: "
                 f"{limit}\nparallel_processes: {processes}\nchunksize: "
                 f"{chunksize}\ntechnologies: {technology}\ndata_types: "
                 f"{data_types}\nlocation_types: {location_types}"
@@ -182,17 +181,18 @@ class Mastr:
             for tech in technology:
                 # mastr_mirror.create_additional_data_requests(tech)
                 for data_type in data_types:
-                    mastr_mirror.retrieve_additional_data(tech, data_type, chunksize=chunksize, limit=limit)
+                    mastr_mirror.retrieve_additional_data(
+                        tech, data_type, chunksize=chunksize, limit=limit
+                    )
 
             # Download basic location data
-            mastr_mirror.backfill_locations_basic(
-                limit=limit,
-                date="latest"
-            )
+            mastr_mirror.backfill_locations_basic(limit=limit, date="latest")
 
             # Download extended location data
             for location_type in location_types:
-                mastr_mirror.retrieve_additional_location_data(location_type, limit=limit)
+                mastr_mirror.retrieve_additional_location_data(
+                    location_type, limit=limit
+                )
 
             return
 
