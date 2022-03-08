@@ -69,7 +69,6 @@ class Mastr:
         method="bulk",
         bulk_date_string="today",
         bulk_include_tables=None,
-        bulk_exclude_tables=None,
         bulk_cleansing=True,
         processes=None,
         technology=None,
@@ -115,11 +114,6 @@ class Mastr:
                 f"Gesamtdatenexport_{bulk_date_folder_extension}.zip",
             )
 
-            if bulk_include_tables and bulk_exclude_tables:
-                raise Exception(
-                    "Either include_tables or exclude_tables has to be None."
-                )
-
             if os.path.exists(_zipped_xml_file_path):
                 print("MaStR already downloaded.")
             else:
@@ -141,13 +135,8 @@ class Mastr:
                 full_list_of_files = list(np.unique(np.array(full_list_of_files)))
                 # full_list_of_files now includes all table_names in the format
                 # einheitensolar instead of einheitensolar_12.xml
-            if bulk_exclude_tables:
-                bulk_include_tables = [
-                    entry
-                    for entry in full_list_of_files
-                    if entry not in bulk_exclude_tables
-                ]
-            if not bulk_include_tables and not bulk_exclude_tables:
+
+            if not bulk_include_tables:
                 bulk_include_tables = full_list_of_files
 
             convert_mastr_xml_to_sqlite(
