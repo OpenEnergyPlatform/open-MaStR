@@ -88,8 +88,9 @@ class Mastr:
         Parameters
         ----------
         method: {"bulk", "API"}
-            Determines whether the data is downloaded via the zipped bulk download or via the MaStR API.
-            The latter requires an account from marktstammdatenregister.de
+            Determines whether the data is downloaded via the zipped bulk download or via the
+            MaStR API. The latter requires an account from marktstammdatenregister.de,
+            (see :ref:`configuration <Configuration>`).
 
         """
         if method != "bulk" and method != "API":
@@ -119,8 +120,8 @@ class Mastr:
             else:
                 if bulk_date_string != "today":
                     raise Exception(
-                        "There exists no file for given date. MaStR can only be downloaded from the website if "
-                        "today's date is given."
+                        "There exists no file for given date. MaStR can only be downloaded "
+                        "from the website if today's date is given."
                     )
                 shutil.rmtree(self._xml_folder_path, ignore_errors=True)
                 os.makedirs(self._xml_folder_path, exist_ok=True)
