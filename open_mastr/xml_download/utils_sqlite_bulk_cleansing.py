@@ -1,4 +1,3 @@
-
 import pdb
 import sqlite3
 from xmlrpc.client import Boolean
@@ -8,10 +7,15 @@ import numpy as np
 from open_mastr.xml_download.colums_to_replace import columns_replace_list
 from zipfile import ZipFile
 from open_mastr.orm import tablename_mapping
+from open_mastr.xml_download.utils_write_sqlite import add_table_to_sqlite_database
+from open_mastr.xml_download.utils_write_sqlite import date_columns_to_datetime
 
 
 def cleansing_sqlite_database_from_bulkdownload(
-    con: sqlite3.Connection, include_tables: list, zipped_xml_file_path: str,
+    con: sqlite3.Connection,
+    engine,
+    include_tables: list,
+    zipped_xml_file_path: str,
 ) -> None:
     """The cleansing of the bulk download data consists of the following parts:
     - replace the katalogeintraege
@@ -20,24 +24,33 @@ def cleansing_sqlite_database_from_bulkdownload(
     for xml_tablename in include_tables:
         sql_tablename = tablename_mapping[xml_tablename]["__name__"]
         replace_mastr_katalogeintraege(
-            con, sql_tablename, zipped_xml_file_path
+            con, engine, xml_tablename, sql_tablename, zipped_xml_file_path
         )
 
 
 def replace_mastr_katalogeintraege(
-    con: sqlite3.Connection, sql_tablename: str, zipped_xml_file_path: str,
+    con: sqlite3.Connection,
+    engine,
+    xml_tablename: str,
+    sql_tablename: str,
+    zipped_xml_file_path: str,
 ) -> None:
     katalogwerte = create_katalogwerte_from_sqlite(zipped_xml_file_path)
     pattern = re.compile(r"cleansed|katalog|typen")
     if not re.search(pattern, sql_tablename):
         replace_katalogeintraege_in_single_table(
-            con=con, table_name=sql_tablename, katalogwerte=katalogwerte, columns_replace_list=columns_replace_list
+            con=con,
+            engine=engine,
+            xml_tablename=xml_tablename,
+            table_name=sql_tablename,
+            katalogwerte=katalogwerte,
+            columns_replace_list=columns_replace_list,
         )
 
 
 def create_katalogwerte_from_sqlite(zipped_xml_file_path) -> dict:
     with ZipFile(zipped_xml_file_path, "r") as f:
-        data=f.read("Katalogwerte.xml")
+        data = f.read("Katalogwerte.xml")
         df_katalogwerte = pd.read_xml(data, encoding="UTF-16", compression="zip")
     katalogwerte_array = np.array(df_katalogwerte[["Id", "Wert"]])
     katalogwerte = dict(
@@ -49,6 +62,8 @@ def create_katalogwerte_from_sqlite(zipped_xml_file_path) -> dict:
 
 def replace_katalogeintraege_in_single_table(
     con: sqlite3.Connection,
+    engine,
+    xml_tablename: str,
     table_name: str,
     katalogwerte: dict,
     columns_replace_list: list,
@@ -56,10 +71,20 @@ def replace_katalogeintraege_in_single_table(
     df = pd.read_sql(f"SELECT * FROM {table_name};", con)
     for column_name in df.columns:
         if column_name in columns_replace_list:
-            df[column_name] = df[column_name].astype("float").astype("Int64").map(katalogwerte)
-    
-    df.to_sql(table_name, con, index=False, if_exists="replace")
-    print(f"Data in table {table_name} was sucessfully cleansed.")
+            df[column_name] = (
+                df[column_name].astype("float").astype("Int64").map(katalogwerte)
+            )
+    df = date_columns_to_datetime(xml_tablename, df)
+
+    add_table_to_sqlite_database(
+        df=df,
+        xml_tablename=xml_tablename,
+        sql_tablename=table_name,
+        if_exists="replace",
+        con=con,
+        engine=engine,
+    )
+    print(f"Data in table {table_name} was successfully cleansed.")
 
 
 # def replace_katalogeintraege_in_single_table(
