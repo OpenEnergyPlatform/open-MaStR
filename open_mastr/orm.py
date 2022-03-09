@@ -501,7 +501,7 @@ class StorageUnits(Base):
     DatumLetzteAktualisierung = Column(DateTime(timezone=True))
     NutzbareSpeicherkapazitaet = Column(Float)
     VerknuepfteEinheitenMaStRNummern = Column(String)
-    AnlageBetriebsstatus = Column(Boolean)
+    AnlageBetriebsstatus = Column(String)
 
 
 class BalancingArea(Base):
