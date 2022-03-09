@@ -52,19 +52,13 @@ def replace_katalogeintraege_in_single_table(
     table_name: str,
     katalogwerte: dict,
     columns_replace_list: list,
-    overwrite_raw_data: Boolean = False,
 ) -> None:
     df = pd.read_sql(f"SELECT * FROM {table_name};", con)
     for column_name in df.columns:
         if column_name in columns_replace_list:
             df[column_name] = df[column_name].astype("float").astype("Int64").map(katalogwerte)
-
-    if overwrite_raw_data:
-        new_tablename = table_name + "_cleansed"
-    else:
-        new_tablename = table_name
     
-    df.to_sql(new_tablename, con, index=False, if_exists="replace")
+    df.to_sql(table_name, con, index=False, if_exists="replace")
     print(f"Data in table {table_name} was sucessfully cleansed.")
 
 
