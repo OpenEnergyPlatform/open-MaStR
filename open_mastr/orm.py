@@ -575,6 +575,7 @@ class GridConnections(Base):
     Nettoengpassleistung = Column(Float)
     Netzanschlusskapazitaet = Column(Float)
 
+
 tablename_mapping = {
     "anlageneegbiomasse": {
         "__name__": BiomassEeg.__tablename__,
@@ -735,3 +736,103 @@ tablename_mapping = {
         "replace_column_names": None,
     },
 }
+
+# List of technologies which can be called by mastr.download() as well as by MastrMirror.basic_backfill()
+bulk_technologies = [
+    "wind",
+    "solar",
+    "biomass",
+    "hydro",
+    "gsgk",
+    "combustion",
+    "nuclear",
+    "gas",
+    "storage",
+    "electricity_consumer",
+    "location",
+    "market",
+    "grid",
+    "balancing_area",
+    "permit",
+]
+
+# Map bulk technologies to bulk download tables
+bulk_include_tables_map = {
+    "wind": ["anlageneegwind", "einheitenwind"],
+    "solar": ["anlageneegsolar", "einheitensolar"],
+    "biomass": ["anlageneegbiomasse", "einheitenbiomasse"],
+    "hydro": ["anlageneegwasser", "einheitenwasser"],
+    "gsgk": [
+        "anlageneeggeosolarthermiegrubenklaerschlammdruckentspannung",
+        "einheitengeosolarthermiegrubenklaerschlammdruckentspannung",
+    ],
+    "combustion": ["anlagenkwk"],
+    "nuclear": ["einheitenkernkraft"],
+    "storage": ["anlageneegspeicher", "anlagenstromspeicher", "einheitenstromspeicher"],
+    "gas": [
+        "anlagengasspeicher",
+        "einheitengaserzeuger",
+        "einheitengasspeicher",
+        "einheitengasverbraucher",
+    ],
+    "electricity_consumer": ["einheitenstromverbraucher", "einheitenverbrennung"],
+    "location": ["lokationen"],
+    "market": ["marktakteure", "marktrollen"],
+    "grid": ["netzanschlusspunkte", "netze"],
+    "balancing_area": ["bilanzierungsgebiete"],
+    "permit": ["einheitengenehmigung"],
+}
+
+
+def technology_to_include_tables(
+    technology, all_technologies=bulk_technologies, tables_map=bulk_include_tables_map
+) -> list:
+    """
+    Check the user input 'technology' and convert it to the list 'include_tables' which contains file names from zipped
+    bulk download.
+    Parameters
+    ----------
+    technology: None, str, list
+        The user input for technology selection
+        * `None`: All technologies (default)
+        * `str`: One technology
+        * `list`: List of technologies
+    all_technologies: list
+        All possible selections
+    tables_map: dict
+        Dictionary that maps the technologies to the file names in the zipped bulk download folder
+    Returns
+    -------
+    list
+        List of file names
+    -------
+
+    """
+    # Convert technology input into a standard list
+    chosen_technologies = []
+    if technology is None:
+        # All technologies are to be chosen
+        chosen_technologies = all_technologies
+    elif isinstance(technology, str):
+        # Only one technology is chosen
+        chosen_technologies = [technology]
+    elif isinstance(technology, list):
+        # list of technologies is given
+        chosen_technologies = technology
+
+    # Check if given technologies match with the valid options from 'orm.bulk_technologies'
+    for tech in chosen_technologies:
+        if tech not in all_technologies:
+            raise Exception(
+                f"The input technology = {technology} does not match with the "
+                f"possible technology options. Only following technology options are available "
+                f"bulk_technologies = {all_technologies}"
+            )
+
+    # Map technologies to include tables
+    include_tables = []
+    for tech in chosen_technologies:
+        # Append table names to the include_tables list respectively
+        include_tables += tables_map[tech]
+
+    return include_tables

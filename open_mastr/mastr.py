@@ -68,7 +68,6 @@ class Mastr:
         self,
         method="bulk",
         bulk_date_string="today",
-        bulk_include_tables=None,
         bulk_cleansing=True,
         processes=None,
         technology=None,
@@ -95,7 +94,6 @@ class Mastr:
         """
         if method != "bulk" and method != "API":
             raise Exception("method has to be either 'bulk' or 'API'.")
-
         if method == "bulk":
 
             # Find the name of the zipped xml folder
@@ -128,17 +126,8 @@ class Mastr:
                 download_xml_Mastr(_zipped_xml_file_path)
                 print(f"MaStR was successfully downloaded to {self._xml_folder_path}.")
 
-            with ZipFile(_zipped_xml_file_path, "r") as f:
-                full_list_of_files = [
-                    entry.split(".")[0].split("_")[0].lower() for entry in f.namelist()
-                ]
-
-                full_list_of_files = list(np.unique(np.array(full_list_of_files)))
-                # full_list_of_files now includes all table_names in the format
-                # einheitensolar instead of einheitensolar_12.xml
-
-            if not bulk_include_tables:
-                bulk_include_tables = full_list_of_files
+            # Map technology input to the .xml file names like 'einheitensolar'
+            bulk_include_tables = orm.technology_to_include_tables(technology)
 
             convert_mastr_xml_to_sqlite(
                 con=self._sql_connection,
