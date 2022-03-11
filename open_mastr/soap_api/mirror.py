@@ -668,9 +668,13 @@ class MaStRMirror:
                         # The NetzbetreiberMastrNummer is handed over as type:list, hence non-compatible with sqlite)
                         # This replaces the list with the first (string)element in the list to make it sqlite compatible
                         if "NetzbetreiberMastrNummer" in unit_dat.keys():
-                            unit_dat["NetzbetreiberMastrNummer"] = unit_dat[
-                                "NetzbetreiberMastrNummer"
-                            ][0]
+                            if type(unit_dat["NetzbetreiberMastrNummer"]) == list:
+                                if len(unit_dat["NetzbetreiberMastrNummer"]) > 0:
+                                    unit_dat["NetzbetreiberMastrNummer"] = unit_dat[
+                                        "NetzbetreiberMastrNummer"
+                                    ][0]
+                                else:
+                                    unit_dat["NetzbetreiberMastrNummer"] = None
 
                         # Create new instance and update potentially existing one
                         unit = getattr(orm, self.orm_map[technology][data_type])(
