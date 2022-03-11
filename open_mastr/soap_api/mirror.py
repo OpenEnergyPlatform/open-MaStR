@@ -643,6 +643,7 @@ class MaStRMirror:
 
                     # Prepare data and add to database table
                     for unit_dat in unit_data:
+                        unit_dat["Quelle"] = "API"
                         # Remove query status information from response
                         for exclude in [
                             "Ergebniscode",

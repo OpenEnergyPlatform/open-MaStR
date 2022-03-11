@@ -26,6 +26,9 @@ Base = declarative_base(metadata=meta)
 # where most of the child classes can inherit from. I think the Extended class has too
 # many attributes which results in too many columns being empty in the final data base.
 
+class ParentAllTables(object):
+
+    Quelle = Column(String)
 
 class BasicUnit(Base):
     __tablename__ = "basic_units"
@@ -144,7 +147,7 @@ class Extended(object):
     download_date = Column(DateTime(timezone=True), default=func.now())
 
 
-class WindExtended(Extended, Base):
+class WindExtended(Extended, ParentAllTables, Base):
     __tablename__ = "wind_extended"
 
     # wind specific attributes
@@ -172,7 +175,7 @@ class WindExtended(Extended, Base):
     EegMastrNummer = Column(String)
 
 
-class SolarExtended(Extended, Base):
+class SolarExtended(Extended, ParentAllTables, Base):
     __tablename__ = "solar_extended"
 
     zugeordneteWirkleistungWechselrichter = Column(Float)
@@ -192,7 +195,7 @@ class SolarExtended(Extended, Base):
     EegMastrNummer = Column(String)
 
 
-class BiomassExtended(Extended, Base):
+class BiomassExtended(Extended, ParentAllTables, Base):
     __tablename__ = "biomass_extended"
 
     Hauptbrennstoff = Column(String)
@@ -202,7 +205,7 @@ class BiomassExtended(Extended, Base):
     KwkMastrNummer = Column(String)
 
 
-class CombustionExtended(Extended, Base):
+class CombustionExtended(Extended, ParentAllTables, Base):
     __tablename__ = "combustion_extended"
 
     NameKraftwerk = Column(String)
@@ -229,7 +232,7 @@ class CombustionExtended(Extended, Base):
     Technologie = Column(String)
 
 
-class GsgkExtended(Extended, Base):
+class GsgkExtended(Extended, ParentAllTables, Base):
     __tablename__ = "gsgk_extended"
 
     Technologie = Column(String)
@@ -237,7 +240,7 @@ class GsgkExtended(Extended, Base):
     EegMastrNummer = Column(String)
 
 
-class HydroExtended(Extended, Base):
+class HydroExtended(Extended, ParentAllTables, Base):
     __tablename__ = "hydro_extended"
 
     NameKraftwerk = Column(String)
@@ -252,7 +255,7 @@ class HydroExtended(Extended, Base):
     EegMastrNummer = Column(String)
 
 
-class NuclearExtended(Extended, Base):
+class NuclearExtended(Extended, ParentAllTables, Base):
     __tablename__ = "nuclear_extended"
 
     NameKraftwerk = Column(String)
@@ -260,7 +263,7 @@ class NuclearExtended(Extended, Base):
     Technologie = Column(String)
 
 
-class StorageExtended(Extended, Base):
+class StorageExtended(Extended, ParentAllTables, Base):
     __tablename__ = "storage_extended"
 
     Einsatzort = Column(String)
@@ -290,7 +293,7 @@ class Eeg(object):
     VerknuepfteEinheit = Column(String)
 
 
-class WindEeg(Eeg, Base):
+class WindEeg(Eeg, ParentAllTables, Base):
     __tablename__ = "wind_eeg"
 
     AnlagenkennzifferAnlagenregister = Column(String)
@@ -307,7 +310,7 @@ class WindEeg(Eeg, Base):
     AnlageBetriebsstatus = Column(String)
 
 
-class SolarEeg(Eeg, Base):
+class SolarEeg(Eeg, ParentAllTables, Base):
     __tablename__ = "solar_eeg"
 
     InanspruchnahmeZahlungNachEeg = Column(Boolean)
@@ -325,7 +328,7 @@ class SolarEeg(Eeg, Base):
     AnlageBetriebsstatus = Column(String)
 
 
-class BiomassEeg(Eeg, Base):
+class BiomassEeg(Eeg, ParentAllTables, Base):
     __tablename__ = "biomass_eeg"
 
     AnlagenschluesselEeg = Column(String)
@@ -345,7 +348,7 @@ class BiomassEeg(Eeg, Base):
     AnlageBetriebsstatus = Column(String)
 
 
-class GsgkEeg(Eeg, Base):
+class GsgkEeg(Eeg, ParentAllTables, Base):
     __tablename__ = "gsgk_eeg"
 
     AnlagenschluesselEeg = Column(String)
@@ -354,7 +357,7 @@ class GsgkEeg(Eeg, Base):
     AnlageBetriebsstatus = Column(String)
 
 
-class HydroEeg(Eeg, Base):
+class HydroEeg(Eeg, ParentAllTables, Base):
     __tablename__ = "hydro_eeg"
 
     AnlagenschluesselEeg = Column(String)
@@ -364,11 +367,11 @@ class HydroEeg(Eeg, Base):
     Ertuechtigung = Column(JSON)
 
 
-class StorageEeg(Eeg, Base):
+class StorageEeg(Eeg, ParentAllTables, Base):
     __tablename__ = "storage_eeg"
 
 
-class Kwk(Base):
+class Kwk(ParentAllTables, Base):
     __tablename__ = "kwk"
 
     Registrierungsdatum = Column(Date)
@@ -384,7 +387,7 @@ class Kwk(Base):
     AnlageBetriebsstatus = Column(String)
 
 
-class Permit(Base):
+class Permit(ParentAllTables, Base):
     __tablename__ = "permit"
 
     Registrierungsdatum = Column(Date)
@@ -401,7 +404,7 @@ class Permit(Base):
     VerknuepfteEinheiten = Column(String)
 
 
-class LocationBasic(Base):
+class LocationBasic(ParentAllTables, Base):
     __tablename__ = "locations_basic"
 
     LokationMastrNummer = Column(String, primary_key=True)
@@ -410,7 +413,7 @@ class LocationBasic(Base):
     AnzahlNetzanschlusspunkte = Column(Integer)
 
 
-class LocationExtended(Base):
+class LocationExtended(ParentAllTables, Base):
     __tablename__ = "locations_extended"
 
     MastrNummer = Column(String, primary_key=True)
@@ -420,7 +423,7 @@ class LocationExtended(Base):
     Netzanschlusspunkte = Column(JSONB) if DB_ENGINE == "docker" else Column(JSON)
 
 
-class AdditionalLocationsRequested(Base):
+class AdditionalLocationsRequested(ParentAllTables, Base):
     __tablename__ = "additional_locations_requested"
 
     id = Column(
@@ -433,7 +436,7 @@ class AdditionalLocationsRequested(Base):
     request_date = Column(DateTime(timezone=True), default=func.now())
 
 
-class MissedExtendedLocation(Base):
+class MissedExtendedLocation(ParentAllTables, Base):
     __tablename__ = "missed_extended_location_data"
 
     id = Column(
@@ -446,13 +449,13 @@ class MissedExtendedLocation(Base):
     download_date = Column(DateTime(timezone=True), default=func.now())
 
 
-class GasStorage(Base):
+class GasStorage(ParentAllTables, Base):
     __tablename__ = "gas_storage"
 
     MaStRNummer = Column(String, primary_key=True)
 
 
-class GasStorageExtended(Base):
+class GasStorageExtended(ParentAllTables, Base):
     __tablename__ = "gas_storage_extended"
     EinheitMastrNummer = Column(String, primary_key=True)
     DatumLetzteAktualisierung = Column(DateTime(timezone=True))
@@ -494,7 +497,7 @@ class GasStorageExtended(Base):
     DatumBeginnVoruebergehendeStilllegung = Column(String)
 
 
-class StorageUnits(Base):
+class StorageUnits(ParentAllTables, Base):
     __tablename__ = "storage_units"
     MaStRNummer = Column(String, primary_key=True)
     Registrierungsdatum = Column(Date)
@@ -504,7 +507,7 @@ class StorageUnits(Base):
     AnlageBetriebsstatus = Column(String)
 
 
-class BalancingArea(Base):
+class BalancingArea(ParentAllTables, Base):
     __tablename__ = "balancing_area"
 
     Id = Column(Integer, primary_key=True)
@@ -513,37 +516,37 @@ class BalancingArea(Base):
     BilanzierungsgebietNetzanschlusspunkt = Column(String)
 
 
-class GasProducer(Base):
+class GasProducer(ParentAllTables, Base):
     __tablename__ = "gas_producer"
 
     EinheitMaStRNummer = Column(String, primary_key=True)
 
 
-class GasConsumer(Base):
+class GasConsumer(ParentAllTables, Base):
     __tablename__ = "gas_consumer"
 
     EinheitMaStRNummer = Column(String, primary_key=True)
 
 
-class ElectricityConsumer(Base):
+class ElectricityConsumer(ParentAllTables, Base):
     __tablename__ = "electricity_consumer"
 
     EinheitMaStRNummer = Column(String, primary_key=True)
 
 
-class MarketRoles(Base):
+class MarketRoles(ParentAllTables, Base):
     __tablename__ = "market_roles"
 
     MastrNummer = Column(String, primary_key=True)
 
 
-class MarketActors(Base):
+class MarketActors(ParentAllTables, Base):
     __tablename__ = "market_actors"
 
     MastrNummer = Column(String, primary_key=True)
 
 
-class Grids(Base):
+class Grids(ParentAllTables, Base):
     __tablename__ = "grids"
 
     MastrNummer = Column(String, primary_key=True)
@@ -555,7 +558,7 @@ class Grids(Base):
     Marktgebiet = Column(String)
 
 
-class GridConnections(Base):
+class GridConnections(ParentAllTables, Base):
     __tablename__ = "grid_connections"
 
     NetzanschlusspunktMastrNummer = Column(String, primary_key=True)
