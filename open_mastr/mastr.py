@@ -149,7 +149,7 @@ class Mastr:
             mastr_mirror = MaStRMirror(
                 empty_schema=False,
                 parallel_processes=processes,
-                initialize_db=initialize_db,
+                DB_ENGINE=self.DB_ENGINE,
                 restore_dump=None,
             )
             # Download basic unit data

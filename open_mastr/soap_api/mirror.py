@@ -74,7 +74,7 @@ class MaStRMirror:
         self,
         empty_schema=False,
         restore_dump=None,
-        initialize_db=None,
+        DB_ENGINE=None,
         parallel_processes=None,
     ):
         """
@@ -88,17 +88,16 @@ class MaStRMirror:
             Save path of SQL dump file including filename. The database is restored from the SQL dump.
             Defaults to `None` which means nothing gets restored.
             Should be used in combination with `empty_schema=True`.
-        initialize_db: boolean
-            Start a PostgreSQL database in a docker container. This calls :meth:`~.initdb` during instantiation.
-            Defaults to `True`.
+        DB_ENGINE: str
+            Spin up a PostgreSQL database in a docker container. This calls :meth:`~.setup_docker` during instantiation.
         parallel_processes: int
             Number of parallel processes used to download additional data.
             Defaults to `None`.
         """
 
         # Spin up database container
-        if initialize_db:
-            self.setup_docker(initialize_db)
+        if DB_ENGINE == "docker":
+            self.setup_docker()
 
         # Associate downloader
         self.mastr_dl = MaStRDownload(parallel_processes=parallel_processes)
@@ -171,7 +170,7 @@ class MaStRMirror:
         }
         self.unit_type_map_reversed = {v: k for k, v in self.unit_type_map.items()}
 
-    def setup_docker(self, initialize_db=None):
+    def setup_docker(self):
         """Initialize a PostgreSQL database with docker-compose"""
 
         conf_file_path = os.path.abspath(
