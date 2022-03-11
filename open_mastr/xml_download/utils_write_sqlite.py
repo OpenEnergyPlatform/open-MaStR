@@ -7,6 +7,10 @@ import sqlalchemy
 import sqlite3
 from open_mastr.orm import tablename_mapping
 from open_mastr.xml_download.colums_to_replace import system_catalog
+from open_mastr.xml_download.utils_sqlite_bulk_cleansing import (
+    replace_mastr_katalogeintraege,
+    date_columns_to_datetime,
+)
 from sqlalchemy import (
     Integer,
     String,
@@ -16,6 +20,7 @@ from sqlalchemy import (
     Date,
     JSON,
 )
+
 
 dtypes_mapping = {
     String: "string",
@@ -33,6 +38,7 @@ def convert_mastr_xml_to_sqlite(
     engine,
     zipped_xml_file_path: str,
     include_tables: list,
+    bulk_cleansing: bool,
 ) -> None:
     """Converts the Mastr in xml format into a sqlite database."""
     """Writes the local zipped MaStR to a PostgreSQL database.
@@ -98,6 +104,19 @@ def convert_mastr_xml_to_sqlite(
 
                 df = prepare_table_to_sqlite_database(f, file_name, xml_tablename)
 
+                if bulk_cleansing:
+                    print("Data cleansing started.")
+
+                    # Convert date and datetime columns into the datatype datetime
+                    df = date_columns_to_datetime(xml_tablename, df)
+
+                    # Katalogeintraege: int -> string value
+                    df = replace_mastr_katalogeintraege(
+                        sql_tablename=sql_tablename,
+                        zipped_xml_file_path=zipped_xml_file_path,
+                        df=df,
+                    )
+
                 add_table_to_sqlite_database(
                     df=df,
                     xml_tablename=xml_tablename,
@@ -141,30 +160,6 @@ def prepare_table_to_sqlite_database(
 
         df = df.rename(columns=tablename_mapping[xml_tablename]["replace_column_names"])
 
-    # Convert date and datetime columns into the datatype datetime
-    df = date_columns_to_datetime(xml_tablename, df)
-
-    return df
-
-
-def date_columns_to_datetime(xml_tablename: str, df: pd.DataFrame) -> pd.DataFrame:
-
-    sqlalchemy_columnlist = tablename_mapping[xml_tablename][
-        "__class__"
-    ].__table__.columns.items()
-
-    # Iterate over all columns from the orm data class
-    # If the column has data type = date or datetime, the function
-    # pd.to_datetime is applied
-    for column in sqlalchemy_columnlist:
-        if (
-            type(column[1].type) == sqlalchemy.sql.sqltypes.Date
-            or type(column[1].type) == sqlalchemy.sql.sqltypes.DateTime
-        ):
-            column_name = column[0]
-            if column_name in df.columns:
-                # Convert column to datetime64, invalid string -> NaT
-                df[column_name] = pd.to_datetime(df[column_name], errors="coerce")
     return df
 
 

@@ -4,11 +4,11 @@ from xmlrpc.client import Boolean
 import pandas as pd
 import re
 import numpy as np
+import sqlalchemy
+
 from open_mastr.xml_download.colums_to_replace import columns_replace_list
 from zipfile import ZipFile
 from open_mastr.orm import tablename_mapping
-from open_mastr.xml_download.utils_write_sqlite import add_table_to_sqlite_database
-from open_mastr.xml_download.utils_write_sqlite import date_columns_to_datetime
 
 
 def cleansing_sqlite_database_from_bulkdownload(
@@ -29,23 +29,18 @@ def cleansing_sqlite_database_from_bulkdownload(
 
 
 def replace_mastr_katalogeintraege(
-    con: sqlite3.Connection,
-    engine,
-    xml_tablename: str,
     sql_tablename: str,
     zipped_xml_file_path: str,
-) -> None:
+    df: pd.DataFrame,
+) -> pd.DataFrame:
     katalogwerte = create_katalogwerte_from_sqlite(zipped_xml_file_path)
     pattern = re.compile(r"cleansed|katalog|typen")
     if not re.search(pattern, sql_tablename):
-        replace_katalogeintraege_in_single_table(
-            con=con,
-            engine=engine,
-            xml_tablename=xml_tablename,
-            table_name=sql_tablename,
-            katalogwerte=katalogwerte,
-            columns_replace_list=columns_replace_list,
+        df = replace_katalogeintraege_in_single_table(
+            table_name=sql_tablename, katalogwerte=katalogwerte, df=df
         )
+
+    return df
 
 
 def create_katalogwerte_from_sqlite(zipped_xml_file_path) -> dict:
@@ -61,30 +56,40 @@ def create_katalogwerte_from_sqlite(zipped_xml_file_path) -> dict:
 
 
 def replace_katalogeintraege_in_single_table(
-    con: sqlite3.Connection,
-    engine,
-    xml_tablename: str,
     table_name: str,
     katalogwerte: dict,
-    columns_replace_list: list,
-) -> None:
-    df = pd.read_sql(f"SELECT * FROM {table_name};", con)
+    df: pd.DataFrame,
+) -> pd.DataFrame:
+
     for column_name in df.columns:
         if column_name in columns_replace_list:
             df[column_name] = (
                 df[column_name].astype("float").astype("Int64").map(katalogwerte)
             )
-    df = date_columns_to_datetime(xml_tablename, df)
 
-    add_table_to_sqlite_database(
-        df=df,
-        xml_tablename=xml_tablename,
-        sql_tablename=table_name,
-        if_exists="replace",
-        con=con,
-        engine=engine,
-    )
     print(f"Data in table {table_name} was successfully cleansed.")
+    return df
+
+
+def date_columns_to_datetime(xml_tablename: str, df: pd.DataFrame) -> pd.DataFrame:
+
+    sqlalchemy_columnlist = tablename_mapping[xml_tablename][
+        "__class__"
+    ].__table__.columns.items()
+
+    # Iterate over all columns from the orm data class
+    # If the column has data type = date or datetime, the function
+    # pd.to_datetime is applied
+    for column in sqlalchemy_columnlist:
+        if (
+            type(column[1].type) == sqlalchemy.sql.sqltypes.Date
+            or type(column[1].type) == sqlalchemy.sql.sqltypes.DateTime
+        ):
+            column_name = column[0]
+            if column_name in df.columns:
+                # Convert column to datetime64, invalid string -> NaT
+                df[column_name] = pd.to_datetime(df[column_name], errors="coerce")
+    return df
 
 
 # def replace_katalogeintraege_in_single_table(
@@ -97,6 +102,7 @@ def replace_katalogeintraege_in_single_table(
 #    cleansed_table_name = table_name + "_cleansed"
 #    df.to_sql(cleansed_table_name, con, index=False, if_exists="replace")
 #    print(f"Data in table {table_name} was sucessfully cleansed.")
+
 
 """
 def make_catalog_from_mastr_xml_files(

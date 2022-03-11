@@ -134,16 +134,9 @@ class Mastr:
                 engine=self._engine,
                 zipped_xml_file_path=_zipped_xml_file_path,
                 include_tables=bulk_include_tables,
+                bulk_cleansing=bulk_cleansing
             )
-            if bulk_cleansing:
-                print("Data cleansing started.")
-                cleansing_sqlite_database_from_bulkdownload(
-                    con=self._sql_connection,
-                    engine=self._engine,
-                    include_tables=bulk_include_tables,
-                    zipped_xml_file_path=_zipped_xml_file_path,
-                )
-                print("Data cleansing done successfully.")
+            print("Bulk download and data cleansing was successful.")
 
         if method == "API":
             print(
