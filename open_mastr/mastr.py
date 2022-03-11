@@ -167,12 +167,11 @@ class Mastr:
             mastr_mirror.backfill_locations_basic(limit=limit, date="latest")
 
             # Download extended location data
-            for location_type in location_types:
-                mastr_mirror.retrieve_additional_location_data(
-                    location_type, limit=limit
-                )
-
-            return
+            if location_types:
+                for location_type in location_types:
+                    mastr_mirror.retrieve_additional_location_data(
+                        location_type, limit=limit
+                    )
 
     def _initialize_database(self, empty_schema) -> None:
         engine = self._engine
