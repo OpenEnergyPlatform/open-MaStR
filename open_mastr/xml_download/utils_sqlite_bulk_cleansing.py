@@ -67,7 +67,6 @@ def replace_katalogeintraege_in_single_table(
                 df[column_name].astype("float").astype("Int64").map(katalogwerte)
             )
 
-    print(f"Data in table {table_name} was successfully cleansed.")
     return df
 
 

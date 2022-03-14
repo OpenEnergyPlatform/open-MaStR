@@ -105,7 +105,7 @@ def convert_mastr_xml_to_sqlite(
                 df = prepare_table_to_sqlite_database(f, file_name, xml_tablename)
 
                 if bulk_cleansing:
-                    print("Data cleansing started.")
+                    print("Data is cleansed.")
 
                     # Convert date and datetime columns into the datatype datetime
                     df = date_columns_to_datetime(xml_tablename, df)
