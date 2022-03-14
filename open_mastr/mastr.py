@@ -98,10 +98,10 @@ class Mastr:
 
             # Find the name of the zipped xml folder
             if bulk_date_string == "today":
-                bulk_date_folder_extension = date.today().strftime("%Y%m%d")
+                bulk_download_date = date.today().strftime("%Y%m%d")
             else:
                 try:
-                    bulk_date_folder_extension = isoparse(bulk_date_string).strftime(
+                    bulk_download_date = isoparse(bulk_date_string).strftime(
                         "%Y%m%d"
                     )
                 except dateutil.parser.ParserError:
@@ -110,7 +110,7 @@ class Mastr:
 
             _zipped_xml_file_path = os.path.join(
                 self._xml_folder_path,
-                f"Gesamtdatenexport_{bulk_date_folder_extension}.zip",
+                f"Gesamtdatenexport_{bulk_download_date}.zip",
             )
 
             if os.path.exists(_zipped_xml_file_path):
@@ -134,7 +134,8 @@ class Mastr:
                 engine=self._engine,
                 zipped_xml_file_path=_zipped_xml_file_path,
                 include_tables=bulk_include_tables,
-                bulk_cleansing=bulk_cleansing
+                bulk_cleansing=bulk_cleansing,
+                bulk_download_date=bulk_download_date,
             )
             print("Bulk download and data cleansing was successful.")
 

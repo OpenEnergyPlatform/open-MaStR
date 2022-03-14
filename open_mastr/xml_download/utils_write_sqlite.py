@@ -20,6 +20,7 @@ from sqlalchemy import (
     Date,
     JSON,
 )
+import datetime
 
 
 dtypes_mapping = {
@@ -39,6 +40,7 @@ def convert_mastr_xml_to_sqlite(
     zipped_xml_file_path: str,
     include_tables: list,
     bulk_cleansing: bool,
+    bulk_download_date: datetime.datetime,
 ) -> None:
     """Converts the Mastr in xml format into a sqlite database."""
     """Writes the local zipped MaStR to a PostgreSQL database.
@@ -102,7 +104,12 @@ def convert_mastr_xml_to_sqlite(
                     )
                     index_for_printed_message += 1
 
-                df = prepare_table_to_sqlite_database(f, file_name, xml_tablename)
+                df = prepare_table_to_sqlite_database(
+                    f=f,
+                    file_name=file_name,
+                    xml_tablename=xml_tablename,
+                    bulk_download_date=bulk_download_date,
+                )
 
                 if bulk_cleansing:
                     print("Data is cleansed.")
@@ -131,6 +138,7 @@ def prepare_table_to_sqlite_database(
     f: ZipFile,
     file_name: str,
     xml_tablename: str,
+    bulk_download_date: datetime.datetime,
 ) -> pd.DataFrame:
     data = f.read(file_name)
     try:
@@ -162,6 +170,7 @@ def prepare_table_to_sqlite_database(
 
     # Add Column that refers to the source of the data
     df["DatenQuelle"] = "bulk"
+    df["DatumDownload"] = bulk_download_date
     return df
 
 
@@ -304,7 +313,7 @@ def handle_xml_syntax_error(data: bytes, err: Error) -> pd.DataFrame:
         if evaluated_string == "<":
             break
         else:
-            decoded_data = decoded_data[:start_char] + decoded_data[start_char + 1 :]
+            decoded_data = decoded_data[:start_char] + decoded_data[start_char + 1:]
     df = pd.read_xml(decoded_data)
     print("One invalid xml expression was deleted.")
     return df
