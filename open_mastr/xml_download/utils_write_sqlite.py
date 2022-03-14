@@ -161,7 +161,7 @@ def prepare_table_to_sqlite_database(
         df = df.rename(columns=tablename_mapping[xml_tablename]["replace_column_names"])
 
     # Add Column that refers to the source of the data
-    df["Quelle"] = "bulk"
+    df["DatenQuelle"] = "bulk"
     return df
 
 
