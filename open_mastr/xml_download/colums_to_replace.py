@@ -83,6 +83,7 @@ columns_replace_list = [
     # einheitengeosolarthermiegrubenklaerschlammdruckentspannung
     # einheitenkernkraft
     # einheitenstromverbraucher
+    "ArtAbschaltbareLast",
     # einheitentypen
     # einheitenverbrennung
     "WeitererHauptbrennstoff",
