@@ -29,7 +29,8 @@ Base = declarative_base(metadata=meta)
 
 class ParentAllTables(object):
 
-    Quelle = Column(String)
+    DatenQuelle = Column(String)
+    DatumDownload = Column(DateTime(timezone=True), default=func.now())
 
 
 class BasicUnit(Base):
@@ -91,7 +92,7 @@ class Extended(object):
     DatumLetzteAktualisierung = Column(DateTime(timezone=True))
     LokationMastrNummer = Column(String)
     NetzbetreiberpruefungStatus = Column(String)
-    NetzbetreiberpruefungDatum = Column(DateTime(timezone=True))
+    NetzbetreiberpruefungDatum = Column(Date)
     AnlagenbetreiberMastrNummer = Column(String)
     Land = Column(String)
     Bundesland = Column(String)
@@ -114,20 +115,20 @@ class Extended(object):
     UtmNorth = Column(String) if DB_ENGINE == "docker" else Column(Float)
     GaussKruegerHoch = Column(String) if DB_ENGINE == "docker" else Column(Float)
     GaussKruegerRechts = Column(String) if DB_ENGINE == "docker" else Column(Float)
-    Meldedatum = Column(DateTime(timezone=True))
-    GeplantesInbetriebnahmedatum = Column(DateTime(timezone=True))
-    Inbetriebnahmedatum = Column(DateTime(timezone=True))
-    DatumEndgueltigeStilllegung = Column(DateTime(timezone=True))
-    DatumBeginnVoruebergehendeStilllegung = Column(DateTime(timezone=True))
-    DatumBeendigungVorlaeufigenStilllegung = Column(DateTime(timezone=True))
-    DatumWiederaufnahmeBetrieb = Column(DateTime(timezone=True))
+    Meldedatum = Column(Date)
+    GeplantesInbetriebnahmedatum = Column(Date)
+    Inbetriebnahmedatum = Column(Date)
+    DatumEndgueltigeStilllegung = Column(Date)
+    DatumBeginnVoruebergehendeStilllegung = Column(Date)
+    DatumBeendigungVorlaeufigenStilllegung = Column(Date)
+    DatumWiederaufnahmeBetrieb = Column(Date)
     EinheitSystemstatus = Column(String)
     EinheitBetriebsstatus = Column(String)
     BestandsanlageMastrNummer = Column(String)
     NichtVorhandenInMigriertenEinheiten = Column(Boolean)
     AltAnlagenbetreiberMastrNummer = Column(String)
-    DatumDesBetreiberwechsels = Column(DateTime(timezone=True))
-    DatumRegistrierungDesBetreiberwechsels = Column(DateTime(timezone=True))
+    DatumDesBetreiberwechsels = Column(Date)
+    DatumRegistrierungDesBetreiberwechsels = Column(Date)
     StatisikFlag = Column(String)
     NameStromerzeugungseinheit = Column(String)
     Weic = Column(String)
@@ -146,8 +147,6 @@ class Extended(object):
     Einspeisungsart = Column(String)
     PraequalifiziertFuerRegelenergie = Column(Boolean)
     GenMastrNummer = Column(String)
-    download_date = Column(DateTime(timezone=True), default=func.now())
-
 
 class WindExtended(Extended, ParentAllTables, Base):
     __tablename__ = "wind_extended"
