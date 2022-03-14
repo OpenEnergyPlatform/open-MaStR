@@ -147,6 +147,11 @@ class Extended(object):
     Einspeisungsart = Column(String)
     PraequalifiziertFuerRegelenergie = Column(Boolean)
     GenMastrNummer = Column(String)
+    # from bulk download
+    Hausnummer_nv = Column(Boolean)
+    Weic_nv = Column(Boolean)
+    Kraftwerksnummer_nv = Column(Boolean)
+
 
 class WindExtended(Extended, ParentAllTables, Base):
     __tablename__ = "wind_extended"
