@@ -26,9 +26,11 @@ Base = declarative_base(metadata=meta)
 # where most of the child classes can inherit from. I think the Extended class has too
 # many attributes which results in too many columns being empty in the final data base.
 
+
 class ParentAllTables(object):
 
     Quelle = Column(String)
+
 
 class BasicUnit(Base):
     __tablename__ = "basic_units"
@@ -469,12 +471,12 @@ class GasStorageExtended(ParentAllTables, Base):
     Gemeinde = Column(String)
     Gemeindeschluessel = Column(String)
     Postleitzahl = Column(Integer)
+    Ort = Column(String)
     Strasse = Column(String)
     StrasseNichtGefunden = Column(Integer)
     Hausnummer = Column(String)
     Hausnummer_nv = Column(Integer)
     HausnummerNichtGefunden = Column(Integer)
-    Ort = Column(String)
     Laengengrad = Column(Float)
     Breitengrad = Column(Float)
     Registrierungsdatum = Column(String)
@@ -520,30 +522,203 @@ class GasProducer(ParentAllTables, Base):
     __tablename__ = "gas_producer"
 
     EinheitMaStRNummer = Column(String, primary_key=True)
+    DatumLetzteAktualisierung = Column(DateTime(timezone=True))
+    LokationMaStRNummer = Column(String)
+    NetzbetreiberpruefungStatus = Column(Boolean)
+    NetzbetreiberpruefungDatum = Column(Date)
+    AnlagenbetreiberMastrNummer = Column(String)
+    Land = Column(String)
+    Bundesland = Column(String)
+    Landkreis = Column(String)
+    Gemeinde = Column(String)
+    Gemeindeschluessel = Column(String)
+    Postleitzahl = Column(Integer)
+    Ort = Column(String)
+    Registrierungsdatum = Column(String)
+    Inbetriebnahmedatum = Column(String)
+    EinheitSystemstatus = Column(Integer)
+    EinheitBetriebsstatus = Column(Integer)
+    NichtVorhandenInMigriertenEinheiten = Column(Integer)
+    NameGaserzeugungseinheit = Column(String)
+    SpeicherMaStRNummer = Column(String)
+    Strasse = Column(String)
+    StrasseNichtGefunden = Column(Integer)
+    Hausnummer = Column(String)
+    Hausnummer_nv = Column(Integer)
+    HausnummerNichtGefunden = Column(Integer)
+    Adresszusatz = Column(String)
+    Laengengrad = Column(Float)
+    Breitengrad = Column(Float)
+    Technologie = Column(String)
+    Erzeugungsleistung = Column(Float)
+    DatumDesBetreiberwechsels = Column(Date)
+    DatumRegistrierungDesBetreiberwechsels = Column(Date)
+    Gemarkung = Column(String)
+    FlurFlurstuecknummern = Column(String)
+    GeplantesInbetriebnahmedatum = Column(Date)
+    DatumBeginnVoruebergehendeStilllegung = Column(Date)
 
 
 class GasConsumer(ParentAllTables, Base):
     __tablename__ = "gas_consumer"
 
     EinheitMaStRNummer = Column(String, primary_key=True)
+    DatumLetzteAktualisierung = Column(DateTime(timezone=True))
+    LokationMaStRNummer = Column(String)
+    NetzbetreiberpruefungStatus = Column(Boolean)
+    NetzbetreiberpruefungDatum = Column(Date)
+    AnlagenbetreiberMastrNummer = Column(String)
+    Land = Column(String)
+    Bundesland = Column(String)
+    Landkreis = Column(String)
+    Gemeinde = Column(String)
+    Gemeindeschluessel = Column(String)
+    Postleitzahl = Column(Integer)
+    Ort = Column(String)
+    Strasse = Column(String)
+    StrasseNichtGefunden = Column(Integer)
+    Hausnummer = Column(String)
+    Hausnummer_nv = Column(Integer)
+    HausnummerNichtGefunden = Column(Integer)
+    Laengengrad = Column(Float)
+    Breitengrad = Column(Float)
+    Registrierungsdatum = Column(String)
+    Inbetriebnahmedatum = Column(String)
+    EinheitSystemstatus = Column(Integer)
+    EinheitBetriebsstatus = Column(Integer)
+    NichtVorhandenInMigriertenEinheiten = Column(Integer)
+    NameGasverbrauchsseinheit = Column(String)
+    EinheitDientDerStromerzeugung = Column(String)
+    MaximaleGasbezugsleistung = Column(Float)
+    VerknuepfteEinheitenMaStRNummern = Column(String)
+    GeplantesInbetriebnahmedatum = Column(Date)
+    Adresszusatz = Column(String)
+    Gemarkung = Column(String)
+    FlurFlurstuecknummern = Column(String)
+    DatumDesBetreiberwechsels = Column(Date)
+    DatumRegistrierungDesBetreiberwechsels = Column(Date)
+    DatumEndgueltigeStilllegung = Column(Date)
+    DatumBeginnVoruebergehendeStilllegung = Column(Date)
 
 
 class ElectricityConsumer(ParentAllTables, Base):
     __tablename__ = "electricity_consumer"
 
     EinheitMaStRNummer = Column(String, primary_key=True)
+    DatumLetzteAktualisierung = Column(DateTime(timezone=True))
+    LokationMaStRNummer = Column(String)
+    NetzbetreiberpruefungStatus = Column(Boolean)
+    NetzbetreiberpruefungDatum = Column(Date)
+    AnlagenbetreiberMastrNummer = Column(String)
+    Land = Column(String)
+    Bundesland = Column(String)
+    Landkreis = Column(String)
+    Gemeinde = Column(String)
+    Gemeindeschluessel = Column(String)
+    Postleitzahl = Column(Integer)
+    Ort = Column(String)
+    Strasse = Column(String)
+    StrasseNichtGefunden = Column(Integer)
+    Hausnummer = Column(String)
+    Hausnummer_nv = Column(Integer)
+    HausnummerNichtGefunden = Column(Integer)
+    Adresszusatz = Column(String)
+    Gemarkung = Column(String)
+    FlurFlurstuecknummern = Column(String)
+    Laengengrad = Column(Float)
+    Breitengrad = Column(Float)
+    Registrierungsdatum = Column(String)
+    Inbetriebnahmedatum = Column(String)
+    EinheitSystemstatus = Column(Integer)
+    EinheitBetriebsstatus = Column(Integer)
+    NichtVorhandenInMigriertenEinheiten = Column(Integer)
+    Einsatzverantwortlicher = Column(String)
+    NameStromverbrauchsseinheit = Column(String)
+    AnzahlStromverbrauchseinheitenGroesser50Mw = Column(Integer)
+    PraequalifiziertGemaessAblav = Column(Boolean)
+    AnteilBeinflussbareLast = Column(Float)
+    ArtAbschaltbareLast = Column(String)
+    DatumDesBetreiberwechsels = Column(Date)
+    DatumRegistrierungDesBetreiberwechsels = Column(Date)
+    DatumEndgueltigeStilllegung = Column(Date)
 
 
 class MarketRoles(ParentAllTables, Base):
     __tablename__ = "market_roles"
 
     MastrNummer = Column(String, primary_key=True)
+    MarktakteurMastrNummer = Column(String)
+    Marktrolle = Column(String)
+    Marktpartneridentifikationsnummer_nv = Column(Boolean)
+    BundesnetzagenturBetriebsnummer = Column(String)
+    BundesnetzagenturBetriebsnummer_nv = Column(Boolean)
+    Marktpartneridentifikationsnummer = Column(String)
+    KontaktdatenMarktrolle = Column(String)
+    DatumLetzteAktualisierung = Column(DateTime(timezone=True))
 
 
 class MarketActors(ParentAllTables, Base):
     __tablename__ = "market_actors"
 
     MastrNummer = Column(String, primary_key=True)
+    Personenart = Column(String)
+    Marktfunktion = Column(String)
+    RegistergerichtAusland = Column(String)
+    Registernummer = Column(String)
+    DatumLetzeAktualisierung = Column(DateTime(timezone=True))
+    Firmenname = Column(String)
+    Rechtsform = Column(String)
+    Land = Column(String)
+    Strasse = Column(String)
+    Hausnummer = Column(String)
+    Hausnummer_nv = Column(Boolean)
+    Postleitzahl = Column(String)
+    Ort = Column(String)
+    Bundesland = Column(String)
+    Nuts2 = Column(String)
+    Email = Column(String)
+    Telefon = Column(String)
+    Fax_nv = Column(Boolean)
+    Webseite_nv = Column(Boolean)
+    Taetigkeitsbeginn = Column(Date)
+    AcerCode_nv = Column(Boolean)
+    Umsatzsteueridentifikationsnummer_nv = Column(Boolean)
+    BundesnetzagenturBetriebsnummer = Column(String)
+    BundesnetzagenturBetriebsnummer_nv = Column(Boolean)
+    HausnummerAnZustelladresse_nv = Column(Boolean)
+    Kmu = Column(Integer)
+    RegistrierungsdatumMarktakteur = Column(DateTime(timezone=True))
+    Fax = Column(String)
+    HauptwirtdschaftszweigAbteilung = Column(String)
+    HauptwirtdschaftszweigGruppe = Column(String)
+    HauptwirtdschaftszweigAbschnitt = Column(String)
+    Webseite = Column(String)
+    Umsatzsteueridentifikationsnummer = Column(String)
+    Registergericht = Column(String)
+    Adresszusatz = Column(String)
+    LandAnZustelladresse = Column(String)
+    PostleitzahlAnZustelladresse = Column(String)
+    OrtAnZustelladresse = Column(String)
+    StrasseAnZustelladresse = Column(String)
+    HausnummerAnZustelladresse = Column(String)
+    RegisternummerAusland = Column(String)
+    SonstigeRechtsform = Column(String)
+    AcerCode = Column(String)
+    AdresszusatzAnZustelladresse = Column(String)
+    Taetigkeitsende = Column(Date)
+    Region = Column(String)
+    Taetigkeitsende_nv = Column(Boolean)
+    Marktrollen = Column(String)
+    Gasgrosshaendler = Column(Boolean)
+    BelieferungVonLetztverbrauchernGas = Column(Boolean)
+    BelieferungHaushaltskundenGas = Column(Boolean)
+    Netz = Column(String)
+    Direktvermarktungsunternehmen = Column(Boolean)
+    BelieferungVonLetztverbrauchernStrom = Column(Boolean)
+    BelieferungHaushaltskundenStrom = Column(Boolean)
+    Stromgrosshaendler = Column(Boolean)
+    MarktakteurVorname = Column(String)
+    MarktakteurNachname = Column(String)
 
 
 class Grids(ParentAllTables, Base):
@@ -740,7 +915,8 @@ tablename_mapping = {
     },
 }
 
-# List of technologies which can be called by mastr.download() as well as by MastrMirror.basic_backfill()
+# List of technologies which can be called by mastr.download()
+#  as well as by MastrMirror.basic_backfill()
 bulk_technologies = [
     "wind",
     "solar",
@@ -791,7 +967,8 @@ def technology_to_include_tables(
     technology, all_technologies=bulk_technologies, tables_map=bulk_include_tables_map
 ) -> list:
     """
-    Check the user input 'technology' and convert it to the list 'include_tables' which contains file names from zipped
+    Check the user input 'technology' and convert it to the list 'include_tables' which contains
+    file names from zipped
     bulk download.
     Parameters
     ----------
