@@ -199,6 +199,7 @@ class SolarExtended(Extended, ParentAllTables, Base):
     InAnspruchGenommeneAckerflaeche = Column(Float)
     Nutzungsbereich = Column(String)
     EegMastrNummer = Column(String)
+    ArtDerFlaecheIds = Column(String)
 
 
 class BiomassExtended(Extended, ParentAllTables, Base):
@@ -314,6 +315,12 @@ class WindEeg(Eeg, ParentAllTables, Base):
     AusschreibungZuschlag = Column(Boolean)
     Zuschlagsnummer = Column(String)
     AnlageBetriebsstatus = Column(String)
+    AnlagenkennzifferAnlagenregister_nv = Column(Boolean)
+    VerhaeltnisErtragsschaetzungReferenzertrag_nv = Column(Boolean)
+    VerhaeltnisReferenzertragErtrag5Jahre_nv = Column(Boolean)
+    VerhaeltnisReferenzertragErtrag10Jahre_nv = Column(Boolean)
+    VerhaeltnisReferenzertragErtrag15Jahre_nv = Column(Boolean)
+    VerknuepfteEinheitenMaStRNummern = Column(String)
 
 
 class SolarEeg(Eeg, ParentAllTables, Base):
@@ -332,6 +339,9 @@ class SolarEeg(Eeg, ParentAllTables, Base):
     ZugeordneteGebotsmenge = Column(Float)
     Zuschlagsnummer = Column(String)
     AnlageBetriebsstatus = Column(String)
+    AnlagenkennzifferAnlagenregister_nv = Column(Boolean)
+    RegistrierungsnummerPvMeldeportal_nv = Column(Boolean)
+    VerknuepfteEinheitenMaStRNummern = Column(String)
 
 
 class BiomassEeg(Eeg, ParentAllTables, Base):
@@ -352,6 +362,10 @@ class BiomassEeg(Eeg, ParentAllTables, Base):
     BiogasHoechstbemessungsleistung = Column(Float)
     BiomethanErstmaligerEinsatz = Column(Date)
     AnlageBetriebsstatus = Column(String)
+    AnlagenkennzifferAnlagenregister_nv = Column(Boolean)
+    BiogasGaserzeugungskapazitaet_nv = Column(Boolean)
+    BiomethanErstmaligerEinsatz_nv = Column(Boolean)
+    VerknuepfteEinheitenMaStRNummern = Column(String)
 
 
 class GsgkEeg(Eeg, ParentAllTables, Base):
@@ -361,6 +375,8 @@ class GsgkEeg(Eeg, ParentAllTables, Base):
     AnlagenkennzifferAnlagenregister = Column(String)
     InstallierteLeistung = Column(Float)
     AnlageBetriebsstatus = Column(String)
+    AnlagenkennzifferAnlagenregister_nv = Column(Boolean)
+    VerknuepfteEinheitenMaStRNummern = Column(String)
 
 
 class HydroEeg(Eeg, ParentAllTables, Base):
@@ -371,6 +387,9 @@ class HydroEeg(Eeg, ParentAllTables, Base):
     InstallierteLeistung = Column(Float)
     AnlageBetriebsstatus = Column(String)
     Ertuechtigung = Column(JSON)
+    AnlagenkennzifferAnlagenregister_nv = Column(Boolean)
+    VerknuepfteEinheitenMaStRNummern = Column(String)
+    ErtuechtigungIds = Column(String)
 
 
 class StorageEeg(Eeg, ParentAllTables, Base):
@@ -391,6 +410,7 @@ class Kwk(ParentAllTables, Base):
     ElektrischeKwkLeistung = Column(Float)
     VerknuepfteEinheiten = Column(String)
     AnlageBetriebsstatus = Column(String)
+    VerknuepfteEinheitenMaStRNummern = Column(String)
 
 
 class Permit(ParentAllTables, Base):
@@ -408,6 +428,9 @@ class Permit(ParentAllTables, Base):
     WasserrechtAblaufdatum = Column(Date)
     Meldedatum = Column(Date)
     VerknuepfteEinheiten = Column(String)
+    Frist_nv = Column(Boolean)
+    WasserrechtAblaufdatum_nv = Column(Boolean)
+    VerknuepfteEinheitenMaStRNummern = Column(String)
 
 
 class LocationBasic(ParentAllTables, Base):
@@ -427,6 +450,7 @@ class LocationExtended(ParentAllTables, Base):
     NameDerTechnischenLokation = Column(String)
     VerknuepfteEinheiten = Column(JSONB) if DB_ENGINE == "docker" else Column(JSON)
     Netzanschlusspunkte = Column(JSONB) if DB_ENGINE == "docker" else Column(JSON)
+    Lokationstyp = Column(String)
 
 
 class AdditionalLocationsRequested(ParentAllTables, Base):
@@ -459,6 +483,11 @@ class GasStorage(ParentAllTables, Base):
     __tablename__ = "gas_storage"
 
     MaStRNummer = Column(String, primary_key=True)
+    DatumLetzteAktualisierung = Column(DateTime(timezone=True))
+    Speichername = Column(String)
+    Registrierungsdatum = Column(Date)
+    AnlageBetriebsstatus = Column(String)
+    VerknuepfteEinheitenMaStRNummern = Column(String)
 
 
 class GasStorageExtended(ParentAllTables, Base):
@@ -637,7 +666,7 @@ class ElectricityConsumer(ParentAllTables, Base):
     EinheitBetriebsstatus = Column(Integer)
     NichtVorhandenInMigriertenEinheiten = Column(Integer)
     Einsatzverantwortlicher = Column(String)
-    NameStromverbrauchsseinheit = Column(String)
+    NameStromverbrauchseinheit = Column(String)
     AnzahlStromverbrauchseinheitenGroesser50Mw = Column(Integer)
     PraequalifiziertGemaessAblav = Column(Boolean)
     AnteilBeinflussbareLast = Column(Float)
@@ -645,6 +674,7 @@ class ElectricityConsumer(ParentAllTables, Base):
     DatumDesBetreiberwechsels = Column(Date)
     DatumRegistrierungDesBetreiberwechsels = Column(Date)
     DatumEndgueltigeStilllegung = Column(Date)
+    GeplantesInbetriebnahmedatum = Column(Date)
 
 
 class MarketRoles(ParentAllTables, Base):
