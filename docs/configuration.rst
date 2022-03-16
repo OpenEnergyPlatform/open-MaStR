@@ -47,14 +47,21 @@ Configuration files
 Data
 ----
 
-Resulting data of download, post-processing and analysis is saved under `$HOME/.open-MaStR/data/<data-version>`.
-Files that are suffixed with `_raw` contain joined data retrieved during :ref:`downloading <Downloading raw data>`.
-The structure of the data is described in :ref:`Data documentation`.
+If the zipped dump of the MaStR is downloaded, it is safed in the folder `$HOME/.open-MaStR/data/xml_download`. New versions
+of the dump overwrite older versions. 
+In `$HOME/.open-MaStR/data/sqlite`, the database is stored.
+
+..
+  Resulting data of download, post-processing and analysis is saved under `$HOME/.open-MaStR/data/<data-version>`.
+  Files that are suffixed with `_raw` contain joined data retrieved during :ref:`downloading <Downloading raw data>`.
+  The structure of the data is described in :ref:`Data documentation`.
+
 
 Logs
 ----
 
-Logs are stored in a single file in `logs/`. New logging messages are appended. It is recommended to delete the log file
+For the download via the API, logs are stored in a single file in `logs/`. 
+New logging messages are appended. It is recommended to delete the log file
 from time to time because of required disk space.
 
 
