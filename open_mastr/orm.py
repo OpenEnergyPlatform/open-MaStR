@@ -785,7 +785,9 @@ tablename_mapping = {
     "anlageneegbiomasse": {
         "__name__": BiomassEeg.__tablename__,
         "__class__": BiomassEeg,
-        "replace_column_names": {"VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheit"},
+        "replace_column_names": {
+            "VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheit"
+        },
     },
     "einheitenbiomasse": {
         "__name__": BiomassExtended.__tablename__,
@@ -795,7 +797,9 @@ tablename_mapping = {
     "anlageneeggeosolarthermiegrubenklaerschlammdruckentspannung": {
         "__name__": GsgkEeg.__tablename__,
         "__class__": GsgkEeg,
-        "replace_column_names": {"VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheit"},
+        "replace_column_names": {
+            "VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheit"
+        },
     },
     "einheitengeosolarthermiegrubenklaerschlammdruckentspannung": {
         "__name__": GsgkExtended.__tablename__,
@@ -810,17 +814,23 @@ tablename_mapping = {
     "einheitensolar": {
         "__name__": SolarExtended.__tablename__,
         "__class__": SolarExtended,
-        "replace_column_names": {"VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheit"},
+        "replace_column_names": {
+            "VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheit"
+        },
     },
     "anlageneegspeicher": {
         "__name__": StorageEeg.__tablename__,
         "__class__": StorageEeg,
-        "replace_column_names": {"VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheit"},
+        "replace_column_names": {
+            "VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheit"
+        },
     },
     "anlageneegwasser": {
         "__name__": HydroEeg.__tablename__,
         "__class__": HydroEeg,
-        "replace_column_names": {"VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheit"},
+        "replace_column_names": {
+            "VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheit"
+        },
     },
     "einheitenwasser": {
         "__name__": HydroExtended.__tablename__,
@@ -830,7 +840,9 @@ tablename_mapping = {
     "anlageneegwind": {
         "__name__": WindEeg.__tablename__,
         "__class__": WindEeg,
-        "replace_column_names": {"VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheit"},
+        "replace_column_names": {
+            "VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheit"
+        },
     },
     "einheitenwind": {
         "__name__": WindExtended.__tablename__,
@@ -840,7 +852,9 @@ tablename_mapping = {
     "anlagengasspeicher": {
         "__name__": GasStorage.__tablename__,
         "__class__": GasStorage,
-        "replace_column_names": {"VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheit"},
+        "replace_column_names": {
+            "VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheit"
+        },
     },
     "einheitengasspeicher": {
         "__name__": GasStorageExtended.__tablename__,
@@ -850,12 +864,16 @@ tablename_mapping = {
     "anlagenkwk": {
         "__name__": Kwk.__tablename__,
         "__class__": Kwk,
-        "replace_column_names": {"VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheiten"},
+        "replace_column_names": {
+            "VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheiten"
+        },
     },
     "anlagenstromspeicher": {
         "__name__": StorageUnits.__tablename__,
         "__class__": StorageUnits,
-        "replace_column_names": {"VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheit"},
+        "replace_column_names": {
+            "VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheit"
+        },
     },
     "bilanzierungsgebiete": {
         "__name__": BalancingArea.__tablename__,
@@ -870,12 +888,16 @@ tablename_mapping = {
     "einheitengasverbraucher": {
         "__name__": GasConsumer.__tablename__,
         "__class__": GasConsumer,
-        "replace_column_names": {"VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheit"},
+        "replace_column_names": {
+            "VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheit"
+        },
     },
     "einheitengenehmigung": {
         "__name__": Permit.__tablename__,
         "__class__": Permit,
-        "replace_column_names": {"VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheiten"},
+        "replace_column_names": {
+            "VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheiten"
+        },
     },
     "einheitenkernkraft": {
         "__name__": NuclearExtended.__tablename__,
