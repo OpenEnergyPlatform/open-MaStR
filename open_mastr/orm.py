@@ -141,6 +141,8 @@ class Extended(object):
     Hausnummer_nv = Column(Boolean)
     Weic_nv = Column(Boolean)
     Kraftwerksnummer_nv = Column(Boolean)
+    NichtVorhandenInMigriertenEinheiten = Column(Boolean)
+    Einsatzverantwortlicher = Column(String)
 
 
 class WindExtended(Extended, ParentAllTables, Base):
@@ -432,7 +434,7 @@ class LocationExtended(ParentAllTables, Base):
     NameDerTechnischenLokation = Column(String)
     VerknuepfteEinheiten = Column(JSONB) if DB_ENGINE == "docker" else Column(JSON)
     Netzanschlusspunkte = Column(JSONB) if DB_ENGINE == "docker" else Column(JSON)
-    Lokationstyp = Column(String)
+    Lokationtyp = Column(String)
 
 
 class AdditionalLocationsRequested(ParentAllTables, Base):
@@ -511,7 +513,7 @@ class GasStorageExtended(ParentAllTables, Base):
     Gemarkung = Column(String)
     FlurFlurstuecknummern = Column(String)
     Adresszusatz = Column(String)
-    DatumBeginnVoruebergehendeStilllegung = Column(String)
+    DatumBeginnVoruebergehendeStilllegung = Column(Date)
 
 
 class StorageUnits(ParentAllTables, Base):
@@ -798,7 +800,9 @@ tablename_mapping = {
     "anlageneegsolar": {
         "__name__": SolarEeg.__tablename__,
         "__class__": SolarEeg,
-        "replace_column_names": None,
+        "replace_column_names": {
+            "VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheit"
+        },
     },
     "einheitensolar": {
         "__name__": SolarExtended.__tablename__,
