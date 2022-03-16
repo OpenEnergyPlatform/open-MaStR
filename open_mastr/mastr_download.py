@@ -5,15 +5,22 @@ from open_mastr.settings import DB_ENGINE
 mastr = Mastr()
 
 # configure settings for API download
-date = "latest"  # TODO: initiate_string -> maybe centralize function
-limit = 1
-processes = 12
-chunksize = 1000
+api_date = "latest"  # TODO: initiate_string -> maybe centralize function
+api_limit = 1
+api_processes = False
+api_chunksize = 1000
 technology = [
-    "wind"
-]  # , "biomass", "combustion", "gsgk", "hydro", "nuclear", "storage", "solar"]
-data_types = ["unit_data", "eeg_data", "kwk_data", "permit_data"]  #
-location_types = [
+    "wind",
+    "biomass",
+    "combustion",
+    "gsgk",
+    "hydro",
+    "nuclear",
+    "storage",
+    "solar",
+]
+api_data_types = ["unit_data", "eeg_data", "kwk_data", "permit_data"]  #
+api_location_types = [
     "location_elec_generation",
     "location_elec_consumption",
     "location_gas_generation",
@@ -23,12 +30,12 @@ location_types = [
 # call download functionality
 mastr.download(
     method="API",
-    processes=processes,
-    limit=limit,
-    chunksize=chunksize,
     technology=technology,
-    api_date=date,
-    data_types=data_types,
-    location_types=location_types,
+    api_processes=api_processes,
+    api_limit=api_limit,
+    api_chunksize=api_chunksize,
+    api_date=api_date,
+    api_data_types=api_data_types,
+    api_location_types=api_location_types,
     initialize_db=DB_ENGINE,
 )

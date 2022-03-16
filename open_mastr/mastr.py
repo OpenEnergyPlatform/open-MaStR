@@ -73,9 +73,7 @@ class Mastr:
         api_location_types=None,
         initialize_db=None,
     ) -> None:
-        # TODO: To increase clarity discuss whether to rename API-related arguments with
         # TODO: Group variables in dicts for API and BULK
-        # prefix "api", i.e. api_processes instead of processes; api_limit instead of limit; ...
         """
         Download the MaStR either via the bulk download or via the MaStR API and write it to a
         sqlite database.
