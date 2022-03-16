@@ -4,8 +4,6 @@ import dateutil
 import os
 import shutil
 import sqlite3
-from zipfile import ZipFile
-import numpy as np
 import open_mastr.settings as settings
 
 # import xml dependencies
@@ -14,9 +12,6 @@ from open_mastr.xml_download.utils_download_bulk import (
     download_xml_Mastr,
 )
 from open_mastr.xml_download.utils_write_sqlite import convert_mastr_xml_to_sqlite
-from open_mastr.xml_download.utils_sqlite_bulk_cleansing import (
-    cleansing_sqlite_database_from_bulkdownload,
-)
 
 # import soap_API dependencies
 from open_mastr.soap_api.mirror import MaStRMirror
@@ -67,15 +62,15 @@ class Mastr:
     def download(
         self,
         method="bulk",
+        technology=None,
         bulk_date_string="today",
         bulk_cleansing=True,
-        processes=None,
-        technology=None,
-        limit=None,
+        api_processes=None,
+        api_limit=None,
         api_date=None,
-        chunksize=None,
-        data_types=None,
-        location_types=None,
+        api_chunksize=None,
+        api_data_types=None,
+        api_location_types=None,
         initialize_db=None,
     ) -> None:
         # TODO: To increase clarity discuss whether to rename API-related arguments with
@@ -143,35 +138,35 @@ class Mastr:
             print(
                 f"Downloading with soap_API.\n\n   -- Settings --  \nunits after date: "
                 f"{api_date}\nunit download limit per technology: "
-                f"{limit}\nparallel_processes: {processes}\nchunksize: "
-                f"{chunksize}\ntechnologies: {technology}\ndata_types: "
-                f"{data_types}\nlocation_types: {location_types}"
+                f"{api_limit}\nparallel_processes: {api_processes}\nchunksize: "
+                f"{api_chunksize}\ntechnologies: {technology}\ndata_types: "
+                f"{api_data_types}\nlocation_types: {api_location_types}"
             )
             mastr_mirror = MaStRMirror(
                 empty_schema=False,
-                parallel_processes=processes,
+                parallel_processes=api_processes,
                 DB_ENGINE=self.DB_ENGINE,
                 restore_dump=None,
             )
             # Download basic unit data
-            mastr_mirror.backfill_basic(technology, limit=limit, date=api_date)
+            mastr_mirror.backfill_basic(technology, limit=api_limit, date=api_date)
 
             # Download additional unit data
             for tech in technology:
                 # mastr_mirror.create_additional_data_requests(tech)
-                for data_type in data_types:
+                for data_type in api_data_types:
                     mastr_mirror.retrieve_additional_data(
-                        tech, data_type, chunksize=chunksize, limit=limit
+                        tech, data_type, chunksize=api_chunksize, limit=api_limit
                     )
 
             # Download basic location data
-            mastr_mirror.backfill_locations_basic(limit=limit, date="latest")
+            mastr_mirror.backfill_locations_basic(limit=api_limit, date="latest")
 
             # Download extended location data
-            if location_types:
-                for location_type in location_types:
+            if api_location_types:
+                for location_type in api_location_types:
                     mastr_mirror.retrieve_additional_location_data(
-                        location_type, limit=limit
+                        location_type, limit=api_limit
                     )
 
     def _initialize_database(self, empty_schema) -> None:
