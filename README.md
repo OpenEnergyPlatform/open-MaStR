@@ -20,7 +20,7 @@ Find the [documentation](https://open-mastr.readthedocs.io/en/dev) hosted of Rea
 
 ## Installation
 
-It it recommended to use a virtual python environment, for example [conda](https://docs.conda.io/en/latest/miniconda.html) or 
+It is recommended to use a virtual python environment, for example [conda](https://docs.conda.io/en/latest/miniconda.html) or 
 [virtualenv](https://virtualenv.pypa.io/en/latest/installation.html).
 The package is intended to be used with Python >=3.6
 
