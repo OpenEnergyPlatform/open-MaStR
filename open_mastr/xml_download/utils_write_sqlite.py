@@ -40,7 +40,7 @@ def convert_mastr_xml_to_sqlite(
     zipped_xml_file_path: str,
     include_tables: list,
     bulk_cleansing: bool,
-    bulk_download_date: datetime.datetime,
+    bulk_download_date: str,
 ) -> None:
     """Converts the Mastr in xml format into a sqlite database."""
     """Writes the local zipped MaStR to a PostgreSQL database.
@@ -138,7 +138,7 @@ def prepare_table_to_sqlite_database(
     f: ZipFile,
     file_name: str,
     xml_tablename: str,
-    bulk_download_date: datetime.datetime,
+    bulk_download_date: str,
 ) -> pd.DataFrame:
     data = f.read(file_name)
     try:
