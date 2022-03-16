@@ -320,7 +320,6 @@ class WindEeg(Eeg, ParentAllTables, Base):
     VerhaeltnisReferenzertragErtrag5Jahre_nv = Column(Boolean)
     VerhaeltnisReferenzertragErtrag10Jahre_nv = Column(Boolean)
     VerhaeltnisReferenzertragErtrag15Jahre_nv = Column(Boolean)
-    VerknuepfteEinheitenMaStRNummern = Column(String)
 
 
 class SolarEeg(Eeg, ParentAllTables, Base):
@@ -341,7 +340,6 @@ class SolarEeg(Eeg, ParentAllTables, Base):
     AnlageBetriebsstatus = Column(String)
     AnlagenkennzifferAnlagenregister_nv = Column(Boolean)
     RegistrierungsnummerPvMeldeportal_nv = Column(Boolean)
-    VerknuepfteEinheitenMaStRNummern = Column(String)
 
 
 class BiomassEeg(Eeg, ParentAllTables, Base):
@@ -365,7 +363,6 @@ class BiomassEeg(Eeg, ParentAllTables, Base):
     AnlagenkennzifferAnlagenregister_nv = Column(Boolean)
     BiogasGaserzeugungskapazitaet_nv = Column(Boolean)
     BiomethanErstmaligerEinsatz_nv = Column(Boolean)
-    VerknuepfteEinheitenMaStRNummern = Column(String)
 
 
 class GsgkEeg(Eeg, ParentAllTables, Base):
@@ -376,7 +373,6 @@ class GsgkEeg(Eeg, ParentAllTables, Base):
     InstallierteLeistung = Column(Float)
     AnlageBetriebsstatus = Column(String)
     AnlagenkennzifferAnlagenregister_nv = Column(Boolean)
-    VerknuepfteEinheitenMaStRNummern = Column(String)
 
 
 class HydroEeg(Eeg, ParentAllTables, Base):
@@ -388,7 +384,6 @@ class HydroEeg(Eeg, ParentAllTables, Base):
     AnlageBetriebsstatus = Column(String)
     Ertuechtigung = Column(JSON)
     AnlagenkennzifferAnlagenregister_nv = Column(Boolean)
-    VerknuepfteEinheitenMaStRNummern = Column(String)
     ErtuechtigungIds = Column(String)
 
 
@@ -410,7 +405,6 @@ class Kwk(ParentAllTables, Base):
     ElektrischeKwkLeistung = Column(Float)
     VerknuepfteEinheiten = Column(String)
     AnlageBetriebsstatus = Column(String)
-    VerknuepfteEinheitenMaStRNummern = Column(String)
 
 
 class Permit(ParentAllTables, Base):
@@ -430,7 +424,6 @@ class Permit(ParentAllTables, Base):
     VerknuepfteEinheiten = Column(String)
     Frist_nv = Column(Boolean)
     WasserrechtAblaufdatum_nv = Column(Boolean)
-    VerknuepfteEinheitenMaStRNummern = Column(String)
 
 
 class LocationBasic(ParentAllTables, Base):
@@ -487,7 +480,7 @@ class GasStorage(ParentAllTables, Base):
     Speichername = Column(String)
     Registrierungsdatum = Column(Date)
     AnlageBetriebsstatus = Column(String)
-    VerknuepfteEinheitenMaStRNummern = Column(String)
+    VerknuepfteEinheit = Column(String)
 
 
 class GasStorageExtended(ParentAllTables, Base):
@@ -538,7 +531,7 @@ class StorageUnits(ParentAllTables, Base):
     Registrierungsdatum = Column(Date)
     DatumLetzteAktualisierung = Column(DateTime(timezone=True))
     NutzbareSpeicherkapazitaet = Column(Float)
-    VerknuepfteEinheitenMaStRNummern = Column(String)
+    VerknuepfteEinheit = Column(String)
     AnlageBetriebsstatus = Column(String)
 
 
@@ -623,7 +616,7 @@ class GasConsumer(ParentAllTables, Base):
     NameGasverbrauchsseinheit = Column(String)
     EinheitDientDerStromerzeugung = Column(String)
     MaximaleGasbezugsleistung = Column(Float)
-    VerknuepfteEinheitenMaStRNummern = Column(String)
+    VerknuepfteEinheit = Column(String)
     GeplantesInbetriebnahmedatum = Column(Date)
     Adresszusatz = Column(String)
     Gemarkung = Column(String)
@@ -792,7 +785,7 @@ tablename_mapping = {
     "anlageneegbiomasse": {
         "__name__": BiomassEeg.__tablename__,
         "__class__": BiomassEeg,
-        "replace_column_names": None,
+        "replace_column_names": {"VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheit"},
     },
     "einheitenbiomasse": {
         "__name__": BiomassExtended.__tablename__,
@@ -802,7 +795,7 @@ tablename_mapping = {
     "anlageneeggeosolarthermiegrubenklaerschlammdruckentspannung": {
         "__name__": GsgkEeg.__tablename__,
         "__class__": GsgkEeg,
-        "replace_column_names": None,
+        "replace_column_names": {"VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheit"},
     },
     "einheitengeosolarthermiegrubenklaerschlammdruckentspannung": {
         "__name__": GsgkExtended.__tablename__,
@@ -817,17 +810,17 @@ tablename_mapping = {
     "einheitensolar": {
         "__name__": SolarExtended.__tablename__,
         "__class__": SolarExtended,
-        "replace_column_names": None,
+        "replace_column_names": {"VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheit"},
     },
     "anlageneegspeicher": {
         "__name__": StorageEeg.__tablename__,
         "__class__": StorageEeg,
-        "replace_column_names": None,
+        "replace_column_names": {"VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheit"},
     },
     "anlageneegwasser": {
         "__name__": HydroEeg.__tablename__,
         "__class__": HydroEeg,
-        "replace_column_names": None,
+        "replace_column_names": {"VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheit"},
     },
     "einheitenwasser": {
         "__name__": HydroExtended.__tablename__,
@@ -837,7 +830,7 @@ tablename_mapping = {
     "anlageneegwind": {
         "__name__": WindEeg.__tablename__,
         "__class__": WindEeg,
-        "replace_column_names": None,
+        "replace_column_names": {"VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheit"},
     },
     "einheitenwind": {
         "__name__": WindExtended.__tablename__,
@@ -847,7 +840,7 @@ tablename_mapping = {
     "anlagengasspeicher": {
         "__name__": GasStorage.__tablename__,
         "__class__": GasStorage,
-        "replace_column_names": None,
+        "replace_column_names": {"VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheit"},
     },
     "einheitengasspeicher": {
         "__name__": GasStorageExtended.__tablename__,
@@ -857,12 +850,12 @@ tablename_mapping = {
     "anlagenkwk": {
         "__name__": Kwk.__tablename__,
         "__class__": Kwk,
-        "replace_column_names": None,
+        "replace_column_names": {"VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheiten"},
     },
     "anlagenstromspeicher": {
         "__name__": StorageUnits.__tablename__,
         "__class__": StorageUnits,
-        "replace_column_names": None,
+        "replace_column_names": {"VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheit"},
     },
     "bilanzierungsgebiete": {
         "__name__": BalancingArea.__tablename__,
@@ -877,12 +870,12 @@ tablename_mapping = {
     "einheitengasverbraucher": {
         "__name__": GasConsumer.__tablename__,
         "__class__": GasConsumer,
-        "replace_column_names": None,
+        "replace_column_names": {"VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheit"},
     },
     "einheitengenehmigung": {
         "__name__": Permit.__tablename__,
         "__class__": Permit,
-        "replace_column_names": None,
+        "replace_column_names": {"VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheiten"},
     },
     "einheitenkernkraft": {
         "__name__": NuclearExtended.__tablename__,
