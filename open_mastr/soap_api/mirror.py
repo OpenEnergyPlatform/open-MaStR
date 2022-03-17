@@ -8,6 +8,7 @@ from sqlalchemy.sql import exists
 import shlex
 import subprocess
 from open_mastr.settings import DB_ENGINE
+from datetime import date
 
 from open_mastr.soap_api.config import (
     setup_logger,
@@ -644,6 +645,7 @@ class MaStRMirror:
                     # Prepare data and add to database table
                     for unit_dat in unit_data:
                         unit_dat["DatenQuelle"] = "API"
+                        unit_dat["DatumDownload"] = date.today()
                         # Remove query status information from response
                         for exclude in [
                             "Ergebniscode",
