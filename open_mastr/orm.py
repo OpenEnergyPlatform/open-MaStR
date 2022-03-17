@@ -30,7 +30,7 @@ Base = declarative_base(metadata=meta)
 class ParentAllTables(object):
 
     DatenQuelle = Column(String)
-    DatumDownload = Column(DateTime(timezone=True), default=func.now())
+    DatumDownload = Column(Date)
 
 
 class BasicUnit(Base):
