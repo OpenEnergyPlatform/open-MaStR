@@ -6,4 +6,4 @@ def test_ci_1():
 
 
 def test_ci_2():
-    assert 'Hello world' == dummy_ci_add('Hello', 'world')
+    assert 'Hello world' == dummy_ci_add('Hello', ' world')
