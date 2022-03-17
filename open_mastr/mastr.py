@@ -95,9 +95,10 @@ class Mastr:
             "yyyymmdd".
         bulk_cleansing: bool
             If True, data cleansing is applied after the download (which is recommended)
-        api_processes: int
+        api_processes: int or None or "max"
             Number of parallel processes used to download additional data.
-            Defaults to `None`.
+            Defaults to `None`. If set to "max", the maximum number of possible processes
+            is used.
         api_limit: int
             Limit number of units that data is download for. Defaults to `None` which refers
             to query data for existing data requests, for example created by
@@ -115,7 +116,7 @@ class Mastr:
 
                  Don't use 'latest' in combination with `limit`. This might lead to unexpected results.
             * `None`: Complete backfill
-            
+
             Defaults to `None`.
         api_chunksize: int
             Data is downloaded and inserted into the database in chunks of `chunksize`.

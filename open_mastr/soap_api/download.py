@@ -441,7 +441,7 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         """
 
         # Number of parallel processes
-        if parallel_processes is None:
+        if parallel_processes == "max":
             self.parallel_processes = multiprocessing.cpu_count()
         else:
             self.parallel_processes = parallel_processes
