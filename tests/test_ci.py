@@ -1,4 +1,4 @@
-from open_mastr.dummy_ci import dummy_ci_add
+from dummy_ci import dummy_ci_add
 
 
 def test_ci_1():
