@@ -4,6 +4,14 @@ For each version important additions, changes and removals are listed here.
 
 ## [Unreleased]
 
+- The class :class:`open_mastr.mastr.Matr` 
+  was introduced as the entrypoint for users, the API download was included in this entrypoint [#203](https://github.com/OpenEnergyPlatform/open-MaStR/issues/203)
+- A method for downloading and parsing the xml dump from the MaStR website
+  was implemented [#202](https://github.com/OpenEnergyPlatform/open-MaStR/issues/202)
+- New data classes and attributes were introduced to orm.py [#208](https://github.com/OpenEnergyPlatform/open-MaStR/issues/208)
+
+## [Unreleased]
+
 A complete refactoring took place! Downloading data was entirely changed; introducing layers of code and removing 
 duplicated code while more of less following DRY. 
 Moreover, post-processing was changed to be more accessible and easier to execute. For example, docker now helps to 
