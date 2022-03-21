@@ -22,10 +22,6 @@ mirror_schema = "mastr_mirrored" if DB_ENGINE == "docker" else None
 meta = MetaData(schema=mirror_schema)
 Base = declarative_base(metadata=meta)
 
-# TODO: Revisit the class structure. We need parent classes that contain basic info,
-# where most of the child classes can inherit from. I think the Extended class has too
-# many attributes which results in too many columns being empty in the final data base.
-
 
 class ParentAllTables(object):
 
@@ -58,7 +54,6 @@ class BasicUnit(Base):
 class AdditionalDataRequested(Base):
     __tablename__ = "additional_data_requested"
 
-    # TODO: Add foreign key constraint on EinheitMastrNummer
     id = Column(
         Integer,
         Sequence("additional_data_requested_id_seq", schema=mirror_schema),
