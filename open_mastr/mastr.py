@@ -77,12 +77,15 @@ class Mastr:
         """
         Download the MaStR either via the bulk download or via the MaStR API and write it to a
         sqlite database.
+
         Parameters
         ----------
-        method: {"bulk", "API"}
-            Determines whether the data is downloaded via the zipped bulk download or via the
-            MaStR API. The latter requires an account from marktstammdatenregister.de,
-            (see :ref:`configuration <Configuration>`).
+
+        method: str
+            Either "API" or "bulk". Determines whether the data is downloaded via the
+            zipped bulk download or via the MaStR API. The latter requires an account
+            from marktstammdatenregister.de,
+            (see :ref:`Configuration <Configuration>`).
         technology: str or list or None
             Determines which technologies are written to the database. If None, all technologies are
             used. If it is a list, possible entries are "wind", "solar", "biomass", "hydro", "gsgk",
@@ -104,8 +107,8 @@ class Mastr:
             to query data for existing data requests, for example created by
             :meth:`~.create_additional_data_requests`. Note: There is a limited number of 
             requests you are allowed to have per day, so setting api_limit to a value is 
-            recommenden.
-        api_date: None, :class:`datetime.datetime`, str
+            recommended.
+        api_date: None or :class:`datetime.datetime` or str
             Specify backfill date from which on data is retrieved
 
             Only data with modification time stamp greater that `date` is retrieved.
@@ -223,3 +226,5 @@ class Mastr:
             if self.DB_ENGINE == "docker":
                 engine.execute(CreateSchema(orm.Base.metadata.schema))
         orm.Base.metadata.create_all(engine)
+
+    
