@@ -52,6 +52,7 @@ columns_replace_list = [
     "Batterietechnologie",
     "Technologie",
     "Pumpspeichertechnologie",
+    "Einsatzort",
     # lokationen
     # marktakteure
     "Personenart",
