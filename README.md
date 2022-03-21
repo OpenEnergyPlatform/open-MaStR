@@ -9,13 +9,13 @@ provided by the BNetzA keeping track of all power and gas units.
 
 
 The MaStR data can be [browsed online](https://www.marktstammdatenregister.de/MaStR),
-taken from [daily provided dumps](https://www.bundesnetzagentur.de/DE/Sachgebiete/ElektrizitaetundGas/Unternehmen_Institutionen/DatenaustauschundMonitoring/Marktstammdatenregister/MaStR_node.html)
-or be access via the [web service](https://www.marktstammdatenregister.de/MaStRHilfe/subpages/webdienst.html).
+taken from [daily provided dumps](https://www.marktstammdatenregister.de/MaStR/Datendownload)
+or be accessed via the [web service](https://www.marktstammdatenregister.de/MaStRHilfe/subpages/webdienst.html).
 This package focuses on the second and the third option.
 It provides a python interface for accessing data via the bulk download and the web service API and methods to clean the data.
 In the future, methods to enrich the data and functions to analyze it are planned.
 
-Find the [documentation](https://open-mastr.readthedocs.io/en/dev) hosted of ReadTheDocs.
+Find the [documentation](https://open-mastr.readthedocs.io/en/dev) hosted on ReadTheDocs.
 
 
 ## Installation
