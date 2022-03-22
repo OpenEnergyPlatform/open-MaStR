@@ -6,20 +6,14 @@ import sqlite3
 import pytest
 
 
-def test_Mastr_init():
-    db = Mastr()
-    # test if folder structure exists
-    assert os.path.exists(db._xml_folder_path)
-    assert os.path.exists(db._sqlite_folder_path)
-
-    # test if engine and connection were created
-    assert type(db._engine) == sqlalchemy.engine.base.Engine
-    assert type(db._sql_connection) == sqlite3.Connection
+@pytest.fixture
+def db():
+    return Mastr()
 
 
-def test_Mastr_validate_working_parameter():
-    db = Mastr()
-    parameter_dict_working = {
+@pytest.fixture
+def parameter_dict_working():
+    parameter_dict = {
         "method": ["API", "bulk"],
         "technology": [
             "wind",
@@ -37,6 +31,8 @@ def test_Mastr_validate_working_parameter():
             "grid",
             "balancing_area",
             "permit",
+            None,
+            ["wind","solar"]
         ],
         "bulk_date_string": ["today", "20200108"],
         "bulk_cleansing": [True, False],
@@ -52,6 +48,42 @@ def test_Mastr_validate_working_parameter():
             "location_gas_consumption",
         ],
     }
+    return parameter_dict
+
+
+@pytest.fixture
+def parameter_dict_not_working():
+    parameter_dict = {
+        "method": [5, "BULK", "api"],
+        "technology": [
+            "wint",
+            "Solar",
+            "biomasse",
+            5,
+        ],
+        "bulk_date_string": [124, "heute", 123],
+        "bulk_cleansing": ["cleansing", 4, None],
+        "api_processes": ["20", "None"],
+        "api_limit": ["15", "None"],
+        "api_date": ["None", "20220202"],
+        "api_chunksize": [None, "20"],
+        "api_data_types": ["unite_data", 5, None],
+        "api_location_types": ["locatione_elec_generation", 5, None],
+    }
+    return parameter_dict
+
+
+def test_Mastr_init(db):
+    # test if folder structure exists
+    assert os.path.exists(db._xml_folder_path)
+    assert os.path.exists(db._sqlite_folder_path)
+
+    # test if engine and connection were created
+    assert type(db._engine) == sqlalchemy.engine.base.Engine
+    assert type(db._sql_connection) == sqlite3.Connection
+
+
+def test_Mastr_validate_working_parameter(db, parameter_dict_working):
     parameter_dict = {}
     for key in list(parameter_dict_working.keys()):
         parameter_dict[key] = parameter_dict_working[key][0]
@@ -66,33 +98,18 @@ def test_Mastr_validate_working_parameter():
             )
 
 
-def test_Mastr_validate_not_working_parameter():
-    db = Mastr()
-    parameter_dict_not_working = {
-        "method": [5, "BULK", "api"],
-        "technology": [
-            "wint",
-            "Solar",
-            "biomasse",
-            5,
-            None,
-        ],
-        "bulk_date_string": ["heute", "20. April 1999", 20202202],
-        "bulk_cleansing": ["cleansing", 4, None],
-        "api_processes": ["20", "None"],
-        "api_limit": ["15", "None"],
-        "api_date": ["None", "20220202"],
-        "api_chunksize": [None, "20"],
-        "api_data_types": ["unite_data", 5, None],
-        "api_location_types": ["locatione_elec_generation", 5, None],
-    }
-    parameter_dict = {}
-    for key in list(parameter_dict_not_working.keys()):
-        parameter_dict[key] = parameter_dict_not_working[key][0]
+def test_Mastr_validate_not_working_parameter(
+    db, parameter_dict_working, parameter_dict_not_working
+):
+    parameter_dict_initial = {}
+    for key in list(parameter_dict_working.keys()):
+        parameter_dict_initial[key] = parameter_dict_working[key][0]
 
-    # working parameters
+    # not working parameters
     for key in list(parameter_dict_not_working.keys()):
         for value in parameter_dict_not_working[key]:
+            # reset parameter_dict so that all parameters are working except one
+            parameter_dict = parameter_dict_initial.copy()
             parameter_dict[key] = value
-            with pytest.raises(Exception):
+            with pytest.raises(ValueError):
                 db._validate_parameter_format_for_download_method(parameter_dict)
