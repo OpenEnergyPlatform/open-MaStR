@@ -121,13 +121,13 @@ class Mastr:
             * `None`: Complete backfill
 
             Defaults to `None`.
-        api_chunksize: int
+        api_chunksize: int or None
             Data is downloaded and inserted into the database in chunks of `chunksize`.
             Defaults to 1000.
-        api_data_type: `str`
+        api_data_type: `str` or None
             Select type of additional data that is to be retrieved. Choose from
             "unit_data", "eeg_data", "kwk_data", "permit_data".
-        api_location_type: `str`
+        api_location_type: `str` or None
             Select type of location that is to be retrieved. Choose from
             "location_elec_generation", "location_elec_consumption", "location_gas_generation",
             "location_gas_consumption".
@@ -312,11 +312,11 @@ class Mastr:
             )
 
         api_chunksize = parameter_dict["api_chunksize"]
-        if not isinstance(api_chunksize, int):
+        if not isinstance(api_chunksize, int) and api_chunksize is not None:
             raise ValueError("parameter api_chunksize has to be an integer.")
 
         api_data_types = parameter_dict["api_data_types"]
-        if api_data_types not in ["unit_data", "eeg_data", "kwk_data", "permit_data"]:
+        if api_data_types not in ["unit_data", "eeg_data", "kwk_data", "permit_data", None]:
             raise ValueError(
                 'parameter api_data_type has to be "unit_data", "eeg_data", "kwk_data" '
                 'or "permit_data".'
@@ -328,6 +328,7 @@ class Mastr:
             "location_elec_consumption",
             "location_gas_generation",
             "location_gas_consumption",
+            None
         ]:
             raise ValueError(
                 'parameter api_data_type has to be "location_elec_generation",'

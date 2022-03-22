@@ -66,9 +66,9 @@ def parameter_dict_not_working():
         "api_processes": ["20", "None"],
         "api_limit": ["15", "None"],
         "api_date": ["None", "20220202"],
-        "api_chunksize": [None, "20"],
-        "api_data_types": ["unite_data", 5, None],
-        "api_location_types": ["locatione_elec_generation", 5, None],
+        "api_chunksize": ["20"],
+        "api_data_types": ["unite_data", 5],
+        "api_location_types": ["locatione_elec_generation", 5],
     }
     return parameter_dict
 
