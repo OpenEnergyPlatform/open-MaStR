@@ -1,5 +1,4 @@
 import pandas as pd
-import re
 import numpy as np
 import sqlalchemy
 
@@ -9,14 +8,17 @@ from open_mastr.orm import tablename_mapping
 
 
 def replace_mastr_katalogeintraege(
-    sql_tablename: str,
     zipped_xml_file_path: str,
     df: pd.DataFrame,
 ) -> pd.DataFrame:
+
     katalogwerte = create_katalogwerte_from_sqlite(zipped_xml_file_path)
-    pattern = re.compile(r"cleansed|katalog|typen")
-    if not re.search(pattern, sql_tablename):
-        df = replace_katalogeintraege_in_single_table(katalogwerte=katalogwerte, df=df)
+
+    for column_name in df.columns:
+        if column_name in columns_replace_list:
+            df[column_name] = (
+                df[column_name].astype("float").astype("Int64").map(katalogwerte)
+            )
 
     return df
 
@@ -31,20 +33,6 @@ def create_katalogwerte_from_sqlite(zipped_xml_file_path) -> dict:
         for n in range(len(katalogwerte_array))
     )
     return katalogwerte
-
-
-def replace_katalogeintraege_in_single_table(
-    katalogwerte: dict,
-    df: pd.DataFrame,
-) -> pd.DataFrame:
-
-    for column_name in df.columns:
-        if column_name in columns_replace_list:
-            df[column_name] = (
-                df[column_name].astype("float").astype("Int64").map(katalogwerte)
-            )
-
-    return df
 
 
 def date_columns_to_datetime(xml_tablename: str, df: pd.DataFrame) -> pd.DataFrame:
