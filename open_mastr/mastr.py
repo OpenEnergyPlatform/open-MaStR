@@ -1,5 +1,5 @@
-from datetime import date
-from dateutil.parser import isoparse
+from datetime import date, datetime
+from dateutil.parser import parse
 import dateutil
 import os
 import shutil
@@ -8,9 +8,7 @@ import open_mastr.settings as settings
 
 # import xml dependencies
 from os.path import expanduser
-from open_mastr.xml_download.utils_download_bulk import (
-    download_xml_Mastr,
-)
+from open_mastr.xml_download.utils_download_bulk import download_xml_Mastr
 from open_mastr.xml_download.utils_write_sqlite import convert_mastr_xml_to_sqlite
 
 # import soap_API dependencies
@@ -93,7 +91,7 @@ class Mastr:
             "grid", "balancing_area" or "permit". If only one technology is of interest, this can be
             given as a string.
         bulk_date_string: str
-            Either "today" if the newest data dump should be downloaded from the MaStR website. If 
+            Either "today" if the newest data dump should be downloaded from the MaStR website. If
             an already downloaded dump should be used, state the date of the download in the format
             "yyyymmdd".
         bulk_cleansing: bool
@@ -105,19 +103,21 @@ class Mastr:
         api_limit: int
             Limit number of units that data is download for. Defaults to `None` which refers
             to query data for existing data requests, for example created by
-            :meth:`~.create_additional_data_requests`. Note: There is a limited number of 
-            requests you are allowed to have per day, so setting api_limit to a value is 
+            :meth:`~.create_additional_data_requests`. Note: There is a limited number of
+            requests you are allowed to have per day, so setting api_limit to a value is
             recommended.
         api_date: None or :class:`datetime.datetime` or str
             Specify backfill date from which on data is retrieved
 
             Only data with modification time stamp greater that `date` is retrieved.
 
-            * `datetime.datetime(2020, 11, 27)`: Retrieve data which is is newer than this time stamp
+            * `datetime.datetime(2020, 11, 27)`: Retrieve data which is is newer than this
+            time stamp
             * 'latest': Retrieve data which is newer than the newest data already in the table.
               .. warning::
 
-                 Don't use 'latest' in combination with `limit`. This might lead to unexpected results.
+                 Don't use 'latest' in combination with `limit`. This might lead to
+                 unexpected results.
             * `None`: Complete backfill
 
             Defaults to `None`.
@@ -132,25 +132,33 @@ class Mastr:
             "location_elec_generation", "location_elec_consumption", "location_gas_generation",
             "location_gas_consumption".
         """
-        if method != "bulk" and method != "API":
-            raise Exception("method has to be either 'bulk' or 'API'.")
+        parameter_dict = {
+            "method": method,
+            "technology": technology,
+            "bulk_date_string": bulk_date_string,
+            "bulk_cleansing": bulk_cleansing,
+            "api_processes": api_processes,
+            "api_limit": api_limit,
+            "api_date": api_date,
+            "api_chunksize": api_chunksize,
+            "api_data_types": api_data_types,
+            "api_location_types": api_location_types,
+        }
+
+        self._validate_parameter_format_for_download_method(parameter_dict)
+
         if method == "bulk":
 
             # Find the name of the zipped xml folder
             if bulk_date_string == "today":
                 bulk_download_date = date.today().strftime("%Y%m%d")
             else:
-                try:
-                    bulk_download_date = isoparse(bulk_date_string).strftime(
-                        "%Y%m%d"
-                    )
-                except dateutil.parser.ParserError:
-                    print("date_string has to be a proper date in the format yyyymmdd.")
-                    raise
+                # proper format already tested in
+                # self._validate_parameter_format_for_download_method
+                bulk_download_date = parse(bulk_date_string).strftime("%Y%m%d")
 
             _zipped_xml_file_path = os.path.join(
-                self._xml_folder_path,
-                f"Gesamtdatenexport_{bulk_download_date}.zip",
+                self._xml_folder_path, f"Gesamtdatenexport_{bulk_download_date}.zip",
             )
 
             if os.path.exists(_zipped_xml_file_path):
@@ -227,4 +235,69 @@ class Mastr:
                 engine.execute(CreateSchema(orm.Base.metadata.schema))
         orm.Base.metadata.create_all(engine)
 
-    
+    def _validate_parameter_format_for_download_method(self, parameter_dict):
+
+        method = parameter_dict["method"]
+        if method != "bulk" and method != "API":
+            raise Exception("parameter method has to be either 'bulk' or 'API'.")
+
+        bulk_date_string = parameter_dict["bulk_date_string"]
+        if bulk_date_string != "today":
+            try:
+                temp_date = parse(bulk_date_string)
+            except dateutil.parser.ParserError:
+                raise Exception(
+                    "parameter bulk_date_string has to be a proper date in the format yyyymmdd"
+                    "or 'today'."
+                )
+
+        if type(parameter_dict["bulk_cleansing"]) != bool:
+            raise Exception("parameter bulk_cleansing has to be boolean")
+
+        api_processes = parameter_dict["api_processes"]
+        if (
+            api_processes != "max"
+            and not isinstance(api_processes, int)
+            and api_processes is not None
+        ):
+            raise Exception(
+                "parameter api_processes has to be 'max' or an integer or 'None'"
+            )
+
+        api_limit = parameter_dict["api_limit"]
+        if not isinstance(api_limit, int) and api_limit is not None:
+            raise Exception("parameter api_limit has to be an integer or 'None'.")
+
+        api_date = parameter_dict["api_date"]
+        if (
+            not isinstance(api_date, datetime)
+            and api_date != "latest"
+            and api_date is not None
+        ):
+            raise Exception(
+                "parameter api_date has to be 'latest' or a datetime object or 'None'."
+            )
+
+        api_chunksize = parameter_dict["api_chunksize"]
+        if not isinstance(api_chunksize, int):
+            raise Exception("parameter api_chunksize has to be an integer.")
+
+        api_data_type = parameter_dict["api_data_type"]
+        if api_data_type not in ["unit_data", "eeg_data", "kwk_data", "permit_data"]:
+            raise Exception(
+                'parameter api_data_type has to be "unit_data", "eeg_data", "kwk_data" '
+                'or "permit_data".'
+            )
+
+        api_location_types = parameter_dict["api_location_types"]
+        if api_location_types not in [
+            "location_elec_generation",
+            "location_elec_consumption",
+            "location_gas_generation",
+            "location_gas_consumption",
+        ]:
+            raise Exception(
+                'parameter api_data_type has to be "location_elec_generation",'
+                '"location_elec_consumption", "location_gas_generation" or'
+                ' "location_gas_consumption".'
+            )
