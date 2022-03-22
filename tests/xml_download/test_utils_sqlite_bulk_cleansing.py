@@ -1,43 +1,92 @@
 from open_mastr.xml_download.utils_sqlite_bulk_cleansing import (
     create_katalogwerte_from_sqlite,
-    replace_katalogeintraege_in_single_table,
+    replace_mastr_katalogeintraege,
+    date_columns_to_datetime,
 )
 import sqlite3
 from os.path import expanduser
 import os
+import pandas as pd
+import numpy as np
 from open_mastr.xml_download.colums_to_replace import columns_replace_list
 import pytest
+from datetime import datetime
+
+# Check if xml file exists
+_xml_file_exists = False
+_xml_folder_path = os.path.join(expanduser("~"), ".open-MaStR", "data", "xml_download")
+for entry in os.scandir(path=_xml_folder_path):
+    if "Gesamtdatenexport" in entry.name:
+        _xml_file_exists = True
+
+# Check if open-mastr.db exists
+_sqlite_db_exists = False
+_sqlite_folder_path = os.path.join(expanduser("~"), ".open-MaStR", "data", "sqlite")
+_sqlite_file_path = os.path.join(_sqlite_folder_path, "open-mastr.db")
+if os.path.exists(_sqlite_file_path):
+    _sqlite_db_exists = True
 
 
 @pytest.fixture(scope="module")
 def con():
-    _sqlite_folder_path = os.path.join(expanduser("~"), ".open-MaStR", "data", "sqlite")
-    con = sqlite3.connect(os.path.join(_sqlite_folder_path, "bulksqlite.db"))
+    con = sqlite3.connect(_sqlite_file_path)
     yield con
     con.close()
 
 
-def test_create_katalogwerte_from_sqlite(con):
-    katalogwerte = create_katalogwerte_from_sqlite(con)
+@pytest.fixture(scope="module")
+def zipped_xml_file_path():
+    zipped_xml_file_path = None
+    for entry in os.scandir(path=_xml_folder_path):
+        if "Gesamtdatenexport" in entry.name:
+            zipped_xml_file_path = os.path.join(_xml_folder_path, entry.name)
+
+    return zipped_xml_file_path
+
+
+@pytest.mark.skipif(
+    not _xml_file_exists, reason="The zipped xml file could not be found."
+)
+def test_replace_mastr_katalogeintraege(zipped_xml_file_path):
+    df_raw = pd.DataFrame({"ID": [0, 1, 2], "Bundesland": [335, 335, 336]})
+    df_replaced = pd.DataFrame(
+        {"ID": [0, 1, 2], "Bundesland": ["Bayern", "Bayern", "Bremen"]}
+    )
+    pd.testing.assert_frame_equal(
+        df_replaced, replace_mastr_katalogeintraege(zipped_xml_file_path, df_raw)
+    )
+
+
+@pytest.mark.skipif(
+    not _xml_file_exists, reason="The zipped xml file could not be found."
+)
+def test_create_katalogwerte_from_sqlite(zipped_xml_file_path):
+    katalogwerte = create_katalogwerte_from_sqlite(
+        zipped_xml_file_path=zipped_xml_file_path
+    )
     assert type(katalogwerte) == dict
     assert len(katalogwerte) > 1000
     assert type(list(katalogwerte.keys())[0]) == int
 
 
-def test_replace_katalogeintraege_in_single_table(con):
-    table_name = "einheitenwasser"
-    katalogwerte = create_katalogwerte_from_sqlite(con)
-    replace_katalogeintraege_in_single_table(
-        con=con,
-        table_name=table_name,
-        katalogwerte=katalogwerte,
-        columns_replace_list=columns_replace_list,
+def test_date_columns_to_datetime():
+    df_raw = pd.DataFrame(
+        {
+            "ID": [0, 1, 2],
+            "Registrierungsdatum": ["2022-03-22", "2020-01-02", "2022-03-35"],
+        }
+    )
+    df_replaced = pd.DataFrame(
+        {
+            "ID": [0, 1, 2],
+            "Registrierungsdatum": [
+                datetime(2022, 3, 22),
+                datetime(2020, 1, 2),
+                np.datetime64("nat"),
+            ],
+        }
     )
 
-    new_table_name = table_name + "_cleansed"
-    cur = con.cursor()
-    query = f"SELECT count(name) FROM sqlite_master WHERE type='table' AND name='{new_table_name}'"
-    cur.execute(query)
-
-    assert cur.fetchone()[0] == 1
-    cur.close()
+    pd.testing.assert_frame_equal(
+        df_replaced, date_columns_to_datetime("anlageneegwasser", df_raw)
+    )
