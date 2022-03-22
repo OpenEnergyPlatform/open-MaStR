@@ -20,7 +20,6 @@ from sqlalchemy import (
     Date,
     JSON,
 )
-import datetime
 
 
 dtypes_mapping = {
@@ -118,11 +117,7 @@ def convert_mastr_xml_to_sqlite(
                     df = date_columns_to_datetime(xml_tablename, df)
 
                     # Katalogeintraege: int -> string value
-                    df = replace_mastr_katalogeintraege(
-                        sql_tablename=sql_tablename,
-                        zipped_xml_file_path=zipped_xml_file_path,
-                        df=df,
-                    )
+                    df = replace_mastr_katalogeintraege(zipped_xml_file_path=zipped_xml_file_path, df=df)
 
                 add_table_to_sqlite_database(
                     df=df,
