@@ -1,3 +1,4 @@
+import sys
 from zipfile import ZipFile
 
 from open_mastr import orm
@@ -6,9 +7,8 @@ from open_mastr.xml_download.utils_sqlite_bulk_cleansing import (
     replace_mastr_katalogeintraege,
 )
 from open_mastr.xml_download.utils_write_sqlite import (
-    convert_mastr_xml_to_sqlite,
     prepare_table_to_sqlite_database,
-    add_table_to_sqlite_database,
+    add_table_to_sqlite_database, add_zero_as_first_character_for_too_short_string,
 )
 import os
 from os.path import expanduser
@@ -24,6 +24,13 @@ for entry in os.scandir(path=_xml_folder_path):
     if "Gesamtdatenexport" in entry.name:
         _xml_file_exists = True
 
+# Silence ValueError caused by logger https://github.com/pytest-dev/pytest/issues/5502
+@pytest.fixture(autouse=True)
+def capture_wrap():
+    sys.stderr.close = lambda *args: None
+    sys.stdout.close = lambda *args: None
+    yield
+
 
 @pytest.fixture(scope="module")
 def zipped_xml_file_path():
@@ -36,51 +43,26 @@ def zipped_xml_file_path():
 
 
 @pytest.fixture(scope="module")
-def testdb_con():
+def con_testdb():
     testdb_file_path = os.path.join(
         expanduser("~"), ".open-MaStR", "data", "sqlite", "test-open-mastr.db"
     )
     # Create testdb
-    testdb_con = sqlite3.connect(testdb_file_path)
-    yield testdb_con
-    testdb_con.close()
+    con_testdb = sqlite3.connect(testdb_file_path)
+    yield con_testdb
+    con_testdb.close()
     # Remove testdb
     os.remove(testdb_file_path)
 
 
 @pytest.fixture(scope="module")
-def testdb_engine():
+def engine_testdb():
     testdb_file_path = os.path.join(
         expanduser("~"), ".open-MaStR", "data", "sqlite", "test-open-mastr.db"
     )
     testdb_url = f"sqlite:///{testdb_file_path}"
-    testdb_engine = create_engine(testdb_url)
-    yield testdb_engine
-
-
-def test_convert_mastr_xml_to_sqlite():
-    _sqlite_folder_path = os.path.join(expanduser("~"), ".open-MaStR", "data", "sqlite")
-    con = sqlite3.connect(os.path.join(_sqlite_folder_path, "bulksqlite.db"))
-    today_string = "20220103"
-
-    zipped_xml_file_path = os.path.join(
-        expanduser("~"),
-        ".open-MaStR",
-        "data",
-        "xml_download",
-        "Gesamtdatenexport_%s.zip" % today_string,
-    )
-    include_tables = ["einheitenbiomasse"]
-    convert_mastr_xml_to_sqlite(
-        con=con,
-        zipped_xml_file_path=zipped_xml_file_path,
-        include_tables=include_tables,
-    )
-
-    df = pd.read_sql(f"SELECT * FROM {include_tables[0]}", con=con)
-    assert len(df) > 100
-    assert len(df.iloc[0]) > 5
-    con.close()
+    engine_testdb = create_engine(testdb_url)
+    yield engine_testdb
 
 
 @pytest.mark.skipif(
@@ -113,9 +95,9 @@ def test_prepare_table_to_sqlite_database(zipped_xml_file_path):
 @pytest.mark.skipif(
     not _xml_file_exists, reason="The zipped xml file could not be found."
 )
-def test_add_table_to_sqlite_database(zipped_xml_file_path, testdb_con, testdb_engine):
+def test_add_table_to_sqlite_database(zipped_xml_file_path, con_testdb, engine_testdb):
     # Prepare
-    orm.Base.metadata.create_all(testdb_engine)
+    orm.Base.metadata.create_all(engine_testdb)
     file_name = "EinheitenKernkraft.xml"
     xml_tablename = "einheitenkernkraft"
     sql_tablename = "nuclear_extended"
@@ -144,11 +126,11 @@ def test_add_table_to_sqlite_database(zipped_xml_file_path, testdb_con, testdb_e
         xml_tablename=xml_tablename,
         sql_tablename=sql_tablename,
         if_exists="append",
-        con=testdb_con,
-        engine=testdb_engine,
+        con=con_testdb,
+        engine=engine_testdb,
     )
 
-    df_read = pd.read_sql_table(table_name=sql_tablename, con=testdb_engine)
+    df_read = pd.read_sql_table(table_name=sql_tablename, con=engine_testdb)
     # Drop the empty columns which come from orm and are not filled by bulk download
     df_read.dropna(how="all", axis=1, inplace=True)
     # Rename LokationMaStRNummer -> LokationMastrNummer unresolved error
@@ -163,5 +145,24 @@ def test_add_table_to_sqlite_database(zipped_xml_file_path, testdb_con, testdb_e
     # Assert
     pd.testing.assert_frame_equal(
         df_write.select_dtypes(exclude="datetime"),
-        df_read.select_dtypes(exclude="datetime")
+        df_read.select_dtypes(exclude="datetime"),
     )
+
+
+def test_add_zero_as_first_character_for_too_short_string():
+    # Prepare
+    df_raw = pd.DataFrame(
+        {"ID": [0, 1, 2], "Gemeindeschluessel": [9162000, None, 19123456]}
+    )
+    df_correct = pd.DataFrame(
+        {"ID": [0, 1, 2], "Gemeindeschluessel": ['09162000', None, '19123456']}
+    )
+    column_name = "Gemeindeschluessel"
+    string_length = 8
+    # Act
+    df_edited = add_zero_as_first_character_for_too_short_string(
+                df_raw, column_name, string_length
+            )
+
+    #Assert
+    pd.testing.assert_frame_equal(df_edited, df_correct)

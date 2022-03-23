@@ -1,3 +1,5 @@
+import sys
+
 from open_mastr.xml_download.utils_sqlite_bulk_cleansing import (
     create_katalogwerte_from_sqlite,
     replace_mastr_katalogeintraege,
@@ -26,6 +28,12 @@ _sqlite_file_path = os.path.join(_sqlite_folder_path, "open-mastr.db")
 if os.path.exists(_sqlite_file_path):
     _sqlite_db_exists = True
 
+# Silence ValueError caused by logger https://github.com/pytest-dev/pytest/issues/5502
+@pytest.fixture(autouse=True)
+def capture_wrap():
+    sys.stderr.close = lambda *args: None
+    sys.stdout.close = lambda *args: None
+    yield
 
 @pytest.fixture(scope="module")
 def con():
