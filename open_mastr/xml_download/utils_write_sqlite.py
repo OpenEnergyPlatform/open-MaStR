@@ -117,7 +117,9 @@ def convert_mastr_xml_to_sqlite(
                     df = date_columns_to_datetime(xml_tablename, df)
 
                     # Katalogeintraege: int -> string value
-                    df = replace_mastr_katalogeintraege(zipped_xml_file_path=zipped_xml_file_path, df=df)
+                    df = replace_mastr_katalogeintraege(
+                        zipped_xml_file_path=zipped_xml_file_path, df=df
+                    )
 
                 add_table_to_sqlite_database(
                     df=df,
@@ -142,21 +144,21 @@ def prepare_table_to_sqlite_database(
         df = handle_xml_syntax_error(data, err)
 
     # Change data types in dataframe
-    dict_of_tables_and_string_length = {
+    dict_of_columns_and_string_length = {
         "Gemeindeschluessel": 8,
         "Postleitzahl": 5,
     }
-    for table_name in dict_of_tables_and_string_length.keys():
-        if table_name in df.columns:
-            string_length = dict_of_tables_and_string_length[table_name]
+    for column_name in dict_of_columns_and_string_length.keys():
+        if column_name in df.columns:
+            string_length = dict_of_columns_and_string_length[column_name]
             df = add_zero_as_first_character_for_too_short_string(
-                df, table_name, string_length
+                df, column_name, string_length
             )
 
     # Replace IDs with names from system_catalogue
-    for table_name in system_catalog.keys():
-        if table_name in df.columns:
-            df[table_name] = df[table_name].replace(system_catalog[table_name])
+    for column_name in system_catalog.keys():
+        if column_name in df.columns:
+            df[column_name] = df[column_name].replace(system_catalog[column_name])
 
     # Change column names according to orm data model
     if tablename_mapping[xml_tablename]["replace_column_names"]:
@@ -212,24 +214,24 @@ def add_table_to_sqlite_database(
             )
 
 
-def add_zero_as_first_character_for_too_short_string(df, table_name, string_length):
+def add_zero_as_first_character_for_too_short_string(df, column_name, string_length):
     # Gemeindeschluessel or PLZ are read as float, but they are actually strings
     # if they start with a 0 this gets lost
     try:
-        df[table_name] = df[table_name].astype("Int64").astype(str)
+        df[column_name] = df[column_name].astype("Int64").astype(str)
     except ValueError:
         # some Plz are in the format DK-9999 for danish Postleitzahl
         # They cannot be converted to integer
-        df[table_name] = df[table_name].astype(str)
+        df[column_name] = df[column_name].astype(str)
 
-    df[table_name] = df[table_name].where(cond=df[table_name] != "None", other=None)
-    df[table_name] = df[table_name].where(cond=df[table_name] != "<NA>", other=None)
+    df[column_name] = df[column_name].where(cond=df[column_name] != "None", other=None)
+    df[column_name] = df[column_name].where(cond=df[column_name] != "<NA>", other=None)
 
     string_adding_series = pd.Series(["0"] * len(df))
     string_adding_series = string_adding_series.where(
-        cond=df[table_name].str.len() == string_length - 1, other=""
+        cond=df[column_name].str.len() == string_length - 1, other=""
     )
-    df[table_name] = string_adding_series + df[table_name]
+    df[column_name] = string_adding_series + df[column_name]
     return df
 
 
@@ -308,7 +310,7 @@ def handle_xml_syntax_error(data: bytes, err: Error) -> pd.DataFrame:
         if evaluated_string == "<":
             break
         else:
-            decoded_data = decoded_data[:start_char] + decoded_data[start_char + 1:]
+            decoded_data = decoded_data[:start_char] + decoded_data[start_char + 1 :]
     df = pd.read_xml(decoded_data)
     print("One invalid xml expression was deleted.")
     return df
