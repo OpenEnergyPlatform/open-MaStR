@@ -59,7 +59,7 @@ jobs:
     - name: Create credentials file
       env:
         MASTR_TOKEN: ${{ secrets.MASTR_TOKEN }}
-        MASTR_USER: ${{ secrets.MASTR_User }}
+        MASTR_USER: ${{ secrets.MASTR_USER }}
       run: |
         python -c "from tests import preparation; preparation.create_credentials_file()"
     - name: Test with pytest
