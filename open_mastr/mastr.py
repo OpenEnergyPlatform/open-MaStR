@@ -132,20 +132,19 @@ class Mastr:
             "location_elec_generation", "location_elec_consumption", "location_gas_generation",
             "location_gas_consumption".
         """
-        parameter_dict = {
-            "method": method,
-            "technology": technology,
-            "bulk_date_string": bulk_date_string,
-            "bulk_cleansing": bulk_cleansing,
-            "api_processes": api_processes,
-            "api_limit": api_limit,
-            "api_date": api_date,
-            "api_chunksize": api_chunksize,
-            "api_data_types": api_data_types,
-            "api_location_types": api_location_types,
-        }
 
-        self._validate_parameter_format_for_download_method(parameter_dict)
+        self._validate_parameter_format_for_download_method(
+            method=method,
+            technology=technology,
+            bulk_date_string=bulk_date_string,
+            bulk_cleansing=bulk_cleansing,
+            api_processes=api_processes,
+            api_limit=api_limit,
+            api_date=api_date,
+            api_chunksize=api_chunksize,
+            api_data_types=api_data_types,
+            api_location_types=api_location_types,
+        )
 
         if method == "bulk":
 
@@ -236,13 +235,24 @@ class Mastr:
                 engine.execute(CreateSchema(orm.Base.metadata.schema))
         orm.Base.metadata.create_all(engine)
 
-    def _validate_parameter_format_for_download_method(self, parameter_dict) -> None:
+    def _validate_parameter_format_for_download_method(
+        self,
+        method,
+        technology,
+        bulk_date_string,
+        bulk_cleansing,
+        api_processes,
+        api_limit,
+        api_date,
+        api_chunksize,
+        api_data_types,
+        api_location_types,
+    ) -> None:
+        # method parameter
 
-        method = parameter_dict["method"]
         if method != "bulk" and method != "API":
             raise ValueError("parameter method has to be either 'bulk' or 'API'.")
 
-        technology = parameter_dict["technology"]
         if not isinstance(technology, (str, list)) and technology is not None:
             raise ValueError("parameter technology has to be a string, list, or None")
         if isinstance(technology, str):
@@ -274,7 +284,6 @@ class Mastr:
                         '"grid", "balancing_area" or "permit"'
                     )
 
-        bulk_date_string = parameter_dict["bulk_date_string"]
         if bulk_date_string != "today":
             try:
                 temp_date = parse(bulk_date_string)
@@ -284,10 +293,9 @@ class Mastr:
                     "or 'today'."
                 )
 
-        if type(parameter_dict["bulk_cleansing"]) != bool:
+        if type(bulk_cleansing) != bool:
             raise ValueError("parameter bulk_cleansing has to be boolean")
 
-        api_processes = parameter_dict["api_processes"]
         if (
             api_processes != "max"
             and not isinstance(api_processes, int)
@@ -297,11 +305,9 @@ class Mastr:
                 "parameter api_processes has to be 'max' or an integer or 'None'"
             )
 
-        api_limit = parameter_dict["api_limit"]
         if not isinstance(api_limit, int) and api_limit is not None:
             raise ValueError("parameter api_limit has to be an integer or 'None'.")
 
-        api_date = parameter_dict["api_date"]
         if (
             not isinstance(api_date, datetime)
             and api_date != "latest"
@@ -311,24 +317,27 @@ class Mastr:
                 "parameter api_date has to be 'latest' or a datetime object or 'None'."
             )
 
-        api_chunksize = parameter_dict["api_chunksize"]
         if not isinstance(api_chunksize, int) and api_chunksize is not None:
             raise ValueError("parameter api_chunksize has to be an integer.")
 
-        api_data_types = parameter_dict["api_data_types"]
-        if api_data_types not in ["unit_data", "eeg_data", "kwk_data", "permit_data", None]:
+        if api_data_types not in [
+            "unit_data",
+            "eeg_data",
+            "kwk_data",
+            "permit_data",
+            None,
+        ]:
             raise ValueError(
                 'parameter api_data_type has to be "unit_data", "eeg_data", "kwk_data" '
                 'or "permit_data".'
             )
 
-        api_location_types = parameter_dict["api_location_types"]
         if api_location_types not in [
             "location_elec_generation",
             "location_elec_consumption",
             "location_gas_generation",
             "location_gas_consumption",
-            None
+            None,
         ]:
             raise ValueError(
                 'parameter api_data_type has to be "location_elec_generation",'

@@ -32,7 +32,7 @@ def parameter_dict_working():
             "balancing_area",
             "permit",
             None,
-            ["wind","solar"]
+            ["wind", "solar"],
         ],
         "bulk_date_string": ["today", "20200108"],
         "bulk_cleansing": [True, False],
@@ -92,8 +92,32 @@ def test_Mastr_validate_working_parameter(db, parameter_dict_working):
     for key in list(parameter_dict_working.keys()):
         for value in parameter_dict_working[key]:
             parameter_dict[key] = value
+            (
+                method,
+                technology,
+                bulk_date_string,
+                bulk_cleansing,
+                api_processes,
+                api_limit,
+                api_date,
+                api_chunksize,
+                api_data_types,
+                api_location_types,
+            ) = get_parameters_from_parameter_dict(parameter_dict)
+
             assert (
-                db._validate_parameter_format_for_download_method(parameter_dict)
+                db._validate_parameter_format_for_download_method(
+                    method,
+                    technology,
+                    bulk_date_string,
+                    bulk_cleansing,
+                    api_processes,
+                    api_limit,
+                    api_date,
+                    api_chunksize,
+                    api_data_types,
+                    api_location_types,
+                )
                 is None
             )
 
@@ -111,5 +135,53 @@ def test_Mastr_validate_not_working_parameter(
             # reset parameter_dict so that all parameters are working except one
             parameter_dict = parameter_dict_initial.copy()
             parameter_dict[key] = value
+            (
+                method,
+                technology,
+                bulk_date_string,
+                bulk_cleansing,
+                api_processes,
+                api_limit,
+                api_date,
+                api_chunksize,
+                api_data_types,
+                api_location_types,
+            ) = get_parameters_from_parameter_dict(parameter_dict)
             with pytest.raises(ValueError):
-                db._validate_parameter_format_for_download_method(parameter_dict)
+                db._validate_parameter_format_for_download_method(
+                    method,
+                    technology,
+                    bulk_date_string,
+                    bulk_cleansing,
+                    api_processes,
+                    api_limit,
+                    api_date,
+                    api_chunksize,
+                    api_data_types,
+                    api_location_types,
+                )
+
+
+def get_parameters_from_parameter_dict(parameter_dict):
+    method = parameter_dict["method"]
+    technology = parameter_dict["technology"]
+    bulk_date_string = parameter_dict["bulk_date_string"]
+    bulk_cleansing = parameter_dict["bulk_cleansing"]
+    api_processes = parameter_dict["api_processes"]
+    api_limit = parameter_dict["api_limit"]
+    api_date = parameter_dict["api_date"]
+    api_chunksize = parameter_dict["api_chunksize"]
+    api_data_types = parameter_dict["api_data_types"]
+    api_location_types = parameter_dict["api_location_types"]
+    return (
+        method,
+        technology,
+        bulk_date_string,
+        bulk_cleansing,
+        api_processes,
+        api_limit,
+        api_date,
+        api_chunksize,
+        api_data_types,
+        api_location_types,
+    )
