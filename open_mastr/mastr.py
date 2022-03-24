@@ -125,11 +125,11 @@ class Mastr:
         api_chunksize: int or None
             Data is downloaded and inserted into the database in chunks of `chunksize`.
             Defaults to 1000.
-        api_data_types: `str` or None
-            Select type of additional data that is to be retrieved. Choose from
+        api_data_types: list or None
+            Select type of additional data that should be retrieved. Choose from
             "unit_data", "eeg_data", "kwk_data", "permit_data".
-        api_location_types: `str` or None
-            Select type of location that is to be retrieved. Choose from
+        api_location_types: list or None
+            Select type of location that should be retrieved. Choose from
             "location_elec_generation", "location_elec_consumption", "location_gas_generation",
             "location_gas_consumption".
         """
@@ -255,12 +255,29 @@ class Mastr:
             raise ValueError("parameter method has to be either 'bulk' or 'API'.")
 
         if method == "API":
-            if any(parameter is not None for parameter in [bulk_date_string, bulk_cleansing]):
-                warn("For method = 'API', bulk download related parameters (with prefix bulk_) are ignored.")
-        
+            if any(
+                parameter is not None
+                for parameter in [bulk_date_string, bulk_cleansing]
+            ):
+                warn(
+                    "For method = 'API', bulk download related parameters (with prefix bulk_) are ignored."
+                )
+
         if method == "bulk":
-            if any(parameter is not None for parameter in [api_processes, api_limit, api_date, api_chunksize, api_data_types, api_location_types]):
-                warn("For method = 'bulk', API related parameters (with prefix api_) are ignored.")
+            if any(
+                parameter is not None
+                for parameter in [
+                    api_processes,
+                    api_limit,
+                    api_date,
+                    api_chunksize,
+                    api_data_types,
+                    api_location_types,
+                ]
+            ):
+                warn(
+                    "For method = 'bulk', API related parameters (with prefix api_) are ignored."
+                )
 
         if not isinstance(technology, (str, list)) and technology is not None:
             raise ValueError("parameter technology has to be a string, list, or None")
@@ -327,29 +344,37 @@ class Mastr:
             )
 
         if not isinstance(api_chunksize, int) and api_chunksize is not None:
-            raise ValueError("parameter api_chunksize has to be an integer.")
+            raise ValueError("parameter api_chunksize has to be an integer or 'None'.")
 
-        if api_data_types not in [
-            "unit_data",
-            "eeg_data",
-            "kwk_data",
-            "permit_data",
-            None,
-        ]:
-            raise ValueError(
-                'parameter api_data_type has to be "unit_data", "eeg_data", "kwk_data" '
-                'or "permit_data".'
-            )
+        if not isinstance(api_data_types, list):
+            raise ValueError("parameter api_data_types has to be a list.")
 
-        if api_location_types not in [
-            "location_elec_generation",
-            "location_elec_consumption",
-            "location_gas_generation",
-            "location_gas_consumption",
-            None,
-        ]:
-            raise ValueError(
-                'parameter api_data_type has to be "location_elec_generation",'
-                '"location_elec_consumption", "location_gas_generation" or'
-                ' "location_gas_consumption".'
-            )
+        for value in api_data_types:
+            if value not in [
+                "unit_data",
+                "eeg_data",
+                "kwk_data",
+                "permit_data",
+                None,
+            ]:
+                raise ValueError(
+                    'list entries of api_data_types have to be "unit_data", "eeg_data", "kwk_data" '
+                    'or "permit_data".'
+                )
+
+        if not isinstance(api_location_types, list):
+            raise ValueError("parameter api_location_types has to be a list.")
+
+        for value in api_location_types:
+            if value not in [
+                "location_elec_generation",
+                "location_elec_consumption",
+                "location_gas_generation",
+                "location_gas_consumption",
+                None,
+            ]:
+                raise ValueError(
+                    'list entries of api_data_types have to be "location_elec_generation",'
+                    '"location_elec_consumption", "location_gas_generation" or'
+                    ' "location_gas_consumption".'
+                )

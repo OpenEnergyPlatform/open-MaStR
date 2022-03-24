@@ -40,12 +40,18 @@ def parameter_dict_working():
         "api_limit": [15, None],
         "api_date": [None, datetime(2022, 2, 2), "latest"],
         "api_chunksize": [20],
-        "api_data_types": ["unit_data", "eeg_data", "kwk_data", "permit_data"],
+        "api_data_types": [
+            ["unit_data", "eeg_data", "kwk_data", "permit_data"],
+            ["unit_data"],
+        ],
         "api_location_types": [
-            "location_elec_generation",
-            "location_elec_consumption",
-            "location_gas_generation",
-            "location_gas_consumption",
+            ["location_elec_generation", "location_elec_consumption"],
+            [
+                "location_elec_generation",
+                "location_elec_consumption",
+                "location_gas_generation",
+                "location_gas_consumption",
+            ],
         ],
     }
     return parameter_dict
