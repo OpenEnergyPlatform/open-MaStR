@@ -191,3 +191,23 @@ def get_parameters_from_parameter_dict(parameter_dict):
         api_data_types,
         api_location_types,
     )
+
+def test_technology_to_include_tables(db):
+    # Prepare
+    include_tables_list = [
+        "anlageneegwind",
+        "einheitenwind",
+        "anlageneegwasser",
+        "einheitenwasser",
+    ]
+    include_tables_str = ["einheitenstromverbraucher", "einheitenverbrennung"]
+
+    # Assert
+    assert include_tables_list == db._technology_to_include_tables(
+        technology=["wind", "hydro"]
+    )
+    assert include_tables_str == db._technology_to_include_tables(
+        technology="electricity_consumer"
+    )
+    assert "anlageneegwind" in db._technology_to_include_tables(technology=None)
+    assert 28 == len(db._technology_to_include_tables(technology=None))

@@ -72,7 +72,6 @@ class Mastr:
         api_location_types=None,
         initialize_db=None,
     ) -> None:
-        # TODO: Group variables in dicts for API and BULK
         """
         Download the MaStR either via the bulk download or via the MaStR API and write it to a
         sqlite database.
@@ -176,7 +175,9 @@ class Mastr:
                 print(f"MaStR was successfully downloaded to {self._xml_folder_path}.")
 
             # Map technology input to the .xml file names like 'einheitensolar'
-            bulk_include_tables = orm.technology_to_include_tables(technology)
+            bulk_include_tables = self._technology_to_include_tables(
+                technology=technology
+            )
 
             convert_mastr_xml_to_sqlite(
                 con=self._sql_connection,
@@ -378,3 +379,60 @@ class Mastr:
                     '"location_elec_consumption", "location_gas_generation" or'
                     ' "location_gas_consumption".'
                 )
+
+    def _technology_to_include_tables(
+        self,
+        technology,
+        all_technologies=orm.bulk_technologies,
+        tables_map=orm.bulk_include_tables_map,
+    ) -> list:
+        """
+        Check the user input 'technology' and convert it to the list 'include_tables' which contains
+        file names from zipped
+        bulk download.
+        Parameters
+        ----------
+        technology: None, str, list
+            The user input for technology selection
+            * `None`: All technologies (default)
+            * `str`: One technology
+            * `list`: List of technologies
+        all_technologies: list
+            All possible selections
+        tables_map: dict
+            Dictionary that maps the technologies to the file names in the zipped bulk download folder
+        Returns
+        -------
+        list
+            List of file names
+        -------
+
+        """
+        # Convert technology input into a standard list
+        chosen_technologies = []
+        if technology is None:
+            # All technologies are to be chosen
+            chosen_technologies = all_technologies
+        elif isinstance(technology, str):
+            # Only one technology is chosen
+            chosen_technologies = [technology]
+        elif isinstance(technology, list):
+            # list of technologies is given
+            chosen_technologies = technology
+
+        # Check if given technologies match with the valid options from 'orm.bulk_technologies'
+        for tech in chosen_technologies:
+            if tech not in all_technologies:
+                raise Exception(
+                    f"The input technology = {technology} does not match with the "
+                    f"possible technology options. Only following technology options are available "
+                    f"bulk_technologies = {all_technologies}"
+                )
+
+        # Map technologies to include tables
+        include_tables = []
+        for tech in chosen_technologies:
+            # Append table names to the include_tables list respectively
+            include_tables += tables_map[tech]
+
+        return include_tables
