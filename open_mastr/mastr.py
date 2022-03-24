@@ -5,6 +5,7 @@ import os
 import shutil
 import sqlite3
 import open_mastr.settings as settings
+from warnings import warn
 
 # import xml dependencies
 from os.path import expanduser
@@ -252,6 +253,14 @@ class Mastr:
 
         if method != "bulk" and method != "API":
             raise ValueError("parameter method has to be either 'bulk' or 'API'.")
+
+        if method == "API":
+            if any(parameter is not None for parameter in [bulk_date_string, bulk_cleansing]):
+                warn("For method = 'API', bulk download related parameters (with prefix bulk_) are ignored.")
+        
+        if method == "bulk":
+            if any(parameter is not None for parameter in [api_processes, api_limit, api_date, api_chunksize, api_data_types, api_location_types]):
+                warn("For method = 'bulk', API related parameters (with prefix api_) are ignored.")
 
         if not isinstance(technology, (str, list)) and technology is not None:
             raise ValueError("parameter technology has to be a string, list, or None")
