@@ -110,12 +110,11 @@ def convert_mastr_xml_to_sqlite(
                     bulk_download_date=bulk_download_date,
                 )
 
+                # Convert date and datetime columns into the datatype datetime
+                df = date_columns_to_datetime(xml_tablename, df)
+
                 if bulk_cleansing:
                     print("Data is cleansed.")
-
-                    # Convert date and datetime columns into the datatype datetime
-                    df = date_columns_to_datetime(xml_tablename, df)
-
                     # Katalogeintraege: int -> string value
                     df = replace_mastr_katalogeintraege(
                         zipped_xml_file_path=zipped_xml_file_path, df=df
