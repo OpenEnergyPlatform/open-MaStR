@@ -347,38 +347,40 @@ class Mastr:
         if not isinstance(api_chunksize, int) and api_chunksize is not None:
             raise ValueError("parameter api_chunksize has to be an integer or 'None'.")
 
-        if not isinstance(api_data_types, list):
-            raise ValueError("parameter api_data_types has to be a list.")
+        if not isinstance(api_data_types, list) and api_data_types is not None:
+            raise ValueError("parameter api_data_types has to be a list or 'None'.")
 
-        for value in api_data_types:
-            if value not in [
-                "unit_data",
-                "eeg_data",
-                "kwk_data",
-                "permit_data",
-                None,
-            ]:
-                raise ValueError(
-                    'list entries of api_data_types have to be "unit_data", "eeg_data", "kwk_data" '
-                    'or "permit_data".'
-                )
+        if isinstance(api_data_types, list):
+            for value in api_data_types:
+                if value not in [
+                    "unit_data",
+                    "eeg_data",
+                    "kwk_data",
+                    "permit_data",
+                    None,
+                ]:
+                    raise ValueError(
+                        'list entries of api_data_types have to be "unit_data", "eeg_data", "kwk_data" '
+                        'or "permit_data".'
+                    )
 
-        if not isinstance(api_location_types, list):
-            raise ValueError("parameter api_location_types has to be a list.")
+        if not isinstance(api_location_types, list) and api_location_types is not None:
+            raise ValueError("parameter api_location_types has to be a list or 'None'.")
 
-        for value in api_location_types:
-            if value not in [
-                "location_elec_generation",
-                "location_elec_consumption",
-                "location_gas_generation",
-                "location_gas_consumption",
-                None,
-            ]:
-                raise ValueError(
-                    'list entries of api_data_types have to be "location_elec_generation",'
-                    '"location_elec_consumption", "location_gas_generation" or'
-                    ' "location_gas_consumption".'
-                )
+        if isinstance(api_location_types, list):
+            for value in api_location_types:
+                if value not in [
+                    "location_elec_generation",
+                    "location_elec_consumption",
+                    "location_gas_generation",
+                    "location_gas_consumption",
+                    None,
+                ]:
+                    raise ValueError(
+                        'list entries of api_data_types have to be "location_elec_generation",'
+                        '"location_elec_consumption", "location_gas_generation" or'
+                        ' "location_gas_consumption".'
+                    )
 
     def _technology_to_include_tables(
         self,

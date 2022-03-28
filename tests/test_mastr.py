@@ -43,6 +43,7 @@ def parameter_dict_working():
         "api_data_types": [
             ["unit_data", "eeg_data", "kwk_data", "permit_data"],
             ["unit_data"],
+            None,
         ],
         "api_location_types": [
             ["location_elec_generation", "location_elec_consumption"],
@@ -52,6 +53,7 @@ def parameter_dict_working():
                 "location_gas_generation",
                 "location_gas_consumption",
             ],
+            None,
         ],
     }
     return parameter_dict
@@ -191,6 +193,7 @@ def get_parameters_from_parameter_dict(parameter_dict):
         api_data_types,
         api_location_types,
     )
+
 
 def test_technology_to_include_tables(db):
     # Prepare
