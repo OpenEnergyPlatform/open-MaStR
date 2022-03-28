@@ -1,4 +1,4 @@
-name: CI
+name: CI-Test
 
 on:
   push:
@@ -11,12 +11,11 @@ jobs:
   build:
 
     # Jobs definition
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-2019]
         python-version: [3.7, 3.8 , 3.9]
-    name: pytest (Python ${{ matrix.python-version }}) (OS ${{ matrix.os }})
+    name: pytest (Python ${{ matrix.python-version }}) ubuntu-latest
 
     # Define PostgreSQL database as container
     services:
