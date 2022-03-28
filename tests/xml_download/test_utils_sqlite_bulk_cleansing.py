@@ -17,9 +17,10 @@ from datetime import datetime
 # Check if xml file exists
 _xml_file_exists = False
 _xml_folder_path = os.path.join(expanduser("~"), ".open-MaStR", "data", "xml_download")
-for entry in os.scandir(path=_xml_folder_path):
-    if "Gesamtdatenexport" in entry.name:
-        _xml_file_exists = True
+if os.path.isdir(_xml_folder_path):
+    for entry in os.scandir(path=_xml_folder_path):
+        if "Gesamtdatenexport" in entry.name:
+            _xml_file_exists = True
 
 # Check if open-mastr.db exists
 _sqlite_db_exists = False

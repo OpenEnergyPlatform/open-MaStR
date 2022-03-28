@@ -20,9 +20,10 @@ import pytest
 # Check if xml file exists
 _xml_file_exists = False
 _xml_folder_path = os.path.join(expanduser("~"), ".open-MaStR", "data", "xml_download")
-for entry in os.scandir(path=_xml_folder_path):
-    if "Gesamtdatenexport" in entry.name:
-        _xml_file_exists = True
+if os.path.isdir(_xml_folder_path):
+    for entry in os.scandir(path=_xml_folder_path):
+        if "Gesamtdatenexport" in entry.name:
+            _xml_file_exists = True
 
 # Silence ValueError caused by logger https://github.com/pytest-dev/pytest/issues/5502
 @pytest.fixture(autouse=True)
