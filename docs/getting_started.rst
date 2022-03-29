@@ -1,5 +1,5 @@
 ********************
-Basic module usage
+Getting Started
 ********************
 
 The intention of open-MaStR is to provide tools for receiving a complete as possible and accurate as possible list of

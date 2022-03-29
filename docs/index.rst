@@ -12,10 +12,8 @@ Welcome to open-MaStR's documentation!
    :caption: Documentation
 
    readme
-   basic_usage
-   configuration
-   download
-   data_documentation
+   getting_started
+   advanced
    development
    changelog
    Reference <reference/open_mastr>
