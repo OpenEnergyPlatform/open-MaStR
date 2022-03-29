@@ -46,7 +46,7 @@ Make sure you have test requirements installed (in addition to the package itsel
 
 .. code-block:: bash
 
-   pip install -r tests/test_requirements.txt
+   pip install -e . [dev]
 
 Some tests query data from `MaStR <https://www.marktstammdatenregister.de>`_. Therefore, user name and the token must
 be provided by credentials file `credentials.cfg` (with token optionally stored in keyring).
