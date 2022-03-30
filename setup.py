@@ -37,18 +37,17 @@ setup(
         "numpy",
         "sqlalchemy",
         "psycopg2-binary",
-        "geoalchemy2",  # TODO: Delete, is only needed in postprocessing
+        # "geoalchemy2",  # TODO: Delete, is only needed in postprocessing
         "zeep",
         "tqdm",
-        "geopandas",  # TODO: Delete, is only needed in postprocessing
-        "pyyaml",  # TODO: Delete, not needed
+        # "geopandas",  # TODO: Delete, is only needed in postprocessing
         "requests",
         "keyring",
-        "bokeh",  # TODO: Delete, is only needed in postprocessing
-        "xmltodict",  # TODO: Only needed in metadata
+        # "bokeh",  # TODO: Delete, is only needed in postprocessing
         "pynodo",
         "clint",
         "beautifulsoup4",
+        "pyyaml",
     ],
     extras_require={
         "dev": [
@@ -56,6 +55,7 @@ setup(
             "pylint",
             "pytest",
             "pytest-dependency",
+            "xmltodict",  # TODO: Only needed in metadata
         ]
     },
     package_data={
