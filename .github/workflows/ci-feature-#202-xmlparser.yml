@@ -3,7 +3,7 @@ name: CI-feature-#202-xmlparser
 on:
   push:
     branches:
-      - ci-test
+      - feature-#202-xmlparser
 
 jobs:
   build:
