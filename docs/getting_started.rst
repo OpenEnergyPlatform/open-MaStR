@@ -27,3 +27,30 @@ Another option is the download of data via the MaStR soap API.
 This requires an account and token (see :ref:`configuration <Configuration>`).
 The download via the API has the advantage, that **single entries of the MaStR can be downloaded** (one does not need to download the whole MaStR).
 Detailed information can be found in :ref:`downloading <Downloading raw data>`.
+
+Some Basic settings for configuring the `API` download are:
+
+technology = [
+    "wind",
+    "biomass",
+    "combustion",
+    "gsgk",
+    "hydro",
+    "nuclear",
+    "storage",
+    "solar",
+]
+
+api_data_types = [
+    "unit_data",
+    "eeg_data",
+    "kwk_data",
+    "permit_data"
+]
+
+api_location_types = [
+    "location_elec_generation",
+    "location_elec_consumption",
+    "location_gas_generation",
+    "location_gas_consumption",
+]
