@@ -11,7 +11,7 @@ with open(path.join(here, "README.md"), encoding="utf-8") as f:
 setup(
     name="open_mastr",
     packages=find_packages(),
-    version="0.1",
+    version="0.10.0",
     description="MaStR data download tool",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -27,11 +27,10 @@ setup(
         "Topic :: Software Development :: Build Tools",
         "License :: OSI Approved :: AGPL-3.0 License",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
     ],
-    python_requires=">=3.7, <4",
+    python_requires=">=3.8, <4",
     install_requires=[
         "pandas>=1.4",
         "numpy",
