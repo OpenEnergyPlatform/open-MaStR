@@ -6,6 +6,7 @@ import shutil
 import sqlite3
 import open_mastr.settings as settings
 from warnings import warn
+import pandas as pd
 
 # import xml dependencies
 from os.path import expanduser
@@ -23,7 +24,7 @@ from sqlalchemy.schema import CreateSchema
 
 class Mastr:
     """
-    Mirror the MaStR database and keep it up-to-date.
+    :class:`.Mastr` is used to download the MaStR database and keep it up-to-date.
 
     A sqlite database is used to mirror the MaStR database. It can be filled with
     data either from the MaStR-bulk download or from the MaStR-API.
@@ -77,8 +78,7 @@ class Mastr:
         sqlite database.
 
         Parameters
-        ----------
-
+        ------------
         method: str
             Either "API" or "bulk". Determines whether the data is downloaded via the
             zipped bulk download or via the MaStR API. The latter requires an account
@@ -223,6 +223,37 @@ class Mastr:
                     mastr_mirror.retrieve_additional_location_data(
                         location_type, limit=api_limit
                     )
+
+    def to_csv(self, path=None) -> None:
+        """
+        Save the database as csv files.
+
+        Parameters
+        ------------
+        path: str or None
+            The path where the csv files are saved.
+            Default is None, in which case they are saved at
+            HOME/.open-MaStR/data/csv
+        """
+
+        if path:
+            if not os.path.exists(path):
+                raise ValueError("parameter path is not a valid path")
+
+        else:
+            path = os.path.join(expanduser("~"), ".open-MaStR", "data", "csv")
+        os.makedirs(path, exist_ok=True)
+
+        engine = self._engine
+        table_list = engine.table_names()
+        with engine.connect().execution_options(autocommit=True) as con:
+            print(f"csv files are saved to: {path}")
+            for table in table_list:
+                df = pd.read_sql(table, con=con)
+                if not df.empty:
+                    path_of_table = os.path.join(path, f"{table}.csv")
+                    df.to_csv(path_or_buf=path_of_table, encoding="utf-16")
+                    print(f"{table} saved as csv file.")
 
     def _initialize_database(self, empty_schema) -> None:
         engine = self._engine
