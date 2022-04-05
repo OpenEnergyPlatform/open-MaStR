@@ -47,6 +47,7 @@ setup(
         "clint",
         "beautifulsoup4",
         "pyyaml",
+        "xmltodict",
     ],
     extras_require={
         "dev": [
