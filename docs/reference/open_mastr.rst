@@ -1,6 +1,14 @@
 open\_mastr package
 ===================
 
+mastr module
+-----------
+
+.. automodule:: open_mastr.mastr
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Subpackages
 -----------
 
