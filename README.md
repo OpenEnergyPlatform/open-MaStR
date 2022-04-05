@@ -5,7 +5,7 @@
 # open-MaStR
 
 The [Marktstammdatenregister (MaStR)](https://www.marktstammdatenregister.de/MaStR) is a German register 
-provided by the BNetzA keeping track of all power and gas units.
+provided by the German Federal Network Agency (Bundesnetzagentur) that keeps track of all power and gas units located in Germany.
 
 
 The MaStR data can be [browsed online](https://www.marktstammdatenregister.de/MaStR),
