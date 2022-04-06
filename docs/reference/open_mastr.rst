@@ -2,7 +2,7 @@ open\_mastr package
 ===================
 
 mastr module
------------
+-------------
 
 .. automodule:: open_mastr.mastr
    :members:
@@ -10,7 +10,7 @@ mastr module
    :show-inheritance:
 
 Subpackages
------------
+------------
 
 .. toctree::
    :maxdepth: 4
@@ -25,6 +25,14 @@ open\_mastr.data\_io module
 ---------------------------
 
 .. automodule:: open_mastr.data_io
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+open\_mastr.orm module
+--------------------------------
+
+.. automodule:: open_mastr.orm
    :members:
    :undoc-members:
    :show-inheritance:

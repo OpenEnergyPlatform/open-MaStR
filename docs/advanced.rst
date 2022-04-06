@@ -1,6 +1,6 @@
-*************
+********************
 Advanced Topics
-*************
+********************
 In the following sections, a deeper description of the package and its functionalities is given.
 
 Configuration
@@ -44,7 +44,7 @@ Configuration files
 * :code:`filenames.yml`: File names are defined here.
 * :code:`logging.yml`: Logging configuration. For changing the log level to increase or decrease details of log
   messages, edit the `level` of the handlers.
-* :code:`tables.yml`: Names of tables where data gets imported to during :ref:`Post-processing`
+* :code:`tables.yml`: Names of tables where data gets imported to during :ref:`Post-processing (Outdated)`
 
 Data
 ----
@@ -72,7 +72,7 @@ MaStR account
 
 For downloading data from the
 `Marktstammdatenregister (MaStR) database <https://www.marktstammdatenregister.de/MaStR>`_
-via its API a registration is mandatory (please read `here <https://www.marktstammdatenregister.de/MaStRHilfe/files/
+via its API a registration is mandatory (please `read here <https://www.marktstammdatenregister.de/MaStRHilfe/files/
 regHilfen/201108_Handbuch%20f%C3%BCr%20Registrierungen%20durch%20Dienstleister.pdf>`_).
 
 To download data using `open-MaStR` the credentials (MaStR user and token) need to be provided in a certain way.
@@ -221,6 +221,112 @@ This is the low-level MaStR API access.
 
 
 .. include:: _data/raw_data.rst
+
+
+Post-processing (Outdated)
+===========================
+
+The following chapter on postprocessing is outdated. It refers to jupyter notebooks you can find 
+on our `github page <https://github.com/OpenEnergyPlatform/open-MaStR>`_. It is planned to add those post-processing
+features in later versions to the open_mastr package.
+
+Pre-requisites (Outdated)
+-------------------------
+
+Major parts of data cleansing, correction and enrichment are written in SQL. We recommend to run these scripts in a
+dockered PostgreSQL database. If you want to use a native installation of PostgreSQL, help yourself and continue with
+:ref:`Run postprocessing (Outdated)`.
+
+Make sure you have `docker-compose <https://docs.docker.com/compose/install/>`_ installed. Run
+
+.. code-block:: bash
+
+   docker-compose up -d
+
+to start a PostgreSQL database.
+
+You can connect to the database with the following credentials (if not changed in `docker-compose.yml`).
+
+======== ==========
+Field    Value
+======== ==========
+host     localhost
+port     55443
+database open-mastr
+User     open-mastr
+Password open-mastr
+======== ==========
+
+
+Once you're finished with working in/with the database, shut it down with
+
+.. code-block:: bash
+
+   docker-compose down
+
+
+Run postprocessing (Outdated)
+-----------------------------
+
+During post-processing downloaded :ref:`Downloading the MaStR data <Downloading the MaStR data>` gets cleaned, imported to a PostgreSQL database,
+and enriched.
+To run the postprocessing, use the following code snippets.
+
+.. code-block:: python
+
+   from open_mastr.postprocessing.cleaning import cleaned_data
+   from postprocessing.postprocessing import postprocess
+
+   cleaned = cleaned_data()
+   postprocess(cleaned)
+
+As a result, cleaned data gets saved as CSV files and  tables named like `bnetza_mastr_<technology>_cleaned`
+appear in the schema `model_draft".
+Use
+
+.. code-block:: python
+
+   from postprocessing.postprocessing import to_csv
+
+   to_csv()
+
+to export processed data in CSV format.
+
+.. note::
+
+   It is assumed raw data resides in `~/.open-MaStR/data/<data version>/` as explained in :ref:`Configuration`.
+
+.. warning::
+
+   Raw data downloaded with :class:`open_mastr.soap_api.download.MaStRDownload` is
+   currently not supported.
+   Please use raw data from a CSV export(:meth:`open_mastr.soap_api.mirror.MaStRMirror.to_csv`)
+   of :class:`open_mastr.soap_api.mirror.MaStRMirror` data.
+
+
+Database import (Outdated)
+--------------------------
+
+Where available, geo location data, given in lat/lon (*Breitengrad*, *Längengrad*), is converted into a PostGIS geometry
+data type during database import. This allows spatial data operations in PostgreSQL/PostGIS.
+
+
+Data cleansing (Outdated)
+-------------------------
+
+Units inside Germany and inside German offshore regions are selected and get distinguished from units that are (falsely)
+located outside of Germany.
+Data is stored in separate tables.
+
+
+Data enrichment (Outdated)
+--------------------------
+
+For units without geo location data, a location is estimated based on the zip code. The centroid of the zip code region
+polygon is used as proxy for the exact location.
+To determine the zip code area, zip code data of OSM is used which is stored in
+`boundaries.osm_postcode <https://openenergy-platform.org/dataedit/view/boundaries/osm_postcode>`_.
+If a unit originally had correct geo data and the origin of estimated geom data is documented in the column `comment`.
 
 
 Zenodo upload

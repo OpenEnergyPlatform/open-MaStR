@@ -79,55 +79,58 @@ class Mastr:
 
         Parameters
         ------------
-        method: str
+        method: {'API', 'bulk'}, optional
             Either "API" or "bulk". Determines whether the data is downloaded via the
             zipped bulk download or via the MaStR API. The latter requires an account
             from marktstammdatenregister.de,
-            (see :ref:`Configuration <Configuration>`).
-        technology: str or list or None
+            (see :ref:`Configuration <Configuration>`). Default to 'bulk'.
+        technology: str or list or None, optional
             Determines which technologies are written to the database. If None, all technologies are
             used. If it is a list, possible entries are "wind", "solar", "biomass", "hydro", "gsgk",
             "combustion", "nuclear", "gas", "storage", "electricity_consumer", "location", "market",
             "grid", "balancing_area" or "permit". If only one technology is of interest, this can be
-            given as a string.
-        bulk_date_string: str
+            given as a string.  Default to None, where all technologies are included.
+        bulk_date_string: str, optional
             Either "today" if the newest data dump should be downloaded from the MaStR website. If
             an already downloaded dump should be used, state the date of the download in the format
-            "yyyymmdd".
-        bulk_cleansing: bool
-            If True, data cleansing is applied after the download (which is recommended)
-        api_processes: int or None or "max"
+            "yyyymmdd". Default to "today".
+        bulk_cleansing: bool, optional
+            If True, data cleansing is applied after the download (which is recommended). Default
+            to True.
+        api_processes: int or None or "max", optional
             Number of parallel processes used to download additional data.
             Defaults to `None`. If set to "max", the maximum number of possible processes
             is used.
-        api_limit: int or None
+        api_limit: int or None, optional
             Limit number of units that data is download for. Defaults to `None` which refers
             to query data for existing data requests, for example created by
             :meth:`~.create_additional_data_requests`. Note: There is a limited number of
             requests you are allowed to have per day, so setting api_limit to a value is
             recommended.
-        api_date: None or :class:`datetime.datetime` or str
+        api_date: None or :class:`datetime.datetime` or str, optional
             Specify backfill date from which on data is retrieved
 
             Only data with modification time stamp greater that `date` is retrieved.
 
             * `datetime.datetime(2020, 11, 27)`: Retrieve data which is is newer than this
-            time stamp
+              time stamp
             * 'latest': Retrieve data which is newer than the newest data already in the table.
+
               .. warning::
 
-                 Don't use 'latest' in combination with `limit`. This might lead to
+                 Don't use "latest" in combination with "api_limit". This might lead to
                  unexpected results.
+
             * `None`: Complete backfill
 
             Defaults to `None`.
-        api_chunksize: int or None
+        api_chunksize: int or None, optional
             Data is downloaded and inserted into the database in chunks of `chunksize`.
             Defaults to 1000.
-        api_data_types: list or None
+        api_data_types: list or None, optional
             Select type of additional data that should be retrieved. Choose from
             "unit_data", "eeg_data", "kwk_data", "permit_data".
-        api_location_types: list or None
+        api_location_types: list or None, optional
             Select type of location that should be retrieved. Choose from
             "location_elec_generation", "location_elec_consumption", "location_gas_generation",
             "location_gas_consumption".

@@ -55,7 +55,7 @@ biomass
 
 
 combustion
--------
+------------
 
 .. csv-table::
    :file: raw\bnetza_mastr_combustion_raw.csv
