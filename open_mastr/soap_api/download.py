@@ -18,8 +18,6 @@ import math
 from open_mastr.utils import credentials as cred
 from open_mastr.soap_api.config import (
     get_filenames,
-    get_project_home_dir,
-    get_data_config,
     setup_logger,
     get_data_version_dir,
     create_data_dir,
@@ -46,8 +44,8 @@ class MaStRAPI(object):
             key=""koo5eixeiQuoi'w8deighai8ahsh1Ha3eib3coqu7ceeg%ies..."
        )
 
-    Alternatively, leave `user` and `key` empty if user and token are accessible via `credentials.cfg`.
-    How to configure this is described :ref:`here <MaStR account>`.
+    Alternatively, leave `user` and `key` empty if user and token are accessible via
+    `credentials.cfg`. How to configure this is described :ref:`here <MaStR account>`.
 
     .. code-block:: python
 
@@ -307,8 +305,10 @@ def flatten_dict(data, serialize_with_json=False):
         for k, v in flatten_rule_replace_list.items():
             if k in dic.keys():
 
-                # if data point in 'dic' has one or more VerknuepfteEinheit or VerknuepfteEinheiten in its respective
-                # dict, then take first MaStRNummer and insert it into key VerknuepfteEinheiten (flatten dict).
+                # if data point in 'dic' has one or more VerknuepfteEinheit or
+                # VerknuepfteEinheiten in its respective
+                # dict, then take first MaStRNummer and insert it into key
+                # VerknuepfteEinheiten (flatten dict).
                 # Discard all other connected MaStRNummer's of data point.
                 if len(dic[k]) != 0:
                     dic[k] = dic[k][0][v]
@@ -443,7 +443,8 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
 
     .. warning::
 
-        Be careful with increasing `limit`. Typically, your account allows only for 10.000 API request per day.
+        Be careful with increasing `limit`. Typically, your account allows only for 10.000 API
+        request per day.
 
     """
 
@@ -745,10 +746,12 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         Parameters
         ----------
         technology : str, optional
-            Technology data is requested for. See :meth:`MaStRDownload.download_power_plants` for options.
+            Technology data is requested for. See :meth:`MaStRDownload.download_power_plants`
+            for options.
             Data is retrieved using :meth:`MaStRAPI.GetGefilterteListeStromErzeuger`.
-            If not given, it defaults to `None`. This implies data for all available technologies is retrieved using
-            the web service function :meth:`MaStRAPI.GetListeAlleEinheiten`.
+            If not given, it defaults to `None`. This implies data for all available
+            technologies is retrieved using the web service function
+            :meth:`MaStRAPI.GetListeAlleEinheiten`.
         limit : int, optional
             Maximum number of units to download.
             If not provided, data for all units is downloaded.
@@ -820,8 +823,9 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         """
         Retrieve addtional informations about units.
 
-        Extended information on units is available. Depending on type, additional data from EEG and KWK subsidy program
-        are available. Furthermore, for some units, data about permit is retrievable.
+        Extended information on units is available. Depending on type, additional data from EEG
+        and KWK subsidy program are available.
+        Furthermore, for some units, data about permit is retrievable.
 
         Parameters
         ----------
@@ -833,12 +837,15 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
             Name of method from :class:`MaStRDownload` to be used for querying additional data.
             Choose from
 
-            * "extended_unit_data" (:meth:`~.extended_unit_data`): Extended information (i.e. technical, location)
-              about a unit. The exact set of information depends on the technology.
-            * "eeg_unit_data" (:meth:`~.eeg_unit_data`): Unit Information from EEG unit registry. The exact
-              set of information depends on the technology.
+            * "extended_unit_data" (:meth:`~.extended_unit_data`): Extended information
+            (i.e. technical, location)
+            about a unit. The exact set of information depends on the technology.
+            * "eeg_unit_data" (:meth:`~.eeg_unit_data`): Unit Information from
+            EEG unit registry. The exact
+            set of information depends on the technology.
             * "kwk_unit_data" (:meth:`~.kwk_unit_data`): Unit information from KWK unit registry.
-            * "permit_unit_data" (:meth:`~.permit_unit_data`): Information about the permit process of a unit.
+            * "permit_unit_data" (:meth:`~.permit_unit_data`): Information about the permit
+            process of a unit.
 
         timeout: int, optional
             Timeout limit for data retrieval for each unit when using multiprocessing
@@ -888,7 +895,8 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
 
                             if not data_tmp:
                                 log.debug(
-                                    f"Download for additional data for {data_missed_tmp[0]} ({technology}) failed. "
+                                    f"Download for additional data for "
+                                    f"{data_missed_tmp[0]} ({technology}) failed. "
                                     f"Traceback of caught error:\n{data_missed_tmp[1]}"
                                 )
                             data.append(data_tmp)
@@ -911,7 +919,8 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
                 data_tmp, data_missed_tmp = self.__getattribute__(data_fcn)(unit_specs)
                 if not data_tmp:
                     log.debug(
-                        f"Download for additional data for {data_missed_tmp[0]} ({technology}) failed. "
+                        f"Download for additional data for "
+                        f"{data_missed_tmp[0]} ({technology}) failed. "
                         f"Traceback of caught error:\n{data_missed_tmp[1]}"
                     )
                 data.append(data_tmp)
@@ -1117,7 +1126,8 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
             requests.exceptions.ReadTimeout,
         ) as e:
             # log.exception(
-            #     f"Failed to download unit data for {permit_id} because of SOAP API exception: {e}",
+            #     f"Failed to download unit data for {permit_id} "
+            #     f"because of SOAP API exception: {e}",
             #     exc_info=False)
             permit_data = {}
             permit_missed = (permit_id, repr(e))
@@ -1222,7 +1232,8 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         """
         Retrieve basic location data in chunks
 
-        Retrieves data for all types of locations at once using :meth:`MaStRAPI.GetListeAlleLokationen`.
+        Retrieves data for all types of locations at once using
+        :meth:`MaStRAPI.GetListeAlleLokationen`.
         Locations include
 
         * Electricity generation location (SEL - Stromerzeugungslokation)
@@ -1244,16 +1255,20 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
             If specified, only locations with latest change date newer than this are queried.
             Defaults to :obj:`None`.
         max_retries: int, optional
-            Maximum number of retries for each chunk in case of errors with the connection to the server.
+            Maximum number of retries for each chunk in case of errors with the connection to
+            the server.
 
         Yields
         ------
         generator of generators
-            For each chunk a separate generator is returned all wrapped into another generator. Access with
+            For each chunk a separate generator is returned all wrapped into another generator.
+            Access with
 
             .. code-block:: python
 
-                chunks = mastr_dl.basic_location_data(date_from=datetime.datetime(2020, 11, 7, 0, 0, 0), limit=2010)
+                chunks = mastr_dl.basic_location_data(
+                    date_from=datetime.datetime(2020, 11, 7, 0, 0, 0), limit=2010
+                    )
 
                 for chunk in chunks:
                     for location in chunk:
@@ -1318,8 +1333,9 @@ def basic_data_download(
     category: str
         Either "Einheiten" or "Lokationen"
     chunks_start: list of int
-        Start index for each chunk. MaStR data is internally index by an integer index that can be used to start
-        querying data from a certain position. Here, it is used to iterate over the available data.
+        Start index for each chunk. MaStR data is internally index by an integer index that can
+        be used to start querying data from a certain position. Here, it is used to
+        iterate over the available data.
     limits: list of int
         Limit of queried row for each chunk.
     date_from: datetime.datetime
@@ -1330,8 +1346,8 @@ def basic_data_download(
         Choose a subset from available technologies. Only relevant if category="Einheiten".
         Defaults to all technologies.
     et: str
-        Energietraeger of a technology. Some technologies are subdivided into a list of energietraeger.
-        Only relevant if category="Einheiten". Defaults to None.
+        Energietraeger of a technology. Some technologies are subdivided into a list of
+        energietraeger. Only relevant if category="Einheiten". Defaults to None.
 
     Yields
     ------
@@ -1388,7 +1404,8 @@ def basic_data_download(
         else:
             log.error(
                 f"Finally failed to download data."
-                f"Basic unit data of index {chunk_start} to {chunk_start + limit_iter - 1} will be missing."
+                f"Basic unit data of index {chunk_start} to "
+                f"{chunk_start + limit_iter - 1} will be missing."
             )
             # TODO: this has potential risk! Please change
             # If the download continuously fails on the last chunk, this query will run forever
@@ -1411,4 +1428,5 @@ def basic_data_download(
 if __name__ == "__main__":
     pass
 
-# TODO: Pass through kargs to _unit_data() that are possible to use with GetGefilterteListeStromErzeuger() and mention in docs
+# TODO: Pass through kargs to _unit_data() that are possible 
+# to use with GetGefilterteListeStromErzeuger() and mention in docs
