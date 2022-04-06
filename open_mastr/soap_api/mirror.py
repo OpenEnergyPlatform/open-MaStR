@@ -241,12 +241,12 @@ class MaStRMirror:
                     # In case technologies are specified, latest data date gets queried per technology
                     with session_scope() as session:
                         newest_date = (
-                            session.query(orm.BasicUnit.DatumLetzeAktualisierung)
+                            session.query(orm.BasicUnit.DatumLetzteAktualisierung)
                             .filter(
                                 orm.BasicUnit.Einheittyp
                                 == self.unit_type_map_reversed[tech]
                             )
-                            .order_by(orm.BasicUnit.DatumLetzeAktualisierung.desc())
+                            .order_by(orm.BasicUnit.DatumLetzteAktualisierung.desc())
                             .first()
                         )
                 else:
@@ -255,7 +255,7 @@ class MaStRMirror:
                     with session_scope() as session:
                         subquery = session.query(
                             orm.BasicUnit.Einheittyp,
-                            func.max(orm.BasicUnit.DatumLetzeAktualisierung).label(
+                            func.max(orm.BasicUnit.DatumLetzteAktualisierung).label(
                                 "maxdate"
                             ),
                         ).group_by(orm.BasicUnit.Einheittyp)
@@ -282,7 +282,7 @@ class MaStRMirror:
 
             with session_scope() as session:
 
-                # Insert basic data into databse
+                # Insert basic data into database
                 log.info(
                     "Insert basic unit data into DB and submit additional data requests"
                 )
@@ -317,6 +317,11 @@ class MaStRMirror:
                     insert = []
                     updated = []
                     for unit in basic_units_chunk_unique:
+
+                        # Rename the typo in column DatumLetzeAktualisierung
+                        if "DatumLetzteAktualisierung" not in unit.keys():
+                            unit["DatumLetzteAktualisierung"] = unit.pop("DatumLetzeAktualisierung", None)
+
                         # In case data for the unit already exists, only update if new data is newer
                         if unit["EinheitMastrNummer"] in common_ids:
                             if session.query(
@@ -324,8 +329,8 @@ class MaStRMirror:
                                     and_(
                                         orm.BasicUnit.EinheitMastrNummer
                                         == unit["EinheitMastrNummer"],
-                                        orm.BasicUnit.DatumLetzeAktualisierung
-                                        < unit["DatumLetzeAktualisierung"],
+                                        orm.BasicUnit.DatumLetzteAktualisierung
+                                        < unit["DatumLetzteAktualisierung"],
                                     )
                                 )
                             ).scalar():
@@ -1217,9 +1222,9 @@ class MaStRMirror:
                 self.unit_type_map_reversed[tech] for tech in technology
             ]
             newest_date = (
-                session.query(orm.BasicUnit.DatumLetzeAktualisierung)
+                session.query(orm.BasicUnit.DatumLetzteAktualisierung)
                 .filter(orm.BasicUnit.Einheittyp.in_(mastr_technologies))
-                .order_by(orm.BasicUnit.DatumLetzeAktualisierung.desc())
+                .order_by(orm.BasicUnit.DatumLetzteAktualisierung.desc())
                 .first()[0]
             )
         metadata = datapackage_meta_json(newest_date, technology, json_serialize=False)

@@ -33,7 +33,7 @@ class BasicUnit(Base):
     __tablename__ = "basic_units"
 
     EinheitMastrNummer = Column(String, primary_key=True)
-    DatumLetzeAktualisierung = Column(DateTime(timezone=True))
+    DatumLetzteAktualisierung = Column(DateTime(timezone=True))
     Name = Column(String)
     Einheitart = Column(String)
     Einheittyp = Column(String)

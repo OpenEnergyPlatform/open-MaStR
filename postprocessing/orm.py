@@ -12,7 +12,7 @@ Base = declarative_base(metadata=meta)
 class BasicUnit(object):
 
     EinheitMastrNummer = Column(String, primary_key=True)
-    DatumLetzeAktualisierung = Column(DateTime(timezone=True))
+    DatumLetzteAktualisierung = Column(DateTime(timezone=True))
     Name = Column(String)
     Einheitart = Column(String)
     Einheittyp = Column(String)
