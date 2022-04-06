@@ -1,7 +1,31 @@
-Raw data
-========
+Data Description
+=====================
 
-Raw data retrieved from MaStR database is structured as follows
+In the following, we will describe the data retrieved from the MaStR database. The two figures showing the data model are 
+taken from `here <https://www.marktstammdatenregister.de/MaStRHilfe/subpages/dokumentendownload.html>`_.
+
+
+.. figure:: ../images/ObjektmodellMaStR.PNG
+   :width: 70%
+   :align: center
+   
+   Overview of MaStR data model and its sub-categories.
+
+As can be seen from the first figure, the MaStR can be divided into three sub-categories: Actor (Marktakteur), grid (Netz),
+and unit (Einheit). Since the technological units are the core of the MaStR, their data model is shown in the next figure 
+with a higher level of detail. 
+
+.. figure:: ../images/DetailAnlagenModellMaStR.PNG
+   :width: 90%
+   :align: center
+   
+   Overview of MaStR data model with a focus on the electricity and gas units.
+
+
+
+
+The MaStR comes in the form of a relational database, where the information is divided into various tables.
+For the main technologies, we have summarized the attributes together with a short description (Only in German). 
 
 solar
 -------
