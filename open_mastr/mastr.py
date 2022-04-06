@@ -66,7 +66,7 @@ class Mastr:
         bulk_date_string="today",
         bulk_cleansing=True,
         api_processes=None,
-        api_limit=None,
+        api_limit=50,
         api_date=None,
         api_chunksize=None,
         api_data_types=None,
