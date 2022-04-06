@@ -4,7 +4,7 @@ import os
 import pandas as pd
 from sqlalchemy.orm import sessionmaker, Query
 from sqlalchemy import and_, create_engine, func
-from sqlalchemy.sql import exists
+from sqlalchemy.sql import exists, insert, literal_column
 import shlex
 import subprocess
 from open_mastr.settings import DB_ENGINE
@@ -21,7 +21,6 @@ from open_mastr.soap_api.download import MaStRDownload, flatten_dict, to_csv
 from open_mastr import orm
 from open_mastr.soap_api.metadata.create import datapackage_meta_json
 from open_mastr.utils.helpers import session_scope
-
 
 log = setup_logger()
 
@@ -320,7 +319,9 @@ class MaStRMirror:
 
                         # Rename the typo in column DatumLetzeAktualisierung
                         if "DatumLetzteAktualisierung" not in unit.keys():
-                            unit["DatumLetzteAktualisierung"] = unit.pop("DatumLetzeAktualisierung", None)
+                            unit["DatumLetzteAktualisierung"] = unit.pop(
+                                "DatumLetzeAktualisierung", None
+                            )
 
                         # In case data for the unit already exists, only update if new data is newer
                         if unit["EinheitMastrNummer"] in common_ids:
@@ -1231,6 +1232,54 @@ class MaStRMirror:
 
         with open(metadata_file, "w", encoding="utf-8") as f:
             json.dump(metadata, f, ensure_ascii=False, indent=4)
+
+    def reverse_fill_basic_units(self):
+
+        technology = [
+            "solar",
+            "wind",
+            "biomass",
+            "combustion",
+            "gsgk",
+            "hydro",
+            "nuclear",
+            "storage",
+        ]
+
+        with session_scope() as session:
+
+            # Empty the basic_units table, because it will be filled entirely from extended tables
+            session.query(getattr(orm, "BasicUnit", None)).delete()
+
+            for tech in technology:
+
+                unit_data_orm = getattr(orm, self.orm_map[tech]["unit_data"], None)
+                basic_unit_column_names = [
+                    column.name
+                    for column in getattr(orm, "BasicUnit", None).__mapper__.columns
+                ]
+
+                unit_columns_to_reverse_fill = [
+                    column
+                    for column in unit_data_orm.__mapper__.columns
+                    if column.name in basic_unit_column_names
+                ]
+                unit_column_names_to_reverse_fill = [
+                    column.name for column in unit_columns_to_reverse_fill
+                ]
+
+                # Add Einheittyp externally
+                unit_typ = "'" + self.unit_type_map_reversed.get(tech, None) + "'"
+                unit_columns_to_reverse_fill.append(
+                    literal_column(unit_typ).label("Einheittyp")
+                )
+                unit_column_names_to_reverse_fill.append("Einheittyp")
+
+                query = Query(unit_columns_to_reverse_fill, session=session)
+                insert_query = insert(orm.BasicUnit).from_select(
+                    unit_column_names_to_reverse_fill, query
+                )
+                session.execute(insert_query)
 
 
 def partially_suffixed_columns(mapper, column_names, suffix):
