@@ -191,14 +191,14 @@ If one seeks for an option to store the entire data in a local database,
 and updating latest data changes.
 
 Mirror MaStR database
---------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. autoclass:: open_mastr.soap_api.mirror.MaStRMirror
    :members:
 
 
-Bulk download
------------------
+Download large number of units
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Downloading thousands of units is simplified using
 :meth:`open_mastr.soap_api.download.MaStRDownload.download_power_plants`.
@@ -208,7 +208,7 @@ Downloading thousands of units is simplified using
 
 
 MaStR API wrapper
----------------------
+^^^^^^^^^^^^^^^^^^^^
 
 For simplifying queries against the MaStR API, :class:`open_mastr.soap_api.download.MaStRAPI` wraps around exposed
 SOAP queries.
