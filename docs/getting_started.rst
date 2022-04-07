@@ -60,3 +60,11 @@ Some Basic settings for configuring the `API` download are:
 
 Here, the technologies, data_types and location_types that are not of interest can be deleted from the list.
 Detailed information can be found in :ref:`Downloading the MaStR data <Downloading the MaStR data>`.
+
+
+Accessing the database
+------------------------
+
+For accessing and working with the MaStR database after you have downloaded it, you can use any python module 
+which can process sqlite data. Pandas, for example, comes with the function 
+`read_sql <https://pandas.pydata.org/docs/reference/api/pandas.read_sql.html>`_.
