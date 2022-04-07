@@ -760,9 +760,9 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
 
                Mind the daily request limit for your MaStR account.
 
-        date_from: :any:`datetime.datetime()`, optional
+        date_from: `datetime.datetime()`, optional
             If specified, only units with latest change date newer than this are queried.
-            Defaults to :any:`None`.
+            Defaults to `None`.
         max_retries: int, optional
             Maximum number of retries in case of errors with the connection to the server.
 
