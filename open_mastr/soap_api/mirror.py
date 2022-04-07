@@ -1234,6 +1234,14 @@ class MaStRMirror:
             json.dump(metadata, f, ensure_ascii=False, indent=4)
 
     def reverse_fill_basic_units(self):
+        """
+        The basic_units table is empty after bulk download. To enable csv export, the table is filled from extended
+        tables reversely.
+        .. warning::
+        The basic_units table will be dropped and then recreated.
+        Returns -------
+
+        """
 
         technology = [
             "solar",
@@ -1252,7 +1260,7 @@ class MaStRMirror:
             session.query(getattr(orm, "BasicUnit", None)).delete()
 
             for tech in technology:
-
+                # Get the class of extended table
                 unit_data_orm = getattr(orm, self.orm_map[tech]["unit_data"], None)
                 basic_unit_column_names = [
                     column.name
@@ -1268,17 +1276,19 @@ class MaStRMirror:
                     column.name for column in unit_columns_to_reverse_fill
                 ]
 
-                # Add Einheittyp externally
+                # Add Einheittyp artificially
                 unit_typ = "'" + self.unit_type_map_reversed.get(tech, None) + "'"
                 unit_columns_to_reverse_fill.append(
                     literal_column(unit_typ).label("Einheittyp")
                 )
                 unit_column_names_to_reverse_fill.append("Einheittyp")
 
+                # Build query
                 query = Query(unit_columns_to_reverse_fill, session=session)
                 insert_query = insert(orm.BasicUnit).from_select(
                     unit_column_names_to_reverse_fill, query
                 )
+
                 session.execute(insert_query)
 
 
