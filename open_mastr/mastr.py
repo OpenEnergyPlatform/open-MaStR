@@ -71,7 +71,6 @@ class Mastr:
         api_chunksize=None,
         api_data_types=None,
         api_location_types=None,
-        initialize_db=None,
     ) -> None:
         """
         Download the MaStR either via the bulk download or via the MaStR API and write it to a
