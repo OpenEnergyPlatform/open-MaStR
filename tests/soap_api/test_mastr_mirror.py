@@ -66,11 +66,11 @@ def test_update_latest(mastr_mirror):
     # Test if latest date is newer that initially requested data in backfill_basic
     with session_scope() as session:
         response = (
-            session.query(orm.BasicUnit.DatumLetzeAktualisierung)
-            .order_by(orm.BasicUnit.DatumLetzeAktualisierung.desc())
+            session.query(orm.BasicUnit.DatumLetzteAktualisierung)
+            .order_by(orm.BasicUnit.DatumLetzteAktualisierung.desc())
             .first()
         )
-    assert response.DatumLetzeAktualisierung > DATE
+    assert response.DatumLetzteAktualisierung > DATE
 
 
 @pytest.mark.dependency(
@@ -90,7 +90,7 @@ def test_create_additional_data_requests(mastr_mirror):
     depends=["create_additional_data_requests"], name="export_to_csv"
 )
 def test_to_csv(mastr_mirror):
-    for tech in TECHNOLOGIES:
+    for tech in ["nuclear", "storage"]:
         mastr_mirror.to_csv(
             technology=tech, additional_data=DATA_TYPES, statistic_flag=None
         )
@@ -98,11 +98,13 @@ def test_to_csv(mastr_mirror):
     with session_scope() as session:
         raw_data = read_csv_data("raw")
         for tech, df in raw_data.items():
-            units = session.query(orm.BasicUnit.EinheitMastrNummer).filter(
-                orm.BasicUnit.Einheittyp == mastr_mirror.unit_type_map_reversed[tech]
-            )
-            for unit in units:
-                assert unit.EinheitMastrNummer in df.index
+            if tech in ["nuclear", "storage"]:
+                units = session.query(orm.BasicUnit.EinheitMastrNummer).filter(
+                    orm.BasicUnit.Einheittyp
+                    == mastr_mirror.unit_type_map_reversed[tech]
+                )
+                for unit in units:
+                    assert unit.EinheitMastrNummer in df.index
 
 
 @pytest.mark.dependency(name="backfill_locations_basic")
@@ -116,7 +118,8 @@ def test_backfill_locations_basic(mastr_mirror):
     with session_scope() as session:
         rows_after_download = session.query(orm.LocationBasic).count()
         rows_downloaded = rows_after_download - rows_before_download
-        assert rows_downloaded == LIMIT
+        # Downloaded rows might already exist, therefore less or equal
+        assert rows_downloaded <= LIMIT
 
 
 @pytest.mark.dependency(
