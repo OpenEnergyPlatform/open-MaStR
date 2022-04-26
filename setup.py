@@ -11,7 +11,7 @@ with open(path.join(here, "README.md"), encoding="utf-8") as f:
 setup(
     name="open_mastr",
     packages=find_packages(),
-    version="0.10.0",
+    version="0.11.0",
     description="MaStR data download tool",
     long_description=long_description,
     long_description_content_type="text/markdown",
