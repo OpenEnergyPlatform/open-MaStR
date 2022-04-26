@@ -56,7 +56,10 @@ python setup.py install
 
 ## License / Copyright
 
-This repository is licensed under [GNU Affero General Public License v3.0 (AGPL-3.0)](https://www.gnu.org/licenses/agpl-3.0.en.html)
-© [Reiner Lemoine Institut](https://reiner-lemoine-institut.de/), [fortiss](https://www.fortiss.org/).
-See the [LICENSE](LICENSE.md) file for license rights and limitations.
+This repository is licensed under [GNU Affero General Public License v3.0 (AGPL-3.0)](https://www.gnu.org/licenses/agpl-3.0.en.html). <br>
+See the [LICENSE](LICENSE.md) file for rights and limitations. <br>
+See the CITATION function if you want to mention this software in your publication. 
+
+[open-MaStR](https://github.com/OpenEnergyPlatform/open-MaStR) © [Reiner Lemoine Institut](https://reiner-lemoine-institut.de/) © [fortiss](https://www.fortiss.org/) | [AGPL-3.0](https://www.gnu.org/licenses/agpl-3.0.en.html)
+
 
