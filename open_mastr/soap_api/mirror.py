@@ -979,6 +979,84 @@ class MaStRMirror:
         with open(metadata_file, 'w', encoding='utf-8') as f:
             json.dump(metadata, f, ensure_ascii=False, indent=4)
 
+    def locations_to_csv(self, location_type, limit=None):
+        """
+        Save location raw data to CSV file
+
+        During data export to CSV file, data is reshaped to tabular format. Data stored in JSON types is flattened and
+        concated to separate rows.
+
+        Parameters
+        ----------
+        location_type: `str`
+            Select type of location that is to be retrieved. Choose from
+            "location_elec_generation", "location_elec_consumption", "location_gas_generation",
+            "location_gas_consumption".
+        limit: int
+            Limit number of rows. Defaults to None which implies all rows are selected.
+        """
+        location_type_shorthand = {
+            "location_elec_generation": "SEL",
+            "location_elec_consumption": "SVL",
+            "location_gas_generation": "GEL",
+            "location_gas_consumption": "GVL"
+        }
+
+        def list_of_dicts_to_columns(row):
+            """
+            Expand data stored in dict to spearate columns
+
+            Parameters
+            ----------
+            row: list of dict
+                Usually apllied using apply on a column of a pandas DataFrame, hence, a Series. This column of the
+                DataFrame should comprise of a single-level dict with an arbitrary number of columns. Each key is
+                transformed into a new column, while data from each dict inside the list is concatenated by key. Such
+                that the data is stored into a list for each key/column.
+
+            Returns
+            -------
+            pd.Series
+                Pandas Series with keys as columns and values concatenated to a list for each key.
+            """
+            columns = {k: [] for dic in row for k, _ in dic.items()}
+            for dic in row:
+                for k, v in dic.items():
+                    columns[k].append(v)
+
+            new_cols_df = pd.Series(columns)
+            return new_cols_df
+
+        with session_scope() as session:
+
+            # Load basic and extended location data into DataFrame
+            locations_extended = session.query(
+                *[c for c in orm.LocationBasic.__table__.columns if c.name not in ["NameDerTechnischenLokation"]],
+                *[c for c in orm.LocationExtended.__table__.columns if c.name not in ["MaStRNummer"]],
+            ).join(
+                orm.LocationExtended,
+                orm.LocationBasic.LokationMastrNummer == orm.LocationExtended.MastrNummer
+            ) \
+                .filter(orm.LocationBasic.LokationMastrNummer.startswith(location_type_shorthand[location_type])
+                        ).limit(limit)
+
+            df = pd.read_sql(locations_extended.statement, session.bind)
+
+        # Expand data about grid connection points from dict into separate columns
+        df_expanded = pd.concat([pd.DataFrame(x) for x in df["Netzanschlusspunkte"]], keys=df.index).reset_index(
+            level=1, drop=True)
+        df = df.drop("Netzanschlusspunkte", axis=1).join(df_expanded).reset_index(drop=True)
+
+        # Expand data about related units into separate columns (with lists of related units)
+        df = df.drop("VerknuepfteEinheiten", axis=1).join(df["VerknuepfteEinheiten"].apply(list_of_dicts_to_columns))
+
+        # Save to file
+        create_data_dir()
+        data_path = get_data_version_dir()
+        filenames = get_filenames()
+        csv_file = os.path.join(data_path, filenames["raw"][location_type])
+        df.to_csv(csv_file, index=False, encoding="utf-8")
+
 
 def partially_suffixed_columns(mapper, column_names, suffix):
     """
