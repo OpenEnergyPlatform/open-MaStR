@@ -2,7 +2,18 @@
 
 For each version important additions, changes and removals are listed here. 
 
-## [Unreleased]
+## [unreleased]
+
+##  [0.11.0] 2022-04-26
+
+- The class :class:`open_mastr.mastr.Matr` 
+  was introduced as the entrypoint for users, the API download was included in this entrypoint [#203](https://github.com/OpenEnergyPlatform/open-MaStR/issues/203)
+- A method for downloading and parsing the xml dump from the MaStR website
+  was implemented [#202](https://github.com/OpenEnergyPlatform/open-MaStR/issues/202)
+- New data classes and attributes were introduced to orm.py [#208](https://github.com/OpenEnergyPlatform/open-MaStR/issues/208)
+
+
+## [0.10.0] 2020-10-08 - unreleased
 
 A complete refactoring took place! Downloading data was entirely changed; introducing layers of code and removing 
 duplicated code while more of less following DRY. 
@@ -12,6 +23,10 @@ The documention on RTD was extended, update and improved to be more helpful for 
 Read more about the details:
 
 ### Added
+- added more technologies
+- added documentation for ReadTheDocs
+- improved parallel download
+- merged all stale branches
 
 - The class :class:`open_mastr.soap_api.mirror.MaStRMirror` 
   was introduced for mirroring MaStR data with latest updates 
@@ -71,19 +86,9 @@ Read more about the details:
 - Generalize CSV reading function 
   [#188](https://github.com/OpenEnergyPlatform/open-MaStR/issues/188)
 
-
 ### Removed
 
 - Most of prior code for downloading data
-
-
-## [0.10.0] 2020-10-08
-
-### Added
-- added more technologies
-- added documentation for ReadTheDocs
-- improved parallel download
-- merged all stale branches
 
 ## [0.9.0] 2019-12-05
 

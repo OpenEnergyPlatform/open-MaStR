@@ -1,11 +1,18 @@
-pandas
 sqlalchemy
 geoalchemy2
-shapely
-psycopg2-binary
-zeep
+shapely  # only postprocessing
+psycopg2-binary  # only postprocessing
+zeep  
 tqdm
-geopandas
-pyyaml
+geopandas  # still needed?
+pyyaml  # still needed?
 requests
 keyring
+pandas >=1.4
+numpy
+clint
+beautifulsoup4
+python-dateutil
+lxml
+
+# TODO: Delete requirements.txt

@@ -1,3 +1,4 @@
+import csv
 import datetime
 import json
 import os
@@ -6,6 +7,9 @@ import uuid
 from open_mastr.soap_api.metadata.description import DataDescription
 from open_mastr.soap_api.config import get_data_config, get_filenames, column_renaming
 from open_mastr.soap_api.download import MaStRDownload
+
+
+# TODO: We should not describe the data in both metadata folder and orm.py
 
 
 def datapackag_base(reference_date, publication_date=None, statistik_flag=None):
@@ -40,18 +44,24 @@ def datapackag_base(reference_date, publication_date=None, statistik_flag=None):
 
     # Add a note to the description if this is filtered data or if it the complete data including potential duplicates
     if statistik_flag == "B":
-        description_extra = "The original MaStR data is filtered by `StatistikFlag == 'B'`. It includes data that " \
-                            "was migrated to the Martstammdatenregister + newly registered units with commissioning "\
-                            "date after 31.01.2019 Thus, it is suitable for " \
-                            "statistical analysis as is does not contain duplicates.\n"
+        description_extra = (
+            "The original MaStR data is filtered by `StatistikFlag == 'B'`. It includes data that "
+            "was migrated to the Martstammdatenregister + newly registered units with commissioning "
+            "date after 31.01.2019 Thus, it is suitable for "
+            "statistical analysis as is does not contain duplicates.\n"
+        )
     elif statistik_flag == "A":
-        description_extra = "The original MaStR data is filtered by `StatistikFlag == 'A'`. "\
-                            "It includes newly registered units with commissioning date before 31.01.2019. " \
-                            "Data may contain duplicates.\n"
+        description_extra = (
+            "The original MaStR data is filtered by `StatistikFlag == 'A'`. "
+            "It includes newly registered units with commissioning date before 31.01.2019. "
+            "Data may contain duplicates.\n"
+        )
     else:
         description_extra = "All data from the Marktstammdatenregister is included. There are duplicates included.\n"
-    description_extra += "For further information read in the documentation of the original data source: " \
-                         "https://www.marktstammdatenregister.de/MaStRHilfe/subpages/statistik.html"
+    description_extra += (
+        "For further information read in the documentation of the original data source: "
+        "https://www.marktstammdatenregister.de/MaStRHilfe/subpages/statistik.html"
+    )
 
     datapackage_meta = {
         "name": "open-mastr_raw",
@@ -168,7 +178,13 @@ def datapackag_base(reference_date, publication_date=None, statistik_flag=None):
     return datapackage_meta
 
 
-def datapackage_meta_json(reference_date, technologies=None, data=["raw"], statistik_flag=None, json_serialize=True):
+def datapackage_meta_json(
+    reference_date,
+    technologies=None,
+    data=["raw"],
+    statistik_flag=None,
+    json_serialize=True,
+):
     """
     Create a frictionless data conform metadata description
 
@@ -196,7 +212,9 @@ def datapackage_meta_json(reference_date, technologies=None, data=["raw"], stati
         Set `json_serialize` to False, for returning a dict instead of JSON str.
     """
 
-    datapackage_base_dict = datapackag_base(reference_date, statistik_flag=statistik_flag)
+    datapackage_base_dict = datapackag_base(
+        reference_date, statistik_flag=statistik_flag
+    )
 
     table_columns = DataDescription().functions_data_documentation()
     mastr_dl = MaStRDownload()
@@ -204,10 +222,7 @@ def datapackage_meta_json(reference_date, technologies=None, data=["raw"], stati
     # Filter specified technologies
     if technologies:
         unit_data_specs = {
-            k: v
-            for k, v in mastr_dl._unit_data_specs.items()
-            if k
-            in technologies
+            k: v for k, v in mastr_dl._unit_data_specs.items() if k in technologies
         }
 
     filenames = get_filenames()
@@ -216,13 +231,18 @@ def datapackage_meta_json(reference_date, technologies=None, data=["raw"], stati
 
     resources_meta = {"resources": []}
 
-
     # Add resources of raw data files
     for tech, specs in unit_data_specs.items():
         raw_fields = []
         specs["basic_data"] = "GetListeAlleEinheiten"
 
-        for data_type in ["basic_data", "unit_data", "eeg_data", "kwk_data", "permit_data"]:
+        for data_type in [
+            "basic_data",
+            "unit_data",
+            "eeg_data",
+            "kwk_data",
+            "permit_data",
+        ]:
             if data_type in specs.keys():
                 for name, specification in table_columns[specs[data_type]].items():
                     if name in renaming[data_type]["columns"]:
@@ -265,29 +285,43 @@ def datapackage_meta_json(reference_date, technologies=None, data=["raw"], stati
             resources_meta["resources"].append(resource)
         if "postprocessed" in data:
             processed_fields = [
-                {"name": "geom",
-                 "unit": None,
-                 "type": "str",
-                 "desciption": "Standort der Anlage als Punktgeometrie im WKB Format",
-                 "examples": "0101000020e610000071fbe59315131c40a2b437f8c20e4a40"},
-                {"name": "comment",
-                 "unit": None,
-                 "type": "str",
-                 "desciption": "Information about data post-processing",
-                 "examples": "has_geom; outside_vg250"}
+                {
+                    "name": "geom",
+                    "unit": None,
+                    "type": "str",
+                    "desciption": "Standort der Anlage als Punktgeometrie im WKB Format",
+                    "examples": "0101000020e610000071fbe59315131c40a2b437f8c20e4a40",
+                },
+                {
+                    "name": "comment",
+                    "unit": None,
+                    "type": "str",
+                    "desciption": "Information about data post-processing",
+                    "examples": "has_geom; outside_vg250",
+                },
             ]
             if tech == "wind":
                 processed_fields.append(
-                    {"name": "tags",
-                     "unit": None,
-                     "type": "json",
-                     "desciption": "Data insights and report about post-processing steps",
-                     "examples": {'plz_check': False, 'processed': True, 'inside_germany': True}})
-                processed_fields.append({"name": "geom",
-                     "unit": None,
-                     "type": "str",
-                     "desciption": "Standort der Anlage als Punktgeometrie im WKB Format (EPSG 3035)",
-                     "examples": "0101000020e610000071fbe59315131c40a2b437f8c20e4a40"}
+                    {
+                        "name": "tags",
+                        "unit": None,
+                        "type": "json",
+                        "desciption": "Data insights and report about post-processing steps",
+                        "examples": {
+                            "plz_check": False,
+                            "processed": True,
+                            "inside_germany": True,
+                        },
+                    }
+                )
+                processed_fields.append(
+                    {
+                        "name": "geom",
+                        "unit": None,
+                        "type": "str",
+                        "desciption": "Standort der Anlage als Punktgeometrie im WKB Format (EPSG 3035)",
+                        "examples": "0101000020e610000071fbe59315131c40a2b437f8c20e4a40",
+                    }
                 )
             resource = {
                 "profile": "tabular-data-resource",
@@ -306,7 +340,6 @@ def datapackage_meta_json(reference_date, technologies=None, data=["raw"], stati
 
             resources_meta["resources"].append(resource)
 
-
     datapackage_dict = {**datapackage_base_dict, **resources_meta}
 
     if json_serialize:
@@ -316,7 +349,9 @@ def datapackage_meta_json(reference_date, technologies=None, data=["raw"], stati
 
 
 def column_docs_csv(technologies, base_path):
-    metadata = datapackage_meta_json(datetime.datetime.now(), technologies, json_serialize=False)
+    metadata = datapackage_meta_json(
+        datetime.datetime.now(), technologies, json_serialize=False
+    )
 
     filenames = []
 
@@ -330,15 +365,22 @@ def column_docs_csv(technologies, base_path):
                 metadata_resources.append(metadata_resource)
 
     for table in metadata_resources:
-        csv_string = "Column,Description,Type,Example\n"
-        for column in table["schema"]["fields"]:
-            csv_string += f"\"{column['name']}\",\"{column['description']}\",\"{column['type']}\",\"{column['example']}\"\n"
+        csv_header = ["Column", "Description", "Type", "Example"]
 
         os.makedirs(base_path, exist_ok=True)
         filename_base = table["name"] + ".csv"
         filename = os.path.join(base_path, filename_base)
         filenames.append(filename_base)
-        with open(filename, "w") as fh:
-            fh.write(csv_string)
+        with open(filename, "w", encoding="utf-8", newline="") as fh:
+            fh_writer = csv.writer(fh)
+            fh_writer.writerow(csv_header)
+            for column in table["schema"]["fields"]:
+                csv_row = [
+                    column["name"],
+                    column["description"],
+                    column["type"],
+                    column["example"],
+                ]
+                fh_writer.writerow(csv_row)
 
     return filenames

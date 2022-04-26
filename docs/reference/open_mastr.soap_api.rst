@@ -36,14 +36,6 @@ open\_mastr.soap\_api.mirror module
    :undoc-members:
    :show-inheritance:
 
-open\_mastr.soap\_api.orm module
---------------------------------
-
-.. automodule:: open_mastr.soap_api.orm
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 open\_mastr.soap\_api.parallel module
 -------------------------------------
 

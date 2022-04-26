@@ -6,46 +6,22 @@ on:
       - dev
   pull_request:
     branches:
+      - dev
 
 jobs:
   build:
 
     # Jobs definition
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        python-version: [3.6, 3.7, 3.8]
-    name: pytest (Python ${{ matrix.python-version }})
-
-    # Define PostgreSQL database as container
-    services:
-      open-MaStR:
-        image: postgis/postgis:12-master
-        ports:
-          - "127.0.0.1:55443:5432"
-        env:
-          POSTGRES_DB: open-mastr
-          POSTGRES_USER: open-mastr
-          POSTGRES_PASSWORD: open-mastr
-        volumes:
-          - entrypoints:/docker-entrypoint-initdb.d/
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+        os: [ubuntu-latest, windows-latest]
+        python-version: [3.8, 3.9, '3.10']
+    name: pytest (Python ${{ matrix.python-version }}) (OS ${{ matrix.os }})
 
     # Configure tests
     steps:
     - uses: actions/checkout@v2
-    - name: Test DB connection
-      env:
-        PGPASSWORD: open-mastr
-      run: |
-        sudo apt update -y
-        sudo apt install -y --no-install-recommends postgresql-client
-        pg_isready -d open-mastr -h localhost -p 55443 -U open-mastr
-        psql -d open-mastr -h localhost -p 55443 -U open-mastr -c "SELECT PostGIS_full_version();"
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
@@ -53,13 +29,11 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        # if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-        pip install .
-        if [ -f tests/test_requirements.txt ]; then pip install -r tests/test_requirements.txt; fi
+        pip install -e ".[dev]"
     - name: Create credentials file
       env:
         MASTR_TOKEN: ${{ secrets.MASTR_TOKEN }}
-        MASTR_USER: ${{ secrets.MASTR_User }}
+        MASTR_USER: ${{ secrets.MASTR_USER }}
       run: |
         python -c "from tests import preparation; preparation.create_credentials_file()"
     - name: Test with pytest
