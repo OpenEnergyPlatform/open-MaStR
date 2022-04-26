@@ -22,7 +22,7 @@ Find the [documentation](https://open-mastr.readthedocs.io/en/dev) hosted on Rea
 
 It is recommended to use a virtual python environment, for example [conda](https://docs.conda.io/en/latest/miniconda.html) or 
 [virtualenv](https://virtualenv.pypa.io/en/latest/installation.html).
-The package is intended to be used with Python >=3.6
+The package is intended to be used with Python >=3.8
 
 Install the current release of ``open_mastr`` with ``pip``::
 
