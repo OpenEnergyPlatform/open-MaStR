@@ -11,10 +11,11 @@ provided by the German Federal Network Agency (Bundesnetzagentur) that keeps tra
 The MaStR data can be [browsed online](https://www.marktstammdatenregister.de/MaStR),
 taken from [daily provided dumps](https://www.marktstammdatenregister.de/MaStR/Datendownload)
 or be accessed via the [web service](https://www.marktstammdatenregister.de/MaStRHilfe/subpages/webdienst.html).
-This package focuses on the second and the third option. If you are interested in browsing the MaStR online, check out the
-privately hosted [Marktstammdatenregister.dev](https://marktstammdatenregister.dev/).
-It provides a python interface for accessing data via the bulk download and the web service API and methods to clean the data.
+
+The package open_mastr focuses on the second and the third option. It provides a python interface for accessing data via the bulk download and the web service API and methods to clean the data.
 In the future, methods to enrich the data and functions to analyze it are planned.
+If you are interested in browsing the MaStR online, check out the
+privately hosted [Marktstammdatenregister.dev](https://marktstammdatenregister.dev/).
 
 Find the [documentation](https://open-mastr.readthedocs.io/en/dev) hosted on ReadTheDocs.
 
