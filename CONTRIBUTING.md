@@ -7,8 +7,6 @@
 
 ### Philosophy
 
-Note: for changes to the `ontology` folder, please follow [these guidelines](https://github.com/OpenEnergyPlatform/open-MaStR/blob/master/ontology/CONTRIBUTE.md)
-
 Development of a feature for this repository should follow the workflow described 
 by [Vincent Driessen](https://nvie.com/posts/a-successful-git-branching-model/).
 
