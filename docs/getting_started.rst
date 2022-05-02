@@ -18,48 +18,39 @@ in `$HOME/.open-MaStR/data/sqlite`. With the function `Mastr.download()`, the **
 format. It is then read into the sqlite database and simple data cleansing functions are started.
 
 
-Another option is the download of data via the MaStR soap API. 
+The arguments in the `download()` function for configuring the `API` download are:
 
-    .. code-block:: python
+.. list-table:: API-related download arguments and explanantion
+   :widths: 5 5 5
+   :header-rows: 1
 
-           db.download(method="API")
+   * - argument
+     - options for specification
+     - explanation
+   * - technology
+     - ["wind","biomass","combustion","gsgk","hydro","nuclear","storage","solar"]
+     - Select technologies to download.
+   * - api_data_types
+     - ["unit_data","eeg_data","kwk_data","permit_data"]
+     - Select the type of data to download.
+   * - api_location_types
+     - ["location_elec_generation","location_elec_consumption","location_gas_generation","location_gas_consumption"]
+     - Select location_types to download.
+   * - api_processes
+     - Number of type int, e.g.: 5
+     - Select the number of parallel download processes. Possible number depends on the capabilities of your machine. Defaults to `Ǹone`.
+   * - api_limit
+     - Number of type int, e.g.: 1500
+     - Select the number of entries to download. Defaults to 50.
+   * - api_date
+     - None or :class:`datetime.datetime` or str
+     - Specify backfill date from which on data is retrieved. Only data with time stamp greater that `api_date` will be retrieved. Defaults to `Ǹone`.
+   * - api_chunksize
+     - int or None, e.g.: 1000
+     - Data is downloaded and inserted into the database in chunks of `api_chunksize`. Defaults to 1000.
 
-This requires an account and token (see :ref:`configuration <Configuration>`).
-The download via the API has the advantage, that **single entries of the MaStR can be downloaded** (one does not need to download the whole MaStR).
 
-Some Basic settings for configuring the `API` download are:
-
-    .. code-block:: python
-
-        technology = [
-            "wind",
-            "biomass",
-            "combustion",
-            "gsgk",
-            "hydro",
-            "nuclear",
-            "storage",
-            "solar",
-        ]
-
-        api_data_types = [
-            "unit_data",
-            "eeg_data",
-            "kwk_data",
-            "permit_data"
-        ]
-
-        api_location_types = [
-            "location_elec_generation",
-            "location_elec_consumption",
-            "location_gas_generation",
-            "location_gas_consumption",
-        ]
-
-        db.download(method="API", technology=technology, api_data_types=api_data_types, api_location_types=api_location_types)
-
-Here, the technologies, data_types and location_types that are not of interest can be deleted from the list.
-Detailed information can be found in :ref:`Downloading the MaStR data <Downloading the MaStR data>`.
+More detailed information can be found in :ref:`Downloading the MaStR data <Downloading the MaStR data>`.
 
 
 Accessing the database

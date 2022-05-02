@@ -23,6 +23,7 @@ authors:
     given-names: "Deniz"
     alias: "@deniztepe"
     affiliation: "fortiss"
+    orcid: " https://orcid.org/0000-0002-7605-0173"
 title: "open-MaStR"
 type: software
 license: AGPL-3.0
