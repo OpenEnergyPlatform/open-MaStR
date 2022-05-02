@@ -17,8 +17,11 @@ The main entry point to open_mastr is the :class:`Mastr` class (see :ref:`mastr 
 in `$HOME/.open-MaStR/data/sqlite`. With the function `Mastr.download()`, the **whole MaStR is downloaded** in the zipped xml file 
 format. It is then read into the sqlite database and simple data cleansing functions are started.
 
-
-The arguments in the `download()` function for configuring the `API` download are:
+Use the MaStR API to receive data
+===================================
+When using `download(method="API")`, the data is retrieved from the MaStR API. For using the MaStR API, 
+credentials are needed (see :ref:`Configuration`). By using the API,
+additional parameters can be set to define in detail which data should be reveived:
 
 .. list-table:: API-related download arguments and explanantion
    :widths: 5 5 5
@@ -59,3 +62,13 @@ Accessing the database
 For accessing and working with the MaStR database after you have downloaded it, you can use any python module 
 which can process sqlite data. Pandas, for example, comes with the function 
 `read_sql <https://pandas.pydata.org/docs/reference/api/pandas.read_sql.html>`_.
+
+    .. code-block:: python
+
+      import pandas as pd
+      from open_mastr.mastr import Mastr
+
+      db = Mastr()
+
+      technology="wind_extended"
+      df = pd.read_sql(technology, con=db._engine)
