@@ -1,6 +1,13 @@
 ## Release notes and version history
 
-### RLI versions
+### API download versions
+
+#### dataversion-2022-05-25_A
+
+- Complete restructure of the software
+- Include XML download
+- Switch to CalVer for data versioning #221
+- Update to OEMetadata v1.5.1
 
 #### dataversion-2.2.0 (2019-12-05)
 - Code version [v0.9.0](https://github.com/OpenEnergyPlatform/open-MaStR/releases/tag/v0.9.0)
