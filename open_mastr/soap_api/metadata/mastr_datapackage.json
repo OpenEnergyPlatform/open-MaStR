@@ -1,8 +1,8 @@
 {
-    "name": "supply.bnetza_mastr",
-    "title": "Bundesnetzagentur - Marktstammdatenregister - Stromerzeuger",
-    "id": "supply.bnetza_mastr",
-    "description": "A full download of the energy database Marktstammdatenregister (MaStR).",
+    "name": "supply.bnetza_open_mastr",
+    "title": "Bundesnetzagentur - Marktstammdatenregister (MaStR) - Stromerzeuger",
+    "id": "bnetza_open_mastr",
+    "description": "A collaborative software to download the energy database Marktstammdatenregister (MaStR). Includes the rescources: wind, hydro, biomass, solar, storage, cobustion, nucular, gsgk.",
     "language": [
         "en-GB",
         "de-DE"
@@ -152,8 +152,8 @@
     "resources": [
         {
             "profile": "tabular-data-resource",
-            "name": "supply.bnetza_mastr_wind",
-            "path": "bnetza_mastr_wind.csv",
+            "name": "bnetza_open_mastr_wind",
+            "path": "bnetza_open_mastr_wind.csv",
             "format": "csv",
             "encoding": "UTF-8",
             "schema": {
@@ -3091,8 +3091,8 @@
         },
         {
             "profile": "tabular-data-resource",
-            "name": "supply.bnetza_mastr_hydro",
-            "path": "bnetza_mastr_hydro.csv",
+            "name": "bnetza_open_mastr_hydro",
+            "path": "bnetza_open_mastr_hydro.csv",
             "format": "csv",
             "encoding": "UTF-8",
             "schema": {
@@ -5612,8 +5612,8 @@
         },
         {
             "profile": "tabular-data-resource",
-            "name": "supply.bnetza_mastr_biomass",
-            "path": "bnetza_mastr_biomass.csv",
+            "name": "bnetza_open_mastr_biomass",
+            "path": "bnetza_open_mastr_biomass.csv",
             "format": "csv",
             "encoding": "UTF-8",
             "schema": {
@@ -8342,8 +8342,8 @@
         },
         {
             "profile": "tabular-data-resource",
-            "name": "supply.bnetza_mastr_solar",
-            "path": "bnetza_mastr_solar.csv",
+            "name": "bnetza_open_mastr_solar",
+            "path": "bnetza_open_mastr_solar.csv",
             "format": "csv",
             "encoding": "UTF-8",
             "schema": {
@@ -11129,8 +11129,8 @@
         },
         {
             "profile": "tabular-data-resource",
-            "name": "supply.bnetza_mastr_storage",
-            "path": "bnetza_mastr_storage.csv",
+            "name": "bnetza_open_mastr_storage",
+            "path": "bnetza_open_mastr_storage.csv",
             "format": "csv",
             "encoding": "UTF-8",
             "schema": {
@@ -13441,8 +13441,8 @@
         },
         {
             "profile": "tabular-data-resource",
-            "name": "supply.bnetza_mastr_combustion",
-            "path": "bnetza_mastr_combustion.csv",
+            "name": "bnetza_open_mastr_combustion",
+            "path": "bnetza_open_mastr_combustion.csv",
             "format": "csv",
             "encoding": "UTF-8",
             "schema": {
@@ -15919,8 +15919,8 @@
         },
         {
             "profile": "tabular-data-resource",
-            "name": "supply.bnetza_mastr_nuclear",
-            "path": "bnetza_mastr_nuclear.csv",
+            "name": "bnetza_open_mastr_nuclear",
+            "path": "bnetza_open_mastr_nuclear.csv",
             "format": "csv",
             "encoding": "UTF-8",
             "schema": {
@@ -17846,8 +17846,8 @@
         },
         {
             "profile": "tabular-data-resource",
-            "name": "supply.bnetza_mastr_gsgk",
-            "path": "bnetza_mastr_gsgk.csv",
+            "name": "bnetza_open_mastr_gsgk",
+            "path": "bnetza_open_mastr_gsgk.csv",
             "format": "csv",
             "encoding": "UTF-8",
             "schema": {
