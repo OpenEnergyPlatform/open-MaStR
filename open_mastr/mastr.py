@@ -37,7 +37,7 @@ class Mastr:
        db.download()
     """
 
-    def __init__(self, empty_schema=False) -> None:
+    def __init__(self) -> None:
 
         # Define the paths for the zipped xml download and the sql databases
         self._xml_folder_path = os.path.join(
@@ -56,8 +56,7 @@ class Mastr:
         self._sql_connection = sqlite3.connect(SQLITE_DATABASE_PATH)
 
         # Initialize database structure
-        self.empty_schema = empty_schema
-        self._initialize_database(empty_schema)
+        self._initialize_database()
 
     def download(
         self,
@@ -257,17 +256,10 @@ class Mastr:
                     df.to_csv(path_or_buf=path_of_table, encoding="utf-16")
                     print(f"{table} saved as csv file.")
 
-    def _initialize_database(self, empty_schema) -> None:
+    def _initialize_database(self) -> None:
         engine = self._engine
-        with engine.connect().execution_options(autocommit=True) as con:
-            if empty_schema:
-                con.execute(
-                    f"DROP SCHEMA IF EXISTS {orm.Base.metadata.schema} CASCADE;"
-                )
-            # con.dialect.has_schema(con, {orm.Base.metadata.schema})
-            # con.execute('CREATE SCHEMA IF NOT EXISTS (?);', (orm.Base.metadata.schema))
-            if self.DB_ENGINE == "docker":
-                engine.execute(CreateSchema(orm.Base.metadata.schema))
+        if self.DB_ENGINE == "docker":
+            engine.execute(CreateSchema(orm.Base.metadata.schema))
         orm.Base.metadata.create_all(engine)
 
     def _validate_parameter_format_for_download_method(
@@ -294,7 +286,8 @@ class Mastr:
                 for parameter in [bulk_date_string, bulk_cleansing]
             ):
                 warn(
-                    "For method = 'API', bulk download related parameters (with prefix bulk_) are ignored."
+                    "For method = 'API', bulk download related parameters "
+                    "(with prefix bulk_) are ignored."
                 )
 
         if method == "bulk":
@@ -393,7 +386,8 @@ class Mastr:
                     None,
                 ]:
                     raise ValueError(
-                        'list entries of api_data_types have to be "unit_data", "eeg_data", "kwk_data" '
+                        'list entries of api_data_types have to be "unit_data", '
+                        '"eeg_data", "kwk_data" '
                         'or "permit_data".'
                     )
 
@@ -435,7 +429,8 @@ class Mastr:
         all_technologies: list
             All possible selections
         tables_map: dict
-            Dictionary that maps the technologies to the file names in the zipped bulk download folder
+            Dictionary that maps the technologies to the file names in the zipped bulk
+            download folder
         Returns
         -------
         list
