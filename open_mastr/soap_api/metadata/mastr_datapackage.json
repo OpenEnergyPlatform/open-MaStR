@@ -56,13 +56,13 @@
                     "title": "Datenlizenz Deutschland – Namensnennung – Version 2.0",
                     "path": "https://www.govdata.de/dl-de/by-2-0",
                     "instruction": "You are free: To Share, To Create, To Adapt; As long as you: Attribute",
-                    "attribution": "© Marktstammdatenregister 2019 | dl-de/by-2-0"
+                    "attribution": "© Marktstammdatenregister 2022 | dl-de/by-2-0"
                 }
             ]
         },
         {
-            "title": "RLI - open_MaStR",
-            "description": "Scripts to download, process and publish the MaStR data set.",
+            "title": "open-MaStR",
+            "description": "A collaborative software to download the energy database Marktstammdatenregister (MaStR).",
             "path": "https://github.com/OpenEnergyPlatform/open-MaStR",
             "licenses": [
                 {
@@ -70,12 +70,12 @@
                     "title": "GNU Affero General Public License v3.0",
                     "path": "https://www.gnu.org/licenses/agpl-3.0.en.html",
                     "instruction": "You are free: To Share, To Create, To Adapt; As long as you: Attribute, Share-Alike, Keep open!",
-                    "attribution": "open_MaStR © Reiner Lemoine Institut | AGPL-3.0"
+                    "attribution": "open-MaStR © Reiner Lemoine Institut © fortiss | AGPL-3.0"
                 }
             ]
         },
         {
-            "title": "RLI - open_MaStR - Logfile",
+            "title": "open-MaStR - Logfile",
             "description": "Logging output",
             "path": "open_mastr.log",
             "licenses": [
