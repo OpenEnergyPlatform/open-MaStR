@@ -26,11 +26,11 @@ It is recommended to use a virtual python environment, for example [conda](https
 [virtualenv](https://virtualenv.pypa.io/en/latest/installation.html).
 The package is intended to be used with Python >=3.8
 
-Install the current release of ``open_mastr`` with ``pip``::
+Install the current release of ``open_mastr`` with ``pip``:
 
     $ pip install open_mastr
 
-To upgrade to a newer release use the ``--upgrade`` flag::
+To upgrade to a newer release use the ``--upgrade`` flag:
 
     $ pip install --upgrade open_mastr
 
