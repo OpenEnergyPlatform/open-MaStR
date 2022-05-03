@@ -39,7 +39,7 @@ Configuration files
 
 * :code:`credentials.cfg`: Credentials used to access
   `Marktstammdatenregister (MaStR) <https://www.marktstammdatenregister.de/MaStR>`_ API (read more in
-  :ref:`MaStR account`) and token for Zenodo.
+  :ref:` MaStR account and credentials`) and token for Zenodo.
 * :code:`data.yml`: Specify the name of the data version.
 * :code:`filenames.yml`: File names are defined here.
 * :code:`logging.yml`: Logging configuration. For changing the log level to increase or decrease details of log
@@ -115,10 +115,20 @@ Disantvantages of the bulk download:
 
 Get data via the MaStR-API
 ---------------------------
+
+Downloading data with the MaStR-API is more complex than using the :ref:`Bulk download <Bulk download>`.
+
+Follow this checklist for configuration:
+
+#. Set up a MaStR account and configure your :ref:`credentials <MaStR account and credentials>`.
+#. Configure your :ref:`database <Database settings>`.
+#. Configure your :ref:`API download <API download>` settings.
+
+
 Prior to starting the download of data from MaStR-API, you might want to adjust parameters in the config file.
 Please read in :ref:`Configuration`.
 For downloading data from Marktstammdatenregister (MaStR) registering an account is required.
-Find more information :ref:`here <MaStR account>`.
+Find more information :ref:`here < MaStR account and credentials>`.
 
 Three different levels of access to data are offered where the code builds on top of each other.
 
@@ -136,8 +146,8 @@ If one seeks for an option to store the entire data in a local database,
 :class:`open_mastr.soap_api.mirror.MaStRMirror` is the right choice. It offers complete data download 
 and updating latest data changes.
 
-MaStR account
------------------
+MaStR account and credentials
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 For downloading data from the
 `Marktstammdatenregister (MaStR) database <https://www.marktstammdatenregister.de/MaStR>`_
@@ -176,6 +186,10 @@ It is also possible to create the credentials file by hand using this format
 
 Read in the documentation of the `keyring library <https://pypi.org/project/keyring/>`_ how to store your token in the
 keyring.
+
+Database settings
+^^^^^^^^^^^^^^^^^^^^^^^^
+
 
 
 Mirror MaStR database
