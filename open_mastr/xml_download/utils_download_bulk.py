@@ -32,7 +32,8 @@ def download_xml_Mastr(save_path: str) -> None:
     """
     print_message = (
         "Download has started, this can take several minutes."
-        "The download bar is only a rough estimate."
+        "The download bar is only a rough estimate. \n"
+        "In jupyter notebook, no download bar is visible."
     )
     print(print_message)
     url = get_url_from_Mastr_website()
