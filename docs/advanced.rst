@@ -99,8 +99,9 @@ This data is updated on a daily base.
 
 In the following, the process is described that is started when calling the download function with the parameter method="bulk". 
 First, the zipped files are downloaded and saved in `$HOME/.open-MaStR/data/xml_download`. The zipped folder contains many xml files,
-which represent the different tables from the MaStR. Those tables are then parsed to a sqlite database. If only some specific 
-technologies are of interest, they can be specified with the parameter bulk_include_tables. 
+which represent the different tables from the MaStR. Those tables are then parsed to a sqlite database. If only some specific
+technologies are of interest, they can be specified with the parameter `technology`. Every table that is selected in `technology` will be deleted, if existent,
+and then filled with data from the xml files.
 
 In the last step, a basic data cleansing is performed. Many entries in the MaStR from the bulk download are replaced by numbers.
 As an example, instead of writing the german states where the unit is registered (Saxony, Brandenburg, Bavaria, ...) the MaStR states 
