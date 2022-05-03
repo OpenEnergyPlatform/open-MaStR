@@ -18,8 +18,8 @@ sys.path.insert(0, os.path.abspath('../open_mastr'))
 # -- Project information -----------------------------------------------------
 
 project = 'open-MaStR'
-copyright = '2020, Ludee,gplssm'
-author = 'Ludee,gplssm'
+copyright = '2022 Reiner Lemoine Institut and fortiss'
+author = ''
 
 
 # -- General configuration ---------------------------------------------------
