@@ -67,48 +67,6 @@ New logging messages are appended. It is recommended to delete the log file
 from time to time because of required disk space.
 
 
-MaStR account
------------------
-
-For downloading data from the
-`Marktstammdatenregister (MaStR) database <https://www.marktstammdatenregister.de/MaStR>`_
-via its API a registration is mandatory (please `read here <https://www.marktstammdatenregister.de/MaStRHilfe/files/
-regHilfen/201108_Handbuch%20f%C3%BCr%20Registrierungen%20durch%20Dienstleister.pdf>`_).
-
-To download data using `open-MaStR` the credentials (MaStR user and token) need to be provided in a certain way.
-Three options exist
-
-* **Credentials file:** Both, user and token, are stored in plain text in the credentials file
-  (`$HOME/.open-MaStR/config/credentials.cfg`)
-* **Credentials file + keyring:** The user is stored in the credentials file, while the token is stored encrypted in
-  the `keyring <https://pypi.org/project/keyring/>`_
-* **Don't store:** Just use the password for one query and forget it
-
-The latter option is only available when using :class:`open_mastr.soap_api.download.MaStRAPI`.
-Instantiate with
-
-.. code-block::
-
-   MaStRAPI(user='USERNAME', key='TOKEN')
-
-to provide user and token in a script and use these
-credentials in subsequent queries.
-
-For storing the credentials in the credentials file (plus optionally using keyring for the token) simply instantiate
-:py:class:`open_mastr.soap_api.download.MaStRDownload` once and you get asked for a user name and a token.
-
-It is also possible to create the credentials file by hand using this format
-
-.. code-block::
-
-    [MaStR]
-    user = SOM123456789012
-    token = msöiöo8u2o29933n31733m§=§1n33§304n... # optional, 540 characters
-
-Read in the documentation of the `keyring library <https://pypi.org/project/keyring/>`_ how to store your token in the
-keyring.
-
-
 Zenodo token
 ------------------
 
@@ -123,12 +81,12 @@ The section in `credentials.cfg` looks like:
     token = voh6Zo2ohbohReith4ec2iezeiJ9Miefohso0DohK9ohtha6mahfame7hohc
 
 
-Downloading the MaStR data
+Download
 =============================
 
 The intention of open-MaStR is to provide tools for receiving a complete as possible and accurate as possible list of
-power plant units based on the public registry Marktstammdatenregister (short: `MaStR <https://www.marktstammdatenregister.de>`_). 
-For downloading the MaStR and saving 
+power plant units based on the public registry Marktstammdatenregister (short: `MaStR <https://www.marktstammdatenregister.de>`_).
+For downloading the MaStR and saving
 it in a sqlite database, you will use the :class:`Mastr` class and its `download` method (For documentation of those methods see
 :ref:`mastr module`)
 
@@ -189,6 +147,48 @@ methods for bulk data download and association of data from different sources.
 If one seeks for an option to store the entire data in a local database, 
 :class:`open_mastr.soap_api.mirror.MaStRMirror` is the right choice. It offers complete data download 
 and updating latest data changes.
+
+MaStR account
+-----------------
+
+For downloading data from the
+`Marktstammdatenregister (MaStR) database <https://www.marktstammdatenregister.de/MaStR>`_
+via its API a registration is mandatory (please `read here <https://www.marktstammdatenregister.de/MaStRHilfe/files/
+regHilfen/201108_Handbuch%20f%C3%BCr%20Registrierungen%20durch%20Dienstleister.pdf>`_).
+
+To download data using `open-MaStR` the credentials (MaStR user and token) need to be provided in a certain way.
+Three options exist
+
+* **Credentials file:** Both, user and token, are stored in plain text in the credentials file
+  (`$HOME/.open-MaStR/config/credentials.cfg`)
+* **Credentials file + keyring:** The user is stored in the credentials file, while the token is stored encrypted in
+  the `keyring <https://pypi.org/project/keyring/>`_
+* **Don't store:** Just use the password for one query and forget it
+
+The latter option is only available when using :class:`open_mastr.soap_api.download.MaStRAPI`.
+Instantiate with
+
+.. code-block::
+
+   MaStRAPI(user='USERNAME', key='TOKEN')
+
+to provide user and token in a script and use these
+credentials in subsequent queries.
+
+For storing the credentials in the credentials file (plus optionally using keyring for the token) simply instantiate
+:py:class:`open_mastr.soap_api.download.MaStRDownload` once and you get asked for a user name and a token.
+
+It is also possible to create the credentials file by hand using this format
+
+.. code-block::
+
+    [MaStR]
+    user = SOM123456789012
+    token = msöiöo8u2o29933n31733m§=§1n33§304n... # optional, 540 characters
+
+Read in the documentation of the `keyring library <https://pypi.org/project/keyring/>`_ how to store your token in the
+keyring.
+
 
 Mirror MaStR database
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -266,7 +266,7 @@ Once you're finished with working in/with the database, shut it down with
 Run postprocessing (Outdated)
 -----------------------------
 
-During post-processing downloaded :ref:`Downloading the MaStR data <Downloading the MaStR data>` gets cleaned, imported to a PostgreSQL database,
+During post-processing downloaded :ref:`Download <Download>` gets cleaned, imported to a PostgreSQL database,
 and enriched.
 To run the postprocessing, use the following code snippets.
 

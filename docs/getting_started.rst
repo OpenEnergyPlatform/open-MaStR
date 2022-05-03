@@ -4,7 +4,23 @@ Getting Started
 
 The intention of open-MaStR is to provide tools for receiving a complete as possible and accurate as possible list of
 power plant units based on the public registry Marktstammdatenregister (short: `MaStR <https://www.marktstammdatenregister.de>`_).
-The following code block shows the basic commands:
+
+Downloading the MaStR data
+=============================
+
+For downloading the MaStR and saving
+it in a sqlite database, you will use the :class:`Mastr` class and its `download` method (For documentation of those methods see
+:ref:`mastr module`)
+
+The :meth:`download` function offers two different ways to get the data by changing the `method` parameter (if not specified, `method` defaults to "bulk"):
+ #. `method` = "bulk": Get data via the bulk download from `MaStR/Datendownload <https://www.marktstammdatenregister.de/MaStR/Datendownload>`_
+ #. `method` = "API": Get data via the MaStR-API
+
+Keep in mind: While the data from both methods is quiet similar, it is not exactly the same!
+
+Bulk download
+-----------------------------------
+The following code block shows the basic download commands:
 
     .. code-block:: python
 
@@ -17,11 +33,13 @@ The main entry point to open_mastr is the :class:`Mastr` class (see :ref:`mastr 
 in `$HOME/.open-MaStR/data/sqlite`. With the function `Mastr.download()`, the **whole MaStR is downloaded** in the zipped xml file 
 format. It is then read into the sqlite database and simple data cleansing functions are started.
 
-Use the MaStR API to receive data
-===================================
-When using `download(method="API")`, the data is retrieved from the MaStR API. For using the MaStR API, 
-credentials are needed (see :ref:`Configuration`). By using the API,
-additional parameters can be set to define in detail which data should be reveived:
+More detailed information can be found in :ref:`Get data via the bulk download <Get data via the bulk download>`.
+
+API download
+-----------------------------------
+When using `download(method="API")`, the data is retrieved from the MaStR API. For using the MaStR API,
+credentials are needed (see :ref:`Get data via the MaStR-API`). By using the API,
+additional parameters can be set to define in detail which data should be reveived.
 
 .. list-table:: API-related download arguments and explanantion
    :widths: 5 5 5
@@ -52,15 +70,17 @@ additional parameters can be set to define in detail which data should be reveiv
      - int or None, e.g.: 1000
      - Data is downloaded and inserted into the database in chunks of `api_chunksize`. Defaults to 1000.
 
+The default settings will download retrieved data into the sqlite database. The function can be used to mirror the open-MaStR database regularly
+without needing to download the `provided dumps <https://www.marktstammdatenregister.de/MaStR/Datendownload>`_  daily.
 
-More detailed information can be found in :ref:`Downloading the MaStR data <Downloading the MaStR data>`.
-
+More detailed information can be found in :ref:`Get data via the MaStR-API <Get data via the MaStR-API>`.
 
 Accessing the database
-------------------------
+===================================
 
-For accessing and working with the MaStR database after you have downloaded it, you can use any python module 
-which can process sqlite data. Pandas, for example, comes with the function 
+
+For accessing and working with the MaStR database after you have downloaded it, you can use any python module
+which can process sqlite data. Pandas, for example, comes with the function
 `read_sql <https://pandas.pydata.org/docs/reference/api/pandas.read_sql.html>`_.
 
     .. code-block:: python
@@ -72,3 +92,5 @@ which can process sqlite data. Pandas, for example, comes with the function
 
       technology="wind_extended"
       df = pd.read_sql(technology, con=db._engine)
+
+
