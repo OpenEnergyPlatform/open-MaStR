@@ -39,7 +39,7 @@ Configuration files
 
 * :code:`credentials.cfg`: Credentials used to access
   `Marktstammdatenregister (MaStR) <https://www.marktstammdatenregister.de/MaStR>`_ API (read more in
-  :ref:` MaStR account and credentials`) and token for Zenodo.
+  :ref:`MaStR account and credentials <MaStR account and credentials>`) and token for Zenodo.
 * :code:`data.yml`: Specify the name of the data version.
 * :code:`filenames.yml`: File names are defined here.
 * :code:`logging.yml`: Logging configuration. For changing the log level to increase or decrease details of log
@@ -129,7 +129,7 @@ Follow this checklist for configuration:
 Prior to starting the download of data from MaStR-API, you might want to adjust parameters in the config file.
 Please read in :ref:`Configuration`.
 For downloading data from Marktstammdatenregister (MaStR) registering an account is required.
-Find more information :ref:`here < MaStR account and credentials>`.
+Find more information :ref:`here <MaStR account and credentials>`.
 
 Three different levels of access to data are offered where the code builds on top of each other.
 
@@ -148,7 +148,7 @@ If one seeks for an option to store the entire data in a local database,
 and updating latest data changes.
 
 MaStR account and credentials
-^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 For downloading data from the
 `Marktstammdatenregister (MaStR) database <https://www.marktstammdatenregister.de/MaStR>`_
@@ -282,7 +282,7 @@ To run the postprocessing, use the following code snippets.
    postprocess(cleaned)
 
 As a result, cleaned data gets saved as CSV files and  tables named like `bnetza_mastr_<technology>_cleaned`
-appear in the schema `model_draft".
+appear in the schema `model_draft`.
 Use
 
 .. code-block:: python
