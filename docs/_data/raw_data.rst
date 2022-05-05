@@ -5,7 +5,7 @@ In the following, we will describe the data retrieved from the MaStR database. T
 taken from `here <https://www.marktstammdatenregister.de/MaStRHilfe/subpages/dokumentendownload.html>`_.
 
 
-.. figure:: ../images/ObjektmodellMaStR.PNG
+.. figure:: /images/ObjektmodellMaStR.png
    :width: 70%
    :align: center
    
@@ -15,7 +15,7 @@ As can be seen from the first figure, the MaStR can be divided into three sub-ca
 and unit (Einheit). Since the technological units are the core of the MaStR, their data model is shown in the next figure 
 with a higher level of detail. 
 
-.. figure:: ../images/DetailAnlagenModellMaStR.PNG
+.. figure:: /images/DetailAnlagenModellMaStR.png
    :width: 90%
    :align: center
    
