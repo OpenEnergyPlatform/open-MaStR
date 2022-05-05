@@ -67,7 +67,7 @@ class Mastr:
         api_processes=None,
         api_limit=50,
         api_date=None,
-        api_chunksize=None,
+        api_chunksize=1000,
         api_data_types=None,
         api_location_types=None,
     ) -> None:
