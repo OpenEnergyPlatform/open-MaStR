@@ -281,26 +281,25 @@ class Mastr:
             raise ValueError("parameter method has to be either 'bulk' or 'API'.")
 
         if method == "API":
-            if any(
-                parameter is not None
-                for parameter in [bulk_date_string, bulk_cleansing]
-            ):
+            if bulk_cleansing is not None or bulk_date_string != "today":
                 warn(
                     "For method = 'API', bulk download related parameters "
                     "(with prefix bulk_) are ignored."
                 )
 
         if method == "bulk":
-            if any(
-                parameter is not None
-                for parameter in [
-                    api_processes,
-                    api_limit,
-                    api_date,
-                    api_chunksize,
-                    api_data_types,
-                    api_location_types,
-                ]
+            if (
+                any(
+                    parameter is not None
+                    for parameter in [
+                        api_processes,
+                        api_date,
+                        api_data_types,
+                        api_location_types,
+                    ]
+                )
+                or api_limit != 50
+                or api_chunksize != 1000
             ):
                 warn(
                     "For method = 'bulk', API related parameters (with prefix api_) are ignored."
