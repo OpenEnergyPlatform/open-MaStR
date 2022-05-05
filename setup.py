@@ -48,7 +48,7 @@ setup(
         "requests",
         "keyring",
         "pynodo",
-        "clint",
+        "tqdm",
         "beautifulsoup4",
         "pyyaml",
         "xmltodict",
