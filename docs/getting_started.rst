@@ -79,7 +79,8 @@ Accessing the database
 ===================================
 
 
-For accessing and working with the MaStR database after you have downloaded it, you can use any python module
+For accessing and working with the MaStR database after you have downloaded it, you can use sqlite browsers 
+(such as `DB Browser for SQLite <https://sqlitebrowser.org/>`_) or any python module
 which can process sqlite data. Pandas, for example, comes with the function
 `read_sql <https://pandas.pydata.org/docs/reference/api/pandas.read_sql.html>`_.
 
@@ -90,7 +91,50 @@ which can process sqlite data. Pandas, for example, comes with the function
 
       db = Mastr()
 
-      technology="wind_extended"
-      df = pd.read_sql(technology, con=db._engine)
+      table="wind_extended"
+      df = pd.read_sql(sql=table, con=db._engine)
 
+
+The tables that exist in the database are listed below. Their relations can be found in :ref:`Data Description <Data Description>`
+
+.. list-table:: Tables in the sqlite database
+  :widths: 5
+  :header-rows: 1
+
+  * - table
+  * - additional_data_requested
+  * - additional_locations_requested
+  * - balancing_area
+  * - basic_units
+  * - biomass_eeg
+  * - biomass_extended
+  * - combustion_extended
+  * - electricity_consumer
+  * - gas_consumer
+  * - gas_producer
+  * - gas_storage
+  * - gas_storage_extended
+  * - grid_connections
+  * - grids
+  * - gsgk_eeg
+  * - gsgk_extended
+  * - hydro_eeg
+  * - hydro_extended
+  * - kwk
+  * - locations_basic
+  * - locations_extended
+  * - market_actors
+  * - market_roles
+  * - missed_additional_data
+  * - missed_extended_location_data
+  * - nuclear_extended
+  * - permit
+  * - solar_eeg
+  * - solar_extended
+  * - sqlite_sequence
+  * - storage_eeg
+  * - storage_extended
+  * - storage_units
+  * - wind_eeg
+  * - wind_extended
 
