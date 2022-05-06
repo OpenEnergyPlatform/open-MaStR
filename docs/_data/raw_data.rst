@@ -24,14 +24,14 @@ with a higher level of detail.
 
 
 
-The MaStR comes in the form of a relational database, where the information is divided into various tables.
-For the main technologies, we have summarized the attributes together with a short description (Only in German). 
+The MaStR comes in the form of a relational database, where the information within the database is structured into various :ref:`tables <Accessing the database>`.
+Below we have summarized the attributes of the exported csv tables together with a short description (Only in German).
 
 solar
 -------
 
 .. csv-table::
-   :file: raw\bnetza_mastr_solar_raw.csv
+   :file: raw/bnetza_mastr_solar_raw.csv
    :widths: 20, 35, 15, 15
    :header-rows: 1
 
@@ -40,7 +40,7 @@ wind
 -------
 
 .. csv-table::
-   :file: raw\bnetza_mastr_wind_raw.csv
+   :file: raw/bnetza_mastr_wind_raw.csv
    :widths: 20, 35, 15, 15
    :header-rows: 1
 
@@ -49,7 +49,7 @@ biomass
 -------
 
 .. csv-table::
-   :file: raw\bnetza_mastr_biomass_raw.csv
+   :file: raw/bnetza_mastr_biomass_raw.csv
    :widths: 20, 35, 15, 15
    :header-rows: 1
 
@@ -58,7 +58,7 @@ combustion
 ------------
 
 .. csv-table::
-   :file: raw\bnetza_mastr_combustion_raw.csv
+   :file: raw/bnetza_mastr_combustion_raw.csv
    :widths: 20, 35, 15, 15
    :header-rows: 1
 
@@ -67,7 +67,7 @@ gsgk
 -------
 
 .. csv-table::
-   :file: raw\bnetza_mastr_gsgk_raw.csv
+   :file: raw/bnetza_mastr_gsgk_raw.csv
    :widths: 20, 35, 15, 15
    :header-rows: 1
 
@@ -76,7 +76,7 @@ hydro
 -------
 
 .. csv-table::
-   :file: raw\bnetza_mastr_hydro_raw.csv
+   :file: raw/bnetza_mastr_hydro_raw.csv
    :widths: 20, 35, 15, 15
    :header-rows: 1
 
@@ -85,7 +85,7 @@ nuclear
 -------
 
 .. csv-table::
-   :file: raw\bnetza_mastr_nuclear_raw.csv
+   :file: raw/bnetza_mastr_nuclear_raw.csv
    :widths: 20, 35, 15, 15
    :header-rows: 1
 
@@ -94,7 +94,7 @@ storage
 -------
 
 .. csv-table::
-   :file: raw\bnetza_mastr_storage_raw.csv
+   :file: raw/bnetza_mastr_storage_raw.csv
    :widths: 20, 35, 15, 15
    :header-rows: 1
 
