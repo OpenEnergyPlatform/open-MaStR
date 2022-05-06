@@ -191,7 +191,9 @@ keyring.
 Database settings
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
+Currently, the data can only be saved into a sqlite database, and there is no need for configuration.
 
+An option to set up a postgreSQL database will be added.
 
 Mirror MaStR database
 ^^^^^^^^^^^^^^^^^^^^^^^^
