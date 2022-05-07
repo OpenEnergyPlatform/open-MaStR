@@ -1358,7 +1358,7 @@ def basic_data_download(
     # Construct description string
     description = f"Get basic {category} data information"
     if technology:
-        description += f"for technology {technology}"
+        description += f" for technology {technology}"
     if et:
         description += f" ({et})"
 
