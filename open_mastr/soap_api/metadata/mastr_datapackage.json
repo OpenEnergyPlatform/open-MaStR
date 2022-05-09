@@ -1,5 +1,5 @@
 {
-    "name": "supply.bnetza_open_mastr",
+    "name": "bnetza_open_mastr",
     "title": "Bundesnetzagentur - Marktstammdatenregister (MaStR) - Stromerzeuger",
     "id": "bnetza_open_mastr",
     "description": "A collaborative software to download the energy database Marktstammdatenregister (MaStR). Includes the rescources: wind, hydro, biomass, solar, storage, cobustion, nucular, gsgk.",
@@ -17,7 +17,7 @@
         "powerplants",
         "renewables"
     ],
-    "publicationDate": "2022-05-01",
+    "publicationDate": "2022-05-03",
     "context": {
         "homepage": "https://www.marktstammdatenregister.de/MaStR/",
         "documentation": "https://www.marktstammdatenregister.de/MaStRHilfe/index.html",
@@ -34,7 +34,7 @@
         "resolution": "vector"
     },
     "temporal": {
-        "referenceDate": "2022-05-01",
+        "referenceDate": "2022-05-03",
         "timeseries": [
             {
                 "start": null,
@@ -147,6 +147,13 @@
             "date": "2022-04-26",
             "object": "metadata",
             "comment": "Update resources"
+        },
+        {
+            "title": "Ludee",
+            "email": null,
+            "date": "2022-05-03",
+            "object": "metadata and data",
+            "comment": "Update metadata and run download"
         }
     ],
     "resources": [
