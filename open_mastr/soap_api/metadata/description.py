@@ -142,6 +142,8 @@ class DataDescription(object):
                     else:
                         fcn_data = self.types[fcn["sequence"]["element"]["@type"].split(":")[1]]["sequence"]["element"]
                 else:
+                    print(type(fcn["sequence"]))
+                    print(fcn["sequence"])
                     raise ValueError
 
                 # Add data for inherited columns from base types
