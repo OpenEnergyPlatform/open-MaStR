@@ -136,7 +136,7 @@ class DataDescription(object):
                 # Slice data depending on what is available
                 if isinstance(fcn["sequence"]["element"], list):
                     fcn_data = fcn["sequence"]["element"]
-                elif isinstance(fcn["sequence"]["element"], OrderedDict):
+                elif isinstance(fcn["sequence"]["element"], (dict, OrderedDict)):
                     if "annotation" in fcn["sequence"]["element"]:
                         fcn_data = [fcn["sequence"]["element"]]
                     else:
