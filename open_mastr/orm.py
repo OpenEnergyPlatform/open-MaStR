@@ -191,7 +191,7 @@ class SolarExtended(Extended, ParentAllTables, Base):
     HauptausrichtungNeigungswinkel = Column(String)
     Nebenausrichtung = Column(String)
     NebenausrichtungNeigungswinkel = Column(String)
-    InAnspruchGenommeneFlaeche = Column(String)
+    InAnspruchGenommeneFlaeche = Column(Float)
     ArtDerFlaeche = Column(String)
     InAnspruchGenommeneAckerflaeche = Column(Float)
     Nutzungsbereich = Column(String)

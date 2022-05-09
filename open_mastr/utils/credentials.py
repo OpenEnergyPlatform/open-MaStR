@@ -68,7 +68,8 @@ def get_mastr_user():
         #                    f"{section} in file {cfg_path}.")
         log.warning(f"The option 'user' could not by found in the section "
                     f"{section} in file {cfg_path}. "
-                    f"You might run into trouble when downloading data.")
+                    f"You might run into trouble when downloading data via the MaStR API."
+                    f"\n Bulk download works without option 'user'.")
         return None
 
 
@@ -128,7 +129,8 @@ def get_mastr_token(user):
         except (cp.NoSectionError, cp.NoOptionError):
             log.warning(f"The option 'token' could not by found in the section "
                         f"{section} in file {cfg_path}. "
-                        f"You might run into trouble when downloading data.")
+                        f"You might run into trouble when downloading data via the MaStR API."
+                        f"\n Bulk download works without option 'token'.")
             password = None
     return password
 
