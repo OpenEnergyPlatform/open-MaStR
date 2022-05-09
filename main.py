@@ -1,14 +1,12 @@
 from open_mastr import Mastr
 
-from open_mastr.postprocessing.cleaning import cleaned_data
-from postprocessing.postprocessing import postprocess
-from postprocessing.postprocessing import to_csv
-
-import datetime
+# from open_mastr.postprocessing.cleaning import cleaned_data
+# from postprocessing.postprocessing import postprocess
+# from postprocessing.postprocessing import to_csv
 
 db = Mastr()
 
-# Download
+## Download
 technology = ["wind",
               "biomass",
               "combustion",
@@ -16,6 +14,7 @@ technology = ["wind",
               "hydro",
               "nuclear",
               "storage"]
+# excluded: "solar"
 
 api_data_types = [
     "unit_data",
@@ -31,25 +30,23 @@ api_location_types = [
     "location_gas_consumption",
 ]
 
-# db.download(method="bulk",
-#             api_date='latest',
-#             api_limit=10,
-#             technology=technology,
-#             api_data_types=api_data_types,
-#             api_location_types=api_location_types)
+db.download(method="bulk",
+            technology=technology,
+            api_data_types=api_data_types)
 
-# db.download(method="API",
-#             api_date='latest',
-#             api_limit=10,
-#             technology=technology,
-#             api_data_types=api_data_types,
-#             api_location_types=api_location_types)
+db.download(method="API",
+            api_date='latest',
+            api_limit=10,
+            technology=technology,
+            api_data_types=api_data_types,
+            api_location_types=api_location_types)
 
-# db.to_csv()
+db.to_csv()
 
-# Postprocessing
 
-cleaned = cleaned_data()
-postprocess(cleaned)
+## Postprocessing
 
-to_csv()
+#cleaned = cleaned_data()
+#postprocess(cleaned)
+
+#to_csv()
