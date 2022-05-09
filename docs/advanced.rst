@@ -39,7 +39,7 @@ Configuration files
 
 * :code:`credentials.cfg`: Credentials used to access
   `Marktstammdatenregister (MaStR) <https://www.marktstammdatenregister.de/MaStR>`_ API (read more in
-  :ref:`MaStR account`) and token for Zenodo.
+  :ref:`MaStR account and credentials <MaStR account and credentials>`) and token for Zenodo.
 * :code:`data.yml`: Specify the name of the data version.
 * :code:`filenames.yml`: File names are defined here.
 * :code:`logging.yml`: Logging configuration. For changing the log level to increase or decrease details of log
@@ -67,8 +67,88 @@ New logging messages are appended. It is recommended to delete the log file
 from time to time because of required disk space.
 
 
-MaStR account
------------------
+Zenodo token
+------------------
+
+Uploading data to `Zenodo <https://www.zenodo.org/>`_ requires authentication. When logged in with your account you can
+`create tokens <https://zenodo.org/account/settings/applications/tokens/new/>`_ for API requests.
+
+The section in `credentials.cfg` looks like:
+
+.. code-block::
+
+    [Zenodo]
+    token = voh6Zo2ohbohReith4ec2iezeiJ9Miefohso0DohK9ohtha6mahfame7hohc
+
+
+Download
+=============================
+
+Get data via the bulk download
+-------------------------------
+On the homepage `MaStR/Datendownload <https://www.marktstammdatenregister.de/MaStR/Datendownload>`_ a zipped folder containing the whole 
+MaStR is offered. The data is delivered as xml-files. The official documentation can be found 
+`here [in german] <https://www.marktstammdatenregister.de/MaStRHilfe/files/gesamtdatenexport/Dokumentation%20MaStR%20Gesamtdatenexport.pdf>`_. 
+This data is updated on a daily base. 
+
+.. figure:: images/MaStR_bulk_download.svg
+   :width: 50%
+   :align: center
+   
+   Overview of the open_mastr bulk download functionality.
+
+In the following, the process is described that is started when calling the download function with the parameter method="bulk". 
+First, the zipped files are downloaded and saved in `$HOME/.open-MaStR/data/xml_download`. The zipped folder contains many xml files,
+which represent the different tables from the MaStR. Those tables are then parsed to a sqlite database. If only some specific
+technologies are of interest, they can be specified with the parameter `technology`. Every table that is selected in `technology` will be deleted, if existent,
+and then filled with data from the xml files.
+
+In the last step, a basic data cleansing is performed. Many entries in the MaStR from the bulk download are replaced by numbers.
+As an example, instead of writing the german states where the unit is registered (Saxony, Brandenburg, Bavaria, ...) the MaStR states 
+corresponding digits. One major step of cleansing is therefore to replace those digits with their original meaning. 
+Moreover, the datatypes of different entries are set in the data cleansing process.
+
+Advantages of the bulk download:
+ * No registration for an API key is needed
+
+Disantvantages of the bulk download:
+ * No single tables or entries can be downloaded
+
+Get data via the MaStR-API
+---------------------------
+
+Downloading data with the MaStR-API is more complex than using the :ref:`Bulk download <Bulk download>`.
+
+Follow this checklist for configuration:
+
+#. Set up a MaStR account and configure your :ref:`credentials <MaStR account and credentials>`.
+#. Configure your :ref:`database <Database settings>`.
+#. Configure your :ref:`API download <API download>` settings.
+
+
+Prior to starting the download of data from MaStR-API, you might want to adjust parameters in the config file.
+Please read in :ref:`Configuration`.
+For downloading data from Marktstammdatenregister (MaStR) registering an account is required.
+Find more information :ref:`here <MaStR account and credentials>`.
+
+Three different levels of access to data are offered where the code builds on top of each other.
+
+.. figure:: images/MaStR_downloading.svg
+   :width: 70%
+   :align: center
+   
+   Overview of open-mastr API download functionality.
+
+The most fundamental data access is provided by :class:`open_mastr.soap_api.download.MaStRAPI` that simply
+wraps SOAP webservice functions with python methods.
+Using the methods of the aforementioned, :class:`open_mastr.soap_api.download.MaStRDownload` provides 
+methods for bulk data download and association of data from different sources.
+If one seeks for an option to store the entire data in a local database, 
+:class:`open_mastr.soap_api.mirror.MaStRMirror` is the right choice. It offers complete data download 
+and updating latest data changes.
+
+MaStR account and credentials
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 For downloading data from the
 `Marktstammdatenregister (MaStR) database <https://www.marktstammdatenregister.de/MaStR>`_
@@ -108,87 +188,12 @@ It is also possible to create the credentials file by hand using this format
 Read in the documentation of the `keyring library <https://pypi.org/project/keyring/>`_ how to store your token in the
 keyring.
 
+Database settings
+^^^^^^^^^^^^^^^^^^^^^^^^
 
-Zenodo token
-------------------
+Currently, the data can only be saved into a sqlite database, and there is no need for configuration.
 
-Uploading data to `Zenodo <https://www.zenodo.org/>`_ requires authentication. When logged in with your account you can
-`create tokens <https://zenodo.org/account/settings/applications/tokens/new/>`_ for API requests.
-
-The section in `credentials.cfg` looks like:
-
-.. code-block::
-
-    [Zenodo]
-    token = voh6Zo2ohbohReith4ec2iezeiJ9Miefohso0DohK9ohtha6mahfame7hohc
-
-
-Downloading the MaStR data
-=============================
-
-The intention of open-MaStR is to provide tools for receiving a complete as possible and accurate as possible list of
-power plant units based on the public registry Marktstammdatenregister (short: `MaStR <https://www.marktstammdatenregister.de>`_). 
-For downloading the MaStR and saving 
-it in a sqlite database, you will use the :class:`Mastr` class and its `download` method (For documentation of those methods see
-:ref:`mastr module`)
-
-The :meth:`download` function offers two different ways to get the data by changing the `method` parameter:
- #. `method` = "bulk": Get data via the bulk download from `MaStR/Datendownload <https://www.marktstammdatenregister.de/MaStR/Datendownload>`_
- #. `method` = "API": Get data via the MaStR-API
-
-Keep in mind: While the data from both methods is quiet similar, it is not exactly the same!
-
-Get data via the bulk download
--------------------------------
-On the homepage `MaStR/Datendownload <https://www.marktstammdatenregister.de/MaStR/Datendownload>`_ a zipped folder containing the whole 
-MaStR is offered. The data is delivered as xml-files. The official documentation can be found 
-`here [in german] <https://www.marktstammdatenregister.de/MaStRHilfe/files/gesamtdatenexport/Dokumentation%20MaStR%20Gesamtdatenexport.pdf>`_. 
-This data is updated on a daily base. 
-
-.. figure:: images/MaStR_bulk_download.svg
-   :width: 50%
-   :align: center
-   
-   Overview of the open_mastr bulk download functionality.
-
-In the following, the process is described that is started when calling the download function with the parameter method="bulk". 
-First, the zipped files are downloaded and saved in `$HOME/.open-MaStR/data/xml_download`. The zipped folder contains many xml files,
-which represent the different tables from the MaStR. Those tables are then parsed to a sqlite database. If only some specific 
-technologies are of interest, they can be specified with the parameter bulk_include_tables. 
-
-In the last step, a basic data cleansing is performed. Many entries in the MaStR from the bulk download are replaced by numbers.
-As an example, instead of writing the german states where the unit is registered (Saxony, Brandenburg, Bavaria, ...) the MaStR states 
-corresponding digits. One major step of cleansing is therefore to replace those digits with their original meaning. 
-Moreover, the datatypes of different entries are set in the data cleansing process.
-
-Advantages of the bulk download:
- * No registration for an API key is needed
-
-Disantvantages of the bulk download:
- * No single tables or entries can be downloaded
-
-Get data via the MaStR-API
----------------------------
-Prior to starting the download of data from MaStR-API, you might want to adjust parameters in the config file.
-Please read in :ref:`Configuration`.
-For downloading data from Marktstammdatenregister (MaStR) registering an account is required.
-Find more information :ref:`here <MaStR account>`.
-
-Three different levels of access to data are offered where the code builds on top of each other.
-
-.. figure:: images/MaStR_downloading.svg
-   :width: 70%
-   :align: center
-   
-   Overview of open-mastr API download functionality.
-
-The most fundamental data access is provided by :class:`open_mastr.soap_api.download.MaStRAPI` that simply
-wraps SOAP webservice functions with python methods.
-Using the methods of the aforementioned, :class:`open_mastr.soap_api.download.MaStRDownload` provides 
-methods for bulk data download and association of data from different sources.
-If one seeks for an option to store the entire data in a local database, 
-:class:`open_mastr.soap_api.mirror.MaStRMirror` is the right choice. It offers complete data download 
-and updating latest data changes.
+An option to set up a postgreSQL database will be added.
 
 Mirror MaStR database
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -266,7 +271,7 @@ Once you're finished with working in/with the database, shut it down with
 Run postprocessing (Outdated)
 -----------------------------
 
-During post-processing downloaded :ref:`Downloading the MaStR data <Downloading the MaStR data>` gets cleaned, imported to a PostgreSQL database,
+During post-processing downloaded :ref:`Download <Download>` gets cleaned, imported to a PostgreSQL database,
 and enriched.
 To run the postprocessing, use the following code snippets.
 
@@ -279,7 +284,7 @@ To run the postprocessing, use the following code snippets.
    postprocess(cleaned)
 
 As a result, cleaned data gets saved as CSV files and  tables named like `bnetza_mastr_<technology>_cleaned`
-appear in the schema `model_draft".
+appear in the schema `model_draft`.
 Use
 
 .. code-block:: python

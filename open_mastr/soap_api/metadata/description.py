@@ -136,12 +136,14 @@ class DataDescription(object):
                 # Slice data depending on what is available
                 if isinstance(fcn["sequence"]["element"], list):
                     fcn_data = fcn["sequence"]["element"]
-                elif isinstance(fcn["sequence"]["element"], OrderedDict):
+                elif isinstance(fcn["sequence"]["element"], (dict, OrderedDict)):
                     if "annotation" in fcn["sequence"]["element"]:
                         fcn_data = [fcn["sequence"]["element"]]
                     else:
                         fcn_data = self.types[fcn["sequence"]["element"]["@type"].split(":")[1]]["sequence"]["element"]
                 else:
+                    print(type(fcn["sequence"]))
+                    print(fcn["sequence"])
                     raise ValueError
 
                 # Add data for inherited columns from base types

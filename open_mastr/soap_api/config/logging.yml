@@ -18,7 +18,7 @@ handlers:
     mode: "a"
 
 root:
-    level: "NOTSET"
+    level: "DEBUG"
 
 loggers:
   open-MaStR:

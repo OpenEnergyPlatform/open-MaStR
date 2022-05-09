@@ -31,7 +31,7 @@ class MaStRAPI(object):
     """
     Access the Marktstammdatenregister (MaStR) SOAP API via a Python wrapper
 
-    :ref:`Read about <MaStR account>`
+    :ref:`Read about <MaStR account and credentials>`
     how to create a user account and a role including a token to access the
     MaStR SOAP API.
 
@@ -45,7 +45,7 @@ class MaStRAPI(object):
        )
 
     Alternatively, leave `user` and `key` empty if user and token are accessible via
-    `credentials.cfg`. How to configure this is described :ref:`here <MaStR account>`.
+    `credentials.cfg`. How to configure this is described :ref:`here <MaStR account and credentials>`.
 
     .. code-block:: python
 
@@ -838,14 +838,14 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
             Choose from
 
             * "extended_unit_data" (:meth:`~.extended_unit_data`): Extended information
-            (i.e. technical, location)
-            about a unit. The exact set of information depends on the technology.
+              (i.e. technical, location)
+              about a unit. The exact set of information depends on the technology.
             * "eeg_unit_data" (:meth:`~.eeg_unit_data`): Unit Information from
-            EEG unit registry. The exact
-            set of information depends on the technology.
+              EEG unit registry. The exact
+              set of information depends on the technology.
             * "kwk_unit_data" (:meth:`~.kwk_unit_data`): Unit information from KWK unit registry.
             * "permit_unit_data" (:meth:`~.permit_unit_data`): Information about the permit
-            process of a unit.
+              process of a unit.
 
         timeout: int, optional
             Timeout limit for data retrieval for each unit when using multiprocessing
@@ -1358,7 +1358,7 @@ def basic_data_download(
     # Construct description string
     description = f"Get basic {category} data information"
     if technology:
-        description += f"for technology {technology}"
+        description += f" for technology {technology}"
     if et:
         description += f" ({et})"
 

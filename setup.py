@@ -10,7 +10,14 @@ with open(path.join(here, "README.md"), encoding="utf-8") as f:
 
 setup(
     name="open_mastr",
-    packages=find_packages(),
+    packages=[
+        "open_mastr",
+        "open_mastr.soap_api",
+        "open_mastr.soap_api.config",
+        "open_mastr.soap_api.metadata",
+        "open_mastr.utils",
+        "open_mastr.xml_download",
+    ],
     version="0.11.0",
     description="MaStR data download tool",
     long_description=long_description,
@@ -36,15 +43,12 @@ setup(
         "numpy",
         "sqlalchemy",
         "psycopg2-binary",
-        # "geoalchemy2",  # TODO: Delete, is only needed in postprocessing
         "zeep",
         "tqdm",
-        # "geopandas",  # TODO: Delete, is only needed in postprocessing
         "requests",
         "keyring",
-        # "bokeh",  # TODO: Delete, is only needed in postprocessing
         "pynodo",
-        "clint",
+        "tqdm",
         "beautifulsoup4",
         "pyyaml",
         "xmltodict",

@@ -1,6 +1,6 @@
-name: py36_open_mastr
+name: py38_open_mastr
 channels:
     - conda-forge
     - defaults
 dependencies:
-    - python=3.7
+    - python=3.8

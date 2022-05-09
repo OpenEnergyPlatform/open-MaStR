@@ -1,5 +1,5 @@
 import requests
-from clint.textui import progress
+from tqdm import tqdm
 import time
 from bs4 import BeautifulSoup
 
@@ -38,16 +38,16 @@ def download_xml_Mastr(save_path: str) -> None:
     url = get_url_from_Mastr_website()
     time_a = time.perf_counter()
     r = requests.get(url, stream=True)
-    with open(save_path, "wb") as zfile:
-        total_length = int(7400 * 1024 * 1024)
-        for chunk in progress.bar(
-            r.iter_content(chunk_size=1024 * 1024),
+    total_length = int(7400 * 1024 * 1024)
+    with open(save_path, "wb") as zfile, tqdm(
+        desc=save_path, total=(total_length / 1024 / 1024)
+    ) as bar:
+        for chunk in r.iter_content(chunk_size=1024 * 1024):
             # chunk size of 1024 * 1024 needs 9min 11 sek = 551sek
             # chunk size of 1024 needs 9min 11 sek as well
-            expected_size=(total_length / 1024 / 1024),
-        ):
             if chunk:
                 zfile.write(chunk)
                 zfile.flush()
+            bar.update()
     time_b = time.perf_counter()
     print("Download is finished. It took %s seconds." % (time_b - time_a))

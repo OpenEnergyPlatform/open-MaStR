@@ -11,9 +11,11 @@ provided by the German Federal Network Agency (Bundesnetzagentur) that keeps tra
 The MaStR data can be [browsed online](https://www.marktstammdatenregister.de/MaStR),
 taken from [daily provided dumps](https://www.marktstammdatenregister.de/MaStR/Datendownload)
 or be accessed via the [web service](https://www.marktstammdatenregister.de/MaStRHilfe/subpages/webdienst.html).
-This package focuses on the second and the third option.
-It provides a python interface for accessing data via the bulk download and the web service API and methods to clean the data.
+
+The package open_mastr focuses on the second and the third option. It provides a python interface for accessing data via the bulk download and the web service API and methods to clean the data.
 In the future, methods to enrich the data and functions to analyze it are planned.
+If you are interested in browsing the MaStR online, check out the
+privately hosted [Marktstammdatenregister.dev](https://marktstammdatenregister.dev/).
 
 Find the [documentation](https://open-mastr.readthedocs.io/en/dev) hosted on ReadTheDocs.
 
@@ -24,11 +26,11 @@ It is recommended to use a virtual python environment, for example [conda](https
 [virtualenv](https://virtualenv.pypa.io/en/latest/installation.html).
 The package is intended to be used with Python >=3.8
 
-Install the current release of ``open_mastr`` with ``pip``::
+Install the current release of ``open_mastr`` with ``pip``:
 
     $ pip install open_mastr
 
-To upgrade to a newer release use the ``--upgrade`` flag::
+To upgrade to a newer release use the ``--upgrade`` flag:
 
     $ pip install --upgrade open_mastr
 
@@ -56,7 +58,10 @@ python setup.py install
 
 ## License / Copyright
 
-This repository is licensed under [GNU Affero General Public License v3.0 (AGPL-3.0)](https://www.gnu.org/licenses/agpl-3.0.en.html)
-© [Reiner Lemoine Institut](https://reiner-lemoine-institut.de/).
-See the [LICENSE](LICENSE.md) file for license rights and limitations.
+This repository is licensed under [GNU Affero General Public License v3.0 (AGPL-3.0)](https://www.gnu.org/licenses/agpl-3.0.en.html). <br>
+See the [LICENSE](LICENSE.md) file for rights and limitations. <br>
+See the CITATION function if you want to mention this software in your publication. 
+
+[open-MaStR](https://github.com/OpenEnergyPlatform/open-MaStR) © [Reiner Lemoine Institut](https://reiner-lemoine-institut.de/) © [fortiss](https://www.fortiss.org/) | [AGPL-3.0](https://www.gnu.org/licenses/agpl-3.0.en.html)
+
 
