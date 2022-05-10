@@ -2,6 +2,7 @@ from datetime import date, datetime
 from dateutil.parser import parse
 import dateutil
 import os
+import sys
 import shutil
 import sqlite3
 import open_mastr.settings as settings
@@ -338,7 +339,7 @@ class Mastr:
 
         if bulk_date_string != "today":
             try:
-                temp_date = parse(bulk_date_string)
+                _ = parse(bulk_date_string)
             except (dateutil.parser._parser.ParserError, TypeError):
                 raise ValueError(
                     "parameter bulk_date_string has to be a proper date in the format yyyymmdd"
@@ -356,6 +357,13 @@ class Mastr:
             raise ValueError(
                 "parameter api_processes has to be 'max' or an integer or 'None'"
             )
+        if api_processes == "max" or isinstance(api_processes, int):
+            system = sys.platform
+            if system not in ["linux2", "linux"]:
+                raise ValueError(
+                    "The functionality of multiprocessing only works on Linux based systems. "
+                    "On your system, the parameter api_processes has to be 'None'."
+                )
 
         if not isinstance(api_limit, int) and api_limit is not None:
             raise ValueError("parameter api_limit has to be an integer or 'None'.")
