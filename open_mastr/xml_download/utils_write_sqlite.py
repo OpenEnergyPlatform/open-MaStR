@@ -241,7 +241,7 @@ def write_single_entries_until_not_unique_comes_up(
 
     key_column = str(err).split("\n[SQL: INSERT INTO")[0].split("UNIQUE constraint failed:")[1].split(".")[1]
     key_list = pd.read_sql(sql = f"SELECT {key_column} FROM {sql_tablename};", con=engine).values.squeeze().tolist()
-    df = df.set_index("EinheitMastrNummer")
+    df = df.set_index(key_column)
     len_df_before = len(df)
     df = df.drop(labels=key_list, errors='ignore')
     df = df.reset_index()
