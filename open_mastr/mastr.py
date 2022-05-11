@@ -332,7 +332,7 @@ class Mastr:
                 if value not in bulk_technologies:
                     raise ValueError(
                         'Allowed values for parameter technology are "wind", "solar",'
-                        'biomass", "hydro", "gsgk", "combustion", "nuclear", "gas", '
+                        '"biomass", "hydro", "gsgk", "combustion", "nuclear", "gas", '
                         '"storage", "electricity_consumer", "location", "market", '
                         '"grid", "balancing_area" or "permit"'
                     )
