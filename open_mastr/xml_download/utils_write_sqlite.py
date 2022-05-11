@@ -91,15 +91,16 @@ def convert_mastr_xml_to_sqlite(
                     orm_class.__table__.drop(engine, checkfirst=True)
                     # create table schema
                     orm_class.__table__.create(engine)
-
+                    index_for_printed_message = 1
                     print(
                         f"Table '{sql_tablename}' is filled with data '{xml_tablename}' "
-                        "from the bulk download."
+                        "from the bulk download. \n"
+                        f"File '{file_name}' is parsed."
                     )
-                    index_for_printed_message = 1
+                    index_for_printed_message += 1
                 else:
                     print(
-                        f"File {index_for_printed_message} from '{xml_tablename}' is parsed."
+                        f"File '{file_name}' is parsed."
                     )
                     index_for_printed_message += 1
 
@@ -206,10 +207,10 @@ def add_table_to_sqlite_database(
         except sqlalchemy.exc.DataError as err:
             delete_wrong_xml_entry(err, df)
 
-        except sqlalchemy.exc.IntegrityError:
+        except sqlalchemy.exc.IntegrityError as err:
             # error resulting from Unique constraint failed
             df = write_single_entries_until_not_unique_comes_up(
-                df=df, sql_tablename=sql_tablename, engine=engine
+                df=df, sql_tablename=sql_tablename, engine=engine, err=err
             )
 
 
@@ -235,16 +236,18 @@ def add_zero_as_first_character_for_too_short_string(df, column_name, string_len
 
 
 def write_single_entries_until_not_unique_comes_up(
-    df: pd.DataFrame, sql_tablename: str, engine: sqlalchemy.engine.Engine
+    df: pd.DataFrame, sql_tablename: str, engine: sqlalchemy.engine.Engine, err: str
 ) -> None:
-    for index, row in df.iterrows():
-        try:
-            row = row.to_frame().transpose()
-            row.to_sql(name=sql_tablename, con=engine, if_exists="append", index=False)
-            df = df.drop(labels=index, axis=0)
-        except sqlalchemy.exc.IntegrityError:
-            df = df.drop(labels=index, axis=0)
-            return df
+
+    key_column = str(err).split("\n[SQL: INSERT INTO")[0].split("UNIQUE constraint failed:")[1].split(".")[1]
+    key_list = pd.read_sql(sql = f"SELECT {key_column} FROM {sql_tablename};", con=engine).values.squeeze().tolist()
+    df = df.set_index("EinheitMastrNummer")
+    len_df_before = len(df)
+    df = df.drop(labels=key_list, errors='ignore')
+    df = df.reset_index()
+    print(f"{len_df_before-len(df)} entries already existed in the database.")
+
+    return df
 
 
 def add_missing_column_to_table(
