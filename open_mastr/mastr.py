@@ -282,7 +282,7 @@ class Mastr:
             raise ValueError("parameter method has to be either 'bulk' or 'API'.")
 
         if method == "API":
-            if bulk_cleansing is not None or bulk_date_string != "today":
+            if bulk_cleansing is not True or bulk_date_string != "today":
                 warn(
                     "For method = 'API', bulk download related parameters "
                     "(with prefix bulk_) are ignored."
