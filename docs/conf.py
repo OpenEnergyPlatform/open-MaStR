@@ -12,14 +12,14 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../soap_api'))
+sys.path.insert(0, os.path.abspath('../open_mastr'))
 
 
 # -- Project information -----------------------------------------------------
 
 project = 'open-MaStR'
-copyright = '2020, Ludee,gplssm'
-author = 'Ludee,gplssm'
+copyright = '2022 Reiner Lemoine Institut and fortiss'
+author = ''
 
 
 # -- General configuration ---------------------------------------------------
@@ -29,8 +29,12 @@ author = 'Ludee,gplssm'
 # ones.
 extensions = [
     'sphinx.ext.autosectionlabel',
-    'sphinx.ext.autodoc'
+    'sphinx.ext.autodoc',
+    'sphinx.ext.napoleon',
+    'm2r2',
 ]
+
+source_suffix = [".rst", ".md"]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -53,3 +57,6 @@ html_theme = 'sphinx_rtd_theme'
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 html_css_files = ['custom.css']
+
+# Autodoc config 
+autoclass_content = 'both'

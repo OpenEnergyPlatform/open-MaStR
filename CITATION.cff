@@ -1,0 +1,33 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it using these metadata."
+authors:
+  - family-names: "Hülk"
+    given-names: "Ludwig"
+    alias: "@Ludee"
+    affiliation: "Reiner Lemoine Institut"
+    orcid: "https://orcid.org/0000-0003-4655-2321"
+  - family-names: "Pleßmann"
+    given-names: "Guido"
+    alias: "@gplssm"
+    affiliation: "Reiner Lemoine Institut"
+  - family-names: "Muschner"
+    given-names: "Christoph"
+    alias: "@chrwm"
+    affiliation: "Reiner Lemoine Institut"
+  - family-names: "Kotthoff"
+    given-names: "Florian"
+    alias: "@FlorianK13"
+    affiliation: "fortiss"
+    orcid: " https://orcid.org/0000-0003-3666-6122"
+  - family-names: "Tepe"
+    given-names: "Deniz"
+    alias: "@deniztepe"
+    affiliation: "fortiss"
+    orcid: " https://orcid.org/0000-0002-7605-0173"
+title: "open-MaStR"
+type: software
+license: AGPL-3.0
+version: 0.11.0
+doi: 
+date-released: 2022-05-01
+url: "https://github.com/OpenEnergyPlatform/open-MaStR/"

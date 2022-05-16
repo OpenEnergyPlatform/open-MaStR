@@ -1,0 +1,19 @@
+version: '3'
+services:
+  open-MaStR:
+    image: postgres:12-postgis
+    container_name: open-MaStR-cleansing-db
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Dockerfile.postgis
+    ports:
+      - '127.0.0.1:55443:5432'
+    environment:
+      POSTGRES_DB: open-mastr
+      POSTGRES_USER: open-mastr
+      POSTGRES_PASSWORD: open-mastr
+    volumes:
+      - $HOME/docker/volumes/postgres/open-MaStR:/var/lib/postgresql/data
+      - ./entrypoints:/docker-entrypoint-initdb.d/
+    shm_size: 2g

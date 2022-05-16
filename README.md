@@ -1,83 +1,67 @@
-﻿[![Documentation Status](https://readthedocs.org/projects/open-mastr/badge/?version=latest)](https://open-mastr.readthedocs.io/en/latest/?badge=latest)
-
+﻿[![Documentation Status](https://readthedocs.org/projects/open-mastr/badge/?version=dev)](https://open-mastr.readthedocs.io/en/dev/?badge=latest)
+[![CI](https://github.com/OpenEnergyPlatform/open-MaStR/workflows/CI/badge.svg)](https://github.com/OpenEnergyPlatform/open-MaStR/actions?query=workflow%3ACI)
 <a href="https://openenergyplatform.org"><img align="right" width="200" height="200" src="https://avatars2.githubusercontent.com/u/37101913?s=400&u=9b593cfdb6048a05ea6e72d333169a65e7c922be&v=4" alt="OpenEnergyPlatform"></a>
 
-# Open Energy Family - open_MaStR
+# open-MaStR
 
-Code to download and process German energy data from BNetzA database [Marktstammdatenregister (MaStR)](https://www.marktstammdatenregister.de/MaStR).
-Find the [documentation](https://open-mastr.readthedocs.io/en/latest) hosted of ReadTheDocs.
-## License / Copyright
+The [Marktstammdatenregister (MaStR)](https://www.marktstammdatenregister.de/MaStR) is a German register 
+provided by the German Federal Network Agency (Bundesnetzagentur) that keeps track of all power and gas units located in Germany.
 
-This repository is licensed under [GNU Affero General Public License v3.0 (AGPL-3.0)](https://www.gnu.org/licenses/agpl-3.0.en.html)
 
-Please cite as:
-_[open_MaStR](https://github.com/OpenEnergyPlatform/open-MaStR)_ © [Reiner Lemoine Institut](https://reiner-lemoine-institut.de/) | [AGPL-3.0](https://github.com/OpenEnergyPlatform/open-MaStR/blob/master/LICENSE)
+The MaStR data can be [browsed online](https://www.marktstammdatenregister.de/MaStR),
+taken from [daily provided dumps](https://www.marktstammdatenregister.de/MaStR/Datendownload)
+or be accessed via the [web service](https://www.marktstammdatenregister.de/MaStRHilfe/subpages/webdienst.html).
+
+The package open_mastr focuses on the second and the third option. It provides a python interface for accessing data via the bulk download and the web service API and methods to clean the data.
+In the future, methods to enrich the data and functions to analyze it are planned.
+If you are interested in browsing the MaStR online, check out the
+privately hosted [Marktstammdatenregister.dev](https://marktstammdatenregister.dev/).
+
+Find the [documentation](https://open-mastr.readthedocs.io/en/dev) hosted on ReadTheDocs.
+
 
 ## Installation
 
-The package is intended to be used for python 3.6
+It is recommended to use a virtual python environment, for example [conda](https://docs.conda.io/en/latest/miniconda.html) or 
+[virtualenv](https://virtualenv.pypa.io/en/latest/installation.html).
+The package is intended to be used with Python >=3.8
 
-- with conda
+Install the current release of ``open_mastr`` with ``pip``:
 
-    ```
-    conda env create -f environment.yml
-   ```
+    $ pip install open_mastr
+
+To upgrade to a newer release use the ``--upgrade`` flag:
+
+    $ pip install --upgrade open_mastr
+
+
+Alternatively, you can manually download ``open_mastr`` from
+`GitHub <https://github.com/OpenEnergyPlatform/open-MaStR>`_. 
+Change the CWD to the download folder `open-MaStR/`.
+
+```bash
+git clone git@github.com:OpenEnergyPlatform/open-MaStR.git
+cd open-MaStR
+```
+
+Optionally, a pre-defined conda environment can be used with 
+
+```bash
+conda env create -f environment.yml
+```
    
-   ```
-    python setup.py install
-   ```
+Install the package with
 
-- without conda
-
-    In a virtual environment run `setup.py`.
-
-    ```
-    python setup.py install
-   ```
-
-## Download
-
-### User config
-In order to connect to the MastR SOAP API you need a `user` name and a `token`. <br>
-The first time you run the code you will be prompted for that information and a `config.ini` file will be generated automatically for you.
-Handle this file carefully.
-
-The `config.ini` file at the repository's root level should have the following structure:
-```
-[MaStR]
-token = <your token>
-user = <your user name>
+```bash
+python setup.py install
 ```
 
-### Data version
+## License / Copyright
 
-Create a new branch named `data-release/x.x.x`
+This repository is licensed under [GNU Affero General Public License v3.0 (AGPL-3.0)](https://www.gnu.org/licenses/agpl-3.0.en.html). <br>
+See the [LICENSE](LICENSE.md) file for rights and limitations. <br>
+See the CITATION function if you want to mention this software in your publication. 
 
-Set the data version number in `utils.py`.
+[open-MaStR](https://github.com/OpenEnergyPlatform/open-MaStR) © [Reiner Lemoine Institut](https://reiner-lemoine-institut.de/) © [fortiss](https://www.fortiss.org/) | [AGPL-3.0](https://www.gnu.org/licenses/agpl-3.0.en.html)
 
-```
-python soap_api/utils.py
-```
 
-### Technologies 
-
-You can select the technologies and run the download code in `main.py`.
-
-```
-python soap_api/main.py
-```
-
-## Tests
-
-To run the tests install the required packages
-
-```
-pip install -r requirements.txt
-
-pip install -r tests/test_requirements.txt
-```
-Then execute the tests
-
-```
-pytest tests
-```

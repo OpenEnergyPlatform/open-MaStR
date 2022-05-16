@@ -1,0 +1,107 @@
+Column,Description,Type,Example
+EinheitMastrNummer,MaStR-Nummer der Einheit,string,SEE91234567890
+DatumLetzeAktualisierung,Datum der letzten Aktualisierung an diesem Objekt,dateTime,2017-07-25T08:36:54.1004464
+Name,Name der Einheit,string,"Solarpark 4, Einheit 17"
+Einheitart,Art der Einheit,string,Stromerzeugungseinheit
+Einheittyp,Typ der Einheit,string,Solareinheit
+Standort,"Standort der Einheit: Land (falls nicht Deutschland), Postleitzahl, Ort, Straße, Hausnummer,			(falls Wind auf See: Seelage, Cluster)",string,Großer Weg 41 3912 Wien Österreich
+Bruttoleistung,Buttoleistung der Einheit in kW,decimal,25000
+Erzeugungsleistung,Leistung der Gaserzeugungseinheit,decimal,25000.002
+EinheitBetriebsstatus,,string,
+Anlagenbetreiber,Betreiber der Anlage.,string,ABR91234567890
+EegMastrNummer,Angaben über optional zugeordnete EEG-Anlagen,string,EEG91234567890
+KwkMastrNummer,Angaben über optional zugeordnete KWK-Anlagen,string,KWK91234567890
+SpeMastrNummer,Angaben über optional zugeordnete Speicher,string,SPE91234567890
+GenMastrNummer,Angaben über optional zugeordnete Genehmigungen,string,GEN91234567890
+BestandsanlageMastrNummer_basic,Angaben über optional vorhandene MaStR-Nummer aus der Bestandsanlagenverwaltung,string,SEE91234567890
+NichtVorhandenInMigriertenEinheiten,Angabe über das Nichtvorhandensein in den migrierten Einheiten,boolean,true
+StatisikFlag_basic,"Angabe, in welcher Statistik, diese Einheit geführt wird. A = Einheit ignorieren, B = Einheit in Statistiken verwenden.",string,B
+NameKraftwerk,Name des Kraftwerks,string,Wasserpark 2
+ArtDerWasserkraftanlage,Art der Stromerzeugung aus Wasserkraft,string,Meeresenergie
+AnzeigeEinerStilllegung,Anzeige einer Stilllegung nach §13b Abs.1 Satz 1,boolean,Vorlaeufig
+ArtDerStilllegung,Art der Stilllegung nach §13b,string,Vorlaeufig
+DatumBeginnVorlaeufigenOderEndgueltigenStilllegung,Beginn der vorläufigen oder endgültigen Stilllegung der Einheit,date,2014-01-02
+MinderungStromerzeugung,"Auflagen, die zur Minderung der Stromerzeugung führen?",boolean,true
+BestandteilGrenzkraftwerk,Gehört die Stromerzeugungseinheit zu einem Grenzkraftwerk,boolean,true
+NettonennleistungDeutschland,"Die höchste elektrische Dauerleistung unter Nennbedingungen dieser Stromerzeugungseinheit, die in ein deutsches Stromnetz eingespeist werden kann.",decimal,458.145
+ArtDesZuflusses,Welche Art von Zufluss wird zur Stromerzeugung verwendet,string,Flusskraftwerk
+EegMastrNummer_extended,MaStR-Nummer der zugeordneten EEG-Anlage,string,EEG91234567890
+NameStromerzeugungseinheit,Vom Betreiber frei wählbare Bezeichnung der Stromerzeugungseinheit.,string,Windpark II Einheit 14
+Weic,W-Code der Stromerzeugungseinheit,mastr:ErweiterterString,11XVE-SALESPK-P
+WeicDisplayName,Displayname des W-EIC,string,VES-PK
+Kraftwerksnummer,Bundesnetzagentur-Kraftwerksnummer,mastr:ErweiterterString,BNA0019
+Energietraeger,Energieträger der Einheit,string,Wind
+Bruttoleistung_extended,Bruttoleistung in kW,decimal,150.112
+Nettonennleistung,Nettonennleistung in kW,decimal,148.987
+AnschlussAnHoechstOderHochSpannung,Die Stromerzeugungseinheit ist an ein Höchst- oder Hochspannungsnetz angeschlossen,boolean,true
+Schwarzstartfaehigkeit,Schwarzstartfähigkeit der Einheit,boolean,true
+Inselbetriebsfaehigkeit,Inselbetriebsfähigkeit der Einheit,boolean,false
+Einsatzverantwortlicher,Marktpartner-ID des Einsatzverantwortlichen,string,9900123000007
+FernsteuerbarkeitNb,Fernsteuerbarkeit der Einheit durch einen Netzbetreiber,boolean,false
+FernsteuerbarkeitDv,Fernsteuerbarkeit der Einheit durch einen Direktvermarkter,boolean,true
+FernsteuerbarkeitDr,Fernsteuerbarkeit der Einheit durch Dritte,boolean,false
+Einspeisungsart,Volleinspeisung oder Teileinspeisung,string,Volleinspeisung
+PraequalifiziertFuerRegelenergie,Einheit ist für die Vorhaltung und Erbringung von Regelenergie präqualifiziert,boolean,true
+GenMastrNummer_extended,MaStR-Nummer der zu dieser Einheit zugeordneten Genehmigung,string,GEN91234567890
+EinheitMastrNummer_extended,MaStR-Nummer der Einheit,string,SEE91234567890
+DatumLetzteAktualisierung,Datum der letzten Aktualisierung an diesem Objekt,dateTime,2017-07-25T08:36:54.1004464
+LokationMastrNummer,MaStR-Nummer der Lokation,string,SEL91234567890
+NetzbetreiberpruefungStatus,"Der Status der letzten Netzbetreiberprüfung, insofern eine durchgeführt wurde",string,Geprueft
+NetzbetreiberpruefungDatum,"Datum der letzten Netzbetreiberprüfung, insofern eine durchgeführt wurde",date,2017-08-02
+AnlagenbetreiberMastrNummer,MaStR-Nummer des Betreibers der Einheit,string,ABR91234567890
+Land,Standort der Einheit: Land,string,Deutschland
+Bundesland,Standort der Einheit: Bundesland,string,SachsenAnhalt
+Landkreis,Standort der Einheit: Landkreis,string,Bördekreis
+Gemeinde,Standort der Einheit: Gemeinde,string,Sülztal
+Gemeindeschluessel,Standort der Einheit: Gemeindeschlüssel,string,15125414
+Postleitzahl,Standort der Einheit: Postleitzahl,string,39179
+Gemarkung,Standort der Einheit: Gemarkung,string,896-98
+FlurFlurstuecknummern,Standort der Einheit: Flur und/oder Flurstücke,string,123-784
+Strasse,Standort der Einheit: Straße,string,Holzweg
+StrasseNichtGefunden,"Angabe, dass die angegebene Strasse nicht aus dem BKG-Adressdatenbestand stammt",boolean,false
+Hausnummer,Standort der Einheit: Hausnummer,mastr:ErweiterterString,4
+HausnummerNichtGefunden,"Angabe, dass die angegebene Hausnummer nicht aus dem BKG-Adressdatenbestand stammt",boolean,false
+Adresszusatz,Standort der Einheit: Adresszusatz,string,Hinterhaus
+Ort,Standort der Einheit: Ort,string,Langenweddingen
+Laengengrad,Koordinaten der Einheit: Längengrad,decimal,51.254
+Breitengrad,Koordinaten der Einheit: Breitengrad,decimal,12.597
+UtmZonenwert,Koordinaten der Einheit: UTM-Zonenwert,int,32
+UtmEast,Koordinaten der Einheit: UTM-Ost,decimal,672876
+UtmNorth,Koordinaten der Einheit: UTM-Nord,decimal,5768696
+GaussKruegerHoch,Koordinaten der Einheit: Gauß-Krüger-Hochwert,decimal,4467223.649
+GaussKruegerRechts,Koordinaten der Einheit: Gauß-Krüger-Rechtswert,decimal,5767667.634
+Meldedatum,Meldedatum der Gaserzeugungseinheit,date,2012-12-12
+GeplantesInbetriebnahmedatum,Geplantes Inbetriebnahmedatum der Stromerzeugungsseinheit,date,2014-10-24
+Inbetriebnahmedatum,Datum der Inbetriebnahme,date,1998-01-02
+DatumEndgueltigeStilllegung,Datum der endgültigen Stilllegung der Einheit,date,2020-01-02
+DatumBeginnVoruebergehendeStilllegung,Beginn der vorläufigen Stilllegung der Einheit,date,2014-02-04
+DatumWiederaufnahmeBetrieb,Datum der Wiederaufnahme des Betriebs,date,2015-01-02
+EinheitSystemstatus,Systemstatus der Einheit,string,Deaktiviert
+EinheitBetriebsstatus_extended,Betriebsstatus der Einheit,string,InPlanung
+BestandsanlageMastrNummer,Angaben über optional vorhandene MaStR-Nummer aus der Bestandsanlagenverwaltung,string,SEE91234567890
+NichtVorhandenInMigriertenEinheiten_extended,Angabe über das Nichtvorhandensein in den migrierten Einheiten,boolean,true
+AltAnlagenbetreiberMastrNummer,"MaStR-Nummer des ehemaligen Betreibers der Einheit, wenn ein Betreiberwechsel durchgeführt wurde",string,ABR91234567890
+DatumDesBetreiberwechsels,Datum des realen Betreiberwechsels,date,2017-08-02
+DatumRegistrierungDesBetreiberwechsels,Datum der Registrierung des Betreiberwechsels,date,2017-07-02
+StatisikFlag,"Angabe, in welcher Statistik, diese Einheit geführt wird. A = Einheit ignorieren, B = Einheit in Statistiken verwenden.",string,B
+EegMastrNummer_eeg,MaStR-Nummer der verknüpften Einheit,string,EEG91234567890
+AnlagenschluesselEeg,Vom Netzbetreiber vergebene Kennziffer zur Identifikation der EEG-Anlage,string,E2325426
+AnlagenkennzifferAnlagenregister,Anlagenkennziffer aus der Registrierungsbestätigung des Anlagenregister,mastr:ErweiterterString,B354453
+InstallierteLeistung,Installierte Nettonennleistung der EEG-Anlage,decimal,1235.541
+AnlageBetriebsstatus,"Betriebsstatus der Anlage, welche sich aus den zugeordneten Einheiten ergibt",string,InPlanung
+Ertuechtigung,,mastr:Ertuechtigung,
+VerknuepfteEinheit,Die verknüpften Einheiten zu diesem Objekt,mastr:VerknuepfteEinheit,[OBJEKT]
+Meldedatum_eeg,Meldedatum der EEG-Anlage,date,2012-12-31
+DatumLetzteAktualisierung_eeg,Datum der letzten Aktualisierung an diesem Objekt,dateTime,2018-08-25T00:00:00.0000000
+EegInbetriebnahmedatum,Inbetriebnahmedatum der EEG-Anlage,date,2012-12-31
+GenMastrNummer_permit,MaStR-Nummer der Genehmigung,string,GEN91234567890
+DatumLetzteAktualisierung_permit,Datum der letzten Aktualisierung an diesem Objekt,dateTime,2017-07-25T08:36:54.1004464
+Art,Art der Genehmigung,string,NachBImSchG13BImSchV
+Datum,"Datum, ab dem die Genehmigung für Bau oder Betrieb der Stromerzeugungseinheit erteilt ist",date,2017-08-03
+Behoerde,"Behörde, die Genehmigung ausgestellt hat",string,Gericht Suhl
+Aktenzeichen,"Aktenzeichen der Genehmigung, welche die Genehmigungsbehörde vergeben hat",string,2016/141547/245636
+Frist,"Datum, bis zu dem gemäß der Genehmigung mit der Errichtung oder dem Betrieb der Anlage begonnen werden muss",mastr:ErweitertesDate,2018-01-02
+WasserrechtsNummer,Nummer der wasserrechtlichen Genehmigung,string,W3253455G
+WasserrechtAblaufdatum,"Datum, an dem die wasserrechtliche Genehmigung abläuft",mastr:ErweitertesDate,2019-02-09
+Meldedatum_permit,Meldedatum der Genehmigung,date,2012-12-12
+VerknuepfteEinheiten,Mit dieser Genehmigung verknüpfte Einheiten,mastr:VerknuepfteEinheit,.

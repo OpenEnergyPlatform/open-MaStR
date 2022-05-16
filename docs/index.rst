@@ -11,12 +11,12 @@ Welcome to open-MaStR's documentation!
    :maxdepth: 2
    :caption: Documentation
 
+   readme
    getting_started
-   download
-   postprocessing
-   analyze
+   advanced
    development
-   API <modules>
+   changelog
+   Reference <reference/open_mastr>
 
 
 
