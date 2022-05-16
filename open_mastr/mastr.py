@@ -2,6 +2,7 @@ from datetime import date, datetime
 from dateutil.parser import parse
 import dateutil
 import os
+import sys
 import shutil
 import sqlite3
 import open_mastr.settings as settings
@@ -281,7 +282,7 @@ class Mastr:
             raise ValueError("parameter method has to be either 'bulk' or 'API'.")
 
         if method == "API":
-            if bulk_cleansing is not None or bulk_date_string != "today":
+            if bulk_cleansing is not True or bulk_date_string != "today":
                 warn(
                     "For method = 'API', bulk download related parameters "
                     "(with prefix bulk_) are ignored."
@@ -331,14 +332,14 @@ class Mastr:
                 if value not in bulk_technologies:
                     raise ValueError(
                         'Allowed values for parameter technology are "wind", "solar",'
-                        'biomass", "hydro", "gsgk", "combustion", "nuclear", "gas", '
+                        '"biomass", "hydro", "gsgk", "combustion", "nuclear", "gas", '
                         '"storage", "electricity_consumer", "location", "market", '
                         '"grid", "balancing_area" or "permit"'
                     )
 
         if bulk_date_string != "today":
             try:
-                temp_date = parse(bulk_date_string)
+                _ = parse(bulk_date_string)
             except (dateutil.parser._parser.ParserError, TypeError):
                 raise ValueError(
                     "parameter bulk_date_string has to be a proper date in the format yyyymmdd"
@@ -356,6 +357,13 @@ class Mastr:
             raise ValueError(
                 "parameter api_processes has to be 'max' or an integer or 'None'"
             )
+        if api_processes == "max" or isinstance(api_processes, int):
+            system = sys.platform
+            if system not in ["linux2", "linux"]:
+                raise ValueError(
+                    "The functionality of multiprocessing only works on Linux based systems. "
+                    "On your system, the parameter api_processes has to be 'None'."
+                )
 
         if not isinstance(api_limit, int) and api_limit is not None:
             raise ValueError("parameter api_limit has to be an integer or 'None'.")

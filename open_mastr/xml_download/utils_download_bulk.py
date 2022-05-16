@@ -2,6 +2,7 @@ import requests
 from tqdm import tqdm
 import time
 from bs4 import BeautifulSoup
+import numpy as np
 
 
 def get_url_from_Mastr_website() -> str:
@@ -38,7 +39,7 @@ def download_xml_Mastr(save_path: str) -> None:
     url = get_url_from_Mastr_website()
     time_a = time.perf_counter()
     r = requests.get(url, stream=True)
-    total_length = int(7400 * 1024 * 1024)
+    total_length = int(10000 * 1024 * 1024)
     with open(save_path, "wb") as zfile, tqdm(
         desc=save_path, total=(total_length / 1024 / 1024)
     ) as bar:
@@ -50,4 +51,4 @@ def download_xml_Mastr(save_path: str) -> None:
                 zfile.flush()
             bar.update()
     time_b = time.perf_counter()
-    print("Download is finished. It took %s seconds." % (time_b - time_a))
+    print(f"Download is finished. It took {int(np.around(time_b - time_a))} seconds.")

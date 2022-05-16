@@ -1,3 +1,4 @@
+import sys
 from datetime import datetime
 from open_mastr.mastr import Mastr
 import os
@@ -36,7 +37,9 @@ def parameter_dict_working():
         ],
         "bulk_date_string": ["today", "20200108"],
         "bulk_cleansing": [True, False],
-        "api_processes": [2, 20, None, "max"],
+        "api_processes": [None]
+        if sys.platform not in ["linux2", "linux"]
+        else [2, 20, None, "max"],
         "api_limit": [15, None],
         "api_date": [None, datetime(2022, 2, 2), "latest"],
         "api_chunksize": [20],
