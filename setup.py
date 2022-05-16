@@ -78,4 +78,4 @@ setup(
     },
 )
 
-os.system("ulimit -n 1000000")
+#os.system("ulimit -n 1000000")
