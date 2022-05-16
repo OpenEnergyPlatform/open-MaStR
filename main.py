@@ -30,23 +30,25 @@ api_location_types = [
     "location_gas_consumption",
 ]
 
-db.download(method="bulk",
-            technology=technology,
-            api_data_types=api_data_types)
+if __name__ == "__main__":
 
-db.download(method="API",
-            api_date='latest',
-            api_limit=10,
-            technology=technology,
-            api_data_types=api_data_types,
-            api_location_types=api_location_types)
+    db.download(method="bulk",
+                technology=technology,
+                api_data_types=api_data_types)
 
-db.to_csv()
+    db.download(method="API",
+                api_date='latest',
+                api_limit=10,
+                technology=technology,
+                api_data_types=api_data_types,
+                api_location_types=api_location_types)
+
+    db.to_csv()
 
 
-## Postprocessing
+    ## Postprocessing
 
-#cleaned = cleaned_data()
-#postprocess(cleaned)
+    #cleaned = cleaned_data()
+    #postprocess(cleaned)
 
-#to_csv()
+    #to_csv()
