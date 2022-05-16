@@ -2,7 +2,7 @@
 
 For each version important additions, changes and removals are listed here. 
 
-##  [0.11.0] 2022-04-26
+##  [v0.11.0] 2022-05-16
 
 The code becomes a python package and will be available on pypi.org
 Additionally, a new datasource was identified and can be used: the xml bulk download.
@@ -26,7 +26,7 @@ The API was updated to the newest version and the data model was adapted.
 [#219](https://github.com/OpenEnergyPlatform/open-MaStR/issues/219)
 
 
-## [0.10.0] 2020-10-08 - unreleased
+## [v0.10.0] 2020-10-08 - unreleased
 
 A complete refactoring took place! Downloading data was entirely changed; introducing layers of code and removing 
 duplicated code while more of less following DRY. 
@@ -103,7 +103,7 @@ Read more about the details:
 
 - Most of prior code for downloading data
 
-## [0.9.0] 2019-12-05
+## [v0.9.0] 2019-12-05
 
 ### Added
 - docstrings for functions
@@ -129,7 +129,7 @@ Read more about the details:
 - power unit update
 - filter technologies from power units
 
-## [0.8.0] 2019-09-30
+## [v0.8.0] 2019-09-30
 
 ### Added
 - README.md
