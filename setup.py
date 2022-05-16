@@ -27,7 +27,7 @@ setup(
     url="https://github.com/OpenEnergyPlatform/open-MaStR",
     download_url="https://github.com/OpenEnergyPlatform/open-MaStR/archive"
                  "/refs/tags/v0.11.0.tar.gz",
-    maintainer_email='datenzentrum@rl-institut.de',
+    maintainer_email="datenzentrum@rl-institut.de",
 
     # For a list of valid classifiers, see https://pypi.org/classifiers/
     classifiers=[
