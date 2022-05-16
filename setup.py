@@ -19,10 +19,14 @@ setup(
         "open_mastr.xml_download",
     ],
     version="0.11.0",
-    description="MaStR data download tool",
+    description="The python package open_mastr provides an interface for "
+                "accessing the data. It contains methods to download and "
+                "parse the xml files (bulk) and the web service (API).",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/OpenEnergyPlatform/open-MaStR",
+    download_url="https://github.com/OpenEnergyPlatform/open-MaStR/archive"
+                 "/refs/tags/v0.11.0.tar.gz",
     # author='',  # Optional
     # author_email='',  # Optional
     # Classifiers help users find your project by categorizing it.
