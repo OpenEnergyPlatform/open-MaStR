@@ -18,7 +18,7 @@ setup(
         "open_mastr.utils",
         "open_mastr.xml_download",
     ],
-    version="0.11.0",
+    version="0.11.1",
     description="The python package open_mastr provides an interface for "
                 "accessing the data. It contains methods to download and "
                 "parse the xml files (bulk) and the web service (API).",
@@ -26,7 +26,7 @@ setup(
     long_description_content_type="text/markdown",
     url="https://github.com/OpenEnergyPlatform/open-MaStR",
     download_url="https://github.com/OpenEnergyPlatform/open-MaStR/archive"
-                 "/refs/tags/v0.11.0.tar.gz",
+                 "/refs/tags/v0.11.1.tar.gz",
     maintainer_email="datenzentrum@rl-institut.de",
 
     # For a list of valid classifiers, see https://pypi.org/classifiers/
