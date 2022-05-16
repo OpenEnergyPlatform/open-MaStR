@@ -8,12 +8,17 @@ The [Marktstammdatenregister (MaStR)](https://www.marktstammdatenregister.de/MaS
 provided by the German Federal Network Agency (Bundesnetzagentur) that keeps track of all power and gas units located in Germany.
 
 
-The MaStR data can be [browsed online](https://www.marktstammdatenregister.de/MaStR),
-taken from [daily provided dumps](https://www.marktstammdatenregister.de/MaStR/Datendownload)
-or be accessed via the [web service](https://www.marktstammdatenregister.de/MaStRHilfe/subpages/webdienst.html).
+The MaStR data can be 
+1. browsed [online](https://www.marktstammdatenregister.de/MaStR),
+2. taken from [daily provided dumps](https://www.marktstammdatenregister.de/MaStR/Datendownload)
+3. be accessed via the [web service](https://www.marktstammdatenregister.de/MaStRHilfe/subpages/webdienst.html)
 
-The package open_mastr focuses on the second and the third option. It provides a python interface for accessing data via the bulk download and the web service API and methods to clean the data.
-In the future, methods to enrich the data and functions to analyze it are planned.
+The python package ``open_mastr`` provides an interface for accessing the data. 
+It contains methods to download and parse the xml files (bulk) and the web service (API).
+
+In this repository ``open-MaStR`` we are developing methods to analyze, validate and enrich the data.
+We want to collect and compile post processing scripts to improve data quality.
+
 If you are interested in browsing the MaStR online, check out the
 privately hosted [Marktstammdatenregister.dev](https://marktstammdatenregister.dev/).
 
