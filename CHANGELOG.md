@@ -19,13 +19,20 @@ Here is a template for new release sections:
 ```
 
 
+## [v0.11.2] Patch - Patch the package - 2022-05-17
+
+### Changed
+- Update readme.md to improve PyPi release [#249](https://github.com/OpenEnergyPlatform/open-MaStR/issues/249)
+- Rename branches `dev` -> `develop` and `master` -> `production`
+
+
 ## [v0.11.1] Patch - Make it a package - 2022-05-16
 
 ### Added
 - Add files and metadata for PyPi release [#237](https://github.com/OpenEnergyPlatform/open-MaStR/issues/237)
 
 
-##  [v0.11.0] Unreleased -  - 2022-05-16
+##  [v0.11.0] Unreleased - Forces unite - 2022-05-16
 
 The code becomes a python package and will be available on pypi.org
 Additionally, a new datasource was identified and can be used: the xml bulk download.
