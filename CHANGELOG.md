@@ -1,8 +1,31 @@
 # Changelog
 
+All notable changes to this project will be documented in this file.
 For each version important additions, changes and removals are listed here. 
 
-##  [v0.11.0] 2022-05-16
+The format is inspired from [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
+and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
+
+Here is a template for new release sections:
+```
+## [v0.0.0] Major/Minor Release - Name of Release - 20YY-MM-DD
+
+### Added
+- [#](https://github.com/rl-institut/super-repo/pull/)
+### Changed
+- [#](https://github.com/rl-institut/super-repo/pull/)
+### Removed
+- [#](https://github.com/rl-institut/super-repo/pull/)
+```
+
+
+## [v0.11.1] Patch - Make it a package - 2022-05-16
+
+### Added
+- Add files and metadata for PyPi release [#237](https://github.com/OpenEnergyPlatform/open-MaStR/issues/237)
+
+
+##  [v0.11.0] Unreleased -  - 2022-05-16
 
 The code becomes a python package and will be available on pypi.org
 Additionally, a new datasource was identified and can be used: the xml bulk download.
@@ -26,8 +49,7 @@ The API was updated to the newest version and the data model was adapted.
 [#219](https://github.com/OpenEnergyPlatform/open-MaStR/issues/219)
 
 
-## [v0.10.0] 2020-10-08 - unreleased
-
+## [v0.10.0] Unreleased - Refactoring - 2020-10-08
 A complete refactoring took place! Downloading data was entirely changed; introducing layers of code and removing 
 duplicated code while more of less following DRY. 
 Moreover, post-processing was changed to be more accessible and easier to execute. For example, docker now helps to 
@@ -40,7 +62,6 @@ Read more about the details:
 - added documentation for ReadTheDocs
 - improved parallel download
 - merged all stale branches
-
 - The class :class:`open_mastr.soap_api.mirror.MaStRMirror` 
   was introduced for mirroring MaStR data with latest updates 
   [#149](https://github.com/OpenEnergyPlatform/open-MaStR/issues/149)
@@ -75,7 +96,6 @@ Read more about the details:
 - The CHANGELOG is now included in the documentation
 
 ### Changed
-
 - Download of raw data has entirely been refactored. A 
   [python wrapper](https://open-mastr.readthedocs.io/en/latest/download.html#mastr-api-wrapper) for querying 
   the MaStR API was introduced
@@ -100,10 +120,10 @@ Read more about the details:
   [#188](https://github.com/OpenEnergyPlatform/open-MaStR/issues/188)
 
 ### Removed
-
 - Most of prior code for downloading data
 
-## [v0.9.0] 2019-12-05
+
+## [v0.9.0] Initial Release - Try and Errors - 2019-12-05
 
 ### Added
 - docstrings for functions
@@ -129,6 +149,7 @@ Read more about the details:
 - power unit update
 - filter technologies from power units
 
+
 ## [v0.8.0] 2019-09-30
 
 ### Added
@@ -147,4 +168,3 @@ Read more about the details:
 
 ### Changed
 - took the code from this [repository's subfolder](https://github.com/OpenEnergyPlatform/data-preprocessing/tree/master/data-import/bnetza_mastr)
-
