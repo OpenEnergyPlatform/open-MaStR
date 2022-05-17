@@ -34,7 +34,7 @@ setup(
         "Development Status :: 4 - Beta",
         "Intended Audience :: Science/Research",
         "Topic :: Software Development :: Build Tools",
-        "License :: OSI Approved :: AGPL-3.0 License",
+        "License :: OSI Approved :: AGPL-3.0-or-later",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
