@@ -2,21 +2,21 @@
 [![CI](https://github.com/OpenEnergyPlatform/open-MaStR/workflows/CI/badge.svg)](https://github.com/OpenEnergyPlatform/open-MaStR/actions?query=workflow%3ACI)
 <a href="https://openenergyplatform.org"><img align="right" width="200" height="200" src="https://avatars2.githubusercontent.com/u/37101913?s=400&u=9b593cfdb6048a05ea6e72d333169a65e7c922be&v=4" alt="OpenEnergyPlatform"></a>
 
-# open-MaStR
+# open-mastr
 
 The [Marktstammdatenregister (MaStR)](https://www.marktstammdatenregister.de/MaStR) is a German register 
 provided by the German Federal Network Agency (Bundesnetzagentur) that keeps track of all power and gas units located in Germany.
 
 
 The MaStR data can be 
-1. browsed [online](https://www.marktstammdatenregister.de/MaStR),
+1. browsed [online](https://www.marktstammdatenregister.de/MaStR)
 2. taken from [daily provided dumps](https://www.marktstammdatenregister.de/MaStR/Datendownload)
 3. be accessed via the [web service](https://www.marktstammdatenregister.de/MaStRHilfe/subpages/webdienst.html)
 
-The python package ``open_mastr`` provides an interface for accessing the data. 
+The python package ``open-mastr`` provides an interface for accessing the data. 
 It contains methods to download and parse the xml files (bulk) and the web service (API).
 
-In this repository ``open-MaStR`` we are developing methods to analyze, validate and enrich the data.
+In this repository we are developing methods to analyze, validate and enrich the data.
 We want to collect and compile post processing scripts to improve data quality.
 
 If you are interested in browsing the MaStR online, check out the
@@ -31,16 +31,16 @@ It is recommended to use a virtual python environment, for example [conda](https
 [virtualenv](https://virtualenv.pypa.io/en/latest/installation.html).
 The package is intended to be used with Python >=3.8
 
-Install the current release of ``open_mastr`` with ``pip``:
+Install the current release of ``open-mastr`` with ``pip``:
 
-    $ pip install open_mastr
+    $ pip install open-mastr
 
 To upgrade to a newer release use the ``--upgrade`` flag:
 
-    $ pip install --upgrade open_mastr
+    $ pip install --upgrade open-mastr
 
 
-Alternatively, you can manually download ``open_mastr`` from
+Alternatively, you can manually download ``open-mastr`` from
 `GitHub <https://github.com/OpenEnergyPlatform/open-MaStR>`_. 
 Change the CWD to the download folder `open-MaStR/`.
 
