@@ -18,15 +18,17 @@ setup(
         "open_mastr.utils",
         "open_mastr.xml_download",
     ],
-    version="0.11.1",
-    description="The python package open_mastr provides an interface for "
-                "accessing the data. It contains methods to download and "
-                "parse the xml files (bulk) and the web service (API).",
+    version="0.11.2",
+    description="A package that provides an interface for downloading and"
+                "processing the data of the Marktstammdatenregister (MaStR)",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/OpenEnergyPlatform/open-MaStR",
     download_url="https://github.com/OpenEnergyPlatform/open-MaStR/archive"
-                 "/refs/tags/v0.11.1.tar.gz",
+                 "/refs/tags/v0.11.2.tar.gz",
+    author="Open Energy Family",
+    author_email="datenzentrum@rl-institut.de",
+    maintainer="Ludwig Hülk",
     maintainer_email="datenzentrum@rl-institut.de",
 
     # For a list of valid classifiers, see https://pypi.org/classifiers/
@@ -71,7 +73,9 @@ setup(
         ]
     },
     project_urls={
-        "Bug Reports": "https://github.com/OpenEnergyPlatform/open-MaStR/issues",
+        "Documentation": "https://open-mastr.readthedocs.io/",
+        "Changelog": "https://open-mastr.readthedocs.io/en/latest/changelog.html",
+        "Issue Tracker": "https://github.com/OpenEnergyPlatform/open-MaStR/issues",
         "Source": "https://github.com/OpenEnergyPlatform/open-MaStR",
     },
 )
