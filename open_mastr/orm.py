@@ -993,7 +993,7 @@ bulk_include_tables_map = {
         "anlageneeggeosolarthermiegrubenklaerschlammdruckentspannung",
         "einheitengeosolarthermiegrubenklaerschlammdruckentspannung",
     ],
-    "combustion": ["anlagenkwk"],
+    "combustion": ["anlagenkwk", "einheitenverbrennung"],
     "nuclear": ["einheitenkernkraft"],
     "storage": ["anlageneegspeicher", "anlagenstromspeicher", "einheitenstromspeicher"],
     "gas": [
@@ -1002,7 +1002,7 @@ bulk_include_tables_map = {
         "einheitengasspeicher",
         "einheitengasverbraucher",
     ],
-    "electricity_consumer": ["einheitenstromverbraucher", "einheitenverbrennung"],
+    "electricity_consumer": ["einheitenstromverbraucher"],
     "location": ["lokationen"],
     "market": ["marktakteure", "marktrollen"],
     "grid": ["netzanschlusspunkte", "netze"],
