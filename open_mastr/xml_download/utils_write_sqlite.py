@@ -99,9 +99,7 @@ def convert_mastr_xml_to_sqlite(
                     )
                     index_for_printed_message += 1
                 else:
-                    print(
-                        f"File '{file_name}' is parsed."
-                    )
+                    print(f"File '{file_name}' is parsed.")
                     index_for_printed_message += 1
 
                 df = prepare_table_to_sqlite_database(
@@ -239,11 +237,20 @@ def write_single_entries_until_not_unique_comes_up(
     df: pd.DataFrame, sql_tablename: str, engine: sqlalchemy.engine.Engine, err: str
 ) -> None:
 
-    key_column = str(err).split("\n[SQL: INSERT INTO")[0].split("UNIQUE constraint failed:")[1].split(".")[1]
-    key_list = pd.read_sql(sql = f"SELECT {key_column} FROM {sql_tablename};", con=engine).values.squeeze().tolist()
+    key_column = (
+        str(err)
+        .split("\n[SQL: INSERT INTO")[0]
+        .split("UNIQUE constraint failed:")[1]
+        .split(".")[1]
+    )
+    key_list = (
+        pd.read_sql(sql=f"SELECT {key_column} FROM {sql_tablename};", con=engine)
+        .values.squeeze()
+        .tolist()
+    )
     df = df.set_index(key_column)
     len_df_before = len(df)
-    df = df.drop(labels=key_list, errors='ignore')
+    df = df.drop(labels=key_list, errors="ignore")
     df = df.reset_index()
     print(f"{len_df_before-len(df)} entries already existed in the database.")
 
@@ -312,7 +319,7 @@ def handle_xml_syntax_error(data: bytes, err: Error) -> pd.DataFrame:
         if evaluated_string == "<":
             break
         else:
-            decoded_data = decoded_data[:start_char] + decoded_data[start_char + 1 :]
+            decoded_data = decoded_data[:start_char] + decoded_data[start_char + 1:]
     df = pd.read_xml(decoded_data)
     print("One invalid xml expression was deleted.")
     return df
