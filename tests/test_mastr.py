@@ -206,7 +206,7 @@ def test_technology_to_include_tables(db):
         "anlageneegwasser",
         "einheitenwasser",
     ]
-    include_tables_str = ["einheitenstromverbraucher", "einheitenverbrennung"]
+    include_tables_str = ["einheitenstromverbraucher"]
 
     # Assert
     assert include_tables_list == db._technology_to_include_tables(
