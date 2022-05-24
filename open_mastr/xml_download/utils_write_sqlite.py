@@ -64,7 +64,9 @@ def convert_mastr_xml_to_sqlite(
     """
 
     with ZipFile(zipped_xml_file_path, "r") as f:
-        for file_name in f.namelist():
+        files_list = f.namelist()
+        files_list = correct_ordering_of_filelist(files_list)
+        for file_name in files_list:
             # xml_tablename is the beginning of the filename without the number in lowercase
             xml_tablename = file_name.split("_")[0].split(".")[0].lower()
 
@@ -76,7 +78,6 @@ def convert_mastr_xml_to_sqlite(
 
             # check if the table should be written to sql database (depends on user input)
             include_count = include_tables.count(xml_tablename)
-
             if include_count == 1 and boolean_write_table_to_sql_database:
 
                 sql_tablename = tablename_mapping[xml_tablename]["__name__"]
@@ -91,16 +92,13 @@ def convert_mastr_xml_to_sqlite(
                     orm_class.__table__.drop(engine, checkfirst=True)
                     # create table schema
                     orm_class.__table__.create(engine)
-                    index_for_printed_message = 1
                     print(
                         f"Table '{sql_tablename}' is filled with data '{xml_tablename}' "
                         "from the bulk download. \n"
                         f"File '{file_name}' is parsed."
                     )
-                    index_for_printed_message += 1
                 else:
                     print(f"File '{file_name}' is parsed.")
-                    index_for_printed_message += 1
 
                 df = prepare_table_to_sqlite_database(
                     f=f,
@@ -127,6 +125,32 @@ def convert_mastr_xml_to_sqlite(
                     con=con,
                     engine=engine,
                 )
+
+
+def correct_ordering_of_filelist(files_list: list) -> list:
+    """Files that end with a single digit number get a 0 prefixed to this number
+    to correct the list ordering. Afterwards the 0 is deleted again."""
+    files_list_ordered = []
+    count_if_zeros_are_prefixed = 0
+    for file_name in files_list:
+        if len(file_name.split(".")[0].split("_")[-1]) == 1:
+            file_name = file_name.split("_")[0]+"_0"+file_name.split("_")[1]
+            count_if_zeros_are_prefixed += 1
+        files_list_ordered.append(file_name)
+
+    files_list_ordered.sort()
+    # the list is now in right order, but the 0 has to be deleted
+    files_list_correct = []
+    for file_name in files_list_ordered:
+        if file_name.split(".")[0].split("_")[-1][0] == "0":
+            file_name = file_name.split("_")[0] + "_" + file_name.split("_0")[-1]
+        files_list_correct.append(file_name)
+
+    if count_if_zeros_are_prefixed >= 5:
+        # check if file names from marktstammdatenregister have no prefixed 0 already
+        files_list = files_list_correct
+
+    return files_list
 
 
 def prepare_table_to_sqlite_database(
