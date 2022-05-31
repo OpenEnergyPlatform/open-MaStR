@@ -18,6 +18,16 @@ Here is a template for new release sections:
 - [#](https://github.com/rl-institut/super-repo/pull/)
 ```
 
+## [upcoming] Patch - Name of Release - 20YY-MM-DD
+
+### Added
+- [#](https://github.com/rl-institut/super-repo/pull/)
+### Changed
+- Fix combustion mapping [#253](https://github.com/rl-institut/super-repo/pull/253)
+- Update bulk parsing order [#257](https://github.com/rl-institut/super-repo/pull/257)
+### Removed
+- [#](https://github.com/rl-institut/super-repo/pull/)
+
 
 ## [v0.11.2] Patch - Patch the package - 2022-05-17
 
