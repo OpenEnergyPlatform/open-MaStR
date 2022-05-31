@@ -117,8 +117,7 @@ def save_cleaned_data(data):
         data_file = os.path.join(data_dir, filenames["cleaned"][tech])
         dat.to_csv(data_file, index=True, index_label="EinheitMastrNummer", encoding='utf-8')
 
-        if dat["DatumLetzteAktualisierung"].max() > newest_date:
-            newest_date = dat["DatumLetzteAktualisierung"].max()
+        newest_date = dat["DatumLetzteAktualisierung"].max()
 
     # Save metadata along with data
     metadata_file = os.path.join(data_dir, filenames["metadata"])
