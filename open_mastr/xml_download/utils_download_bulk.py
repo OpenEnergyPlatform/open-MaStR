@@ -36,7 +36,7 @@ def download_xml_Mastr(save_path: str) -> None:
         "The download bar is only a rough estimate."
     )
     warning_message = (
-        "Warning: The servers from MaStR restricts the download speed."
+        "Warning: The servers from MaStR restrict the download speed."
         " You may want to download it another time."
     )
     print(print_message)
