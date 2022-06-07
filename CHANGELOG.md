@@ -21,7 +21,7 @@ Here is a template for new release sections:
 ## [upcoming] Patch - Name of Release - 20YY-MM-DD
 
 ### Added
-- [#](https://github.com/rl-institut/super-repo/pull/)
+- Add warning message if the bulk download speed falls below a certain limit [#256](https://github.com/OpenEnergyPlatform/open-MaStR/issues/256)
 ### Changed
 - Fix combustion mapping [#253](https://github.com/rl-institut/super-repo/pull/253)
 - Update bulk parsing order [#257](https://github.com/rl-institut/super-repo/pull/257)
@@ -40,7 +40,6 @@ Here is a template for new release sections:
 
 ### Added
 - Add files and metadata for PyPi release [#237](https://github.com/OpenEnergyPlatform/open-MaStR/issues/237)
-
 
 ##  [v0.11.0] Unreleased - Forces unite - 2022-05-16
 
