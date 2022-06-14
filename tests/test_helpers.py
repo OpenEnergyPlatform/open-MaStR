@@ -1,8 +1,13 @@
-from open_mastr.utils.helpers import validate_parameter_format_for_download_method
+from ast import Assert
+from open_mastr.utils.helpers import validate_parameter_format_for_download_method, validate_parameter_format_for_mastr_init
 import pytest
 import sys
 from datetime import datetime
+from open_mastr import Mastr
 
+@pytest.fixture
+def db():
+    return Mastr()
 
 @pytest.fixture
 def parameter_dict_working():
@@ -178,3 +183,15 @@ def get_parameters_from_parameter_dict(parameter_dict):
         api_data_types,
         api_location_types,
     )
+
+
+def test_validate_parameter_format_for_mastr_init(db):
+    engine_list_working = ["sqlite", "docker-postgres", db._engine]
+    engine_list_failing = ["HI", 12]
+
+    for engine in engine_list_working:
+        assert validate_parameter_format_for_mastr_init(engine) is None
+
+    for engine in engine_list_failing:
+        with pytest.raises(ValueError):
+            validate_parameter_format_for_mastr_init(engine)
