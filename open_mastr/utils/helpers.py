@@ -56,14 +56,21 @@ def create_database_engine(engine):
 def setup_docker():
     """Initialize a PostgreSQL database with docker-compose"""
 
-    conf_file_path = os.path.abspath(
-        os.path.dirname(__file__)
-    )
+    conf_file_path = os.path.abspath(os.path.dirname(__file__))
     print(conf_file_path)
     subprocess.run(
         ["docker-compose", "up", "-d"],
         cwd=conf_file_path,
     )
+
+
+def validate_parameter_format_for_mastr_init(engine) -> None:
+    if engine not in ["sqlite", "docker-postgres"]:
+        if not isinstance(engine, sqlalchemy.engine.Engine):
+            raise ValueError(
+                "parameter engine has to be either 'sqlite' "
+                "or 'docker-postgres' or an sqlalchemy.engine.Engine object."
+            )
 
 
 def validate_parameter_format_for_download_method(

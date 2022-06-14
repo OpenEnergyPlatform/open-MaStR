@@ -17,6 +17,7 @@ from open_mastr.soap_api.mirror import MaStRMirror
 from open_mastr.utils.helpers import (
     create_database_engine,
     validate_parameter_format_for_download_method,
+    validate_parameter_format_for_mastr_init,
 )
 import open_mastr.orm as orm
 from sqlalchemy.schema import CreateSchema
@@ -43,6 +44,8 @@ class Mastr:
     """
 
     def __init__(self, engine="sqlite") -> None:
+
+        validate_parameter_format_for_mastr_init(engine)
 
         # Define the paths for the zipped xml download and the sql databases
         self._xml_folder_path = os.path.join(
