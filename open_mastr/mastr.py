@@ -4,8 +4,6 @@ import dateutil
 import os
 import sys
 import shutil
-import sqlite3
-import open_mastr.settings as settings
 from warnings import warn
 import pandas as pd
 
@@ -18,7 +16,7 @@ from open_mastr.xml_download.utils_write_sqlite import convert_mastr_xml_to_sqli
 from open_mastr.soap_api.mirror import MaStRMirror
 
 # import initialize_database dependencies
-from open_mastr.utils.helpers import db_engine
+from open_mastr.utils.helpers import create_database_engine
 import open_mastr.orm as orm
 from sqlalchemy.schema import CreateSchema
 
@@ -36,9 +34,14 @@ class Mastr:
 
        db = Mastr()
        db.download()
+
+     Parameters
+        ------------
+        engine: {'sqlite', 'docker-postgres', sqlalchemy.engine.Engine}, optional
+        Defines the engine of the database where the MaStR is mirrored to. Default is 'sqlite'.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, engine="sqlite") -> None:
 
         # Define the paths for the zipped xml download and the sql databases
         self._xml_folder_path = os.path.join(
@@ -51,10 +54,7 @@ class Mastr:
         os.makedirs(self._sqlite_folder_path, exist_ok=True)
 
         # setup database engine and connection
-        self.DB_ENGINE = os.environ.get("DB_ENGINE", "sqlite")
-        self._engine = db_engine()
-        SQLITE_DATABASE_PATH = settings.SQLITE_DATABASE_PATH
-        self._sql_connection = sqlite3.connect(SQLITE_DATABASE_PATH)
+        self._engine = create_database_engine(engine)
 
         # Initialize database structure
         self._initialize_database()
@@ -182,7 +182,6 @@ class Mastr:
             )
 
             convert_mastr_xml_to_sqlite(
-                con=self._sql_connection,
                 engine=self._engine,
                 zipped_xml_file_path=_zipped_xml_file_path,
                 include_tables=bulk_include_tables,
@@ -259,7 +258,7 @@ class Mastr:
 
     def _initialize_database(self) -> None:
         engine = self._engine
-        if self.DB_ENGINE == "docker":
+        if engine == "docker-postgres":
             engine.execute(CreateSchema(orm.Base.metadata.schema))
         orm.Base.metadata.create_all(engine)
 

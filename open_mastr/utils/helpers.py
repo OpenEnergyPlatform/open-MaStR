@@ -1,6 +1,9 @@
 from contextlib import contextmanager
 from sqlalchemy import create_engine
+import sqlalchemy
 from sqlalchemy.orm import Query, sessionmaker
+import os
+from os.path import expanduser
 
 from open_mastr.settings import DB_URL
 
@@ -18,8 +21,29 @@ def chunks(lst, n):
         yield lst[i: i + n]
 
 
-def db_engine(): # TODO: Include in _create_database in MaStR() class
+def db_engine():  # TODO: Delete this function and merge functionality to create_database_engine
     return create_engine(DB_URL)
+
+
+def create_database_engine(engine):
+    if engine == "sqlite":
+        sqlite_database_path = os.environ.get(
+            "SQLITE_DATABASE_PATH",
+            os.path.join(
+                expanduser("~"), ".open-MaStR", "data", "sqlite", "open-mastr.db"
+            ),
+        )
+        db_url = f"sqlite:///{sqlite_database_path}"
+        return create_engine(db_url)
+
+    if engine == "docker-postgres":
+        db_url = (
+            "postgresql+psycopg2://open-mastr:open-mastr@localhost:55443/open-mastr"
+        )
+        return create_engine(db_url)
+
+    if type(engine) == sqlalchemy.engine.Engine:
+        return engine
 
 
 @contextmanager
