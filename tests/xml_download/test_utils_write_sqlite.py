@@ -130,7 +130,6 @@ def test_add_table_to_sqlite_database(zipped_xml_file_path, con_testdb, engine_t
         xml_tablename=xml_tablename,
         sql_tablename=sql_tablename,
         if_exists="append",
-        con=con_testdb,
         engine=engine_testdb,
     )
 
