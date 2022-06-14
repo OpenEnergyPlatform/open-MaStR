@@ -200,9 +200,8 @@ class Mastr:
                 f"{api_data_types}\nlocation_types: {api_location_types}"
             )
             mastr_mirror = MaStRMirror(
-                empty_schema=False,
                 parallel_processes=api_processes,
-                DB_ENGINE=self.DB_ENGINE,
+                engine = self._engine,
                 restore_dump=None,
             )
             # Download basic unit data

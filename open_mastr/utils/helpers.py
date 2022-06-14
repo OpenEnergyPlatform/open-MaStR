@@ -9,6 +9,7 @@ from dateutil.parser import parse
 import dateutil
 from datetime import datetime
 import sys
+import subprocess
 
 from open_mastr.settings import DB_URL
 
@@ -45,10 +46,24 @@ def create_database_engine(engine):
         db_url = (
             "postgresql+psycopg2://open-mastr:open-mastr@localhost:55443/open-mastr"
         )
+        setup_docker()
         return create_engine(db_url)
 
     if type(engine) == sqlalchemy.engine.Engine:
         return engine
+
+
+def setup_docker():
+    """Initialize a PostgreSQL database with docker-compose"""
+
+    conf_file_path = os.path.abspath(
+        os.path.dirname(__file__)
+    )
+    print(conf_file_path)
+    subprocess.run(
+        ["docker-compose", "up", "-d"],
+        cwd=conf_file_path,
+    )
 
 
 def validate_parameter_format_for_download_method(
