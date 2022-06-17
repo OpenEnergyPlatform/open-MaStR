@@ -76,29 +76,25 @@ class MaStRMirror:
 
     def __init__(
         self,
+        engine,
         restore_dump=None,
-        engine='sqlite',
         parallel_processes=None,
     ):
         """
         Parameters
         ----------
-        empty_schema: boolean
-            Remove all data from the MaStR mirror database.
-            Deletes the entire schema and recreates it
-            including all tables. Be careful!
-            Defaults to False **not** deleting anything.
+        engine: sqlalchemy.engine.Engine
+            database engine
         restore_dump: str or path-like, optional
             Save path of SQL dump file including filename.
             The database is restored from the SQL dump.
             Defaults to `None` which means nothing gets restored.
             Should be used in combination with `empty_schema=True`.
-        engine: str or sqlalchemy.engine.Engine
-            database engine
         parallel_processes: int
             Number of parallel processes used to download additional data.
             Defaults to `None`.
         """
+        self._engine = engine
 
         # Associate downloader
         self.mastr_dl = MaStRDownload(parallel_processes=parallel_processes)
@@ -235,7 +231,7 @@ class MaStRMirror:
                 if tech:
                     # In case technologies are specified, latest data date
                     # gets queried per technology
-                    with session_scope() as session:
+                    with session_scope(engine=self._engine) as session:
                         newest_date = (
                             session.query(orm.BasicUnit.DatumLetzteAktualisierung)
                             .filter(
@@ -249,7 +245,7 @@ class MaStRMirror:
                     # If technologies aren't defined ([None]) latest date per technology
                     #  is queried in query
                     # This also leads that the remainder of the loop body is skipped
-                    with session_scope() as session:
+                    with session_scope(engine=self._engine) as session:
                         subquery = session.query(
                             orm.BasicUnit.Einheittyp,
                             func.max(orm.BasicUnit.DatumLetzteAktualisierung).label(
@@ -278,7 +274,7 @@ class MaStRMirror:
             # Catch weird MaStR SOAP response
             basic_units = self.mastr_dl.basic_unit_data(tech, limit, date_from=date)
 
-            with session_scope() as session:
+            with session_scope(engine=self._engine) as session:
 
                 # Insert basic data into database
                 log.info(
@@ -491,7 +487,7 @@ class MaStRMirror:
 
         # Find newest data date if date="latest"
         if date == "latest":
-            with session_scope() as session:
+            with session_scope(engine=self._engine) as session:
                 date_queried = (
                     session.query(orm.LocationExtended.DatumLetzteAktualisierung)
                     .order_by(orm.LocationExtended.DatumLetzteAktualisierung.desc())
@@ -517,7 +513,7 @@ class MaStRMirror:
                 _["LokationMastrNummer"] for _ in locations_chunk_unique
             ]
 
-            with session_scope() as session:
+            with session_scope(engine=self._engine) as session:
 
                 # Find units that are already in the DB
                 common_ids = [
@@ -630,7 +626,7 @@ class MaStRMirror:
         units_queried = 0
         while units_queried < limit:
 
-            with session_scope() as session:
+            with session_scope(engine=self._engine) as session:
 
                 requested_chunk = (
                     session.query(orm.AdditionalDataRequested)
@@ -766,7 +762,7 @@ class MaStRMirror:
         locations_queried = 0
         while locations_queried < limit:
 
-            with session_scope() as session:
+            with session_scope(engine=self._engine) as session:
                 # Get a chunk
                 requested_chunk = (
                     session.query(orm.AdditionalLocationsRequested)
@@ -897,7 +893,7 @@ class MaStRMirror:
 
         data_requests = []
 
-        with session_scope() as session:
+        with session_scope(engine=self._engine) as session:
             # Check which additional data is missing
             for data_type in data_types:
                 data_type_available = self.orm_map[technology].get(data_type, None)
@@ -1133,7 +1129,7 @@ class MaStRMirror:
 
         renaming = column_renaming()
 
-        with session_scope() as session:
+        with session_scope(engine=self._engine) as session:
 
             for tech in technology:
                 unit_data_orm = getattr(orm, self.orm_map[tech]["unit_data"], None)
@@ -1283,7 +1279,7 @@ class MaStRMirror:
             "storage",
         ]
 
-        with session_scope() as session:
+        with session_scope(engine=self._engine) as session:
             # Empty the basic_units table, because it will be filled entirely from extended tables
             session.query(getattr(orm, "BasicUnit", None)).delete()
 
@@ -1343,7 +1339,7 @@ class MaStRMirror:
             "location_gas_consumption": "GVL",
         }
 
-        with session_scope() as session:
+        with session_scope(engine=self._engine) as session:
             # Load basic and extended location data into DataFrame
             locations_extended = (
                 session.query(

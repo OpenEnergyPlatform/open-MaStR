@@ -203,8 +203,8 @@ class Mastr:
                 f"{api_data_types}\nlocation_types: {api_location_types}"
             )
             mastr_mirror = MaStRMirror(
+                engine=self._engine,
                 parallel_processes=api_processes,
-                engine = self._engine,
                 restore_dump=None,
             )
             # Download basic unit data
