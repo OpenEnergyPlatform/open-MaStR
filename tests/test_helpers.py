@@ -1,13 +1,17 @@
-from ast import Assert
-from open_mastr.utils.helpers import validate_parameter_format_for_download_method, validate_parameter_format_for_mastr_init
+from open_mastr.utils.helpers import (
+    validate_parameter_format_for_download_method,
+    validate_parameter_format_for_mastr_init,
+)
 import pytest
 import sys
 from datetime import datetime
 from open_mastr import Mastr
 
+
 @pytest.fixture
 def db():
     return Mastr()
+
 
 @pytest.fixture
 def parameter_dict_working():
