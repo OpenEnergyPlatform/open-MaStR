@@ -11,8 +11,6 @@ from datetime import datetime
 import sys
 import subprocess
 
-from open_mastr.settings import DB_URL
-
 
 def chunks(lst, n):
     """Yield successive n-sized chunks from lst.
@@ -25,10 +23,6 @@ def chunks(lst, n):
         length = len(lst)
     for i in range(0, length, n):
         yield lst[i: i + n]
-
-
-def db_engine():  # TODO: Delete this function and merge functionality to create_database_engine
-    return create_engine(DB_URL)
 
 
 def create_database_engine(engine):
@@ -227,9 +221,9 @@ def validate_parameter_format_for_download_method(
 
 
 @contextmanager
-def session_scope():
+def session_scope(engine):
     """Provide a transactional scope around a series of operations."""
-    Session = sessionmaker(bind=db_engine())
+    Session = sessionmaker(bind=engine)
     session = Session()
     try:
         yield session
