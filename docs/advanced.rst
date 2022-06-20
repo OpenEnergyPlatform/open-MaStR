@@ -51,7 +51,8 @@ Data
 
 If the zipped dump of the MaStR is downloaded, it is safed in the folder `$HOME/.open-MaStR/data/xml_download`. New versions
 of the dump overwrite older versions. 
-In `$HOME/.open-MaStR/data/sqlite`, the database is stored.
+The SQLite database is stored in `$HOME/.open-MaStR/data/sqlite`, unless a specific database engine is passed during
+:class:`open_mastr.mastr.Mastr` initialization.
 
 ..
   Resulting data of download, post-processing and analysis is saved under `$HOME/.open-MaStR/data/<data-version>`.
@@ -191,9 +192,8 @@ keyring.
 Database settings
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-Currently, the data can only be saved into a sqlite database, and there is no need for configuration.
-
-An option to set up a postgreSQL database will be added.
+Currently, the data can be saved into a SQLite or PostgreSQL database, and there is no need for configuration.
+An existing database can also be chosen given that a corresponding engine exists (see :ref:`mastr module`).
 
 Mirror MaStR database
 ^^^^^^^^^^^^^^^^^^^^^^^^

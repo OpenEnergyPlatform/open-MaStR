@@ -37,10 +37,10 @@ class Mastr:
        db = Mastr()
        db.download()
 
-     Parameters
-        ------------
+    Parameters
+    ------------
         engine: {'sqlite', 'docker-postgres', sqlalchemy.engine.Engine}, optional
-        Defines the engine of the database where the MaStR is mirrored to. Default is 'sqlite'.
+            Defines the engine of the database where the MaStR is mirrored to. Default is 'sqlite'.
     """
 
     def __init__(self, engine="sqlite") -> None:

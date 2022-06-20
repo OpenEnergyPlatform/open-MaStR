@@ -22,10 +22,10 @@ def chunks(lst, n):
     else:
         length = len(lst)
     for i in range(0, length, n):
-        yield lst[i: i + n]
+        yield lst[i : i + n]
 
 
-def create_database_engine(engine):
+def create_database_engine(engine) -> sqlalchemy.engine.Engine:
     if engine == "sqlite":
         sqlite_database_path = os.environ.get(
             "SQLITE_DATABASE_PATH",
