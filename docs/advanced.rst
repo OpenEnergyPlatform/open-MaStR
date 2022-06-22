@@ -57,7 +57,7 @@ by the parameter `engine` in the Mastr class (see :ref:`mastr module`). The poss
 
 * slqite: This database will be stored in `$HOME/.open-MaStR/data/sqlite`.
 * docker-postgres: A docker container of a PostgreSQL database. 
-* own database: The Mastr class accepts a sqlalchemy.engine.Engine object as engine which provides the user to 
+* own database: The Mastr class accepts a sqlalchemy.engine.Engine object as engine which enables the user to 
   use any other desired database.
 
 ..
