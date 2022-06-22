@@ -51,8 +51,14 @@ Data
 
 If the zipped dump of the MaStR is downloaded, it is safed in the folder `$HOME/.open-MaStR/data/xml_download`. New versions
 of the dump overwrite older versions. 
-The SQLite database is stored in `$HOME/.open-MaStR/data/sqlite`, unless a specific database engine is passed during
-:class:`open_mastr.mastr.Mastr` initialization.
+
+The data can then be written to an sql database. The type of the sql databse is determined 
+by the parameter `engine` in the Mastr class (see :ref:`mastr module`). The possible databases are:
+
+* slqite: This database will be stored in `$HOME/.open-MaStR/data/sqlite`.
+* docker-postgres: A docker container of a PostgreSQL database. 
+* own database: The Mastr class accepts a sqlalchemy.engine.Engine object as engine which provides the user to 
+  use any other desired database.
 
 ..
   Resulting data of download, post-processing and analysis is saved under `$HOME/.open-MaStR/data/<data-version>`.
@@ -189,11 +195,6 @@ It is also possible to create the credentials file by hand using this format
 Read in the documentation of the `keyring library <https://pypi.org/project/keyring/>`_ how to store your token in the
 keyring.
 
-Database settings
-^^^^^^^^^^^^^^^^^^^^^^^^
-
-Currently, the data can be saved into a SQLite or PostgreSQL database, and there is no need for configuration.
-An existing database can also be chosen given that a corresponding engine exists (see :ref:`mastr module`).
 
 Mirror MaStR database
 ^^^^^^^^^^^^^^^^^^^^^^^^
