@@ -56,8 +56,10 @@ def technology_input_harmonisation(technology, api_data_types):
             "location_gas_consumption",
         ]
         harmonisation_log.append("location")
+        # return changed api_location_types only if "location" in technology, else None
+        return harmonisation_log, api_location_types
 
-    return harmonisation_log
+    return harmonisation_log, None
 
 
 def print_api_settings(

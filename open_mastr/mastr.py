@@ -194,10 +194,13 @@ class Mastr:
 
         if method == "API":
 
-            harm_log = technology_input_harmonisation(
+            harm_log, locs = technology_input_harmonisation(
                 technology=technology,
                 api_data_types=api_data_types,
             )
+            # update api_location_types if "location" was defined in technology
+            if locs is not None:
+                api_location_types = locs
 
             print_api_settings(
                 harmonisation_log=harm_log,
