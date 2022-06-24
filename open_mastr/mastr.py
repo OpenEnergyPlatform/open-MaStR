@@ -341,7 +341,6 @@ class Mastr:
                 "grid",
                 "balancing_area",
                 "permit",
-                "consumer",
             ]
             for value in technology:
                 if value not in bulk_technologies:
