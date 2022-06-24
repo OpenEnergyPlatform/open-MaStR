@@ -16,7 +16,7 @@ from open_mastr.xml_download.utils_write_sqlite import convert_mastr_xml_to_sqli
 
 # import soap_API dependencies
 from open_mastr.soap_api.mirror import MaStRMirror
-from open_mastr.utils.helpers import technology_input_harmonisation
+from open_mastr.utils.helpers import technology_input_harmonisation, print_api_settings
 
 # import initialize_database dependencies
 from open_mastr.utils.helpers import db_engine
@@ -194,13 +194,20 @@ class Mastr:
 
         if method == "API":
 
-            technology_input_harmonisation(
+            harm_log = technology_input_harmonisation(
+                technology=technology,
+                api_data_types=api_data_types,
+            )
+
+            print_api_settings(
+                harmonisation_log=harm_log,
                 technology=technology,
                 api_date=api_date,
                 api_data_types=api_data_types,
                 api_chunksize=api_chunksize,
                 api_limit=api_limit,
                 api_processes=api_processes,
+                api_location_types=api_location_types,
             )
 
             mastr_mirror = MaStRMirror(
@@ -331,6 +338,7 @@ class Mastr:
                 "grid",
                 "balancing_area",
                 "permit",
+                "consumer",
             ]
             for value in technology:
                 if value not in bulk_technologies:
