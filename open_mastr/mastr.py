@@ -16,6 +16,7 @@ from open_mastr.xml_download.utils_write_sqlite import convert_mastr_xml_to_sqli
 
 # import soap_API dependencies
 from open_mastr.soap_api.mirror import MaStRMirror
+from open_mastr.utils.helpers import technology_input_harmonisation
 
 # import initialize_database dependencies
 from open_mastr.utils.helpers import db_engine
@@ -192,37 +193,15 @@ class Mastr:
             print("Bulk download and data cleansing was successful.")
 
         if method == "API":
-            print(
-                f"Downloading with soap_API.\n\n   -- API settings --  \nunits after date: "
-                f"{api_date}\nunit download limit per technology: "
-                f"{api_limit}\nparallel_processes: {api_processes}\nchunksize: "
-                f"{api_chunksize}\ntechnology_api: {technology}\ndata_types: {api_data_types}"
+
+            technology_input_harmonisation(
+                technology=technology,
+                api_date=api_date,
+                api_data_types=api_data_types,
+                api_chunksize=api_chunksize,
+                api_limit=api_limit,
+                api_processes=api_processes,
             )
-
-            if "location" in technology:
-                technology.remove("location")
-
-                api_location_types = [
-                    "location_elec_generation",
-                    "location_elec_consumption",
-                    "location_gas_generation",
-                    "location_gas_consumption",
-                ]
-
-                print(
-                    "location_types:",
-                    "\033[31m",
-                    f"Attention, 'location' is in parameter technology_api. location_types are set to",
-                    "\033[m",
-                    f"{api_location_types}"
-                    "\n                 If you want to change location_types, please remove 'location' from technology_api and specify api_location_types."
-                    "\n   ------------------  \n",
-                )
-            else:
-                print(
-                    f"location_types: {api_location_types}",
-                    "\n   ------------------  \n",
-                )
 
             mastr_mirror = MaStRMirror(
                 empty_schema=False,
