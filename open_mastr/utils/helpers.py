@@ -41,6 +41,12 @@ def technology_input_harmonisation(
     technology, api_date, api_data_types, api_chunksize, api_limit, api_processes
 ):
 
+    if "permit" in technology:
+        technology.remove("permit")
+        api_data_types.append(
+            "permit_data"
+        ) if "permit_data" not in api_data_types else api_data_types
+
     print(
         f"Downloading with soap_API.\n\n   -- API settings --  \nunits after date: "
         f"{api_date}\nunit download limit per technology: "
@@ -72,4 +78,3 @@ def technology_input_harmonisation(
             f"location_types: {api_location_types}",
             "\n   ------------------  \n",
         )
-
