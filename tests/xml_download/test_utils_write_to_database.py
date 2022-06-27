@@ -2,13 +2,13 @@ import sys
 from zipfile import ZipFile
 
 from open_mastr import orm
-from open_mastr.xml_download.utils_sqlite_bulk_cleansing import (
-    date_columns_to_datetime,
+from open_mastr.xml_download.utils_cleansing_bulk import (
     replace_mastr_katalogeintraege,
 )
-from open_mastr.xml_download.utils_write_sqlite import (
-    prepare_table_to_sqlite_database,
-    add_table_to_sqlite_database,
+from open_mastr.xml_download.utils_write_to_database import (
+    cast_date_columns_to_datetime,
+    preprocess_table_for_writing_to_database,
+    add_table_to_database,
     add_zero_as_first_character_for_too_short_string,
     correct_ordering_of_filelist,
 )
@@ -18,6 +18,8 @@ import sqlite3
 from sqlalchemy import create_engine
 import pandas as pd
 import pytest
+import numpy as np
+from datetime import datetime
 
 # Check if xml file exists
 _xml_file_exists = False
@@ -65,14 +67,13 @@ def engine_testdb():
         expanduser("~"), ".open-MaStR", "data", "sqlite", "test-open-mastr.db"
     )
     testdb_url = f"sqlite:///{testdb_file_path}"
-    engine_testdb = create_engine(testdb_url)
-    yield engine_testdb
+    yield create_engine(testdb_url)
 
 
 @pytest.mark.skipif(
     not _xml_file_exists, reason="The zipped xml file could not be found."
 )
-def test_prepare_table_to_sqlite_database(zipped_xml_file_path):
+def test_preprocess_table_for_writing_to_database(zipped_xml_file_path):
     # Prepare
     file_name = "EinheitenKernkraft.xml"
     xml_tablename = "einheitenkernkraft"
@@ -82,7 +83,7 @@ def test_prepare_table_to_sqlite_database(zipped_xml_file_path):
 
     with ZipFile(zipped_xml_file_path, "r") as f:
         # Act
-        df = prepare_table_to_sqlite_database(
+        df = preprocess_table_for_writing_to_database(
             f=f,
             file_name=file_name,
             xml_tablename=xml_tablename,
@@ -99,7 +100,7 @@ def test_prepare_table_to_sqlite_database(zipped_xml_file_path):
 @pytest.mark.skipif(
     not _xml_file_exists, reason="The zipped xml file could not be found."
 )
-def test_add_table_to_sqlite_database(zipped_xml_file_path, con_testdb, engine_testdb):
+def test_add_table_to_database(zipped_xml_file_path, engine_testdb):
     # Prepare
     orm.Base.metadata.create_all(engine_testdb)
     file_name = "EinheitenKernkraft.xml"
@@ -109,7 +110,7 @@ def test_add_table_to_sqlite_database(zipped_xml_file_path, con_testdb, engine_t
     # Check if bulk_download_date is derived correctly like 20220323
     assert len(bulk_download_date) == 8
     with ZipFile(zipped_xml_file_path, "r") as f:
-        df_write = prepare_table_to_sqlite_database(
+        df_write = preprocess_table_for_writing_to_database(
             f=f,
             file_name=file_name,
             xml_tablename=xml_tablename,
@@ -117,7 +118,7 @@ def test_add_table_to_sqlite_database(zipped_xml_file_path, con_testdb, engine_t
         )
 
     # Convert date and datetime columns into the datatype datetime
-    df_write = date_columns_to_datetime(xml_tablename, df_write)
+    df_write = cast_date_columns_to_datetime(xml_tablename, df_write)
 
     # Katalogeintraege: int -> string value
     df_write = replace_mastr_katalogeintraege(
@@ -125,7 +126,7 @@ def test_add_table_to_sqlite_database(zipped_xml_file_path, con_testdb, engine_t
     )
 
     # Act
-    add_table_to_sqlite_database(
+    add_table_to_database(
         df=df_write,
         xml_tablename=xml_tablename,
         sql_tablename=sql_tablename,
@@ -160,13 +161,9 @@ def test_add_zero_as_first_character_for_too_short_string():
     df_correct = pd.DataFrame(
         {"ID": [0, 1, 2], "Gemeindeschluessel": ["09162000", None, "19123456"]}
     )
-    column_name = "Gemeindeschluessel"
-    string_length = 8
-    # Act
-    df_edited = add_zero_as_first_character_for_too_short_string(
-        df_raw, column_name, string_length
-    )
 
+    # Act
+    df_edited = add_zero_as_first_character_for_too_short_string(df_raw)
     # Assert
     pd.testing.assert_frame_equal(df_edited, df_correct)
 
@@ -215,3 +212,26 @@ def test_correct_ordering_of_filelist():
         "Solar_10.xml",
         "Wind_01.xml",
     ]
+
+
+def test_cast_date_columns_to_datetime():
+    df_raw = pd.DataFrame(
+        {
+            "ID": [0, 1, 2],
+            "Registrierungsdatum": ["2022-03-22", "2020-01-02", "2022-03-35"],
+        }
+    )
+    df_replaced = pd.DataFrame(
+        {
+            "ID": [0, 1, 2],
+            "Registrierungsdatum": [
+                datetime(2022, 3, 22),
+                datetime(2020, 1, 2),
+                np.datetime64("nat"),
+            ],
+        }
+    )
+
+    pd.testing.assert_frame_equal(
+        df_replaced, cast_date_columns_to_datetime("anlageneegwasser", df_raw)
+    )
