@@ -1,14 +1,11 @@
-from datetime import date
-from dateutil.parser import parse
 import os
-import shutil
-
 import pandas as pd
 
 # import xml dependencies
-from os.path import expanduser
 from open_mastr.xml_download.utils_download_bulk import download_xml_Mastr
-from open_mastr.xml_download.utils_write_to_database import write_mastr_xml_to_database
+from open_mastr.xml_download.utils_write_to_database import (
+    write_mastr_xml_to_database,
+    )
 
 # import soap_API dependencies
 from open_mastr.soap_api.mirror import MaStRMirror
@@ -18,16 +15,18 @@ from open_mastr.utils.helpers import (
     create_database_engine,
     validate_parameter_format_for_download_method,
     validate_parameter_format_for_mastr_init,
+    parse_date_string,
 )
 import open_mastr.orm as orm
 from sqlalchemy.schema import CreateSchema
+from open_mastr.utils.config import get_project_home_dir
 
 
 class Mastr:
     """
     :class:`.Mastr` is used to download the MaStR database and keep it up-to-date.
 
-    A sqlite database is used to mirror the MaStR database. It can be filled with
+    A sql database is used to mirror the MaStR database. It can be filled with
     data either from the MaStR-bulk download or from the MaStR-API.
 
     .. code-block:: python
@@ -47,20 +46,12 @@ class Mastr:
 
         validate_parameter_format_for_mastr_init(engine)
 
-        # Define the paths for the zipped xml download and the sql databases
-        self._xml_folder_path = os.path.join(
-            expanduser("~"), ".open-MaStR", "data", "xml_download"
-        )
-        self._sqlite_folder_path = os.path.join(
-            expanduser("~"), ".open-MaStR", "data", "sqlite"
-        )
-        os.makedirs(self._xml_folder_path, exist_ok=True)
+        self.home_directory = get_project_home_dir()
+        self._sqlite_folder_path = os.path.join(self.home_directory, "data", "sqlite")
         os.makedirs(self._sqlite_folder_path, exist_ok=True)
 
-        # setup database engine and connection
-        self._engine = create_database_engine(engine)
+        self.engine = create_database_engine(engine, self.home_directory)
 
-        # Initialize database structure
         self._initialize_database()
 
     def download(
@@ -155,44 +146,22 @@ class Mastr:
         if method == "bulk":
 
             # Find the name of the zipped xml folder
-            if bulk_date_string == "today":
-                bulk_download_date = date.today().strftime("%Y%m%d")
-            else:
-                # proper format already tested in
-                # validate_parameter_format_for_download_method
-                bulk_download_date = parse(bulk_date_string).strftime("%Y%m%d")
-
-            _zipped_xml_file_path = os.path.join(
-                self._xml_folder_path,
+            bulk_download_date = parse_date_string(bulk_date_string)
+            xml_folder_path = os.path.join(self.home_directory, "data", "xml_download")
+            os.makedirs(xml_folder_path, exist_ok=True)
+            zipped_xml_file_path = os.path.join(
+                xml_folder_path,
                 f"Gesamtdatenexport_{bulk_download_date}.zip",
             )
-
-            if os.path.exists(_zipped_xml_file_path):
-                print("MaStR already downloaded.")
-            else:
-                if bulk_date_string != "today":
-                    raise OSError(
-                        "There exists no file for given date. MaStR can only be downloaded "
-                        "from the website if today's date is given."
-                    )
-                shutil.rmtree(self._xml_folder_path, ignore_errors=True)
-                os.makedirs(self._xml_folder_path, exist_ok=True)
-                download_xml_Mastr(_zipped_xml_file_path)
-                print(f"MaStR was successfully downloaded to {self._xml_folder_path}.")
-
-            # Map technology input to the .xml file names like 'einheitensolar'
-            bulk_include_tables = self._technology_to_include_tables(
-                technology=technology
-            )
+            download_xml_Mastr(zipped_xml_file_path, bulk_date_string, xml_folder_path)
 
             write_mastr_xml_to_database(
-                engine=self._engine,
-                zipped_xml_file_path=_zipped_xml_file_path,
-                include_tables=bulk_include_tables,
+                engine=self.engine,
+                zipped_xml_file_path=zipped_xml_file_path,
+                technology=technology,
                 bulk_cleansing=bulk_cleansing,
                 bulk_download_date=bulk_download_date,
             )
-            print("Bulk download and data cleansing was successful.")
 
         if method == "API":
             print(
@@ -203,7 +172,7 @@ class Mastr:
                 f"{api_data_types}\nlocation_types: {api_location_types}"
             )
             mastr_mirror = MaStRMirror(
-                engine=self._engine,
+                engine=self.engine,
                 parallel_processes=api_processes,
                 restore_dump=None,
             )
@@ -245,10 +214,10 @@ class Mastr:
                 raise ValueError("parameter path is not a valid path")
 
         else:
-            path = os.path.join(expanduser("~"), ".open-MaStR", "data", "csv")
+            path = os.path.join(self.home_directory, "data", "csv")
         os.makedirs(path, exist_ok=True)
 
-        engine = self._engine
+        engine = self.engine
         table_list = engine.table_names()
         with engine.connect().execution_options(autocommit=True) as con:
             print(f"csv files are saved to: {path}")
@@ -260,65 +229,7 @@ class Mastr:
                     print(f"{table} saved as csv file.")
 
     def _initialize_database(self) -> None:
-        engine = self._engine
-        if engine == "docker-postgres":
+        engine = self.engine
+        if engine.name == "postgresql":
             engine.execute(CreateSchema(orm.Base.metadata.schema))
         orm.Base.metadata.create_all(engine)
-
-    def _technology_to_include_tables(
-        self,
-        technology,
-        all_technologies=orm.bulk_technologies,
-        tables_map=orm.bulk_include_tables_map,
-    ) -> list:
-        """
-        Check the user input 'technology' and convert it to the list 'include_tables' which contains
-        file names from zipped
-        bulk download.
-        Parameters
-        ----------
-        technology: None, str, list
-            The user input for technology selection
-            * `None`: All technologies (default)
-            * `str`: One technology
-            * `list`: List of technologies
-        all_technologies: list
-            All possible selections
-        tables_map: dict
-            Dictionary that maps the technologies to the file names in the zipped bulk
-            download folder
-        Returns
-        -------
-        list
-            List of file names
-        -------
-
-        """
-        # Convert technology input into a standard list
-        chosen_technologies = []
-        if technology is None:
-            # All technologies are to be chosen
-            chosen_technologies = all_technologies
-        elif isinstance(technology, str):
-            # Only one technology is chosen
-            chosen_technologies = [technology]
-        elif isinstance(technology, list):
-            # list of technologies is given
-            chosen_technologies = technology
-
-        # Check if given technologies match with the valid options from 'orm.bulk_technologies'
-        for tech in chosen_technologies:
-            if tech not in all_technologies:
-                raise ValueError(
-                    f"The input technology = {technology} does not match with the "
-                    f"possible technology options. Only following technology options are available "
-                    f"bulk_technologies = {all_technologies}"
-                )
-
-        # Map technologies to include tables
-        include_tables = []
-        for tech in chosen_technologies:
-            # Append table names to the include_tables list respectively
-            include_tables += tables_map[tech]
-
-        return include_tables

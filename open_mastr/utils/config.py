@@ -38,9 +38,7 @@ def get_project_home_dir():
         Absolute path to root dir of open-MaStR project home
     """
 
-    project_home = os.path.join(os.path.expanduser('~'), ".open-MaStR")
-
-    return project_home
+    return os.path.join(os.path.expanduser('~'), ".open-MaStR")
 
 
 def get_data_version_dir():

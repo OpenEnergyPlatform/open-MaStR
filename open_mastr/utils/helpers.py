@@ -3,11 +3,10 @@ from sqlalchemy import create_engine
 import sqlalchemy
 from sqlalchemy.orm import Query, sessionmaker
 import os
-from os.path import expanduser
 from warnings import warn
 from dateutil.parser import parse
 import dateutil
-from datetime import datetime
+from datetime import date, datetime
 import sys
 import subprocess
 
@@ -25,13 +24,11 @@ def chunks(lst, n):
         yield lst[i : i + n]
 
 
-def create_database_engine(engine) -> sqlalchemy.engine.Engine:
+def create_database_engine(engine, home_directory) -> sqlalchemy.engine.Engine:
     if engine == "sqlite":
         sqlite_database_path = os.environ.get(
             "SQLITE_DATABASE_PATH",
-            os.path.join(
-                expanduser("~"), ".open-MaStR", "data", "sqlite", "open-mastr.db"
-            ),
+            os.path.join(home_directory, "data", "sqlite", "open-mastr.db"),
         )
         db_url = f"sqlite:///{sqlite_database_path}"
         return create_engine(db_url)
@@ -56,6 +53,13 @@ def setup_docker():
         ["docker-compose", "up", "-d"],
         cwd=conf_file_path,
     )
+
+
+def parse_date_string(bulk_date_string: str) -> str:
+    if bulk_date_string == "today":
+        return date.today().strftime("%Y%m%d")
+    else:
+        return parse(bulk_date_string).strftime("%Y%m%d")
 
 
 def validate_parameter_format_for_mastr_init(engine) -> None:

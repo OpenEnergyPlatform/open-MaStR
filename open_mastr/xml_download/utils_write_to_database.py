@@ -7,16 +7,18 @@ import sqlalchemy
 import sqlite3
 from open_mastr.orm import tablename_mapping
 from open_mastr.xml_download.utils_cleansing_bulk import cleanse_bulk_data
+from open_mastr import orm
 
 
 def write_mastr_xml_to_database(
     engine: sqlalchemy.engine.Engine,
     zipped_xml_file_path: str,
-    include_tables: list,
+    technology: list,
     bulk_cleansing: bool,
     bulk_download_date: str,
 ) -> None:
     """Write the Mastr in xml format into a database defined by the engine parameter."""
+    include_tables = technology_to_include_tables(technology)
 
     with ZipFile(zipped_xml_file_path, "r") as f:
         files_list = f.namelist()
@@ -58,6 +60,7 @@ def write_mastr_xml_to_database(
                     if_exists="append",
                     engine=engine,
                 )
+    print("Bulk download and data cleansing were successful.")
 
 
 def is_table_relevant(xml_tablename: str, include_tables: list) -> bool:
@@ -340,3 +343,55 @@ def handle_xml_syntax_error(data: bytes, err: Error) -> pd.DataFrame:
     df = pd.read_xml(decoded_data)
     print("One invalid xml expression was deleted.")
     return df
+
+
+def technology_to_include_tables(
+    technology,
+) -> list:
+    """
+    Check the user input 'technology' and convert it to the list 'include_tables' which contains
+    file names from zipped bulk download.
+    Parameters
+    ----------
+    technology: None, str, list
+        The user input for technology selection
+        * `None`: All technologies (default)
+        * `str`: One technology
+        * `list`: List of technologies
+    Returns
+    -------
+    list
+        List of file names
+    -------
+
+    """
+    all_technologies = orm.bulk_technologies
+    tables_map = orm.bulk_include_tables_map
+    # Convert technology input into a standard list
+    chosen_technologies = []
+    if technology is None:
+        # All technologies are to be chosen
+        chosen_technologies = all_technologies
+    elif isinstance(technology, str):
+        # Only one technology is chosen
+        chosen_technologies = [technology]
+    elif isinstance(technology, list):
+        # list of technologies is given
+        chosen_technologies = technology
+
+    # Check if given technologies match with the valid options from 'orm.bulk_technologies'
+    for tech in chosen_technologies:
+        if tech not in all_technologies:
+            raise ValueError(
+                f"The input technology = {technology} does not match with the "
+                f"possible technology options. Only following technology options are available "
+                f"bulk_technologies = {all_technologies}"
+            )
+
+    # Map technologies to include tables
+    include_tables = []
+    for tech in chosen_technologies:
+        # Append table names to the include_tables list respectively
+        include_tables += tables_map[tech]
+
+    return include_tables
