@@ -1,12 +1,8 @@
-from datetime import date, datetime
+from datetime import date
 from dateutil.parser import parse
-import dateutil
 import os
-import sys
 import shutil
-import sqlite3
-import open_mastr.settings as settings
-from warnings import warn
+
 import pandas as pd
 
 # import xml dependencies
@@ -18,7 +14,11 @@ from open_mastr.xml_download.utils_write_sqlite import convert_mastr_xml_to_sqli
 from open_mastr.soap_api.mirror import MaStRMirror
 
 # import initialize_database dependencies
-from open_mastr.utils.helpers import db_engine
+from open_mastr.utils.helpers import (
+    create_database_engine,
+    validate_parameter_format_for_download_method,
+    validate_parameter_format_for_mastr_init,
+)
 import open_mastr.orm as orm
 from sqlalchemy.schema import CreateSchema
 
@@ -36,9 +36,16 @@ class Mastr:
 
        db = Mastr()
        db.download()
+
+    Parameters
+    ------------
+        engine: {'sqlite', 'docker-postgres', sqlalchemy.engine.Engine}, optional
+            Defines the engine of the database where the MaStR is mirrored to. Default is 'sqlite'.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, engine="sqlite") -> None:
+
+        validate_parameter_format_for_mastr_init(engine)
 
         # Define the paths for the zipped xml download and the sql databases
         self._xml_folder_path = os.path.join(
@@ -51,10 +58,7 @@ class Mastr:
         os.makedirs(self._sqlite_folder_path, exist_ok=True)
 
         # setup database engine and connection
-        self.DB_ENGINE = os.environ.get("DB_ENGINE", "sqlite")
-        self._engine = db_engine()
-        SQLITE_DATABASE_PATH = settings.SQLITE_DATABASE_PATH
-        self._sql_connection = sqlite3.connect(SQLITE_DATABASE_PATH)
+        self._engine = create_database_engine(engine)
 
         # Initialize database structure
         self._initialize_database()
@@ -135,7 +139,7 @@ class Mastr:
             "location_gas_consumption".
         """
 
-        self._validate_parameter_format_for_download_method(
+        validate_parameter_format_for_download_method(
             method=method,
             technology=technology,
             bulk_date_string=bulk_date_string,
@@ -155,7 +159,7 @@ class Mastr:
                 bulk_download_date = date.today().strftime("%Y%m%d")
             else:
                 # proper format already tested in
-                # self._validate_parameter_format_for_download_method
+                # validate_parameter_format_for_download_method
                 bulk_download_date = parse(bulk_date_string).strftime("%Y%m%d")
 
             _zipped_xml_file_path = os.path.join(
@@ -182,7 +186,6 @@ class Mastr:
             )
 
             convert_mastr_xml_to_sqlite(
-                con=self._sql_connection,
                 engine=self._engine,
                 zipped_xml_file_path=_zipped_xml_file_path,
                 include_tables=bulk_include_tables,
@@ -200,9 +203,8 @@ class Mastr:
                 f"{api_data_types}\nlocation_types: {api_location_types}"
             )
             mastr_mirror = MaStRMirror(
-                empty_schema=False,
+                engine=self._engine,
                 parallel_processes=api_processes,
-                DB_ENGINE=self.DB_ENGINE,
                 restore_dump=None,
             )
             # Download basic unit data
@@ -259,162 +261,9 @@ class Mastr:
 
     def _initialize_database(self) -> None:
         engine = self._engine
-        if self.DB_ENGINE == "docker":
+        if engine == "docker-postgres":
             engine.execute(CreateSchema(orm.Base.metadata.schema))
         orm.Base.metadata.create_all(engine)
-
-    def _validate_parameter_format_for_download_method(
-        self,
-        method,
-        technology,
-        bulk_date_string,
-        bulk_cleansing,
-        api_processes,
-        api_limit,
-        api_date,
-        api_chunksize,
-        api_data_types,
-        api_location_types,
-    ) -> None:
-        # method parameter
-
-        if method != "bulk" and method != "API":
-            raise ValueError("parameter method has to be either 'bulk' or 'API'.")
-
-        if method == "API":
-            if bulk_cleansing is not True or bulk_date_string != "today":
-                warn(
-                    "For method = 'API', bulk download related parameters "
-                    "(with prefix bulk_) are ignored."
-                )
-
-        if method == "bulk":
-            if (
-                any(
-                    parameter is not None
-                    for parameter in [
-                        api_processes,
-                        api_date,
-                        api_data_types,
-                        api_location_types,
-                    ]
-                )
-                or api_limit != 50
-                or api_chunksize != 1000
-            ):
-                warn(
-                    "For method = 'bulk', API related parameters (with prefix api_) are ignored."
-                )
-
-        if not isinstance(technology, (str, list)) and technology is not None:
-            raise ValueError("parameter technology has to be a string, list, or None")
-        if isinstance(technology, str):
-            technology = [technology]
-        if isinstance(technology, list):
-            bulk_technologies = [
-                "wind",
-                "solar",
-                "biomass",
-                "hydro",
-                "gsgk",
-                "combustion",
-                "nuclear",
-                "gas",
-                "storage",
-                "electricity_consumer",
-                "location",
-                "market",
-                "grid",
-                "balancing_area",
-                "permit",
-            ]
-            for value in technology:
-                if value not in bulk_technologies:
-                    raise ValueError(
-                        'Allowed values for parameter technology are "wind", "solar",'
-                        '"biomass", "hydro", "gsgk", "combustion", "nuclear", "gas", '
-                        '"storage", "electricity_consumer", "location", "market", '
-                        '"grid", "balancing_area" or "permit"'
-                    )
-
-        if bulk_date_string != "today":
-            try:
-                _ = parse(bulk_date_string)
-            except (dateutil.parser._parser.ParserError, TypeError):
-                raise ValueError(
-                    "parameter bulk_date_string has to be a proper date in the format yyyymmdd"
-                    "or 'today'."
-                )
-
-        if type(bulk_cleansing) != bool:
-            raise ValueError("parameter bulk_cleansing has to be boolean")
-
-        if (
-            api_processes != "max"
-            and not isinstance(api_processes, int)
-            and api_processes is not None
-        ):
-            raise ValueError(
-                "parameter api_processes has to be 'max' or an integer or 'None'"
-            )
-        if api_processes == "max" or isinstance(api_processes, int):
-            system = sys.platform
-            if system not in ["linux2", "linux"]:
-                raise ValueError(
-                    "The functionality of multiprocessing only works on Linux based systems. "
-                    "On your system, the parameter api_processes has to be 'None'."
-                )
-
-        if not isinstance(api_limit, int) and api_limit is not None:
-            raise ValueError("parameter api_limit has to be an integer or 'None'.")
-
-        if (
-            not isinstance(api_date, datetime)
-            and api_date != "latest"
-            and api_date is not None
-        ):
-            raise ValueError(
-                "parameter api_date has to be 'latest' or a datetime object or 'None'."
-            )
-
-        if not isinstance(api_chunksize, int) and api_chunksize is not None:
-            raise ValueError("parameter api_chunksize has to be an integer or 'None'.")
-
-        if not isinstance(api_data_types, list) and api_data_types is not None:
-            raise ValueError("parameter api_data_types has to be a list or 'None'.")
-
-        if isinstance(api_data_types, list):
-            for value in api_data_types:
-                if value not in [
-                    "unit_data",
-                    "eeg_data",
-                    "kwk_data",
-                    "permit_data",
-                    None,
-                ]:
-                    raise ValueError(
-                        'list entries of api_data_types have to be "unit_data", '
-                        '"eeg_data", "kwk_data" '
-                        'or "permit_data".'
-                    )
-
-        if not isinstance(api_location_types, list) and api_location_types is not None:
-            raise ValueError("parameter api_location_types has to be a list or 'None'.")
-
-        if isinstance(api_location_types, list):
-            for value in api_location_types:
-                if value not in [
-                    "location_elec_generation",
-                    "location_elec_consumption",
-                    "location_gas_generation",
-                    "location_gas_consumption",
-                    None,
-                ]:
-                    raise ValueError(
-                        'list entries of api_data_types have to be "location_elec_generation",'
-                        '"location_elec_consumption", "location_gas_generation" or'
-                        ' "location_gas_consumption".'
-                    )
 
     def _technology_to_include_tables(
         self,

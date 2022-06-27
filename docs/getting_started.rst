@@ -39,9 +39,9 @@ API download
 -----------------------------------
 When using `download(method="API")`, the data is retrieved from the MaStR API. For using the MaStR API,
 credentials are needed (see :ref:`Get data via the MaStR-API`). By using the API,
-additional parameters can be set to define in detail which data should be reveived.
+additional parameters can be set to define in detail which data should be obtained.
 
-.. list-table:: API-related download arguments and explanantion
+.. list-table:: API-related download arguments and explanation
    :widths: 5 5 5
    :header-rows: 1
 

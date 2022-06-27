@@ -2,12 +2,11 @@ import datetime
 import json
 import os
 import pandas as pd
-from sqlalchemy.orm import sessionmaker, Query
-from sqlalchemy import and_, create_engine, func
+from sqlalchemy.orm import Query
+from sqlalchemy import and_, func
 from sqlalchemy.sql import exists, insert, literal_column
 import shlex
 import subprocess
-from open_mastr.settings import DB_ENGINE
 from datetime import date
 
 from open_mastr.soap_api.config import (
@@ -29,7 +28,8 @@ class MaStRMirror:
     """
     Mirror the Marktstammdatenregister database and keep it up-to-date
 
-    A PostgreSQL database is used to mirror the MaStR database. It builds on functionality for bulk data download
+    A PostgreSQL database is used to mirror the MaStR database. It builds
+    on functionality for bulk data download
     provided by :class:`open_mastr.soap_api.download.MaStRDownload`.
 
     A rough overview is given by the following schema on the example of wind power units.
@@ -38,7 +38,8 @@ class MaStRMirror:
        :width: 70%
        :align: center
 
-    Initially, basic unit data gets backfilled with :meth:`~.backfill_basic` (downloads basic unit data for 2,000
+    Initially, basic unit data gets backfilled with :meth:`~.backfill_basic`
+    (downloads basic unit data for 2,000
     units of type 'solar').
 
     .. code-block:: python
@@ -49,14 +50,16 @@ class MaStRMirror:
        mastr_mirror.backfill_basic("solar", limit=2000)
 
     Based on this, requests for
-    additional data are created. This happens during backfilling basic data. But it is also possible to (re-)create
+    additional data are created. This happens during backfilling basic data.
+    But it is also possible to (re-)create
     requests for remaining additional data using :meth:`~.create_additional_data_requests`.
 
     .. code-block:: python
 
        mastr_mirror.create_additional_data_requests("solar")
 
-    Additional unit data, in the case of wind power this is extended data, EEG data and permit data, can be
+    Additional unit data, in the case of wind power this is extended data,
+    EEG data and permit data, can be
     retrieved subsequently by :meth:`~.retrieve_additional_data`.
 
     .. code-block:: python
@@ -64,7 +67,8 @@ class MaStRMirror:
        mastr_mirror.retrieve_additional_data("solar", ["unit_data"])
 
 
-    The data can be joined to one table for each technology and exported to CSV files using :meth:`~.to_csv`.
+    The data can be joined to one table for each technology and exported to
+    CSV files using :meth:`~.to_csv`.
 
     Also consider to use :meth:`~.dump` and :meth:`~.restore` for specific purposes.
 
@@ -72,32 +76,25 @@ class MaStRMirror:
 
     def __init__(
         self,
-        empty_schema=False,
+        engine,
         restore_dump=None,
-        DB_ENGINE=None,
         parallel_processes=None,
     ):
         """
         Parameters
         ----------
-        empty_schema: boolean
-            Remove all data from the MaStR mirror database. Deletes the entire schema and recreates it
-            including all tables. Be careful!
-            Defaults to False **not** deleting anything.
+        engine: sqlalchemy.engine.Engine
+            database engine
         restore_dump: str or path-like, optional
-            Save path of SQL dump file including filename. The database is restored from the SQL dump.
+            Save path of SQL dump file including filename.
+            The database is restored from the SQL dump.
             Defaults to `None` which means nothing gets restored.
             Should be used in combination with `empty_schema=True`.
-        DB_ENGINE: str
-            Spin up a PostgreSQL database in a docker container. This calls :meth:`~.setup_docker` during instantiation.
         parallel_processes: int
             Number of parallel processes used to download additional data.
             Defaults to `None`.
         """
-
-        # Spin up database container
-        if DB_ENGINE == "docker":
-            self.setup_docker()
+        self._engine = engine
 
         # Associate downloader
         self.mastr_dl = MaStRDownload(parallel_processes=parallel_processes)
@@ -170,22 +167,11 @@ class MaStRMirror:
         }
         self.unit_type_map_reversed = {v: k for k, v in self.unit_type_map.items()}
 
-    def setup_docker(self):
-        """Initialize a PostgreSQL database with docker-compose"""
-
-        conf_file_path = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), "..", "..")
-        )
-        print(conf_file_path)
-        subprocess.run(
-            ["docker-compose", "up", "-d"],
-            cwd=conf_file_path,
-        )
-
     def backfill_basic(self, technology=None, date=None, limit=None):
         """Backfill basic unit data.
 
-        Fill database table 'basic_units' with data. It allows specification of which data should be retrieved via
+        Fill database table 'basic_units' with data. It allows specification
+        of which data should be retrieved via
         the described parameter options.
 
         Under the hood, :meth:`open_mastr.soap_api.download.MaStRDownload.basic_unit_data` is used.
@@ -199,32 +185,38 @@ class MaStRMirror:
             * ['solar', 'wind'] (`list`):  Backfill data for multiple technologies given in a list.
             * `None`: Backfill data for all technologies
 
-            Defaults to `None` which is passed to :meth:`open_mastr.soap_api.download.MaStRDownload.basic_unit_data`.
+            Defaults to `None` which is passed to
+            :meth:`open_mastr.soap_api.download.MaStRDownload.basic_unit_data`.
         date: None, :class:`datetime.datetime`, str
             Specify backfill date from which on data is retrieved
 
             Only data with modification time stamp greater that `date` is retrieved.
 
-            * `datetime.datetime(2020, 11, 27)`: Retrieve data which is is newer than this time stamp
-            * 'latest': Retrieve data which is newer than the newest data already in the table.
-              It is aware of a different 'latest date' for each technology. Hence, it works in combination with
+            * `datetime.datetime(2020, 11, 27)`: Retrieve data which is is newer
+            than this time stamp
+            * 'latest': Retrieve data which is newer than the newest data
+            already in the table.
+              It is aware of a different 'latest date' for each technology.
+              Hence, it works in combination with
               `technology=None` and `technology=["wind", "solar"]` for example.
 
               .. warning::
 
-                 Don't use 'latest' in combination with `limit`. This might lead to unexpected results.
+                 Don't use 'latest' in combination with `limit`. This might
+                 lead to unexpected results.
             * `None`: Complete backfill
 
             Defaults to `None`.
         limit: int
             Maximum number of units.
-            Defaults to `None` which means no limit is set and all available data is queried. Use with care!
+            Defaults to `None` which means no limit is set and all available data is queried.
+            Use with care!
         """
 
         # Create list of technologies to backfill
         if isinstance(technology, str):
             technology_list = [technology]
-        elif technology == None:
+        elif technology is None:
             technology_list = [None]
         elif isinstance(technology, list):
             technology_list = technology
@@ -237,8 +229,9 @@ class MaStRMirror:
             dates = []
             for tech in technology_list:
                 if tech:
-                    # In case technologies are specified, latest data date gets queried per technology
-                    with session_scope() as session:
+                    # In case technologies are specified, latest data date
+                    # gets queried per technology
+                    with session_scope(engine=self._engine) as session:
                         newest_date = (
                             session.query(orm.BasicUnit.DatumLetzteAktualisierung)
                             .filter(
@@ -249,9 +242,10 @@ class MaStRMirror:
                             .first()
                         )
                 else:
-                    # If technologies aren't defined ([None]) latest date per technology is queried in query
+                    # If technologies aren't defined ([None]) latest date per technology
+                    #  is queried in query
                     # This also leads that the remainder of the loop body is skipped
-                    with session_scope() as session:
+                    with session_scope(engine=self._engine) as session:
                         subquery = session.query(
                             orm.BasicUnit.Einheittyp,
                             func.max(orm.BasicUnit.DatumLetzteAktualisierung).label(
@@ -260,7 +254,8 @@ class MaStRMirror:
                         ).group_by(orm.BasicUnit.Einheittyp)
                         dates = [s[1] for s in subquery]
                         technology_list = [self.unit_type_map[s[0]] for s in subquery]
-                        # Break the for loop over technology here, because we write technology_list and dates at once
+                        # Break the for loop over technology here, because we
+                        # write technology_list and dates at once
                         break
 
                 # Add date to dates list
@@ -279,14 +274,15 @@ class MaStRMirror:
             # Catch weird MaStR SOAP response
             basic_units = self.mastr_dl.basic_unit_data(tech, limit, date_from=date)
 
-            with session_scope() as session:
+            with session_scope(engine=self._engine) as session:
 
                 # Insert basic data into database
                 log.info(
                     "Insert basic unit data into DB and submit additional data requests"
                 )
                 for basic_units_chunk in basic_units:
-                    # Make sure that no duplicates get inserted into database (would result in an error)
+                    # Make sure that no duplicates get inserted into database
+                    # (would result in an error)
                     # Only new data gets inserted or data with newer modification date gets updated
 
                     # Remove duplicates returned from API
@@ -295,7 +291,7 @@ class MaStRMirror:
                         for n, unit in enumerate(basic_units_chunk)
                         if unit["EinheitMastrNummer"]
                         not in [
-                            _["EinheitMastrNummer"] for _ in basic_units_chunk[n + 1 :]
+                            _["EinheitMastrNummer"] for _ in basic_units_chunk[n + 1:]
                         ]
                     ]
                     basic_units_chunk_unique_ids = [
@@ -451,10 +447,12 @@ class MaStRMirror:
         """
         Backfill basic location data.
 
-        Fill database table 'locations_basic' with data. It allows specification of which data should be retrieved via
+        Fill database table 'locations_basic' with data. It allows specification
+        of which data should be retrieved via
         the described parameter options.
 
-        Under the hood, :meth:`open_mastr.soap_api.download.MaStRDownload.basic_location_data` is used.
+        Under the hood, :meth:`open_mastr.soap_api.download.MaStRDownload.basic_location_data`
+        is used.
 
         Parameters
         ----------
@@ -463,19 +461,23 @@ class MaStRMirror:
 
             Only data with modification time stamp greater that `date` is retrieved.
 
-            * `datetime.datetime(2020, 11, 27)`: Retrieve data which is is newer than this time stamp
+            * `datetime.datetime(2020, 11, 27)`: Retrieve data which is is newer than
+            this time stamp
             * 'latest': Retrieve data which is newer than the newest data already in the table.
               .. warning::
 
-                 Don't use 'latest' in combination with `limit`. This might lead to unexpected results.
+                 Don't use 'latest' in combination with `limit`. This might lead to
+                 unexpected results.
             * `None`: Complete backfill
 
             Defaults to `None`.
         limit: int
             Maximum number of locations to download.
-            Defaults to `None` which means no limit is set and all available data is queried. Use with care!
+            Defaults to `None` which means no limit is set and all available data is queried.
+            Use with care!
         delete_additional_data_requests: bool
-            Useful to speed up download of data. Ignores existence of already created requests for additional data and
+            Useful to speed up download of data. Ignores existence of already created requests
+            for additional data and
             skips deletion these.
         """
 
@@ -485,7 +487,7 @@ class MaStRMirror:
 
         # Find newest data date if date="latest"
         if date == "latest":
-            with session_scope() as session:
+            with session_scope(engine=self._engine) as session:
                 date_queried = (
                     session.query(orm.LocationExtended.DatumLetzteAktualisierung)
                     .order_by(orm.LocationExtended.DatumLetzteAktualisierung.desc())
@@ -505,13 +507,13 @@ class MaStRMirror:
                 location
                 for n, location in enumerate(locations_chunk)
                 if location["LokationMastrNummer"]
-                not in [_["LokationMastrNummer"] for _ in locations_chunk[n + 1 :]]
+                not in [_["LokationMastrNummer"] for _ in locations_chunk[n + 1:]]
             ]
             locations_unique_ids = [
                 _["LokationMastrNummer"] for _ in locations_chunk_unique
             ]
 
-            with session_scope() as session:
+            with session_scope(engine=self._engine) as session:
 
                 # Find units that are already in the DB
                 common_ids = [
@@ -586,9 +588,10 @@ class MaStRMirror:
         """
         Retrieve additional unit data
 
-        Execute additional data requests stored in :class:`open_mastr.soap_api.orm.AdditionalDataRequested`.
-        See also docs of :meth:`open_mastr.soap_api.download.py.MaStRDownload.additional_data` for more
-        information on how data is downloaded.
+        Execute additional data requests stored in
+        :class:`open_mastr.soap_api.orm.AdditionalDataRequested`.
+        See also docs of :meth:`open_mastr.soap_api.download.py.MaStRDownload.additional_data`
+        for more information on how data is downloaded.
 
         Parameters
         ----------
@@ -623,7 +626,7 @@ class MaStRMirror:
         units_queried = 0
         while units_queried < limit:
 
-            with session_scope() as session:
+            with session_scope(engine=self._engine) as session:
 
                 requested_chunk = (
                     session.query(orm.AdditionalDataRequested)
@@ -662,7 +665,8 @@ class MaStRMirror:
                             del unit_dat[exclude]
 
                         # Pre-serialize dates/datetimes and decimal in hydro Ertuechtigung
-                        # This is required because sqlalchemy does not know how serialize dates/decimal of a JSON
+                        # This is required because sqlalchemy does not know how serialize
+                        # dates/decimal of a JSON
                         if "Ertuechtigung" in unit_dat.keys():
                             for ertuechtigung in unit_dat["Ertuechtigung"]:
                                 if ertuechtigung["DatumWiederinbetriebnahme"]:
@@ -674,8 +678,10 @@ class MaStRMirror:
                                 ertuechtigung["ProzentualeErhoehungDesLv"] = float(
                                     ertuechtigung["ProzentualeErhoehungDesLv"]
                                 )
-                        # The NetzbetreiberMastrNummer is handed over as type:list, hence non-compatible with sqlite)
-                        # This replaces the list with the first (string)element in the list to make it sqlite compatible
+                        # The NetzbetreiberMastrNummer is handed over as type:list, hence
+                        # non-compatible with sqlite)
+                        # This replaces the list with the first (string)element in the list
+                        # to make it sqlite compatible
                         if "NetzbetreiberMastrNummer" in unit_dat.keys():
                             if type(unit_dat["NetzbetreiberMastrNummer"]) == list:
                                 if len(unit_dat["NetzbetreiberMastrNummer"]) > 0:
@@ -700,7 +706,8 @@ class MaStRMirror:
                         )
                         session.add(missed)
 
-                    # Remove units from additional data request table if additional data was retrieved
+                    # Remove units from additional data request table if additional data
+                    # was retrieved
                     for requested_unit in requested_chunk:
                         if requested_unit.additional_data_id not in missed_units_ids:
                             session.delete(requested_unit)
@@ -711,10 +718,12 @@ class MaStRMirror:
 
                     log.info(
                         f"Downloaded data for {len(unit_data)} units ({len(ids)} requested). "
-                        f"Missed units: {len(missed_units)}. Deleted requests: {len(deleted_units)}."
+                        f"Missed units: {len(missed_units)}. "
+                        f"Deleted requests: {len(deleted_units)}."
                     )
 
-            # Emergency break out: if now new data gets inserted/update, don't retrieve any further data
+            # Emergency break out: if now new data gets inserted/update, don't retrieve any
+            # further data
             if number_units_merged == 0:
                 log.info("No further data is requested")
                 break
@@ -725,9 +734,10 @@ class MaStRMirror:
         """
         Retrieve extended location data
 
-        Execute additional data requests stored in :class:`open_mastr.soap_api.orm.AdditionalLocationsRequested`.
-        See also docs of :meth:`open_mastr.soap_api.download.py.MaStRDownload.additional_data` for more
-        information on how data is downloaded.
+        Execute additional data requests stored in
+        :class:`open_mastr.soap_api.orm.AdditionalLocationsRequested`.
+        See also docs of :meth:`open_mastr.soap_api.download.py.MaStRDownload.additional_data`
+        for more information on how data is downloaded.
 
         Parameters
         ----------
@@ -752,7 +762,7 @@ class MaStRMirror:
         locations_queried = 0
         while locations_queried < limit:
 
-            with session_scope() as session:
+            with session_scope(engine=self._engine) as session:
                 # Get a chunk
                 requested_chunk = (
                     session.query(orm.AdditionalLocationsRequested)
@@ -803,7 +813,8 @@ class MaStRMirror:
                                         grid_connection[field_name] = float(
                                             grid_connection[field_name]
                                         )
-                        # This converts dates of type:string to type:datetime to match column data types in orm.py
+                        # This converts dates of type:string to type:datetime to match
+                        # column data types in orm.py
                         if type(location_dat["DatumLetzteAktualisierung"]) == str:
                             location_dat[
                                 "DatumLetzteAktualisierung"
@@ -826,7 +837,8 @@ class MaStRMirror:
                         )
                         session.add(missed)
 
-                    # Remove locations from additional data request table if additional data was retrieved
+                    # Remove locations from additional data request table
+                    # if additional data was retrieved
                     for requested_location in requested_chunk:
                         if (
                             requested_location.LokationMastrNummer
@@ -841,12 +853,14 @@ class MaStRMirror:
                     locations_queried += len(ids)
 
                     log.info(
-                        f"Downloaded data for {len(location_data)} locations ({len(ids)} requested). "
+                        f"Downloaded data for {len(location_data)} "
+                        f"locations ({len(ids)} requested). "
                         f"Missed locations: {len(missed_locations_ids)}. Deleted requests: "
                         f"{len(deleted_locations)}."
                     )
 
-            # Emergency break out: if now new data gets inserted/update, don't retrieve any further data
+            # Emergency break out: if now new data gets inserted/update,
+            # don't retrieve any further data
             if number_locations_merged == 0:
                 log.info("No further data is requested")
                 break
@@ -860,7 +874,8 @@ class MaStRMirror:
         """
         Create new requests for additional unit data
 
-        For units that exist in basic_units but not in the table for additional data of `data_type`, a new data request
+        For units that exist in basic_units but not in the table for additional
+        data of `data_type`, a new data request
         is submitted.
 
         Parameters
@@ -868,7 +883,8 @@ class MaStRMirror:
         technology: str
             Specify technology additional data should be requested for.
         data_types: list
-            Select type of additional data that is to be requested. Defaults to all data that is available for a
+            Select type of additional data that is to be requested.
+            Defaults to all data that is available for a
             technology.
         delete_existing: bool
             Toggle deletion of already existing requests for additional data.
@@ -877,7 +893,7 @@ class MaStRMirror:
 
         data_requests = []
 
-        with session_scope() as session:
+        with session_scope(engine=self._engine) as session:
             # Check which additional data is missing
             for data_type in data_types:
                 data_type_available = self.orm_map[technology].get(data_type, None)
@@ -1003,7 +1019,8 @@ class MaStRMirror:
         Parameters
         ----------
         dumpfile : str or path-like, optional
-            Save path for dump including filename. When only a filename is given, the dump is saved to CWD.
+            Save path for dump including filename. When only a filename is given,
+            the dump is saved to CWD.
         """
         dump_cmd = (
             f"pg_dump -Fc "
@@ -1025,7 +1042,8 @@ class MaStRMirror:
         Parameters
         ----------
         dumpfile : str or path-like, optional
-            Save path for dump including filename. When only a filename is given, the dump is restored from CWD.
+            Save path for dump including filename. When only a filename is given, the
+            dump is restored from CWD.
 
 
         Warnings
@@ -1065,14 +1083,18 @@ class MaStRMirror:
         """
         Export a snapshot MaStR data from mirrored database to CSV
 
-        During the export, additional available data is joined on list of basic units. A CSV file for each technology is
+        During the export, additional available data is joined on list of basic units.
+        A CSV file for each technology is
         created separately because of multiple non-overlapping columns.
-        Duplicate columns for a single technology (a results on data from different sources) are suffixed.
+        Duplicate columns for a single technology (a results on data from
+        different sources) are suffixed.
 
-        The data in the database probably has duplicates because of the history how data was collected in the
-        Marktstammdatenregister. Consider to use the parameter `statistic_flag`. Read more in the
-        `documentation <https://www.marktstammdatenregister.de/MaStRHilfe/subpages/statistik.html>`_ of the original
-        data source.
+        The data in the database probably has duplicates because
+        of the history how data was collected in the
+        Marktstammdatenregister. Consider to use the parameter
+        `statistic_flag`. Read more in the
+        `documentation <https://www.marktstammdatenregister.de/MaStRHilfe/subpages/statistik.html>`_
+        of the original data source.
 
         Along with the CSV files, metadata is saved in the file `datapackage.json`.
 
@@ -1087,9 +1109,11 @@ class MaStRMirror:
             Defaults to "export all available additional data" which is described by
             `["unit_data", "eeg_data", "kwk_data", "permit_data"]`.
         statistic_flag: `str`
-            Choose between 'A' or 'B' (default) to select a subset of the data for the export to CSV.
+            Choose between 'A' or 'B' (default) to select a subset of the data for the
+            export to CSV.
 
-            * 'B': Migrated that was migrated to the Martstammdatenregister + newly registered units with commissioning
+            * 'B': Migrated that was migrated to the Martstammdatenregister +
+              newly registered units with commissioning
               date after 31.01.2019 (recommended for statistical purposes).
             * 'A':  Newly registered units with commissioning date before 31.01.2019
             * None: Export all data
@@ -1105,7 +1129,7 @@ class MaStRMirror:
 
         renaming = column_renaming()
 
-        with session_scope() as session:
+        with session_scope(engine=self._engine) as session:
 
             for tech in technology:
                 unit_data_orm = getattr(orm, self.orm_map[tech]["unit_data"], None)
@@ -1235,7 +1259,8 @@ class MaStRMirror:
 
     def reverse_fill_basic_units(self):
         """
-        The basic_units table is empty after bulk download. To enable csv export, the table is filled from extended
+        The basic_units table is empty after bulk download.
+        To enable csv export, the table is filled from extended
         tables reversely.
         .. warning::
         The basic_units table will be dropped and then recreated.
@@ -1254,7 +1279,7 @@ class MaStRMirror:
             "storage",
         ]
 
-        with session_scope() as session:
+        with session_scope(engine=self._engine) as session:
             # Empty the basic_units table, because it will be filled entirely from extended tables
             session.query(getattr(orm, "BasicUnit", None)).delete()
 
@@ -1294,7 +1319,8 @@ class MaStRMirror:
         """
         Save location raw data to CSV file
 
-        During data export to CSV file, data is reshaped to tabular format. Data stored in JSON types is flattened and
+        During data export to CSV file, data is reshaped to tabular format.
+        Data stored in JSON types is flattened and
         concated to separate rows.
 
         Parameters
@@ -1313,7 +1339,7 @@ class MaStRMirror:
             "location_gas_consumption": "GVL",
         }
 
-        with session_scope() as session:
+        with session_scope(engine=self._engine) as session:
             # Load basic and extended location data into DataFrame
             locations_extended = (
                 session.query(
@@ -1373,9 +1399,12 @@ def list_of_dicts_to_columns(row):
     Parameters
     ----------
     row: list of dict
-        Usually apllied using apply on a column of a pandas DataFrame, hence, a Series. This column of the
-        DataFrame should comprise of a single-level dict with an arbitrary number of columns. Each key is
-        transformed into a new column, while data from each dict inside the list is concatenated by key. Such
+        Usually apllied using apply on a column of a pandas DataFrame,
+        hence, a Series. This column of the
+        DataFrame should comprise of a single-level dict with an
+        arbitrary number of columns. Each key is
+        transformed into a new column, while data from
+        each dict inside the list is concatenated by key. Such
         that the data is stored into a list for each key/column.
 
     Returns

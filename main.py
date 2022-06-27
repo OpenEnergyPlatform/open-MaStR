@@ -103,7 +103,7 @@ if __name__ == "__main__":
     # API export joins technology-specific tables from database and exports them to one csv per technology
 
     # instantiate MaStRMirror class
-    api_export = MaStRMirror()
+    api_export = MaStRMirror(engine=db._engine)
 
     # fill basic unit table, after downloading with method = 'bulk' to use API export functions
     api_export.reverse_fill_basic_units()

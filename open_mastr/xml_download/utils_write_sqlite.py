@@ -34,34 +34,13 @@ dtypes_mapping = {
 
 
 def convert_mastr_xml_to_sqlite(
-    con: sqlite3.Connection,
-    engine,
+    engine: sqlalchemy.engine.Engine,
     zipped_xml_file_path: str,
     include_tables: list,
     bulk_cleansing: bool,
     bulk_download_date: str,
 ) -> None:
     """Converts the Mastr in xml format into a sqlite database."""
-    """Writes the local zipped MaStR to a PostgreSQL database.
-
-    Parameters
-    ------------
-    include_tables : list, default None
-        List of tables from the Marktstammdatenregister that
-        should be written into the database. Elements of
-        include_tables are lower case strings without "_" and index.
-        It is possible to include any table from the zipped
-        local MaStR folder (see MaStR.initialize()).
-        Example: If you do want to write the data from
-        files "AnlagenEegSolar_*.xml" to a table in your
-        database (where * is any number >=1), write the
-        element "anlageneegsolar" into the include_tables list.
-        Elements of the list that cannot be matched to tables of
-        the MaStR are ignored. If include_tables is given,
-        only the tables listed here are written to the database.
-
-
-    """
 
     with ZipFile(zipped_xml_file_path, "r") as f:
         files_list = f.namelist()
@@ -122,7 +101,6 @@ def convert_mastr_xml_to_sqlite(
                     xml_tablename=xml_tablename,
                     sql_tablename=sql_tablename,
                     if_exists="append",
-                    con=con,
                     engine=engine,
                 )
 
@@ -198,8 +176,7 @@ def add_table_to_sqlite_database(
     xml_tablename: str,
     sql_tablename: str,
     if_exists: str,
-    con: sqlite3.Connection,
-    engine,
+    engine: sqlalchemy.engine.Engine,
 ) -> None:
 
     # get a dictionary for the data types
@@ -209,31 +186,32 @@ def add_table_to_sqlite_database(
         if column.name in df.columns:
             dtypes_for_writing_sql[column.name] = column.type
 
-    continueloop = True
-    while continueloop:
-        try:
-            df.to_sql(
-                sql_tablename,
-                con=engine,
-                index=False,
-                if_exists=if_exists,
-                dtype=dtypes_for_writing_sql,
-            )
-            continueloop = False
-        except sqlalchemy.exc.OperationalError as err:
-            add_missing_column_to_table(err, con, sql_tablename)
+    with engine.begin() as con:
+        continueloop = True
+        while continueloop:
+            try:
+                df.to_sql(
+                    sql_tablename,
+                    con=engine,
+                    index=False,
+                    if_exists=if_exists,
+                    dtype=dtypes_for_writing_sql,
+                )
+                continueloop = False
+            except sqlalchemy.exc.OperationalError as err:
+                add_missing_column_to_table(err, con, sql_tablename)
 
-        except sqlite3.OperationalError as err:
-            add_missing_column_to_table(err, con, sql_tablename)
+            except sqlite3.OperationalError as err:
+                add_missing_column_to_table(err, con, sql_tablename)
 
-        except sqlalchemy.exc.DataError as err:
-            delete_wrong_xml_entry(err, df)
+            except sqlalchemy.exc.DataError as err:
+                delete_wrong_xml_entry(err, df)
 
-        except sqlalchemy.exc.IntegrityError as err:
-            # error resulting from Unique constraint failed
-            df = write_single_entries_until_not_unique_comes_up(
-                df=df, sql_tablename=sql_tablename, engine=engine, err=err
-            )
+            except sqlalchemy.exc.IntegrityError as err:
+                # error resulting from Unique constraint failed
+                df = write_single_entries_until_not_unique_comes_up(
+                    df=df, sql_tablename=sql_tablename, engine=engine, err=err
+                )
 
 
 def add_zero_as_first_character_for_too_short_string(df, column_name, string_length):
