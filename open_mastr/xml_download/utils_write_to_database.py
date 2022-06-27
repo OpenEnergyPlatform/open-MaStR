@@ -235,9 +235,8 @@ def add_zero_as_first_character_for_too_short_string(df: pd.DataFrame) -> pd.Dat
                 # some Plz are in the format DK-9999 for danish Postleitzahl
                 # They cannot be converted to integer
                 df[column_name] = df[column_name].astype(str)
-
             df[column_name] = df[column_name].where(
-                cond=df[column_name] not in ["None", "<NA>"], other=None
+                cond=-df[column_name].isin(["None", "<NA>"]), other=None
             )
 
             string_adding_series = pd.Series(["0"] * len(df))
@@ -337,7 +336,7 @@ def handle_xml_syntax_error(data: bytes, err: Error) -> pd.DataFrame:
         if evaluated_string == "<":
             break
         else:
-            decoded_data = decoded_data[:start_char] + decoded_data[start_char + 1 :]
+            decoded_data = decoded_data[:start_char] + decoded_data[start_char + 1:]
     df = pd.read_xml(decoded_data)
     print("One invalid xml expression was deleted.")
     return df
