@@ -300,7 +300,7 @@ def add_missing_column_to_table(
 
 def delete_wrong_xml_entry(err: Error, df: pd.DataFrame) -> None:
     delete_entry = str(err).split("«")[0].split("»")[1]
-    print(f"The entry {delete_entry} was deleteted due to its false data type.")
+    print(f"The entry {delete_entry} was deleted due to its false data type.")
     df = df.replace(delete_entry, np.nan)
 
 
