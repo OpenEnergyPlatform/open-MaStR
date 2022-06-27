@@ -5,6 +5,7 @@ from open_mastr.data_io import read_csv_data
 from open_mastr.soap_api.mirror import MaStRMirror
 from open_mastr import orm
 from open_mastr.utils.helpers import session_scope, create_database_engine
+from open_mastr.utils.config import get_project_home_dir
 
 TECHNOLOGIES = [
     "wind",
@@ -29,14 +30,12 @@ DATE = datetime.datetime(2020, 11, 27, 0, 0, 0)
 
 @pytest.fixture
 def mastr_mirror():
-    engine = create_database_engine('sqlite')
-    mastr_mirror_instance = MaStRMirror(engine=engine, parallel_processes=2)
-    return mastr_mirror_instance
+    engine = create_database_engine('sqlite', get_project_home_dir())
+    return MaStRMirror(engine=engine, parallel_processes=2)
 
 @pytest.fixture
 def engine():
-    engine = create_database_engine('sqlite')
-    return engine
+    return create_database_engine('sqlite', get_project_home_dir())
 
 
 @pytest.mark.dependency(name="backfill_basic")

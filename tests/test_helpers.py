@@ -190,7 +190,7 @@ def get_parameters_from_parameter_dict(parameter_dict):
 
 
 def test_validate_parameter_format_for_mastr_init(db):
-    engine_list_working = ["sqlite", "docker-postgres", db._engine]
+    engine_list_working = ["sqlite", "docker-postgres", db.engine]
     engine_list_failing = ["HI", 12]
 
     for engine in engine_list_working:

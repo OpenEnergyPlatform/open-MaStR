@@ -11,6 +11,7 @@ from open_mastr.xml_download.utils_write_to_database import (
     add_table_to_database,
     add_zero_as_first_character_for_too_short_string,
     correct_ordering_of_filelist,
+    technology_to_include_tables,
 )
 import os
 from os.path import expanduser
@@ -235,3 +236,24 @@ def test_cast_date_columns_to_datetime():
     pd.testing.assert_frame_equal(
         df_replaced, cast_date_columns_to_datetime("anlageneegwasser", df_raw)
     )
+
+
+def test_technology_to_include_tables():
+    # Prepare
+    include_tables_list = [
+        "anlageneegwind",
+        "einheitenwind",
+        "anlageneegwasser",
+        "einheitenwasser",
+    ]
+    include_tables_str = ["einheitenstromverbraucher"]
+
+    # Assert
+    assert include_tables_list == technology_to_include_tables(
+        technology=["wind", "hydro"]
+    )
+    assert include_tables_str == technology_to_include_tables(
+        technology="electricity_consumer"
+    )
+    assert "anlageneegwind" in technology_to_include_tables(technology=None)
+    assert 28 == len(technology_to_include_tables(technology=None))
