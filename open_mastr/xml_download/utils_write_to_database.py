@@ -6,41 +6,17 @@ import pandas as pd
 import sqlalchemy
 import sqlite3
 from open_mastr.orm import tablename_mapping
-from open_mastr.xml_download.colums_to_replace import system_catalog
-from open_mastr.xml_download.utils_sqlite_bulk_cleansing import (
-    replace_mastr_katalogeintraege,
-    date_columns_to_datetime,
-)
-from sqlalchemy import (
-    Integer,
-    String,
-    Float,
-    DateTime,
-    Boolean,
-    Date,
-    JSON,
-)
+from open_mastr.xml_download.utils_cleansing_bulk import cleanse_bulk_data
 
 
-dtypes_mapping = {
-    String: "string",
-    Integer: "int",
-    Float: "float",
-    DateTime: "datetime64[s]",
-    Boolean: "bool",
-    Date: "datetime64[s]",
-    JSON: "string",
-}
-
-
-def convert_mastr_xml_to_sqlite(
+def write_mastr_xml_to_database(
     engine: sqlalchemy.engine.Engine,
     zipped_xml_file_path: str,
     include_tables: list,
     bulk_cleansing: bool,
     bulk_download_date: str,
 ) -> None:
-    """Converts the Mastr in xml format into a sqlite database."""
+    """Write the Mastr in xml format into a database defined by the engine parameter."""
 
     with ZipFile(zipped_xml_file_path, "r") as f:
         files_list = f.namelist()
@@ -49,37 +25,20 @@ def convert_mastr_xml_to_sqlite(
             # xml_tablename is the beginning of the filename without the number in lowercase
             xml_tablename = file_name.split("_")[0].split(".")[0].lower()
 
-            # few tables are only needed for data cleansing of the xml files and contain no
-            # information of relevance
-            boolean_write_table_to_sql_database = False
-            if tablename_mapping[xml_tablename]["__class__"] is not None:
-                boolean_write_table_to_sql_database = True
-
-            # check if the table should be written to sql database (depends on user input)
-            include_count = include_tables.count(xml_tablename)
-            if include_count == 1 and boolean_write_table_to_sql_database:
-
+            if is_table_relevant(
+                xml_tablename=xml_tablename, include_tables=include_tables
+            ):
                 sql_tablename = tablename_mapping[xml_tablename]["__name__"]
-                # check if the file name indicates that it is the first file from the
-                # table
-                if (
-                    file_name.split(".")[0].split("_")[-1] == "1"
-                    or len(file_name.split(".")[0].split("_")) == 1
-                ):
-                    orm_class = tablename_mapping[xml_tablename]["__class__"]
-                    # drop the content from table
-                    orm_class.__table__.drop(engine, checkfirst=True)
-                    # create table schema
-                    orm_class.__table__.create(engine)
+
+                if is_first_file(file_name):
+                    create_database_table(engine=engine, xml_tablename=xml_tablename)
                     print(
                         f"Table '{sql_tablename}' is filled with data '{xml_tablename}' "
-                        "from the bulk download. \n"
-                        f"File '{file_name}' is parsed."
+                        "from the bulk download."
                     )
-                else:
-                    print(f"File '{file_name}' is parsed.")
+                print(f"File '{file_name}' is parsed.")
 
-                df = prepare_table_to_sqlite_database(
+                df = preprocess_table_for_writing_to_database(
                     f=f,
                     file_name=file_name,
                     xml_tablename=xml_tablename,
@@ -87,22 +46,72 @@ def convert_mastr_xml_to_sqlite(
                 )
 
                 # Convert date and datetime columns into the datatype datetime
-                df = date_columns_to_datetime(xml_tablename, df)
+                df = cast_date_columns_to_datetime(xml_tablename, df)
 
                 if bulk_cleansing:
-                    print("Data is cleansed.")
-                    # Katalogeintraege: int -> string value
-                    df = replace_mastr_katalogeintraege(
-                        zipped_xml_file_path=zipped_xml_file_path, df=df
-                    )
+                    df = cleanse_bulk_data(df, zipped_xml_file_path)
 
-                add_table_to_sqlite_database(
+                add_table_to_database(
                     df=df,
                     xml_tablename=xml_tablename,
                     sql_tablename=sql_tablename,
                     if_exists="append",
                     engine=engine,
                 )
+
+
+def is_table_relevant(xml_tablename: str, include_tables: list) -> bool:
+    """Checks if the table contains relevant data and if the user wants to
+    have it in the database."""
+    # few tables are only needed for data cleansing of the xml files and contain no
+    # information of relevance
+    boolean_write_table_to_sql_database = (
+        tablename_mapping[xml_tablename]["__class__"] is not None
+    )
+    # check if the table should be written to sql database (depends on user input)
+    include_count = include_tables.count(xml_tablename)
+
+    return include_count == 1 and boolean_write_table_to_sql_database
+
+
+def create_database_table(engine: sqlalchemy.engine.Engine, xml_tablename: str) -> None:
+    orm_class = tablename_mapping[xml_tablename]["__class__"]
+    # drop the content from table
+    orm_class.__table__.drop(engine, checkfirst=True)
+    # create table schema
+    orm_class.__table__.create(engine)
+
+
+def is_first_file(file_name: str) -> bool:
+    """check if the file name indicates that it is the first file from the table"""
+    return (
+        file_name.split(".")[0].split("_")[-1] == "1"
+        or len(file_name.split(".")[0].split("_")) == 1
+    )
+
+
+def cast_date_columns_to_datetime(xml_tablename: str, df: pd.DataFrame) -> pd.DataFrame:
+
+    sqlalchemy_columnlist = tablename_mapping[xml_tablename][
+        "__class__"
+    ].__table__.columns.items()
+    for column in sqlalchemy_columnlist:
+        column_name = column[0]
+        if is_date_column(column, df):
+            # Convert column to datetime64, invalid string -> NaT
+            df[column_name] = pd.to_datetime(df[column_name], errors="coerce")
+    return df
+
+
+def is_date_column(column, df: pd.DataFrame) -> bool:
+    return (
+        type(column[1].type)
+        in [
+            sqlalchemy.sql.sqltypes.Date,
+            sqlalchemy.sql.sqltypes.DateTime,
+        ]
+        and column[0] in df.columns
+    )
 
 
 def correct_ordering_of_filelist(files_list: list) -> list:
@@ -112,7 +121,7 @@ def correct_ordering_of_filelist(files_list: list) -> list:
     count_if_zeros_are_prefixed = 0
     for file_name in files_list:
         if len(file_name.split(".")[0].split("_")[-1]) == 1:
-            file_name = file_name.split("_")[0]+"_0"+file_name.split("_")[1]
+            file_name = file_name.split("_")[0] + "_0" + file_name.split("_")[1]
             count_if_zeros_are_prefixed += 1
         files_list_ordered.append(file_name)
 
@@ -131,7 +140,7 @@ def correct_ordering_of_filelist(files_list: list) -> list:
     return files_list
 
 
-def prepare_table_to_sqlite_database(
+def preprocess_table_for_writing_to_database(
     f: ZipFile,
     file_name: str,
     xml_tablename: str,
@@ -143,27 +152,8 @@ def prepare_table_to_sqlite_database(
     except lxml.etree.XMLSyntaxError as err:
         df = handle_xml_syntax_error(data, err)
 
-    # Change data types in dataframe
-    dict_of_columns_and_string_length = {
-        "Gemeindeschluessel": 8,
-        "Postleitzahl": 5,
-    }
-    for column_name in dict_of_columns_and_string_length.keys():
-        if column_name in df.columns:
-            string_length = dict_of_columns_and_string_length[column_name]
-            df = add_zero_as_first_character_for_too_short_string(
-                df, column_name, string_length
-            )
-
-    # Replace IDs with names from system_catalogue
-    for column_name in system_catalog.keys():
-        if column_name in df.columns:
-            df[column_name] = df[column_name].replace(system_catalog[column_name])
-
-    # Change column names according to orm data model
-    if tablename_mapping[xml_tablename]["replace_column_names"]:
-
-        df = df.rename(columns=tablename_mapping[xml_tablename]["replace_column_names"])
+    df = add_zero_as_first_character_for_too_short_string(df)
+    df = change_column_names_to_orm_format(df, xml_tablename)
 
     # Add Column that refers to the source of the data
     df["DatenQuelle"] = "bulk"
@@ -171,7 +161,18 @@ def prepare_table_to_sqlite_database(
     return df
 
 
-def add_table_to_sqlite_database(
+def change_column_names_to_orm_format(
+    df: pd.DataFrame, xml_tablename: str
+) -> pd.DataFrame:
+    if tablename_mapping[xml_tablename]["replace_column_names"]:
+        df.rename(
+            columns=tablename_mapping[xml_tablename]["replace_column_names"],
+            inplace=True,
+        )
+    return df
+
+
+def add_table_to_database(
     df: pd.DataFrame,
     xml_tablename: str,
     sql_tablename: str,
@@ -180,11 +181,15 @@ def add_table_to_sqlite_database(
 ) -> None:
 
     # get a dictionary for the data types
-    dtypes_for_writing_sql = {}
 
-    for column in list(tablename_mapping[xml_tablename]["__class__"].__table__.columns):
-        if column.name in df.columns:
-            dtypes_for_writing_sql[column.name] = column.type
+    table_columns_list = list(
+        tablename_mapping[xml_tablename]["__class__"].__table__.columns
+    )
+    dtypes_for_writing_sql = {
+        column.name: column.type
+        for column in table_columns_list
+        if column.name in df.columns
+    }
 
     with engine.begin() as con:
         continueloop = True
@@ -201,8 +206,8 @@ def add_table_to_sqlite_database(
             except sqlalchemy.exc.OperationalError as err:
                 add_missing_column_to_table(err, con, sql_tablename)
 
-            except sqlite3.OperationalError as err:
-                add_missing_column_to_table(err, con, sql_tablename)
+            # except sqlite3.OperationalError as err:
+            #    add_missing_column_to_table(err, con, sql_tablename)
 
             except sqlalchemy.exc.DataError as err:
                 delete_wrong_xml_entry(err, df)
@@ -214,29 +219,40 @@ def add_table_to_sqlite_database(
                 )
 
 
-def add_zero_as_first_character_for_too_short_string(df, column_name, string_length):
-    # Gemeindeschluessel or PLZ are read as float, but they are actually strings
-    # if they start with a 0 this gets lost
-    try:
-        df[column_name] = df[column_name].astype("Int64").astype(str)
-    except ValueError:
-        # some Plz are in the format DK-9999 for danish Postleitzahl
-        # They cannot be converted to integer
-        df[column_name] = df[column_name].astype(str)
+def add_zero_as_first_character_for_too_short_string(df: pd.DataFrame) -> pd.DataFrame:
+    """Some columns are read as integer even though they are actually strings starting with
+    a 0. This function converts those columns back to strings and adds a 0 as first character."""
 
-    df[column_name] = df[column_name].where(cond=df[column_name] != "None", other=None)
-    df[column_name] = df[column_name].where(cond=df[column_name] != "<NA>", other=None)
+    dict_of_columns_and_string_length = {
+        "Gemeindeschluessel": 8,
+        "Postleitzahl": 5,
+    }
+    for column_name, string_length in dict_of_columns_and_string_length.items():
+        if column_name in df.columns:
+            try:
+                df[column_name] = df[column_name].astype("Int64").astype(str)
+            except ValueError:
+                # some Plz are in the format DK-9999 for danish Postleitzahl
+                # They cannot be converted to integer
+                df[column_name] = df[column_name].astype(str)
 
-    string_adding_series = pd.Series(["0"] * len(df))
-    string_adding_series = string_adding_series.where(
-        cond=df[column_name].str.len() == string_length - 1, other=""
-    )
-    df[column_name] = string_adding_series + df[column_name]
+            df[column_name] = df[column_name].where(
+                cond=df[column_name] not in ["None", "<NA>"], other=None
+            )
+
+            string_adding_series = pd.Series(["0"] * len(df))
+            string_adding_series = string_adding_series.where(
+                cond=df[column_name].str.len() == string_length - 1, other=""
+            )
+            df[column_name] = string_adding_series + df[column_name]
     return df
 
 
 def write_single_entries_until_not_unique_comes_up(
-    df: pd.DataFrame, sql_tablename: str, engine: sqlalchemy.engine.Engine, err: str
+    df: pd.DataFrame,
+    sql_tablename: str,
+    engine: sqlalchemy.engine.Engine,
+    err: Exception,
 ) -> None:
 
     key_column = (
@@ -321,7 +337,7 @@ def handle_xml_syntax_error(data: bytes, err: Error) -> pd.DataFrame:
         if evaluated_string == "<":
             break
         else:
-            decoded_data = decoded_data[:start_char] + decoded_data[start_char + 1:]
+            decoded_data = decoded_data[:start_char] + decoded_data[start_char + 1 :]
     df = pd.read_xml(decoded_data)
     print("One invalid xml expression was deleted.")
     return df

@@ -8,7 +8,7 @@ import pandas as pd
 # import xml dependencies
 from os.path import expanduser
 from open_mastr.xml_download.utils_download_bulk import download_xml_Mastr
-from open_mastr.xml_download.utils_write_sqlite import convert_mastr_xml_to_sqlite
+from open_mastr.xml_download.utils_write_to_database import write_mastr_xml_to_database
 
 # import soap_API dependencies
 from open_mastr.soap_api.mirror import MaStRMirror
@@ -171,7 +171,7 @@ class Mastr:
                 print("MaStR already downloaded.")
             else:
                 if bulk_date_string != "today":
-                    raise Exception(
+                    raise OSError(
                         "There exists no file for given date. MaStR can only be downloaded "
                         "from the website if today's date is given."
                     )
@@ -185,7 +185,7 @@ class Mastr:
                 technology=technology
             )
 
-            convert_mastr_xml_to_sqlite(
+            write_mastr_xml_to_database(
                 engine=self._engine,
                 zipped_xml_file_path=_zipped_xml_file_path,
                 include_tables=bulk_include_tables,
@@ -309,7 +309,7 @@ class Mastr:
         # Check if given technologies match with the valid options from 'orm.bulk_technologies'
         for tech in chosen_technologies:
             if tech not in all_technologies:
-                raise Exception(
+                raise ValueError(
                     f"The input technology = {technology} does not match with the "
                     f"possible technology options. Only following technology options are available "
                     f"bulk_technologies = {all_technologies}"
