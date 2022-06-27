@@ -9,7 +9,7 @@ import shlex
 import subprocess
 from datetime import date
 
-from open_mastr.soap_api.config import (
+from open_mastr.utils.config import (
     setup_logger,
     create_data_dir,
     get_filenames,

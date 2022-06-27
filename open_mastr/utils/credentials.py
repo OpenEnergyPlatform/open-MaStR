@@ -16,7 +16,7 @@ __version__ = "v0.10.0"
 
 import os
 import configparser as cp
-from open_mastr.soap_api.config import get_project_home_dir
+from open_mastr.utils.config import get_project_home_dir
 import keyring
 
 import logging

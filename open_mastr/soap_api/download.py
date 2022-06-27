@@ -16,7 +16,7 @@ import os
 import math
 
 from open_mastr.utils import credentials as cred
-from open_mastr.soap_api.config import (
+from open_mastr.utils.config import (
     get_filenames,
     setup_logger,
     get_data_version_dir,

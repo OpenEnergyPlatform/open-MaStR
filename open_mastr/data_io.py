@@ -6,7 +6,7 @@ import pathlib
 import pynodo
 import yaml
 
-from open_mastr.soap_api.config import get_filenames, get_data_version_dir, get_power_unit_types
+from open_mastr.utils.config import get_filenames, get_data_version_dir, get_power_unit_types
 from open_mastr.soap_api.metadata.create import datapackage_meta_json
 from open_mastr.utils.credentials import get_zenodo_token
 
