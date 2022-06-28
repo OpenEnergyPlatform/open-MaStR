@@ -1,7 +1,7 @@
 import sys
 from zipfile import ZipFile
 
-from open_mastr import orm
+from open_mastr.utils import orm
 from open_mastr.xml_download.utils_cleansing_bulk import (
     replace_mastr_katalogeintraege,
 )

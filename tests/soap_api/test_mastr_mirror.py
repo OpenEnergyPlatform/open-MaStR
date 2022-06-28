@@ -1,9 +1,9 @@
 import datetime
 import pytest
 
-from open_mastr.data_io import read_csv_data
+from open_mastr.utils.data_io import read_csv_data
 from open_mastr.soap_api.mirror import MaStRMirror
-from open_mastr import orm
+from open_mastr.utils import orm
 from open_mastr.utils.helpers import session_scope, create_database_engine
 from open_mastr.utils.config import get_project_home_dir
 

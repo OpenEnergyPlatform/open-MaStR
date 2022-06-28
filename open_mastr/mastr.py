@@ -17,7 +17,7 @@ from open_mastr.utils.helpers import (
     validate_parameter_format_for_mastr_init,
     parse_date_string,
 )
-import open_mastr.orm as orm
+import open_mastr.utils.orm as orm
 from sqlalchemy.schema import CreateSchema
 from open_mastr.utils.config import get_project_home_dir
 

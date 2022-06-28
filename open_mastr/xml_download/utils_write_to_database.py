@@ -5,9 +5,9 @@ import numpy as np
 import pandas as pd
 import sqlalchemy
 import sqlite3
-from open_mastr.orm import tablename_mapping
+from open_mastr.utils.orm import tablename_mapping
 from open_mastr.xml_download.utils_cleansing_bulk import cleanse_bulk_data
-from open_mastr import orm
+from open_mastr.utils import orm
 
 
 def write_mastr_xml_to_database(
