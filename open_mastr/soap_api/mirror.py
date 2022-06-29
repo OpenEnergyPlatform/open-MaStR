@@ -167,7 +167,7 @@ class MaStRMirror:
         }
         self.unit_type_map_reversed = {v: k for k, v in self.unit_type_map.items()}
 
-    def backfill_basic(self, technology=None, date=None, limit=None):
+    def backfill_basic(self, technology=None, date=None, limit=10**8) -> None:
         """Backfill basic unit data.
 
         Fill database table 'basic_units' with data. It allows specification
@@ -209,8 +209,8 @@ class MaStRMirror:
             Defaults to `None`.
         limit: int
             Maximum number of units.
-            Defaults to `None` which means no limit is set and all available data is queried.
-            Use with care!
+            Defaults to the large number of 10**8 which means
+            all available data is queried. Use with care!
         """
 
         # Create list of technologies to backfill
@@ -221,10 +221,182 @@ class MaStRMirror:
         elif isinstance(technology, list):
             technology_list = technology
 
-        # Set limit to a number >> number of units of technology with most units
-        if limit is None:
-            limit = 10 ** 8
+        dates = self._get_list_of_dates(date, technology_list)
 
+        for tech, date in zip(technology_list, dates):
+            self._retreive_data_for_technology(tech, date, limit)
+
+    def _create_data_list_from_basic_units(self, session, basic_units):
+        log.info("Insert basic unit data into DB and submit additional data requests")
+        for basic_units_chunk in basic_units:
+            # Make sure that no duplicates get inserted into database
+            # (would result in an error)
+            # Only new data gets inserted or data with newer modification date gets updated
+
+            # Remove duplicates returned from API
+            basic_units_chunk_unique = [
+                unit
+                for n, unit in enumerate(basic_units_chunk)
+                if unit["EinheitMastrNummer"]
+                not in [_["EinheitMastrNummer"] for _ in basic_units_chunk[n + 1 :]]
+            ]
+            basic_units_chunk_unique_ids = [
+                _["EinheitMastrNummer"] for _ in basic_units_chunk_unique
+            ]
+
+            # Find units that are already in the DB
+            common_ids = [
+                _.EinheitMastrNummer
+                for _ in session.query(orm.BasicUnit.EinheitMastrNummer).filter(
+                    orm.BasicUnit.EinheitMastrNummer.in_(basic_units_chunk_unique_ids)
+                )
+            ]
+
+            inserted_and_updated = self._create_inserted_and_updated_list(
+                session, basic_units_chunk_unique, common_ids
+            )
+
+            # Submit additional data requests
+
+            extended_data = []
+            eeg_data = []
+            kwk_data = []
+            permit_data = []
+
+            for basic_unit in inserted_and_updated:
+                extended_data = self._update_extended_data(extended_data, basic_unit)
+                eeg_data = self._update_eeg_data(eeg_data, basic_unit)
+                kwk_data = self._update_kwk_data(kwk_data, basic_unit)
+                permit_data = self._update_permit_data(permit_data, basic_unit)
+
+        return extended_data, eeg_data, kwk_data, permit_data, inserted_and_updated
+
+    def _update_permit_data(self, permit_data, basic_unit):
+        if basic_unit["GenMastrNummer"]:
+            permit_data.append(
+                {
+                    "EinheitMastrNummer": basic_unit["EinheitMastrNummer"],
+                    "additional_data_id": basic_unit["GenMastrNummer"],
+                    "technology": self.unit_type_map[basic_unit["Einheittyp"]],
+                    "data_type": "permit_data",
+                    "request_date": datetime.datetime.now(tz=datetime.timezone.utc),
+                }
+            )
+        return permit_data
+
+    def _update_kwk_data(self, kwk_data, basic_unit):
+        if basic_unit["KwkMastrNummer"]:
+            kwk_data.append(
+                {
+                    "EinheitMastrNummer": basic_unit["EinheitMastrNummer"],
+                    "additional_data_id": basic_unit["KwkMastrNummer"],
+                    "technology": self.unit_type_map[basic_unit["Einheittyp"]],
+                    "data_type": "kwk_data",
+                    "request_date": datetime.datetime.now(tz=datetime.timezone.utc),
+                }
+            )
+        return kwk_data
+
+    def _update_eeg_data(self, eeg_data, basic_unit):
+        if basic_unit["EegMastrNummer"]:
+            eeg_data.append(
+                {
+                    "EinheitMastrNummer": basic_unit["EinheitMastrNummer"],
+                    "additional_data_id": basic_unit["EegMastrNummer"],
+                    "technology": self.unit_type_map[basic_unit["Einheittyp"]],
+                    "data_type": "eeg_data",
+                    "request_date": datetime.datetime.now(tz=datetime.timezone.utc),
+                }
+            )
+        return eeg_data
+
+    def _update_extended_data(self, extended_data, basic_unit):
+        extended_data.append(
+            {
+                "EinheitMastrNummer": basic_unit["EinheitMastrNummer"],
+                "additional_data_id": basic_unit["EinheitMastrNummer"],
+                "technology": self.unit_type_map[basic_unit["Einheittyp"]],
+                "data_type": "unit_data",
+                "request_date": datetime.datetime.now(tz=datetime.timezone.utc),
+            }
+        )
+        return extended_data
+
+    def _create_inserted_and_updated_list(
+        self, session, basic_units_chunk_unique, common_ids
+    ) -> list:
+        insert = []
+        updated = []
+        for unit in basic_units_chunk_unique:
+
+            # Rename the typo in column DatumLetzeAktualisierung
+            if "DatumLetzteAktualisierung" not in unit.keys():
+                unit["DatumLetzteAktualisierung"] = unit.pop(
+                    "DatumLetzeAktualisierung", None
+                )
+
+            # In case data for the unit already exists, only update if new data is newer
+            if unit["EinheitMastrNummer"] in common_ids:
+                if session.query(
+                    exists().where(
+                        and_(
+                            orm.BasicUnit.EinheitMastrNummer
+                            == unit["EinheitMastrNummer"],
+                            orm.BasicUnit.DatumLetzteAktualisierung
+                            < unit["DatumLetzteAktualisierung"],
+                        )
+                    )
+                ).scalar():
+                    updated.append(unit)
+                    session.merge(orm.BasicUnit(**unit))
+            # In case of new data, just insert
+            else:
+                insert.append(unit)
+        session.bulk_save_objects([orm.BasicUnit(**u) for u in insert])
+        return insert + updated
+
+    def _retreive_data_for_technology(self, tech, date, limit) -> None:
+        log.info(f"Backfill data for technology {tech}")
+
+        # Catch weird MaStR SOAP response
+        basic_units = self.mastr_dl.basic_unit_data(tech, limit, date_from=date)
+
+        with session_scope(engine=self._engine) as session:
+
+            # Insert basic data into database
+            (
+                extended_data,
+                eeg_data,
+                kwk_data,
+                permit_data,
+                inserted_and_updated,
+            ) = self._create_data_list_from_basic_units(session, basic_units)
+
+            # Delete old entries for additional data requests
+            additional_data_table = orm.AdditionalDataRequested.__table__
+            ids_to_delete = [_["EinheitMastrNummer"] for _ in inserted_and_updated]
+            session.execute(
+                additional_data_table.delete()
+                .where(additional_data_table.c.EinheitMastrNummer.in_(ids_to_delete))
+                .where(additional_data_table.c.technology == "wind")
+                .where(
+                    additional_data_table.c.request_date
+                    < datetime.datetime.now(tz=datetime.timezone.utc)
+                )
+            )
+
+            # Flush delete statements to database
+            session.commit()
+
+            # Insert new requests for additional data
+            session.bulk_insert_mappings(orm.AdditionalDataRequested, extended_data)
+            session.bulk_insert_mappings(orm.AdditionalDataRequested, eeg_data)
+            session.bulk_insert_mappings(orm.AdditionalDataRequested, kwk_data)
+            session.bulk_insert_mappings(orm.AdditionalDataRequested, permit_data)
+
+        log.info("Backfill successfully finished")
+
+    def _get_list_of_dates(self, date, technology_list) -> list:
         if date == "latest":
             dates = []
             for tech in technology_list:
@@ -267,182 +439,10 @@ class MaStRMirror:
         else:
             dates = [date] * len(technology_list)
 
-        # Retrieve data for each technology separately
-        for tech, date in zip(technology_list, dates):
-            log.info(f"Backfill data for technology {tech}")
-
-            # Catch weird MaStR SOAP response
-            basic_units = self.mastr_dl.basic_unit_data(tech, limit, date_from=date)
-
-            with session_scope(engine=self._engine) as session:
-
-                # Insert basic data into database
-                log.info(
-                    "Insert basic unit data into DB and submit additional data requests"
-                )
-                for basic_units_chunk in basic_units:
-                    # Make sure that no duplicates get inserted into database
-                    # (would result in an error)
-                    # Only new data gets inserted or data with newer modification date gets updated
-
-                    # Remove duplicates returned from API
-                    basic_units_chunk_unique = [
-                        unit
-                        for n, unit in enumerate(basic_units_chunk)
-                        if unit["EinheitMastrNummer"]
-                        not in [
-                            _["EinheitMastrNummer"] for _ in basic_units_chunk[n + 1:]
-                        ]
-                    ]
-                    basic_units_chunk_unique_ids = [
-                        _["EinheitMastrNummer"] for _ in basic_units_chunk_unique
-                    ]
-
-                    # Find units that are already in the DB
-                    common_ids = [
-                        _.EinheitMastrNummer
-                        for _ in session.query(orm.BasicUnit.EinheitMastrNummer).filter(
-                            orm.BasicUnit.EinheitMastrNummer.in_(
-                                basic_units_chunk_unique_ids
-                            )
-                        )
-                    ]
-
-                    # Create instances for new data and for updated data
-                    insert = []
-                    updated = []
-                    for unit in basic_units_chunk_unique:
-
-                        # Rename the typo in column DatumLetzeAktualisierung
-                        if "DatumLetzteAktualisierung" not in unit.keys():
-                            unit["DatumLetzteAktualisierung"] = unit.pop(
-                                "DatumLetzeAktualisierung", None
-                            )
-
-                        # In case data for the unit already exists, only update if new data is newer
-                        if unit["EinheitMastrNummer"] in common_ids:
-                            if session.query(
-                                exists().where(
-                                    and_(
-                                        orm.BasicUnit.EinheitMastrNummer
-                                        == unit["EinheitMastrNummer"],
-                                        orm.BasicUnit.DatumLetzteAktualisierung
-                                        < unit["DatumLetzteAktualisierung"],
-                                    )
-                                )
-                            ).scalar():
-                                updated.append(unit)
-                                session.merge(orm.BasicUnit(**unit))
-                        # In case of new data, just insert
-                        else:
-                            insert.append(unit)
-                    session.bulk_save_objects([orm.BasicUnit(**u) for u in insert])
-                    inserted_and_updated = insert + updated
-
-                    # Submit additional data requests
-                    extended_data = []
-                    eeg_data = []
-                    kwk_data = []
-                    permit_data = []
-
-                    for basic_unit in inserted_and_updated:
-                        # Extended unit data
-                        extended_data.append(
-                            {
-                                "EinheitMastrNummer": basic_unit["EinheitMastrNummer"],
-                                "additional_data_id": basic_unit["EinheitMastrNummer"],
-                                "technology": self.unit_type_map[
-                                    basic_unit["Einheittyp"]
-                                ],
-                                "data_type": "unit_data",
-                                "request_date": datetime.datetime.now(
-                                    tz=datetime.timezone.utc
-                                ),
-                            }
-                        )
-
-                        # EEG unit data
-                        if basic_unit["EegMastrNummer"]:
-                            eeg_data.append(
-                                {
-                                    "EinheitMastrNummer": basic_unit[
-                                        "EinheitMastrNummer"
-                                    ],
-                                    "additional_data_id": basic_unit["EegMastrNummer"],
-                                    "technology": self.unit_type_map[
-                                        basic_unit["Einheittyp"]
-                                    ],
-                                    "data_type": "eeg_data",
-                                    "request_date": datetime.datetime.now(
-                                        tz=datetime.timezone.utc
-                                    ),
-                                }
-                            )
-
-                        # KWK unit data
-                        if basic_unit["KwkMastrNummer"]:
-                            kwk_data.append(
-                                {
-                                    "EinheitMastrNummer": basic_unit[
-                                        "EinheitMastrNummer"
-                                    ],
-                                    "additional_data_id": basic_unit["KwkMastrNummer"],
-                                    "technology": self.unit_type_map[
-                                        basic_unit["Einheittyp"]
-                                    ],
-                                    "data_type": "kwk_data",
-                                    "request_date": datetime.datetime.now(
-                                        tz=datetime.timezone.utc
-                                    ),
-                                }
-                            )
-
-                        # Permit unit data
-                        if basic_unit["GenMastrNummer"]:
-                            permit_data.append(
-                                {
-                                    "EinheitMastrNummer": basic_unit[
-                                        "EinheitMastrNummer"
-                                    ],
-                                    "additional_data_id": basic_unit["GenMastrNummer"],
-                                    "technology": self.unit_type_map[
-                                        basic_unit["Einheittyp"]
-                                    ],
-                                    "data_type": "permit_data",
-                                    "request_date": datetime.datetime.now(
-                                        tz=datetime.timezone.utc
-                                    ),
-                                }
-                            )
-
-                # Delete old entries for additional data requests
-                additional_data_table = orm.AdditionalDataRequested.__table__
-                ids_to_delete = [_["EinheitMastrNummer"] for _ in inserted_and_updated]
-                session.execute(
-                    additional_data_table.delete()
-                    .where(
-                        additional_data_table.c.EinheitMastrNummer.in_(ids_to_delete)
-                    )
-                    .where(additional_data_table.c.technology == "wind")
-                    .where(
-                        additional_data_table.c.request_date
-                        < datetime.datetime.now(tz=datetime.timezone.utc)
-                    )
-                )
-
-                # Flush delete statements to database
-                session.commit()
-
-                # Insert new requests for additional data
-                session.bulk_insert_mappings(orm.AdditionalDataRequested, extended_data)
-                session.bulk_insert_mappings(orm.AdditionalDataRequested, eeg_data)
-                session.bulk_insert_mappings(orm.AdditionalDataRequested, kwk_data)
-                session.bulk_insert_mappings(orm.AdditionalDataRequested, permit_data)
-
-            log.info("Backfill successfully finished")
+        return dates
 
     def backfill_locations_basic(
-        self, limit=None, date=None, delete_additional_data_requests=True
+        self, limit=10**7, date=None, delete_additional_data_requests=True
     ):
         """
         Backfill basic location data.
@@ -481,10 +481,6 @@ class MaStRMirror:
             skips deletion these.
         """
 
-        # Set limit to a number >> number of locations
-        if not limit:
-            limit = 10 ** 7
-
         # Find newest data date if date="latest"
         if date == "latest":
             with session_scope(engine=self._engine) as session:
@@ -507,7 +503,7 @@ class MaStRMirror:
                 location
                 for n, location in enumerate(locations_chunk)
                 if location["LokationMastrNummer"]
-                not in [_["LokationMastrNummer"] for _ in locations_chunk[n + 1:]]
+                not in [_["LokationMastrNummer"] for _ in locations_chunk[n + 1 :]]
             ]
             locations_unique_ids = [
                 _["LokationMastrNummer"] for _ in locations_chunk_unique
@@ -619,7 +615,7 @@ class MaStRMirror:
         }
 
         if not limit:
-            limit = 10 ** 8
+            limit = 10**8
         if chunksize > limit:
             chunksize = limit
 
@@ -755,7 +751,7 @@ class MaStRMirror:
 
         # Process arguments
         if not limit:
-            limit = 10 ** 8
+            limit = 10**8
         if chunksize > limit:
             chunksize = limit
 
@@ -1392,7 +1388,7 @@ class MaStRMirror:
         df.to_csv(csv_file, index=False, encoding="utf-8")
 
 
-def list_of_dicts_to_columns(row):
+def list_of_dicts_to_columns(row) -> pd.Series:
     """
     Expand data stored in dict to spearate columns
 
@@ -1417,8 +1413,7 @@ def list_of_dicts_to_columns(row):
         for k, v in dic.items():
             columns[k].append(v)
 
-    new_cols_df = pd.Series(columns)
-    return new_cols_df
+    return pd.Series(columns)
 
 
 def partially_suffixed_columns(mapper, column_names, suffix):
