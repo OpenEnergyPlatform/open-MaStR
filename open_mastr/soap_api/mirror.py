@@ -1091,7 +1091,7 @@ class MaStRMirror:
 
         The data in the database probably has duplicates because
         of the history how data was collected in the
-        Marktstammdatenregister. Consider to use the parameter
+        Marktstammdatenregister. Consider using the parameter
         `statistic_flag`. Read more in the
         `documentation <https://www.marktstammdatenregister.de/MaStRHilfe/subpages/statistik.html>`_
         of the original data source.
@@ -1112,7 +1112,7 @@ class MaStRMirror:
             Choose between 'A' or 'B' (default) to select a subset of the data for the
             export to CSV.
 
-            * 'B': Migrated that was migrated to the Martstammdatenregister +
+            * 'B': Migrated that was migrated to the Marktstammdatenregister +
               newly registered units with commissioning
               date after 31.01.2019 (recommended for statistical purposes).
             * 'A':  Newly registered units with commissioning date before 31.01.2019

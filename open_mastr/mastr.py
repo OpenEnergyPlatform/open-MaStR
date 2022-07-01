@@ -231,11 +231,12 @@ class Mastr:
 
     def to_csv(self, tables=None) -> None:
         """
-        Save the database as csv files.
+        Save the database as csv files along with the metadata file.
 
         Parameters
         ------------
-        technology: None or list
+        tables: None or list
+            Possible table names are the eight technologies and the additional tables.
 
         """
 
@@ -275,26 +276,25 @@ class Mastr:
                     raise ValueError("Tables parameter has an invalid string!")
 
         # Export joined technology tables via MaStRMirror.to_csv()
-        # instantiate MaStRMirror class
         api_export = MaStRMirror(engine=self._engine)
 
         # fill basic unit table, after downloading with method = 'bulk' to use API export functions
         api_export.reverse_fill_basic_units()
 
         # export to csv per technology
-        # the csv files are exported unmodified and labeled as "raw".
-        api_export.to_csv(
-            technology=technologies_to_export, statistic_flag=None, limit=None
-        )
-        # Export additional tables mirrored via pandas.to_csv()
+        api_export.to_csv(technology=technologies_to_export)
+
+        # Export additional tables mirrored via pd.DataFrame.to_csv()
+        exported_additional_tables = []
         for table in additional_tables_to_export:
             df = pd.read_sql(table, con=self._engine)
             if not df.empty:
                 path_of_table = os.path.join(data_path, f"bnetza_mastr_{table}_raw.csv")
                 df.to_csv(path_or_buf=path_of_table, encoding="utf-16")
+                exported_additional_tables.append(table)
 
         print("Following tables are exported as csv")
-        print(technologies_to_export + additional_tables_to_export)
+        print(technologies_to_export + exported_additional_tables)
 
     def _initialize_database(self) -> None:
         engine = self._engine
