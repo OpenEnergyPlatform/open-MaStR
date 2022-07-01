@@ -282,7 +282,7 @@ class Mastr:
         api_export.reverse_fill_basic_units()
 
         # export to csv per technology
-        api_export.to_csv(technology=technologies_to_export)
+        api_export.to_csv(technology=technologies_to_export, statistic_flag=None)
 
         # Export additional tables mirrored via pd.DataFrame.to_csv()
         exported_additional_tables = []

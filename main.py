@@ -18,7 +18,8 @@ from postprocessing.cleaning import cleaned_data
 ## specify download parameter
 
 # bulk download
-
+bulk_date_string = "today"
+bulk_cleansing = True
 technology_bulk = ["biomass",
                    "combustion",
                    "gsgk",
@@ -72,11 +73,12 @@ api_location_types = [
 db = Mastr()
 
 if __name__ == "__main__":
-
     ## download Markstammdatenregister
     # bulk download
     db.download(method="bulk",
                 technology=technology_bulk,
+                bulk_date_string="today",
+                bulk_cleansing=True,
                 )
 
     # API download
@@ -88,35 +90,20 @@ if __name__ == "__main__":
                 technology=technology_api,
                 api_data_types=api_data_types,
                 api_location_types=api_location_types)
-
     ## export to csv
     '''
-    Currently two export options exist.
-    First: Export exact copy of database tables (referred to as: database dublicate)
-    Second: Export technology-specific tables (referred to as: API export)
+   Technology-related tables are exported as joined, whereas the additional tables
+   are duplicated as they are in the database. 
     '''
-    # database dublicate
-    # export copy of each database table, if respective tables are not empty
     db.to_csv()
-
-    # API export
-    # API export joins technology-specific tables from database and exports them to one csv per technology
-
-    # instantiate MaStRMirror class
-    api_export = MaStRMirror(engine=db._engine)
-
-    # fill basic unit table, after downloading with method = 'bulk' to use API export functions
-    api_export.reverse_fill_basic_units()
-
-    # export to csv per technology
-    # the csv files are exported unmodified and labeled as "raw".
-    api_export.to_csv(
-       technology=technology_api, additional_data=api_data_types, statistic_flag=None, limit=None
-    )
 
     # clean raw csv's and create cleaned csv's
     cleaned = cleaned_data()
 
+    # instantiate MaStRMirror class
+    api_export = MaStRMirror(engine=db._engine)
+
     # export location types
     for location_type in api_location_types:
         api_export.locations_to_csv(location_type=location_type, limit=None)
+
