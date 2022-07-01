@@ -31,7 +31,8 @@ def replace_mastr_katalogeintraege(
     zipped_xml_file_path: str,
     df: pd.DataFrame,
 ) -> pd.DataFrame:
-
+    """Replaces the IDs from the mastr database by its mapped string values from
+    the table katalogwerte"""
     katalogwerte = create_katalogwerte_from_bulk_download(zipped_xml_file_path)
 
     for column_name in df.columns:
@@ -44,6 +45,8 @@ def replace_mastr_katalogeintraege(
 
 
 def create_katalogwerte_from_bulk_download(zipped_xml_file_path) -> dict:
+    """Creates a dictionary from the id -> value mapping defined in the table
+    katalogwerte from MaStR."""
     with ZipFile(zipped_xml_file_path, "r") as f:
         data = f.read("Katalogwerte.xml")
         df_katalogwerte = pd.read_xml(data, encoding="UTF-16", compression="zip")
