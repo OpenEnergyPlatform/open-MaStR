@@ -224,7 +224,7 @@ class MaStRMirror:
         dates = self._get_list_of_dates(date, technology_list)
 
         for tech, date in zip(technology_list, dates):
-            self._get_basic_data_for_one_technology(tech, date, limit)
+            self._write_basic_data_for_one_technology_to_db(tech, date, limit)
 
     def _create_data_list_from_basic_units(self, session, basic_units_chunk):
         # Make sure that no duplicates get inserted into database
@@ -236,7 +236,7 @@ class MaStRMirror:
             unit
             for n, unit in enumerate(basic_units_chunk)
             if unit["EinheitMastrNummer"]
-            not in [_["EinheitMastrNummer"] for _ in basic_units_chunk[n + 1:]]
+            not in [_["EinheitMastrNummer"] for _ in basic_units_chunk[n + 1 :]]
         ]
         basic_units_chunk_unique_ids = [
             _["EinheitMastrNummer"] for _ in basic_units_chunk_unique
@@ -344,7 +344,7 @@ class MaStRMirror:
         session.bulk_save_objects([table_class(**u) for u in insert])
         return insert + updated
 
-    def _get_basic_data_for_one_technology(self, tech, date, limit) -> None:
+    def _write_basic_data_for_one_technology_to_db(self, tech, date, limit) -> None:
         log.info(f"Backfill data for technology {tech}")
 
         # Catch weird MaStR SOAP response
@@ -577,7 +577,7 @@ class MaStRMirror:
 
         Parameters
         ----------
-        technology: `str` or `list` of `str`
+        technology: `str`
             See list of available technologies in
             :meth:`open_mastr.soap_api.download.py.MaStRDownload.download_power_plants`.
         data_type: `str`
@@ -603,109 +603,160 @@ class MaStRMirror:
         if chunksize > limit:
             chunksize = limit
 
-        units_queried = 0
-        while units_queried < limit:
+        number_units_queried = 0
+        while number_units_queried < limit:
 
             with session_scope(engine=self._engine) as session:
-
-                requested_chunk = (
-                    session.query(orm.AdditionalDataRequested)
-                    .filter(
-                        and_(
-                            orm.AdditionalDataRequested.data_type == data_type,
-                            orm.AdditionalDataRequested.technology == technology,
-                        )
-                    )
-                    .limit(chunksize)
+                (
+                    requested_chunk,
+                    requested_ids,
+                ) = self._get_additional_data_requests_from_db(
+                    table_identifier="additional_data",
+                    session=session,
+                    data_request_type=data_type,
+                    technology=technology,
+                    chunksize=chunksize,
                 )
 
-                ids = [_.additional_data_id for _ in requested_chunk]
+                if not requested_ids:
+                    log.info("No further data is requested")
+                    break
 
+                # Retrieve data
+                unit_data, missed_units = self.mastr_dl.additional_data(
+                    technology, requested_ids, download_functions[data_type]
+                )
+
+                unit_data = flatten_dict(unit_data)
                 number_units_merged = 0
-                deleted_units = []
-                if ids:
-                    # Retrieve data
-                    unit_data, missed_units = self.mastr_dl.additional_data(
-                        technology, ids, download_functions[data_type]
+
+                # Prepare data and add to database table
+                for unit_dat in unit_data:
+                    unit = self._preprocess_additional_data_entry(
+                        unit_dat, technology, data_type
                     )
-                    missed_units_ids = [u[0] for u in missed_units]
-                    unit_data = flatten_dict(unit_data)
+                    session.merge(unit)
+                    number_units_merged += 1
+                session.commit()
 
-                    # Prepare data and add to database table
-                    for unit_dat in unit_data:
-                        unit_dat["DatenQuelle"] = "API"
-                        unit_dat["DatumDownload"] = date.today()
-                        # Remove query status information from response
-                        for exclude in [
-                            "Ergebniscode",
-                            "AufrufVeraltet",
-                            "AufrufVersion",
-                            "AufrufLebenszeitEnde",
-                        ]:
-                            del unit_dat[exclude]
-
-                        # Pre-serialize dates/datetimes and decimal in hydro Ertuechtigung
-                        # This is required because sqlalchemy does not know how serialize
-                        # dates/decimal of a JSON
-                        if "Ertuechtigung" in unit_dat.keys():
-                            for ertuechtigung in unit_dat["Ertuechtigung"]:
-                                if ertuechtigung["DatumWiederinbetriebnahme"]:
-                                    ertuechtigung[
-                                        "DatumWiederinbetriebnahme"
-                                    ] = ertuechtigung[
-                                        "DatumWiederinbetriebnahme"
-                                    ].isoformat()
-                                ertuechtigung["ProzentualeErhoehungDesLv"] = float(
-                                    ertuechtigung["ProzentualeErhoehungDesLv"]
-                                )
-                        # The NetzbetreiberMastrNummer is handed over as type:list, hence
-                        # non-compatible with sqlite)
-                        # This replaces the list with the first (string)element in the list
-                        # to make it sqlite compatible
-                        if "NetzbetreiberMastrNummer" in unit_dat and type(unit_dat["NetzbetreiberMastrNummer"]) == list:
-                                if len(unit_dat["NetzbetreiberMastrNummer"]) > 0:
-                                    unit_dat["NetzbetreiberMastrNummer"] = unit_dat[
-                                        "NetzbetreiberMastrNummer"
-                                    ][0]
-                                else:
-                                    unit_dat["NetzbetreiberMastrNummer"] = None
-
-                        # Create new instance and update potentially existing one
-                        unit = getattr(orm, self.orm_map[technology][data_type])(
-                            **unit_dat
-                        )
-                        session.merge(unit)
-                        number_units_merged += 1
-
-                    session.commit()
-                    # Log units where data retrieval was not successful
-                    for missed_unit in missed_units:
-                        missed = orm.MissedAdditionalData(
-                            additional_data_id=missed_unit[0], reason=missed_unit[1]
-                        )
-                        session.add(missed)
-
-                    # Remove units from additional data request table if additional data
-                    # was retrieved
-                    for requested_unit in requested_chunk:
-                        if requested_unit.additional_data_id not in missed_units_ids:
-                            session.delete(requested_unit)
-                            deleted_units.append(requested_unit.additional_data_id)
-
-                    # Update while iteration condition
-                    units_queried += len(ids)
-
-                    log.info(
-                        f"Downloaded data for {len(unit_data)} units ({len(ids)} requested). "
-                        f"Missed units: {len(missed_units)}. "
-                        f"Deleted requests: {len(deleted_units)}."
-                    )
-
+                log.info(
+                    f"Downloaded data for {len(unit_data)} units ({len(requested_ids)} requested). "
+                )
+                self._delete_missed_data_from_request_table(
+                    session, missed_units, requested_chunk
+                )
+                # Update while iteration condition
+                number_units_queried += len(requested_ids)
             # Emergency break out: if now new data gets inserted/update, don't retrieve any
             # further data
             if number_units_merged == 0:
                 log.info("No further data is requested")
                 break
+
+    def _delete_missed_data_from_request_table(
+        self, table_identifier, session, missed_requests, requested_chunk
+    ):
+        if table_identifier == "additional_data":
+            id_attribute = "additional_data_id"
+        elif table_identifier == "additional_location_data":
+            id_attribute = "LokationMastrNummer"
+
+        missed_entry_ids = [e[0] for e in missed_requests]
+        for missed_req in missed_requests:
+            missed = (
+                orm.MissedAdditionalData(
+                    additional_data_id=missed_req[0], reason=missed_req[1]
+                )
+                if table_identifier == "additional_data"
+                else orm.MissedExtendedLocation(
+                    LokationMastrNummer=missed_req[0],
+                    reason=missed_req[1],
+                )
+            )
+            session.add(missed)
+
+        # Remove units from additional data request table if additional data
+        # was retrieved
+        deleted_units = []
+        for requested_entry in requested_chunk:
+            if getattr(requested_entry, id_attribute) not in missed_entry_ids:
+                session.delete(requested_entry)
+                deleted_units.append(getattr(requested_entry, id_attribute))
+        log.info(
+            f"Missed requests: {len(missed_requests)}. "
+            f"Deleted requests: {len(deleted_units)}."
+        )
+
+    def _preprocess_additional_data_entry(self, unit_dat, technology, data_type):
+        unit_dat["DatenQuelle"] = "API"
+        unit_dat["DatumDownload"] = date.today()
+        # Remove query status information from response
+        for exclude in [
+            "Ergebniscode",
+            "AufrufVeraltet",
+            "AufrufVersion",
+            "AufrufLebenszeitEnde",
+        ]:
+            del unit_dat[exclude]
+
+        # Pre-serialize dates/datetimes and decimal in hydro Ertuechtigung
+        # This is required because sqlalchemy does not know how serialize
+        # dates/decimal of a JSON
+        if "Ertuechtigung" in unit_dat:
+            for ertuechtigung in unit_dat["Ertuechtigung"]:
+                if ertuechtigung["DatumWiederinbetriebnahme"]:
+                    ertuechtigung["DatumWiederinbetriebnahme"] = ertuechtigung[
+                        "DatumWiederinbetriebnahme"
+                    ].isoformat()
+                ertuechtigung["ProzentualeErhoehungDesLv"] = float(
+                    ertuechtigung["ProzentualeErhoehungDesLv"]
+                )
+        # The NetzbetreiberMastrNummer is handed over as type:list, hence
+        # non-compatible with sqlite)
+        # This replaces the list with the first (string)element in the list
+        # to make it sqlite compatible
+        if (
+            "NetzbetreiberMastrNummer" in unit_dat
+            and type(unit_dat["NetzbetreiberMastrNummer"]) == list
+        ):
+            if len(unit_dat["NetzbetreiberMastrNummer"]) > 0:
+                unit_dat["NetzbetreiberMastrNummer"] = unit_dat[
+                    "NetzbetreiberMastrNummer"
+                ][0]
+            else:
+                unit_dat["NetzbetreiberMastrNummer"] = None
+
+        # Create new instance and update potentially existing one
+        unit = getattr(orm, self.orm_map[technology][data_type])(**unit_dat)
+        return unit
+
+    def _get_additional_data_requests_from_db(
+        self, table_identifier, session, data_request_type, technology, chunksize
+    ):
+        """Retrieves the data that is requested from the database table AdditionalDataRequested."""
+        if table_identifier == "additional_data":
+            requested_chunk = (
+                session.query(orm.AdditionalDataRequested)
+                .filter(
+                    and_(
+                        orm.AdditionalDataRequested.data_type == data_request_type,
+                        orm.AdditionalDataRequested.technology == technology,
+                    )
+                )
+                .limit(chunksize)
+            )
+
+            ids = [_.additional_data_id for _ in requested_chunk]
+        if table_identifier == "additional_location_data":
+            requested_chunk = (
+                session.query(orm.AdditionalLocationsRequested)
+                .filter(
+                    orm.AdditionalLocationsRequested.location_type == data_request_type
+                )
+                .limit(chunksize)
+            )
+            ids = [_.LokationMastrNummer for _ in requested_chunk]
+        return requested_chunk, ids
 
     def retrieve_additional_location_data(
         self, location_type, limit=None, chunksize=1000
@@ -743,22 +794,24 @@ class MaStRMirror:
 
             with session_scope(engine=self._engine) as session:
                 # Get a chunk
-                requested_chunk = (
-                    session.query(orm.AdditionalLocationsRequested)
-                    .filter(
-                        orm.AdditionalLocationsRequested.location_type == location_type
-                    )
-                    .limit(chunksize)
+                (
+                    requested_chunk,
+                    requested_ids,
+                ) = self._get_additional_data_requests_from_db(
+                    table_identifier="additional_location_data",
+                    session=session,
+                    data_request_type=location_type,
+                    technology=None,
+                    chunksize=chunksize,
                 )
-                ids = [_.LokationMastrNummer for _ in requested_chunk]
 
                 # Reset number of locations inserted or updated for this chunk
                 number_locations_merged = 0
                 deleted_locations = []
-                if ids:
+                if requested_ids:
                     # Retrieve data
                     location_data, missed_locations = self.mastr_dl.additional_data(
-                        location_type, ids, "location_data"
+                        location_type, requested_ids, "location_data"
                     )
                     missed_locations_ids = [loc[0] for loc in missed_locations]
 
@@ -809,34 +862,15 @@ class MaStRMirror:
 
                     session.commit()
                     # Log locations where data retrieval was not successful
-                    for missed_location in missed_locations:
-                        missed = orm.MissedExtendedLocation(
-                            LokationMastrNummer=missed_location[0],
-                            reason=missed_location[1],
-                        )
-                        session.add(missed)
-
-                    # Remove locations from additional data request table
-                    # if additional data was retrieved
-                    for requested_location in requested_chunk:
-                        if (
-                            requested_location.LokationMastrNummer
-                            not in missed_locations_ids
-                        ):
-                            session.delete(requested_location)
-                            deleted_locations.append(
-                                requested_location.LokationMastrNummer
-                            )
-
-                    # Update while iteration condition
-                    locations_queried += len(ids)
-
-                    log.info(
-                        f"Downloaded data for {len(location_data)} "
-                        f"locations ({len(ids)} requested). "
-                        f"Missed locations: {len(missed_locations_ids)}. Deleted requests: "
-                        f"{len(deleted_locations)}."
+                    log.info(f"Downloaded data for {len(location_data)} ")
+                    self._delete_missed_data_from_request_table(
+                        table_identifier="additional_location_data",
+                        session=session,
+                        missed_requests=missed_locations,
+                        requested_chunk=requested_chunk,
                     )
+                    # Update while iteration condition
+                    locations_queried += len(requested_ids)
 
             # Emergency break out: if now new data gets inserted/update,
             # don't retrieve any further data
