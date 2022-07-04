@@ -236,7 +236,7 @@ class MaStRMirror:
             unit
             for n, unit in enumerate(basic_units_chunk)
             if unit["EinheitMastrNummer"]
-            not in [_["EinheitMastrNummer"] for _ in basic_units_chunk[n + 1 :]]
+            not in [_["EinheitMastrNummer"] for _ in basic_units_chunk[n + 1:]]
         ]
         basic_units_chunk_unique_ids = [
             _["EinheitMastrNummer"] for _ in basic_units_chunk_unique
@@ -565,7 +565,7 @@ class MaStRMirror:
                 )
 
     def retrieve_additional_data(
-        self, technology, data_type, limit=None, chunksize=1000
+        self, technology, data_type, limit=10**8, chunksize=1000
     ):
         """
         Retrieve additional unit data
@@ -584,8 +584,8 @@ class MaStRMirror:
             Select type of additional data that is to be retrieved. Choose from
             "unit_data", "eeg_data", "kwk_data", "permit_data".
         limit: int
-            Limit number of units that data is download for. Defaults to `None` which refers
-            to query data for existing data requests, for example created by
+            Limit number of units that data is download for. Defaults to the very large number 10**8
+            which refers to query data for existing data requests, for example created by
             :meth:`~.create_additional_data_requests`.
         chunksize: int
             Data is downloaded and inserted into the database in chunks of `chunksize`.
@@ -600,8 +600,6 @@ class MaStRMirror:
             "permit_data": "permit_unit_data",
         }
 
-        if not limit:
-            limit = 10**8
         if chunksize > limit:
             chunksize = limit
 
@@ -664,8 +662,7 @@ class MaStRMirror:
                         # non-compatible with sqlite)
                         # This replaces the list with the first (string)element in the list
                         # to make it sqlite compatible
-                        if "NetzbetreiberMastrNummer" in unit_dat.keys():
-                            if type(unit_dat["NetzbetreiberMastrNummer"]) == list:
+                        if "NetzbetreiberMastrNummer" in unit_dat and type(unit_dat["NetzbetreiberMastrNummer"]) == list:
                                 if len(unit_dat["NetzbetreiberMastrNummer"]) > 0:
                                     unit_dat["NetzbetreiberMastrNummer"] = unit_dat[
                                         "NetzbetreiberMastrNummer"
@@ -1420,8 +1417,7 @@ def partially_suffixed_columns(mapper, column_names, suffix):
     list
         List of ORM table mapper instance
     """
-    columns = [_ for _ in mapper.__mapper__.columns]
-    columns_renamed = [
+    columns = list(mapper.__mapper__.columns)
+    return [
         _.label(f"{_.name}_{suffix}") if _.name in column_names else _ for _ in columns
     ]
-    return columns_renamed
