@@ -588,31 +588,10 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         ]
 
         # Prepare list of unit ID for different additional data (extended, eeg, kwk, permit)
-        mastr_ids = [basic["EinheitMastrNummer"] for basic in units]
-
-        # Prepare list of EEG data unit IDs
-        if "eeg_data" in self._unit_data_specs[technology].keys():
-            eeg_ids = [
-                basic["EegMastrNummer"] for basic in units if basic["EegMastrNummer"]
-            ]
-        else:
-            eeg_ids = []
-
-        # Prepare list of KWK data unit IDs
-        if "kwk_data" in self._unit_data_specs[technology].keys():
-            kwk_ids = [
-                basic["KwkMastrNummer"] for basic in units if basic["KwkMastrNummer"]
-            ]
-        else:
-            kwk_ids = []
-
-        # Prepare list of permit data unit IDs
-        if "permit_data" in self._unit_data_specs[technology].keys():
-            permit_ids = [
-                basic["GenMastrNummer"] for basic in units if basic["GenMastrNummer"]
-            ]
-        else:
-            permit_ids = []
+        mastr_ids = self._create_ID_list(units, "unit_data", "EinheitMastrNummer", technology)
+        eeg_ids = self._create_ID_list(units, "eeg_data", "EegMastrNummer", technology)
+        kwk_ids = self._create_ID_list(units, "kwk_data", "KwkMastrNummer", technology)
+        permit_ids = self._create_ID_list(units, "permit_data", "GenMastrNummer", technology)
 
         # Download additional data for unit
         extended_data, extended_missed = self.additional_data(
@@ -696,6 +675,11 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         to_csv(joined_data, technology)
 
         return joined_data
+
+    def _create_ID_list(self, units, data_descriptor, key, technology):
+        """Extracts a list of MaStR numbers (eeg, kwk, or permit Mastr Nr) from the given units."""
+        return [basic[key] for basic in units if basic[key]] if data_descriptor in self._unit_data_specs[technology] else []
+
 
     def basic_unit_data(
         self, technology=None, limit=2000, date_from=None, max_retries=3
@@ -1381,12 +1365,12 @@ def basic_data_download(
         # Stop querying more data, if no further data available
         if response["Ergebniscode"] == "OkWeitereDatenVorhanden":
             continue
-        else:
-            # Update progress bar and move on with next et or technology
-            pbar.total = pbar.n
-            pbar.refresh()
-            pbar.close()
-            break
+
+        # Update progress bar and move on with next et or technology
+        pbar.total = pbar.n
+        pbar.refresh()
+        pbar.close()
+        break
 
     # Make sure progress bar is closed properly
     pbar.close()
