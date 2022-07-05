@@ -247,17 +247,28 @@ class Mastr:
 
         # All possible tables to export
         all_technologies = [
-                "wind",
-                "solar",
-                "biomass",
-                "hydro",
-                "gsgk",
-                "combustion",
-                "nuclear",
-                "storage",
-            ]
-        all_additional_tables = ["balancing_area", "electricity_consumer", "gas_consumer", "gas_producer", "gas_storage", "gas_storage_extended",
-                                 "grid_connections", "grids", "market_actors", "market_roles", "storage_units"]
+            "wind",
+            "solar",
+            "biomass",
+            "hydro",
+            "gsgk",
+            "combustion",
+            "nuclear",
+            "storage",
+        ]
+        all_additional_tables = [
+            "balancing_area",
+            "electricity_consumer",
+            "gas_consumer",
+            "gas_producer",
+            "gas_storage",
+            "gas_storage_extended",
+            "grid_connections",
+            "grids",
+            "market_actors",
+            "market_roles",
+        ]
+
         # Determine tables to export
         technologies_to_export = []
         additional_tables_to_export = []
