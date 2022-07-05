@@ -233,17 +233,22 @@ class Mastr:
     def to_csv(self, tables=None, limit=None) -> None:
         """
         Save the database as csv files along with the metadata file.
+        If 'tables=None' all possible tables will be exported.
 
         Parameters
         ------------
         tables: None or list
-            Possible table names are the eight technologies and the additional tables.
-
+            For exporting selected tables choose from: [
+                "wind","solar","biomass","hydro","gsgk","combustion","nuclear","storage",
+                "balancing_area", "electricity_consumer", "gas_consumer", "gas_producer", "gas_storage", "gas_storage_extended",
+                "grid_connections", "grids", "market_actors", "market_roles",
+                "location_elec_generation","location_elec_consumption","location_gas_generation","location_gas_consumption"]
+        limit: None or int
+            Limits the number of exported technology and location units.
         """
 
         create_data_dir()
         data_path = get_data_version_dir()
-        print(f"Tables: {tables} are saved to: {data_path}")
 
         # All possible tables to export
         all_technologies = [
@@ -302,7 +307,6 @@ class Mastr:
                     raise ValueError("Tables parameter has an invalid string!")
         print(f"are saved to: {data_path}")
 
-        # Export joined technology tables via MaStRMirror.to_csv()
         api_export = MaStRMirror(engine=self._engine)
 
         if technologies_to_export:
