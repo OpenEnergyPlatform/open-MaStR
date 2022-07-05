@@ -269,23 +269,38 @@ class Mastr:
             "market_roles",
         ]
 
+        api_location_types = [
+            "location_elec_generation",
+            "location_elec_consumption",
+            "location_gas_generation",
+            "location_gas_consumption",
+        ]
+
         # Determine tables to export
         technologies_to_export = []
         additional_tables_to_export = []
+        locations_to_export = []
         if isinstance(tables, str):
             # str to list
             tables = [tables]
         if tables is None:
             technologies_to_export = all_technologies
             additional_tables_to_export = all_additional_tables
+            print(f"Tables: {technologies_to_export}, {additional_tables_to_export}")
         elif isinstance(tables, list):
             for table in tables:
                 if table in all_technologies:
                     technologies_to_export.append(table)
+                    print(f"Technology tables: {technologies_to_export}\n")
                 elif table in all_additional_tables:
                     additional_tables_to_export.append(table)
+                    print(f"Additional tables: {additional_tables_to_export}\n")
+                elif table in api_location_types:
+                    locations_to_export.append(table)
+                    print(f"Location tables: {locations_to_export}\n")
                 else:
                     raise ValueError("Tables parameter has an invalid string!")
+        print(f"are saved to: {data_path}")
 
         # Export joined technology tables via MaStRMirror.to_csv()
         api_export = MaStRMirror(engine=self._engine)
@@ -296,8 +311,9 @@ class Mastr:
         # export to csv per technology
         api_export.to_csv(technology=technologies_to_export, statistic_flag=None)
 
-        # clean raw csv's and create cleaned csv's
-        cleaned_data()
+        if locations_to_export:
+            for location_type in api_location_types:
+                api_export.locations_to_csv(location_type=location_type, limit=limit)
 
         # Export additional tables mirrored via pd.DataFrame.to_csv()
         exported_additional_tables = []
