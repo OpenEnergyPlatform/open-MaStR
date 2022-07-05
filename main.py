@@ -11,56 +11,50 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 """
 
 from open_mastr import Mastr
-from open_mastr.soap_api.mirror import MaStRMirror
-from postprocessing.cleaning import cleaned_data
-
 
 ## specify download parameter
 
 # bulk download
 bulk_date_string = "today"
 bulk_cleansing = True
-technology_bulk = ["biomass",
-                   "combustion",
-                   "gsgk",
-                   "hydro",
-                   "nuclear",
-                   "solar",
-                   "storage",
-                   "wind",
-
-                   "balancing_area",
-                   "electricity_consumer",
-                   "gas",
-                   "grid",
-                   "location",
-                   "market",
-                   "permit"
-                   ]
+technology_bulk = [
+    "biomass",
+    "combustion",
+    "gsgk",
+    "hydro",
+    "nuclear",
+    "solar",
+    "storage",
+    "wind",
+    "balancing_area",
+    "electricity_consumer",
+    "gas",
+    "grid",
+    "location",
+    "market",
+    "permit",
+]
 
 # API download
 # for parameter explanation see: https://open-mastr.readthedocs.io/en/latest/getting_started.html#api-download
 
-api_date = 'latest'
+api_date = "latest"
 api_chunksize = 1000
 api_limit = 10
-api_processes = 'max'
+api_processes = "max"
 
-technology_api = ["biomass",
-                  "combustion",
-                  "gsgk",
-                  "hydro",
-                  "nuclear",
-                  "solar",
-                  "storage",
-                  "wind", ]
-
-api_data_types = [
-    "unit_data",
-    "eeg_data",
-    "kwk_data",
-    "permit_data"
+technology_api = [
+    "biomass",
+    "combustion",
+    "gsgk",
+    "hydro",
+    "nuclear",
+    "solar",
+    "storage",
+    "wind",
 ]
+
+api_data_types = ["unit_data", "eeg_data", "kwk_data", "permit_data"]
 
 api_location_types = [
     "location_elec_generation",
@@ -75,35 +69,27 @@ db = Mastr()
 if __name__ == "__main__":
     ## download Markstammdatenregister
     # bulk download
-    db.download(method="bulk",
-                technology=technology_bulk,
-                bulk_date_string="today",
-                bulk_cleansing=True,
-                )
+    db.download(
+        method="bulk",
+        technology=technology_bulk,
+        bulk_date_string="today",
+        bulk_cleansing=True,
+    )
 
     # API download
-    db.download(method="API",
-                api_date=api_date,
-                api_chunksize=api_chunksize,
-                api_limit=api_limit,
-                api_processes=api_processes,
-                technology=technology_api,
-                api_data_types=api_data_types,
-                api_location_types=api_location_types)
+    db.download(
+        method="API",
+        api_date=api_date,
+        api_chunksize=api_chunksize,
+        api_limit=api_limit,
+        api_processes=api_processes,
+        technology=technology_api,
+        api_data_types=api_data_types,
+        api_location_types=api_location_types,
+    )
     ## export to csv
-    '''
-   Technology-related tables are exported as joined, whereas the additional tables
-   are duplicated as they are in the database. 
-    '''
+    """
+    Technology-related tables are exported as joined, whereas additional tables
+    are duplicated as they are in the database. 
+    """
     db.to_csv()
-
-    # clean raw csv's and create cleaned csv's
-    cleaned = cleaned_data()
-
-    # instantiate MaStRMirror class
-    api_export = MaStRMirror(engine=db._engine)
-
-    # export location types
-    for location_type in api_location_types:
-        api_export.locations_to_csv(location_type=location_type, limit=None)
-
