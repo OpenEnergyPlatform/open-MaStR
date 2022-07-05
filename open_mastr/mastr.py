@@ -230,7 +230,7 @@ class Mastr:
                         location_type, limit=api_limit
                     )
 
-    def to_csv(self, tables=None) -> None:
+    def to_csv(self, tables=None, limit=None) -> None:
         """
         Save the database as csv files along with the metadata file.
 
@@ -305,11 +305,13 @@ class Mastr:
         # Export joined technology tables via MaStRMirror.to_csv()
         api_export = MaStRMirror(engine=self._engine)
 
-        # fill basic unit table, after downloading with method = 'bulk' to use API export functions
-        api_export.reverse_fill_basic_units()
-
-        # export to csv per technology
-        api_export.to_csv(technology=technologies_to_export, statistic_flag=None)
+        if technologies_to_export:
+            # fill basic unit table, after downloading with method = 'bulk' to use API export functions
+            api_export.reverse_fill_basic_units()
+            # export to csv per technology
+            api_export.to_csv(
+                technology=technologies_to_export, statistic_flag=None, limit=limit
+            )
 
         if locations_to_export:
             for location_type in api_location_types:
@@ -324,8 +326,8 @@ class Mastr:
                 df.to_csv(path_or_buf=path_of_table, encoding="utf-16")
                 exported_additional_tables.append(table)
 
-        print("Following tables are exported as csv")
-        print(technologies_to_export + exported_additional_tables)
+        # clean raw csv's and create cleaned csv's
+        cleaned_data()
 
     def _initialize_database(self) -> None:
         engine = self._engine
