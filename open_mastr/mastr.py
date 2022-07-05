@@ -13,6 +13,7 @@ from open_mastr.xml_download.utils_write_sqlite import convert_mastr_xml_to_sqli
 # import soap_API dependencies
 from open_mastr.soap_api.mirror import MaStRMirror
 from open_mastr.soap_api.config import create_data_dir, get_data_version_dir
+from postprocessing.cleaning import cleaned_data
 
 # import initialize_database dependencies
 from open_mastr.utils.helpers import (
@@ -242,7 +243,7 @@ class Mastr:
 
         create_data_dir()
         data_path = get_data_version_dir()
-        print(f"csv files are saved to: {data_path}")
+        print(f"Tables: {tables} are saved to: {data_path}")
 
         # All possible tables to export
         all_technologies = [
@@ -283,6 +284,9 @@ class Mastr:
 
         # export to csv per technology
         api_export.to_csv(technology=technologies_to_export, statistic_flag=None)
+
+        # clean raw csv's and create cleaned csv's
+        cleaned_data()
 
         # Export additional tables mirrored via pd.DataFrame.to_csv()
         exported_additional_tables = []
