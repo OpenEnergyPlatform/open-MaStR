@@ -408,7 +408,10 @@ class MaStRMirror:
                     f"Downloaded data for {len(unit_data)} units ({len(requested_ids)} requested). "
                 )
                 self._delete_missed_data_from_request_table(
-                    session, missed_units, requested_chunk
+                    table_identifier="additional_data",
+                    session=session,
+                    missed_requests=missed_units,
+                    requested_chunk=requested_chunk,
                 )
                 # Update while iteration condition
                 number_units_queried += len(requested_ids)
@@ -419,7 +422,7 @@ class MaStRMirror:
                 break
 
     def retrieve_additional_location_data(
-        self, location_type, limit=None, chunksize=1000
+        self, location_type, limit=10**8, chunksize=1000
     ):
         """
         Retrieve extended location data
@@ -436,16 +439,14 @@ class MaStRMirror:
             "location_elec_generation", "location_elec_consumption", "location_gas_generation",
             "location_gas_consumption".
         limit: int
-            Limit number of locations that data is download for. Defaults to `None` which refers
-            to query data for existing data requests.
+            Limit number of locations that data is download for. Defaults large number 10**8
+            which refers to query data for existing data requests.
         chunksize: int
             Data is downloaded and inserted into the database in chunks of `chunksize`.
             Defaults to 1000.
         """
 
         # Process arguments
-        if not limit:
-            limit = 10**8
         if chunksize > limit:
             chunksize = limit
 
@@ -664,22 +665,25 @@ class MaStRMirror:
         permit_data = []
 
         for basic_unit in inserted_and_updated:
-            extended_data = self._update_additional_data_list(
+            extended_data = self._append_additional_data_from_basic_unit(
                 extended_data, basic_unit, "EinheitMastrNummer", "unit_data"
             )
-            eeg_data = self._update_additional_data_list(
+            eeg_data = self._append_additional_data_from_basic_unit(
                 eeg_data, basic_unit, "EegMastrNummer", "eeg_data"
             )
-            kwk_data = self._update_additional_data_list(
+            kwk_data = self._append_additional_data_from_basic_unit(
                 kwk_data, basic_unit, "KwkMastrNummer", "kwk_data"
             )
-            permit_data = self._update_additional_data_list(
+            permit_data = self._append_additional_data_from_basic_unit(
                 permit_data, basic_unit, "GenMastrNummer", "permit_data"
             )
-
         return extended_data, eeg_data, kwk_data, permit_data, inserted_and_updated
 
-    def _correct_typo_in_column_name(self, basic_units_chunk_unique):
+    def _correct_typo_in_column_name(self, basic_units_chunk_unique: list) -> list:
+        """
+        Corrects the typo DatumLetzeAktualisierung -> DatumLetzteAktualisierung
+        (missing t in Letzte) in the column name.
+        """
         basic_units_chunk_unique_correct = []
         for unit in basic_units_chunk_unique:
             # Rename the typo in column DatumLetzeAktualisierung
@@ -690,10 +694,14 @@ class MaStRMirror:
             basic_units_chunk_unique_correct.append(unit)
         return basic_units_chunk_unique_correct
 
-    def _update_additional_data_list(
-        self, data_list, basic_unit, basic_unit_identifier, data_type
-    ):
-        """The function appends a new entry from basic units to an existing list of unit IDs. This list is
+    def _append_additional_data_from_basic_unit(
+        self,
+        data_list: list,
+        basic_unit: dict,
+        basic_unit_identifier: str,
+        data_type: str,
+    ) -> list:
+        """Appends a new entry from basic units to an existing list of unit IDs. This list is
         used when requesting additional data from the MaStR API."""
         if basic_unit[basic_unit_identifier]:
             data_list.append(
@@ -741,6 +749,7 @@ class MaStRMirror:
             else:
                 insert.append(entry)
         session.bulk_save_objects([table_class(**u) for u in insert])
+        session.commit()
         return insert + updated
 
     def _write_basic_data_for_one_technology_to_db(self, tech, date, limit) -> None:
@@ -876,7 +885,7 @@ class MaStRMirror:
                 )
             )
             session.add(missed)
-
+        session.commit()
         # Remove entries from additional data request table if additional data
         # was retrieved
         deleted_entries = []
@@ -888,6 +897,7 @@ class MaStRMirror:
             f"Missed requests: {len(missed_requests)}. "
             f"Deleted requests: {len(deleted_entries)}."
         )
+        session.commit()
 
     def _preprocess_additional_data_entry(self, unit_dat, technology, data_type):
         unit_dat["DatenQuelle"] = "API"
