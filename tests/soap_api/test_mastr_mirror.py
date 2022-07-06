@@ -30,12 +30,13 @@ DATE = datetime.datetime(2020, 11, 27, 0, 0, 0)
 
 @pytest.fixture
 def mastr_mirror():
-    engine = create_database_engine('sqlite', get_project_home_dir())
+    engine = create_database_engine("sqlite", get_project_home_dir())
     return MaStRMirror(engine=engine, parallel_processes=2)
+
 
 @pytest.fixture
 def engine():
-    return create_database_engine('sqlite', get_project_home_dir())
+    return create_database_engine("sqlite", get_project_home_dir())
 
 
 @pytest.mark.dependency(name="backfill_basic")
@@ -133,3 +134,29 @@ def test_retrieve_additional_location_data(mastr_mirror):
     """Test if code runs successfully"""
     for location_type in LOCATION_TYPES:
         mastr_mirror.retrieve_additional_location_data(location_type, limit=LIMIT)
+
+
+def test_append_additional_data_from_basic_unit(mastr_mirror):
+
+    data_list = []
+    basic_unit = {
+        "EinheitMastrNummer": "SEE946206606199",
+        "Einheitart": "Stromerzeugungseinheit",
+        "Einheittyp": "Windeinheit",
+        "EegMastrNummer": "EEG993769703803",
+        "KwkMastrNummer": None,
+        "GenMastrNummer": "SGE924412236812",
+    }
+
+    for basic_unit_identifier, data_type in [
+        ("EinheitMastrNummer", "unit_data"),
+        ("EegMastrNummer", "eeg_data"),
+        ("KwkMastrNummer", "kwk_data"),
+        ("GenMastrNummer", "permit_data"),
+    ]:
+        data_list = mastr_mirror._append_additional_data_from_basic_unit(
+            data_list, basic_unit, basic_unit_identifier, data_type
+        )
+        assert type(data_list) == list
+        if data_type != "kwk_data":
+            assert len(data_list) > 0
