@@ -236,7 +236,7 @@ class MaStRMirror:
             unit
             for n, unit in enumerate(basic_units_chunk)
             if unit["EinheitMastrNummer"]
-            not in [_["EinheitMastrNummer"] for _ in basic_units_chunk[n + 1 :]]
+            not in [_["EinheitMastrNummer"] for _ in basic_units_chunk[n + 1:]]
         ]
         basic_units_chunk_unique_ids = [
             _["EinheitMastrNummer"] for _ in basic_units_chunk_unique
@@ -506,7 +506,7 @@ class MaStRMirror:
                 location
                 for n, location in enumerate(locations_chunk)
                 if location["LokationMastrNummer"]
-                not in [_["LokationMastrNummer"] for _ in locations_chunk[n + 1 :]]
+                not in [_["LokationMastrNummer"] for _ in locations_chunk[n + 1:]]
             ]
             locations_unique_ids = [
                 _["LokationMastrNummer"] for _ in locations_chunk_unique
@@ -528,19 +528,14 @@ class MaStRMirror:
                 )
 
                 # Create data requests for all newly inserted and updated locations
-                new_requests = []
-                for location in inserted_and_updated:
-                    new_requests.append(
-                        {
-                            "LokationMastrNummer": location["LokationMastrNummer"],
-                            "location_type": self.unit_type_map[
-                                location["Lokationtyp"]
-                            ],
-                            "request_date": datetime.datetime.now(
-                                tz=datetime.timezone.utc
-                            ),
-                        }
-                    )
+                new_requests = [
+                    {
+                        "LokationMastrNummer": location["LokationMastrNummer"],
+                        "location_type": self.unit_type_map[location["Lokationtyp"]],
+                        "request_date": datetime.datetime.now(tz=datetime.timezone.utc),
+                    }
+                    for location in inserted_and_updated
+                ]
 
                 # Delete old data requests
                 if delete_additional_data_requests:
@@ -675,16 +670,16 @@ class MaStRMirror:
             )
             session.add(missed)
 
-        # Remove units from additional data request table if additional data
+        # Remove entries from additional data request table if additional data
         # was retrieved
-        deleted_units = []
+        deleted_entries = []
         for requested_entry in requested_chunk:
             if getattr(requested_entry, id_attribute) not in missed_entry_ids:
                 session.delete(requested_entry)
-                deleted_units.append(getattr(requested_entry, id_attribute))
+                deleted_entries.append(getattr(requested_entry, id_attribute))
         log.info(
             f"Missed requests: {len(missed_requests)}. "
-            f"Deleted requests: {len(deleted_units)}."
+            f"Deleted requests: {len(deleted_entries)}."
         )
 
     def _preprocess_additional_data_entry(self, unit_dat, technology, data_type):
@@ -727,8 +722,7 @@ class MaStRMirror:
                 unit_dat["NetzbetreiberMastrNummer"] = None
 
         # Create new instance and update potentially existing one
-        unit = getattr(orm, self.orm_map[technology][data_type])(**unit_dat)
-        return unit
+        return getattr(orm, self.orm_map[technology][data_type])(**unit_dat)
 
     def _get_additional_data_requests_from_db(
         self, table_identifier, session, data_request_type, technology, chunksize
@@ -805,60 +799,64 @@ class MaStRMirror:
                     chunksize=chunksize,
                 )
 
+                if not requested_ids:
+                    log.info("No further data is requested")
+                    break
+
                 # Reset number of locations inserted or updated for this chunk
                 number_locations_merged = 0
-                deleted_locations = []
-                if requested_ids:
-                    # Retrieve data
-                    location_data, missed_locations = self.mastr_dl.additional_data(
-                        location_type, requested_ids, "location_data"
-                    )
-                    missed_locations_ids = [loc[0] for loc in missed_locations]
 
-                    # Prepare data and add to database table
-                    for location_dat in location_data:
-                        # Remove query status information from response
-                        for exclude in [
-                            "Ergebniscode",
-                            "AufrufVeraltet",
-                            "AufrufVersion",
-                            "AufrufLebenszeitEnde",
-                        ]:
-                            del location_dat[exclude]
+                # Retrieve data
+                location_data, missed_locations = self.mastr_dl.additional_data(
+                    location_type, requested_ids, "location_data"
+                )
 
-                        # Make data types JSON serializable
-                        location_dat["DatumLetzteAktualisierung"] = location_dat[
-                            "DatumLetzteAktualisierung"
+                # Prepare data and add to database table
+                for location_dat in location_data:
+                    # Remove query status information from response
+                    for exclude in [
+                        "Ergebniscode",
+                        "AufrufVeraltet",
+                        "AufrufVersion",
+                        "AufrufLebenszeitEnde",
+                    ]:
+                        del location_dat[exclude]
+
+                    # Make data types JSON serializable
+                    location_dat["DatumLetzteAktualisierung"] = location_dat[
+                        "DatumLetzteAktualisierung"
+                    ].isoformat()
+                    for grid_connection in location_dat["Netzanschlusspunkte"]:
+                        grid_connection["letzteAenderung"] = grid_connection[
+                            "letzteAenderung"
                         ].isoformat()
-                        for grid_connection in location_dat["Netzanschlusspunkte"]:
-                            grid_connection["letzteAenderung"] = grid_connection[
-                                "letzteAenderung"
-                            ].isoformat()
-                            for field_name in [
-                                "MaximaleEinspeiseleistung",
-                                "MaximaleAusspeiseleistung",
-                                "Nettoengpassleistung",
-                                "Netzanschlusskapazitaet",
-                            ]:
-                                if field_name in grid_connection.keys():
-                                    if grid_connection[field_name]:
-                                        grid_connection[field_name] = float(
-                                            grid_connection[field_name]
-                                        )
-                        # This converts dates of type:string to type:datetime to match
-                        # column data types in orm.py
-                        if type(location_dat["DatumLetzteAktualisierung"]) == str:
-                            location_dat[
-                                "DatumLetzteAktualisierung"
-                            ] = datetime.datetime.strptime(
-                                location_dat["DatumLetzteAktualisierung"],
-                                "%Y-%m-%dT%H:%M:%S.%f",
-                            )
+                        for field_name in [
+                            "MaximaleEinspeiseleistung",
+                            "MaximaleAusspeiseleistung",
+                            "Nettoengpassleistung",
+                            "Netzanschlusskapazitaet",
+                        ]:
+                            if (
+                                field_name in grid_connection
+                                and grid_connection[field_name]
+                            ):
+                                grid_connection[field_name] = float(
+                                    grid_connection[field_name]
+                                )
+                    # This converts dates of type:string to type:datetime to match
+                    # column data types in orm.py
+                    if type(location_dat["DatumLetzteAktualisierung"]) == str:
+                        location_dat[
+                            "DatumLetzteAktualisierung"
+                        ] = datetime.datetime.strptime(
+                            location_dat["DatumLetzteAktualisierung"],
+                            "%Y-%m-%dT%H:%M:%S.%f",
+                        )
 
-                        # Create new instance and update potentially existing one
-                        location = orm.LocationExtended(**location_dat)
-                        session.merge(location)
-                        number_locations_merged += 1
+                    # Create new instance and update potentially existing one
+                    location = orm.LocationExtended(**location_dat)
+                    session.merge(location)
+                    number_locations_merged += 1
 
                     session.commit()
                     # Log locations where data retrieval was not successful
@@ -909,10 +907,7 @@ class MaStRMirror:
         with session_scope(engine=self._engine) as session:
             # Check which additional data is missing
             for data_type in data_types:
-                data_type_available = self.orm_map[technology].get(data_type, None)
-
-                # Only proceed if this data type is available for this technology
-                if data_type_available:
+                if data_type_available := self.orm_map[technology].get(data_type, None):
                     log.info(
                         f"Create requests for additional data of type {data_type} for {technology}"
                     )
@@ -929,70 +924,9 @@ class MaStRMirror:
                         session.commit()
 
                     # Query database for missing additional data
-                    if data_type == "unit_data":
-                        units_for_request = (
-                            session.query(orm.BasicUnit)
-                            .outerjoin(
-                                additional_data_orm,
-                                orm.BasicUnit.EinheitMastrNummer
-                                == additional_data_orm.EinheitMastrNummer,
-                            )
-                            .filter(
-                                orm.BasicUnit.Einheittyp
-                                == self.unit_type_map_reversed[technology]
-                            )
-                            .filter(additional_data_orm.EinheitMastrNummer.is_(None))
-                            .filter(orm.BasicUnit.EinheitMastrNummer.isnot(None))
-                        )
-                    elif data_type == "eeg_data":
-                        units_for_request = (
-                            session.query(orm.BasicUnit)
-                            .outerjoin(
-                                additional_data_orm,
-                                orm.BasicUnit.EegMastrNummer
-                                == additional_data_orm.EegMastrNummer,
-                            )
-                            .filter(
-                                orm.BasicUnit.Einheittyp
-                                == self.unit_type_map_reversed[technology]
-                            )
-                            .filter(additional_data_orm.EegMastrNummer.is_(None))
-                            .filter(orm.BasicUnit.EegMastrNummer.isnot(None))
-                        )
-                    elif data_type == "kwk_data":
-                        units_for_request = (
-                            session.query(orm.BasicUnit)
-                            .outerjoin(
-                                additional_data_orm,
-                                orm.BasicUnit.KwkMastrNummer
-                                == additional_data_orm.KwkMastrNummer,
-                            )
-                            .filter(
-                                orm.BasicUnit.Einheittyp
-                                == self.unit_type_map_reversed[technology]
-                            )
-                            .filter(additional_data_orm.KwkMastrNummer.is_(None))
-                            .filter(orm.BasicUnit.KwkMastrNummer.isnot(None))
-                        )
-                    elif data_type == "permit_data":
-                        units_for_request = (
-                            session.query(orm.BasicUnit)
-                            .outerjoin(
-                                additional_data_orm,
-                                orm.BasicUnit.GenMastrNummer
-                                == additional_data_orm.GenMastrNummer,
-                            )
-                            .filter(
-                                orm.BasicUnit.Einheittyp
-                                == self.unit_type_map_reversed[technology]
-                            )
-                            .filter(additional_data_orm.GenMastrNummer.is_(None))
-                            .filter(orm.BasicUnit.GenMastrNummer.isnot(None))
-                        )
-                    else:
-                        raise ValueError(
-                            f"Data type {data_type} is not a valid option."
-                        )
+                    units_for_request = self._get_units_for_request(
+                        data_type, session, additional_data_orm, technology
+                    )
 
                     # Prepare data for additional data request
                     for basic_unit in units_for_request:
@@ -1024,6 +958,67 @@ class MaStRMirror:
 
             # Insert new requests for additional data into database
             session.bulk_insert_mappings(orm.AdditionalDataRequested, data_requests)
+
+    def _get_units_for_request(
+        self, data_type, session, additional_data_orm, technology
+    ):
+        if data_type == "unit_data":
+            units_for_request = (
+                session.query(orm.BasicUnit)
+                .outerjoin(
+                    additional_data_orm,
+                    orm.BasicUnit.EinheitMastrNummer
+                    == additional_data_orm.EinheitMastrNummer,
+                )
+                .filter(
+                    orm.BasicUnit.Einheittyp == self.unit_type_map_reversed[technology]
+                )
+                .filter(additional_data_orm.EinheitMastrNummer.is_(None))
+                .filter(orm.BasicUnit.EinheitMastrNummer.isnot(None))
+            )
+        elif data_type == "eeg_data":
+            units_for_request = (
+                session.query(orm.BasicUnit)
+                .outerjoin(
+                    additional_data_orm,
+                    orm.BasicUnit.EegMastrNummer == additional_data_orm.EegMastrNummer,
+                )
+                .filter(
+                    orm.BasicUnit.Einheittyp == self.unit_type_map_reversed[technology]
+                )
+                .filter(additional_data_orm.EegMastrNummer.is_(None))
+                .filter(orm.BasicUnit.EegMastrNummer.isnot(None))
+            )
+        elif data_type == "kwk_data":
+            units_for_request = (
+                session.query(orm.BasicUnit)
+                .outerjoin(
+                    additional_data_orm,
+                    orm.BasicUnit.KwkMastrNummer == additional_data_orm.KwkMastrNummer,
+                )
+                .filter(
+                    orm.BasicUnit.Einheittyp == self.unit_type_map_reversed[technology]
+                )
+                .filter(additional_data_orm.KwkMastrNummer.is_(None))
+                .filter(orm.BasicUnit.KwkMastrNummer.isnot(None))
+            )
+        elif data_type == "permit_data":
+            units_for_request = (
+                session.query(orm.BasicUnit)
+                .outerjoin(
+                    additional_data_orm,
+                    orm.BasicUnit.GenMastrNummer == additional_data_orm.GenMastrNummer,
+                )
+                .filter(
+                    orm.BasicUnit.Einheittyp == self.unit_type_map_reversed[technology]
+                )
+                .filter(additional_data_orm.GenMastrNummer.is_(None))
+                .filter(orm.BasicUnit.GenMastrNummer.isnot(None))
+            )
+        else:
+            raise ValueError(f"Data type {data_type} is not a valid option.")
+
+        return units_for_request
 
     def dump(self, dumpfile="open-mastr-continuous-update.backup"):
         """
