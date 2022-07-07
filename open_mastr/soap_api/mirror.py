@@ -480,6 +480,7 @@ class MaStRMirror:
 
                 # Prepare data and add to database table
                 for location_dat in location_data:
+                    location_dat = self._add_data_source_and_download_date(location_dat)
                     # Remove query status information from response
                     for exclude in [
                         "Ergebniscode",
@@ -625,6 +626,13 @@ class MaStRMirror:
 
             # Insert new requests for additional data into database
             session.bulk_insert_mappings(orm.AdditionalDataRequested, data_requests)
+
+
+    def _add_data_source_and_download_date(self, entry: dict) -> dict:
+        "Adds DatenQuelle = 'APT' and DatumDownload = date.today"
+        entry["DatenQuelle"] = "API"
+        entry["DatumDownload"] = date.today()
+        return entry
 
     def _create_data_list_from_basic_units(self, session, basic_units_chunk):
         # Make sure that no duplicates get inserted into database
@@ -900,8 +908,7 @@ class MaStRMirror:
         session.commit()
 
     def _preprocess_additional_data_entry(self, unit_dat, technology, data_type):
-        unit_dat["DatenQuelle"] = "API"
-        unit_dat["DatumDownload"] = date.today()
+        unit_dat = self._add_data_source_and_download_date(unit_dat)
         # Remove query status information from response
         for exclude in [
             "Ergebniscode",
