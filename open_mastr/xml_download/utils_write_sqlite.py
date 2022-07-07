@@ -34,37 +34,18 @@ dtypes_mapping = {
 
 
 def convert_mastr_xml_to_sqlite(
-    con: sqlite3.Connection,
-    engine,
+    engine: sqlalchemy.engine.Engine,
     zipped_xml_file_path: str,
     include_tables: list,
     bulk_cleansing: bool,
     bulk_download_date: str,
 ) -> None:
     """Converts the Mastr in xml format into a sqlite database."""
-    """Writes the local zipped MaStR to a PostgreSQL database.
-
-    Parameters
-    ------------
-    include_tables : list, default None
-        List of tables from the Marktstammdatenregister that
-        should be written into the database. Elements of
-        include_tables are lower case strings without "_" and index.
-        It is possible to include any table from the zipped
-        local MaStR folder (see MaStR.initialize()).
-        Example: If you do want to write the data from
-        files "AnlagenEegSolar_*.xml" to a table in your
-        database (where * is any number >=1), write the
-        element "anlageneegsolar" into the include_tables list.
-        Elements of the list that cannot be matched to tables of
-        the MaStR are ignored. If include_tables is given,
-        only the tables listed here are written to the database.
-
-
-    """
 
     with ZipFile(zipped_xml_file_path, "r") as f:
-        for file_name in f.namelist():
+        files_list = f.namelist()
+        files_list = correct_ordering_of_filelist(files_list)
+        for file_name in files_list:
             # xml_tablename is the beginning of the filename without the number in lowercase
             xml_tablename = file_name.split("_")[0].split(".")[0].lower()
 
@@ -76,7 +57,6 @@ def convert_mastr_xml_to_sqlite(
 
             # check if the table should be written to sql database (depends on user input)
             include_count = include_tables.count(xml_tablename)
-
             if include_count == 1 and boolean_write_table_to_sql_database:
 
                 sql_tablename = tablename_mapping[xml_tablename]["__name__"]
@@ -91,18 +71,13 @@ def convert_mastr_xml_to_sqlite(
                     orm_class.__table__.drop(engine, checkfirst=True)
                     # create table schema
                     orm_class.__table__.create(engine)
-                    index_for_printed_message = 1
                     print(
                         f"Table '{sql_tablename}' is filled with data '{xml_tablename}' "
                         "from the bulk download. \n"
                         f"File '{file_name}' is parsed."
                     )
-                    index_for_printed_message += 1
                 else:
-                    print(
-                        f"File '{file_name}' is parsed."
-                    )
-                    index_for_printed_message += 1
+                    print(f"File '{file_name}' is parsed.")
 
                 df = prepare_table_to_sqlite_database(
                     f=f,
@@ -126,9 +101,34 @@ def convert_mastr_xml_to_sqlite(
                     xml_tablename=xml_tablename,
                     sql_tablename=sql_tablename,
                     if_exists="append",
-                    con=con,
                     engine=engine,
                 )
+
+
+def correct_ordering_of_filelist(files_list: list) -> list:
+    """Files that end with a single digit number get a 0 prefixed to this number
+    to correct the list ordering. Afterwards the 0 is deleted again."""
+    files_list_ordered = []
+    count_if_zeros_are_prefixed = 0
+    for file_name in files_list:
+        if len(file_name.split(".")[0].split("_")[-1]) == 1:
+            file_name = file_name.split("_")[0]+"_0"+file_name.split("_")[1]
+            count_if_zeros_are_prefixed += 1
+        files_list_ordered.append(file_name)
+
+    files_list_ordered.sort()
+    # the list is now in right order, but the 0 has to be deleted
+    files_list_correct = []
+    for file_name in files_list_ordered:
+        if file_name.split(".")[0].split("_")[-1][0] == "0":
+            file_name = file_name.split("_")[0] + "_" + file_name.split("_0")[-1]
+        files_list_correct.append(file_name)
+
+    if count_if_zeros_are_prefixed >= 5:
+        # check if file names from marktstammdatenregister have no prefixed 0 already
+        files_list = files_list_correct
+
+    return files_list
 
 
 def prepare_table_to_sqlite_database(
@@ -176,8 +176,7 @@ def add_table_to_sqlite_database(
     xml_tablename: str,
     sql_tablename: str,
     if_exists: str,
-    con: sqlite3.Connection,
-    engine,
+    engine: sqlalchemy.engine.Engine,
 ) -> None:
 
     # get a dictionary for the data types
@@ -187,31 +186,32 @@ def add_table_to_sqlite_database(
         if column.name in df.columns:
             dtypes_for_writing_sql[column.name] = column.type
 
-    continueloop = True
-    while continueloop:
-        try:
-            df.to_sql(
-                sql_tablename,
-                con=engine,
-                index=False,
-                if_exists=if_exists,
-                dtype=dtypes_for_writing_sql,
-            )
-            continueloop = False
-        except sqlalchemy.exc.OperationalError as err:
-            add_missing_column_to_table(err, con, sql_tablename)
+    with engine.begin() as con:
+        continueloop = True
+        while continueloop:
+            try:
+                df.to_sql(
+                    sql_tablename,
+                    con=engine,
+                    index=False,
+                    if_exists=if_exists,
+                    dtype=dtypes_for_writing_sql,
+                )
+                continueloop = False
+            except sqlalchemy.exc.OperationalError as err:
+                add_missing_column_to_table(err, con, sql_tablename)
 
-        except sqlite3.OperationalError as err:
-            add_missing_column_to_table(err, con, sql_tablename)
+            except sqlite3.OperationalError as err:
+                add_missing_column_to_table(err, con, sql_tablename)
 
-        except sqlalchemy.exc.DataError as err:
-            delete_wrong_xml_entry(err, df)
+            except sqlalchemy.exc.DataError as err:
+                delete_wrong_xml_entry(err, df)
 
-        except sqlalchemy.exc.IntegrityError as err:
-            # error resulting from Unique constraint failed
-            df = write_single_entries_until_not_unique_comes_up(
-                df=df, sql_tablename=sql_tablename, engine=engine, err=err
-            )
+            except sqlalchemy.exc.IntegrityError as err:
+                # error resulting from Unique constraint failed
+                df = write_single_entries_until_not_unique_comes_up(
+                    df=df, sql_tablename=sql_tablename, engine=engine, err=err
+                )
 
 
 def add_zero_as_first_character_for_too_short_string(df, column_name, string_length):
@@ -239,11 +239,20 @@ def write_single_entries_until_not_unique_comes_up(
     df: pd.DataFrame, sql_tablename: str, engine: sqlalchemy.engine.Engine, err: str
 ) -> None:
 
-    key_column = str(err).split("\n[SQL: INSERT INTO")[0].split("UNIQUE constraint failed:")[1].split(".")[1]
-    key_list = pd.read_sql(sql = f"SELECT {key_column} FROM {sql_tablename};", con=engine).values.squeeze().tolist()
+    key_column = (
+        str(err)
+        .split("\n[SQL: INSERT INTO")[0]
+        .split("UNIQUE constraint failed:")[1]
+        .split(".")[1]
+    )
+    key_list = (
+        pd.read_sql(sql=f"SELECT {key_column} FROM {sql_tablename};", con=engine)
+        .values.squeeze()
+        .tolist()
+    )
     df = df.set_index(key_column)
     len_df_before = len(df)
-    df = df.drop(labels=key_list, errors='ignore')
+    df = df.drop(labels=key_list, errors="ignore")
     df = df.reset_index()
     print(f"{len_df_before-len(df)} entries already existed in the database.")
 
@@ -312,7 +321,7 @@ def handle_xml_syntax_error(data: bytes, err: Error) -> pd.DataFrame:
         if evaluated_string == "<":
             break
         else:
-            decoded_data = decoded_data[:start_char] + decoded_data[start_char + 1 :]
+            decoded_data = decoded_data[:start_char] + decoded_data[start_char + 1:]
     df = pd.read_xml(decoded_data)
     print("One invalid xml expression was deleted.")
     return df

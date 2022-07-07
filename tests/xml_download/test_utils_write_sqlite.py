@@ -8,7 +8,9 @@ from open_mastr.xml_download.utils_sqlite_bulk_cleansing import (
 )
 from open_mastr.xml_download.utils_write_sqlite import (
     prepare_table_to_sqlite_database,
-    add_table_to_sqlite_database, add_zero_as_first_character_for_too_short_string,
+    add_table_to_sqlite_database,
+    add_zero_as_first_character_for_too_short_string,
+    correct_ordering_of_filelist,
 )
 import os
 from os.path import expanduser
@@ -24,6 +26,7 @@ if os.path.isdir(_xml_folder_path):
     for entry in os.scandir(path=_xml_folder_path):
         if "Gesamtdatenexport" in entry.name:
             _xml_file_exists = True
+
 
 # Silence ValueError caused by logger https://github.com/pytest-dev/pytest/issues/5502
 @pytest.fixture(autouse=True)
@@ -127,7 +130,6 @@ def test_add_table_to_sqlite_database(zipped_xml_file_path, con_testdb, engine_t
         xml_tablename=xml_tablename,
         sql_tablename=sql_tablename,
         if_exists="append",
-        con=con_testdb,
         engine=engine_testdb,
     )
 
@@ -156,14 +158,60 @@ def test_add_zero_as_first_character_for_too_short_string():
         {"ID": [0, 1, 2], "Gemeindeschluessel": [9162000, None, 19123456]}
     )
     df_correct = pd.DataFrame(
-        {"ID": [0, 1, 2], "Gemeindeschluessel": ['09162000', None, '19123456']}
+        {"ID": [0, 1, 2], "Gemeindeschluessel": ["09162000", None, "19123456"]}
     )
     column_name = "Gemeindeschluessel"
     string_length = 8
     # Act
     df_edited = add_zero_as_first_character_for_too_short_string(
-                df_raw, column_name, string_length
-            )
+        df_raw, column_name, string_length
+    )
 
-    #Assert
+    # Assert
     pd.testing.assert_frame_equal(df_edited, df_correct)
+
+
+def test_correct_ordering_of_filelist():
+    filelist = [
+        "Solar_1.xml",
+        "Solar_10.xml",
+        "Solar_11.xml",
+        "Solar_2.xml",
+        "Solar_3.xml",
+        "Solar_4.xml",
+        "Solar_5.xml",
+        "Solar_6.xml",
+        "Solar_7.xml",
+        "Solar_8.xml",
+        "Solar_9.xml",
+        "Wind_1.xml",
+        "Wind_2.xml",
+        "Wind_3.xml",
+    ]
+    filelist_2 = ["Solar_01.xml", "Solar_02.xml", "Solar_10.xml", "Wind_01.xml"]
+
+    filelist_corrected = correct_ordering_of_filelist(filelist)
+    filelist_2_corrected = correct_ordering_of_filelist(filelist_2)
+
+    assert filelist_corrected == [
+        "Solar_1.xml",
+        "Solar_2.xml",
+        "Solar_3.xml",
+        "Solar_4.xml",
+        "Solar_5.xml",
+        "Solar_6.xml",
+        "Solar_7.xml",
+        "Solar_8.xml",
+        "Solar_9.xml",
+        "Solar_10.xml",
+        "Solar_11.xml",
+        "Wind_1.xml",
+        "Wind_2.xml",
+        "Wind_3.xml",
+    ]
+    assert filelist_2_corrected == [
+        "Solar_01.xml",
+        "Solar_02.xml",
+        "Solar_10.xml",
+        "Wind_01.xml",
+    ]
