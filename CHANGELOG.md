@@ -17,6 +17,11 @@ Here is a template for new release sections:
 ### Removed
 - [#](https://github.com/rl-institut/super-repo/pull/)
 ```
+## [v0.11.4] Patch - Hotfix - 2022-07-08
+
+### Added
+### Changed
+- Move function cleaned_data to data_io [#284](https://github.com/OpenEnergyPlatform/open-MaStR/pull/284)
 
 ## [v0.11.3] Patch - A data release - 2022-07-07
 
