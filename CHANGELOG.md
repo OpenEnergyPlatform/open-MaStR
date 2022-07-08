@@ -18,15 +18,15 @@ Here is a template for new release sections:
 - [#](https://github.com/rl-institut/super-repo/pull/)
 ```
 
-## [upcoming] Patch - Name of Release - 20YY-MM-DD
+## [v0.11.3] Patch - A data release - 2022-07-07
 
 ### Added
 - Add warning message if the bulk download speed falls below a certain limit [#256](https://github.com/OpenEnergyPlatform/open-MaStR/issues/256)
+- Add engine parameter for master class initialisation [#270](https://github.com/OpenEnergyPlatform/open-MaStR/pull/270)
 ### Changed
 - Fix combustion mapping [#253](https://github.com/rl-institut/super-repo/pull/253)
 - Update bulk parsing order [#257](https://github.com/rl-institut/super-repo/pull/257)
-### Removed
-- [#](https://github.com/rl-institut/super-repo/pull/)
+- Apply csv method to all tables [#275](https://github.com/OpenEnergyPlatform/open-MaStR/pull/275)
 
 
 ## [v0.11.2] Patch - Patch the package - 2022-05-17
