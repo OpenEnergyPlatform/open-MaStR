@@ -9,6 +9,8 @@ from open_mastr.xml_download.utils_write_to_database import (
 
 # import soap_API dependencies
 from open_mastr.soap_api.mirror import MaStRMirror
+from open_mastr.soap_api.config import create_data_dir, get_data_version_dir
+from postprocessing.cleaning import cleaned_data
 
 # import initialize_database dependencies
 from open_mastr.utils.helpers import (
@@ -197,36 +199,108 @@ class Mastr:
                         location_type, limit=api_limit
                     )
 
-    def to_csv(self, path=None) -> None:
+    def to_csv(self, tables=None, limit=None) -> None:
         """
-        Save the database as csv files.
+        Save the database as csv files along with the metadata file.
+        If 'tables=None' all possible tables will be exported.
 
         Parameters
         ------------
-        path: str or None
-            The path where the csv files are saved.
-            Default is None, in which case they are saved at
-            HOME/.open-MaStR/data/csv
+        tables: None or list
+            For exporting selected tables choose from: [
+                "wind","solar","biomass","hydro","gsgk","combustion","nuclear","storage",
+                "balancing_area", "electricity_consumer", "gas_consumer", "gas_producer", "gas_storage", "gas_storage_extended",
+                "grid_connections", "grids", "market_actors", "market_roles",
+                "location_elec_generation","location_elec_consumption","location_gas_generation","location_gas_consumption"]
+        limit: None or int
+            Limits the number of exported technology and location units.
         """
 
-        if path:
-            if not os.path.exists(path):
-                raise ValueError("parameter path is not a valid path")
+        create_data_dir()
+        data_path = get_data_version_dir()
 
-        else:
-            path = os.path.join(self.home_directory, "data", "csv")
-        os.makedirs(path, exist_ok=True)
+        # All possible tables to export
+        all_technologies = [
+            "wind",
+            "solar",
+            "biomass",
+            "hydro",
+            "gsgk",
+            "combustion",
+            "nuclear",
+            "storage",
+        ]
+        all_additional_tables = [
+            "balancing_area",
+            "electricity_consumer",
+            "gas_consumer",
+            "gas_producer",
+            "gas_storage",
+            "gas_storage_extended",
+            "grid_connections",
+            "grids",
+            "market_actors",
+            "market_roles",
+        ]
 
-        engine = self.engine
-        table_list = engine.table_names()
-        with engine.connect().execution_options(autocommit=True) as con:
-            print(f"csv files are saved to: {path}")
-            for table in table_list:
-                df = pd.read_sql(table, con=con)
-                if not df.empty:
-                    path_of_table = os.path.join(path, f"{table}.csv")
-                    df.to_csv(path_or_buf=path_of_table, encoding="utf-16")
-                    print(f"{table} saved as csv file.")
+        api_location_types = [
+            "location_elec_generation",
+            "location_elec_consumption",
+            "location_gas_generation",
+            "location_gas_consumption",
+        ]
+
+        # Determine tables to export
+        technologies_to_export = []
+        additional_tables_to_export = []
+        locations_to_export = []
+        if isinstance(tables, str):
+            # str to list
+            tables = [tables]
+        if tables is None:
+            technologies_to_export = all_technologies
+            additional_tables_to_export = all_additional_tables
+            print(f"Tables: {technologies_to_export}, {additional_tables_to_export}")
+        elif isinstance(tables, list):
+            for table in tables:
+                if table in all_technologies:
+                    technologies_to_export.append(table)
+                    print(f"Technology tables: {technologies_to_export}\n")
+                elif table in all_additional_tables:
+                    additional_tables_to_export.append(table)
+                    print(f"Additional tables: {additional_tables_to_export}\n")
+                elif table in api_location_types:
+                    locations_to_export.append(table)
+                    print(f"Location tables: {locations_to_export}\n")
+                else:
+                    raise ValueError("Tables parameter has an invalid string!")
+        print(f"are saved to: {data_path}")
+
+        api_export = MaStRMirror(engine=self.engine)
+
+        if technologies_to_export:
+            # fill basic unit table, after downloading with method = 'bulk' to use API export functions
+            api_export.reverse_fill_basic_units()
+            # export to csv per technology
+            api_export.to_csv(
+                technology=technologies_to_export, statistic_flag=None, limit=limit
+            )
+
+        if locations_to_export:
+            for location_type in api_location_types:
+                api_export.locations_to_csv(location_type=location_type, limit=limit)
+
+        # Export additional tables mirrored via pd.DataFrame.to_csv()
+        exported_additional_tables = []
+        for table in additional_tables_to_export:
+            df = pd.read_sql(table, con=self.engine)
+            if not df.empty:
+                path_of_table = os.path.join(data_path, f"bnetza_mastr_{table}_raw.csv")
+                df.to_csv(path_or_buf=path_of_table, encoding="utf-16")
+                exported_additional_tables.append(table)
+
+        # clean raw csv's and create cleaned csv's
+        cleaned_data()
 
     def _initialize_database(self) -> None:
         engine = self.engine
