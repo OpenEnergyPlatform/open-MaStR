@@ -627,7 +627,6 @@ class MaStRMirror:
             # Insert new requests for additional data into database
             session.bulk_insert_mappings(orm.AdditionalDataRequested, data_requests)
 
-
     def _add_data_source_and_download_date(self, entry: dict) -> dict:
         "Adds DatenQuelle = 'APT' and DatumDownload = date.today"
         entry["DatenQuelle"] = "API"
