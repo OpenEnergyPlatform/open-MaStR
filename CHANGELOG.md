@@ -23,6 +23,7 @@ Here is a template for new release sections:
 ### Added
 - Add warning message if the bulk download speed falls below a certain limit [#256](https://github.com/OpenEnergyPlatform/open-MaStR/issues/256)
 ### Changed
+- Refactor code and restructure modules [#273](https://github.com/OpenEnergyPlatform/open-MaStR/pull/273)
 - Fix combustion mapping [#253](https://github.com/rl-institut/super-repo/pull/253)
 - Update bulk parsing order [#257](https://github.com/rl-institut/super-repo/pull/257)
 ### Removed
