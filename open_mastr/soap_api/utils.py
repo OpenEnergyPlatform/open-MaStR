@@ -5,9 +5,6 @@ __author__ = "Ludee; Bachibouzouk; solar-c"
 __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.10.0"
 
-
-import os
-import pandas as pd
 import logging
 import datetime
 
@@ -25,7 +22,7 @@ def is_time_blacklisted(time):
     # check if time is in a given interval between upper and lower
     def in_interval(lower, upper):
         # Convert str to datatime object
-        def parse_time(t): 
+        def parse_time(t):
             return datetime.datetime.strptime(t, "%H:%M").time()
         lower = parse_time(lower)
         upper = parse_time(upper)

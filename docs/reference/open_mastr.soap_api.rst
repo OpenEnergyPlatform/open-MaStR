@@ -44,13 +44,6 @@ open\_mastr.soap\_api.parallel module
    :undoc-members:
    :show-inheritance:
 
-open\_mastr.soap\_api.sessions module
--------------------------------------
-
-.. automodule:: open_mastr.soap_api.sessions
-   :members:
-   :undoc-members:
-   :show-inheritance:
 
 open\_mastr.soap\_api.utils module
 ----------------------------------

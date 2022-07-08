@@ -13,7 +13,6 @@ setup(
     packages=[
         "open_mastr",
         "open_mastr.soap_api",
-        "open_mastr.soap_api.config",
         "open_mastr.soap_api.metadata",
         "open_mastr.utils",
         "open_mastr.xml_download",

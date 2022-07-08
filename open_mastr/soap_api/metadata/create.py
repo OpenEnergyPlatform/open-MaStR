@@ -5,7 +5,7 @@ import os
 import uuid
 
 from open_mastr.soap_api.metadata.description import DataDescription
-from open_mastr.soap_api.config import get_data_config, get_filenames, column_renaming
+from open_mastr.utils.config import get_data_config, get_filenames, column_renaming
 from open_mastr.soap_api.download import MaStRDownload
 
 
