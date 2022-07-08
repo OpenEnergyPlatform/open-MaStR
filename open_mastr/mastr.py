@@ -58,7 +58,6 @@ class Mastr:
         )
         os.makedirs(self._xml_folder_path, exist_ok=True)
         os.makedirs(self._sqlite_folder_path, exist_ok=True)
-
         # setup database engine and connection
         self._engine = create_database_engine(engine)
 
