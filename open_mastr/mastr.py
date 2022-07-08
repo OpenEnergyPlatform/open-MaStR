@@ -10,7 +10,7 @@ from open_mastr.xml_download.utils_write_to_database import (
 # import soap_API dependencies
 from open_mastr.soap_api.mirror import MaStRMirror
 from open_mastr.soap_api.config import create_data_dir, get_data_version_dir
-from postprocessing.cleaning import cleaned_data
+from open_mastr.data_io import cleaned_data
 
 # import initialize_database dependencies
 from open_mastr.utils.helpers import (
