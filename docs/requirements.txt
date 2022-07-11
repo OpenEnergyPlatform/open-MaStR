@@ -1,3 +1,4 @@
 sphinx>=2
 sphinx-rtd-theme
+sphinx-tabs
 m2r2
