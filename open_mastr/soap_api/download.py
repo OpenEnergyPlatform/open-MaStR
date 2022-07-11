@@ -374,7 +374,7 @@ def _missed_units_to_file(technology, data_type, missed_units):
         for i, error in missed_units:
             f.write(f"{i},{error}\n")
 
-
+"""
 class _MaStRDownloadFactory(type):
     def __new__(cls, name, bases, dct):
         # Assign factory properties to concrete object
@@ -384,9 +384,9 @@ class _MaStRDownloadFactory(type):
         x._mastr_api = MaStRAPI()
 
         return x
+"""
 
-
-class MaStRDownload(metaclass=_MaStRDownloadFactory):
+class MaStRDownload():
     """Use the higher level interface for bulk download
 
     :class:`.MaStRDownload` builds on top of :class:`.MaStRAPI()` and provides
@@ -530,6 +530,7 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
 
         # Check if MaStR credentials are available and otherwise ask
         # for user input
+        self._mastr_api = MaStRAPI()
         self._mastr_api._user = cred.check_and_set_mastr_user()
         self._mastr_api._key = cred.check_and_set_mastr_token(self._mastr_api._user)
 
