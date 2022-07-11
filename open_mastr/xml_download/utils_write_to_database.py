@@ -270,13 +270,11 @@ def write_single_entries_until_not_unique_comes_up(
     Filtered dataframe
     """
 
-    table = tablename_mapping[xml_tablename]['__class__'].__table__
+    table = tablename_mapping[xml_tablename]["__class__"].__table__
     primary_key = next(c for c in table.columns if c.primary_key)
 
     key_list = (
-        pd.read_sql(sql=select(primary_key), con=engine)
-        .values.squeeze()
-        .tolist()
+        pd.read_sql(sql=select(primary_key), con=engine).values.squeeze().tolist()
     )
     df = df.set_index(primary_key.name)
     len_df_before = len(df)
@@ -306,13 +304,13 @@ def add_missing_column_to_table(
     """
 
     if engine.name == "postgresql":
-        missing_column = err.args[0].split("\"")[1]
+        missing_column = err.args[0].split('"')[1]
     elif engine.name == "sqlite":
         missing_column = err.args[0].split()[-1]
     else:
         # only a guess, can fail with other db systems
         missing_column = err.args[0].split()[-1]
-    table = tablename_mapping[xml_tablename]['__class__'].__table__
+    table = tablename_mapping[xml_tablename]["__class__"].__table__
 
     alter_query = 'ALTER TABLE %s ADD "%s" VARCHAR NULL;' % (
         table.name,
