@@ -944,6 +944,12 @@ class MaStRMirror:
             else:
                 unit_dat["NetzbetreiberMastrNummer"] = None
 
+        # Rename the typo in column zugeordneteWirkleistungWechselrichter
+        if "zugeordneteWirkleistungWechselrichter" in unit_dat.keys():
+            unit_dat["ZugeordneteWirkleistungWechselrichter"] = unit_dat.pop(
+                "zugeordneteWirkleistungWechselrichter"
+            )
+
         # Create new instance and update potentially existing one
         return getattr(orm, self.orm_map[technology][data_type])(**unit_dat)
 

@@ -181,7 +181,7 @@ class WindExtended(Extended, ParentAllTables, Base):
 class SolarExtended(Extended, ParentAllTables, Base):
     __tablename__ = "solar_extended"
 
-    zugeordneteWirkleistungWechselrichter = Column(Float)
+    ZugeordneteWirkleistungWechselrichter = Column(Float)
     GemeinsamerWechselrichterMitSpeicher = Column(String)
     AnzahlModule = Column(Integer)
     Lage = Column(String)
