@@ -472,7 +472,7 @@ class MissedExtendedLocation(ParentAllTables, Base):
 class GasStorage(ParentAllTables, Base):
     __tablename__ = "gas_storage"
 
-    MaStRNummer = Column(String, primary_key=True)
+    MastrNummer = Column(String, primary_key=True)
     DatumLetzteAktualisierung = Column(DateTime(timezone=True))
     Speichername = Column(String)
     Registrierungsdatum = Column(Date)
@@ -484,7 +484,7 @@ class GasStorageExtended(ParentAllTables, Base):
     __tablename__ = "gas_storage_extended"
     EinheitMastrNummer = Column(String, primary_key=True)
     DatumLetzteAktualisierung = Column(DateTime(timezone=True))
-    LokationMaStRNummer = Column(String)
+    LokationMastrNummer = Column(String)
     NetzbetreiberpruefungStatus = Column(Boolean)
     NetzbetreiberpruefungDatum = Column(Date)
     AnlagenbetreiberMastrNummer = Column(String)
@@ -515,7 +515,7 @@ class GasStorageExtended(ParentAllTables, Base):
     DurchschnittlicherBrennwert = Column(Float)
     Weic = Column(String)
     Weic_Na = Column(Integer)
-    SpeicherMaStRNummer = Column(String)
+    SpeicherMastrNummer = Column(String)
     Gemarkung = Column(String)
     FlurFlurstuecknummern = Column(String)
     Adresszusatz = Column(String)
@@ -524,7 +524,7 @@ class GasStorageExtended(ParentAllTables, Base):
 
 class StorageUnits(ParentAllTables, Base):
     __tablename__ = "storage_units"
-    MaStRNummer = Column(String, primary_key=True)
+    MastrNummer = Column(String, primary_key=True)
     Registrierungsdatum = Column(Date)
     DatumLetzteAktualisierung = Column(DateTime(timezone=True))
     NutzbareSpeicherkapazitaet = Column(Float)
@@ -544,9 +544,9 @@ class BalancingArea(ParentAllTables, Base):
 class GasProducer(ParentAllTables, Base):
     __tablename__ = "gas_producer"
 
-    EinheitMaStRNummer = Column(String, primary_key=True)
+    EinheitMastrNummer = Column(String, primary_key=True)
     DatumLetzteAktualisierung = Column(DateTime(timezone=True))
-    LokationMaStRNummer = Column(String)
+    LokationMastrNummer = Column(String)
     NetzbetreiberpruefungStatus = Column(Boolean)
     NetzbetreiberpruefungDatum = Column(Date)
     AnlagenbetreiberMastrNummer = Column(String)
@@ -563,7 +563,7 @@ class GasProducer(ParentAllTables, Base):
     EinheitBetriebsstatus = Column(String)
     NichtVorhandenInMigriertenEinheiten = Column(Integer)
     NameGaserzeugungseinheit = Column(String)
-    SpeicherMaStRNummer = Column(String)
+    SpeicherMastrNummer = Column(String)
     Strasse = Column(String)
     StrasseNichtGefunden = Column(Integer)
     Hausnummer = Column(String)
@@ -585,9 +585,9 @@ class GasProducer(ParentAllTables, Base):
 class GasConsumer(ParentAllTables, Base):
     __tablename__ = "gas_consumer"
 
-    EinheitMaStRNummer = Column(String, primary_key=True)
+    EinheitMastrNummer = Column(String, primary_key=True)
     DatumLetzteAktualisierung = Column(DateTime(timezone=True))
-    LokationMaStRNummer = Column(String)
+    LokationMastrNummer = Column(String)
     NetzbetreiberpruefungStatus = Column(Boolean)
     NetzbetreiberpruefungDatum = Column(Date)
     AnlagenbetreiberMastrNummer = Column(String)
@@ -627,9 +627,9 @@ class GasConsumer(ParentAllTables, Base):
 class ElectricityConsumer(ParentAllTables, Base):
     __tablename__ = "electricity_consumer"
 
-    EinheitMaStRNummer = Column(String, primary_key=True)
+    EinheitMastrNummer = Column(String, primary_key=True)
     DatumLetzteAktualisierung = Column(DateTime(timezone=True))
-    LokationMaStRNummer = Column(String)
+    LokationMastrNummer = Column(String)
     NetzbetreiberpruefungStatus = Column(Boolean)
     NetzbetreiberpruefungDatum = Column(Date)
     AnlagenbetreiberMastrNummer = Column(String)
@@ -763,11 +763,11 @@ class GridConnections(ParentAllTables, Base):
     NetzanschlusspunktMastrNummer = Column(String, primary_key=True)
     NetzanschlusspunktBezeichnung = Column(String)
     LetzteAenderung = Column(DateTime(timezone=True))
-    LokationMaStRNummer = Column(String)
+    LokationMastrNummer = Column(String)
     Lokationtyp = Column(String)
     MaximaleEinspeiseleistung = Column(Float)
     Gasqualitaet = Column(String)
-    NetzMaStRNummer = Column(String)
+    NetzMastrNummer = Column(String)
     NochInPlanung = Column(Boolean)
     NameDerTechnischenLokation = Column(String)
     MaximaleAusspeiseleistung = Column(Float)
@@ -783,30 +783,41 @@ tablename_mapping = {
         "__name__": BiomassEeg.__tablename__,
         "__class__": BiomassEeg,
         "replace_column_names": {
-            "VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheit"
+            "EegMaStRNummer": "EegMastrNummer",
+            "VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheit",
         },
     },
     "einheitenbiomasse": {
         "__name__": BiomassExtended.__tablename__,
         "__class__": BiomassExtended,
-        "replace_column_names": None,
+        "replace_column_names": {
+            "EegMaStRNummer": "EegMastrNummer",
+            "KwkMaStRNummer": "KwkMastrNummer",
+            "LokationMaStRNummer": "LokationMastrNummer",
+        },
     },
     "anlageneeggeosolarthermiegrubenklaerschlammdruckentspannung": {
         "__name__": GsgkEeg.__tablename__,
         "__class__": GsgkEeg,
         "replace_column_names": {
+            "EegMaStRNummer": "EegMastrNummer",
             "VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheit"
         },
     },
     "einheitengeosolarthermiegrubenklaerschlammdruckentspannung": {
         "__name__": GsgkExtended.__tablename__,
         "__class__": GsgkExtended,
-        "replace_column_names": None,
+        "replace_column_names": {
+            "EegMaStRNummer": "EegMastrNummer",
+            "KwkMaStRNummer": "KwkMastrNummer",
+            "LokationMaStRNummer": "LokationMastrNummer",
+        },
     },
     "anlageneegsolar": {
         "__name__": SolarEeg.__tablename__,
         "__class__": SolarEeg,
         "replace_column_names": {
+            "EegMaStRNummer": "EegMastrNummer",
             "VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheit"
         },
     },
@@ -814,6 +825,8 @@ tablename_mapping = {
         "__name__": SolarExtended.__tablename__,
         "__class__": SolarExtended,
         "replace_column_names": {
+            "EegMaStRNummer": "EegMastrNummer",
+            "LokationMaStRNummer": "LokationMastrNummer",
             "VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheit"
         },
     },
@@ -821,6 +834,7 @@ tablename_mapping = {
         "__name__": StorageEeg.__tablename__,
         "__class__": StorageEeg,
         "replace_column_names": {
+            "EegMaStRNummer": "EegMastrNummer",
             "VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheit"
         },
     },
@@ -828,37 +842,49 @@ tablename_mapping = {
         "__name__": HydroEeg.__tablename__,
         "__class__": HydroEeg,
         "replace_column_names": {
+            "EegMaStRNummer": "EegMastrNummer",
             "VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheit"
         },
     },
     "einheitenwasser": {
         "__name__": HydroExtended.__tablename__,
         "__class__": HydroExtended,
-        "replace_column_names": None,
+        "replace_column_names": {
+            "EegMaStRNummer": "EegMastrNummer",
+            "LokationMaStRNummer": "LokationMastrNummer",
+        },
     },
     "anlageneegwind": {
         "__name__": WindEeg.__tablename__,
         "__class__": WindEeg,
         "replace_column_names": {
-            "VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheit"
+            "VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheit",
+            "EegMaStRNummer": "EegMastrNummer",
         },
     },
     "einheitenwind": {
         "__name__": WindExtended.__tablename__,
         "__class__": WindExtended,
-        "replace_column_names": None,
+        "replace_column_names": {
+            "LokationMaStRNummer": "LokationMastrNummer",
+            "EegMaStRNummer": "EegMastrNummer",
+        },
     },
     "anlagengasspeicher": {
         "__name__": GasStorage.__tablename__,
         "__class__": GasStorage,
         "replace_column_names": {
+            "MaStRNummer": "MastrNummer",
             "VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheit"
         },
     },
     "einheitengasspeicher": {
         "__name__": GasStorageExtended.__tablename__,
         "__class__": GasStorageExtended,
-        "replace_column_names": None,
+        "replace_column_names": {
+            "LokationMaStRNummer": "LokationMastrNummer",
+            "SpeicherMaStRNummer": "SpeicherMastrNummer",
+        },
     },
     "anlagenkwk": {
         "__name__": Kwk.__tablename__,
@@ -871,6 +897,7 @@ tablename_mapping = {
         "__name__": StorageUnits.__tablename__,
         "__class__": StorageUnits,
         "replace_column_names": {
+            "MaStRNummer": "MastrNummer",
             "VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheit"
         },
     },
@@ -882,12 +909,16 @@ tablename_mapping = {
     "einheitengaserzeuger": {
         "__name__": GasProducer.__tablename__,
         "__class__": GasProducer,
-        "replace_column_names": None,
+        "replace_column_names": {
+            "LokationMaStRNummer": "LokationMastrNummer",
+            "SpeicherMaStRNummer": "SpeicherMastrNummer",
+        },
     },
     "einheitengasverbraucher": {
         "__name__": GasConsumer.__tablename__,
         "__class__": GasConsumer,
         "replace_column_names": {
+            "LokationMaStRNummer": "LokationMastrNummer",
             "VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheit"
         },
     },
@@ -901,22 +932,32 @@ tablename_mapping = {
     "einheitenkernkraft": {
         "__name__": NuclearExtended.__tablename__,
         "__class__": NuclearExtended,
-        "replace_column_names": None,
+        "replace_column_names": {
+            "LokationMaStRNummer": "LokationMastrNummer",
+        },
     },
     "einheitenstromverbraucher": {
         "__name__": ElectricityConsumer.__tablename__,
         "__class__": ElectricityConsumer,
-        "replace_column_names": None,
+        "replace_column_names": {
+            "LokationMaStRNummer": "LokationMastrNummer",
+        },
     },
     "einheitenstromspeicher": {
         "__name__": StorageExtended.__tablename__,
         "__class__": StorageExtended,
-        "replace_column_names": None,
+        "replace_column_names": {
+            "LokationMaStRNummer": "LokationMastrNummer",
+            "EegMaStRNummer": "EegMastrNummer",
+        },
     },
     "einheitenverbrennung": {
         "__name__": CombustionExtended.__tablename__,
         "__class__": CombustionExtended,
-        "replace_column_names": None,
+        "replace_column_names": {
+            "LokationMaStRNummer": "LokationMastrNummer",
+            "KwkMaStRNummer": "KwkMastrNummer",
+        },
     },
     "marktrollen": {
         "__name__": MarketRoles.__tablename__,
@@ -936,7 +977,10 @@ tablename_mapping = {
     "netzanschlusspunkte": {
         "__name__": GridConnections.__tablename__,
         "__class__": GridConnections,
-        "replace_column_names": None,
+        "replace_column_names": {
+            "LokationMaStRNummer": "LokationMastrNummer",
+            "NetzMaStRNummer": "NetzMastrNummer",
+        },
     },
     "katalogkategorien": {
         "__name__": "katalogkategorien",
