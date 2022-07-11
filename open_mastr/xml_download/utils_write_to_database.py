@@ -3,8 +3,10 @@ from zipfile import ZipFile
 import lxml
 import numpy as np
 import pandas as pd
-import sqlalchemy
 import sqlite3
+import sqlalchemy
+from sqlalchemy import select
+from sqlalchemy.sql import text
 from open_mastr.utils.orm import tablename_mapping
 from open_mastr.xml_download.utils_cleansing_bulk import cleanse_bulk_data
 from open_mastr.utils import orm
@@ -194,32 +196,34 @@ def add_table_to_database(
         if column.name in df.columns
     }
 
-    with engine.begin() as con:
-        continueloop = True
-        while continueloop:
-            try:
-                df.to_sql(
-                    sql_tablename,
-                    con=engine,
-                    index=False,
-                    if_exists=if_exists,
-                    dtype=dtypes_for_writing_sql,
-                )
-                continueloop = False
-            except sqlalchemy.exc.OperationalError as err:
-                add_missing_column_to_table(err, con, sql_tablename)
+    continueloop = True
+    while continueloop:
+        try:
+            df.to_sql(
+                sql_tablename,
+                con=engine,
+                index=False,
+                if_exists=if_exists,
+                dtype=dtypes_for_writing_sql,
+            )
+            continueloop = False
+        except sqlalchemy.exc.OperationalError as err:
+            add_missing_column_to_table(err, engine, xml_tablename)
 
-            # except sqlite3.OperationalError as err:
-            #    add_missing_column_to_table(err, con, sql_tablename)
+        except sqlalchemy.exc.ProgrammingError as err:
+            add_missing_column_to_table(err, engine, xml_tablename)
 
-            except sqlalchemy.exc.DataError as err:
-                delete_wrong_xml_entry(err, df)
+        except sqlite3.OperationalError as err:
+            add_missing_column_to_table(err, engine, xml_tablename)
 
-            except sqlalchemy.exc.IntegrityError as err:
-                # error resulting from Unique constraint failed
-                df = write_single_entries_until_not_unique_comes_up(
-                    df=df, sql_tablename=sql_tablename, engine=engine, err=err
-                )
+        except sqlalchemy.exc.DataError as err:
+            delete_wrong_xml_entry(err, df)
+
+        except sqlalchemy.exc.IntegrityError as err:
+            # error resulting from Unique constraint failed
+            df = write_single_entries_until_not_unique_comes_up(
+                df=df, xml_tablename=xml_tablename, engine=engine
+            )
 
 
 def add_zero_as_first_character_for_too_short_string(df: pd.DataFrame) -> pd.DataFrame:
@@ -251,24 +255,28 @@ def add_zero_as_first_character_for_too_short_string(df: pd.DataFrame) -> pd.Dat
 
 
 def write_single_entries_until_not_unique_comes_up(
-    df: pd.DataFrame,
-    sql_tablename: str,
-    engine: sqlalchemy.engine.Engine,
-    err: Exception,
-) -> None:
+    df: pd.DataFrame, xml_tablename: str, engine: sqlalchemy.engine.Engine
+) -> pd.DataFrame:
+    """
+    Remove from dataframe these rows, which are already existing in the database table
+    Parameters
+    ----------
+    df
+    xml_tablename
+    engine
 
-    key_column = (
-        str(err)
-        .split("\n[SQL: INSERT INTO")[0]
-        .split("UNIQUE constraint failed:")[1]
-        .split(".")[1]
-    )
+    Returns
+    -------
+    Filtered dataframe
+    """
+
+    table = tablename_mapping[xml_tablename]["__class__"].__table__
+    primary_key = next(c for c in table.columns if c.primary_key)
+
     key_list = (
-        pd.read_sql(sql=f"SELECT {key_column} FROM {sql_tablename};", con=engine)
-        .values.squeeze()
-        .tolist()
+        pd.read_sql(sql=select(primary_key), con=engine).values.squeeze().tolist()
     )
-    df = df.set_index(key_column)
+    df = df.set_index(primary_key.name)
     len_df_before = len(df)
     df = df.drop(labels=key_list, errors="ignore")
     df = df.reset_index()
@@ -278,26 +286,37 @@ def write_single_entries_until_not_unique_comes_up(
 
 
 def add_missing_column_to_table(
-    err: Error, con: sqlite3.Connection, sql_tablename: str
+    err: Error, engine: sqlalchemy.engine.Engine, xml_tablename: str
 ) -> None:
-    """Some files introduce new columns for existing tables.
+    """
+    Some files introduce new columns for existing tables.
     If this happens, the error from writing entries into
-    non-existing columns is caught and the column is created."""
+    non-existing columns is caught and the column is created.
+    Parameters
+    ----------
+    err
+    engine
+    xml_tablename
 
-    # Needed for sqlite3 error message
-    # missing_column = str(err).split("no column named ")[1]
+    Returns
+    -------
 
-    # Needed for sqlalchemy error message
-    missing_column = str(err).split("has no column named ")[1].split("\n[SQL: ")[0]
+    """
 
-    cursor = con.cursor()
-    execute_message = 'ALTER TABLE %s ADD "%s" VARCHAR NULL;' % (
-        sql_tablename,
+    if engine.name == "postgresql":
+        missing_column = err.args[0].split('"')[1]
+    elif engine.name == "sqlite":
+        missing_column = err.args[0].split()[-1]
+    else:
+        # only a guess, can fail with other db systems
+        missing_column = err.args[0].split()[-1]
+    table = tablename_mapping[xml_tablename]["__class__"].__table__
+
+    alter_query = 'ALTER TABLE %s ADD "%s" VARCHAR NULL;' % (
+        table.name,
         missing_column,
     )
-    cursor.execute(execute_message)
-    con.commit()
-    cursor.close()
+    engine.execute(text(alter_query).execution_options(autocommit=True))
 
 
 def delete_wrong_xml_entry(err: Error, df: pd.DataFrame) -> None:
