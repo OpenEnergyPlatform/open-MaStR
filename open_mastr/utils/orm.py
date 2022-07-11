@@ -415,7 +415,7 @@ class Permit(ParentAllTables, Base):
     WasserrechtAblaufdatum_nv = Column(Boolean)
 
 
-class LocationBasic(ParentAllTables, Base):
+class LocationBasic(Base):
     __tablename__ = "locations_basic"
 
     LokationMastrNummer = Column(String, primary_key=True)
