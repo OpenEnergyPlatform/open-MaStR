@@ -49,10 +49,31 @@ Configuration files
 Data
 ----
 
-If the zipped dump of the MaStR is downloaded, it is safed in the folder `$HOME/.open-MaStR/data/xml_download`. New versions
+If the zipped dump of the MaStR is downloaded, it is saved in the folder `$HOME/.open-MaStR/data/xml_download`. New versions
 of the dump overwrite older versions. 
-In `$HOME/.open-MaStR/data/sqlite`, the database is stored.
 
+The data can then be written to an sql database. The type of the sql database is determined
+by the parameter `engine` in the Mastr class (see :ref:`mastr module`). The possible databases are:
+
+* sqlite: This database will be stored in `$HOME/.open-MaStR/data/sqlite`.
+* docker-postgres: A docker container of a PostgreSQL database. 
+* own database: The Mastr class accepts a sqlalchemy.engine.Engine object as engine which enables the user to 
+  use any other desired database.
+.. tabs::
+
+    .. code-tab:: py SQLite
+
+        from sqlalchemy import create_engine
+
+        engine = create_engine("sqlite:///path/to/sqlite/database.db")
+        db = Mastr(engine=engine)
+
+    .. code-tab:: py PostgreSQL
+
+        from sqlalchemy import create_engine
+
+        engine = create_engine("postgresql://myusername:mypassword@localhost/mydatabase"
+        db = Mastr(engine=engine)
 ..
   Resulting data of download, post-processing and analysis is saved under `$HOME/.open-MaStR/data/<data-version>`.
   Files that are suffixed with `_raw` contain joined data retrieved during :ref:`downloading <Downloading raw data>`.
@@ -111,7 +132,7 @@ Moreover, the datatypes of different entries are set in the data cleansing proce
 Advantages of the bulk download:
  * No registration for an API key is needed
 
-Disantvantages of the bulk download:
+Disadvantages of the bulk download:
  * No single tables or entries can be downloaded
 
 Get data via the MaStR-API
@@ -188,12 +209,6 @@ It is also possible to create the credentials file by hand using this format
 Read in the documentation of the `keyring library <https://pypi.org/project/keyring/>`_ how to store your token in the
 keyring.
 
-Database settings
-^^^^^^^^^^^^^^^^^^^^^^^^
-
-Currently, the data can only be saved into a sqlite database, and there is no need for configuration.
-
-An option to set up a postgreSQL database will be added.
 
 Mirror MaStR database
 ^^^^^^^^^^^^^^^^^^^^^^^^

@@ -1,34 +1,36 @@
-from datetime import date, datetime
-from dateutil.parser import parse
-import dateutil
 import os
-import sys
-import shutil
-import sqlite3
-import open_mastr.settings as settings
-from warnings import warn
 import pandas as pd
 
 # import xml dependencies
-from os.path import expanduser
 from open_mastr.xml_download.utils_download_bulk import download_xml_Mastr
-from open_mastr.xml_download.utils_write_sqlite import convert_mastr_xml_to_sqlite
+from open_mastr.xml_download.utils_write_to_database import (
+    write_mastr_xml_to_database,
+)
 
 # import soap_API dependencies
 from open_mastr.soap_api.mirror import MaStRMirror
+
 from open_mastr.utils.helpers import technology_input_harmonisation, print_api_settings
+from open_mastr.utils.config import create_data_dir, get_data_version_dir
+from open_mastr.utils.data_io import cleaned_data
+
 
 # import initialize_database dependencies
-from open_mastr.utils.helpers import db_engine
-import open_mastr.orm as orm
-from sqlalchemy.schema import CreateSchema
+from open_mastr.utils.helpers import (
+    create_database_engine,
+    validate_parameter_format_for_download_method,
+    validate_parameter_format_for_mastr_init,
+    parse_date_string,
+)
+import open_mastr.utils.orm as orm
+from open_mastr.utils.config import get_project_home_dir
 
 
 class Mastr:
     """
     :class:`.Mastr` is used to download the MaStR database and keep it up-to-date.
 
-    A sqlite database is used to mirror the MaStR database. It can be filled with
+    A sql database is used to mirror the MaStR database. It can be filled with
     data either from the MaStR-bulk download or from the MaStR-API.
 
     .. code-block:: python
@@ -37,28 +39,24 @@ class Mastr:
 
        db = Mastr()
        db.download()
+
+    Parameters
+    ------------
+        engine: {'sqlite', 'docker-postgres', sqlalchemy.engine.Engine}, optional
+            Defines the engine of the database where the MaStR is mirrored to. Default is 'sqlite'.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, engine="sqlite") -> None:
 
-        # Define the paths for the zipped xml download and the sql databases
-        self._xml_folder_path = os.path.join(
-            expanduser("~"), ".open-MaStR", "data", "xml_download"
-        )
-        self._sqlite_folder_path = os.path.join(
-            expanduser("~"), ".open-MaStR", "data", "sqlite"
-        )
-        os.makedirs(self._xml_folder_path, exist_ok=True)
+        validate_parameter_format_for_mastr_init(engine)
+
+        self.home_directory = get_project_home_dir()
+        self._sqlite_folder_path = os.path.join(self.home_directory, "data", "sqlite")
         os.makedirs(self._sqlite_folder_path, exist_ok=True)
 
-        # setup database engine and connection
-        self.DB_ENGINE = os.environ.get("DB_ENGINE", "sqlite")
-        self._engine = db_engine()
-        SQLITE_DATABASE_PATH = settings.SQLITE_DATABASE_PATH
-        self._sql_connection = sqlite3.connect(SQLITE_DATABASE_PATH)
+        self.engine = create_database_engine(engine, self.home_directory)
 
-        # Initialize database structure
-        self._initialize_database()
+        orm.Base.metadata.create_all(self.engine)
 
     def download(
         self,
@@ -136,7 +134,7 @@ class Mastr:
             "location_gas_consumption".
         """
 
-        self._validate_parameter_format_for_download_method(
+        validate_parameter_format_for_download_method(
             method=method,
             technology=technology,
             bulk_date_string=bulk_date_string,
@@ -152,45 +150,22 @@ class Mastr:
         if method == "bulk":
 
             # Find the name of the zipped xml folder
-            if bulk_date_string == "today":
-                bulk_download_date = date.today().strftime("%Y%m%d")
-            else:
-                # proper format already tested in
-                # self._validate_parameter_format_for_download_method
-                bulk_download_date = parse(bulk_date_string).strftime("%Y%m%d")
-
-            _zipped_xml_file_path = os.path.join(
-                self._xml_folder_path,
+            bulk_download_date = parse_date_string(bulk_date_string)
+            xml_folder_path = os.path.join(self.home_directory, "data", "xml_download")
+            os.makedirs(xml_folder_path, exist_ok=True)
+            zipped_xml_file_path = os.path.join(
+                xml_folder_path,
                 f"Gesamtdatenexport_{bulk_download_date}.zip",
             )
+            download_xml_Mastr(zipped_xml_file_path, bulk_date_string, xml_folder_path)
 
-            if os.path.exists(_zipped_xml_file_path):
-                print("MaStR already downloaded.")
-            else:
-                if bulk_date_string != "today":
-                    raise Exception(
-                        "There exists no file for given date. MaStR can only be downloaded "
-                        "from the website if today's date is given."
-                    )
-                shutil.rmtree(self._xml_folder_path, ignore_errors=True)
-                os.makedirs(self._xml_folder_path, exist_ok=True)
-                download_xml_Mastr(_zipped_xml_file_path)
-                print(f"MaStR was successfully downloaded to {self._xml_folder_path}.")
-
-            # Map technology input to the .xml file names like 'einheitensolar'
-            bulk_include_tables = self._technology_to_include_tables(
-                technology=technology
-            )
-
-            convert_mastr_xml_to_sqlite(
-                con=self._sql_connection,
-                engine=self._engine,
-                zipped_xml_file_path=_zipped_xml_file_path,
-                include_tables=bulk_include_tables,
+            write_mastr_xml_to_database(
+                engine=self.engine,
+                zipped_xml_file_path=zipped_xml_file_path,
+                technology=technology,
                 bulk_cleansing=bulk_cleansing,
                 bulk_download_date=bulk_download_date,
             )
-            print("Bulk download and data cleansing was successful.")
 
         if method == "API":
 
@@ -211,9 +186,8 @@ class Mastr:
             )
 
             mastr_mirror = MaStRMirror(
-                empty_schema=False,
+                engine=self.engine,
                 parallel_processes=api_processes,
-                DB_ENGINE=self.DB_ENGINE,
                 restore_dump=None,
             )
             # Download basic unit data
@@ -237,250 +211,105 @@ class Mastr:
                         location_type, limit=api_limit
                     )
 
-    def to_csv(self, path=None) -> None:
+    def to_csv(self, tables=None, limit=None) -> None:
         """
-        Save the database as csv files.
+        Save the database as csv files along with the metadata file.
+        If 'tables=None' all possible tables will be exported.
 
         Parameters
         ------------
-        path: str or None
-            The path where the csv files are saved.
-            Default is None, in which case they are saved at
-            HOME/.open-MaStR/data/csv
+        tables: None or list
+            For exporting selected tables choose from: [
+                "wind","solar","biomass","hydro","gsgk","combustion","nuclear","storage",
+                "balancing_area", "electricity_consumer", "gas_consumer", "gas_producer", "gas_storage", "gas_storage_extended",
+                "grid_connections", "grids", "market_actors", "market_roles",
+                "location_elec_generation","location_elec_consumption","location_gas_generation","location_gas_consumption"]
+        limit: None or int
+            Limits the number of exported technology and location units.
         """
 
-        if path:
-            if not os.path.exists(path):
-                raise ValueError("parameter path is not a valid path")
+        create_data_dir()
+        data_path = get_data_version_dir()
 
-        else:
-            path = os.path.join(expanduser("~"), ".open-MaStR", "data", "csv")
-        os.makedirs(path, exist_ok=True)
+        # All possible tables to export
+        all_technologies = [
+            "wind",
+            "solar",
+            "biomass",
+            "hydro",
+            "gsgk",
+            "combustion",
+            "nuclear",
+            "storage",
+        ]
+        all_additional_tables = [
+            "balancing_area",
+            "electricity_consumer",
+            "gas_consumer",
+            "gas_producer",
+            "gas_storage",
+            "gas_storage_extended",
+            "grid_connections",
+            "grids",
+            "market_actors",
+            "market_roles",
+        ]
 
-        engine = self._engine
-        table_list = engine.table_names()
-        with engine.connect().execution_options(autocommit=True) as con:
-            print(f"csv files are saved to: {path}")
-            for table in table_list:
-                df = pd.read_sql(table, con=con)
-                if not df.empty:
-                    path_of_table = os.path.join(path, f"{table}.csv")
-                    df.to_csv(path_or_buf=path_of_table, encoding="utf-16")
-                    print(f"{table} saved as csv file.")
+        api_location_types = [
+            "location_elec_generation",
+            "location_elec_consumption",
+            "location_gas_generation",
+            "location_gas_consumption",
+        ]
 
-    def _initialize_database(self) -> None:
-        engine = self._engine
-        if self.DB_ENGINE == "docker":
-            engine.execute(CreateSchema(orm.Base.metadata.schema))
-        orm.Base.metadata.create_all(engine)
+        # Determine tables to export
+        technologies_to_export = []
+        additional_tables_to_export = []
+        locations_to_export = []
+        if isinstance(tables, str):
+            # str to list
+            tables = [tables]
+        if tables is None:
+            technologies_to_export = all_technologies
+            additional_tables_to_export = all_additional_tables
+            print(f"Tables: {technologies_to_export}, {additional_tables_to_export}")
+        elif isinstance(tables, list):
+            for table in tables:
+                if table in all_technologies:
+                    technologies_to_export.append(table)
+                    print(f"Technology tables: {technologies_to_export}\n")
+                elif table in all_additional_tables:
+                    additional_tables_to_export.append(table)
+                    print(f"Additional tables: {additional_tables_to_export}\n")
+                elif table in api_location_types:
+                    locations_to_export.append(table)
+                    print(f"Location tables: {locations_to_export}\n")
+                else:
+                    raise ValueError("Tables parameter has an invalid string!")
+        print(f"are saved to: {data_path}")
 
-    def _validate_parameter_format_for_download_method(
-        self,
-        method,
-        technology,
-        bulk_date_string,
-        bulk_cleansing,
-        api_processes,
-        api_limit,
-        api_date,
-        api_chunksize,
-        api_data_types,
-        api_location_types,
-    ) -> None:
-        # method parameter
+        api_export = MaStRMirror(engine=self.engine)
 
-        if method != "bulk" and method != "API":
-            raise ValueError("parameter method has to be either 'bulk' or 'API'.")
-
-        if method == "API":
-            if bulk_cleansing is not True or bulk_date_string != "today":
-                warn(
-                    "For method = 'API', bulk download related parameters "
-                    "(with prefix bulk_) are ignored."
-                )
-
-        if method == "bulk":
-            if (
-                any(
-                    parameter is not None
-                    for parameter in [
-                        api_processes,
-                        api_date,
-                        api_data_types,
-                        api_location_types,
-                    ]
-                )
-                or api_limit != 50
-                or api_chunksize != 1000
-            ):
-                warn(
-                    "For method = 'bulk', API related parameters (with prefix api_) are ignored."
-                )
-
-        if not isinstance(technology, (str, list)) and technology is not None:
-            raise ValueError("parameter technology has to be a string, list, or None")
-        if isinstance(technology, str):
-            technology = [technology]
-        if isinstance(technology, list):
-            bulk_technologies = [
-                "wind",
-                "solar",
-                "biomass",
-                "hydro",
-                "gsgk",
-                "combustion",
-                "nuclear",
-                "gas",
-                "storage",
-                "electricity_consumer",
-                "location",
-                "market",
-                "grid",
-                "balancing_area",
-                "permit",
-            ]
-            for value in technology:
-                if value not in bulk_technologies:
-                    raise ValueError(
-                        'Allowed values for parameter technology are "wind", "solar",'
-                        '"biomass", "hydro", "gsgk", "combustion", "nuclear", "gas", '
-                        '"storage", "electricity_consumer", "location", "market", '
-                        '"grid", "balancing_area" or "permit"'
-                    )
-
-        if bulk_date_string != "today":
-            try:
-                _ = parse(bulk_date_string)
-            except (dateutil.parser._parser.ParserError, TypeError):
-                raise ValueError(
-                    "parameter bulk_date_string has to be a proper date in the format yyyymmdd"
-                    "or 'today'."
-                )
-
-        if type(bulk_cleansing) != bool:
-            raise ValueError("parameter bulk_cleansing has to be boolean")
-
-        if (
-            api_processes != "max"
-            and not isinstance(api_processes, int)
-            and api_processes is not None
-        ):
-            raise ValueError(
-                "parameter api_processes has to be 'max' or an integer or 'None'"
-            )
-        if api_processes == "max" or isinstance(api_processes, int):
-            system = sys.platform
-            if system not in ["linux2", "linux"]:
-                raise ValueError(
-                    "The functionality of multiprocessing only works on Linux based systems. "
-                    "On your system, the parameter api_processes has to be 'None'."
-                )
-
-        if not isinstance(api_limit, int) and api_limit is not None:
-            raise ValueError("parameter api_limit has to be an integer or 'None'.")
-
-        if (
-            not isinstance(api_date, datetime)
-            and api_date != "latest"
-            and api_date is not None
-        ):
-            raise ValueError(
-                "parameter api_date has to be 'latest' or a datetime object or 'None'."
+        if technologies_to_export:
+            # fill basic unit table, after downloading with method = 'bulk' to use API export functions
+            api_export.reverse_fill_basic_units()
+            # export to csv per technology
+            api_export.to_csv(
+                technology=technologies_to_export, statistic_flag=None, limit=limit
             )
 
-        if not isinstance(api_chunksize, int) and api_chunksize is not None:
-            raise ValueError("parameter api_chunksize has to be an integer or 'None'.")
+        if locations_to_export:
+            for location_type in api_location_types:
+                api_export.locations_to_csv(location_type=location_type, limit=limit)
 
-        if not isinstance(api_data_types, list) and api_data_types is not None:
-            raise ValueError("parameter api_data_types has to be a list or 'None'.")
+        # Export additional tables mirrored via pd.DataFrame.to_csv()
+        exported_additional_tables = []
+        for table in additional_tables_to_export:
+            df = pd.read_sql(table, con=self.engine)
+            if not df.empty:
+                path_of_table = os.path.join(data_path, f"bnetza_mastr_{table}_raw.csv")
+                df.to_csv(path_or_buf=path_of_table, encoding="utf-16")
+                exported_additional_tables.append(table)
 
-        if isinstance(api_data_types, list):
-            for value in api_data_types:
-                if value not in [
-                    "unit_data",
-                    "eeg_data",
-                    "kwk_data",
-                    "permit_data",
-                    None,
-                ]:
-                    raise ValueError(
-                        'list entries of api_data_types have to be "unit_data", '
-                        '"eeg_data", "kwk_data" '
-                        'or "permit_data".'
-                    )
-
-        if not isinstance(api_location_types, list) and api_location_types is not None:
-            raise ValueError("parameter api_location_types has to be a list or 'None'.")
-
-        if isinstance(api_location_types, list):
-            for value in api_location_types:
-                if value not in [
-                    "location_elec_generation",
-                    "location_elec_consumption",
-                    "location_gas_generation",
-                    "location_gas_consumption",
-                    None,
-                ]:
-                    raise ValueError(
-                        'list entries of api_data_types have to be "location_elec_generation",'
-                        '"location_elec_consumption", "location_gas_generation" or'
-                        ' "location_gas_consumption".'
-                    )
-
-    def _technology_to_include_tables(
-        self,
-        technology,
-        all_technologies=orm.bulk_technologies,
-        tables_map=orm.bulk_include_tables_map,
-    ) -> list:
-        """
-        Check the user input 'technology' and convert it to the list 'include_tables' which contains
-        file names from zipped
-        bulk download.
-        Parameters
-        ----------
-        technology: None, str, list
-            The user input for technology selection
-            * `None`: All technologies (default)
-            * `str`: One technology
-            * `list`: List of technologies
-        all_technologies: list
-            All possible selections
-        tables_map: dict
-            Dictionary that maps the technologies to the file names in the zipped bulk
-            download folder
-        Returns
-        -------
-        list
-            List of file names
-        -------
-
-        """
-        # Convert technology input into a standard list
-        chosen_technologies = []
-        if technology is None:
-            # All technologies are to be chosen
-            chosen_technologies = all_technologies
-        elif isinstance(technology, str):
-            # Only one technology is chosen
-            chosen_technologies = [technology]
-        elif isinstance(technology, list):
-            # list of technologies is given
-            chosen_technologies = technology
-
-        # Check if given technologies match with the valid options from 'orm.bulk_technologies'
-        for tech in chosen_technologies:
-            if tech not in all_technologies:
-                raise Exception(
-                    f"The input technology = {technology} does not match with the "
-                    f"possible technology options. Only following technology options are available "
-                    f"bulk_technologies = {all_technologies}"
-                )
-
-        # Map technologies to include tables
-        include_tables = []
-        for tech in chosen_technologies:
-            # Append table names to the include_tables list respectively
-            include_tables += tables_map[tech]
-
-        return include_tables
+        # clean raw csv's and create cleaned csv's
+        cleaned_data()

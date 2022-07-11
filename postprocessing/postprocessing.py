@@ -7,7 +7,7 @@ import numpy as np
 import os
 from urllib.request import urlretrieve
 from open_mastr.postprocessing import orm
-from open_mastr.soap_api.config import setup_logger, get_filenames, get_data_version_dir
+from open_mastr.utils.config import setup_logger, get_filenames, get_data_version_dir
 from open_mastr.soap_api.metadata.create import datapackage_meta_json
 from open_mastr.utils.helpers import chunks, session_scope, db_engine
 import geopandas as gpd

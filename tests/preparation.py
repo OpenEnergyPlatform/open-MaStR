@@ -1,5 +1,5 @@
 import os
-from open_mastr.soap_api.config import get_project_home_dir
+from open_mastr.utils.config import get_project_home_dir
 
 def create_credentials_file():
     """Use token and user stored in GitHub secrets for creating credentials file

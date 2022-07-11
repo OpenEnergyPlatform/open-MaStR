@@ -39,9 +39,9 @@ API download
 -----------------------------------
 When using `download(method="API")`, the data is retrieved from the MaStR API. For using the MaStR API,
 credentials are needed (see :ref:`Get data via the MaStR-API`). By using the API,
-additional parameters can be set to define in detail which data should be reveived.
+additional parameters can be set to define in detail which data should be obtained.
 
-.. list-table:: API-related download arguments and explanantion
+.. list-table:: API-related download arguments and explanation
    :widths: 5 5 5
    :header-rows: 1
 
@@ -87,9 +87,6 @@ which can process sqlite data. Pandas, for example, comes with the function
     .. code-block:: python
 
       import pandas as pd
-      from open_mastr.mastr import Mastr
-
-      db = Mastr()
 
       table="wind_extended"
       df = pd.read_sql(sql=table, con=db._engine)
@@ -137,4 +134,16 @@ The tables that exist in the database are listed below. Their relations can be f
   * - storage_units
   * - wind_eeg
   * - wind_extended
+
+Exporting data
+===================================
+
+
+The tables in the database can be exported as csv files. While technology-related data is joined for each unit,
+additional tables are mirrored from database to csv as they are. To export the data you can use to method :meth:`to_csv`
+
+    .. code-block:: python
+
+      tables=["wind", "grid"]
+      db.to_csv(tables)
 

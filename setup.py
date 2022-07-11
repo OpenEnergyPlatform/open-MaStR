@@ -13,19 +13,18 @@ setup(
     packages=[
         "open_mastr",
         "open_mastr.soap_api",
-        "open_mastr.soap_api.config",
         "open_mastr.soap_api.metadata",
         "open_mastr.utils",
         "open_mastr.xml_download",
     ],
-    version="0.11.2",
+    version="0.11.4",
     description="A package that provides an interface for downloading and"
                 "processing the data of the Marktstammdatenregister (MaStR)",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/OpenEnergyPlatform/open-MaStR",
     download_url="https://github.com/OpenEnergyPlatform/open-MaStR/archive"
-                 "/refs/tags/v0.11.2.tar.gz",
+                 "/refs/tags/v0.11.4.tar.gz",
     author="Open Energy Family",
     author_email="datenzentrum@rl-institut.de",
     maintainer="Ludwig Hülk",
@@ -40,6 +39,7 @@ setup(
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
     ],
     python_requires=">=3.8, <4",
     install_requires=[
@@ -63,7 +63,7 @@ setup(
             "pylint",
             "pytest",
             "pytest-dependency",
-            "xmltodict",  # TODO: Only needed in metadata
+            "xmltodict",
         ]
     },
     package_data={

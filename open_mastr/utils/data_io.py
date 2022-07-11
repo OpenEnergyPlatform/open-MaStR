@@ -6,7 +6,7 @@ import pathlib
 import pynodo
 import yaml
 
-from open_mastr.soap_api.config import get_filenames, get_data_version_dir, get_power_unit_types
+from open_mastr.utils.config import get_filenames, get_data_version_dir, get_power_unit_types
 from open_mastr.soap_api.metadata.create import datapackage_meta_json
 from open_mastr.utils.credentials import get_zenodo_token
 
@@ -203,3 +203,33 @@ def zenodo_upload(data_stages=["raw", "cleaned", "postprocessed"], zenodo_token=
     # Upload datapackage.json
     zen_files.upload(os.path.join(data_dir, filenames["metadata"]))
 
+
+def cleaned_data(save_csv=True):
+    """
+    Cleanes raw data while preserving columns and its names
+
+    Cleaning includes:
+
+    * Removal of duplicates originating from migrated and directly entered data in MaStR which describes the same unit
+
+    Parameters
+    ----------
+    save_csv: bool
+        If :obj:`True`, cleaned data will be saved to CSV files.
+
+    Returns
+    -------
+    dict
+        Cleaned open-MaStR unit data
+    """
+
+    # Read raw data
+    raw = read_csv_data("raw")
+
+    # Filter data to remove duplicates originating from migrated and directly entered data
+    raw_filtered = {k: filter(df) for k, df in raw.items()}
+
+    if save_csv:
+        save_cleaned_data(raw_filtered)
+
+    return raw_filtered

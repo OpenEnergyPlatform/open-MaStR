@@ -13,10 +13,9 @@ import time
 from tqdm import tqdm
 from zeep.exceptions import XMLParseError, Fault
 import os
-import math
 
 from open_mastr.utils import credentials as cred
-from open_mastr.soap_api.config import (
+from open_mastr.utils.config import (
     get_filenames,
     setup_logger,
     get_data_version_dir,
@@ -45,7 +44,8 @@ class MaStRAPI(object):
        )
 
     Alternatively, leave `user` and `key` empty if user and token are accessible via
-    `credentials.cfg`. How to configure this is described :ref:`here <MaStR account and credentials>`.
+    `credentials.cfg`. How to configure this is described
+    :ref:`here <MaStR account and credentials>`.
 
     .. code-block:: python
 
@@ -93,14 +93,9 @@ class MaStRAPI(object):
                 setattr(self, n, self._mastr_wrapper(f))
 
         # Assign MaStR credentials
-        if user:
-            self._user = user
-        else:
-            self._user = cred.get_mastr_user()
-        if key:
-            self._key = key
-        else:
-            self._key = cred.get_mastr_token(self._user)
+
+        self._user = user if user else cred.get_mastr_user()
+        self._key = key if key else cred.get_mastr_token(self._user)
 
     def _mastr_wrapper(self, soap_func):
         """
@@ -116,8 +111,7 @@ class MaStRAPI(object):
             # Catch weird MaStR SOAP response
             try:
                 response = soap_func(*args, **kwargs)
-            except Fault as e:
-                # log.warning(f"MaStR SOAP API gives a weird response: {e}. Trying again...")
+            except Fault:
                 time.sleep(1.5)
                 try:
                     response = soap_func(*args, **kwargs)
@@ -126,8 +120,7 @@ class MaStRAPI(object):
                         f"MaStR SOAP API still gives a weird response: '{e}'.\n"
                         "Retry failed!"
                     )
-                    # log.exception(msg)
-                    raise Fault(msg)
+                    raise Fault(msg) from e
 
             return serialize_object(response, target_cls=dict)
 
@@ -303,15 +296,14 @@ def flatten_dict(data, serialize_with_json=False):
 
         # Replacement with second-level value from second-level list
         for k, v in flatten_rule_replace_list.items():
-            if k in dic.keys():
+            if k in dic.keys() and len(dic[k]) != 0:
 
                 # if data point in 'dic' has one or more VerknuepfteEinheit or
                 # VerknuepfteEinheiten in its respective
                 # dict, then take first MaStRNummer and insert it into key
                 # VerknuepfteEinheiten (flatten dict).
                 # Discard all other connected MaStRNummer's of data point.
-                if len(dic[k]) != 0:
-                    dic[k] = dic[k][0][v]
+                dic[k] = dic[k][0][v]
 
         # Serilializes dictionary entries with unknown number of sub-entries into JSON string
         # This affects "Ertuechtigung" in extended unit data of hydro
@@ -330,10 +322,7 @@ def flatten_dict(data, serialize_with_json=False):
         # Avoid empty lists as values
         for k in flatten_rule_none_if_empty_list:
             if k in dic.keys():
-                if dic[k] == []:
-                    dic[k] = None
-                else:
-                    dic[k] = ",".join(dic[k])
+                dic[k] = None if dic[k] == [] else ",".join(dic[k])
 
     return data
 
@@ -384,32 +373,6 @@ def _missed_units_to_file(technology, data_type, missed_units):
     with open(missed_units_file, "w") as f:
         for i, error in missed_units:
             f.write(f"{i},{error}\n")
-
-
-def _chunksize(length, processes):
-    """
-    Estimate a useful chunksize for parallel download.
-
-    Depends on the list `length` and the number fo `processes`.
-
-    Parameters
-    ----------
-    length : int
-        Length of list items to be downloaded
-    processes : int
-        Number of parallel processes
-
-    Returns
-    -------
-    int
-        Chunksize
-    """
-    if processes > 1:
-        chunksize = int(math.ceil(length / (processes * 20)))
-    else:
-        chunksize = 1
-
-    return chunksize
 
 
 class _MaStRDownloadFactory(type):
@@ -625,31 +588,10 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         ]
 
         # Prepare list of unit ID for different additional data (extended, eeg, kwk, permit)
-        mastr_ids = [basic["EinheitMastrNummer"] for basic in units]
-
-        # Prepare list of EEG data unit IDs
-        if "eeg_data" in self._unit_data_specs[technology].keys():
-            eeg_ids = [
-                basic["EegMastrNummer"] for basic in units if basic["EegMastrNummer"]
-            ]
-        else:
-            eeg_ids = []
-
-        # Prepare list of KWK data unit IDs
-        if "kwk_data" in self._unit_data_specs[technology].keys():
-            kwk_ids = [
-                basic["KwkMastrNummer"] for basic in units if basic["KwkMastrNummer"]
-            ]
-        else:
-            kwk_ids = []
-
-        # Prepare list of permit data unit IDs
-        if "permit_data" in self._unit_data_specs[technology].keys():
-            permit_ids = [
-                basic["GenMastrNummer"] for basic in units if basic["GenMastrNummer"]
-            ]
-        else:
-            permit_ids = []
+        mastr_ids = self._create_ID_list(units, "unit_data", "EinheitMastrNummer", technology)
+        eeg_ids = self._create_ID_list(units, "eeg_data", "EegMastrNummer", technology)
+        kwk_ids = self._create_ID_list(units, "kwk_data", "KwkMastrNummer", technology)
+        permit_ids = self._create_ID_list(units, "permit_data", "GenMastrNummer", technology)
 
         # Download additional data for unit
         extended_data, extended_missed = self.additional_data(
@@ -734,6 +676,11 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
 
         return joined_data
 
+    def _create_ID_list(self, units, data_descriptor, key, technology):
+        """Extracts a list of MaStR numbers (eeg, kwk, or permit Mastr Nr) from the given units."""
+        return [basic[key] for basic in units if basic[key]] if data_descriptor in self._unit_data_specs[technology] else []
+
+
     def basic_unit_data(
         self, technology=None, limit=2000, date_from=None, max_retries=3
     ):
@@ -782,10 +729,11 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         ]
 
         # Deal with or w/o technology being specified
-        if not technology:
-            energietraeger = [None]
-        else:
-            energietraeger = self._unit_data_specs[technology]["energietraeger"]
+        energietraeger = (
+            self._unit_data_specs[technology]["energietraeger"]
+            if technology
+            else [None]
+        )
 
         # In case multiple energy carriers (energietraeger) exist for one technology,
         # loop over these and join data to one list
@@ -793,31 +741,27 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
             log.info(
                 f"Get list of units with basic information for technology {technology} ({et})"
             )
-            if et is None:
-                query_results = basic_data_download(
-                    self._mastr_api,
-                    "GetListeAlleEinheiten",
-                    "Einheiten",
-                    chunks_start,
-                    limits,
-                    date_from,
-                    max_retries,
-                    technology,
-                    et=et,
-                )
-            else:
-                query_results = basic_data_download(
-                    self._mastr_api,
-                    "GetGefilterteListeStromErzeuger",
-                    "Einheiten",
-                    chunks_start,
-                    limits,
-                    date_from,
-                    max_retries,
-                    technology,
-                    et=et,
-                )
-            yield from query_results
+            yield from basic_data_download(
+                self._mastr_api,
+                "GetListeAlleEinheiten",
+                "Einheiten",
+                chunks_start,
+                limits,
+                date_from,
+                max_retries,
+                technology,
+                et=et,
+            ) if et is None else basic_data_download(
+                self._mastr_api,
+                "GetGefilterteListeStromErzeuger",
+                "Einheiten",
+                chunks_start,
+                limits,
+                date_from,
+                max_retries,
+                technology,
+                et=et,
+            )
 
     def additional_data(self, technology, unit_ids, data_fcn, timeout=10):
         """
@@ -866,65 +810,15 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         prepared_args = list(product(unit_ids, [technology]))
 
         # Prepare results lists
-        data = []
-        data_missed = []
 
         if self.parallel_processes:
-            # Estimate a suitable chunksize
-            chunksize = _chunksize(len(prepared_args), self.parallel_processes)
-
-            # Open a pool of workers and retrieve data in parallel
-            with multiprocessing.Pool(
-                processes=self.parallel_processes, maxtasksperchild=1
-            ) as pool:
-
-                with tqdm(
-                    total=len(prepared_args),
-                    desc=f"Downloading {data_fcn} ({technology})",
-                    unit="unit",
-                ) as pbar:
-                    unit_result = pool.imap_unordered(
-                        self.__getattribute__(data_fcn), prepared_args, chunksize=1
-                    )
-                    while True:
-                        try:
-                            # Try to retrieve data from concurrent processes
-                            data_tmp, data_missed_tmp = unit_result.next(
-                                timeout=timeout
-                            )
-
-                            if not data_tmp:
-                                log.debug(
-                                    f"Download for additional data for "
-                                    f"{data_missed_tmp[0]} ({technology}) failed. "
-                                    f"Traceback of caught error:\n{data_missed_tmp[1]}"
-                                )
-                            data.append(data_tmp)
-                            data_missed.append(data_missed_tmp)
-                            pbar.update()
-                        except StopIteration:
-                            # Multiprocessing returns StropIteration when results list gets empty
-                            break
-                        except multiprocessing.TimeoutError:
-                            # If retrieval time exceeds timeout of next(), pass on
-                            log.debug(f"Data request for 1 {technology} unit timed out")
+            data, data_missed = self._retrieve_data_in_parallel_process(
+                prepared_args, data_fcn, technology, timeout
+            )
         else:
-            # Retrieve data in a single process
-            for unit_specs in tqdm(
-                prepared_args,
-                total=len(prepared_args),
-                desc=f"Downloading {data_fcn} ({technology})",
-                unit="unit",
-            ):
-                data_tmp, data_missed_tmp = self.__getattribute__(data_fcn)(unit_specs)
-                if not data_tmp:
-                    log.debug(
-                        f"Download for additional data for "
-                        f"{data_missed_tmp[0]} ({technology}) failed. "
-                        f"Traceback of caught error:\n{data_missed_tmp[1]}"
-                    )
-                data.append(data_tmp)
-                data_missed.append(data_missed_tmp)
+            data, data_missed = self._retrieve_data_in_single_process(
+                prepared_args, data_fcn, technology
+            )
 
         # Remove Nones and empty dicts
         data = [dat for dat in data if dat]
@@ -937,8 +831,68 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
             for u in unit_ids
             if u not in units_retrieved + [_[0] for _ in data_missed]
         ]
-        data_missed = data_missed + units_missed_timeout
+        data_missed += units_missed_timeout
 
+        return data, data_missed
+
+    def _retrieve_data_in_single_process(self, prepared_args, data_fcn, technology):
+        data = []
+        data_missed = []
+        for unit_specs in tqdm(
+            prepared_args,
+            total=len(prepared_args),
+            desc=f"Downloading {data_fcn} ({technology})",
+            unit="unit",
+        ):
+            data_tmp, data_missed_tmp = self.__getattribute__(data_fcn)(unit_specs)
+            if not data_tmp:
+                log.debug(
+                    f"Download for additional data for "
+                    f"{data_missed_tmp[0]} ({technology}) failed. "
+                    f"Traceback of caught error:\n{data_missed_tmp[1]}"
+                )
+            data.append(data_tmp)
+            data_missed.append(data_missed_tmp)
+
+        return data, data_missed
+
+    def _retrieve_data_in_parallel_process(
+        self, prepared_args, data_fcn, technology, timeout
+    ):
+        data = []
+        data_missed = []
+        with multiprocessing.Pool(
+            processes=self.parallel_processes, maxtasksperchild=1
+        ) as pool:
+
+            with tqdm(
+                total=len(prepared_args),
+                desc=f"Downloading {data_fcn} ({technology})",
+                unit="unit",
+            ) as pbar:
+                unit_result = pool.imap_unordered(
+                    self.__getattribute__(data_fcn), prepared_args, chunksize=1
+                )
+                while True:
+                    try:
+                        # Try to retrieve data from concurrent processes
+                        data_tmp, data_missed_tmp = unit_result.next(timeout=timeout)
+
+                        if not data_tmp:
+                            log.debug(
+                                f"Download for additional data for "
+                                f"{data_missed_tmp[0]} ({technology}) failed. "
+                                f"Traceback of caught error:\n{data_missed_tmp[1]}"
+                            )
+                        data.append(data_tmp)
+                        data_missed.append(data_missed_tmp)
+                        pbar.update()
+                    except StopIteration:
+                        # Multiprocessing returns StropIteration when results list gets empty
+                        break
+                    except multiprocessing.TimeoutError:
+                        # If retrieval time exceeds timeout of next(), pass on
+                        log.debug(f"Data request for 1 {technology} unit timed out")
         return data, data_missed
 
     def extended_unit_data(self, unit_specs):
@@ -1017,7 +971,6 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
 
                tuple("EEG961554380393", "Reason for failing dowload")
         """
-        # TODO: Update docstring to change arguments
         eeg_id, technology = unit_specs
         try:
             eeg_data = self._mastr_api.__getattribute__(
@@ -1215,7 +1168,7 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         data = []
 
         missed_ids_remaining = missed_ids
-        for retry in range(1, retries + 1):
+        for _ in range(1, retries + 1):
             data_tmp, missed_ids_tmp = self.additional_data(
                 technology, missed_ids_remaining, data_fcn
             )
@@ -1282,8 +1235,7 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
             for x in chunks_start
         ]
 
-        # Retrieve query results and yield them
-        query_results = basic_data_download(
+        yield from basic_data_download(
             self._mastr_api,
             "GetListeAlleLokationen",
             "Lokationen",
@@ -1292,7 +1244,6 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
             date_from,
             max_retries,
         )
-        yield from query_results
 
     def daily_contingent(self):
         contingent = self._mastr_api.GetAktuellerStandTageskontingent()
@@ -1414,12 +1365,12 @@ def basic_data_download(
         # Stop querying more data, if no further data available
         if response["Ergebniscode"] == "OkWeitereDatenVorhanden":
             continue
-        else:
-            # Update progress bar and move on with next et or technology
-            pbar.total = pbar.n
-            pbar.refresh()
-            pbar.close()
-            break
+
+        # Update progress bar and move on with next et or technology
+        pbar.total = pbar.n
+        pbar.refresh()
+        pbar.close()
+        break
 
     # Make sure progress bar is closed properly
     pbar.close()
@@ -1427,6 +1378,3 @@ def basic_data_download(
 
 if __name__ == "__main__":
     pass
-
-# TODO: Pass through kargs to _unit_data() that are possible 
-# to use with GetGefilterteListeStromErzeuger() and mention in docs
