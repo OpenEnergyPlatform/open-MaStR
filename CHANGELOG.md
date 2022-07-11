@@ -22,6 +22,7 @@ Here is a template for new release sections:
 ### Added
 ### Changed
 - Move function cleaned_data to data_io [#284](https://github.com/OpenEnergyPlatform/open-MaStR/pull/284)
+- Use exclusively sqlalchemy for dialect-free implementation [#289](https://github.com/OpenEnergyPlatform/open-MaStR/pull/289)
 
 ## [v0.11.3] Patch - A data release - 2022-07-07
 
