@@ -1,4 +1,3 @@
-from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.schema import MetaData
 from sqlalchemy import (
@@ -13,13 +12,8 @@ from sqlalchemy import (
     Date,
     JSON,
 )
-import os
 
-DB_ENGINE = os.environ.get("DB_ENGINE", "sqlite")
-
-
-mirror_schema = "mastr_mirrored" if DB_ENGINE == "docker" else None
-meta = MetaData(schema=mirror_schema)
+meta = MetaData()
 Base = declarative_base(metadata=meta)
 
 
@@ -56,7 +50,7 @@ class AdditionalDataRequested(Base):
 
     id = Column(
         Integer,
-        Sequence("additional_data_requested_id_seq", schema=mirror_schema),
+        Sequence("additional_data_requested_id_seq"),
         primary_key=True,
     )
     EinheitMastrNummer = Column(String)
@@ -71,7 +65,7 @@ class MissedAdditionalData(Base):
 
     id = Column(
         Integer,
-        Sequence("additional_data_missed_id_seq", schema=mirror_schema),
+        Sequence("additional_data_missed_id_seq"),
         primary_key=True,
     )
     additional_data_id = Column(String)
@@ -103,13 +97,13 @@ class Extended(object):
     HausnummerNichtGefunden = Column(Boolean)
     Adresszusatz = Column(String)
     Ort = Column(String)
-    Laengengrad = Column(String) if DB_ENGINE == "docker" else Column(Float)
-    Breitengrad = Column(String) if DB_ENGINE == "docker" else Column(Float)
+    Laengengrad = Column(Float)
+    Breitengrad = Column(Float)
     UtmZonenwert = Column(String)
-    UtmEast = Column(String) if DB_ENGINE == "docker" else Column(Float)
-    UtmNorth = Column(String) if DB_ENGINE == "docker" else Column(Float)
-    GaussKruegerHoch = Column(String) if DB_ENGINE == "docker" else Column(Float)
-    GaussKruegerRechts = Column(String) if DB_ENGINE == "docker" else Column(Float)
+    UtmEast = Column(Float)
+    UtmNorth = Column(Float)
+    GaussKruegerHoch = Column(Float)
+    GaussKruegerRechts = Column(Float)
     Meldedatum = Column(Date)
     GeplantesInbetriebnahmedatum = Column(Date)
     Inbetriebnahmedatum = Column(Date)
@@ -146,8 +140,6 @@ class Extended(object):
     Hausnummer_nv = Column(Boolean)
     Weic_nv = Column(Boolean)
     Kraftwerksnummer_nv = Column(Boolean)
-    NichtVorhandenInMigriertenEinheiten = Column(Boolean)
-    Einsatzverantwortlicher = Column(String)
 
 
 class WindExtended(Extended, ParentAllTables, Base):
@@ -438,8 +430,8 @@ class LocationExtended(ParentAllTables, Base):
     MastrNummer = Column(String, primary_key=True)
     DatumLetzteAktualisierung = Column(DateTime(timezone=True))
     NameDerTechnischenLokation = Column(String)
-    VerknuepfteEinheiten = Column(JSONB) if DB_ENGINE == "docker" else Column(JSON)
-    Netzanschlusspunkte = Column(JSONB) if DB_ENGINE == "docker" else Column(JSON)
+    VerknuepfteEinheiten = Column(JSON)
+    Netzanschlusspunkte = Column(JSON)
     Lokationtyp = Column(String)
 
 
@@ -448,7 +440,7 @@ class AdditionalLocationsRequested(ParentAllTables, Base):
 
     id = Column(
         Integer,
-        Sequence("additional_locations_requested_id_seq", schema=mirror_schema),
+        Sequence("additional_locations_requested_id_seq"),
         primary_key=True,
     )
     LokationMastrNummer = Column(String)
@@ -461,7 +453,7 @@ class MissedExtendedLocation(ParentAllTables, Base):
 
     id = Column(
         Integer,
-        Sequence("additional_location_data_missed_id_seq", schema=mirror_schema),
+        Sequence("additional_location_data_missed_id_seq"),
         primary_key=True,
     )
     LokationMastrNummer = Column(String)
