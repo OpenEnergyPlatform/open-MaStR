@@ -9,8 +9,12 @@ from itertools import product
 import pandas as pd
 import requests
 from open_mastr.utils import credentials as cred
-from open_mastr.utils.config import (create_data_dir, get_data_version_dir,
-                                     get_filenames, setup_logger)
+from open_mastr.utils.config import (
+    create_data_dir,
+    get_data_version_dir,
+    get_filenames,
+    setup_logger,
+)
 from tqdm import tqdm
 from zeep import Client, Settings
 from zeep.cache import SqliteCache
@@ -370,7 +374,7 @@ def _missed_units_to_file(technology, data_type, missed_units):
             f.write(f"{i},{error}\n")
 
 
-class MaStRDownload():
+class MaStRDownload:
     """Use the higher level interface for bulk download
 
     :class:`.MaStRDownload` builds on top of :class:`.MaStRAPI()` and provides
@@ -573,10 +577,14 @@ class MaStRDownload():
         ]
 
         # Prepare list of unit ID for different additional data (extended, eeg, kwk, permit)
-        mastr_ids = self._create_ID_list(units, "unit_data", "EinheitMastrNummer", technology)
+        mastr_ids = self._create_ID_list(
+            units, "unit_data", "EinheitMastrNummer", technology
+        )
         eeg_ids = self._create_ID_list(units, "eeg_data", "EegMastrNummer", technology)
         kwk_ids = self._create_ID_list(units, "kwk_data", "KwkMastrNummer", technology)
-        permit_ids = self._create_ID_list(units, "permit_data", "GenMastrNummer", technology)
+        permit_ids = self._create_ID_list(
+            units, "permit_data", "GenMastrNummer", technology
+        )
 
         # Download additional data for unit
         extended_data, extended_missed = self.additional_data(
@@ -663,8 +671,11 @@ class MaStRDownload():
 
     def _create_ID_list(self, units, data_descriptor, key, technology):
         """Extracts a list of MaStR numbers (eeg, kwk, or permit Mastr Nr) from the given units."""
-        return [basic[key] for basic in units if basic[key]] if data_descriptor in self._unit_data_specs[technology] else []
-
+        return (
+            [basic[key] for basic in units if basic[key]]
+            if data_descriptor in self._unit_data_specs[technology]
+            else []
+        )
 
     def basic_unit_data(
         self, technology=None, limit=2000, date_from=None, max_retries=3
