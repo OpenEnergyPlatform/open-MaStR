@@ -59,7 +59,21 @@ by the parameter `engine` in the Mastr class (see :ref:`mastr module`). The poss
 * docker-postgres: A docker container of a PostgreSQL database. 
 * own database: The Mastr class accepts a sqlalchemy.engine.Engine object as engine which enables the user to 
   use any other desired database.
+.. tabs::
 
+    .. code-tab:: py SQLite
+
+        from sqlalchemy import create_engine
+
+        engine = create_engine("sqlite:///path/to/sqlite/database.db")
+        db = Mastr(engine=engine)
+
+    .. code-tab:: py PostgreSQL
+
+        from sqlalchemy import create_engine
+
+        engine = create_engine("postgresql://myusername:mypassword@localhost/mydatabase"
+        db = Mastr(engine=engine)
 ..
   Resulting data of download, post-processing and analysis is saved under `$HOME/.open-MaStR/data/<data-version>`.
   Files that are suffixed with `_raw` contain joined data retrieved during :ref:`downloading <Downloading raw data>`.

@@ -5,7 +5,7 @@ import pandas as pd
 from open_mastr.xml_download.utils_download_bulk import download_xml_Mastr
 from open_mastr.xml_download.utils_write_to_database import (
     write_mastr_xml_to_database,
-    )
+)
 
 # import soap_API dependencies
 from open_mastr.soap_api.mirror import MaStRMirror
@@ -20,7 +20,6 @@ from open_mastr.utils.helpers import (
     parse_date_string,
 )
 import open_mastr.utils.orm as orm
-from sqlalchemy.schema import CreateSchema
 from open_mastr.utils.config import get_project_home_dir
 
 
@@ -54,7 +53,7 @@ class Mastr:
 
         self.engine = create_database_engine(engine, self.home_directory)
 
-        self._initialize_database()
+        orm.Base.metadata.create_all(self.engine)
 
     def download(
         self,
@@ -301,9 +300,3 @@ class Mastr:
 
         # clean raw csv's and create cleaned csv's
         cleaned_data()
-
-    def _initialize_database(self) -> None:
-        engine = self.engine
-        if engine.name == "postgresql":
-            engine.execute(CreateSchema(orm.Base.metadata.schema))
-        orm.Base.metadata.create_all(engine)
