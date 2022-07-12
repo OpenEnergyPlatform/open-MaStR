@@ -17,6 +17,12 @@ Here is a template for new release sections:
 ### Removed
 - [#](https://github.com/rl-institut/super-repo/pull/)
 ```
+## [upcoming] Patch - Name of Release - 20YY-MM-DD
+
+### Added
+### Changed
+- Delete the MastrDownloadFactory class [#292](https://github.com/OpenEnergyPlatform/open-MaStR/pull/292)
+
 ## [v0.11.4] Patch - Hotfix - 2022-07-08
 
 ### Added
