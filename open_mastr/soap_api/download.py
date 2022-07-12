@@ -1,27 +1,22 @@
-from functools import wraps
-from zeep.helpers import serialize_object
-from zeep import Client, Settings
-from zeep.cache import SqliteCache
-from zeep.transports import Transport
-import requests
-from itertools import product
 import json
 import logging
-import pandas as pd
 import multiprocessing
-import time
-from tqdm import tqdm
-from zeep.exceptions import XMLParseError, Fault
 import os
+import time
+from functools import wraps
+from itertools import product
 
+import pandas as pd
+import requests
 from open_mastr.utils import credentials as cred
-from open_mastr.utils.config import (
-    get_filenames,
-    setup_logger,
-    get_data_version_dir,
-    create_data_dir,
-)
-
+from open_mastr.utils.config import (create_data_dir, get_data_version_dir,
+                                     get_filenames, setup_logger)
+from tqdm import tqdm
+from zeep import Client, Settings
+from zeep.cache import SqliteCache
+from zeep.exceptions import Fault, XMLParseError
+from zeep.helpers import serialize_object
+from zeep.transports import Transport
 
 log = setup_logger()
 
@@ -374,17 +369,6 @@ def _missed_units_to_file(technology, data_type, missed_units):
         for i, error in missed_units:
             f.write(f"{i},{error}\n")
 
-"""
-class _MaStRDownloadFactory(type):
-    def __new__(cls, name, bases, dct):
-        # Assign factory properties to concrete object
-        x = super().__new__(cls, name, bases, dct)
-
-        # Assign mastr_api
-        x._mastr_api = MaStRAPI()
-
-        return x
-"""
 
 class MaStRDownload():
     """Use the higher level interface for bulk download
