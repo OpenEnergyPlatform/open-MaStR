@@ -24,6 +24,8 @@ Here is a template for new release sections:
 - [#](https://github.com/rl-institut/super-repo/pull/)
 ### Changed
 - Use exclusively sqlalchemy for dialect-free implementation [#289](https://github.com/OpenEnergyPlatform/open-MaStR/pull/289)
+- Delete the MastrDownloadFactory class [#292](https://github.com/OpenEnergyPlatform/open-MaStR/pull/292)
+
 ### Removed
 - [#](https://github.com/rl-institut/super-repo/pull/)
 
