@@ -1,11 +1,12 @@
 import datetime
-import pytest
+import itertools
 
-from open_mastr.utils.data_io import read_csv_data
+import pytest
 from open_mastr.soap_api.mirror import MaStRMirror
 from open_mastr.utils import orm
-from open_mastr.utils.helpers import session_scope, create_database_engine
 from open_mastr.utils.config import get_project_home_dir
+from open_mastr.utils.data_io import read_csv_data
+from open_mastr.utils.helpers import create_database_engine, session_scope
 
 TECHNOLOGIES = [
     "wind",
@@ -31,7 +32,7 @@ DATE = datetime.datetime(2020, 11, 27, 0, 0, 0)
 @pytest.fixture
 def mastr_mirror():
     engine = create_database_engine("sqlite", get_project_home_dir())
-    return MaStRMirror(engine=engine, parallel_processes=2)
+    return MaStRMirror(engine=engine)
 
 
 @pytest.fixture
@@ -51,17 +52,10 @@ def test_backfill_basic(mastr_mirror, engine):
 
 @pytest.mark.dependency(depends=["backfill_basic"], name="retrieve_additional_data")
 def test_retrieve_additional_data(mastr_mirror):
-    for tech in TECHNOLOGIES:
-        for data_type in DATA_TYPES:
-            mastr_mirror.retrieve_additional_data(technology=tech, data_type=data_type)
-
-    # This comparison currently fails because of
-    # https://github.com/OpenEnergyPlatform/open-MaStR/issues/154
-    # with session_scope() as session:
-    #     for tech in TECHNOLOGIES:
-    #         mapper = getattr(orm, mastr_mirror.orm_map[tech]["unit_data"])
-    #         response = session.query(mapper).count()
-    #         assert response >= LIMIT
+    for tech, data_type in itertools.product(TECHNOLOGIES, DATA_TYPES):
+        mastr_mirror.retrieve_additional_data(
+            technology=tech, data_type=data_type, limit=LIMIT
+        )
 
 
 @pytest.mark.dependency(depends=["retrieve_additional_data"], name="update_latest")
