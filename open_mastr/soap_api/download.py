@@ -1,27 +1,27 @@
-from functools import wraps
-from zeep.helpers import serialize_object
-from zeep import Client, Settings
-from zeep.cache import SqliteCache
-from zeep.transports import Transport
-import requests
-from itertools import product
+import datetime
 import json
 import logging
-import pandas as pd
 import multiprocessing
-import time
-from tqdm import tqdm
-from zeep.exceptions import XMLParseError, Fault
 import os
+import time
+from functools import wraps
+from itertools import product
 
+import pandas as pd
+import requests
 from open_mastr.utils import credentials as cred
 from open_mastr.utils.config import (
+    create_data_dir,
+    get_data_version_dir,
     get_filenames,
     setup_logger,
-    get_data_version_dir,
-    create_data_dir,
 )
-
+from tqdm import tqdm
+from zeep import Client, Settings
+from zeep.cache import SqliteCache
+from zeep.exceptions import Fault, XMLParseError
+from zeep.helpers import serialize_object
+from zeep.transports import Transport
 
 log = setup_logger()
 
@@ -588,10 +588,14 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         ]
 
         # Prepare list of unit ID for different additional data (extended, eeg, kwk, permit)
-        mastr_ids = self._create_ID_list(units, "unit_data", "EinheitMastrNummer", technology)
+        mastr_ids = self._create_ID_list(
+            units, "unit_data", "EinheitMastrNummer", technology
+        )
         eeg_ids = self._create_ID_list(units, "eeg_data", "EegMastrNummer", technology)
         kwk_ids = self._create_ID_list(units, "kwk_data", "KwkMastrNummer", technology)
-        permit_ids = self._create_ID_list(units, "permit_data", "GenMastrNummer", technology)
+        permit_ids = self._create_ID_list(
+            units, "permit_data", "GenMastrNummer", technology
+        )
 
         # Download additional data for unit
         extended_data, extended_missed = self.additional_data(
@@ -678,11 +682,19 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
 
     def _create_ID_list(self, units, data_descriptor, key, technology):
         """Extracts a list of MaStR numbers (eeg, kwk, or permit Mastr Nr) from the given units."""
-        return [basic[key] for basic in units if basic[key]] if data_descriptor in self._unit_data_specs[technology] else []
-
+        return (
+            [basic[key] for basic in units if basic[key]]
+            if data_descriptor in self._unit_data_specs[technology]
+            else []
+        )
 
     def basic_unit_data(
-        self, technology=None, limit=2000, date_from=None, max_retries=3
+        self,
+        technology: str = None,
+        limit: int = 2000,
+        date_from: datetime.datetime = None,
+        max_retries: int = 3,
+        special_access_only: bool = False,
     ):
         """
         Download basic unit information for one technology.
@@ -712,6 +724,9 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
             Defaults to `None`.
         max_retries: int, optional
             Maximum number of retries in case of errors with the connection to the server.
+        special_access_only: bool, optional
+            If `True`, data is retreived using API method 'GetListeFreigegebeneEinheiten'.
+            Defaults to `None`
 
         Yields
         ------
@@ -738,22 +753,20 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         # In case multiple energy carriers (energietraeger) exist for one technology,
         # loop over these and join data to one list
         for et in energietraeger:
+            if et is not None:
+                fcn_name = "GetGefilterteListeStromErzeuger"
+            else:
+                fcn_name = (
+                    "GetListeFreigegebeneEinheiten"
+                    if special_access_only
+                    else "GetListeAlleEinheiten"
+                )
             log.info(
                 f"Get list of units with basic information for technology {technology} ({et})"
             )
             yield from basic_data_download(
                 self._mastr_api,
-                "GetListeAlleEinheiten",
-                "Einheiten",
-                chunks_start,
-                limits,
-                date_from,
-                max_retries,
-                technology,
-                et=et,
-            ) if et is None else basic_data_download(
-                self._mastr_api,
-                "GetGefilterteListeStromErzeuger",
+                fcn_name,
                 "Einheiten",
                 chunks_start,
                 limits,
