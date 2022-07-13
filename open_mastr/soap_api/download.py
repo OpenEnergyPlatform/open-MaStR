@@ -868,9 +868,6 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         tuple[list,list]
             list of retrieved entries and missed entries.
         """
-        import pdb
-
-        pdb.set_trace()
         data = []
         data_missed = []
         for unit_specs in tqdm(
