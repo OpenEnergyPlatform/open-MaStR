@@ -848,7 +848,29 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
 
         return data, data_missed
 
-    def _retrieve_data_in_single_process(self, prepared_args, data_fcn, technology):
+    def _retrieve_data_in_single_process(
+        self, prepared_args: list, data_fcn: str, technology: str
+    ) -> tuple[list, list]:
+        """_summary_
+
+        Parameters
+        ----------
+        prepared_args : list
+            list of unit IDs packed as tuple associated with technology, for
+            example ('SEL989457249623', 'location_elec_generation')
+        data_fcn : str
+            Name of method from :class:`MaStRDownload` to be used for querying additional data.
+        technology : str
+            Technology, see :meth:`MaStRDownload.download_power_plants`
+
+        Returns
+        -------
+        tuple[list,list]
+            list of retrieved entries and missed entries.
+        """
+        import pdb
+
+        pdb.set_trace()
         data = []
         data_missed = []
         for unit_specs in tqdm(
@@ -908,7 +930,7 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
                         log.debug(f"Data request for 1 {technology} unit timed out")
         return data, data_missed
 
-    def extended_unit_data(self, unit_specs):
+    def extended_unit_data(self, unit_specs: tuple) -> tuple[dict, tuple]:
         """
         Download extended data for a unit.
 
@@ -1259,6 +1281,7 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         )
 
     def daily_contingent(self):
+        """Write daily contingent in log."""
         contingent = self._mastr_api.GetAktuellerStandTageskontingent()
         log.info(
             f"Daily requests contigent: "
