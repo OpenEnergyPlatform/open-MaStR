@@ -505,7 +505,7 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
                 "unit_data": "GetEinheitGasVerbraucher",
                 "energietraeger": ["Erdgas"],
             },
-            "consumer": {
+            "electricity_consumer": {
                 "unit_data": "GetEinheitStromVerbraucher",
                 "energietraeger": ["Strom"],
             },

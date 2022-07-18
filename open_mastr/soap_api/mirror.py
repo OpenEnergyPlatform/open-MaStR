@@ -158,7 +158,7 @@ class MaStRMirror:
             "Stromspeichereinheit": "storage",
             "Gasspeichereinheit": "gas_storage",
             "Gasverbrauchseinheit": "gas_consumer",
-            "Stromverbrauchseinheit": "consumer",
+            "Stromverbrauchseinheit": "electricity_consumer",
             "Gaserzeugungseinheit": "gas_producer",
             "Stromerzeugungslokation": "location_elec_generation",
             "Stromverbrauchslokation": "location_elec_consumption",
