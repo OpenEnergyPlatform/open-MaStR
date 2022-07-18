@@ -1,14 +1,15 @@
-from contextlib import contextmanager
-from sqlalchemy import create_engine
-import sqlalchemy
-from sqlalchemy.orm import Query, sessionmaker
 import os
-from warnings import warn
-from dateutil.parser import parse
-import dateutil
-from datetime import date, datetime
-import sys
 import subprocess
+import sys
+from contextlib import contextmanager
+from datetime import date, datetime
+from warnings import warn
+
+import dateutil
+import sqlalchemy
+from dateutil.parser import parse
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Query, sessionmaker
 
 
 def chunks(lst, n):
@@ -232,7 +233,6 @@ def validate_parameter_technology(technology) -> None:
                 )
 
 
-
 def raise_warning_for_invalid_parameter_combinations(
     method,
     bulk_cleansing,
@@ -249,10 +249,6 @@ def raise_warning_for_invalid_parameter_combinations(
             "For method = 'API', bulk download related parameters "
             "(with prefix bulk_) are ignored."
         )
-
-
-def db_engine():  # TODO: Include in _create_database in MaStR() class
-    return create_engine(DB_URL)
 
     if method == "bulk" and (
         (
