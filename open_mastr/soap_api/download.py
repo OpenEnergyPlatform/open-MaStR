@@ -243,7 +243,6 @@ def flatten_dict(data, serialize_with_json=False):
     Flattens MaStR data dictionary to depth of one
 
     Parameters
-    Parameters
     ----------
     data : list of dict
         Data returned from MaStR-API query
@@ -293,17 +292,18 @@ def flatten_dict(data, serialize_with_json=False):
         for k, v in flatten_rule_replace.items():
             if k in dic.keys():
                 dic[k] = dic[k][v]
-
         # Replacement with second-level value from second-level list
         for k, v in flatten_rule_replace_list.items():
             if k in dic.keys() and len(dic[k]) != 0:
+                mastr_nr_list = [unit[v] for unit in dic[k]]
+                entry_temp = ", ".join(mastr_nr_list)
 
                 # if data point in 'dic' has one or more VerknuepfteEinheit or
                 # VerknuepfteEinheiten in its respective
                 # dict, then take first MaStRNummer and insert it into key
                 # VerknuepfteEinheiten (flatten dict).
                 # Discard all other connected MaStRNummer's of data point.
-                dic[k] = dic[k][0][v]
+                dic[k] = entry_temp
 
         # Serilializes dictionary entries with unknown number of sub-entries into JSON string
         # This affects "Ertuechtigung" in extended unit data of hydro
@@ -588,10 +588,14 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         ]
 
         # Prepare list of unit ID for different additional data (extended, eeg, kwk, permit)
-        mastr_ids = self._create_ID_list(units, "unit_data", "EinheitMastrNummer", technology)
+        mastr_ids = self._create_ID_list(
+            units, "unit_data", "EinheitMastrNummer", technology
+        )
         eeg_ids = self._create_ID_list(units, "eeg_data", "EegMastrNummer", technology)
         kwk_ids = self._create_ID_list(units, "kwk_data", "KwkMastrNummer", technology)
-        permit_ids = self._create_ID_list(units, "permit_data", "GenMastrNummer", technology)
+        permit_ids = self._create_ID_list(
+            units, "permit_data", "GenMastrNummer", technology
+        )
 
         # Download additional data for unit
         extended_data, extended_missed = self.additional_data(
@@ -678,8 +682,11 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
 
     def _create_ID_list(self, units, data_descriptor, key, technology):
         """Extracts a list of MaStR numbers (eeg, kwk, or permit Mastr Nr) from the given units."""
-        return [basic[key] for basic in units if basic[key]] if data_descriptor in self._unit_data_specs[technology] else []
-
+        return (
+            [basic[key] for basic in units if basic[key]]
+            if data_descriptor in self._unit_data_specs[technology]
+            else []
+        )
 
     def basic_unit_data(
         self, technology=None, limit=2000, date_from=None, max_retries=3
