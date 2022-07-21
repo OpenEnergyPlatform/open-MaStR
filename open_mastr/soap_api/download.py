@@ -243,6 +243,10 @@ def replace_second_level_keys_with_first_level_data(dic: dict) -> dict:
     columns where this happens are defined in flatten_rule_replace. The nested dicts
     are replaced by its actual value.
 
+    Example:
+    "WasserrechtAblaufdatum": {"Wert": None, "NichtVorhanden": False}
+    -> "WasserrechtAblaufdatum": None
+
 
     Parameters
     ----------
@@ -345,7 +349,6 @@ def flatten_dict(data: list, serialize_with_json: bool = False) -> list:
     list of dict
         Flattened data dictionary
     """
-
     flatten_rule_serialize = ["Ertuechtigung"]
 
     flatten_rule_move_up_and_merge = ["Hersteller"]
