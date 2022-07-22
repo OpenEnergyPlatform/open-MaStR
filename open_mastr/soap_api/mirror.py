@@ -167,7 +167,7 @@ class MaStRMirror:
         }
         self.unit_type_map_reversed = {v: k for k, v in self.unit_type_map.items()}
 
-    def backfill_basic(self, technology=None, date=None, limit=10 ** 8) -> None:
+    def backfill_basic(self, technology=None, date=None, limit=10**8) -> None:
         """Backfill basic unit data.
 
         Fill database table 'basic_units' with data. It allows specification
@@ -227,7 +227,7 @@ class MaStRMirror:
             self._write_basic_data_for_one_technology_to_db(tech, date, limit)
 
     def backfill_locations_basic(
-        self, limit=10 ** 7, date=None, delete_additional_data_requests=True
+        self, limit=10**7, date=None, delete_additional_data_requests=True
     ):
         """
         Backfill basic location data.
@@ -276,7 +276,7 @@ class MaStRMirror:
                 location
                 for n, location in enumerate(locations_chunk)
                 if location["LokationMastrNummer"]
-                not in [_["LokationMastrNummer"] for _ in locations_chunk[n + 1:]]
+                not in [_["LokationMastrNummer"] for _ in locations_chunk[n + 1 :]]
             ]
             locations_unique_ids = [
                 _["LokationMastrNummer"] for _ in locations_chunk_unique
@@ -330,7 +330,7 @@ class MaStRMirror:
                 )
 
     def retrieve_additional_data(
-        self, technology, data_type, limit=10 ** 8, chunksize=1000
+        self, technology, data_type, limit=10**8, chunksize=1000
     ):
         """
         Retrieve additional unit data
@@ -422,7 +422,7 @@ class MaStRMirror:
                 break
 
     def retrieve_additional_location_data(
-        self, location_type, limit=10 ** 8, chunksize=1000
+        self, location_type, limit=10**8, chunksize=1000
     ):
         """
         Retrieve extended location data
@@ -479,6 +479,7 @@ class MaStRMirror:
                 )
 
                 # Prepare data and add to database table
+                location_data = flatten_dict(location_data)
                 for location_dat in location_data:
                     location_dat = self._add_data_source_and_download_date(location_dat)
                     # Remove query status information from response
@@ -494,25 +495,7 @@ class MaStRMirror:
                     location_dat["DatumLetzteAktualisierung"] = location_dat[
                         "DatumLetzteAktualisierung"
                     ].isoformat()
-                    for grid_connection in location_dat["Netzanschlusspunkte"]:
-                        grid_connection["letzteAenderung"] = grid_connection[
-                            "letzteAenderung"
-                        ].isoformat()
-                        for field_name in [
-                            "MaximaleEinspeiseleistung",
-                            "MaximaleAusspeiseleistung",
-                            "Nettoengpassleistung",
-                            "Netzanschlusskapazitaet",
-                        ]:
-                            if (
-                                field_name in grid_connection
-                                and grid_connection[field_name]
-                            ):
-                                grid_connection[field_name] = float(
-                                    grid_connection[field_name]
-                                )
-                    # This converts dates of type:string to type:datetime to match
-                    # column data types in orm.py
+
                     if type(location_dat["DatumLetzteAktualisierung"]) == str:
                         location_dat[
                             "DatumLetzteAktualisierung"
@@ -643,7 +626,7 @@ class MaStRMirror:
             unit
             for n, unit in enumerate(basic_units_chunk)
             if unit["EinheitMastrNummer"]
-            not in [_["EinheitMastrNummer"] for _ in basic_units_chunk[n + 1:]]
+            not in [_["EinheitMastrNummer"] for _ in basic_units_chunk[n + 1 :]]
         ]
         basic_units_chunk_unique_ids = [
             _["EinheitMastrNummer"] for _ in basic_units_chunk_unique
