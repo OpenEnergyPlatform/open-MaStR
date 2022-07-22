@@ -238,23 +238,26 @@ def _mastr_suppress_parsing_errors(which_errors):
     ] + [f for f in error_filters if f.name in which_errors]
 
 
-def flatten_dict(data, serialize_with_json=False):
-    """
-    Flattens MaStR data dictionary to depth of one
+def replace_second_level_keys_with_first_level_data(dic: dict) -> dict:
+    """The returned dict from the API call often contains nested dicts. The
+    columns where this happens are defined in flatten_rule_replace. The nested dicts
+    are replaced by its actual value.
+
+    Example:
+    "WasserrechtAblaufdatum": {"Wert": None, "NichtVorhanden": False}
+    -> "WasserrechtAblaufdatum": None
+
 
     Parameters
-    Parameters
     ----------
-    data : list of dict
-        Data returned from MaStR-API query
+    dic : dict
+        Dictionary containing information on single unit
 
     Returns
     -------
-    list of dict
-        Flattened data dictionary
+    dict
+        Dictionary where nested entries are replaced by data of interest
     """
-
-    # The rule describes which of the second-level keys are used to replace first-level data
     flatten_rule_replace = {
         "Hausnummer": "Wert",
         "Kraftwerksnummer": "Wert",
@@ -272,38 +275,86 @@ def flatten_dict(data, serialize_with_json=False):
         "Frist": "Wert",
         "WasserrechtAblaufdatum": "Wert",
     }
+    for k, v in flatten_rule_replace.items():
+        if k in dic:
+            dic[k] = dic[k][v]
+
+    return dic
+
+
+def replace_linked_units_with_unit_identifier(dic: dict) -> dict:
+    """If data point in 'dic' has one or more VerknuepfteEinheit or
+    VerknuepfteEinheiten in its respective dict, the related units (VerknuepfteEinheiten) are inserted as comma-separated strings.
+
+    Parameters
+    ----------
+    dic : dict
+        Dictionary containing information on single unit
+
+    Returns
+    -------
+    dict
+        Dictionary where linked units are replaced with linked unit identifier (MaStRNummer)
+    """
 
     flatten_rule_replace_list = {
         "VerknuepfteEinheit": "MaStRNummer",
         "VerknuepfteEinheiten": "MaStRNummer",
     }
+    for k, v in flatten_rule_replace_list.items():
+        if k in dic and len(dic[k]) != 0:
+            mastr_nr_list = [unit[v] for unit in dic[k]]
+            dic[k] = ", ".join(mastr_nr_list)
+    return dic
 
-    flatten_rule_serialize = ["Ertuechtigung"]
 
-    flatten_rule_move_up_and_merge = ["Hersteller"]
+def replace_entries_of_type_list(dic: dict) -> dict:
+    """Entries that are lists are replaced:
+    Empty lists are replaced with None.
+    Lists of strings are replaced with comma seperated strings.
 
+    Parameters
+    ----------
+    dic : dict
+        Dictionary containing information on single unit
+
+    Returns
+    -------
+    dict
+        Dictionary containing information on single unit without list entries.
+    """
     flatten_rule_none_if_empty_list = [
         "ArtDerFlaeche",
         "WeitereBrennstoffe",
         "VerknuepfteErzeugungseinheiten",
     ]
+    for k in flatten_rule_none_if_empty_list:
+        if k in dic:
+            dic[k] = None if dic[k] == [] else ",".join(dic[k])
+    return dic
+
+
+def flatten_dict(data: list, serialize_with_json: bool = False) -> list:
+    """
+    Flattens MaStR data dictionary to depth of one
+
+    Parameters
+    ----------
+    data : list of dict
+        Data returned from MaStR-API query
+
+    Returns
+    -------
+    list of dict
+        Flattened data dictionary
+    """
+    flatten_rule_serialize = ["Ertuechtigung"]
+
+    flatten_rule_move_up_and_merge = ["Hersteller"]
 
     for dic in data:
-        # Replacements with second-level values
-        for k, v in flatten_rule_replace.items():
-            if k in dic.keys():
-                dic[k] = dic[k][v]
-
-        # Replacement with second-level value from second-level list
-        for k, v in flatten_rule_replace_list.items():
-            if k in dic.keys() and len(dic[k]) != 0:
-
-                # if data point in 'dic' has one or more VerknuepfteEinheit or
-                # VerknuepfteEinheiten in its respective
-                # dict, then take first MaStRNummer and insert it into key
-                # VerknuepfteEinheiten (flatten dict).
-                # Discard all other connected MaStRNummer's of data point.
-                dic[k] = dic[k][0][v]
+        dic = replace_second_level_keys_with_first_level_data(dic)
+        dic = replace_linked_units_with_unit_identifier(dic)
 
         # Serilializes dictionary entries with unknown number of sub-entries into JSON string
         # This affects "Ertuechtigung" in extended unit data of hydro
@@ -319,11 +370,7 @@ def flatten_dict(data, serialize_with_json=False):
                 dic.update({k + "Id": dic[k]["Id"]})
                 dic.update({k: dic[k]["Wert"]})
 
-        # Avoid empty lists as values
-        for k in flatten_rule_none_if_empty_list:
-            if k in dic.keys():
-                dic[k] = None if dic[k] == [] else ",".join(dic[k])
-
+        dic = replace_entries_of_type_list(dic)
     return data
 
 
@@ -588,10 +635,14 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
         ]
 
         # Prepare list of unit ID for different additional data (extended, eeg, kwk, permit)
-        mastr_ids = self._create_ID_list(units, "unit_data", "EinheitMastrNummer", technology)
+        mastr_ids = self._create_ID_list(
+            units, "unit_data", "EinheitMastrNummer", technology
+        )
         eeg_ids = self._create_ID_list(units, "eeg_data", "EegMastrNummer", technology)
         kwk_ids = self._create_ID_list(units, "kwk_data", "KwkMastrNummer", technology)
-        permit_ids = self._create_ID_list(units, "permit_data", "GenMastrNummer", technology)
+        permit_ids = self._create_ID_list(
+            units, "permit_data", "GenMastrNummer", technology
+        )
 
         # Download additional data for unit
         extended_data, extended_missed = self.additional_data(
@@ -678,8 +729,11 @@ class MaStRDownload(metaclass=_MaStRDownloadFactory):
 
     def _create_ID_list(self, units, data_descriptor, key, technology):
         """Extracts a list of MaStR numbers (eeg, kwk, or permit Mastr Nr) from the given units."""
-        return [basic[key] for basic in units if basic[key]] if data_descriptor in self._unit_data_specs[technology] else []
-
+        return (
+            [basic[key] for basic in units if basic[key]]
+            if data_descriptor in self._unit_data_specs[technology]
+            else []
+        )
 
     def basic_unit_data(
         self, technology=None, limit=2000, date_from=None, max_retries=3
