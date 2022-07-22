@@ -285,7 +285,7 @@ def session_scope(engine):
         session.close()
 
 
-def technology_input_harmonisation(technology, api_data_types):
+def technology_input_harmonisation(technology, api_data_types, api_location_types):
     harmonisation_log = []
 
     if "permit" in technology:
@@ -305,9 +305,8 @@ def technology_input_harmonisation(technology, api_data_types):
         ]
         harmonisation_log.append("location")
         # return changed api_location_types only if "location" in technology, else None
-        return harmonisation_log, api_location_types
 
-    return harmonisation_log, None
+    return harmonisation_log, api_data_types, api_location_types
 
 
 def print_api_settings(
