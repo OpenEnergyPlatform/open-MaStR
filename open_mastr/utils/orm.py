@@ -430,8 +430,8 @@ class LocationExtended(ParentAllTables, Base):
     MastrNummer = Column(String, primary_key=True)
     DatumLetzteAktualisierung = Column(DateTime(timezone=True))
     NameDerTechnischenLokation = Column(String)
-    VerknuepfteEinheiten = Column(JSON)
-    Netzanschlusspunkte = Column(JSON)
+    VerknuepfteEinheiten = Column(String)
+    Netzanschlusspunkte = Column(String)
     Lokationtyp = Column(String)
 
 
