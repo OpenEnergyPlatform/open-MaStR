@@ -435,7 +435,7 @@ class LocationExtended(ParentAllTables, Base):
     Lokationtyp = Column(String)
 
 
-class AdditionalLocationsRequested(ParentAllTables, Base):
+class AdditionalLocationsRequested(Base):
     __tablename__ = "additional_locations_requested"
 
     id = Column(
@@ -793,7 +793,7 @@ tablename_mapping = {
         "__class__": GsgkEeg,
         "replace_column_names": {
             "EegMaStRNummer": "EegMastrNummer",
-            "VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheit"
+            "VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheit",
         },
     },
     "einheitengeosolarthermiegrubenklaerschlammdruckentspannung": {
@@ -810,7 +810,7 @@ tablename_mapping = {
         "__class__": SolarEeg,
         "replace_column_names": {
             "EegMaStRNummer": "EegMastrNummer",
-            "VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheit"
+            "VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheit",
         },
     },
     "einheitensolar": {
@@ -819,7 +819,7 @@ tablename_mapping = {
         "replace_column_names": {
             "EegMaStRNummer": "EegMastrNummer",
             "LokationMaStRNummer": "LokationMastrNummer",
-            "VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheit"
+            "VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheit",
         },
     },
     "anlageneegspeicher": {
@@ -827,7 +827,7 @@ tablename_mapping = {
         "__class__": StorageEeg,
         "replace_column_names": {
             "EegMaStRNummer": "EegMastrNummer",
-            "VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheit"
+            "VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheit",
         },
     },
     "anlageneegwasser": {
@@ -835,7 +835,7 @@ tablename_mapping = {
         "__class__": HydroEeg,
         "replace_column_names": {
             "EegMaStRNummer": "EegMastrNummer",
-            "VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheit"
+            "VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheit",
         },
     },
     "einheitenwasser": {
@@ -867,7 +867,7 @@ tablename_mapping = {
         "__class__": GasStorage,
         "replace_column_names": {
             "MaStRNummer": "MastrNummer",
-            "VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheit"
+            "VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheit",
         },
     },
     "einheitengasspeicher": {
@@ -890,7 +890,7 @@ tablename_mapping = {
         "__class__": StorageUnits,
         "replace_column_names": {
             "MaStRNummer": "MastrNummer",
-            "VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheit"
+            "VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheit",
         },
     },
     "bilanzierungsgebiete": {
@@ -911,7 +911,7 @@ tablename_mapping = {
         "__class__": GasConsumer,
         "replace_column_names": {
             "LokationMaStRNummer": "LokationMastrNummer",
-            "VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheit"
+            "VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheit",
         },
     },
     "einheitengenehmigung": {
