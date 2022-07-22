@@ -284,8 +284,7 @@ def replace_second_level_keys_with_first_level_data(dic: dict) -> dict:
 
 def replace_linked_units_with_unit_identifier(dic: dict) -> dict:
     """If data point in 'dic' has one or more VerknuepfteEinheit or
-    VerknuepfteEinheiten in its respective dict, then take first MaStRNummer
-    and insert it into key VerknuepfteEinheiten (flatten dict).
+    VerknuepfteEinheiten in its respective dict, the related units (VerknuepfteEinheiten) are inserted as comma-separated strings.
 
     Parameters
     ----------
