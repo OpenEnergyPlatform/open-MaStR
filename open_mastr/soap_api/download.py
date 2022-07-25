@@ -395,11 +395,21 @@ def to_csv(df, technology):
     csv_file = os.path.join(data_path, filenames["raw"][technology]["joined"])
 
     if os.path.exists(csv_file):
-        df.to_csv(csv_file, mode='a',index=True, index_label="EinheitMastrNummer", encoding="utf-8")
+        df.to_csv(
+            csv_file,
+            mode="a",
+            index=True,
+            index_label="EinheitMastrNummer",
+            encoding="utf-8",
+        )
         log.info(f"Appended {len(df)} rows to {csv_file.split('/')[-1:]}.")
     else:
-        df.to_csv(csv_file, index=True, index_label="EinheitMastrNummer", encoding="utf-8")
-        log.info(f"Technology csv {csv_file.split('/')[-1:]} didn't exist and was created.")
+        df.to_csv(
+            csv_file, index=True, index_label="EinheitMastrNummer", encoding="utf-8"
+        )
+        log.info(
+            f"Technology csv {csv_file.split('/')[-1:]} didn't exist and was created."
+        )
 
 
 def _missed_units_to_file(technology, data_type, missed_units):
