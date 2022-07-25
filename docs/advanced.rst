@@ -104,6 +104,8 @@ It is also possible to create the credentials file by hand using this format
     user = SOM123456789012
     token = msöiöo8u2o29933n31733m§=§1n33§304n... # optional, 540 characters
 
+The token should be written in one line, without line breaks.
+
 * **Credentials file + keyring:** The user is stored in the credentials file, while the token is stored encrypted in
   the `keyring <https://pypi.org/project/keyring/>`_
 
