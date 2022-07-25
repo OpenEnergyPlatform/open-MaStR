@@ -276,7 +276,7 @@ class MaStRMirror:
                 location
                 for n, location in enumerate(locations_chunk)
                 if location["LokationMastrNummer"]
-                not in [_["LokationMastrNummer"] for _ in locations_chunk[n + 1:]]
+                not in [_["LokationMastrNummer"] for _ in locations_chunk[n + 1 :]]
             ]
             locations_unique_ids = [
                 _["LokationMastrNummer"] for _ in locations_chunk_unique
@@ -643,7 +643,7 @@ class MaStRMirror:
             unit
             for n, unit in enumerate(basic_units_chunk)
             if unit["EinheitMastrNummer"]
-            not in [_["EinheitMastrNummer"] for _ in basic_units_chunk[n + 1:]]
+            not in [_["EinheitMastrNummer"] for _ in basic_units_chunk[n + 1 :]]
         ]
         basic_units_chunk_unique_ids = [
             _["EinheitMastrNummer"] for _ in basic_units_chunk_unique
@@ -1253,20 +1253,24 @@ class MaStRMirror:
                 if limit:
                     query = query.limit(limit)
 
-                # Read data into pandas.DataFrame
-                df = pd.read_sql(
-                    query.statement, query.session.bind, index_col="EinheitMastrNummer"
-                )
+                # Read data into pandas.DataFrame in chunks of max. 500000 rows of ~2.5 GB RAM
+                for chunk_df in pd.read_sql(
+                    query.statement,
+                    query.session.bind,
+                    index_col="EinheitMastrNummer",
+                    chunksize=500000,
+                ):
+                    # For debugging purposes, check RAM usage of chunk_df
+                    # chunk_df.info(memory_usage='deep')
 
-                # Remove newline statements from certain strings
-                for col in ["Aktenzeichen", "Behoerde"]:
-                    df[col] = df[col].str.replace("\r", "")
+                    # Make sure no duplicate column names exist
+                    assert not any(chunk_df.columns.duplicated())
 
-                # Make sure no duplicate column names exist
-                assert not any(df.columns.duplicated())
+                    # Remove newline statements from certain strings
+                    for col in ["Aktenzeichen", "Behoerde"]:
+                        chunk_df[col] = chunk_df[col].str.replace("\r", "")
 
-                # Save to CSV
-                to_csv(df, tech)
+                    to_csv(chunk_df, tech)
 
             # Create and save data package metadata file along with data
             data_path = get_data_version_dir()
