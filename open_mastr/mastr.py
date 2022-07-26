@@ -169,9 +169,14 @@ class Mastr:
 
         if method == "API":
 
-            harm_log, api_location_types = technology_input_harmonisation(
+            (
+                harm_log,
+                api_data_types,
+                api_location_types,
+            ) = technology_input_harmonisation(
                 technology=technology,
                 api_data_types=api_data_types,
+                api_location_types=api_location_types,
             )
 
             print_api_settings(
