@@ -67,6 +67,7 @@ class Mastr:
         api_chunksize=1000,
         api_data_types=None,
         api_location_types=None,
+        special_access_only=False,
     ) -> None:
         """
         Download the MaStR either via the bulk download or via the MaStR API and write it to a
@@ -129,6 +130,10 @@ class Mastr:
             Select type of location that should be retrieved. Choose from
             "location_elec_generation", "location_elec_consumption", "location_gas_generation",
             "location_gas_consumption".
+        special_access_only: bool, optional
+            If true, only data is downloaded where the user has special access rights (eg the user
+            is a grid operator.)
+            Default to False.
         """
 
         validate_parameter_format_for_download_method(
@@ -178,7 +183,12 @@ class Mastr:
                 restore_dump=None,
             )
             # Download basic unit data
-            mastr_mirror.backfill_basic(technology, limit=api_limit, date=api_date)
+            mastr_mirror.backfill_basic(
+                technology,
+                limit=api_limit,
+                date=api_date,
+                special_access_only=special_access_only,
+            )
 
             # Download additional unit data
             for tech in technology:
