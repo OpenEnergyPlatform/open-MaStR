@@ -167,7 +167,13 @@ class MaStRMirror:
         }
         self.unit_type_map_reversed = {v: k for k, v in self.unit_type_map.items()}
 
-    def backfill_basic(self, technology=None, date=None, limit=10 ** 8) -> None:
+    def backfill_basic(
+        self,
+        technology: str = None,
+        date: datetime.datetime = None,
+        limit: int = 10**8,
+        special_access_only: bool = False,
+    ) -> None:
         """Backfill basic unit data.
 
         Fill database table 'basic_units' with data. It allows specification
@@ -224,10 +230,15 @@ class MaStRMirror:
         dates = self._get_list_of_dates(date, technology_list)
 
         for tech, date in zip(technology_list, dates):
-            self._write_basic_data_for_one_technology_to_db(tech, date, limit)
+            self._write_basic_data_for_one_technology_to_db(
+                tech=tech,
+                date=date,
+                limit=limit,
+                special_access_only=special_access_only,
+            )
 
     def backfill_locations_basic(
-        self, limit=10 ** 7, date=None, delete_additional_data_requests=True
+        self, limit=10**7, date=None, delete_additional_data_requests=True
     ):
         """
         Backfill basic location data.
@@ -276,7 +287,7 @@ class MaStRMirror:
                 location
                 for n, location in enumerate(locations_chunk)
                 if location["LokationMastrNummer"]
-                not in [_["LokationMastrNummer"] for _ in locations_chunk[n + 1:]]
+                not in [_["LokationMastrNummer"] for _ in locations_chunk[n + 1 :]]
             ]
             locations_unique_ids = [
                 _["LokationMastrNummer"] for _ in locations_chunk_unique
@@ -330,7 +341,7 @@ class MaStRMirror:
                 )
 
     def retrieve_additional_data(
-        self, technology, data_type, limit=10 ** 8, chunksize=1000
+        self, technology, data_type, limit=10**8, chunksize=1000
     ):
         """
         Retrieve additional unit data
@@ -422,7 +433,7 @@ class MaStRMirror:
                 break
 
     def retrieve_additional_location_data(
-        self, location_type, limit=10 ** 8, chunksize=1000
+        self, location_type, limit=10**8, chunksize=1000
     ):
         """
         Retrieve extended location data
@@ -643,7 +654,7 @@ class MaStRMirror:
             unit
             for n, unit in enumerate(basic_units_chunk)
             if unit["EinheitMastrNummer"]
-            not in [_["EinheitMastrNummer"] for _ in basic_units_chunk[n + 1:]]
+            not in [_["EinheitMastrNummer"] for _ in basic_units_chunk[n + 1 :]]
         ]
         basic_units_chunk_unique_ids = [
             _["EinheitMastrNummer"] for _ in basic_units_chunk_unique
@@ -725,7 +736,7 @@ class MaStRMirror:
     def _create_inserted_and_updated_list(
         self, table_identifier, session, list_chunk_unique, common_ids
     ) -> list:
-        """Creates the insert and update list and saves it to the BasicTable.
+        """Creates the insert and update list and saves it to the BasicUnits table.
         This method is called both in backfill_basics and backfill_location_basics."""
         if table_identifier == "locations":
             mastr_number_identifier = "LokationMastrNummer"
@@ -759,11 +770,15 @@ class MaStRMirror:
         session.commit()
         return insert + updated
 
-    def _write_basic_data_for_one_technology_to_db(self, tech, date, limit) -> None:
+    def _write_basic_data_for_one_technology_to_db(
+        self, tech: str, date: datetime.datetime, limit: int, special_access_only: bool
+    ) -> None:
         log.info(f"Backfill data for technology {tech}")
 
-        # Catch weird MaStR SOAP response
-        basic_units = self.mastr_dl.basic_unit_data(tech, limit, date_from=date)
+        # Catch MaStR SOAP response
+        basic_units = self.mastr_dl.basic_unit_data(
+            tech, limit, date_from=date, special_access_only=special_access_only
+        )
 
         with session_scope(engine=self._engine) as session:
             log.info(
@@ -798,10 +813,8 @@ class MaStRMirror:
                 session.commit()
 
                 # Insert new requests for additional data
-                session.bulk_insert_mappings(orm.AdditionalDataRequested, extended_data)
-                session.bulk_insert_mappings(orm.AdditionalDataRequested, eeg_data)
-                session.bulk_insert_mappings(orm.AdditionalDataRequested, kwk_data)
-                session.bulk_insert_mappings(orm.AdditionalDataRequested, permit_data)
+                for data in [extended_data, eeg_data, kwk_data, permit_data]:
+                    session.bulk_insert_mappings(orm.AdditionalDataRequested, data)
 
             log.info("Backfill successfully finished")
 
