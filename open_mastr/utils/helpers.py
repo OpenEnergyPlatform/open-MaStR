@@ -30,8 +30,7 @@ def create_database_engine(engine, home_directory) -> sqlalchemy.engine.Engine:
             os.path.join(home_directory, "data", "sqlite", "open-mastr.db"),
         )
         db_url = f"sqlite:///{sqlite_database_path}"
-
-        return create_engine(db_url).execution_options(stream_results=True)
+        return create_engine(db_url)
 
     if engine == "docker-postgres":
         db_url = (
