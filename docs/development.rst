@@ -39,6 +39,15 @@ If the SOAP API of MaStR changes, data table metadata documentation needs to be 
 to recreate the files.
 
 
+Formatting
+==========
+
+We use `Black <https://github.com/psf/black>`_ as Python formatter. In order to simplify and guarantee the proper usage,
+Black is added as a pre-commit hook. When you try to commit some changes, changed files will eventually be formatted
+and your commit fails. After adding new changes to your commit, you should have a clean formatted code and
+a successful commit.
+
+
 Testing
 =======
 
