@@ -25,6 +25,7 @@ Here is a template for new release sections:
 ### Changed
 - Use exclusively sqlalchemy for dialect-free implementation [#289](https://github.com/OpenEnergyPlatform/open-MaStR/pull/289)
 - API Download: Linked units in table permit are written in comma seperated string [#302](https://github.com/OpenEnergyPlatform/open-MaStR/pull/302)
+- API Download: Repaired Location download [#303](https://github.com/OpenEnergyPlatform/open-MaStR/pull/303)
 - CSV export: Tables with mastr_data about power units are exported in chunks [#269](https://github.com/OpenEnergyPlatform/open-MaStR/pull/306)
 ### Removed
 - [#](https://github.com/rl-institut/super-repo/pull/)
