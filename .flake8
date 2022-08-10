@@ -1,4 +1,4 @@
 [flake8]
 exclude = meta/migrations/
-max-line-length = 88
+max-line-length = 100
 extend-ignore = E203
