@@ -308,6 +308,7 @@ def replace_linked_units_with_unit_identifier(dic: dict) -> dict:
     flatten_rule_replace_list = {
         "VerknuepfteEinheit": "MaStRNummer",
         "VerknuepfteEinheiten": "MaStRNummer",
+        "Netzanschlusspunkte": "NetzanschlusspunktMastrNummer",
     }
     for k, v in flatten_rule_replace_list.items():
         if k in dic and len(dic[k]) != 0:
