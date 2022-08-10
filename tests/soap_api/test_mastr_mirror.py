@@ -53,7 +53,9 @@ def test_backfill_basic(mastr_mirror, engine):
 def test_retrieve_additional_data(mastr_mirror):
     for tech in TECHNOLOGIES:
         for data_type in DATA_TYPES:
-            mastr_mirror.retrieve_additional_data(technology=tech, data_type=data_type)
+            mastr_mirror.retrieve_additional_data(
+                technology=tech, data_type=data_type, limit=10 * LIMIT
+            )
 
     # This comparison currently fails because of
     # https://github.com/OpenEnergyPlatform/open-MaStR/issues/154
