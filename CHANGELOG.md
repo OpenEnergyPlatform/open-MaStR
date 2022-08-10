@@ -25,6 +25,7 @@ Here is a template for new release sections:
 ### Changed
 - Use exclusively sqlalchemy for dialect-free implementation [#289](https://github.com/OpenEnergyPlatform/open-MaStR/pull/289)
 - API Download: Linked units in table permit are written in comma seperated string [#302](https://github.com/OpenEnergyPlatform/open-MaStR/pull/302)
+- API Download: User credentials are now tested before the download starts [#309](https://github.com/OpenEnergyPlatform/open-MaStR/pull/302)
 ### Removed
 - [#](https://github.com/rl-institut/super-repo/pull/)
 
