@@ -21,11 +21,12 @@ Here is a template for new release sections:
 ## [upcoming] Patch - Name of Release - 20YY-MM-DD
 
 ### Added
-- [#](https://github.com/rl-institut/super-repo/pull/)
+- Pre-commit hook for Black formatting [#312](https://github.com/OpenEnergyPlatform/open-MaStR/pull/312)
 ### Changed
 - Use exclusively sqlalchemy for dialect-free implementation [#289](https://github.com/OpenEnergyPlatform/open-MaStR/pull/289)
 - Delete the MastrDownloadFactory class [#292](https://github.com/OpenEnergyPlatform/open-MaStR/pull/292)
-
+- API Download: Linked units in table permit are written in comma seperated string [#302](https://github.com/OpenEnergyPlatform/open-MaStR/pull/302)
+- API Download: Repaired Location download [#303](https://github.com/OpenEnergyPlatform/open-MaStR/pull/303)
 ### Removed
 - [#](https://github.com/rl-institut/super-repo/pull/)
 

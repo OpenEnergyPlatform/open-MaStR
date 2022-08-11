@@ -9,8 +9,11 @@ from open_mastr.xml_download.utils_write_to_database import (
 
 # import soap_API dependencies
 from open_mastr.soap_api.mirror import MaStRMirror
+
+from open_mastr.utils.helpers import technology_input_harmonisation, print_api_settings
 from open_mastr.utils.config import create_data_dir, get_data_version_dir
 from open_mastr.utils.data_io import cleaned_data
+
 
 # import initialize_database dependencies
 from open_mastr.utils.helpers import (
@@ -165,13 +168,28 @@ class Mastr:
             )
 
         if method == "API":
-            print(
-                f"Downloading with soap_API.\n\n   -- Settings --  \nunits after date: "
-                f"{api_date}\nunit download limit per technology: "
-                f"{api_limit}\nparallel_processes: {api_processes}\nchunksize: "
-                f"{api_chunksize}\ntechnologies: {technology}\ndata_types: "
-                f"{api_data_types}\nlocation_types: {api_location_types}"
+
+            (
+                harm_log,
+                api_data_types,
+                api_location_types,
+            ) = technology_input_harmonisation(
+                technology=technology,
+                api_data_types=api_data_types,
+                api_location_types=api_location_types,
             )
+
+            print_api_settings(
+                harmonisation_log=harm_log,
+                technology=technology,
+                api_date=api_date,
+                api_data_types=api_data_types,
+                api_chunksize=api_chunksize,
+                api_limit=api_limit,
+                api_processes=api_processes,
+                api_location_types=api_location_types,
+            )
+
             mastr_mirror = MaStRMirror(
                 engine=self.engine,
                 parallel_processes=api_processes,
