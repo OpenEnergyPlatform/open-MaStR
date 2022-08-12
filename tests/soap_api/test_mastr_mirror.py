@@ -52,10 +52,19 @@ def test_backfill_basic(mastr_mirror, engine):
 
 @pytest.mark.dependency(depends=["backfill_basic"], name="retrieve_additional_data")
 def test_retrieve_additional_data(mastr_mirror):
-    for tech, data_type in itertools.product(TECHNOLOGIES, DATA_TYPES):
-        mastr_mirror.retrieve_additional_data(
-            technology=tech, data_type=data_type, limit=LIMIT
-        )
+    for tech in TECHNOLOGIES:
+        for data_type in DATA_TYPES:
+            mastr_mirror.retrieve_additional_data(
+                technology=tech, data_type=data_type, limit=10 * LIMIT
+            )
+
+    # This comparison currently fails because of
+    # https://github.com/OpenEnergyPlatform/open-MaStR/issues/154
+    # with session_scope() as session:
+    #     for tech in TECHNOLOGIES:
+    #         mapper = getattr(orm, mastr_mirror.orm_map[tech]["unit_data"])
+    #         response = session.query(mapper).count()
+    #         assert response >= LIMIT
 
 
 @pytest.mark.dependency(depends=["retrieve_additional_data"], name="update_latest")

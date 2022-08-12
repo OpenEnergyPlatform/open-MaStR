@@ -116,8 +116,16 @@ class MaStRAPI(object):
                     response = soap_func(*args, **kwargs)
                 except Fault as e:
                     msg = (
-                        f"MaStR SOAP API still gives a weird response: '{e}'.\n"
-                        "Retry failed!"
+                        (
+                            f"MaStR SOAP API still gives a weird response: '{e}'.\n"
+                            "Retry failed!"
+                        )
+                        if e.message != "Zugriff verweigert"
+                        else (
+                            "Your credentials could not be used to "
+                            "access the MaStR SOAP API from BNetzA. Please make sure that "
+                            "they are correct."
+                        )
                     )
                     raise Fault(msg) from e
 
