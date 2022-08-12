@@ -53,7 +53,9 @@ def test_backfill_basic(mastr_mirror, engine):
 def test_retrieve_additional_data(mastr_mirror):
     for tech in TECHNOLOGIES:
         for data_type in DATA_TYPES:
-            mastr_mirror.retrieve_additional_data(technology=tech, data_type=data_type)
+            mastr_mirror.retrieve_additional_data(
+                technology=tech, data_type=data_type, limit=LIMIT
+            )
 
     # This comparison currently fails because of
     # https://github.com/OpenEnergyPlatform/open-MaStR/issues/154
@@ -97,7 +99,10 @@ def test_create_additional_data_requests(mastr_mirror, engine):
 def test_to_csv(mastr_mirror, engine):
     for tech in ["nuclear", "storage"]:
         mastr_mirror.to_csv(
-            technology=tech, additional_data=DATA_TYPES, statistic_flag=None
+            technology=tech,
+            additional_data=DATA_TYPES,
+            statistic_flag=None,
+            chunksize=1,
         )
     # Test if all EinheitMastrNummer in basic_units are included in CSV file
     with session_scope(engine=engine) as session:
