@@ -1092,6 +1092,7 @@ class MaStRMirror:
         limit=None,
         additional_data=["unit_data", "eeg_data", "kwk_data", "permit_data"],
         statistic_flag="B",
+        chunksize=500000,
     ):
         """
         Export a snapshot MaStR data from mirrored database to CSV
@@ -1130,6 +1131,8 @@ class MaStRMirror:
               date after 31.01.2019 (recommended for statistical purposes).
             * 'A':  Newly registered units with commissioning date before 31.01.2019
             * None: Export all data
+        chunksize: int or None
+            Defines the chunksize of the tables export. Default to 500.000 which is roughly 2.5 GB.
         """
 
         create_data_dir()
@@ -1237,11 +1240,13 @@ class MaStRMirror:
                     query = query.limit(limit)
 
                 # Read data into pandas.DataFrame in chunks of max. 500000 rows of ~2.5 GB RAM
-                for chunk_df in pd.read_sql(
-                    query.statement,
-                    query.session.bind,
-                    index_col="EinheitMastrNummer",
-                    chunksize=500000,
+                for chunck_number, chunk_df in enumerate(
+                    pd.read_sql(
+                        query.statement,
+                        query.session.bind,
+                        index_col="EinheitMastrNummer",
+                        chunksize=chunksize,
+                    )
                 ):
                     # For debugging purposes, check RAM usage of chunk_df
                     # chunk_df.info(memory_usage='deep')
@@ -1253,7 +1258,7 @@ class MaStRMirror:
                     for col in ["Aktenzeichen", "Behoerde"]:
                         chunk_df[col] = chunk_df[col].str.replace("\r", "")
 
-                    to_csv(chunk_df, tech)
+                    to_csv(df=chunk_df, technology=tech, chunk_number=chunck_number)
 
             # Create and save data package metadata file along with data
             data_path = get_data_version_dir()
