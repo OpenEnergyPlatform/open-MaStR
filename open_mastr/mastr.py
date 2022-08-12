@@ -216,7 +216,9 @@ class Mastr:
                         location_type, limit=api_limit
                     )
 
-    def to_csv(self, tables=None, limit=None) -> None:
+    def to_csv(
+        self, tables: list = None, chunksize: int = 500000, limit: int = None
+    ) -> None:
         """
         Save the database as csv files along with the metadata file.
         If 'tables=None' all possible tables will be exported.
@@ -224,11 +226,15 @@ class Mastr:
         Parameters
         ------------
         tables: None or list
-            For exporting selected tables choose from: [
-                "wind","solar","biomass","hydro","gsgk","combustion","nuclear","storage",
-                "balancing_area", "electricity_consumer", "gas_consumer", "gas_producer", "gas_storage", "gas_storage_extended",
+            For exporting selected tables choose from:
+                ["wind","solar","biomass","hydro","gsgk","combustion","nuclear","storage",
+                "balancing_area", "electricity_consumer", "gas_consumer", "gas_producer",
+                "gas_storage", "gas_storage_extended",
                 "grid_connections", "grids", "market_actors", "market_roles",
-                "location_elec_generation","location_elec_consumption","location_gas_generation","location_gas_consumption"]
+                "location_elec_generation","location_elec_consumption","location_gas_generation",
+                "location_gas_consumption"]
+        chunksize: int
+            Defines the chunksize of the tables export. Default value is 500.000.
         limit: None or int
             Limits the number of exported technology and location units.
         """
@@ -282,15 +288,20 @@ class Mastr:
             for table in tables:
                 if table in all_technologies:
                     technologies_to_export.append(table)
-                    print(f"Technology tables: {technologies_to_export}\n")
                 elif table in all_additional_tables:
                     additional_tables_to_export.append(table)
-                    print(f"Additional tables: {additional_tables_to_export}\n")
                 elif table in api_location_types:
                     locations_to_export.append(table)
-                    print(f"Location tables: {locations_to_export}\n")
                 else:
                     raise ValueError("Tables parameter has an invalid string!")
+
+        if technologies_to_export:
+            print(f"\nTechnology tables: {technologies_to_export}")
+        if locations_to_export:
+            print(f"\nLocation tables: {locations_to_export}")
+        if additional_tables_to_export:
+            print(f"\nAdditional tables: {additional_tables_to_export}")
+
         print(f"are saved to: {data_path}")
 
         api_export = MaStRMirror(engine=self.engine)
@@ -300,7 +311,10 @@ class Mastr:
             api_export.reverse_fill_basic_units()
             # export to csv per technology
             api_export.to_csv(
-                technology=technologies_to_export, statistic_flag=None, limit=limit
+                technology=technologies_to_export,
+                statistic_flag=None,
+                limit=limit,
+                chunksize=chunksize,
             )
 
         if locations_to_export:
@@ -308,13 +322,17 @@ class Mastr:
                 api_export.locations_to_csv(location_type=location_type, limit=limit)
 
         # Export additional tables mirrored via pd.DataFrame.to_csv()
-        exported_additional_tables = []
         for table in additional_tables_to_export:
-            df = pd.read_sql(table, con=self.engine)
+            try:
+                df = pd.read_sql(table, con=self.engine)
+            except ValueError as e:
+                print(
+                    f"While reading table '{table}', the following error occured: {e}"
+                )
+                continue
             if not df.empty:
                 path_of_table = os.path.join(data_path, f"bnetza_mastr_{table}_raw.csv")
                 df.to_csv(path_or_buf=path_of_table, encoding="utf-16")
-                exported_additional_tables.append(table)
 
         # clean raw csv's and create cleaned csv's
-        cleaned_data()
+        # cleaned_data()
