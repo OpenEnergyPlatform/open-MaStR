@@ -375,7 +375,7 @@ def flatten_dict(data: list, serialize_with_json: bool = False) -> list:
     return data
 
 
-def to_csv(df, technology):
+def to_csv(df: pd.DataFrame, technology: str, chunk_number: int) -> None:
     """
     Write joined unit data to CSV file
 
@@ -389,13 +389,26 @@ def to_csv(df, technology):
     technology: str
         See list of available technologies in
         :meth:`open_mastr.soap_api.download.MaStRDownload.download_power_plants`.
+    chunk_number: int
+        Number of the chunk that is taken from the table. chunk_number = 0 means it is
+        the first chunk from that table.
     """
     data_path = get_data_version_dir()
     filenames = get_filenames()
 
     csv_file = os.path.join(data_path, filenames["raw"][technology]["joined"])
 
-    if os.path.exists(csv_file):
+    if chunk_number == 0:
+        df.to_csv(
+            csv_file,
+            index=True,
+            index_label="EinheitMastrNummer",
+            encoding="utf-8",
+        )
+        log.info(
+            f"Technology csv {csv_file.split('/')[-1:]} didn't exist and was created."
+        )
+    else:
         df.to_csv(
             csv_file,
             mode="a",
@@ -404,13 +417,6 @@ def to_csv(df, technology):
             encoding="utf-8",
         )
         log.info(f"Appended {len(df)} rows to {csv_file.split('/')[-1:]}.")
-    else:
-        df.to_csv(
-            csv_file, index=True, index_label="EinheitMastrNummer", encoding="utf-8"
-        )
-        log.info(
-            f"Technology csv {csv_file.split('/')[-1:]} didn't exist and was created."
-        )
 
 
 def _missed_units_to_file(technology, data_type, missed_units):
