@@ -10,7 +10,11 @@ from open_mastr.xml_download.utils_write_to_database import (
 # import soap_API dependencies
 from open_mastr.soap_api.mirror import MaStRMirror
 
-from open_mastr.utils.helpers import technology_input_harmonisation, print_api_settings
+from open_mastr.utils.helpers import (
+    technology_input_harmonisation,
+    print_api_settings,
+    validate_api_credentials,
+)
 from open_mastr.utils.config import create_data_dir, get_data_version_dir
 from open_mastr.utils.data_io import cleaned_data
 
@@ -168,7 +172,7 @@ class Mastr:
             )
 
         if method == "API":
-
+            validate_api_credentials()
             (
                 harm_log,
                 api_data_types,

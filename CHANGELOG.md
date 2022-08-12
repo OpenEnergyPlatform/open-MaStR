@@ -21,14 +21,13 @@ Here is a template for new release sections:
 ## [upcoming] Patch - Name of Release - 20YY-MM-DD
 
 ### Added
-- [#](https://github.com/rl-institut/super-repo/pull/)
+- Pre-commit hook for Black formatting [#312](https://github.com/OpenEnergyPlatform/open-MaStR/pull/312)
 ### Changed
+- CSV export: Tables with mastr_data about power units are exported in chunks [#269](https://github.com/OpenEnergyPlatform/open-MaStR/pull/306)
 - Use exclusively sqlalchemy for dialect-free implementation [#289](https://github.com/OpenEnergyPlatform/open-MaStR/pull/289)
 - API Download: Linked units in table permit are written in comma seperated string [#302](https://github.com/OpenEnergyPlatform/open-MaStR/pull/302)
 - API Download: Repaired Location download [#303](https://github.com/OpenEnergyPlatform/open-MaStR/pull/303)
-- CSV export: Tables with mastr_data about power units are exported in chunks [#269](https://github.com/OpenEnergyPlatform/open-MaStR/pull/306)
-### Removed
-- [#](https://github.com/rl-institut/super-repo/pull/)
+- API Download: User credentials are now tested before the download starts [#309](https://github.com/OpenEnergyPlatform/open-MaStR/pull/309)
 
 ## [v0.11.4] Patch - Hotfix - 2022-07-08
 
