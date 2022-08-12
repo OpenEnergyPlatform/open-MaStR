@@ -11,6 +11,8 @@ from dateutil.parser import parse
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Query, sessionmaker
 
+from open_mastr.soap_api.download import MaStRAPI
+
 
 def chunks(lst, n):
     """Yield successive n-sized chunks from lst.
@@ -352,3 +354,8 @@ def print_api_settings(
             f"location_types: {api_location_types}",
             "\n   ------------------  \n",
         )
+
+
+def validate_api_credentials() -> None:
+    mastr_api = MaStRAPI()
+    assert mastr_api.GetAktuellerStandTageskontingent()["Ergebniscode"] == "OK"
