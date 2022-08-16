@@ -301,7 +301,10 @@ class Mastr:
         if tables is None:
             technologies_to_export = all_technologies
             additional_tables_to_export = all_additional_tables
-            print(f"Tables: {technologies_to_export}, {additional_tables_to_export}")
+            locations_to_export = api_location_types
+            print(
+                f"Tables: {technologies_to_export}, {additional_tables_to_export}, {locations_to_export}"
+            )
         elif isinstance(tables, list):
             for table in tables:
                 if table in all_technologies:
