@@ -1279,27 +1279,21 @@ class MaStRMirror:
         with open(metadata_file, "w", encoding="utf-8") as f:
             json.dump(metadata, f, ensure_ascii=False, indent=4)
 
-    def reverse_fill_basic_units(self):
+    def reverse_fill_basic_units(self, technology):
         """
         The basic_units table is empty after bulk download.
         To enable csv export, the table is filled from extended
         tables reversely.
+
         .. warning::
         The basic_units table will be dropped and then recreated.
         Returns -------
 
+        Parameters
+        ----------
+        technology: list of str
+            Available technologies are in open_mastr.Mastr.to_csv()
         """
-
-        technology = [
-            "solar",
-            "wind",
-            "biomass",
-            "combustion",
-            "gsgk",
-            "hydro",
-            "nuclear",
-            "storage",
-        ]
 
         with session_scope(engine=self._engine) as session:
             # Empty the basic_units table, because it will be filled entirely from extended tables

@@ -312,7 +312,7 @@ class Mastr:
 
         if technologies_to_export:
             # fill basic unit table, after downloading with method = 'bulk' to use API export functions
-            api_export.reverse_fill_basic_units()
+            api_export.reverse_fill_basic_units(technology=technologies_to_export)
             # export to csv per technology
             api_export.to_csv(
                 technology=technologies_to_export,
