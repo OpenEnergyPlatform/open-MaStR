@@ -1092,6 +1092,7 @@ class MaStRMirror:
         limit=None,
         additional_data=["unit_data", "eeg_data", "kwk_data", "permit_data"],
         statistic_flag="B",
+        chunksize=500000,
     ):
         """
         Export a snapshot MaStR data from mirrored database to CSV
@@ -1130,6 +1131,8 @@ class MaStRMirror:
               date after 31.01.2019 (recommended for statistical purposes).
             * 'A':  Newly registered units with commissioning date before 31.01.2019
             * None: Export all data
+        chunksize: int or None
+            Defines the chunksize of the tables export. Default to 500.000 which is roughly 2.5 GB.
         """
 
         create_data_dir()
@@ -1236,20 +1239,26 @@ class MaStRMirror:
                 if limit:
                     query = query.limit(limit)
 
-                # Read data into pandas.DataFrame
-                df = pd.read_sql(
-                    query.statement, query.session.bind, index_col="EinheitMastrNummer"
-                )
+                # Read data into pandas.DataFrame in chunks of max. 500000 rows of ~2.5 GB RAM
+                for chunck_number, chunk_df in enumerate(
+                    pd.read_sql(
+                        query.statement,
+                        query.session.bind,
+                        index_col="EinheitMastrNummer",
+                        chunksize=chunksize,
+                    )
+                ):
+                    # For debugging purposes, check RAM usage of chunk_df
+                    # chunk_df.info(memory_usage='deep')
 
-                # Remove newline statements from certain strings
-                for col in ["Aktenzeichen", "Behoerde"]:
-                    df[col] = df[col].str.replace("\r", "")
+                    # Make sure no duplicate column names exist
+                    assert not any(chunk_df.columns.duplicated())
 
-                # Make sure no duplicate column names exist
-                assert not any(df.columns.duplicated())
+                    # Remove newline statements from certain strings
+                    for col in ["Aktenzeichen", "Behoerde"]:
+                        chunk_df[col] = chunk_df[col].str.replace("\r", "")
 
-                # Save to CSV
-                to_csv(df, tech)
+                    to_csv(df=chunk_df, technology=tech, chunk_number=chunck_number)
 
             # Create and save data package metadata file along with data
             data_path = get_data_version_dir()
@@ -1270,27 +1279,21 @@ class MaStRMirror:
         with open(metadata_file, "w", encoding="utf-8") as f:
             json.dump(metadata, f, ensure_ascii=False, indent=4)
 
-    def reverse_fill_basic_units(self):
+    def reverse_fill_basic_units(self, technology):
         """
         The basic_units table is empty after bulk download.
         To enable csv export, the table is filled from extended
         tables reversely.
+
         .. warning::
         The basic_units table will be dropped and then recreated.
         Returns -------
 
+        Parameters
+        ----------
+        technology: list of str
+            Available technologies are in open_mastr.Mastr.to_csv()
         """
-
-        technology = [
-            "solar",
-            "wind",
-            "biomass",
-            "combustion",
-            "gsgk",
-            "hydro",
-            "nuclear",
-            "storage",
-        ]
 
         with session_scope(engine=self._engine) as session:
             # Empty the basic_units table, because it will be filled entirely from extended tables

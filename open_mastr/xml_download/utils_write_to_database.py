@@ -235,22 +235,25 @@ def add_zero_as_first_character_for_too_short_string(df: pd.DataFrame) -> pd.Dat
         "Postleitzahl": 5,
     }
     for column_name, string_length in dict_of_columns_and_string_length.items():
-        if column_name in df.columns:
-            try:
-                df[column_name] = df[column_name].astype("Int64").astype(str)
-            except ValueError:
-                # some Plz are in the format DK-9999 for danish Postleitzahl
-                # They cannot be converted to integer
-                df[column_name] = df[column_name].astype(str)
-            df[column_name] = df[column_name].where(
-                cond=-df[column_name].isin(["None", "<NA>"]), other=None
-            )
+        if column_name not in df.columns:
+            continue
+        try:
+            df[column_name] = df[column_name].astype("Int64").astype(str)
+        except (ValueError, TypeError):
+            # some Plz are in the format DK-9999 for danish Postleitzahl
+            # or A-9999 for austrian PLz
+            # They cannot be converted to integer
+            df[column_name] = df[column_name].astype(str)
+            continue
+        df[column_name] = df[column_name].where(
+            cond=-df[column_name].isin(["None", "<NA>"]), other=None
+        )
 
-            string_adding_series = pd.Series(["0"] * len(df))
-            string_adding_series = string_adding_series.where(
-                cond=df[column_name].str.len() == string_length - 1, other=""
-            )
-            df[column_name] = string_adding_series + df[column_name]
+        string_adding_series = pd.Series(["0"] * len(df))
+        string_adding_series = string_adding_series.where(
+            cond=df[column_name].str.len() == string_length - 1, other=""
+        )
+        df[column_name] = string_adding_series + df[column_name]
     return df
 
 
@@ -358,7 +361,7 @@ def handle_xml_syntax_error(data: bytes, err: Error) -> pd.DataFrame:
         if evaluated_string == "<":
             break
         else:
-            decoded_data = decoded_data[:start_char] + decoded_data[start_char + 1:]
+            decoded_data = decoded_data[:start_char] + decoded_data[start_char + 1 :]
     df = pd.read_xml(decoded_data)
     print("One invalid xml expression was deleted.")
     return df

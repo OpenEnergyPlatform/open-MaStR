@@ -1,23 +1,28 @@
 import datetime
-import itertools
+import pytest
+import random
+import pandas as pd
+from os.path import join
 
 import pytest
 from open_mastr.soap_api.mirror import MaStRMirror
 from open_mastr.utils import orm
-from open_mastr.utils.config import get_project_home_dir
+from open_mastr.utils.config import get_project_home_dir, get_data_version_dir
 from open_mastr.utils.data_io import read_csv_data
 from open_mastr.utils.helpers import create_database_engine, session_scope
 
-TECHNOLOGIES = [
-    "wind",
-    "hydro",
-    "solar",
-    "biomass",
-    "combustion",
-    "nuclear",
-    "gsgk",
-    "storage",
-]
+TECHNOLOGIES = random.sample(
+    [
+        "wind",
+        "hydro",
+        "solar",
+        "biomass",
+        "nuclear",
+        "gsgk",
+        "storage",
+    ],
+    k=3,
+)
 DATA_TYPES = ["unit_data", "eeg_data", "kwk_data", "permit_data"]
 LOCATION_TYPES = [
     "location_elec_generation",
@@ -98,21 +103,25 @@ def test_create_additional_data_requests(mastr_mirror, engine):
     depends=["create_additional_data_requests"], name="export_to_csv"
 )
 def test_to_csv(mastr_mirror, engine):
-    for tech in ["nuclear", "storage"]:
-        mastr_mirror.to_csv(
-            technology=tech, additional_data=DATA_TYPES, statistic_flag=None
-        )
-    # Test if all EinheitMastrNummer in basic_units are included in CSV file
     with session_scope(engine=engine) as session:
-        raw_data = read_csv_data("raw")
-        for tech, df in raw_data.items():
-            if tech in ["nuclear", "storage"]:
-                units = session.query(orm.BasicUnit.EinheitMastrNummer).filter(
-                    orm.BasicUnit.Einheittyp
-                    == mastr_mirror.unit_type_map_reversed[tech]
-                )
-                for unit in units:
-                    assert unit.EinheitMastrNummer in df.index
+        for tech in TECHNOLOGIES:
+            mastr_mirror.to_csv(
+                technology=tech,
+                additional_data=DATA_TYPES,
+                statistic_flag=None,
+                chunksize=1,
+            )
+            # Test if all EinheitMastrNummer in basic_units are included in CSV file
+            csv_path = join(
+                get_data_version_dir(),
+                f"bnetza_mastr_{tech}_raw.csv",
+            )
+            df = pd.read_csv(csv_path, index_col="EinheitMastrNummer")
+            units = session.query(orm.BasicUnit.EinheitMastrNummer).filter(
+                orm.BasicUnit.Einheittyp == mastr_mirror.unit_type_map_reversed[tech]
+            )
+            for unit in units:
+                assert unit.EinheitMastrNummer in df.index
 
 
 @pytest.mark.dependency(name="backfill_locations_basic")
