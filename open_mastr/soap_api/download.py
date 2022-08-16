@@ -419,6 +419,7 @@ def to_csv(df: pd.DataFrame, technology: str, chunk_number: int) -> None:
         df.to_csv(
             csv_file,
             mode="a",
+            header=False,
             index=True,
             index_label="EinheitMastrNummer",
             encoding="utf-8",
