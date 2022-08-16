@@ -7,7 +7,7 @@ from os.path import join
 import pytest
 from open_mastr.soap_api.mirror import MaStRMirror
 from open_mastr.utils import orm
-from open_mastr.utils.config import get_project_home_dir
+from open_mastr.utils.config import get_project_home_dir, get_data_version_dir
 from open_mastr.utils.data_io import read_csv_data
 from open_mastr.utils.helpers import create_database_engine, session_scope
 
@@ -113,9 +113,7 @@ def test_to_csv(mastr_mirror, engine):
             )
             # Test if all EinheitMastrNummer in basic_units are included in CSV file
             csv_path = join(
-                get_project_home_dir(),
-                "data",
-                "rli_v3.0.0",
+                get_data_version_dir(),
                 f"bnetza_mastr_{tech}_raw.csv",
             )
             df = pd.read_csv(csv_path, index_col="EinheitMastrNummer")
