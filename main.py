@@ -39,9 +39,9 @@ technology_bulk = [
 # for parameter explanation see: https://open-mastr.readthedocs.io/en/latest/getting_started.html#api-download
 
 api_date = "latest"
-api_chunksize = 1000
+api_chunksize = 10
 api_limit = 10
-api_processes = "max"
+api_processes = None
 
 technology_api = [
     "biomass",

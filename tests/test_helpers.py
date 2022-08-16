@@ -1,6 +1,7 @@
 from open_mastr.utils.helpers import (
     validate_parameter_format_for_download_method,
     validate_parameter_format_for_mastr_init,
+    validate_api_credentials,
 )
 import pytest
 import sys
@@ -190,7 +191,7 @@ def get_parameters_from_parameter_dict(parameter_dict):
 
 
 def test_validate_parameter_format_for_mastr_init(db):
-    engine_list_working = ["sqlite", "docker-postgres", db._engine]
+    engine_list_working = ["sqlite", "docker-postgres", db.engine]
     engine_list_failing = ["HI", 12]
 
     for engine in engine_list_working:
@@ -199,3 +200,7 @@ def test_validate_parameter_format_for_mastr_init(db):
     for engine in engine_list_failing:
         with pytest.raises(ValueError):
             validate_parameter_format_for_mastr_init(engine)
+
+
+def test_validate_api_credentials():
+    validate_api_credentials()

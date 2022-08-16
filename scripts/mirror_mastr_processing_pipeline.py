@@ -1,4 +1,4 @@
-from open_mastr.data_io import zenodo_upload, read_csv_data
+from open_mastr.utils.data_io import zenodo_upload, read_csv_data
 from open_mastr.postprocessing.cleaning import cleaned_data
 from open_mastr.postprocessing.postprocessing import postprocess
 from open_mastr.postprocessing.postprocessing import to_csv

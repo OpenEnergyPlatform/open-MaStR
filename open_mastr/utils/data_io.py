@@ -6,16 +6,16 @@ import pathlib
 import pynodo
 import yaml
 
-from open_mastr.soap_api.config import get_filenames, get_data_version_dir, get_power_unit_types
+from open_mastr.utils.config import (
+    get_filenames,
+    get_data_version_dir,
+    get_power_unit_types,
+)
 from open_mastr.soap_api.metadata.create import datapackage_meta_json
 from open_mastr.utils.credentials import get_zenodo_token
 
 
-dtypes = {
-    "Postleitzahl": str,
-    "Gemeindeschluessel": str,
-    "Bruttoleistung": float
-}
+dtypes = {"Postleitzahl": str, "Gemeindeschluessel": str, "Bruttoleistung": float}
 
 
 def filter(df):
@@ -53,9 +53,9 @@ def convert_datetime(row):
         Pandas timestamp is returned which bases on datetime
     """
     try:
-        datetime_date = pd.to_datetime(row, format='%Y-%m-%d %H:%M:%S.%f%z')
+        datetime_date = pd.to_datetime(row, format="%Y-%m-%d %H:%M:%S.%f%z")
     except ValueError:
-        datetime_date = pd.to_datetime(row, format='%Y-%m-%d %H:%M:%S', errors='coerce')
+        datetime_date = pd.to_datetime(row, format="%Y-%m-%d %H:%M:%S", errors="coerce")
     return datetime_date
 
 
@@ -69,7 +69,7 @@ def read_csv_data(data_stage):
 
         * "raw": Raw MaStR data is read
         * "cleaned": Cleaned MaStR data is read
-    
+
     """
 
     data_dir = get_data_version_dir()
@@ -79,19 +79,18 @@ def read_csv_data(data_stage):
     data = {}
     for technology, filename in filenames[data_stage].items():
         if technology in power_unit_types:
-            if data_stage == "raw" :
+            if data_stage == "raw":
                 filename = filename["joined"]
             data_file = os.path.join(data_dir, filename)
             if os.path.isfile(data_file):
                 data[technology] = pd.read_csv(
-                        data_file,
-                        parse_dates=["Inbetriebnahmedatum",
-                            "DatumLetzteAktualisierung"],
-                        index_col="EinheitMastrNummer",
-                        sep=",",
-                        date_parser=convert_datetime,
-                        dtype=dtypes
-                        )
+                    data_file,
+                    parse_dates=["Inbetriebnahmedatum", "DatumLetzteAktualisierung"],
+                    index_col="EinheitMastrNummer",
+                    sep=",",
+                    date_parser=convert_datetime,
+                    dtype=dtypes,
+                )
             else:
                 pass
 
@@ -115,19 +114,25 @@ def save_cleaned_data(data):
     # Iterate through dict and save individual dataframes to CSV
     for tech, dat in data.items():
         data_file = os.path.join(data_dir, filenames["cleaned"][tech])
-        dat.to_csv(data_file, index=True, index_label="EinheitMastrNummer", encoding='utf-8')
+        dat.to_csv(
+            data_file, index=True, index_label="EinheitMastrNummer", encoding="utf-8"
+        )
 
         newest_date = dat["DatumLetzteAktualisierung"].max()
 
     # Save metadata along with data
     metadata_file = os.path.join(data_dir, filenames["metadata"])
-    metadata = datapackage_meta_json(newest_date, data.keys(), data=["raw", "cleaned"], json_serialize=False)
+    metadata = datapackage_meta_json(
+        newest_date, data.keys(), data=["raw", "cleaned"], json_serialize=False
+    )
 
-    with open(metadata_file, 'w', encoding='utf-8') as f:
+    with open(metadata_file, "w", encoding="utf-8") as f:
         json.dump(metadata, f, ensure_ascii=False, indent=4)
 
 
-def zenodo_upload(data_stages=["raw", "cleaned", "postprocessed"], zenodo_token=None, sandbox=True):
+def zenodo_upload(
+    data_stages=["raw", "cleaned", "postprocessed"], zenodo_token=None, sandbox=True
+):
     """
     Upload MaStR data to a new Zenodo deposit
 
@@ -159,18 +164,16 @@ def zenodo_upload(data_stages=["raw", "cleaned", "postprocessed"], zenodo_token=
     if not zenodo_token:
         raise ValueError("No Zenodo token provided. Can't upload.")
 
-
     # Prepare metadata for Zenodo deposit
     with open(metadata_file, "r") as read_file:
         metadata = json.load(read_file)
     zenodo_required_metadata = {
         "upload_type": "dataset",
         "publication_date": metadata["created"].split(" ")[0],
-        "creators": [{
-            "name": contributor["title"],
-            "affiliation": contributor["organization"]
-        }
-            for contributor in metadata["contributors"]],
+        "creators": [
+            {"name": contributor["title"], "affiliation": contributor["organization"]}
+            for contributor in metadata["contributors"]
+        ],
         "access_right": "open",
         "license": "other-at",
         "title": metadata["title"],
@@ -190,7 +193,11 @@ def zenodo_upload(data_stages=["raw", "cleaned", "postprocessed"], zenodo_token=
     )
 
     # Upload LICENSE file
-    zen_files.upload(os.path.join(pathlib.Path(__file__).parent.absolute(), "soap_api", "metadata", "LICENSE"))
+    zen_files.upload(
+        os.path.join(
+            pathlib.Path(__file__).parent.absolute(), "soap_api", "metadata", "LICENSE"
+        )
+    )
 
     # Upload actual data
     for data_stage in data_stages:
@@ -210,7 +217,8 @@ def cleaned_data(save_csv=True):
 
     Cleaning includes:
 
-    * Removal of duplicates originating from migrated and directly entered data in MaStR which describes the same unit
+    * Removal of duplicates originating from migrated and directly entered data in MaStR
+    which describes the same unit
 
     Parameters
     ----------

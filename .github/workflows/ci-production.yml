@@ -3,11 +3,9 @@ name: CI
 on:
   push:
     branches:
-      - develop
       - production
   pull_request:
     branches:
-      - develop
       - production
 
 jobs:
@@ -18,8 +16,8 @@ jobs:
     if: ${{ !github.event.pull_request.draft }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
-        python-version: [3.8, 3.9, '3.10']
+        os: [macos-latest, ubuntu-latest, windows-latest]
+        python-version: [3.9, '3.10']
     name: pytest (Python ${{ matrix.python-version }}) (OS ${{ matrix.os }})
 
     # Configure tests
@@ -32,13 +30,19 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -e ".[dev]"
+    - name: create package
+      run: python setup.py sdist
+    - name: import open-mastr
+      run: python -m pip install ./dist/open_mastr-0.11.5.tar.gz	
     - name: Create credentials file
       env:
         MASTR_TOKEN: ${{ secrets.MASTR_TOKEN }}
         MASTR_USER: ${{ secrets.MASTR_USER }}
       run: |
         python -c "from tests import preparation; preparation.create_credentials_file()"
+    - name: Install pytest
+      run: |
+        python -m pip install pytest
     - name: Test with pytest
       run: |
         pytest -vv
