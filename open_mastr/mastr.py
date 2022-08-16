@@ -103,6 +103,12 @@ class Mastr:
             Number of parallel processes used to download additional data.
             Defaults to `None`. If set to "max", the maximum number of possible processes
             is used.
+
+            .. warning::
+
+                The implementation of parallel processes is currently under construction.
+                Please let the argument `api_processes` at the default value `None`.
+
         api_limit: int or None, optional
             Limit number of units that data is download for. Defaults to `None` which refers
             to query data for existing data requests, for example created by
@@ -182,6 +188,14 @@ class Mastr:
                 api_data_types=api_data_types,
                 api_location_types=api_location_types,
             )
+
+            # Set api_processes to None in order to avoid the malfunctioning usage
+            if api_processes:
+                api_processes = None
+                print(
+                    "Warning: The implementation of parallel processes is currently under construction. Please let "
+                    "the argument api_processes at the default value None."
+                )
 
             print_api_settings(
                 harmonisation_log=harm_log,

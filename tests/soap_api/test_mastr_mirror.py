@@ -1,12 +1,14 @@
 import datetime
 import pytest
 import random
+import itertools
 
-from open_mastr.utils.data_io import read_csv_data
+import pytest
 from open_mastr.soap_api.mirror import MaStRMirror
 from open_mastr.utils import orm
-from open_mastr.utils.helpers import session_scope, create_database_engine
 from open_mastr.utils.config import get_project_home_dir
+from open_mastr.utils.data_io import read_csv_data
+from open_mastr.utils.helpers import create_database_engine, session_scope
 
 TECHNOLOGIES = random.sample(
     [
@@ -34,7 +36,7 @@ DATE = datetime.datetime(2020, 11, 27, 0, 0, 0)
 @pytest.fixture
 def mastr_mirror():
     engine = create_database_engine("sqlite", get_project_home_dir())
-    return MaStRMirror(engine=engine, parallel_processes=2)
+    return MaStRMirror(engine=engine)
 
 
 @pytest.fixture
