@@ -1,5 +1,6 @@
 import datetime
 import pytest
+import random
 
 from open_mastr.utils.data_io import read_csv_data
 from open_mastr.soap_api.mirror import MaStRMirror
@@ -7,16 +8,18 @@ from open_mastr.utils import orm
 from open_mastr.utils.helpers import session_scope, create_database_engine
 from open_mastr.utils.config import get_project_home_dir
 
-TECHNOLOGIES = [
-    "wind",
-    "hydro",
-    "solar",
-    "biomass",
-    "combustion",
-    "nuclear",
-    "gsgk",
-    "storage",
-]
+TECHNOLOGIES = random.sample(
+    [
+        "wind",
+        "hydro",
+        "solar",
+        "biomass",
+        "nuclear",
+        "gsgk",
+        "storage",
+    ],
+    k=3,
+)
 DATA_TYPES = ["unit_data", "eeg_data", "kwk_data", "permit_data"]
 LOCATION_TYPES = [
     "location_elec_generation",
@@ -97,7 +100,7 @@ def test_create_additional_data_requests(mastr_mirror, engine):
     depends=["create_additional_data_requests"], name="export_to_csv"
 )
 def test_to_csv(mastr_mirror, engine):
-    for tech in ["nuclear", "storage"]:
+    for tech in TECHNOLOGIES:
         mastr_mirror.to_csv(
             technology=tech,
             additional_data=DATA_TYPES,
@@ -108,7 +111,7 @@ def test_to_csv(mastr_mirror, engine):
     with session_scope(engine=engine) as session:
         raw_data = read_csv_data("raw")
         for tech, df in raw_data.items():
-            if tech in ["nuclear", "storage"]:
+            if tech in TECHNOLOGIES:
                 units = session.query(orm.BasicUnit.EinheitMastrNummer).filter(
                     orm.BasicUnit.Einheittyp
                     == mastr_mirror.unit_type_map_reversed[tech]
