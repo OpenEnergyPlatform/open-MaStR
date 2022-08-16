@@ -41,7 +41,7 @@ setup(
     ],
     python_requires=">=3.8, <4",  # 3.8 is needed for pandas 1.4
     install_requires=[
-        "pandas>=1.4",  # pandas 1.4 is needed for read_xml
+        "pandas>=1.4",  # pandas 1.4 is needed for pd.read_xml
         "numpy",
         "sqlalchemy",
         "psycopg2-binary",
