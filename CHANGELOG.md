@@ -22,6 +22,7 @@ Here is a template for new release sections:
 
 ### Added
 - Pre-commit hook for Black formatting [#312](https://github.com/OpenEnergyPlatform/open-MaStR/pull/312)
+
 ### Changed
 - Use exclusively sqlalchemy for dialect-free implementation [#289](https://github.com/OpenEnergyPlatform/open-MaStR/pull/289)
 - API Download: Linked units in table permit are written in comma seperated string [#302](https://github.com/OpenEnergyPlatform/open-MaStR/pull/302)
@@ -29,11 +30,12 @@ Here is a template for new release sections:
 - API Download: User credentials are now tested before the download starts [#309](https://github.com/OpenEnergyPlatform/open-MaStR/pull/309)
 
 ### Removed
-- [#](https://github.com/rl-institut/super-repo/pull/)
+- Delete the MastrDownloadFactory class [#292](https://github.com/OpenEnergyPlatform/open-MaStR/pull/292)
 
 ## [v0.11.4] Patch - Hotfix - 2022-07-08
 
 ### Added
+
 ### Changed
 - Move function cleaned_data to data_io [#284](https://github.com/OpenEnergyPlatform/open-MaStR/pull/284)
 
@@ -42,6 +44,7 @@ Here is a template for new release sections:
 ### Added
 - Add warning message if the bulk download speed falls below a certain limit [#256](https://github.com/OpenEnergyPlatform/open-MaStR/issues/256)
 - Add engine parameter for master class initialisation [#270](https://github.com/OpenEnergyPlatform/open-MaStR/pull/270)
+
 ### Changed
 - Refactor code and restructure modules [#273](https://github.com/OpenEnergyPlatform/open-MaStR/pull/273)
 - Fix combustion mapping [#253](https://github.com/rl-institut/super-repo/pull/253)

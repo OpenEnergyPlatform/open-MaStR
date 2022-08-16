@@ -59,16 +59,19 @@ additional parameters can be set to define in detail which data should be obtain
      - Select location_types to download.
    * - api_processes
      - Number of type int, e.g.: 5
-     - Select the number of parallel download processes. Possible number depends on the capabilities of your machine. Defaults to `Ǹone`.
+     - Select the number of parallel download processes. Possible number depends on the capabilities of your machine. Defaults to `None`.
    * - api_limit
      - Number of type int, e.g.: 1500
      - Select the number of entries to download. Defaults to 50.
    * - api_date
      - None or :class:`datetime.datetime` or str
-     - Specify backfill date from which on data is retrieved. Only data with time stamp greater that `api_date` will be retrieved. Defaults to `Ǹone`.
+     - Specify backfill date from which on data is retrieved. Only data with time stamp greater that `api_date` will be retrieved. Defaults to `None`.
    * - api_chunksize
      - int or None, e.g.: 1000
      - Data is downloaded and inserted into the database in chunks of `api_chunksize`. Defaults to 1000.
+
+.. warning::
+    The implementation of parallel processes is currently under construction. Please let the argument `api_processes` at the default value `None`.
 
 The default settings will download retrieved data into the sqlite database. The function can be used to mirror the open-MaStR database regularly
 without needing to download the `provided dumps <https://www.marktstammdatenregister.de/MaStR/Datendownload>`_  daily.
