@@ -179,6 +179,19 @@ class Mastr:
 
         if method == "API":
             validate_api_credentials()
+            if isinstance(technology, str):
+                technology = [technology]
+            elif technology is None:
+                technology = [
+                    "wind",
+                    "biomass",
+                    "combustion",
+                    "gsgk",
+                    "hydro",
+                    "nuclear",
+                    "storage",
+                    "solar",
+                ]
             (
                 harm_log,
                 api_data_types,
@@ -280,6 +293,7 @@ class Mastr:
             "gas_storage_extended",
             "grid_connections",
             "grids",
+            "locations_extended",
             "market_actors",
             "market_roles",
         ]
@@ -294,32 +308,24 @@ class Mastr:
         # Determine tables to export
         technologies_to_export = []
         additional_tables_to_export = []
-        locations_to_export = []
         if isinstance(tables, str):
             # str to list
             tables = [tables]
         if tables is None:
             technologies_to_export = all_technologies
             additional_tables_to_export = all_additional_tables
-            locations_to_export = api_location_types
-            print(
-                f"Tables: {technologies_to_export}, {additional_tables_to_export}, {locations_to_export}"
-            )
+            print(f"Tables: {technologies_to_export}, {additional_tables_to_export}")
         elif isinstance(tables, list):
             for table in tables:
                 if table in all_technologies:
                     technologies_to_export.append(table)
                 elif table in all_additional_tables:
                     additional_tables_to_export.append(table)
-                elif table in api_location_types:
-                    locations_to_export.append(table)
                 else:
                     raise ValueError("Tables parameter has an invalid string!")
 
         if technologies_to_export:
             print(f"\nTechnology tables: {technologies_to_export}")
-        if locations_to_export:
-            print(f"\nLocation tables: {locations_to_export}")
         if additional_tables_to_export:
             print(f"\nAdditional tables: {additional_tables_to_export}")
 
@@ -338,10 +344,6 @@ class Mastr:
                 chunksize=chunksize,
             )
 
-        if locations_to_export:
-            for location_type in api_location_types:
-                api_export.locations_to_csv(location_type=location_type, limit=limit)
-
         # Export additional tables mirrored via pd.DataFrame.to_csv()
         for table in additional_tables_to_export:
             try:
@@ -354,6 +356,3 @@ class Mastr:
             if not df.empty:
                 path_of_table = os.path.join(data_path, f"bnetza_mastr_{table}_raw.csv")
                 df.to_csv(path_or_buf=path_of_table, encoding="utf-16")
-
-        # clean raw csv's and create cleaned csv's
-        # cleaned_data()
