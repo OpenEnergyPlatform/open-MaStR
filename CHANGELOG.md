@@ -17,6 +17,9 @@ Here is a template for new release sections:
 ### Removed
 - [#](https://github.com/rl-institut/super-repo/pull/)
 ```
+## [v0.11.6] Patch - Hotfix - 2022-08-17
+### Changed
+- Repair technology paramter in API download [#327](https://github.com/OpenEnergyPlatform/open-MaStR/pull/327)
 
 ## [v0.11.5] Patch - Repair package - 2022-08-16
 
