@@ -1,4 +1,5 @@
-﻿==========
+﻿
+==========
 open-mastr
 ==========
 
@@ -11,7 +12,7 @@ open-mastr
      - |badge_license|
    * - Documentation
      - |badge_rtd|
-    * - Tests
+   * - Tests
      - |badge_ci|
    * - Publication
      - |badge_pypi| |badge_zenodo|
