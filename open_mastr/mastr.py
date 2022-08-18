@@ -16,7 +16,6 @@ from open_mastr.utils.helpers import (
     validate_api_credentials,
 )
 from open_mastr.utils.config import create_data_dir, get_data_version_dir
-from open_mastr.utils.data_io import cleaned_data
 
 
 # import initialize_database dependencies
