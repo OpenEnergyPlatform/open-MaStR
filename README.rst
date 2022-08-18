@@ -1,10 +1,9 @@
-﻿==========
+﻿
+==========
 open-mastr
 ==========
 
 **A package that provides an interface for downloading and processing the Marktstammdatenregister (MaStR)**
-
-------------------------------
 
 .. raw:: html
 
