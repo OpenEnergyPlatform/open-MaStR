@@ -5,11 +5,6 @@ open-mastr
 
 **A package that provides an interface for downloading and processing the Marktstammdatenregister (MaStR)**
 
-.. raw:: html
-
-    <a href="https://www.marktstammdatenregister.de/MaStR"><img src="https://www.marktstammdatenregister.de/MaStRHilfe/img/logo_MaStR.svg" align="left" height="100" alt="MaStR"></a>
-    <a href="https://openenergy-platform.org/"><img src="https://avatars2.githubusercontent.com/u/37101913?s=400&u=9b593cfdb6048a05ea6e72d333169a65e7c922be&v=4" align="right" width="100" height="100" alt="OpenEnergyPlatform"></a>
-
 .. list-table::
    :widths: 10, 50
 
