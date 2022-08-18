@@ -17,9 +17,21 @@ Here is a template for new release sections:
 ### Removed
 - [#](https://github.com/rl-institut/super-repo/pull/)
 ```
+
+## [unreleased]
+
+### Added
+- Read version number for CI from setup.py [#333](https://github.com/rl-institut/super-repo/pull/333)
+### Changed
+- [#](https://github.com/rl-institut/super-repo/pull/)
+### Removed
+- [#](https://github.com/rl-institut/super-repo/pull/)
+
+
 ## [v0.11.6] Patch - Hotfix - 2022-08-17
 ### Changed
 - Repair technology paramter in API download [#327](https://github.com/OpenEnergyPlatform/open-MaStR/pull/327)
+
 
 ## [v0.11.5] Patch - Repair package - 2022-08-16
 
@@ -36,12 +48,14 @@ Here is a template for new release sections:
 ### Removed
 - Delete the MastrDownloadFactory class [#292](https://github.com/OpenEnergyPlatform/open-MaStR/pull/292)
 
+
 ## [v0.11.4] Patch - Hotfix - 2022-07-08
 
 ### Added
 
 ### Changed
 - Move function cleaned_data to data_io [#284](https://github.com/OpenEnergyPlatform/open-MaStR/pull/284)
+
 
 ## [v0.11.3] Patch - A data release - 2022-07-07
 
@@ -67,6 +81,7 @@ Here is a template for new release sections:
 
 ### Added
 - Add files and metadata for PyPi release [#237](https://github.com/OpenEnergyPlatform/open-MaStR/issues/237)
+
 
 ##  [v0.11.0] Unreleased - Forces unite - 2022-05-16
 
