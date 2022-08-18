@@ -1,4 +1,9 @@
 ﻿
+.. figure:: https://www.marktstammdatenregister.de/MaStRHilfe/img/logo_MaStR.svg
+    :align: left
+    :target: https://github.com/OpenEnergyPlatform/open-MaStR
+    :alt: MaStR logo
+
 ==========
 open-mastr
 ==========
@@ -32,12 +37,13 @@ Introduction
 The `Marktstammdatenregister (MaStR) <https://www.marktstammdatenregister.de/MaStR>`_ is a German register 
 provided by the German Federal Network Agency (Bundesnetzagentur / BNetza) that keeps track of all power and gas units located in Germany.
 
-The MaStR data can be 
-# 1. browsed `online <https://www.marktstammdatenregister.de/MaStR>`_
-# 2. taken from `daily provided XML dumps <https://www.marktstammdatenregister.de/MaStR/Datendownload>`_
-# 3. be accessed via the `web service <https://www.marktstammdatenregister.de/MaStRHilfe/subpages/webdienst.html>`_
+The MaStR data can be
+ 
+#. 1. browsed `online <https://www.marktstammdatenregister.de/MaStR>`_
+#. 2. taken from `daily provided XML dumps <https://www.marktstammdatenregister.de/MaStR/Datendownload>`_
+#. 3. be accessed via the `web service <https://www.marktstammdatenregister.de/MaStRHilfe/subpages/webdienst.html>`_
 
-| The python package `open-mastr` provides an interface for accessing the data. 
+| The python package ``open-mastr`` provides an interface for accessing the data. 
 | It contains methods to download and parse the xml files (bulk) and the web service (API).
 | In this repository we are developing methods to analyze, validate and enrich the data.
 | We want to collect and compile post processing scripts to improve data quality.
@@ -46,10 +52,12 @@ The MaStR data can be
 Documentation
 =============
 
-Documentation is in `sphinx
+The documentation is in `sphinx
 <http://www.sphinx-doc.org/en/stable/>`_ reStructuredText format 
-in the `doc` sub-folder of the repository.
+in the ``doc`` sub-folder of the repository.
 Find the [documentation](https://open-mastr.readthedocs.io/en/dev) hosted on ReadTheDocs.
+
+The original API documentation can be found on the `Webhilfe des Marktstammdaten­registers <https://www.marktstammdatenregister.de/MaStRHilfe/subpages/webdienst.html>`_.
 
 If you are interested in browsing the MaStR online, check out the
 privately hosted `Marktstammdatenregister.dev <https://marktstammdatenregister.dev/>`_.
@@ -60,39 +68,46 @@ Also see the `bundesAPI/Marktstammdaten-API <https://github.com/bundesAPI/markts
 Installation
 ============
 
-It is recommended to use a virtual python environment, for example [conda](https://docs.conda.io/en/latest/miniconda.html) or 
-[virtualenv](https://virtualenv.pypa.io/en/latest/installation.html).
-The package is intended to be used with Python >=3.8
+| It is recommended to use a virtual python environment, for example `conda <https://docs.conda.io/en/latest/miniconda.html>`_ or 
+`virtualenv <https://virtualenv.pypa.io/en/latest/installation.html>`_.
+| The package is intended to be used with ``Python >=3.8``.
+
+
+**PyPI**
 
 Install the current release of ``open-mastr`` with ``pip``:
+
+.. code-block:: python
 
     $ pip install open-mastr
 
 To upgrade to a newer release use the ``--upgrade`` flag:
 
+.. code-block:: python
+
     $ pip install --upgrade open-mastr
 
 
-Alternatively, you can manually download ``open-mastr`` from
-`GitHub <https://github.com/OpenEnergyPlatform/open-MaStR>`_. 
-Change the CWD to the download folder `open-MaStR/`.
+**GitHub**
 
-```bash
-git clone git@github.com:OpenEnergyPlatform/open-MaStR.git
-cd open-MaStR
-```
+For development, clone this repository manually.
 
-Optionally, a pre-defined conda environment can be used with 
+.. code-block:: bash
 
-```bash
-conda env create -f environment.yml
-```
-   
+    git clone git@github.com:OpenEnergyPlatform/open-MaStR.git
+    cd open-MaStR
+
+Setup the conda environment with
+
+.. code-block:: bash
+    conda env create -f environment.yml
+
+
 Install the package with
 
-```bash
-python setup.py install
-```
+.. code-block:: bash
+    python setup.py install
+
 
 
 Collaboration
