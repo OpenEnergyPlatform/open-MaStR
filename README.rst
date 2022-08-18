@@ -8,6 +8,7 @@
 open-mastr
 ==========
 
+
 **A package that provides an interface for downloading and processing the Marktstammdatenregister (MaStR)**
 
 .. list-table::
@@ -73,7 +74,8 @@ Installation
 | The package is intended to be used with ``Python >=3.8``.
 
 
-**PyPI**
+PyPI
+----
 
 Install the current release of ``open-mastr`` with ``pip``:
 
@@ -82,7 +84,8 @@ Install the current release of ``open-mastr`` with ``pip``:
     pip install open-mastr
 
 
-**GitHub**
+GitHub
+------
 
 For development, clone this repository manually.
 
@@ -97,13 +100,11 @@ Setup the conda environment with
 
     conda env create -f environment.yml
 
-
 Install the package with
 
 .. code-block:: python
 
     python setup.py install
-
 
 
 Collaboration
@@ -133,11 +134,11 @@ License and Citation
 
 .. |badge_pypi| image:: https://img.shields.io/pypi/v/open-mastr.svg
     :target: https://pypi.org/project/open-mastr/
-    :alt: PyPI Package latest release
+    :alt: PyPI
 
 .. |badge_zenodo| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.6807426.svg
     :target: https://doi.org/10.5281/zenodo.6807426
-    :alt: Zenodo
+    :alt: zenodo
 
 .. |badge_issue_open| image:: https://img.shields.io/github/issues-raw/OpenEnergyPlatform/open-MaStR
     :alt: open issues
