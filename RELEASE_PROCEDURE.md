@@ -56,8 +56,6 @@ It always has the format `YYYY-MM-DD`, e.g. `2022-05-16`.
 * `📝setup.py`
     * Update `version`
     * Update `download_url` (.../v0.5.1.tar.gz)
-* `📝CI` (❗ToDo❗)
-    * Update `download_url`
 
 ### 6. 🐙 Create a `Release Pull Request`
 * Use `📝PR_TEMPLATE_RELEASE` (❗ToDo❗)
@@ -84,7 +82,7 @@ It always has the format `YYYY-MM-DD`, e.g. `2022-05-16`.
 * Check that file has been created in folder `dist`
 * Activate python environment `activate release_py38`
 * Upload to PyPi using `twine upload dist/NAME_0.5.1.tar.gz`
-* Enter *name* and *password*
+* Enter `name` and `password`
 * Check on PyPi if release arrived
 * Breath three times and smile
 
@@ -95,7 +93,7 @@ It always has the format `YYYY-MM-DD`, e.g. `2022-05-16`.
 * Choose the correct git *tag*
 * Enter the version number as title
 * Summarize key changes in the description
-    * Add a link to the `📝CHANGELOG.md` section
+    * Add a link to the `📝CHANGELOG.md`
         * `A comprehensive list of additions, changes and deletions can be found at [**CHANGELOG.md**](https://github.com/GROUP/REPO/blob/production/CHANGELOG.md)`
     * Add a link to compare versions
         * `**Compare versions:** [v0.5.0 - v0.5.1](https://github.com/OpenEnergyPlatform/open-MaStR/compare/v0.5.0...v0.5.1)`
@@ -106,8 +104,9 @@ It always has the format `YYYY-MM-DD`, e.g. `2022-05-16`.
 
 ### 10. 🐙 Setup new release
 * Create a Pull request from `production` to `develop`
-* Create a new *unreleased section* in the `📝CHANGELOG.md`
+* Create a new **unreleased section** in the `📝CHANGELOG.md`
 
+▶️ Start the next developments
 
 ## Documentation on Read the Docs (RTD)
 ToDo
