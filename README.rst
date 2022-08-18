@@ -1,5 +1,5 @@
 ﻿
-.. figure:: https://www.marktstammdatenregister.de/MaStRHilfe/img/logo_MaStR.svg
+.. image:: https://www.marktstammdatenregister.de/MaStRHilfe/img/logo_MaStR.svg
     :align: left
     :target: https://github.com/OpenEnergyPlatform/open-MaStR/
     :alt: MaStR logo
