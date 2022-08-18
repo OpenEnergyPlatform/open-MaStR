@@ -112,10 +112,10 @@ License and Citation
     :target: LICENSE.txt
     :alt: License
 
-.. |badge_rtd| image:: https://open-mastr.readthedocs.io/en/latest/
+.. |badge_rtd| image:: https://open-mastr.readthedocs.io/en/latest
     :alt: Read the Docs
 
-.. |badge_ci| image:: https://github.com/OpenEnergyPlatform/open-MaStR/actions?query=workflow%3ACI
+.. |badge_ci| image:: https://github.com/OpenEnergyPlatform/open-MaStR/actions?query=workflow:CI
     :alt: GitHub Actions
 
 .. |badge_pypi| image:: https://img.shields.io/pypi/v/open-mastr.svg
