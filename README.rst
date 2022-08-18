@@ -1,14 +1,19 @@
-﻿.. raw:: html
+﻿==========
+open-mastr
+==========
+
+**A package that provides an interface for downloading and processing the Marktstammdatenregister (MaStR)**
+
+------------------------------
+
+.. raw:: html
 
     <img src="https://www.marktstammdatenregister.de/MaStRHilfe/img/logo_MaStR.svg" align="left" height="100" alt="MaStR">
 
 ------------------------------
 
-==========
-open-mastr
-==========
 
-**A package that provides an interface for downloading and processing the Marktstammdatenregister (MaStR)**
+
 
 .. list-table::
    :widths: 10, 50
