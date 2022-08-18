@@ -29,22 +29,18 @@ open-mastr
 Introduction
 ============
 
-The [Marktstammdatenregister (MaStR)](https://www.marktstammdatenregister.de/MaStR) is a German register 
-provided by the German Federal Network Agency (Bundesnetzagentur) that keeps track of all power and gas units located in Germany.
+The `Marktstammdatenregister (MaStR) <https://www.marktstammdatenregister.de/MaStR>`_ is a German register 
+provided by the German Federal Network Agency (Bundesnetzagentur / BNetza) that keeps track of all power and gas units located in Germany.
 
 The MaStR data can be 
-1. browsed [online](https://www.marktstammdatenregister.de/MaStR)
-2. taken from [daily provided dumps](https://www.marktstammdatenregister.de/MaStR/Datendownload)
-3. be accessed via the [web service](https://www.marktstammdatenregister.de/MaStRHilfe/subpages/webdienst.html)
+# 1. browsed `online <https://www.marktstammdatenregister.de/MaStR>`_
+# 2. taken from `daily provided XML dumps <https://www.marktstammdatenregister.de/MaStR/Datendownload>`_
+# 3. be accessed via the `web service <https://www.marktstammdatenregister.de/MaStRHilfe/subpages/webdienst.html>`_
 
-The python package ``open-mastr`` provides an interface for accessing the data. 
-It contains methods to download and parse the xml files (bulk) and the web service (API).
-
-In this repository we are developing methods to analyze, validate and enrich the data.
-We want to collect and compile post processing scripts to improve data quality.
-
-If you are interested in browsing the MaStR online, check out the
-privately hosted [Marktstammdatenregister.dev](https://marktstammdatenregister.dev/).
+| The python package `open-mastr` provides an interface for accessing the data. 
+| It contains methods to download and parse the xml files (bulk) and the web service (API).
+| In this repository we are developing methods to analyze, validate and enrich the data.
+| We want to collect and compile post processing scripts to improve data quality.
 
 
 Documentation
@@ -52,8 +48,13 @@ Documentation
 
 Documentation is in `sphinx
 <http://www.sphinx-doc.org/en/stable/>`_ reStructuredText format 
-in the ``doc`` sub-folder of the repository.
+in the `doc` sub-folder of the repository.
 Find the [documentation](https://open-mastr.readthedocs.io/en/dev) hosted on ReadTheDocs.
+
+If you are interested in browsing the MaStR online, check out the
+privately hosted `Marktstammdatenregister.dev <https://marktstammdatenregister.dev/>`_.
+
+Also see the `bundesAPI/Marktstammdaten-API <https://github.com/bundesAPI/marktstammdaten-api>`_ for another implementation.
 
 
 Installation
