@@ -1,8 +1,6 @@
-﻿
-.. raw:: html
+﻿.. raw:: html
 
-   <img src="https://www.marktstammdatenregister.de/MaStRHilfe/img/logo_MaStR.svg" align="left" height="100" alt="MaStR">
-
+    <img src="https://www.marktstammdatenregister.de/MaStRHilfe/img/logo_MaStR.svg" align="left" height="100" alt="MaStR">
 
 ------------------------------
 
