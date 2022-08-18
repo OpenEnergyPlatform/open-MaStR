@@ -1,10 +1,15 @@
 ﻿
-|fig_mastr|
+.. raw:: html
+
+    <a href="https://github.com/OpenEnergyPlatform/open-MaStR/"><img align="left" width="100" height="100" src="https://www.marktstammdatenregister.de/MaStRHilfe/img/logo_MaStR.svg" alt="MaStR"></a>
+    <a href="https://github.com/OpenEnergyPlatform/oemetadata/"><img align="right" width="100" height="100" src="https://raw.githubusercontent.com/OpenEnergyPlatform/organisation/master/logo/OpenEnergyFamily_Logo_OEMetadata.png" alt="OpenEnergyMetadata"></a>
+    <a href="https://openenergy-platform.org/"><img align="right" width="100" height="100" src="https://avatars2.githubusercontent.com/u/37101913?s=400&u=9b593cfdb6048a05ea6e72d333169a65e7c922be&v=4" alt="OpenEnergyPlatform"></a>
+
+------------------------------
 
 ==========
 open-mastr
 ==========
-
 
 **A package that provides an interface for downloading and processing the Marktstammdatenregister (MaStR)**
 
@@ -50,26 +55,19 @@ The MaStR data can be
 Documentation
 =============
 
-The documentation is in `sphinx
-<http://www.sphinx-doc.org/en/stable/>`_ reStructuredText format 
-in the ``doc`` sub-folder of the repository.
-Find the `documentation <https://open-mastr.readthedocs.io/en/dev>`_ hosted on ReadTheDocs.
+| The documentation is in `sphinx <http://www.sphinx-doc.org/en/stable/>`_ reStructuredText format in the ``doc`` sub-folder of the repository.
+| Find the `documentation <https://open-mastr.readthedocs.io/en/dev>`_ hosted on ReadTheDocs.
 
-The original API documentation can be found on the `Webhilfe des Marktstammdatenregisters <https://www.marktstammdatenregister.de/MaStRHilfe/subpages/webdienst.html>`_.
-
-If you are interested in browsing the MaStR online, check out the
-privately hosted `Marktstammdatenregister.dev <https://marktstammdatenregister.dev/>`_.
-
-Also see the `bundesAPI/Marktstammdaten-API <https://github.com/bundesAPI/marktstammdaten-api>`_ for another implementation.
+| The original API documentation can be found on the `Webhilfe des Marktstammdatenregisters <https://www.marktstammdatenregister.de/MaStRHilfe/subpages/webdienst.html>`_.
+| If you are interested in browsing the MaStR online, check out the privately hosted `Marktstammdatenregister.dev <https://marktstammdatenregister.dev/>`_.
+| Also see the `bundesAPI/Marktstammdaten-API <https://github.com/bundesAPI/marktstammdaten-api>`_ for another implementation.
 
 
 Installation
 ============
 
-It is recommended to use a virtual python environment, for example
-`conda <https://docs.conda.io/en/latest/miniconda.html>`_ or
-`virtualenv <https://virtualenv.pypa.io/en/latest/installation.html>`_.
-The package is intended to be used with ``Python >=3.8``.
+| It is recommended to use a virtual python environment, for example `conda <https://docs.conda.io/en/latest/miniconda.html>`_ or `virtualenv <https://virtualenv.pypa.io/en/latest/installation.html>`_.
+| The package is intended to be used with ``Python >=3.8``.
 
 
 PyPI
@@ -80,7 +78,6 @@ Install the current release of ``open-mastr`` with ``pip``:
 .. code-block:: python
 
     pip install open-mastr
-
 
 GitHub
 ------
@@ -113,12 +110,18 @@ Collaboration
 
 License and Citation
 ====================
+
+Software
+--------
+
 | This repository is licensed under the **GNU Affero General Public License v3.0 or later** (AGPL-3.0-or-later).
 | See `LICENSE.txt <LICENSE.txt>`_ for rights and obligations.
 | See the *Cite this repository* function or `CITATION.cff <CITATION.cff>`_ for citation of this repository.
 | Copyright: `open-MaStR <https://github.com/OpenEnergyPlatform/open-MaStR/>`_ © `Reiner Lemoine Institut <https://reiner-lemoine-institut.de/>`_ © `fortiss <https://www.fortiss.org/>`_  | `AGPL-3.0-or-later <https://www.gnu.org/licenses/agpl-3.0.txt>`_
 
-| The MaStR data has the open data license **Datenlizenz Deutschland – Namensnennung – Version 2.0** (DL-DE-BY-2.0)
+Data
+----
+| The data has the license **Datenlizenz Deutschland – Namensnennung – Version 2.0** (DL-DE-BY-2.0)
 | Copyright: `Marktstammdatenregister <https://www.marktstammdatenregister.de/MaStR>`_ - © Bundesnetzagentur für Elektrizität, Gas, Telekommunikation, Post und Eisenbahnen | `DL-DE-BY-2.0 <https://www.govdata.de/dl-de/by-2-0>`_
 
 .. |fig_mastr| image:: https://www.marktstammdatenregister.de/MaStRHilfe/img/logo_MaStR.svg
