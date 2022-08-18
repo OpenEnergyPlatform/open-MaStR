@@ -37,17 +37,31 @@ It always has the format `YYYY-MM-DD`, e.g. `2022-05-16`.
 
 ▶️ It gives an overview of open and finished issues and pull requests!
 
-### 3. 🐙 Finish all planned Developments
+### 3. 🐙 Create a `Draft GitHub Release`
+* [Draft a new release](https://github.com/OpenEnergyPlatform/open-MaStR/releases/new)
+* Enter the release version number `v0.11.7` as title
+* Summarize key changes in the description
+    * `## [v0.11.7] Patch - Name - Date`
+    * `### Added`
+    * `### Changed`
+    * `### Removed`
+* Add a link to compare versions
+    * `**Compare versions:** [v0.11.6 - v0.11.7](https://github.com/OpenEnergyPlatform/open-MaStR/compare/v0.11.6...v0.11.7)`
+* Add a link to the `📝CHANGELOG.md`
+    * `Also see [**CHANGELOG.md**](https://github.com/OpenEnergyPlatform/open-MaStR/blob/production/CHANGELOG.md)`
+* Save draft
+
+### 4. 🐙 Finish all planned Developments
 * Some days before the release, inform all developers
 * Merge the open pull requests
 * On release day, start the release early to ensure sufficient time for reviews
 * Merge everything on the `develop` branch
 
-### 4. 💠 Create a `release` branch
+### 5. 💠 Create a `release` branch
 * Checkout `develop` and branch with `git checkout -b release-v0.11.7`
 * Push branch with `git push --set-upstream origin release-v0.11.7`
 
-### 5. 📝 Update the version files
+### 6. 📝 Update the version files
 * `📝CHANGELOG.md`
     * All Pull Request are included
     * Add a new section with correct version number
@@ -58,7 +72,7 @@ It always has the format `YYYY-MM-DD`, e.g. `2022-05-16`.
     * Update `version`
     * Update `download_url` (.../v0.11.7.tar.gz)
 
-### 6. 🐙 Create a `Release Pull Request`
+### 7. 🐙 Create a `Release Pull Request`
 * Use `📝PR_TEMPLATE_RELEASE` (❗ToDo❗)
 * Merge `release` into `production` branch
 * Assign two reviewers to check the release
@@ -67,7 +81,7 @@ It always has the format `YYYY-MM-DD`, e.g. `2022-05-16`.
 * Wait for reviews and tests
 * Merge PR but do not delete `release` branch
 
-### 7. 💠 Set the `Git Tag`
+### 8. 💠 Set the `Git Tag`
 * Checkout `production` branch and pull
 * Check existing tags `git tag -n`
 * Create new tag: `git tag -a v0.11.7 -m "super-repo Patch Release v0.11.7 with PyPI"`
@@ -77,7 +91,7 @@ It always has the format `YYYY-MM-DD`, e.g. `2022-05-16`.
     * Delete local tag: `git tag -d v0.11.7`
     * Delete remote tag: `git push --delete origin v0.11.7`
 
-### 8. 💻 Create and publish package on PyPI
+### 9. 💻 Create and publish package on PyPI
 * Navigate to git folder `cd D:\git\github\GROUP\REPO\`
 * Create package using `python setup.py sdist`
 * Check that file has been created in folder `dist`
@@ -89,29 +103,20 @@ It always has the format `YYYY-MM-DD`, e.g. `2022-05-16`.
 
 ▶️ Publish the Package 📦
 
-### 9. 🐙 Create a `GitHub Release`
-* [Draft a new release](https://github.com/OpenEnergyPlatform/open-MaStR/releases/new)
-* Choose the correct git `tag`
-* Enter the version number `v0.11.7` as title
+### 10. 🐙 Publish `GitHub Release`
 * Summarize key changes in the description
-    * ## [v0.11.7] Patch - Name - Date
-    * ### Added
-    * ### Changed
-    * ### Removed
-* Add a link to compare versions
-    * `**Compare versions:** [v0.11.6 - v0.11.7](https://github.com/OpenEnergyPlatform/open-MaStR/compare/v0.11.6...v0.11.7)`
-* Add a link to the `📝CHANGELOG.md`
-    * `Also see [**CHANGELOG.md**](https://github.com/OpenEnergyPlatform/open-MaStR/blob/production/CHANGELOG.md)`
-* Save draft
+* Choose the correct git `tag`
+* Choose the `production` branch
 * Publish release
-    * ❓ There is a reason to first make a draft, but I don't know why (❗ToDo❗)
-    * ❓ Move this section before the PyPI upload? (❗ToDo❗)
 
-### 10. 🐙 Set up new development
+▶️ Release on GitHub!
+
+### 11. 🐙 Set up new development
 * Create a Pull request from `production` to `develop`
+* Delete the `release` branch
 * Create a new **unreleased section** in the `📝CHANGELOG.md`
 
-▶️ Start the next developments
+▶️ Continue the developments 🛠
 
 ## Documentation on Read the Docs (RTD)
 ToDo
