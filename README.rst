@@ -112,8 +112,8 @@ License and Citation
     :target: LICENSE.txt
     :alt: License
 
-.. |badge_rtd| image:: https://open-mastr.readthedocs.io/en/dev/?badge=latest
-    :target: https://open-mastr.readthedocs.io/en/latest
+.. |badge_rtd| image:: https://readthedocs.org/projects/oemof-solph/badge/?style=flat
+    :target: https://open-mastr.readthedocs.io/en/latest/
     :alt: Read the Docs
 
 .. |badge_ci| image:: https://github.com/OpenEnergyPlatform/open-MaStR/workflows/CI/badge.svg
