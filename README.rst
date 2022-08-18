@@ -1,9 +1,8 @@
-﻿
-==========
+﻿==========
 open-mastr
 ==========
 
-**A package that provides an interface for downloading andprocessing the data of the Marktstammdatenregister (MaStR)**
+**A package that provides an interface for downloading and processing the Marktstammdatenregister (MaStR)**
 
 .. list-table::
    :widths: auto
@@ -11,9 +10,11 @@ open-mastr
    * - License
      - |badge_license|
    * - Documentation
-     - 
+     - |badge_rtd|
+    * - Tests
+     - |badge_ci|
    * - Publication
-     - |badge_version|
+     - |badge_pypi| |badge_zenodo|
    * - Development
      - |badge_issue_open| |badge_issue_closes| |badge_pr_open| |badge_pr_closes|
    * - Community
@@ -110,18 +111,19 @@ License and Citation
     :target: LICENSE.txt
     :alt: License
 
-.. |badge_version| image:: https://img.shields.io/pypi/v/open-mastr.svg
-    :alt: PyPI Package latest release
+.. |badge_rtd| image:: https://open-mastr.readthedocs.io/en/latest/
+    :alt: Read the Docs
+
+.. |badge_ci| image:: https://github.com/OpenEnergyPlatform/open-MaStR/actions?query=workflow%3ACI
+    :alt: GitHub Actions
+
+.. |badge_pypi| image:: https://img.shields.io/pypi/v/open-mastr.svg
     :target: https://pypi.org/project/open-mastr/
+    :alt: PyPI Package latest release
 
-.. |badge_contributing| image:: https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat
-    :alt: contributions
-
-.. |badge_repo_counts| image:: http://hits.dwyl.com/OpenEnergyPlatform/open-MaStR.svg
-    :alt: counter
-
-.. |badge_contributors| image:: https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square
-    :alt: contributors
+.. |badge_zenodo| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.6807426.svg
+    :target: https://doi.org/10.5281/zenodo.6807426
+    :alt: Zenodo
 
 .. |badge_issue_open| image:: https://img.shields.io/github/issues-raw/OpenEnergyPlatform/open-MaStR
     :alt: open issues
@@ -134,4 +136,12 @@ License and Citation
 
 .. |badge_pr_closes| image:: https://img.shields.io/github/issues-pr-closed-raw/OpenEnergyPlatform/open-MaStR
     :alt: closes issues
-    
+
+.. |badge_contributing| image:: https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat
+    :alt: contributions
+
+.. |badge_contributors| image:: https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square
+    :alt: contributors
+
+.. |badge_repo_counts| image:: http://hits.dwyl.com/OpenEnergyPlatform/open-MaStR.svg
+    :alt: counter
