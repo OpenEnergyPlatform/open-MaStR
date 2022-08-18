@@ -1,7 +1,7 @@
 ﻿
 .. raw:: html
 
-    <a href="https://github.com/OpenEnergyPlatform/open-MaStR/"><img align="left" width="100" height="100" src="https://www.marktstammdatenregister.de/MaStRHilfe/img/logo_MaStR.svg" alt="MaStR"></a>
+   <a href="https://github.com/OpenEnergyPlatform/open-MaStR/"><img align="left" width="100" height="100" src="https://www.marktstammdatenregister.de/MaStRHilfe/img/logo_MaStR.svg" alt="MaStR"></a>
 
 
 ------------------------------
