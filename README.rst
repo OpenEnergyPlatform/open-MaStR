@@ -8,7 +8,7 @@ open-mastr
 
 **A package that provides an interface for downloading and processing the Marktstammdatenregister (MaStR)**
 
-.. list-table:: Badges
+.. list-table::
    :widths: 10, 50
 
    * - License
@@ -37,12 +37,12 @@ provided by the German Federal Network Agency (Bundesnetzagentur / BNetza) that 
 
 The MaStR data can be
  
-#. 1. browsed `online <https://www.marktstammdatenregister.de/MaStR>`_
-#. 2. taken from `daily provided XML dumps <https://www.marktstammdatenregister.de/MaStR/Datendownload>`_
-#. 3. be accessed via the `web service <https://www.marktstammdatenregister.de/MaStRHilfe/subpages/webdienst.html>`_
+#. browsed and filtered `online <https://www.marktstammdatenregister.de/MaStR>`_
+#. taken from `daily provided dumps <https://www.marktstammdatenregister.de/MaStR/Datendownload>`_
+#. be accessed via the `web service <https://www.marktstammdatenregister.de/MaStRHilfe/subpages/webdienst.html>`_
 
 | The python package ``open-mastr`` provides an interface for accessing the data. 
-| It contains methods to download and parse the xml files (bulk) and the web service (API).
+| It contains methods to download and parse the xml files (bulk) and the SOAP web service (API).
 | In this repository we are developing methods to analyze, validate and enrich the data.
 | We want to collect and compile post processing scripts to improve data quality.
 
@@ -53,9 +53,9 @@ Documentation
 The documentation is in `sphinx
 <http://www.sphinx-doc.org/en/stable/>`_ reStructuredText format 
 in the ``doc`` sub-folder of the repository.
-Find the [documentation](https://open-mastr.readthedocs.io/en/dev) hosted on ReadTheDocs.
+Find the `documentation <https://open-mastr.readthedocs.io/en/dev>`_ hosted on ReadTheDocs.
 
-The original API documentation can be found on the `Webhilfe des Marktstammdaten­registers <https://www.marktstammdatenregister.de/MaStRHilfe/subpages/webdienst.html>`_.
+The original API documentation can be found on the `Webhilfe des Marktstammdatenregisters <https://www.marktstammdatenregister.de/MaStRHilfe/subpages/webdienst.html>`_.
 
 If you are interested in browsing the MaStR online, check out the
 privately hosted `Marktstammdatenregister.dev <https://marktstammdatenregister.dev/>`_.
@@ -113,14 +113,16 @@ Collaboration
 
 License and Citation
 ====================
-| The code of this repository is licensed under the **GNU Affero General Public License v3.0 or later** (AGPL-3.0-or-later).
+| This repository is licensed under the **GNU Affero General Public License v3.0 or later** (AGPL-3.0-or-later).
 | See `LICENSE.txt <LICENSE.txt>`_ for rights and obligations.
 | See the *Cite this repository* function or `CITATION.cff <CITATION.cff>`_ for citation of this repository.
 | Copyright: `open-MaStR <https://github.com/OpenEnergyPlatform/open-MaStR/>`_ © `Reiner Lemoine Institut <https://reiner-lemoine-institut.de/>`_ © `fortiss <https://www.fortiss.org/>`_  | `AGPL-3.0-or-later <https://www.gnu.org/licenses/agpl-3.0.txt>`_
 
+| The MaStR data has the open data license **Datenlizenz Deutschland – Namensnennung – Version 2.0** (DL-DE-BY-2.0)
+| Copyright: `Marktstammdatenregister <https://www.marktstammdatenregister.de/MaStR>`_ - © Bundesnetzagentur für Elektrizität, Gas, Telekommunikation, Post und Eisenbahnen | `DL-DE-BY-2.0 <https://www.govdata.de/dl-de/by-2-0>`_
 
 .. |fig_mastr| image:: https://www.marktstammdatenregister.de/MaStRHilfe/img/logo_MaStR.svg
-    :width: 50px
+    :width: 200px
     :target: https://github.com/OpenEnergyPlatform/open-MaStR/
     :alt: MaStR logo
 
@@ -133,6 +135,7 @@ License and Citation
     :alt: Read the Docs
 
 .. |badge_ci| image:: https://github.com/OpenEnergyPlatform/open-MaStR/workflows/CI/badge.svg
+    :target: https://github.com/OpenEnergyPlatform/open-MaStR/actions?query=workflow%3ACI
     :alt: GitHub Actions
 
 .. |badge_pypi| image:: https://img.shields.io/pypi/v/open-mastr.svg
