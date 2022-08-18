@@ -19,7 +19,7 @@ setup(
     ],
     version="0.11.6",
     description="A package that provides an interface for downloading and"
-    "processing the data of the Marktstammdatenregister (MaStR)",
+    " processing the data of the Marktstammdatenregister (MaStR)",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/OpenEnergyPlatform/open-MaStR",
