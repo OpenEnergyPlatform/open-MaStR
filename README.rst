@@ -1,8 +1,5 @@
 ﻿
-.. figure:: https://www.marktstammdatenregister.de/MaStRHilfe/img/logo_MaStR.svg
-    :width: 100px
-    :target: https://github.com/OpenEnergyPlatform/open-MaStR/
-    :alt: MaStR logo
+|fig_mastr|
 
 ==========
 open-mastr
@@ -11,8 +8,8 @@ open-mastr
 
 **A package that provides an interface for downloading and processing the Marktstammdatenregister (MaStR)**
 
-.. list-table::
-   :widths: auto
+.. list-table:: Badges
+   :widths: 10, 50
 
    * - License
      - |badge_license|
@@ -69,9 +66,10 @@ Also see the `bundesAPI/Marktstammdaten-API <https://github.com/bundesAPI/markts
 Installation
 ============
 
-| It is recommended to use a virtual python environment, for example `conda <https://docs.conda.io/en/latest/miniconda.html>`_ or 
+It is recommended to use a virtual python environment, for example
+`conda <https://docs.conda.io/en/latest/miniconda.html>`_ or
 `virtualenv <https://virtualenv.pypa.io/en/latest/installation.html>`_.
-| The package is intended to be used with ``Python >=3.8``.
+The package is intended to be used with ``Python >=3.8``.
 
 
 PyPI
@@ -121,11 +119,16 @@ License and Citation
 | Copyright: `open-MaStR <https://github.com/OpenEnergyPlatform/open-MaStR/>`_ © `Reiner Lemoine Institut <https://reiner-lemoine-institut.de/>`_ © `fortiss <https://www.fortiss.org/>`_  | `AGPL-3.0-or-later <https://www.gnu.org/licenses/agpl-3.0.txt>`_
 
 
+.. |fig_mastr| image:: https://www.marktstammdatenregister.de/MaStRHilfe/img/logo_MaStR.svg
+    :width: 50px
+    :target: https://github.com/OpenEnergyPlatform/open-MaStR/
+    :alt: MaStR logo
+
 .. |badge_license| image:: https://img.shields.io/github/license/OpenEnergyPlatform/open-MaStR
     :target: LICENSE.txt
     :alt: License
 
-.. |badge_rtd| image:: https://readthedocs.org/projects/oemof-solph/badge/?style=flat
+.. |badge_rtd| image:: https://readthedocs.org/projects/open-mastr/badge/?style=flat
     :target: https://open-mastr.readthedocs.io/en/latest/
     :alt: Read the Docs
 
