@@ -1,6 +1,6 @@
 ﻿
-.. image:: https://www.marktstammdatenregister.de/MaStRHilfe/img/logo_MaStR.svg
-    :align: left
+.. figure:: https://www.marktstammdatenregister.de/MaStRHilfe/img/logo_MaStR.svg
+    :width: 100px
     :target: https://github.com/OpenEnergyPlatform/open-MaStR/
     :alt: MaStR logo
 
@@ -86,20 +86,22 @@ Install the current release of ``open-mastr`` with ``pip``:
 
 For development, clone this repository manually.
 
-.. code-block:: bash
+.. code-block:: python
 
     git clone git@github.com:OpenEnergyPlatform/open-MaStR.git
     cd open-MaStR
 
 Setup the conda environment with
 
-.. code-block:: bash
+.. code-block:: python
+
     conda env create -f environment.yml
 
 
 Install the package with
 
-.. code-block:: bash
+.. code-block:: python
+
     python setup.py install
 
 
