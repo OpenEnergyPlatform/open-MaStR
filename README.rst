@@ -1,7 +1,7 @@
 ﻿
 .. figure:: https://www.marktstammdatenregister.de/MaStRHilfe/img/logo_MaStR.svg
     :align: left
-    :target: https://github.com/OpenEnergyPlatform/open-MaStR
+    :target: https://github.com/OpenEnergyPlatform/open-MaStR/
     :alt: MaStR logo
 
 ==========
@@ -79,13 +79,7 @@ Install the current release of ``open-mastr`` with ``pip``:
 
 .. code-block:: python
 
-    $ pip install open-mastr
-
-To upgrade to a newer release use the ``--upgrade`` flag:
-
-.. code-block:: python
-
-    $ pip install --upgrade open-mastr
+    pip install open-mastr
 
 
 **GitHub**
