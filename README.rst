@@ -9,11 +9,10 @@ open-mastr
 .. raw:: html
 
     <img src="https://www.marktstammdatenregister.de/MaStRHilfe/img/logo_MaStR.svg" align="left" height="100" alt="MaStR">
+    <img src="https://raw.githubusercontent.com/OpenEnergyPlatform/organisation/master/logo/OpenEnergyFamily_Logo_OEMetadata.png" align="right" width="100" height="100" alt="OpenEnergyMetadata"></a>
+    <img src="https://avatars2.githubusercontent.com/u/37101913?s=400&u=9b593cfdb6048a05ea6e72d333169a65e7c922be&v=4" align="right" width="100" height="100" alt="OpenEnergyPlatform"></a>
 
 ------------------------------
-
-
-
 
 .. list-table::
    :widths: 10, 50
