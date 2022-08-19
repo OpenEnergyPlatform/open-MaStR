@@ -107,6 +107,7 @@ def test_to_csv(mastr_mirror, engine):
         for tech in TECHNOLOGIES:
             mastr_mirror.to_csv(
                 technology=tech,
+                limit=100,
                 additional_data=DATA_TYPES,
                 statistic_flag=None,
                 chunksize=1,
@@ -120,8 +121,9 @@ def test_to_csv(mastr_mirror, engine):
             units = session.query(orm.BasicUnit.EinheitMastrNummer).filter(
                 orm.BasicUnit.Einheittyp == mastr_mirror.unit_type_map_reversed[tech]
             )
-            for unit in units:
-                assert unit.EinheitMastrNummer in df.index
+            list_MastrNummer = [unit.EinheitMastrNummer for unit in units]
+            for idx in df.index:
+                assert idx in list_MastrNummer
 
 
 @pytest.mark.dependency(name="backfill_locations_basic")
