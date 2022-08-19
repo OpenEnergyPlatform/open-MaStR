@@ -75,7 +75,7 @@ def validate_parameter_format_for_mastr_init(engine) -> None:
 
 def validate_parameter_format_for_download_method(
     method,
-    technology,
+    data,
     bulk_date_string,
     bulk_cleansing,
     api_processes,
@@ -87,7 +87,7 @@ def validate_parameter_format_for_download_method(
 ) -> None:
 
     validate_parameter_method(method)
-    validate_parameter_technology(technology)
+    validate_parameter_data(method, data)
     validate_parameter_bulk_date_string(bulk_date_string)
     validate_parameter_bulk_cleansing(bulk_cleansing)
     validate_parameter_api_processes(api_processes)
@@ -202,13 +202,13 @@ def validate_parameter_api_processes(api_processes) -> None:
             )
 
 
-def validate_parameter_technology(technology) -> None:
-    if not isinstance(technology, (str, list)) and technology is not None:
-        raise ValueError("parameter technology has to be a string, list, or None")
-    if isinstance(technology, str):
-        technology = [technology]
-    if isinstance(technology, list):
-        bulk_technologies = [
+def validate_parameter_data(method, data) -> None:
+    if not isinstance(data, (str, list)) and data is not None:
+        raise ValueError("parameter data has to be a string, list, or None")
+    if isinstance(data, str):
+        data = [data]
+    if isinstance(data, list):
+        bulk_data = [
             "wind",
             "solar",
             "biomass",
@@ -225,13 +225,31 @@ def validate_parameter_technology(technology) -> None:
             "balancing_area",
             "permit",
         ]
-        for value in technology:
-            if value not in bulk_technologies:
+        api_data = [
+            "wind",
+            "solar",
+            "biomass",
+            "hydro",
+            "gsgk",
+            "combustion",
+            "nuclear",
+            "storage",
+            "location",
+            "permit",
+        ]
+        for value in data:
+            if method == "bulk" and value not in bulk_data:
                 raise ValueError(
-                    'Allowed values for parameter technology are "wind", "solar",'
+                    'Allowed values for parameter data with bulk method are "wind", "solar",'
                     '"biomass", "hydro", "gsgk", "combustion", "nuclear", "gas", '
                     '"storage", "electricity_consumer", "location", "market", '
                     '"grid", "balancing_area" or "permit"'
+                )
+            if method == "API" and value not in api_data:
+                raise ValueError(
+                    'Allowed values for parameter data with API method are "wind", "solar", '
+                    '"biomass", "hydro", "gsgk", "combustion", "nuclear", '
+                    '"storage", "location" or "permit"'
                 )
 
 
