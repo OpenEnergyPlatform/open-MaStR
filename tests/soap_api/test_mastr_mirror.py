@@ -47,7 +47,7 @@ def engine():
 
 @pytest.mark.dependency(name="backfill_basic")
 def test_backfill_basic(mastr_mirror, engine):
-    mastr_mirror.backfill_basic(technology=TECHNOLOGIES, date=DATE, limit=LIMIT)
+    mastr_mirror.backfill_basic(data=TECHNOLOGIES, date=DATE, limit=LIMIT)
 
     # The table basic_units should have at least as much rows as TECHNOLOGIES were queried
     with session_scope(engine=engine) as session:
@@ -60,21 +60,21 @@ def test_retrieve_additional_data(mastr_mirror):
     for tech in TECHNOLOGIES:
         for data_type in DATA_TYPES:
             mastr_mirror.retrieve_additional_data(
-                technology=tech, data_type=data_type, limit=10 * LIMIT
+                data=tech, data_type=data_type, limit=10 * LIMIT
             )
 
     # This comparison currently fails because of
     # https://github.com/OpenEnergyPlatform/open-MaStR/issues/154
     # with session_scope() as session:
-    #     for tech in TECHNOLOGIES:
-    #         mapper = getattr(orm, mastr_mirror.orm_map[tech]["unit_data"])
+    #     for data in TECHNOLOGIES:
+    #         mapper = getattr(orm, mastr_mirror.orm_map[data]["unit_data"])
     #         response = session.query(mapper).count()
     #         assert response >= LIMIT
 
 
 @pytest.mark.dependency(depends=["retrieve_additional_data"], name="update_latest")
 def test_update_latest(mastr_mirror, engine):
-    mastr_mirror.backfill_basic(technology=TECHNOLOGIES, date="latest", limit=LIMIT)
+    mastr_mirror.backfill_basic(data=TECHNOLOGIES, date="latest", limit=LIMIT)
 
     # Test if latest date is newer that initially requested data in backfill_basic
     with session_scope(engine=engine) as session:

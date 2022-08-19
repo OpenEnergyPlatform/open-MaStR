@@ -305,18 +305,18 @@ def session_scope(engine):
         session.close()
 
 
-def technology_input_harmonisation(technology, api_data_types, api_location_types):
+def data_input_harmonisation(data, api_data_types, api_location_types):
     harmonisation_log = []
 
-    if "permit" in technology:
-        technology.remove("permit")
+    if "permit" in data:
+        data.remove("permit")
         api_data_types.append(
             "permit_data"
         ) if "permit_data" not in api_data_types else api_data_types
         harmonisation_log.append("permit")
 
-    if "location" in technology:
-        technology.remove("location")
+    if "location" in data:
+        data.remove("location")
         api_location_types = [
             "location_elec_generation",
             "location_elec_consumption",
@@ -324,14 +324,14 @@ def technology_input_harmonisation(technology, api_data_types, api_location_type
             "location_gas_consumption",
         ]
         harmonisation_log.append("location")
-        # return changed api_location_types only if "location" in technology, else None
+        # return changed api_location_types only if "location" in data, else None
 
     return harmonisation_log, api_data_types, api_location_types
 
 
 def print_api_settings(
     harmonisation_log,
-    technology,
+    data,
     api_date,
     api_data_types,
     api_chunksize,
@@ -342,14 +342,14 @@ def print_api_settings(
 
     print(
         f"Downloading with soap_API.\n\n   -- API settings --  \nunits after date: "
-        f"{api_date}\nunit download limit per technology: "
+        f"{api_date}\nunit download limit per data: "
         f"{api_limit}\nparallel_processes: {api_processes}\nchunksize: "
-        f"{api_chunksize}\ntechnology_api: {technology}"
+        f"{api_chunksize}\ndata_api: {data}"
     )
     if "permit" in harmonisation_log:
         print(
             f"data_types: {api_data_types}" "\033[31m",
-            f"Attention, 'permit_data' was automatically set in api_data_types, as you defined 'permit' in parameter technology_api.",
+            "Attention, 'permit_data' was automatically set in api_data_types, as you defined 'permit' in parameter data_api.",
             "\033[m",
         )
 
@@ -360,10 +360,10 @@ def print_api_settings(
         print(
             "location_types:",
             "\033[31m",
-            f"Attention, 'location' is in parameter technology_api. location_types are set to",
+            f"Attention, 'location' is in parameter data. location_types are set to",
             "\033[m",
             f"{api_location_types}"
-            "\n                 If you want to change location_types, please remove 'location' from technology_api and specify api_location_types."
+            "\n                 If you want to change location_types, please remove 'location' from data_api and specify api_location_types."
             "\n   ------------------  \n",
         )
 

@@ -67,7 +67,7 @@ class MaStRMirror:
        mastr_mirror.retrieve_additional_data("solar", ["unit_data"])
 
 
-    The data can be joined to one table for each technology and exported to
+    The data can be joined to one table for each data type and exported to
     CSV files using :meth:`~.to_csv`.
 
     Also consider to use :meth:`~.dump` and :meth:`~.restore` for specific purposes.
@@ -145,7 +145,7 @@ class MaStRMirror:
             },
         }
 
-        # Map technology and MaStR unit type
+        # Map data and MaStR unit type
         # Map technologies on ORMs
         self.unit_type_map = {
             "Windeinheit": "wind",
@@ -167,7 +167,7 @@ class MaStRMirror:
         }
         self.unit_type_map_reversed = {v: k for k, v in self.unit_type_map.items()}
 
-    def backfill_basic(self, technology=None, date=None, limit=10**8) -> None:
+    def backfill_basic(self, data=None, date=None, limit=10 ** 8) -> None:
         """Backfill basic unit data.
 
         Fill database table 'basic_units' with data. It allows specification
@@ -178,10 +178,10 @@ class MaStRMirror:
 
         Parameters
         ----------
-        technology: str or list
-            Specify technologies for which data should be backfilled.
+        data: str or list
+            Specify data types for which data should be backfilled.
 
-            * 'solar' (`str`): Backfill data for a single technology.
+            * 'solar' (`str`): Backfill data for a single data type.
             * ['solar', 'wind'] (`list`):  Backfill data for multiple technologies given in a list.
             * `None`: Backfill data for all technologies
 
@@ -192,13 +192,13 @@ class MaStRMirror:
 
             Only data with modification time stamp greater that `date` is retrieved.
 
-            * `datetime.datetime(2020, 11, 27)`: Retrieve data which is is newer
+            * `datetime.datetime(2020, 11, 27)`: Retrieve data which is newer
             than this time stamp
             * 'latest': Retrieve data which is newer than the newest data
             already in the table.
-              It is aware of a different 'latest date' for each technology.
+              It is aware of a different 'latest date' for each data.
               Hence, it works in combination with
-              `technology=None` and `technology=["wind", "solar"]` for example.
+              `data=None` and `data=["wind", "solar"]` for example.
 
               .. warning::
 
@@ -214,20 +214,20 @@ class MaStRMirror:
         """
 
         # Create list of technologies to backfill
-        if isinstance(technology, str):
-            technology_list = [technology]
-        elif technology is None:
-            technology_list = [None]
-        elif isinstance(technology, list):
-            technology_list = technology
+        if isinstance(data, str):
+            data_list = [data]
+        elif data is None:
+            data_list = [None]
+        elif isinstance(data, list):
+            data_list = data
 
-        dates = self._get_list_of_dates(date, technology_list)
+        dates = self._get_list_of_dates(date, data_list)
 
-        for tech, date in zip(technology_list, dates):
-            self._write_basic_data_for_one_technology_to_db(tech, date, limit)
+        for data, date in zip(data_list, dates):
+            self._write_basic_data_for_one_data_type_to_db(data, date, limit)
 
     def backfill_locations_basic(
-        self, limit=10**7, date=None, delete_additional_data_requests=True
+        self, limit=10 ** 7, date=None, delete_additional_data_requests=True
     ):
         """
         Backfill basic location data.
@@ -246,7 +246,7 @@ class MaStRMirror:
 
             Only data with modification time stamp greater that `date` is retrieved.
 
-            * `datetime.datetime(2020, 11, 27)`: Retrieve data which is is newer than
+            * `datetime.datetime(2020, 11, 27)`: Retrieve data which is newer than
             this time stamp
             * 'latest': Retrieve data which is newer than the newest data already in the table.
               .. warning::
@@ -330,7 +330,7 @@ class MaStRMirror:
                 )
 
     def retrieve_additional_data(
-        self, technology, data_type, limit=10**8, chunksize=1000
+        self, data, data_type, limit=10 ** 8, chunksize=1000
     ):
         """
         Retrieve additional unit data
@@ -342,7 +342,7 @@ class MaStRMirror:
 
         Parameters
         ----------
-        technology: `str`
+        data: `str`
             See list of available technologies in
             :meth:`open_mastr.soap_api.download.py.MaStRDownload.download_power_plants`.
         data_type: `str`
@@ -379,7 +379,7 @@ class MaStRMirror:
                     table_identifier="additional_data",
                     session=session,
                     data_request_type=data_type,
-                    technology=technology,
+                    data=data,
                     chunksize=chunksize,
                 )
 
@@ -389,7 +389,7 @@ class MaStRMirror:
 
                 # Retrieve data
                 unit_data, missed_units = self.mastr_dl.additional_data(
-                    technology, requested_ids, download_functions[data_type]
+                    data, requested_ids, download_functions[data_type]
                 )
 
                 unit_data = flatten_dict(unit_data)
@@ -398,7 +398,7 @@ class MaStRMirror:
                 # Prepare data and add to database table
                 for unit_dat in unit_data:
                     unit = self._preprocess_additional_data_entry(
-                        unit_dat, technology, data_type
+                        unit_dat, data, data_type
                     )
                     session.merge(unit)
                     number_units_merged += 1
@@ -422,7 +422,7 @@ class MaStRMirror:
                 break
 
     def retrieve_additional_location_data(
-        self, location_type, limit=10**8, chunksize=1000
+        self, location_type, limit=10 ** 8, chunksize=1000
     ):
         """
         Retrieve extended location data
@@ -462,7 +462,7 @@ class MaStRMirror:
                     table_identifier="additional_location_data",
                     session=session,
                     data_request_type=location_type,
-                    technology=None,
+                    data=None,
                     chunksize=chunksize,
                 )
 
@@ -529,7 +529,7 @@ class MaStRMirror:
 
     def create_additional_data_requests(
         self,
-        technology,
+        data,
         data_types=["unit_data", "eeg_data", "kwk_data", "permit_data"],
         delete_existing=True,
     ):
@@ -542,12 +542,12 @@ class MaStRMirror:
 
         Parameters
         ----------
-        technology: str
-            Specify technology additional data should be requested for.
+        data: str
+            Specify data type, additional data should be requested for.
         data_types: list
             Select type of additional data that is to be requested.
             Defaults to all data that is available for a
-            technology.
+            data type.
         delete_existing: bool
             Toggle deletion of already existing requests for additional data.
             Defaults to True.
@@ -558,25 +558,25 @@ class MaStRMirror:
         with session_scope(engine=self._engine) as session:
             # Check which additional data is missing
             for data_type in data_types:
-                if data_type_available := self.orm_map[technology].get(data_type, None):
+                if data_type_available := self.orm_map[data].get(data_type, None):
                     log.info(
-                        f"Create requests for additional data of type {data_type} for {technology}"
+                        f"Create requests for additional data of type {data_type} for {data}"
                     )
 
-                    # Get ORM for additional data by technology and data_type
+                    # Get ORM for additional data by data and data_type
                     additional_data_orm = getattr(orm, data_type_available)
 
-                    # Delete prior additional data requests for this technology and data_type
+                    # Delete prior additional data requests for this data and data_type
                     if delete_existing:
                         session.query(orm.AdditionalDataRequested).filter(
-                            orm.AdditionalDataRequested.technology == technology,
+                            orm.AdditionalDataRequested.technology == data,
                             orm.AdditionalDataRequested.data_type == data_type,
                         ).delete()
                         session.commit()
 
                     # Query database for missing additional data
                     units_for_request = self._get_units_for_request(
-                        data_type, session, additional_data_orm, technology
+                        data_type, session, additional_data_orm, data
                     )
 
                     # Prepare data for additional data request
@@ -611,7 +611,7 @@ class MaStRMirror:
             session.bulk_insert_mappings(orm.AdditionalDataRequested, data_requests)
 
     def _add_data_source_and_download_date(self, entry: dict) -> dict:
-        "Adds DatenQuelle = 'APT' and DatumDownload = date.today"
+        """Adds DatenQuelle = 'APT' and DatumDownload = date.today"""
         entry["DatenQuelle"] = "API"
         entry["DatumDownload"] = date.today()
         return entry
@@ -742,11 +742,11 @@ class MaStRMirror:
         session.commit()
         return insert + updated
 
-    def _write_basic_data_for_one_technology_to_db(self, tech, date, limit) -> None:
-        log.info(f"Backfill data for technology {tech}")
+    def _write_basic_data_for_one_data_type_to_db(self, data, date, limit) -> None:
+        log.info(f"Backfill data for data type {data}")
 
         # Catch weird MaStR SOAP response
-        basic_units = self.mastr_dl.basic_unit_data(tech, limit, date_from=date)
+        basic_units = self.mastr_dl.basic_unit_data(data, limit, date_from=date)
 
         with session_scope(engine=self._engine) as session:
             log.info(
@@ -817,7 +817,7 @@ class MaStRMirror:
         for tech in technology_list:
             if tech:
                 # In case technologies are specified, latest data date
-                # gets queried per technology
+                # gets queried per data
                 with session_scope(engine=self._engine) as session:
                     newest_date = (
                         session.query(orm.BasicUnit.DatumLetzteAktualisierung)
@@ -829,7 +829,7 @@ class MaStRMirror:
                         .first()
                     )
             else:
-                # If technologies aren't defined ([None]) latest date per technology
+                # If technologies aren't defined ([None]) latest date per data
                 #  is queried in query
                 # This also leads that the remainder of the loop body is skipped
                 with session_scope(engine=self._engine) as session:
@@ -841,7 +841,7 @@ class MaStRMirror:
                     ).group_by(orm.BasicUnit.Einheittyp)
                     dates = [s[1] for s in subquery]
                     technology_list = [self.unit_type_map[s[0]] for s in subquery]
-                    # Break the for loop over technology here, because we
+                    # Break the for loop over data here, because we
                     # write technology_list and dates at once
                     break
 
@@ -937,7 +937,7 @@ class MaStRMirror:
         return getattr(orm, self.orm_map[technology][data_type])(**unit_dat)
 
     def _get_additional_data_requests_from_db(
-        self, table_identifier, session, data_request_type, technology, chunksize
+        self, table_identifier, session, data_request_type, data, chunksize
     ):
         """Retrieves the data that is requested from the database table AdditionalDataRequested."""
         if table_identifier == "additional_data":
@@ -946,7 +946,7 @@ class MaStRMirror:
                 .filter(
                     and_(
                         orm.AdditionalDataRequested.data_type == data_request_type,
-                        orm.AdditionalDataRequested.technology == technology,
+                        orm.AdditionalDataRequested.technology == data,
                     )
                 )
                 .limit(chunksize)
@@ -1141,7 +1141,7 @@ class MaStRMirror:
         if isinstance(technology, str):
             technology = [technology]
         elif not isinstance(technology, (list, None)):
-            raise TypeError("Parameter technology must be of type `str` or `list`")
+            raise TypeError("Parameter data must be of type `str` or `list`")
 
         renaming = column_renaming()
 
@@ -1199,7 +1199,7 @@ class MaStRMirror:
                     )
                 query = Query(subtables, session=session)
 
-                # Define joins based on available tables for tech and user input
+                # Define joins based on available tables for data and user input
                 if unit_data_orm and "unit_data" in additional_data:
                     query = query.join(
                         unit_data_orm,
@@ -1415,9 +1415,9 @@ def list_of_dicts_to_columns(row) -> pd.Series:
     Parameters
     ----------
     row: list of dict
-        Usually apllied using apply on a column of a pandas DataFrame,
+        Usually applied using apply on a column of a pandas DataFrame,
         hence, a Series. This column of the
-        DataFrame should comprise of a single-level dict with an
+        DataFrame should consist of a single-level dict with an
         arbitrary number of columns. Each key is
         transformed into a new column, while data from
         each dict inside the list is concatenated by key. Such

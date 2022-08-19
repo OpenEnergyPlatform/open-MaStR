@@ -18,7 +18,7 @@ def db():
 def parameter_dict_working():
     parameter_dict = {
         "method": ["API", "bulk"],
-        "technology": [
+        "data": [
             "wind",
             "solar",
             "biomass",
@@ -68,7 +68,7 @@ def parameter_dict_working():
 def parameter_dict_not_working():
     parameter_dict = {
         "method": [5, "BULK", "api"],
-        "technology": [
+        "data": [
             "wint",
             "Solar",
             "biomasse",
@@ -97,7 +97,7 @@ def test_Mastr_validate_working_parameter(parameter_dict_working):
             parameter_dict[key] = value
             (
                 method,
-                technology,
+                data,
                 bulk_date_string,
                 bulk_cleansing,
                 api_processes,
@@ -111,7 +111,7 @@ def test_Mastr_validate_working_parameter(parameter_dict_working):
             assert (
                 validate_parameter_format_for_download_method(
                     method,
-                    technology,
+                    data,
                     bulk_date_string,
                     bulk_cleansing,
                     api_processes,
@@ -140,7 +140,7 @@ def test_Mastr_validate_not_working_parameter(
             parameter_dict[key] = value
             (
                 method,
-                technology,
+                data,
                 bulk_date_string,
                 bulk_cleansing,
                 api_processes,
@@ -153,7 +153,7 @@ def test_Mastr_validate_not_working_parameter(
             with pytest.raises(ValueError):
                 validate_parameter_format_for_download_method(
                     method,
-                    technology,
+                    data,
                     bulk_date_string,
                     bulk_cleansing,
                     api_processes,
@@ -167,7 +167,7 @@ def test_Mastr_validate_not_working_parameter(
 
 def get_parameters_from_parameter_dict(parameter_dict):
     method = parameter_dict["method"]
-    technology = parameter_dict["technology"]
+    data = parameter_dict["data"]
     bulk_date_string = parameter_dict["bulk_date_string"]
     bulk_cleansing = parameter_dict["bulk_cleansing"]
     api_processes = parameter_dict["api_processes"]
@@ -178,7 +178,7 @@ def get_parameters_from_parameter_dict(parameter_dict):
     api_location_types = parameter_dict["api_location_types"]
     return (
         method,
-        technology,
+        data,
         bulk_date_string,
         bulk_cleansing,
         api_processes,

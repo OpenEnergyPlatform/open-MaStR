@@ -15,12 +15,12 @@ from open_mastr.utils import orm
 def write_mastr_xml_to_database(
     engine: sqlalchemy.engine.Engine,
     zipped_xml_file_path: str,
-    technology: list,
+    data: list,
     bulk_cleansing: bool,
     bulk_download_date: str,
 ) -> None:
     """Write the Mastr in xml format into a database defined by the engine parameter."""
-    include_tables = technology_to_include_tables(technology)
+    include_tables = data_to_include_tables(data)
 
     with ZipFile(zipped_xml_file_path, "r") as f:
         files_list = f.namelist()
@@ -367,18 +367,18 @@ def handle_xml_syntax_error(data: bytes, err: Error) -> pd.DataFrame:
     return df
 
 
-def technology_to_include_tables(
-    technology,
+def data_to_include_tables(
+    data,
 ) -> list:
     """
-    Check the user input 'technology' and convert it to the list 'include_tables' which contains
+    Check the user input 'data' and convert it to the list 'include_tables' which contains
     file names from zipped bulk download.
     Parameters
     ----------
-    technology: None, str, list
-        The user input for technology selection
+    data: None, str, list
+        The user input for data selection
         * `None`: All technologies (default)
-        * `str`: One technology
+        * `str`: One data
         * `list`: List of technologies
     Returns
     -------
@@ -389,24 +389,24 @@ def technology_to_include_tables(
     """
     all_technologies = orm.bulk_technologies
     tables_map = orm.bulk_include_tables_map
-    # Convert technology input into a standard list
+    # Convert data input into a standard list
     chosen_technologies = []
-    if technology is None:
+    if data is None:
         # All technologies are to be chosen
         chosen_technologies = all_technologies
-    elif isinstance(technology, str):
-        # Only one technology is chosen
-        chosen_technologies = [technology]
-    elif isinstance(technology, list):
+    elif isinstance(data, str):
+        # Only one data is chosen
+        chosen_technologies = [data]
+    elif isinstance(data, list):
         # list of technologies is given
-        chosen_technologies = technology
+        chosen_technologies = data
 
     # Check if given technologies match with the valid options from 'orm.bulk_technologies'
     for tech in chosen_technologies:
         if tech not in all_technologies:
             raise ValueError(
-                f"The input technology = {technology} does not match with the "
-                f"possible technology options. Only following technology options are available "
+                f"The input data = {data} does not match with the "
+                f"possible data options. Only following data options are available "
                 f"bulk_technologies = {all_technologies}"
             )
 

@@ -17,7 +17,7 @@ from open_mastr import Mastr
 # bulk download
 bulk_date_string = "today"
 bulk_cleansing = True
-technology_bulk = [
+data_bulk = [
     "biomass",
     "combustion",
     "gsgk",
@@ -43,7 +43,7 @@ api_chunksize = 10
 api_limit = 10
 api_processes = None
 
-technology_api = [
+data_api = [
     "biomass",
     "combustion",
     "gsgk",
@@ -71,7 +71,7 @@ if __name__ == "__main__":
     # bulk download
     db.download(
         method="bulk",
-        technology=technology_bulk,
+        data=data_bulk,
         bulk_date_string="today",
         bulk_cleansing=True,
     )
@@ -83,7 +83,7 @@ if __name__ == "__main__":
         api_chunksize=api_chunksize,
         api_limit=api_limit,
         api_processes=api_processes,
-        technology=technology_api,
+        data=data_api,
         api_data_types=api_data_types,
         api_location_types=api_location_types,
     )
