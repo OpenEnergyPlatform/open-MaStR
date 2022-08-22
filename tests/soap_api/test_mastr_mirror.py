@@ -110,7 +110,7 @@ def test_to_csv(mastr_mirror, engine):
                 limit=100,
                 additional_data=DATA_TYPES,
                 statistic_flag=None,
-                chunksize=1,
+                chunksize=10,
             )
             # Test if all EinheitMastrNummer in basic_units are included in CSV file
             csv_path = join(
@@ -121,7 +121,7 @@ def test_to_csv(mastr_mirror, engine):
             units = session.query(orm.BasicUnit.EinheitMastrNummer).filter(
                 orm.BasicUnit.Einheittyp == mastr_mirror.unit_type_map_reversed[tech]
             )
-            list_MastrNummer = [unit.EinheitMastrNummer for unit in units]
+            list_MastrNummer = {unit.EinheitMastrNummer for unit in units}
             for idx in df.index:
                 assert idx in list_MastrNummer
 
