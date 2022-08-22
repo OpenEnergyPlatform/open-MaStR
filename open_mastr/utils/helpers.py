@@ -120,13 +120,14 @@ def validate_parameter_api_location_types(api_location_types) -> None:
         raise ValueError("parameter api_location_types has to be a list or 'None'.")
 
     if isinstance(api_location_types, list):
+        if not api_location_types:  # api_location_types == []
+            raise ValueError("parameter api_location_types cannot be an empty list!")
         for value in api_location_types:
             if value not in [
                 "location_elec_generation",
                 "location_elec_consumption",
                 "location_gas_generation",
                 "location_gas_consumption",
-                None,
             ]:
                 raise ValueError(
                     'list entries of api_data_types have to be "location_elec_generation",'
@@ -140,13 +141,14 @@ def validate_parameter_api_data_types(api_data_types) -> None:
         raise ValueError("parameter api_data_types has to be a list or 'None'.")
 
     if isinstance(api_data_types, list):
+        if not api_data_types:  # api_data_types == []
+            raise ValueError("parameter api_data_types cannot be an empty list!")
         for value in api_data_types:
             if value not in [
                 "unit_data",
                 "eeg_data",
                 "kwk_data",
                 "permit_data",
-                None,
             ]:
                 raise ValueError(
                     'list entries of api_data_types have to be "unit_data", '
@@ -237,6 +239,8 @@ def validate_parameter_data(method, data) -> None:
             "location",
             "permit",
         ]
+        if not data:  # data == []
+            raise ValueError("parameter data cannot be an empty list!")
         for value in data:
             if method == "bulk" and value not in bulk_data:
                 raise ValueError(
