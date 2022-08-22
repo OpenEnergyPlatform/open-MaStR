@@ -11,9 +11,9 @@ from open_mastr.xml_download.utils_write_to_database import (
 from open_mastr.soap_api.mirror import MaStRMirror
 
 from open_mastr.utils.helpers import (
-    data_input_harmonisation,
     print_api_settings,
     validate_api_credentials,
+    transform_data_parameter,
 )
 from open_mastr.utils.config import (
     create_data_dir,
@@ -139,11 +139,11 @@ class Mastr:
             Defaults to 1000.
         api_data_types: list or None, optional
             Select type of additional data that should be retrieved. Choose from
-            "unit_data", "eeg_data", "kwk_data", "permit_data".
+            "unit_data", "eeg_data", "kwk_data", "permit_data".  Defaults to all.
         api_location_types: list or None, optional
             Select type of location that should be retrieved. Choose from
             "location_elec_generation", "location_elec_consumption", "location_gas_generation",
-            "location_gas_consumption".
+            "location_gas_consumption". Defaults to all.
         """
 
         validate_parameter_format_for_download_method(
@@ -158,6 +158,12 @@ class Mastr:
             api_data_types=api_data_types,
             api_location_types=api_location_types,
         )
+        (
+            data,
+            api_data_types,
+            api_location_types,
+            harm_log,
+        ) = transform_data_parameter(method, data, api_data_types, api_location_types)
 
         if method == "bulk":
 
@@ -181,24 +187,6 @@ class Mastr:
 
         if method == "API":
             validate_api_credentials()
-            if isinstance(data, str):
-                data = [data]
-            elif data is None:
-                data = [
-                    "wind",
-                    "biomass",
-                    "combustion",
-                    "gsgk",
-                    "hydro",
-                    "nuclear",
-                    "storage",
-                    "solar",
-                ]
-            (harm_log, api_data_types, api_location_types,) = data_input_harmonisation(
-                data=data,
-                api_data_types=api_data_types,
-                api_location_types=api_location_types,
-            )
 
             # Set api_processes to None in order to avoid the malfunctioning usage
             if api_processes:

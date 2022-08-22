@@ -294,6 +294,72 @@ def raise_warning_for_invalid_parameter_combinations(
         )
 
 
+def transform_data_parameter(method, data, api_data_types, api_location_types):
+    # initialize full lists TODO decide for the best location to centralize these lists
+    bulk_data = [
+        "wind",
+        "solar",
+        "biomass",
+        "hydro",
+        "gsgk",
+        "combustion",
+        "nuclear",
+        "gas",
+        "storage",
+        "electricity_consumer",
+        "location",
+        "market",
+        "grid",
+        "balancing_area",
+        "permit",
+    ]
+    api_data = [
+        "wind",
+        "solar",
+        "biomass",
+        "hydro",
+        "gsgk",
+        "combustion",
+        "nuclear",
+        "storage",
+        "location",
+        "permit",
+    ]
+    all_api_data_types = ["unit_data", "eeg_data", "kwk_data", "permit_data"]
+    all_api_location_types = [
+        "location_elec_generation",
+        "location_elec_consumption",
+        "location_gas_generation",
+        "location_gas_consumption",
+    ]
+
+    # parse parameters as list
+    if isinstance(data, str):
+        data = [data]
+    elif data is None:
+        data = bulk_data if method == "bulk" else api_data
+    if api_data_types is None:
+        api_data_types = all_api_data_types
+    if api_location_types is None:
+        api_location_types = all_api_location_types
+
+    # data input harmonisation
+    harmonisation_log = []
+    if "permit" in data:
+        data.remove("permit")
+        api_data_types.append(
+            "permit_data"
+        ) if "permit_data" not in api_data_types else api_data_types
+        harmonisation_log.append("permit")
+
+    if "location" in data:
+        data.remove("location")
+        api_location_types = all_api_location_types
+        harmonisation_log.append("location")
+
+    return data, api_data_types, api_location_types, harmonisation_log
+
+
 @contextmanager
 def session_scope(engine):
     """Provide a transactional scope around a series of operations."""
@@ -307,30 +373,6 @@ def session_scope(engine):
         raise
     finally:
         session.close()
-
-
-def data_input_harmonisation(data, api_data_types, api_location_types):
-    harmonisation_log = []
-
-    if "permit" in data:
-        data.remove("permit")
-        api_data_types.append(
-            "permit_data"
-        ) if "permit_data" not in api_data_types else api_data_types
-        harmonisation_log.append("permit")
-
-    if "location" in data:
-        data.remove("location")
-        api_location_types = [
-            "location_elec_generation",
-            "location_elec_consumption",
-            "location_gas_generation",
-            "location_gas_consumption",
-        ]
-        harmonisation_log.append("location")
-        # return changed api_location_types only if "location" in data, else None
-
-    return harmonisation_log, api_data_types, api_location_types
 
 
 def print_api_settings(
