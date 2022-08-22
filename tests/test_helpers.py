@@ -2,6 +2,7 @@ from open_mastr.utils.helpers import (
     validate_parameter_format_for_download_method,
     validate_parameter_format_for_mastr_init,
     validate_api_credentials,
+    transform_data_parameter,
 )
 import pytest
 import sys
@@ -68,20 +69,15 @@ def parameter_dict_working():
 def parameter_dict_not_working():
     parameter_dict = {
         "method": [5, "BULK", "api"],
-        "data": [
-            "wint",
-            "Solar",
-            "biomasse",
-            5,
-        ],
+        "data": ["wint", "Solar", "biomasse", 5, []],
         "bulk_date_string": [124, "heute", 123],
         "bulk_cleansing": ["cleansing", 4, None],
         "api_processes": ["20", "None"],
         "api_limit": ["15", "None"],
         "api_date": ["None", "20220202"],
         "api_chunksize": ["20"],
-        "api_data_types": ["unite_data", 5],
-        "api_location_types": ["locatione_elec_generation", 5],
+        "api_data_types": ["unite_data", 5, []],
+        "api_location_types": ["locatione_elec_generation", 5, []],
     }
     return parameter_dict
 
@@ -200,6 +196,25 @@ def test_validate_parameter_format_for_mastr_init(db):
     for engine in engine_list_failing:
         with pytest.raises(ValueError):
             validate_parameter_format_for_mastr_init(engine)
+
+
+def test_transform_data_parameter(parameter_dict_working):
+    (data, api_data_types, api_location_types, harm_log,) = transform_data_parameter(
+        method="API",
+        data=["wind", "location"],
+        api_data_types=["eeg_data"],
+        api_location_types=None,
+    )
+
+    assert data == ["wind"]
+    assert api_data_types == ["eeg_data"]
+    assert api_location_types == [
+        "location_elec_generation",
+        "location_elec_consumption",
+        "location_gas_generation",
+        "location_gas_consumption",
+    ]  # TODO centralize
+    assert harm_log == ["location"]
 
 
 def test_validate_api_credentials():
