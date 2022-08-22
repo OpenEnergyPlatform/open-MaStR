@@ -14,6 +14,7 @@ from open_mastr.utils.helpers import (
     print_api_settings,
     validate_api_credentials,
     transform_data_parameter,
+    validate_parameter_data,
 )
 from open_mastr.utils.config import (
     create_data_dir,
@@ -291,24 +292,25 @@ class Mastr:
             "location_gas_consumption",
         ]
 
+        # Validate and parse tables parameter TODO parameter renaming
+        validate_parameter_data(method="bulk", data=tables)
+        (
+            data,
+            api_data_types,
+            api_location_types,
+            harm_log,
+        ) = transform_data_parameter(
+            method="bulk", data=tables, api_data_types=None, api_location_types=None
+        )
+
         # Determine tables to export
         technologies_to_export = []
         additional_tables_to_export = []
-        if isinstance(tables, str):
-            # str to list
-            tables = [tables]
-        if tables is None:
-            technologies_to_export = all_technologies
-            additional_tables_to_export = all_additional_tables
-            print(f"Tables: {technologies_to_export}, {additional_tables_to_export}")
-        elif isinstance(tables, list):
-            for table in tables:
-                if table in all_technologies:
-                    technologies_to_export.append(table)
-                elif table in all_additional_tables:
-                    additional_tables_to_export.append(table)
-                else:
-                    raise ValueError("Tables parameter has an invalid string!")
+        for table in data:
+            if table in all_technologies:
+                technologies_to_export.append(table)
+            elif table in all_additional_tables:
+                additional_tables_to_export.append(table)
 
         if technologies_to_export:
             print(f"\nTechnology tables: {technologies_to_export}")

@@ -178,15 +178,12 @@ class MaStRMirror:
 
         Parameters
         ----------
-        data: str or list
+        data: list
             Specify data types for which data should be backfilled.
 
-            * 'solar' (`str`): Backfill data for a single data type.
+            * ['solar']: Backfill data for a single data type.
             * ['solar', 'wind'] (`list`):  Backfill data for multiple technologies given in a list.
-            * `None`: Backfill data for all technologies
 
-            Defaults to `None` which is passed to
-            :meth:`open_mastr.soap_api.download.MaStRDownload.basic_unit_data`.
         date: None, :class:`datetime.datetime`, str
             Specify backfill date from which on data is retrieved
 
@@ -213,18 +210,10 @@ class MaStRMirror:
             all available data is queried. Use with care!
         """
 
-        # Create list of technologies to backfill
-        if isinstance(data, str):
-            data_list = [data]
-        elif data is None:
-            data_list = [None]
-        elif isinstance(data, list):
-            data_list = data
+        dates = self._get_list_of_dates(date, data)
 
-        dates = self._get_list_of_dates(date, data_list)
-
-        for data, date in zip(data_list, dates):
-            self._write_basic_data_for_one_data_type_to_db(data, date, limit)
+        for data_type, date in zip(data, dates):
+            self._write_basic_data_for_one_data_type_to_db(data_type, date, limit)
 
     def backfill_locations_basic(
         self, limit=10 ** 7, date=None, delete_additional_data_requests=True
@@ -329,9 +318,7 @@ class MaStRMirror:
                     orm.AdditionalLocationsRequested, new_requests
                 )
 
-    def retrieve_additional_data(
-        self, data, data_type, limit=10 ** 8, chunksize=1000
-    ):
+    def retrieve_additional_data(self, data, data_type, limit=10 ** 8, chunksize=1000):
         """
         Retrieve additional unit data
 
@@ -1136,12 +1123,6 @@ class MaStRMirror:
         """
 
         create_data_dir()
-
-        # Make sure input in either str or list
-        if isinstance(technology, str):
-            technology = [technology]
-        elif not isinstance(technology, (list, None)):
-            raise TypeError("Parameter data must be of type `str` or `list`")
 
         renaming = column_renaming()
 

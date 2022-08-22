@@ -368,18 +368,15 @@ def handle_xml_syntax_error(data: bytes, err: Error) -> pd.DataFrame:
 
 
 def data_to_include_tables(
-    data,
+    data: list,
 ) -> list:
     """
-    Check the user input 'data' and convert it to the list 'include_tables' which contains
+    Convert user input 'data' to the list 'include_tables' which contains
     file names from zipped bulk download.
     Parameters
     ----------
-    data: None, str, list
+    data: list
         The user input for data selection
-        * `None`: All technologies (default)
-        * `str`: One data
-        * `list`: List of technologies
     Returns
     -------
     list
@@ -387,33 +384,7 @@ def data_to_include_tables(
     -------
 
     """
-    all_technologies = orm.bulk_technologies
     tables_map = orm.bulk_include_tables_map
-    # Convert data input into a standard list
-    chosen_technologies = []
-    if data is None:
-        # All technologies are to be chosen
-        chosen_technologies = all_technologies
-    elif isinstance(data, str):
-        # Only one data is chosen
-        chosen_technologies = [data]
-    elif isinstance(data, list):
-        # list of technologies is given
-        chosen_technologies = data
-
-    # Check if given technologies match with the valid options from 'orm.bulk_technologies'
-    for tech in chosen_technologies:
-        if tech not in all_technologies:
-            raise ValueError(
-                f"The input data = {data} does not match with the "
-                f"possible data options. Only following data options are available "
-                f"bulk_technologies = {all_technologies}"
-            )
-
-    # Map technologies to include tables
-    include_tables = []
-    for tech in chosen_technologies:
-        # Append table names to the include_tables list respectively
-        include_tables += tables_map[tech]
-
+    # Map data selection to include tables
+    include_tables = [table for tech in data for table in tables_map[tech]]
     return include_tables

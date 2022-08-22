@@ -106,7 +106,7 @@ def test_to_csv(mastr_mirror, engine):
     with session_scope(engine=engine) as session:
         for tech in TECHNOLOGIES:
             mastr_mirror.to_csv(
-                technology=tech,
+                technology=[tech],
                 limit=100,
                 additional_data=DATA_TYPES,
                 statistic_flag=None,

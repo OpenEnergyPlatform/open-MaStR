@@ -250,6 +250,4 @@ def test_data_to_include_tables():
 
     # Assert
     assert include_tables_list == data_to_include_tables(data=["wind", "hydro"])
-    assert include_tables_str == data_to_include_tables(data="electricity_consumer")
-    assert "anlageneegwind" in data_to_include_tables(data=None)
-    assert 28 == len(data_to_include_tables(data=None))
+    assert include_tables_str == data_to_include_tables(data=["electricity_consumer"])

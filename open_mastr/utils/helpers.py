@@ -295,6 +295,10 @@ def raise_warning_for_invalid_parameter_combinations(
 
 
 def transform_data_parameter(method, data, api_data_types, api_location_types):
+    """
+    Parse input parameters related to data as lists. Harmonize variables for later use.
+    Data output depends on the possible data types of chosen method.
+    """
     # initialize full lists TODO decide for the best location to centralize these lists
     bulk_data = [
         "wind",
