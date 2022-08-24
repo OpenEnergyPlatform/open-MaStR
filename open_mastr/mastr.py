@@ -91,10 +91,31 @@ class Mastr:
             (see :ref:`Configuration <Configuration>`). Default to 'bulk'.
         data: str or list or None, optional
             Determines which types of data are written to the database. If None, all data is
-            used. If it is a list, possible entries are "wind", "solar", "biomass", "hydro", "gsgk",
-            "combustion", "nuclear", "gas", "storage", "electricity_consumer", "location", "market",
-            "grid", "balancing_area" or "permit". If only one data is of interest, this can be
-            given as a string.  Default to None, where all data is included.
+            used. If it is a list, possible entries are listed at the table below with respect to the download method.
+            Missing categories are being developed. If only one data is of interest, this can be
+            given as a string. Default to None, where all data is included.
+
+            .. csv-table:: Values for data parameter
+                :header-rows: 1
+                :widths: 5 5 5
+
+                "Data", "Bulk", "API"
+                "wind", "Yes", "Yes"
+                "solar", "Yes", "Yes"
+                "biomass", "Yes", "Yes"
+                "hydro", "Yes", "Yes"
+                "gsgk", "Yes", "Yes"
+                "combustion", "Yes", "Yes"
+                "nuclear", "Yes", "Yes"
+                "gas", "Yes", "Yes"
+                "storage", "Yes", "Yes"
+                "electricity_consumer", "Yes", "No"
+                "location", "Yes", "Yes"
+                "market", "Yes", "No"
+                "grid", "Yes", "No"
+                "balancing_area", "Yes", "No"
+                "permit", "Yes", "Yes"
+
         bulk_date_string: str, optional
             Either "today" if the newest data dump should be downloaded from the MaStR website. If
             an already downloaded dump should be used, state the date of the download in the format
