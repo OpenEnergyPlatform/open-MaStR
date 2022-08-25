@@ -67,7 +67,7 @@ setup(
     },
     package_data={
         "open_mastr": [
-            os.path.join("soap_api", "config", "*.yml"),
+            os.path.join("utils", "config", "*.yml"),
             os.path.join("soap_api", "metadata", "LICENSE"),
         ]
     },
