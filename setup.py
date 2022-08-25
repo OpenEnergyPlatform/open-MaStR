@@ -15,6 +15,7 @@ setup(
         "open_mastr.soap_api",
         "open_mastr.soap_api.metadata",
         "open_mastr.utils",
+        "open_mastr.utils.config",
         "open_mastr.xml_download",
     ],
     version="0.11.6",
