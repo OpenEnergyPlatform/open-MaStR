@@ -15,16 +15,17 @@ setup(
         "open_mastr.soap_api",
         "open_mastr.soap_api.metadata",
         "open_mastr.utils",
+        "open_mastr.utils.config",
         "open_mastr.xml_download",
     ],
-    version="0.11.6",
+    version="0.11.7",
     description="A package that provides an interface for downloading and"
     "processing the data of the Marktstammdatenregister (MaStR)",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/OpenEnergyPlatform/open-MaStR",
     download_url="https://github.com/OpenEnergyPlatform/open-MaStR/archive"
-    "/refs/tags/v0.11.6.tar.gz",
+    "/refs/tags/v0.11.7.tar.gz",
     author="Open Energy Family",
     author_email="datenzentrum@rl-institut.de",
     maintainer="Ludwig Hülk",
@@ -67,7 +68,7 @@ setup(
     },
     package_data={
         "open_mastr": [
-            os.path.join("soap_api", "config", "*.yml"),
+            os.path.join("utils", "config", "*.yml"),
             os.path.join("soap_api", "metadata", "LICENSE"),
         ]
     },
