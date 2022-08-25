@@ -527,88 +527,88 @@ class MaStRMirror:
                 log.info("No further data is requested")
                 break
 
-    def create_additional_data_requests(
-        self,
-        technology,
-        data_types=["unit_data", "eeg_data", "kwk_data", "permit_data"],
-        delete_existing=True,
-    ):
-        """
-        Create new requests for additional unit data
-
-        For units that exist in basic_units but not in the table for additional
-        data of `data_type`, a new data request
-        is submitted.
-
-        Parameters
-        ----------
-        technology: str
-            Specify technology additional data should be requested for.
-        data_types: list
-            Select type of additional data that is to be requested.
-            Defaults to all data that is available for a
-            technology.
-        delete_existing: bool
-            Toggle deletion of already existing requests for additional data.
-            Defaults to True.
-        """
-
-        data_requests = []
-
-        with session_scope(engine=self._engine) as session:
-            # Check which additional data is missing
-            for data_type in data_types:
-                if data_type_available := self.orm_map[technology].get(data_type, None):
-                    log.info(
-                        f"Create requests for additional data of type {data_type} for {technology}"
-                    )
-
-                    # Get ORM for additional data by technology and data_type
-                    additional_data_orm = getattr(orm, data_type_available)
-
-                    # Delete prior additional data requests for this technology and data_type
-                    if delete_existing:
-                        session.query(orm.AdditionalDataRequested).filter(
-                            orm.AdditionalDataRequested.technology == technology,
-                            orm.AdditionalDataRequested.data_type == data_type,
-                        ).delete()
-                        session.commit()
-
-                    # Query database for missing additional data
-                    units_for_request = self._get_units_for_request(
-                        data_type, session, additional_data_orm, technology
-                    )
-
-                    # Prepare data for additional data request
-                    for basic_unit in units_for_request:
-                        data_request = {
-                            "EinheitMastrNummer": basic_unit.EinheitMastrNummer,
-                            "technology": self.unit_type_map[basic_unit.Einheittyp],
-                            "data_type": data_type,
-                            "request_date": datetime.datetime.now(
-                                tz=datetime.timezone.utc
-                            ),
-                        }
-                        if data_type == "unit_data":
-                            data_request[
-                                "additional_data_id"
-                            ] = basic_unit.EinheitMastrNummer
-                        elif data_type == "eeg_data":
-                            data_request[
-                                "additional_data_id"
-                            ] = basic_unit.EegMastrNummer
-                        elif data_type == "kwk_data":
-                            data_request[
-                                "additional_data_id"
-                            ] = basic_unit.KwkMastrNummer
-                        elif data_type == "permit_data":
-                            data_request[
-                                "additional_data_id"
-                            ] = basic_unit.GenMastrNummer
-                        data_requests.append(data_request)
-
-            # Insert new requests for additional data into database
-            session.bulk_insert_mappings(orm.AdditionalDataRequested, data_requests)
+    # def create_additional_data_requests(
+    #    self,
+    #    technology,
+    #    data_types=["unit_data", "eeg_data", "kwk_data", "permit_data"],
+    #    delete_existing=True,
+    # ):
+    #    """
+    #    Create new requests for additional unit data
+    #
+    #    For units that exist in basic_units but not in the table for additional
+    #    data of `data_type`, a new data request
+    #    is submitted.
+    #
+    #    Parameters
+    #    ----------
+    #    technology: str
+    #        Specify technology additional data should be requested for.
+    #    data_types: list
+    #        Select type of additional data that is to be requested.
+    #        Defaults to all data that is available for a
+    #        technology.
+    #    delete_existing: bool
+    #        Toggle deletion of already existing requests for additional data.
+    #        Defaults to True.
+    #    """
+    #
+    #    data_requests = []
+    #
+    #    with session_scope(engine=self._engine) as session:
+    #        # Check which additional data is missing
+    #        for data_type in data_types:
+    #            if data_type_available := self.orm_map[technology].get(data_type, None):
+    #                log.info(
+    #                    f"Create requests for additional data of type {data_type} for {technology}"
+    #                )
+    #
+    #                # Get ORM for additional data by technology and data_type
+    #                additional_data_orm = getattr(orm, data_type_available)
+    #
+    #                # Delete prior additional data requests for this technology and data_type
+    #                if delete_existing:
+    #                    session.query(orm.AdditionalDataRequested).filter(
+    #                        orm.AdditionalDataRequested.technology == technology,
+    #                        orm.AdditionalDataRequested.data_type == data_type,
+    #                    ).delete()
+    #                    session.commit()
+    #
+    #                # Query database for missing additional data
+    #                units_for_request = self._get_units_for_request(
+    #                    data_type, session, additional_data_orm, technology
+    #                )
+    #
+    #                # Prepare data for additional data request
+    #                for basic_unit in units_for_request:
+    #                    data_request = {
+    #                        "EinheitMastrNummer": basic_unit.EinheitMastrNummer,
+    #                        "technology": self.unit_type_map[basic_unit.Einheittyp],
+    #                        "data_type": data_type,
+    #                        "request_date": datetime.datetime.now(
+    #                            tz=datetime.timezone.utc
+    #                        ),
+    #                    }
+    #                    if data_type == "unit_data":
+    #                        data_request[
+    #                            "additional_data_id"
+    #                        ] = basic_unit.EinheitMastrNummer
+    #                    elif data_type == "eeg_data":
+    #                        data_request[
+    #                            "additional_data_id"
+    #                        ] = basic_unit.EegMastrNummer
+    #                    elif data_type == "kwk_data":
+    #                        data_request[
+    #                            "additional_data_id"
+    #                        ] = basic_unit.KwkMastrNummer
+    #                    elif data_type == "permit_data":
+    #                        data_request[
+    #                            "additional_data_id"
+    #                        ] = basic_unit.GenMastrNummer
+    #                    data_requests.append(data_request)
+    #
+    #        # Insert new requests for additional data into database
+    #        session.bulk_insert_mappings(orm.AdditionalDataRequested, data_requests)
 
     def _add_data_source_and_download_date(self, entry: dict) -> dict:
         "Adds DatenQuelle = 'APT' and DatumDownload = date.today"
