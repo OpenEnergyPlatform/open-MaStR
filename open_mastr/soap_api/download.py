@@ -898,8 +898,8 @@ class MaStRDownload:
         return data, data_missed
 
     def _retrieve_data_in_single_process(self, prepared_args, data_fcn, data):
-        data = []
-        data_missed = []
+        data_list = []
+        data_missed_list = []
         for unit_specs in tqdm(
             prepared_args,
             total=len(prepared_args),
@@ -913,16 +913,16 @@ class MaStRDownload:
                     f"{data_missed_tmp[0]} ({data}) failed. "
                     f"Traceback of caught error:\n{data_missed_tmp[1]}"
                 )
-            data.append(data_tmp)
-            data_missed.append(data_missed_tmp)
+            data_list.append(data_tmp)
+            data_missed_list.append(data_missed_tmp)
 
-        return data, data_missed
+        return data_list, data_missed_list
 
     def _retrieve_data_in_parallel_process(
         self, prepared_args, data_fcn, data, timeout
     ):
-        data = []
-        data_missed = []
+        data_list = []
+        data_missed_list = []
         with multiprocessing.Pool(
             processes=self.parallel_processes, maxtasksperchild=1
         ) as pool:
@@ -946,8 +946,8 @@ class MaStRDownload:
                                 f"{data_missed_tmp[0]} ({data}) failed. "
                                 f"Traceback of caught error:\n{data_missed_tmp[1]}"
                             )
-                        data.append(data_tmp)
-                        data_missed.append(data_missed_tmp)
+                        data_list.append(data_tmp)
+                        data_missed_list.append(data_missed_tmp)
                         pbar.update()
                     except StopIteration:
                         # Multiprocessing returns StropIteration when results list gets empty
@@ -955,7 +955,7 @@ class MaStRDownload:
                     except multiprocessing.TimeoutError:
                         # If retrieval time exceeds timeout of next(), pass on
                         log.debug(f"Data request for 1 {data} unit timed out")
-        return data, data_missed
+        return data_list, data_missed_list
 
     def extended_unit_data(self, unit_specs):
         """
