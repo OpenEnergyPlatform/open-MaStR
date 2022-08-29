@@ -123,7 +123,7 @@ def test_to_csv(mastr_mirror, engine):
             )
             set_MastrNummer = {unit.EinheitMastrNummer for unit in units}
             for idx in df.index:
-                assert idx in list_MastrNummer
+                assert idx in set_MastrNummer
 
 
 @pytest.mark.dependency(name="backfill_locations_basic")
