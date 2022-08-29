@@ -22,8 +22,10 @@ Here is a template for new release sections:
 
 ### Added
 - Read version number for CI from setup.py [#333](https://github.com/rl-institut/super-repo/pull/333)
+
 ### Changed
-- [#](https://github.com/rl-institut/super-repo/pull/)
+- Technology parameter is renamed to data for better comprehension [#337](https://github.com/OpenEnergyPlatform/open-MaStR/pull/337)
+
 ### Removed
 - [#](https://github.com/rl-institut/super-repo/pull/)
 
