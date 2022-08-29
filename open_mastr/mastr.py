@@ -11,12 +11,17 @@ from open_mastr.xml_download.utils_write_to_database import (
 from open_mastr.soap_api.mirror import MaStRMirror
 
 from open_mastr.utils.helpers import (
-    technology_input_harmonisation,
     print_api_settings,
     validate_api_credentials,
+    transform_data_parameter,
+    validate_parameter_data,
 )
-from open_mastr.utils.config import create_data_dir, get_data_version_dir
-
+from open_mastr.utils.config import (
+    create_data_dir,
+    get_data_version_dir,
+    get_project_home_dir,
+)
+import open_mastr.utils.orm as orm
 
 # import initialize_database dependencies
 from open_mastr.utils.helpers import (
@@ -25,8 +30,6 @@ from open_mastr.utils.helpers import (
     validate_parameter_format_for_mastr_init,
     parse_date_string,
 )
-import open_mastr.utils.orm as orm
-from open_mastr.utils.config import get_project_home_dir
 
 
 class Mastr:
@@ -64,7 +67,7 @@ class Mastr:
     def download(
         self,
         method="bulk",
-        technology=None,
+        data=None,
         bulk_date_string="today",
         bulk_cleansing=True,
         api_processes=None,
@@ -85,12 +88,33 @@ class Mastr:
             zipped bulk download or via the MaStR API. The latter requires an account
             from marktstammdatenregister.de,
             (see :ref:`Configuration <Configuration>`). Default to 'bulk'.
-        technology: str or list or None, optional
-            Determines which technologies are written to the database. If None, all technologies are
-            used. If it is a list, possible entries are "wind", "solar", "biomass", "hydro", "gsgk",
-            "combustion", "nuclear", "gas", "storage", "electricity_consumer", "location", "market",
-            "grid", "balancing_area" or "permit". If only one technology is of interest, this can be
-            given as a string.  Default to None, where all technologies are included.
+        data: str or list or None, optional
+            Determines which types of data are written to the database. If None, all data is
+            used. If it is a list, possible entries are listed at the table below with respect to the download method.
+            Missing categories are being developed. If only one data is of interest, this can be
+            given as a string. Default to None, where all data is included.
+
+            .. csv-table:: Values for data parameter
+                :header-rows: 1
+                :widths: 5 5 5
+
+                "Data", "Bulk", "API"
+                "wind", "Yes", "Yes"
+                "solar", "Yes", "Yes"
+                "biomass", "Yes", "Yes"
+                "hydro", "Yes", "Yes"
+                "gsgk", "Yes", "Yes"
+                "combustion", "Yes", "Yes"
+                "nuclear", "Yes", "Yes"
+                "gas", "Yes", "Yes"
+                "storage", "Yes", "Yes"
+                "electricity_consumer", "Yes", "No"
+                "location", "Yes", "Yes"
+                "market", "Yes", "No"
+                "grid", "Yes", "No"
+                "balancing_area", "Yes", "No"
+                "permit", "Yes", "Yes"
+
         bulk_date_string: str, optional
             Either "today" if the newest data dump should be downloaded from the MaStR website. If
             an already downloaded dump should be used, state the date of the download in the format
@@ -136,16 +160,16 @@ class Mastr:
             Defaults to 1000.
         api_data_types: list or None, optional
             Select type of additional data that should be retrieved. Choose from
-            "unit_data", "eeg_data", "kwk_data", "permit_data".
+            "unit_data", "eeg_data", "kwk_data", "permit_data".  Defaults to all.
         api_location_types: list or None, optional
             Select type of location that should be retrieved. Choose from
             "location_elec_generation", "location_elec_consumption", "location_gas_generation",
-            "location_gas_consumption".
+            "location_gas_consumption". Defaults to all.
         """
 
         validate_parameter_format_for_download_method(
             method=method,
-            technology=technology,
+            data=data,
             bulk_date_string=bulk_date_string,
             bulk_cleansing=bulk_cleansing,
             api_processes=api_processes,
@@ -155,6 +179,12 @@ class Mastr:
             api_data_types=api_data_types,
             api_location_types=api_location_types,
         )
+        (
+            data,
+            api_data_types,
+            api_location_types,
+            harm_log,
+        ) = transform_data_parameter(method, data, api_data_types, api_location_types)
 
         if method == "bulk":
 
@@ -171,35 +201,13 @@ class Mastr:
             write_mastr_xml_to_database(
                 engine=self.engine,
                 zipped_xml_file_path=zipped_xml_file_path,
-                technology=technology,
+                data=data,
                 bulk_cleansing=bulk_cleansing,
                 bulk_download_date=bulk_download_date,
             )
 
         if method == "API":
             validate_api_credentials()
-            if isinstance(technology, str):
-                technology = [technology]
-            elif technology is None:
-                technology = [
-                    "wind",
-                    "biomass",
-                    "combustion",
-                    "gsgk",
-                    "hydro",
-                    "nuclear",
-                    "storage",
-                    "solar",
-                ]
-            (
-                harm_log,
-                api_data_types,
-                api_location_types,
-            ) = technology_input_harmonisation(
-                technology=technology,
-                api_data_types=api_data_types,
-                api_location_types=api_location_types,
-            )
 
             # Set api_processes to None in order to avoid the malfunctioning usage
             if api_processes:
@@ -211,7 +219,7 @@ class Mastr:
 
             print_api_settings(
                 harmonisation_log=harm_log,
-                technology=technology,
+                data=data,
                 api_date=api_date,
                 api_data_types=api_data_types,
                 api_chunksize=api_chunksize,
@@ -226,11 +234,11 @@ class Mastr:
                 restore_dump=None,
             )
             # Download basic unit data
-            mastr_mirror.backfill_basic(technology, limit=api_limit, date=api_date)
+            mastr_mirror.backfill_basic(data, limit=api_limit, date=api_date)
 
             # Download additional unit data
-            for tech in technology:
-                # mastr_mirror.create_additional_data_requests(tech)
+            for tech in data:
+                # mastr_mirror.create_additional_data_requests(data)
                 for data_type in api_data_types:
                     mastr_mirror.retrieve_additional_data(
                         tech, data_type, chunksize=api_chunksize, limit=api_limit
@@ -266,7 +274,7 @@ class Mastr:
         chunksize: int
             Defines the chunksize of the tables export. Default value is 500.000.
         limit: None or int
-            Limits the number of exported technology and location units.
+            Limits the number of exported data and location units.
         """
 
         create_data_dir()
@@ -304,24 +312,25 @@ class Mastr:
             "location_gas_consumption",
         ]
 
+        # Validate and parse tables parameter TODO parameter renaming
+        validate_parameter_data(method="bulk", data=tables)
+        (
+            data,
+            api_data_types,
+            api_location_types,
+            harm_log,
+        ) = transform_data_parameter(
+            method="bulk", data=tables, api_data_types=None, api_location_types=None
+        )
+
         # Determine tables to export
         technologies_to_export = []
         additional_tables_to_export = []
-        if isinstance(tables, str):
-            # str to list
-            tables = [tables]
-        if tables is None:
-            technologies_to_export = all_technologies
-            additional_tables_to_export = all_additional_tables
-            print(f"Tables: {technologies_to_export}, {additional_tables_to_export}")
-        elif isinstance(tables, list):
-            for table in tables:
-                if table in all_technologies:
-                    technologies_to_export.append(table)
-                elif table in all_additional_tables:
-                    additional_tables_to_export.append(table)
-                else:
-                    raise ValueError("Tables parameter has an invalid string!")
+        for table in data:
+            if table in all_technologies:
+                technologies_to_export.append(table)
+            elif table in all_additional_tables:
+                additional_tables_to_export.append(table)
 
         if technologies_to_export:
             print(f"\nTechnology tables: {technologies_to_export}")
@@ -335,7 +344,7 @@ class Mastr:
         if technologies_to_export:
             # fill basic unit table, after downloading with method = 'bulk' to use API export functions
             api_export.reverse_fill_basic_units(technology=technologies_to_export)
-            # export to csv per technology
+            # export to csv per data
             api_export.to_csv(
                 technology=technologies_to_export,
                 statistic_flag=None,

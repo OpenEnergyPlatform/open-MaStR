@@ -48,9 +48,9 @@ additional parameters can be set to define in detail which data should be obtain
    * - argument
      - options for specification
      - explanation
-   * - technology
+   * - data
      - ["wind","biomass","combustion","gsgk","hydro","nuclear","storage","solar"]
-     - Select technologies to download.
+     - Select data to download.
    * - api_data_types
      - ["unit_data","eeg_data","kwk_data","permit_data"]
      - Select the type of data to download.

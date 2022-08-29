@@ -75,7 +75,7 @@ def validate_parameter_format_for_mastr_init(engine) -> None:
 
 def validate_parameter_format_for_download_method(
     method,
-    technology,
+    data,
     bulk_date_string,
     bulk_cleansing,
     api_processes,
@@ -87,7 +87,7 @@ def validate_parameter_format_for_download_method(
 ) -> None:
 
     validate_parameter_method(method)
-    validate_parameter_technology(technology)
+    validate_parameter_data(method, data)
     validate_parameter_bulk_date_string(bulk_date_string)
     validate_parameter_bulk_cleansing(bulk_cleansing)
     validate_parameter_api_processes(api_processes)
@@ -120,13 +120,14 @@ def validate_parameter_api_location_types(api_location_types) -> None:
         raise ValueError("parameter api_location_types has to be a list or 'None'.")
 
     if isinstance(api_location_types, list):
+        if not api_location_types:  # api_location_types == []
+            raise ValueError("parameter api_location_types cannot be an empty list!")
         for value in api_location_types:
             if value not in [
                 "location_elec_generation",
                 "location_elec_consumption",
                 "location_gas_generation",
                 "location_gas_consumption",
-                None,
             ]:
                 raise ValueError(
                     'list entries of api_data_types have to be "location_elec_generation",'
@@ -140,13 +141,14 @@ def validate_parameter_api_data_types(api_data_types) -> None:
         raise ValueError("parameter api_data_types has to be a list or 'None'.")
 
     if isinstance(api_data_types, list):
+        if not api_data_types:  # api_data_types == []
+            raise ValueError("parameter api_data_types cannot be an empty list!")
         for value in api_data_types:
             if value not in [
                 "unit_data",
                 "eeg_data",
                 "kwk_data",
                 "permit_data",
-                None,
             ]:
                 raise ValueError(
                     'list entries of api_data_types have to be "unit_data", '
@@ -202,13 +204,13 @@ def validate_parameter_api_processes(api_processes) -> None:
             )
 
 
-def validate_parameter_technology(technology) -> None:
-    if not isinstance(technology, (str, list)) and technology is not None:
-        raise ValueError("parameter technology has to be a string, list, or None")
-    if isinstance(technology, str):
-        technology = [technology]
-    if isinstance(technology, list):
-        bulk_technologies = [
+def validate_parameter_data(method, data) -> None:
+    if not isinstance(data, (str, list)) and data is not None:
+        raise ValueError("parameter data has to be a string, list, or None")
+    if isinstance(data, str):
+        data = [data]
+    if isinstance(data, list):
+        bulk_data = [
             "wind",
             "solar",
             "biomass",
@@ -225,13 +227,33 @@ def validate_parameter_technology(technology) -> None:
             "balancing_area",
             "permit",
         ]
-        for value in technology:
-            if value not in bulk_technologies:
+        api_data = [
+            "wind",
+            "solar",
+            "biomass",
+            "hydro",
+            "gsgk",
+            "combustion",
+            "nuclear",
+            "storage",
+            "location",
+            "permit",
+        ]
+        if not data:  # data == []
+            raise ValueError("parameter data cannot be an empty list!")
+        for value in data:
+            if method == "bulk" and value not in bulk_data:
                 raise ValueError(
-                    'Allowed values for parameter technology are "wind", "solar",'
+                    'Allowed values for parameter data with bulk method are "wind", "solar",'
                     '"biomass", "hydro", "gsgk", "combustion", "nuclear", "gas", '
                     '"storage", "electricity_consumer", "location", "market", '
                     '"grid", "balancing_area" or "permit"'
+                )
+            if method == "API" and value not in api_data:
+                raise ValueError(
+                    'Allowed values for parameter data with API method are "wind", "solar", '
+                    '"biomass", "hydro", "gsgk", "combustion", "nuclear", '
+                    '"storage", "location" or "permit"'
                 )
 
 
@@ -272,6 +294,76 @@ def raise_warning_for_invalid_parameter_combinations(
         )
 
 
+def transform_data_parameter(method, data, api_data_types, api_location_types):
+    """
+    Parse input parameters related to data as lists. Harmonize variables for later use.
+    Data output depends on the possible data types of chosen method.
+    """
+    # initialize full lists TODO decide for the best location to centralize these lists
+    bulk_data = [
+        "wind",
+        "solar",
+        "biomass",
+        "hydro",
+        "gsgk",
+        "combustion",
+        "nuclear",
+        "gas",
+        "storage",
+        "electricity_consumer",
+        "location",
+        "market",
+        "grid",
+        "balancing_area",
+        "permit",
+    ]
+    api_data = [
+        "wind",
+        "solar",
+        "biomass",
+        "hydro",
+        "gsgk",
+        "combustion",
+        "nuclear",
+        "storage",
+        "location",
+        "permit",
+    ]
+    all_api_data_types = ["unit_data", "eeg_data", "kwk_data", "permit_data"]
+    all_api_location_types = [
+        "location_elec_generation",
+        "location_elec_consumption",
+        "location_gas_generation",
+        "location_gas_consumption",
+    ]
+
+    # parse parameters as list
+    if isinstance(data, str):
+        data = [data]
+    elif data is None:
+        data = bulk_data if method == "bulk" else api_data
+    if api_data_types is None:
+        api_data_types = all_api_data_types
+    if api_location_types is None:
+        api_location_types = all_api_location_types
+
+    # data input harmonisation
+    harmonisation_log = []
+    if "permit" in data:
+        data.remove("permit")
+        api_data_types.append(
+            "permit_data"
+        ) if "permit_data" not in api_data_types else api_data_types
+        harmonisation_log.append("permit")
+
+    if "location" in data:
+        data.remove("location")
+        api_location_types = all_api_location_types
+        harmonisation_log.append("location")
+
+    return data, api_data_types, api_location_types, harmonisation_log
+
+
 @contextmanager
 def session_scope(engine):
     """Provide a transactional scope around a series of operations."""
@@ -287,33 +379,9 @@ def session_scope(engine):
         session.close()
 
 
-def technology_input_harmonisation(technology, api_data_types, api_location_types):
-    harmonisation_log = []
-
-    if "permit" in technology:
-        technology.remove("permit")
-        api_data_types.append(
-            "permit_data"
-        ) if "permit_data" not in api_data_types else api_data_types
-        harmonisation_log.append("permit")
-
-    if "location" in technology:
-        technology.remove("location")
-        api_location_types = [
-            "location_elec_generation",
-            "location_elec_consumption",
-            "location_gas_generation",
-            "location_gas_consumption",
-        ]
-        harmonisation_log.append("location")
-        # return changed api_location_types only if "location" in technology, else None
-
-    return harmonisation_log, api_data_types, api_location_types
-
-
 def print_api_settings(
     harmonisation_log,
-    technology,
+    data,
     api_date,
     api_data_types,
     api_chunksize,
@@ -324,14 +392,14 @@ def print_api_settings(
 
     print(
         f"Downloading with soap_API.\n\n   -- API settings --  \nunits after date: "
-        f"{api_date}\nunit download limit per technology: "
+        f"{api_date}\nunit download limit per data: "
         f"{api_limit}\nparallel_processes: {api_processes}\nchunksize: "
-        f"{api_chunksize}\ntechnology_api: {technology}"
+        f"{api_chunksize}\ndata_api: {data}"
     )
     if "permit" in harmonisation_log:
         print(
             f"data_types: {api_data_types}" "\033[31m",
-            f"Attention, 'permit_data' was automatically set in api_data_types, as you defined 'permit' in parameter technology_api.",
+            "Attention, 'permit_data' was automatically set in api_data_types, as you defined 'permit' in parameter data_api.",
             "\033[m",
         )
 
@@ -342,10 +410,10 @@ def print_api_settings(
         print(
             "location_types:",
             "\033[31m",
-            f"Attention, 'location' is in parameter technology_api. location_types are set to",
+            f"Attention, 'location' is in parameter data. location_types are set to",
             "\033[m",
             f"{api_location_types}"
-            "\n                 If you want to change location_types, please remove 'location' from technology_api and specify api_location_types."
+            "\n                 If you want to change location_types, please remove 'location' from data_api and specify api_location_types."
             "\n   ------------------  \n",
         )
 

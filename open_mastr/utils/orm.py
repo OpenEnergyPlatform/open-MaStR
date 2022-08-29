@@ -999,26 +999,6 @@ tablename_mapping = {
     },
 }
 
-# List of technologies which can be called by mastr.download()
-#  as well as by MastrMirror.basic_backfill()
-bulk_technologies = [
-    "wind",
-    "solar",
-    "biomass",
-    "hydro",
-    "gsgk",
-    "combustion",
-    "nuclear",
-    "gas",
-    "storage",
-    "electricity_consumer",
-    "location",
-    "market",
-    "grid",
-    "balancing_area",
-    "permit",
-]
-
 # Map bulk technologies to bulk download tables
 bulk_include_tables_map = {
     "wind": ["anlageneegwind", "einheitenwind"],
