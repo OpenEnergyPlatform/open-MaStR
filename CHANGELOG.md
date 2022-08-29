@@ -27,7 +27,7 @@ Here is a template for new release sections:
 - Technology parameter is renamed to data for better comprehension [#337](https://github.com/OpenEnergyPlatform/open-MaStR/pull/337)
 
 ### Removed
-- [#](https://github.com/rl-institut/super-repo/pull/)
+- Removed code artefacts [#335](https://github.com/OpenEnergyPlatform/open-MaStR/pull/335)
 
 ## [v0.11.7] Patch - Hotfix - 2022-08-25
 ### Changed
