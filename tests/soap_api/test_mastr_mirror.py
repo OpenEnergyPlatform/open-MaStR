@@ -121,7 +121,7 @@ def test_to_csv(mastr_mirror, engine):
             units = session.query(orm.BasicUnit.EinheitMastrNummer).filter(
                 orm.BasicUnit.Einheittyp == mastr_mirror.unit_type_map_reversed[tech]
             )
-            list_MastrNummer = {unit.EinheitMastrNummer for unit in units}
+            set_MastrNummer = {unit.EinheitMastrNummer for unit in units}
             for idx in df.index:
                 assert idx in list_MastrNummer
 
