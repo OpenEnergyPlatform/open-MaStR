@@ -78,5 +78,3 @@ setup(
         "Source": "https://github.com/OpenEnergyPlatform/open-MaStR",
     },
 )
-
-# os.system("ulimit -n 1000000")
