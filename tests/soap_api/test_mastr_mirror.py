@@ -8,7 +8,6 @@ import pytest
 from open_mastr.soap_api.mirror import MaStRMirror
 from open_mastr.utils import orm
 from open_mastr.utils.config import get_project_home_dir, get_data_version_dir
-from open_mastr.utils.data_io import read_csv_data
 from open_mastr.utils.helpers import create_database_engine, session_scope
 
 TECHNOLOGIES = random.sample(
@@ -63,15 +62,6 @@ def test_retrieve_additional_data(mastr_mirror):
                 data=tech, data_type=data_type, limit=10 * LIMIT
             )
 
-    # This comparison currently fails because of
-    # https://github.com/OpenEnergyPlatform/open-MaStR/issues/154
-    # with session_scope() as session:
-    #     for data in TECHNOLOGIES:
-    #         mapper = getattr(orm, mastr_mirror.orm_map[data]["unit_data"])
-    #         response = session.query(mapper).count()
-    #         assert response >= LIMIT
-
-
 @pytest.mark.dependency(depends=["retrieve_additional_data"], name="update_latest")
 def test_update_latest(mastr_mirror, engine):
     mastr_mirror.backfill_basic(data=TECHNOLOGIES, date="latest", limit=LIMIT)
@@ -86,22 +76,20 @@ def test_update_latest(mastr_mirror, engine):
     assert response.DatumLetzteAktualisierung > DATE
 
 
-@pytest.mark.dependency(
-    depends=["update_latest"], name="create_additional_data_requests"
-)
-def test_create_additional_data_requests(mastr_mirror, engine):
-    with session_scope(engine=engine) as session:
-        for tech in TECHNOLOGIES:
-            session.query(orm.AdditionalDataRequested).filter_by(
-                technology="gsgk"
-            ).delete()
-            session.commit()
-            mastr_mirror.create_additional_data_requests(tech, data_types=DATA_TYPES)
+# @pytest.mark.dependency(
+#    depends=["update_latest"], name="create_additional_data_requests"
+# )
+# def test_create_additional_data_requests(mastr_mirror, engine):
+#    with session_scope(engine=engine) as session:
+#        for tech in TECHNOLOGIES:
+#            session.query(orm.AdditionalDataRequested).filter_by(
+#                technology="gsgk"
+#            ).delete()
+#            session.commit()
+#            mastr_mirror.create_additional_data_requests(tech, data_types=DATA_TYPES)
 
 
-@pytest.mark.dependency(
-    depends=["create_additional_data_requests"], name="export_to_csv"
-)
+@pytest.mark.dependency(depends=["retrieve_additional_data"], name="export_to_csv")
 def test_to_csv(mastr_mirror, engine):
     with session_scope(engine=engine) as session:
         for tech in TECHNOLOGIES:

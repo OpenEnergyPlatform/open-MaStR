@@ -4,7 +4,6 @@ import os
 import pandas as pd
 import pathlib
 import pynodo
-import yaml
 
 from open_mastr.utils.config import (
     get_filenames,

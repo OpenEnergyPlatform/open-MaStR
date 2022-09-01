@@ -22,7 +22,6 @@ from open_mastr.utils.config import (
     get_project_home_dir,
 )
 import open_mastr.utils.orm as orm
-from open_mastr.utils.data_io import cleaned_data
 
 # import initialize_database dependencies
 from open_mastr.utils.helpers import (
