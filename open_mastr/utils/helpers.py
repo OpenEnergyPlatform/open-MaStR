@@ -12,6 +12,12 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Query, sessionmaker
 
 from open_mastr.soap_api.download import MaStRAPI
+from open_mastr.utils.constants import (
+    BULK_DATA,
+    API_DATA,
+    API_DATA_TYPES,
+    API_LOCATION_TYPES,
+)
 
 
 def chunks(lst, n):
@@ -123,16 +129,9 @@ def validate_parameter_api_location_types(api_location_types) -> None:
         if not api_location_types:  # api_location_types == []
             raise ValueError("parameter api_location_types cannot be an empty list!")
         for value in api_location_types:
-            if value not in [
-                "location_elec_generation",
-                "location_elec_consumption",
-                "location_gas_generation",
-                "location_gas_consumption",
-            ]:
+            if value not in API_LOCATION_TYPES:
                 raise ValueError(
-                    'list entries of api_data_types have to be "location_elec_generation",'
-                    '"location_elec_consumption", "location_gas_generation" or'
-                    ' "location_gas_consumption".'
+                    f"list entries of api_data_types have to be in {API_LOCATION_TYPES}."
                 )
 
 
@@ -144,16 +143,9 @@ def validate_parameter_api_data_types(api_data_types) -> None:
         if not api_data_types:  # api_data_types == []
             raise ValueError("parameter api_data_types cannot be an empty list!")
         for value in api_data_types:
-            if value not in [
-                "unit_data",
-                "eeg_data",
-                "kwk_data",
-                "permit_data",
-            ]:
+            if value not in API_DATA_TYPES:
                 raise ValueError(
-                    'list entries of api_data_types have to be "unit_data", '
-                    '"eeg_data", "kwk_data" '
-                    'or "permit_data".'
+                    f"list entries of api_data_types have to be in {API_DATA_TYPES}."
                 )
 
 
@@ -210,50 +202,16 @@ def validate_parameter_data(method, data) -> None:
     if isinstance(data, str):
         data = [data]
     if isinstance(data, list):
-        bulk_data = [
-            "wind",
-            "solar",
-            "biomass",
-            "hydro",
-            "gsgk",
-            "combustion",
-            "nuclear",
-            "gas",
-            "storage",
-            "electricity_consumer",
-            "location",
-            "market",
-            "grid",
-            "balancing_area",
-            "permit",
-        ]
-        api_data = [
-            "wind",
-            "solar",
-            "biomass",
-            "hydro",
-            "gsgk",
-            "combustion",
-            "nuclear",
-            "storage",
-            "location",
-            "permit",
-        ]
         if not data:  # data == []
             raise ValueError("parameter data cannot be an empty list!")
         for value in data:
-            if method == "bulk" and value not in bulk_data:
+            if method == "bulk" and value not in BULK_DATA:
                 raise ValueError(
-                    'Allowed values for parameter data with bulk method are "wind", "solar",'
-                    '"biomass", "hydro", "gsgk", "combustion", "nuclear", "gas", '
-                    '"storage", "electricity_consumer", "location", "market", '
-                    '"grid", "balancing_area" or "permit"'
+                    f"Allowed values for parameter data with bulk method are {BULK_DATA}"
                 )
-            if method == "API" and value not in api_data:
+            if method == "API" and value not in API_DATA:
                 raise ValueError(
-                    'Allowed values for parameter data with API method are "wind", "solar", '
-                    '"biomass", "hydro", "gsgk", "combustion", "nuclear", '
-                    '"storage", "location" or "permit"'
+                    f"Allowed values for parameter data with API method are {API_DATA}"
                 )
 
 
@@ -299,53 +257,15 @@ def transform_data_parameter(method, data, api_data_types, api_location_types):
     Parse input parameters related to data as lists. Harmonize variables for later use.
     Data output depends on the possible data types of chosen method.
     """
-    # initialize full lists TODO decide for the best location to centralize these lists
-    bulk_data = [
-        "wind",
-        "solar",
-        "biomass",
-        "hydro",
-        "gsgk",
-        "combustion",
-        "nuclear",
-        "gas",
-        "storage",
-        "electricity_consumer",
-        "location",
-        "market",
-        "grid",
-        "balancing_area",
-        "permit",
-    ]
-    api_data = [
-        "wind",
-        "solar",
-        "biomass",
-        "hydro",
-        "gsgk",
-        "combustion",
-        "nuclear",
-        "storage",
-        "location",
-        "permit",
-    ]
-    all_api_data_types = ["unit_data", "eeg_data", "kwk_data", "permit_data"]
-    all_api_location_types = [
-        "location_elec_generation",
-        "location_elec_consumption",
-        "location_gas_generation",
-        "location_gas_consumption",
-    ]
-
     # parse parameters as list
     if isinstance(data, str):
         data = [data]
     elif data is None:
-        data = bulk_data if method == "bulk" else api_data
+        data = BULK_DATA if method == "bulk" else API_DATA
     if api_data_types is None:
-        api_data_types = all_api_data_types
+        api_data_types = API_DATA_TYPES
     if api_location_types is None:
-        api_location_types = all_api_location_types
+        api_location_types = API_LOCATION_TYPES
 
     # data input harmonisation
     harmonisation_log = []
@@ -358,7 +278,7 @@ def transform_data_parameter(method, data, api_data_types, api_location_types):
 
     if "location" in data:
         data.remove("location")
-        api_location_types = all_api_location_types
+        api_location_types = API_LOCATION_TYPES
         harmonisation_log.append("location")
 
     return data, api_data_types, api_location_types, harmonisation_log
