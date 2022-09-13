@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+
+
 """
 Service functions for logging
 
@@ -23,6 +25,8 @@ import pathlib
 
 import logging
 import logging.config
+
+from datetime import date
 
 log = logging.getLogger(__name__)
 
@@ -53,7 +57,7 @@ def get_data_version_dir():
     path-like object
         Absolute path to `PROJECTHOME/data/<data-version>/`
     """
-    data_version = get_data_config()["data_version"]
+    data_version = get_data_config()
     return os.path.join(get_project_home_dir(), "data", data_version)
 
 
@@ -83,8 +87,10 @@ def get_data_config():
     dict
         Configuration parameters
     """
-    with open(os.path.join(get_project_home_dir(), "config", "data.yml")) as data_fh:
-        data_config = yaml.safe_load(data_fh)
+
+    today = date.today()
+
+    data_config = f'dataversion-{today.strftime("%Y-%m-%d")}_AB_rli'
 
     return data_config
 

@@ -40,7 +40,7 @@ def datapackag_base(reference_date, publication_date=None, statistik_flag=None):
         publication_date = datetime.datetime.now()
 
     publication_date = publication_date.strftime("%Y-%m-%d %H:%M:%S")
-    data_version = get_data_config()["data_version"]
+    data_version = get_data_config()
 
     # Add a note to the description if this is filtered data or if it the complete data including potential duplicates
     if statistik_flag == "B":
