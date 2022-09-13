@@ -17,7 +17,6 @@ The project home directory is structured as follows (files and folders below `da
     .open-MaStR/
     ├── config
     │   ├── credentials.cfg
-    │   ├── data.yml
     │   ├── filenames.yml
     │   ├── logging.yml
     │   └── tables.yml
@@ -40,7 +39,6 @@ Configuration files
 * :code:`credentials.cfg`: Credentials used to access
   `Marktstammdatenregister (MaStR) <https://www.marktstammdatenregister.de/MaStR>`_ API (read more in
   :ref:`MaStR account and credentials <MaStR account and credentials>`) and token for Zenodo.
-* :code:`data.yml`: Specify the name of the data version.
 * :code:`filenames.yml`: File names are defined here.
 * :code:`logging.yml`: Logging configuration. For changing the log level to increase or decrease details of log
   messages, edit the `level` of the handlers.

@@ -80,12 +80,12 @@ def get_filenames():
 
 def get_data_config():
     """
-    Get data version and more parameters
+    Get data version
 
     Returns
     -------
-    dict
-        Configuration parameters
+    str
+        dataversion
     """
 
     today = date.today()
