@@ -79,14 +79,15 @@ if __name__ == "__main__":
     # API download
     db.download(
         method="API",
+        data=data_api,
+        api_processes=api_processes,
+        api_limit=api_limit,
         api_date=api_date,
         api_chunksize=api_chunksize,
-        api_limit=api_limit,
-        api_processes=api_processes,
-        data=data_api,
         api_data_types=api_data_types,
         api_location_types=api_location_types,
     )
+
     ## export to csv
     """
     Technology-related tables are exported as joined, whereas additional tables
