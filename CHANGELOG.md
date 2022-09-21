@@ -22,6 +22,7 @@ Here is a template for new release sections:
 
 ### Added
 - Read version number for CI from setup.py [#333](https://github.com/rl-institut/super-repo/pull/333)
+- Constants.py for central hardcoded variables [#345](https://github.com/OpenEnergyPlatform/open-MaStR/pull/345)
 
 ### Changed
 - Technology parameter is renamed to data for better comprehension [#337](https://github.com/OpenEnergyPlatform/open-MaStR/pull/337)

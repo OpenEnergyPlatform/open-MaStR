@@ -998,30 +998,3 @@ tablename_mapping = {
         "replace_column_names": None,
     },
 }
-
-# Map bulk technologies to bulk download tables
-bulk_include_tables_map = {
-    "wind": ["anlageneegwind", "einheitenwind"],
-    "solar": ["anlageneegsolar", "einheitensolar"],
-    "biomass": ["anlageneegbiomasse", "einheitenbiomasse"],
-    "hydro": ["anlageneegwasser", "einheitenwasser"],
-    "gsgk": [
-        "anlageneeggeosolarthermiegrubenklaerschlammdruckentspannung",
-        "einheitengeosolarthermiegrubenklaerschlammdruckentspannung",
-    ],
-    "combustion": ["anlagenkwk", "einheitenverbrennung"],
-    "nuclear": ["einheitenkernkraft"],
-    "storage": ["anlageneegspeicher", "anlagenstromspeicher", "einheitenstromspeicher"],
-    "gas": [
-        "anlagengasspeicher",
-        "einheitengaserzeuger",
-        "einheitengasspeicher",
-        "einheitengasverbraucher",
-    ],
-    "electricity_consumer": ["einheitenstromverbraucher"],
-    "location": ["lokationen"],
-    "market": ["marktakteure", "marktrollen"],
-    "grid": ["netzanschlusspunkte", "netze"],
-    "balancing_area": ["bilanzierungsgebiete"],
-    "permit": ["einheitengenehmigung"],
-}

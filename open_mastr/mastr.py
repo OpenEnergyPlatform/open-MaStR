@@ -13,8 +13,11 @@ from open_mastr.soap_api.mirror import MaStRMirror
 from open_mastr.utils.helpers import (
     print_api_settings,
     validate_api_credentials,
-    transform_data_parameter,
+    validate_parameter_format_for_download_method,
+    validate_parameter_format_for_mastr_init,
     validate_parameter_data,
+    transform_data_parameter,
+    parse_date_string,
 )
 from open_mastr.utils.config import (
     create_data_dir,
@@ -26,10 +29,10 @@ import open_mastr.utils.orm as orm
 # import initialize_database dependencies
 from open_mastr.utils.helpers import (
     create_database_engine,
-    validate_parameter_format_for_download_method,
-    validate_parameter_format_for_mastr_init,
-    parse_date_string,
 )
+
+# constants
+from open_mastr.utils.constants import TECHNOLOGIES, ADDITIONAL_TABLES
 
 
 class Mastr:
@@ -143,7 +146,7 @@ class Mastr:
 
             Only data with modification time stamp greater that `date` is retrieved.
 
-            * `datetime.datetime(2020, 11, 27)`: Retrieve data which is is newer than this
+            * `datetime.datetime(2020, 11, 27)`: Retrieve data which is newer than this
               time stamp
             * 'latest': Retrieve data which is newer than the newest data already in the table.
 
@@ -280,38 +283,6 @@ class Mastr:
         create_data_dir()
         data_path = get_data_version_dir()
 
-        # All possible tables to export
-        all_technologies = [
-            "wind",
-            "solar",
-            "biomass",
-            "hydro",
-            "gsgk",
-            "combustion",
-            "nuclear",
-            "storage",
-        ]
-        all_additional_tables = [
-            "balancing_area",
-            "electricity_consumer",
-            "gas_consumer",
-            "gas_producer",
-            "gas_storage",
-            "gas_storage_extended",
-            "grid_connections",
-            "grids",
-            "locations_extended",
-            "market_actors",
-            "market_roles",
-        ]
-
-        api_location_types = [
-            "location_elec_generation",
-            "location_elec_consumption",
-            "location_gas_generation",
-            "location_gas_consumption",
-        ]
-
         # Validate and parse tables parameter TODO parameter renaming
         validate_parameter_data(method="bulk", data=tables)
         (
@@ -327,9 +298,9 @@ class Mastr:
         technologies_to_export = []
         additional_tables_to_export = []
         for table in data:
-            if table in all_technologies:
+            if table in TECHNOLOGIES:
                 technologies_to_export.append(table)
-            elif table in all_additional_tables:
+            elif table in ADDITIONAL_TABLES:
                 additional_tables_to_export.append(table)
 
         if technologies_to_export:
