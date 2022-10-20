@@ -382,6 +382,7 @@ class StorageEeg(Eeg, ParentAllTables, Base):
     __tablename__ = "storage_eeg"
 
     eegAnlagenschluessel = Column(String)
+    eegZuschlagsnummer = Column(String)
 
 
 class Kwk(ParentAllTables, Base):
