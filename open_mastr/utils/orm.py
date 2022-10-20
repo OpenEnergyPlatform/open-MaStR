@@ -188,6 +188,7 @@ class SolarExtended(Extended, ParentAllTables, Base):
     ArtDerFlaeche = Column(String)
     InAnspruchGenommeneAckerflaeche = Column(Float)
     Nutzungsbereich = Column(String)
+    Buergerenergie = Column(Boolean)
     EegMastrNummer = Column(String)
     ArtDerFlaecheIds = Column(String)
 
