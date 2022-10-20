@@ -35,6 +35,7 @@ AuflagenAbschaltungTierschutz,"Angabe, ob Auflagen zur Abschaltung auf Grund von
 AuflagenAbschaltungEiswurf,"Angabe, ob Auflagen zur Abschaltung auf Grund von Eiswurf bestehen",boolean,false
 AuflagenAbschaltungSonstige,"Angabe, ob Auflagen zur Abschaltung auf Grund von sonstigen Gründen bestehen",boolean,false
 Wassertiefe,Wassertiefe am Standort der Stromerzeugungseinheit,decimal,140.123
+Kuestenentfernung,Küstenentfernung des Standort der Stromerzeugungseinheit,decimal,147.254
 Buergerenergie,Bürgerenergieeigenschaft der Einheit,boolean,false
 Nachtkennzeichen,Nachtkennzeichen der Einheit,boolean,false
 EegMastrNummer_extended,MaStR-Nummer der zugeordneten EEG-Anlage,string,EEG91234567890
