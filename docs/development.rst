@@ -73,6 +73,19 @@ Further explanation :ref:`here <MaStR account and credentials>`.
 
    pytest -vv
 
+Updating open-mastr ORM due to wsdl API change
+=================================
+
+The Markstammdatenregister API is yearly updated on 1 April and 1 October. The updates often entail changes, additions or deletions of columns in the data base.
+This changes have to be reflected in the code by adapting:
+
+1. orm.py - ensuring a faultless download with `method='API'`
+2. mastr_datapackage.json - updating the metadata for correct data description
+3. docs\_data\_raw\ - updating tables for correct online documentation
+
+The issue `#351 <https://github.com/OpenEnergyPlatform/open-MaStR/issues/351>`_ in the open-mastr GitHub repo can serve as a process blueprint for future updates.
+
+
 Validating metadata documentation
 =================================
 
