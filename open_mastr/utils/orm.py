@@ -168,6 +168,7 @@ class WindExtended(Extended, ParentAllTables, Base):
     Wassertiefe = Column(Float)
     Kuestenentfernung = Column(Float)
     Buergerenergie = Column(Boolean)
+    Nachtkennzeichen = Column(Boolean)
     EegMastrNummer = Column(String)
 
 
