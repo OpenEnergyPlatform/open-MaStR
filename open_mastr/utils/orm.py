@@ -346,7 +346,7 @@ class BiomassEeg(Eeg, ParentAllTables, Base):
     BiogasDatumLeistungserhoehung = Column(Date)
     BiogasUmfangLeistungserhoehung = Column(Float)
     BiogasGaserzeugungskapazitaet = Column(Float)
-    BiogasHoechstbemessungsleistung = Column(Float)
+    Hoechstbemessungsleistung = Column(Float)
     BiomethanErstmaligerEinsatz = Column(Date)
     AnlageBetriebsstatus = Column(String)
     AnlagenkennzifferAnlagenregister_nv = Column(Boolean)
