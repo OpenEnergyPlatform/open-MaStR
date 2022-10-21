@@ -131,7 +131,7 @@ def test_add_table_to_database(zipped_xml_file_path, engine_testdb):
         df=df_write,
         xml_tablename=xml_tablename,
         sql_tablename=sql_tablename,
-        if_exists="append",
+        if_exists="replace",
         engine=engine_testdb,
     )
 
