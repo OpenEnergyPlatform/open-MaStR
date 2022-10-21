@@ -65,6 +65,12 @@ class Mastr:
 
         self.engine = create_database_engine(engine, self.home_directory)
 
+        print(
+            f"Data will be written to the following database: {self.engine.url}\n"
+            "If you run into problems, try to "
+            "delete the database and update the package by running 'pip install --upgrade open-mastr'"
+        )
+
         orm.Base.metadata.create_all(self.engine)
 
     def download(

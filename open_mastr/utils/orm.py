@@ -167,6 +167,8 @@ class WindExtended(Extended, ParentAllTables, Base):
     AuflagenAbschaltungSonstige = Column(Boolean)
     Wassertiefe = Column(Float)
     Kuestenentfernung = Column(Float)
+    Buergerenergie = Column(Boolean)
+    Nachtkennzeichen = Column(Boolean)
     EegMastrNummer = Column(String)
 
 
@@ -187,6 +189,7 @@ class SolarExtended(Extended, ParentAllTables, Base):
     ArtDerFlaeche = Column(String)
     InAnspruchGenommeneAckerflaeche = Column(Float)
     Nutzungsbereich = Column(String)
+    Buergerenergie = Column(Boolean)
     EegMastrNummer = Column(String)
     ArtDerFlaecheIds = Column(String)
 
@@ -346,7 +349,7 @@ class BiomassEeg(Eeg, ParentAllTables, Base):
     BiogasDatumLeistungserhoehung = Column(Date)
     BiogasUmfangLeistungserhoehung = Column(Float)
     BiogasGaserzeugungskapazitaet = Column(Float)
-    BiogasHoechstbemessungsleistung = Column(Float)
+    Hoechstbemessungsleistung = Column(Float)
     BiomethanErstmaligerEinsatz = Column(Date)
     AnlageBetriebsstatus = Column(String)
     AnlagenkennzifferAnlagenregister_nv = Column(Boolean)
@@ -379,6 +382,9 @@ class HydroEeg(Eeg, ParentAllTables, Base):
 class StorageEeg(Eeg, ParentAllTables, Base):
     __tablename__ = "storage_eeg"
 
+    eegAnlagenschluessel = Column(String)
+    eegZuschlagsnummer = Column(String)
+    eegAusschreibungZuschlag = Column(Boolean)
 
 class Kwk(ParentAllTables, Base):
     __tablename__ = "kwk"
