@@ -27,6 +27,7 @@ Here is a template for new release sections:
 ### Changed
 - Technology parameter is renamed to data for better comprehension [#337](https://github.com/OpenEnergyPlatform/open-MaStR/pull/337)
 - Update ORM and documentation according to wsdl patch V1.2.87 [#352](https://github.com/OpenEnergyPlatform/open-MaStR/pull/352)
+- Date parameters are united into one parameter [#353](https://github.com/OpenEnergyPlatform/open-MaStR/pull/353)
 
 ### Removed
 - Removed code artefacts [#335](https://github.com/OpenEnergyPlatform/open-MaStR/pull/335)
