@@ -83,6 +83,8 @@ This changes have to be reflected in the code by adapting:
 2. mastr_datapackage.json - updating the metadata for correct data description
 3. docs\_data\_raw\ - updating tables for correct online documentation
 
+You need to set up a new database with the adapted ORM structure locally to apply the changes after implementation. Your existing database won't reflect the changes.
+
 The issue `#351 <https://github.com/OpenEnergyPlatform/open-MaStR/issues/351>`_ in the open-mastr GitHub repo can serve as a process blueprint for future updates.
 
 
