@@ -53,7 +53,7 @@ additional parameters can be set to define in detail which data should be obtain
      - Select data to download.
    * - date
      - None or :class:`datetime.datetime` or str
-     - Specify backfill date from which on data is retrieved. Only data with time stamp greater than `date` will be retrieved. Defaults to `None`.
+     - Specify backfill date from which on data is retrieved. Only data with time stamp greater than `date` will be retrieved. Defaults to `None` which means that todays date is chosen.
    * - api_data_types
      - ["unit_data","eeg_data","kwk_data","permit_data"]
      - Select the type of data to download.
