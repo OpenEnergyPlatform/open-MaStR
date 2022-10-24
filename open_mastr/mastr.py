@@ -18,6 +18,7 @@ from open_mastr.utils.helpers import (
     validate_parameter_data,
     transform_data_parameter,
     parse_date_string,
+    transform_date_parameter,
 )
 from open_mastr.utils.config import (
     create_data_dir,
@@ -77,14 +78,14 @@ class Mastr:
         self,
         method="bulk",
         data=None,
-        bulk_date_string="today",
+        date="today",
         bulk_cleansing=True,
         api_processes=None,
         api_limit=50,
-        api_date=None,
         api_chunksize=1000,
         api_data_types=None,
         api_location_types=None,
+        **kwargs,
     ) -> None:
         """
         Download the MaStR either via the bulk download or via the MaStR API and write it to a
@@ -124,10 +125,31 @@ class Mastr:
                 "balancing_area", "Yes", "No"
                 "permit", "Yes", "Yes"
 
-        bulk_date_string: str, optional
+        date: None or :class:`datetime.datetime` or str, optional
+            For bulk method:
+
             Either "today" if the newest data dump should be downloaded from the MaStR website. If
             an already downloaded dump should be used, state the date of the download in the format
             "yyyymmdd". Default to "today".
+
+            For API method:
+
+            Specify backfill date from which on data is retrieved
+
+            Only data with modification time stamp greater than `date` is retrieved.
+
+            * `datetime.datetime(2020, 11, 27)`: Retrieve data which is newer than this
+              time stamp
+            * 'latest': Retrieve data which is newer than the newest data already in the table.
+
+              .. warning::
+
+                 Don't use "latest" in combination with "api_limit". This might lead to
+                 unexpected results.
+
+            * `None`: Complete backfill
+
+            Defaults to `None`.
         bulk_cleansing: bool, optional
             If True, data cleansing is applied after the download (which is recommended). Default
             to True.
@@ -147,23 +169,6 @@ class Mastr:
             :meth:`~.create_additional_data_requests`. Note: There is a limited number of
             requests you are allowed to have per day, so setting api_limit to a value is
             recommended.
-        api_date: None or :class:`datetime.datetime` or str, optional
-            Specify backfill date from which on data is retrieved
-
-            Only data with modification time stamp greater that `date` is retrieved.
-
-            * `datetime.datetime(2020, 11, 27)`: Retrieve data which is newer than this
-              time stamp
-            * 'latest': Retrieve data which is newer than the newest data already in the table.
-
-              .. warning::
-
-                 Don't use "latest" in combination with "api_limit". This might lead to
-                 unexpected results.
-
-            * `None`: Complete backfill
-
-            Defaults to `None`.
         api_chunksize: int or None, optional
             Data is downloaded and inserted into the database in chunks of `chunksize`.
             Defaults to 1000.
@@ -179,33 +184,37 @@ class Mastr:
         validate_parameter_format_for_download_method(
             method=method,
             data=data,
-            bulk_date_string=bulk_date_string,
+            date=date,
             bulk_cleansing=bulk_cleansing,
             api_processes=api_processes,
             api_limit=api_limit,
-            api_date=api_date,
             api_chunksize=api_chunksize,
             api_data_types=api_data_types,
             api_location_types=api_location_types,
+            **kwargs,
         )
         (
             data,
             api_data_types,
             api_location_types,
             harm_log,
-        ) = transform_data_parameter(method, data, api_data_types, api_location_types)
+        ) = transform_data_parameter(
+            method, data, api_data_types, api_location_types, **kwargs
+        )
+
+        date = transform_date_parameter(method, date, **kwargs)
 
         if method == "bulk":
 
             # Find the name of the zipped xml folder
-            bulk_download_date = parse_date_string(bulk_date_string)
+            bulk_download_date = parse_date_string(date)
             xml_folder_path = os.path.join(self.home_directory, "data", "xml_download")
             os.makedirs(xml_folder_path, exist_ok=True)
             zipped_xml_file_path = os.path.join(
                 xml_folder_path,
                 f"Gesamtdatenexport_{bulk_download_date}.zip",
             )
-            download_xml_Mastr(zipped_xml_file_path, bulk_date_string, xml_folder_path)
+            download_xml_Mastr(zipped_xml_file_path, date, xml_folder_path)
 
             write_mastr_xml_to_database(
                 engine=self.engine,
@@ -229,7 +238,7 @@ class Mastr:
             print_api_settings(
                 harmonisation_log=harm_log,
                 data=data,
-                api_date=api_date,
+                date=date,
                 api_data_types=api_data_types,
                 api_chunksize=api_chunksize,
                 api_limit=api_limit,
@@ -243,7 +252,7 @@ class Mastr:
                 restore_dump=None,
             )
             # Download basic unit data
-            mastr_mirror.backfill_basic(data, limit=api_limit, date=api_date)
+            mastr_mirror.backfill_basic(data, limit=api_limit, date=date)
 
             # Download additional unit data
             for tech in data:

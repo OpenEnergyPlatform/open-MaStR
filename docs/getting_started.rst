@@ -51,6 +51,9 @@ additional parameters can be set to define in detail which data should be obtain
    * - data
      - ["wind","biomass","combustion","gsgk","hydro","nuclear","storage","solar"]
      - Select data to download.
+   * - date
+     - None or :class:`datetime.datetime` or str
+     - Specify backfill date from which on data is retrieved. Only data with time stamp greater than `date` will be retrieved. Defaults to `None` which means that todays date is chosen.
    * - api_data_types
      - ["unit_data","eeg_data","kwk_data","permit_data"]
      - Select the type of data to download.
@@ -63,9 +66,6 @@ additional parameters can be set to define in detail which data should be obtain
    * - api_limit
      - Number of type int, e.g.: 1500
      - Select the number of entries to download. Defaults to 50.
-   * - api_date
-     - None or :class:`datetime.datetime` or str
-     - Specify backfill date from which on data is retrieved. Only data with time stamp greater that `api_date` will be retrieved. Defaults to `None`.
    * - api_chunksize
      - int or None, e.g.: 1000
      - Data is downloaded and inserted into the database in chunks of `api_chunksize`. Defaults to 1000.

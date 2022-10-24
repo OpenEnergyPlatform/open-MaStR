@@ -15,7 +15,7 @@ from open_mastr import Mastr
 ## specify download parameter
 
 # bulk download
-bulk_date_string = "today"
+bulk_date = "today"
 bulk_cleansing = True
 data_bulk = [
     "biomass",
@@ -69,20 +69,15 @@ db = Mastr()
 if __name__ == "__main__":
     ## download Markstammdatenregister
     # bulk download
-    db.download(
-        method="bulk",
-        data=data_bulk,
-        bulk_date_string="today",
-        bulk_cleansing=True,
-    )
+    db.download(method="bulk", data=data_bulk, date=bulk_date, bulk_cleansing=True)
 
     # API download
     db.download(
         method="API",
         data=data_api,
+        date=api_date,
         api_processes=api_processes,
         api_limit=api_limit,
-        api_date=api_date,
         api_chunksize=api_chunksize,
         api_data_types=api_data_types,
         api_location_types=api_location_types,
