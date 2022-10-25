@@ -19,7 +19,8 @@ open-mastr
    * - Development
      - |badge_issue_open| |badge_issue_closes| |badge_pr_open| |badge_pr_closes|
    * - Community
-     - |badge_contributing| |badge_contributors| |badge_repo_counts|
+     - |badge_contributing| |badge_contributors| |badge_repo_counts| |PyPI download month|
+   
 
 .. contents::
     :depth: 2
@@ -161,3 +162,6 @@ Data
 
 .. |badge_repo_counts| image:: http://hits.dwyl.com/OpenEnergyPlatform/open-MaStR.svg
     :alt: counter
+    
+.. |PyPI download month| image:: https://img.shields.io/pypi/dm/open-mastr?label=PyPi%20Downloads
+    :target: https://pypi.org/project/open-mastr/
