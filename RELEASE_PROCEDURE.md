@@ -6,12 +6,12 @@ These symbols help with orientation:
 * 💠 git (Bash)
 * 📝 File
 * 💻 Command Line (CMD)
-* 📦 Package (PyPI)
+* 📦 Package
 
 
 ## Version Numbers
 
-This software follows the [Semantic Versioning (SemVer](https://semver.org/).<br>
+This software follows the [Semantic Versioning (SemVer)](https://semver.org/).<br>
 It always has the format `MAJOR.MINOR.PATCH`, e.g. `1.5.0`.
 
 The data follows the [Calendar Versioning (CalVer)](https://calver.org/).<br>
