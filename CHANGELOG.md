@@ -23,7 +23,7 @@ Here is a template for new release sections:
 ### Added
 - Read version number for CI from setup.py [#333](https://github.com/rl-institut/super-repo/pull/333)
 ### Changed
-- [#](https://github.com/rl-institut/super-repo/pull/)
+- Update README.md to README.rst [#354](https://github.com/rl-institut/super-repo/pull/354)
 ### Removed
 - [#](https://github.com/rl-institut/super-repo/pull/)
 
