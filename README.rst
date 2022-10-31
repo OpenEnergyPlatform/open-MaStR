@@ -122,10 +122,6 @@ Data
 | The data has the license **Datenlizenz Deutschland – Namensnennung – Version 2.0** (DL-DE-BY-2.0)
 | Copyright: `Marktstammdatenregister <https://www.marktstammdatenregister.de/MaStR>`_ - © Bundesnetzagentur für Elektrizität, Gas, Telekommunikation, Post und Eisenbahnen | `DL-DE-BY-2.0 <https://www.govdata.de/dl-de/by-2-0>`_
 
-.. |fig_mastr| image:: https://www.marktstammdatenregister.de/MaStRHilfe/img/logo_MaStR.svg
-    :width: 200px
-    :target: https://github.com/OpenEnergyPlatform/open-MaStR/
-    :alt: MaStR logo
 
 .. |badge_license| image:: https://img.shields.io/github/license/OpenEnergyPlatform/open-MaStR
     :target: LICENSE.txt
