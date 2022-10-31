@@ -8,10 +8,10 @@ import pytest
 from open_mastr.soap_api.mirror import MaStRMirror
 from open_mastr.utils import orm
 from open_mastr.utils.config import get_project_home_dir, get_data_version_dir
-from open_mastr.utils.data_io import read_csv_data
+from open_mastr.utils.constants import API_DATA_TYPES, API_LOCATION_TYPES
 from open_mastr.utils.helpers import create_database_engine, session_scope
 
-TECHNOLOGIES = random.sample(
+random_technologies = random.sample(
     [
         "wind",
         "hydro",
@@ -23,13 +23,7 @@ TECHNOLOGIES = random.sample(
     ],
     k=3,
 )
-DATA_TYPES = ["unit_data", "eeg_data", "kwk_data", "permit_data"]
-LOCATION_TYPES = [
-    "location_elec_generation",
-    "location_elec_consumption",
-    "location_gas_generation",
-    "location_gas_consumption",
-]
+
 LIMIT = 1
 DATE = datetime.datetime(2020, 11, 27, 0, 0, 0)
 
@@ -47,34 +41,26 @@ def engine():
 
 @pytest.mark.dependency(name="backfill_basic")
 def test_backfill_basic(mastr_mirror, engine):
-    mastr_mirror.backfill_basic(technology=TECHNOLOGIES, date=DATE, limit=LIMIT)
+    mastr_mirror.backfill_basic(data=random_technologies, date=DATE, limit=LIMIT)
 
-    # The table basic_units should have at least as much rows as TECHNOLOGIES were queried
+    # The table basic_units should have at least as many rows as TECHNOLOGIES were queried
     with session_scope(engine=engine) as session:
         response = session.query(orm.BasicUnit).count()
-        assert response >= len(TECHNOLOGIES)
+        assert response >= len(random_technologies)
 
 
 @pytest.mark.dependency(depends=["backfill_basic"], name="retrieve_additional_data")
 def test_retrieve_additional_data(mastr_mirror):
-    for tech in TECHNOLOGIES:
-        for data_type in DATA_TYPES:
+    for tech in random_technologies:
+        for data_type in API_DATA_TYPES:
             mastr_mirror.retrieve_additional_data(
-                technology=tech, data_type=data_type, limit=10 * LIMIT
+                data=tech, data_type=data_type, limit=10 * LIMIT
             )
-
-    # This comparison currently fails because of
-    # https://github.com/OpenEnergyPlatform/open-MaStR/issues/154
-    # with session_scope() as session:
-    #     for tech in TECHNOLOGIES:
-    #         mapper = getattr(orm, mastr_mirror.orm_map[tech]["unit_data"])
-    #         response = session.query(mapper).count()
-    #         assert response >= LIMIT
 
 
 @pytest.mark.dependency(depends=["retrieve_additional_data"], name="update_latest")
 def test_update_latest(mastr_mirror, engine):
-    mastr_mirror.backfill_basic(technology=TECHNOLOGIES, date="latest", limit=LIMIT)
+    mastr_mirror.backfill_basic(data=random_technologies, date="latest", limit=LIMIT)
 
     # Test if latest date is newer that initially requested data in backfill_basic
     with session_scope(engine=engine) as session:
@@ -86,30 +72,31 @@ def test_update_latest(mastr_mirror, engine):
     assert response.DatumLetzteAktualisierung > DATE
 
 
-@pytest.mark.dependency(
-    depends=["update_latest"], name="create_additional_data_requests"
-)
-def test_create_additional_data_requests(mastr_mirror, engine):
-    with session_scope(engine=engine) as session:
-        for tech in TECHNOLOGIES:
-            session.query(orm.AdditionalDataRequested).filter_by(
-                technology="gsgk"
-            ).delete()
-            session.commit()
-            mastr_mirror.create_additional_data_requests(tech, data_types=DATA_TYPES)
+# @pytest.mark.dependency(
+#     depends=["update_latest"], name="create_additional_data_requests"
+# )
+# def test_create_additional_data_requests(mastr_mirror, engine):
+#     with session_scope(engine=engine) as session:
+#         for tech in random_technologies:
+#             session.query(orm.AdditionalDataRequested).filter_by(
+#                 technology="gsgk"
+#             ).delete()
+#             session.commit()
+#             mastr_mirror.create_additional_data_requests(
+#                 tech, data_types=API_DATA_TYPES
+#             )
 
 
-@pytest.mark.dependency(
-    depends=["create_additional_data_requests"], name="export_to_csv"
-)
+@pytest.mark.dependency(depends=["retrieve_additional_data"], name="export_to_csv")
 def test_to_csv(mastr_mirror, engine):
     with session_scope(engine=engine) as session:
-        for tech in TECHNOLOGIES:
+        for tech in random_technologies:
             mastr_mirror.to_csv(
-                technology=tech,
-                additional_data=DATA_TYPES,
+                technology=[tech],
+                limit=100,
+                additional_data=API_DATA_TYPES,
                 statistic_flag=None,
-                chunksize=1,
+                chunksize=10,
             )
             # Test if all EinheitMastrNummer in basic_units are included in CSV file
             csv_path = join(
@@ -120,8 +107,9 @@ def test_to_csv(mastr_mirror, engine):
             units = session.query(orm.BasicUnit.EinheitMastrNummer).filter(
                 orm.BasicUnit.Einheittyp == mastr_mirror.unit_type_map_reversed[tech]
             )
-            for unit in units:
-                assert unit.EinheitMastrNummer in df.index
+            set_MastrNummer = {unit.EinheitMastrNummer for unit in units}
+            for idx in df.index:
+                assert idx in set_MastrNummer
 
 
 @pytest.mark.dependency(name="backfill_locations_basic")
@@ -144,7 +132,7 @@ def test_backfill_locations_basic(mastr_mirror, engine):
 )
 def test_retrieve_additional_location_data(mastr_mirror):
     """Test if code runs successfully"""
-    for location_type in LOCATION_TYPES:
+    for location_type in API_LOCATION_TYPES:
         mastr_mirror.retrieve_additional_location_data(location_type, limit=LIMIT)
 
 

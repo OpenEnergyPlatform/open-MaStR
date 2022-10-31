@@ -64,7 +64,7 @@ def test_soap_wrapper_power_plant_list(mastr_api):
 def test_basic_unit_data(mastr_download):
     data = [
         unit
-        for sublist in mastr_download.basic_unit_data(technology="nuclear", limit=1)
+        for sublist in mastr_download.basic_unit_data(data="nuclear", limit=1)
         for unit in sublist
     ]
 

@@ -11,7 +11,7 @@ from open_mastr.xml_download.utils_write_to_database import (
     add_table_to_database,
     add_zero_as_first_character_for_too_short_string,
     correct_ordering_of_filelist,
-    technology_to_include_tables,
+    data_to_include_tables,
 )
 import os
 from os.path import expanduser
@@ -131,7 +131,7 @@ def test_add_table_to_database(zipped_xml_file_path, engine_testdb):
         df=df_write,
         xml_tablename=xml_tablename,
         sql_tablename=sql_tablename,
-        if_exists="append",
+        if_exists="replace",
         engine=engine_testdb,
     )
 
@@ -238,7 +238,7 @@ def test_cast_date_columns_to_datetime():
     )
 
 
-def test_technology_to_include_tables():
+def test_data_to_include_tables():
     # Prepare
     include_tables_list = [
         "anlageneegwind",
@@ -249,11 +249,5 @@ def test_technology_to_include_tables():
     include_tables_str = ["einheitenstromverbraucher"]
 
     # Assert
-    assert include_tables_list == technology_to_include_tables(
-        technology=["wind", "hydro"]
-    )
-    assert include_tables_str == technology_to_include_tables(
-        technology="electricity_consumer"
-    )
-    assert "anlageneegwind" in technology_to_include_tables(technology=None)
-    assert 28 == len(technology_to_include_tables(technology=None))
+    assert include_tables_list == data_to_include_tables(data=["wind", "hydro"])
+    assert include_tables_str == data_to_include_tables(data=["electricity_consumer"])

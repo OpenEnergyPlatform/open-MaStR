@@ -15,9 +15,9 @@ from open_mastr import Mastr
 ## specify download parameter
 
 # bulk download
-bulk_date_string = "today"
+bulk_date = "today"
 bulk_cleansing = True
-technology_bulk = [
+data_bulk = [
     "biomass",
     "combustion",
     "gsgk",
@@ -43,7 +43,7 @@ api_chunksize = 10
 api_limit = 10
 api_processes = None
 
-technology_api = [
+data_api = [
     "biomass",
     "combustion",
     "gsgk",
@@ -69,24 +69,20 @@ db = Mastr()
 if __name__ == "__main__":
     ## download Markstammdatenregister
     # bulk download
-    db.download(
-        method="bulk",
-        technology=technology_bulk,
-        bulk_date_string="today",
-        bulk_cleansing=True,
-    )
+    db.download(method="bulk", data=data_bulk, date=bulk_date, bulk_cleansing=True)
 
     # API download
     db.download(
         method="API",
-        api_date=api_date,
-        api_chunksize=api_chunksize,
-        api_limit=api_limit,
+        data=data_api,
+        date=api_date,
         api_processes=api_processes,
-        technology=technology_api,
+        api_limit=api_limit,
+        api_chunksize=api_chunksize,
         api_data_types=api_data_types,
         api_location_types=api_location_types,
     )
+
     ## export to csv
     """
     Technology-related tables are exported as joined, whereas additional tables
