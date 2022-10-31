@@ -1,8 +1,8 @@
 ﻿
 .. figure:: https://user-images.githubusercontent.com/14353512/199113556-4b53660f-c628-4138-8d01-3719595ecda1.png
     :align: left
-    :target: https://github.com/OpenEnergyPlatform/open-MaStR/
-    :alt: Repo logo
+    :target: https://github.com/OpenEnergyPlatform/open-MaStR
+    :alt: MaStR logo
 
 ==========
 open-mastr
