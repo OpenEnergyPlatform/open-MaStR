@@ -22,11 +22,20 @@ Here is a template for new release sections:
 
 ### Added
 - Read version number for CI from setup.py [#333](https://github.com/rl-institut/super-repo/pull/333)
+- Constants.py for central hardcoded variables [#345](https://github.com/OpenEnergyPlatform/open-MaStR/pull/345)
+
 ### Changed
 - Update README.md to README.rst [#354](https://github.com/rl-institut/super-repo/pull/354)
-### Removed
-- [#](https://github.com/rl-institut/super-repo/pull/)
+- Technology parameter is renamed to data for better comprehension [#337](https://github.com/OpenEnergyPlatform/open-MaStR/pull/337)
+- Update ORM and documentation according to wsdl patch V1.2.87 [#352](https://github.com/OpenEnergyPlatform/open-MaStR/pull/352)
+- Date parameters are united into one parameter [#353](https://github.com/OpenEnergyPlatform/open-MaStR/pull/353)
 
+### Removed
+- Removed code artefacts [#335](https://github.com/OpenEnergyPlatform/open-MaStR/pull/335)
+
+## [v0.11.7] Patch - Hotfix - 2022-08-25
+### Changed
+- Fix dependencies in setup.py [#341](https://github.com/OpenEnergyPlatform/open-MaStR/pull/341)
 
 ## [v0.11.6] Patch - Hotfix - 2022-08-17
 ### Changed

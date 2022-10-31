@@ -24,6 +24,8 @@ import pathlib
 import logging
 import logging.config
 
+from open_mastr.utils.constants import TECHNOLOGIES, API_LOCATION_TYPES
+
 log = logging.getLogger(__name__)
 
 
@@ -133,25 +135,6 @@ def create_data_dir():
     os.makedirs(get_data_version_dir(), exist_ok=True)
 
 
-def get_power_unit_types():
-    """
-    Returns
-    -------
-    list
-       Technology names
-    """
-    return [
-        "wind",
-        "hydro",
-        "solar",
-        "biomass",
-        "combustion",
-        "nuclear",
-        "gsgk",
-        "storage",
-    ]
-
-
 def _filenames_generator():
     """Write default file names .yml to project home dir"""
 
@@ -198,7 +181,7 @@ def _filenames_generator():
         # Define filenames .yml with a dict
         for section, section_filenames in filenames_template.items():
             filenames[section] = {}
-            for tech in get_power_unit_types():
+            for tech in TECHNOLOGIES:
 
                 # Files for all technologies
                 files = ["joined", "basic", "extended", "extended_fail"]
@@ -221,23 +204,17 @@ def _filenames_generator():
 
         # Add file names of cleaned data
         filenames["cleaned"] = {
-            tech: f"{prefix}_{tech}_cleaned.csv" for tech in get_power_unit_types()
+            tech: f"{prefix}_{tech}_cleaned.csv" for tech in TECHNOLOGIES
         }
 
         # Add file names of processed data
         filenames["postprocessed"] = {
-            tech: f"{prefix}_{tech}.csv" for tech in get_power_unit_types()
+            tech: f"{prefix}_{tech}.csv" for tech in TECHNOLOGIES
         }
 
         # Add filenames for location data
-        location_types = [
-            "location_elec_generation",
-            "location_elec_consumption",
-            "location_gas_generation",
-            "location_gas_consumption",
-        ]
         filenames["raw"].update(
-            {loc: f"{prefix}_{loc}_raw.csv" for loc in location_types}
+            {loc: f"{prefix}_{loc}_raw.csv" for loc in API_LOCATION_TYPES}
         )
 
         # Add metadata file
