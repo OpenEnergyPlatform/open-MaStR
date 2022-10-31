@@ -25,6 +25,7 @@ Here is a template for new release sections:
 - Constants.py for central hardcoded variables [#345](https://github.com/OpenEnergyPlatform/open-MaStR/pull/345)
 
 ### Changed
+- Update README.md to README.rst [#354](https://github.com/rl-institut/super-repo/pull/354)
 - Technology parameter is renamed to data for better comprehension [#337](https://github.com/OpenEnergyPlatform/open-MaStR/pull/337)
 - Update ORM and documentation according to wsdl patch V1.2.87 [#352](https://github.com/OpenEnergyPlatform/open-MaStR/pull/352)
 - Date parameters are united into one parameter [#353](https://github.com/OpenEnergyPlatform/open-MaStR/pull/353)
