@@ -92,7 +92,7 @@ which can process sqlite data. Pandas, for example, comes with the function
       import pandas as pd
 
       table="wind_extended"
-      df = pd.read_sql(sql=table, con=db._engine)
+      df = pd.read_sql(sql=table, con=db.engine)
 
 
 The tables that exist in the database are listed below. Their relations can be found in :ref:`Data Description <Data Description>`
