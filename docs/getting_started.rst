@@ -29,7 +29,7 @@ The following code block shows the basic download commands:
        db = Mastr()
        db.download()
 
-The main entry point to open_mastr is the :class:`Mastr` class (see :ref:`mastr module`). When it is initialized, a sqlite database is created
+When a :class:`Mastr` object is initialized, a sqlite database is created
 in `$HOME/.open-MaStR/data/sqlite`. With the function `Mastr.download()`, the **whole MaStR is downloaded** in the zipped xml file 
 format. It is then read into the sqlite database and simple data cleansing functions are started.
 
