@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+
+
 """
 Service functions for logging
 
@@ -20,11 +22,12 @@ import os
 import yaml
 import shutil
 import pathlib
+from datetime import date
 
 import logging
 import logging.config
-
 from open_mastr.utils.constants import TECHNOLOGIES, API_LOCATION_TYPES
+
 
 log = logging.getLogger(__name__)
 
@@ -55,7 +58,7 @@ def get_data_version_dir():
     path-like object
         Absolute path to `PROJECTHOME/data/<data-version>/`
     """
-    data_version = get_data_config()["data_version"]
+    data_version = get_data_config()
     return os.path.join(get_project_home_dir(), "data", data_version)
 
 
@@ -78,15 +81,17 @@ def get_filenames():
 
 def get_data_config():
     """
-    Get data version and more parameters
+    Get data version
 
     Returns
     -------
-    dict
-        Configuration parameters
+    str
+        dataversion
     """
-    with open(os.path.join(get_project_home_dir(), "config", "data.yml")) as data_fh:
-        data_config = yaml.safe_load(data_fh)
+
+    today = date.today()
+
+    data_config = f'dataversion-{today.strftime("%Y-%m-%d")}'
 
     return data_config
 
@@ -114,7 +119,7 @@ def create_project_home_dir():
     internal_config_dir = os.path.join(
         pathlib.Path(__file__).parent.absolute(), "config"
     )
-    files = ["data.yml", "logging.yml"]
+    files = ["logging.yml"]
 
     for file in files:
         if file not in os.listdir(config_path):
