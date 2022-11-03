@@ -277,14 +277,14 @@ def transform_data_parameter(
 
     # data input harmonisation
     harmonisation_log = []
-    if "permit" in data:
+    if method == "API" and "permit" in data:
         data.remove("permit")
         api_data_types.append(
             "permit_data"
         ) if "permit_data" not in api_data_types else api_data_types
         harmonisation_log.append("permit")
 
-    if "location" in data:
+    if method == "API" and "location" in data:
         data.remove("location")
         api_location_types = API_LOCATION_TYPES
         harmonisation_log.append("location")
