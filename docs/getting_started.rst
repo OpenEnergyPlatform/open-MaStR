@@ -76,8 +76,6 @@ The tables that exist in the database are listed below. Their relations can be f
   :header-rows: 1
 
   * - table
-  * - additional_data_requested
-  * - additional_locations_requested
   * - balancing_area
   * - basic_units
   * - biomass_eeg
@@ -99,13 +97,10 @@ The tables that exist in the database are listed below. Their relations can be f
   * - locations_extended
   * - market_actors
   * - market_roles
-  * - missed_additional_data
-  * - missed_extended_location_data
   * - nuclear_extended
   * - permit
   * - solar_eeg
   * - solar_extended
-  * - sqlite_sequence
   * - storage_eeg
   * - storage_extended
   * - storage_units
