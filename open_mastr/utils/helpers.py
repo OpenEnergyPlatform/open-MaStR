@@ -12,6 +12,12 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Query, sessionmaker
 
 from open_mastr.soap_api.download import MaStRAPI
+from open_mastr.utils.constants import (
+    BULK_DATA,
+    API_DATA,
+    API_DATA_TYPES,
+    API_LOCATION_TYPES,
+)
 
 
 def chunks(lst, n):
@@ -76,23 +82,32 @@ def validate_parameter_format_for_mastr_init(engine) -> None:
 def validate_parameter_format_for_download_method(
     method,
     data,
-    bulk_date_string,
+    date,
     bulk_cleansing,
     api_processes,
     api_limit,
-    api_date,
     api_chunksize,
     api_data_types,
     api_location_types,
+    **kwargs,
 ) -> None:
+
+    if "technology" in kwargs:
+        data = kwargs["technology"]
+        warn("'technology' parameter is deprecated. Use 'data' instead")
+    if "bulk_date" in kwargs:
+        date = kwargs["bulk_date"]
+        warn("'bulk_date' parameter is deprecated. Use 'date' instead")
+    if "api_date" in kwargs:
+        date = kwargs["api_date"]
+        warn("'api_date' parameter is deprecated. Use 'date' instead")
 
     validate_parameter_method(method)
     validate_parameter_data(method, data)
-    validate_parameter_bulk_date_string(bulk_date_string)
+    validate_parameter_date(method, date)
     validate_parameter_bulk_cleansing(bulk_cleansing)
     validate_parameter_api_processes(api_processes)
     validate_parameter_api_limit(api_limit)
-    validate_parameter_api_date(api_date)
     validate_parameter_api_chunksize(api_chunksize)
     validate_parameter_api_data_types(api_data_types)
     validate_parameter_api_location_types(api_location_types)
@@ -100,9 +115,8 @@ def validate_parameter_format_for_download_method(
     raise_warning_for_invalid_parameter_combinations(
         method,
         bulk_cleansing,
-        bulk_date_string,
+        date,
         api_processes,
-        api_date,
         api_data_types,
         api_location_types,
         api_limit,
@@ -123,16 +137,9 @@ def validate_parameter_api_location_types(api_location_types) -> None:
         if not api_location_types:  # api_location_types == []
             raise ValueError("parameter api_location_types cannot be an empty list!")
         for value in api_location_types:
-            if value not in [
-                "location_elec_generation",
-                "location_elec_consumption",
-                "location_gas_generation",
-                "location_gas_consumption",
-            ]:
+            if value not in API_LOCATION_TYPES:
                 raise ValueError(
-                    'list entries of api_data_types have to be "location_elec_generation",'
-                    '"location_elec_consumption", "location_gas_generation" or'
-                    ' "location_gas_consumption".'
+                    f"list entries of api_data_types have to be in {API_LOCATION_TYPES}."
                 )
 
 
@@ -144,16 +151,9 @@ def validate_parameter_api_data_types(api_data_types) -> None:
         if not api_data_types:  # api_data_types == []
             raise ValueError("parameter api_data_types cannot be an empty list!")
         for value in api_data_types:
-            if value not in [
-                "unit_data",
-                "eeg_data",
-                "kwk_data",
-                "permit_data",
-            ]:
+            if value not in API_DATA_TYPES:
                 raise ValueError(
-                    'list entries of api_data_types have to be "unit_data", '
-                    '"eeg_data", "kwk_data" '
-                    'or "permit_data".'
+                    f"list entries of api_data_types have to be in {API_DATA_TYPES}."
                 )
 
 
@@ -167,27 +167,26 @@ def validate_parameter_bulk_cleansing(bulk_cleansing) -> None:
         raise ValueError("parameter bulk_cleansing has to be boolean")
 
 
-def validate_parameter_api_date(api_date) -> None:
-    if not isinstance(api_date, datetime) and api_date not in ["latest", None]:
-        raise ValueError(
-            "parameter api_date has to be 'latest' or a datetime object or 'None'."
-        )
-
-
 def validate_parameter_api_limit(api_limit) -> None:
     if not isinstance(api_limit, int) and api_limit is not None:
         raise ValueError("parameter api_limit has to be an integer or 'None'.")
 
 
-def validate_parameter_bulk_date_string(bulk_date_string) -> None:
-    if bulk_date_string != "today":
-        try:
-            _ = parse(bulk_date_string)
-        except (dateutil.parser._parser.ParserError, TypeError) as e:
+def validate_parameter_date(method, date) -> None:
+    if method == "bulk":
+        if date != "today":
+            try:
+                _ = parse(date)
+            except (dateutil.parser._parser.ParserError, TypeError) as e:
+                raise ValueError(
+                    "Parameter date has to be a proper date in the format yyyymmdd"
+                    "or 'today' for bulk method."
+                ) from e
+    elif method == "API":
+        if not isinstance(date, datetime) and date not in ["latest", None]:
             raise ValueError(
-                "parameter bulk_date_string has to be a proper date in the format yyyymmdd"
-                "or 'today'."
-            ) from e
+                "parameter api_date has to be 'latest' or a datetime object or 'None' for API method."
+            )
 
 
 def validate_parameter_api_processes(api_processes) -> None:
@@ -210,65 +209,30 @@ def validate_parameter_data(method, data) -> None:
     if isinstance(data, str):
         data = [data]
     if isinstance(data, list):
-        bulk_data = [
-            "wind",
-            "solar",
-            "biomass",
-            "hydro",
-            "gsgk",
-            "combustion",
-            "nuclear",
-            "gas",
-            "storage",
-            "electricity_consumer",
-            "location",
-            "market",
-            "grid",
-            "balancing_area",
-            "permit",
-        ]
-        api_data = [
-            "wind",
-            "solar",
-            "biomass",
-            "hydro",
-            "gsgk",
-            "combustion",
-            "nuclear",
-            "storage",
-            "location",
-            "permit",
-        ]
         if not data:  # data == []
             raise ValueError("parameter data cannot be an empty list!")
         for value in data:
-            if method == "bulk" and value not in bulk_data:
+            if method == "bulk" and value not in BULK_DATA:
                 raise ValueError(
-                    'Allowed values for parameter data with bulk method are "wind", "solar",'
-                    '"biomass", "hydro", "gsgk", "combustion", "nuclear", "gas", '
-                    '"storage", "electricity_consumer", "location", "market", '
-                    '"grid", "balancing_area" or "permit"'
+                    f"Allowed values for parameter data with bulk method are {BULK_DATA}"
                 )
-            if method == "API" and value not in api_data:
+            if method == "API" and value not in API_DATA:
                 raise ValueError(
-                    'Allowed values for parameter data with API method are "wind", "solar", '
-                    '"biomass", "hydro", "gsgk", "combustion", "nuclear", '
-                    '"storage", "location" or "permit"'
+                    f"Allowed values for parameter data with API method are {API_DATA}"
                 )
 
 
 def raise_warning_for_invalid_parameter_combinations(
     method,
     bulk_cleansing,
-    bulk_date_string,
+    date,
     api_processes,
-    api_date,
     api_data_types,
     api_location_types,
     api_limit,
     api_chunksize,
 ):
-    if method == "API" and (bulk_cleansing is not True or bulk_date_string != "today"):
+    if method == "API" and (bulk_cleansing is not True or date != "today"):
         warn(
             "For method = 'API', bulk download related parameters "
             "(with prefix bulk_) are ignored."
@@ -280,7 +244,6 @@ def raise_warning_for_invalid_parameter_combinations(
                 parameter is not None
                 for parameter in [
                     api_processes,
-                    api_date,
                     api_data_types,
                     api_location_types,
                 ]
@@ -294,58 +257,23 @@ def raise_warning_for_invalid_parameter_combinations(
         )
 
 
-def transform_data_parameter(method, data, api_data_types, api_location_types):
+def transform_data_parameter(
+    method, data, api_data_types, api_location_types, **kwargs
+):
     """
     Parse input parameters related to data as lists. Harmonize variables for later use.
     Data output depends on the possible data types of chosen method.
     """
-    # initialize full lists TODO decide for the best location to centralize these lists
-    bulk_data = [
-        "wind",
-        "solar",
-        "biomass",
-        "hydro",
-        "gsgk",
-        "combustion",
-        "nuclear",
-        "gas",
-        "storage",
-        "electricity_consumer",
-        "location",
-        "market",
-        "grid",
-        "balancing_area",
-        "permit",
-    ]
-    api_data = [
-        "wind",
-        "solar",
-        "biomass",
-        "hydro",
-        "gsgk",
-        "combustion",
-        "nuclear",
-        "storage",
-        "location",
-        "permit",
-    ]
-    all_api_data_types = ["unit_data", "eeg_data", "kwk_data", "permit_data"]
-    all_api_location_types = [
-        "location_elec_generation",
-        "location_elec_consumption",
-        "location_gas_generation",
-        "location_gas_consumption",
-    ]
-
+    data = kwargs.get("technology", data)
     # parse parameters as list
     if isinstance(data, str):
         data = [data]
     elif data is None:
-        data = bulk_data if method == "bulk" else api_data
+        data = BULK_DATA if method == "bulk" else API_DATA
     if api_data_types is None:
-        api_data_types = all_api_data_types
+        api_data_types = API_DATA_TYPES
     if api_location_types is None:
-        api_location_types = all_api_location_types
+        api_location_types = API_LOCATION_TYPES
 
     # data input harmonisation
     harmonisation_log = []
@@ -358,10 +286,20 @@ def transform_data_parameter(method, data, api_data_types, api_location_types):
 
     if "location" in data:
         data.remove("location")
-        api_location_types = all_api_location_types
+        api_location_types = API_LOCATION_TYPES
         harmonisation_log.append("location")
 
     return data, api_data_types, api_location_types, harmonisation_log
+
+
+def transform_date_parameter(method, date, **kwargs):
+
+    if method == "bulk":
+        date = kwargs.get("bulk_date", date)
+    elif method == "API":
+        date = kwargs.get("api_date", date)
+
+    return date
 
 
 @contextmanager
@@ -382,7 +320,7 @@ def session_scope(engine):
 def print_api_settings(
     harmonisation_log,
     data,
-    api_date,
+    date,
     api_data_types,
     api_chunksize,
     api_limit,
@@ -392,7 +330,7 @@ def print_api_settings(
 
     print(
         f"Downloading with soap_API.\n\n   -- API settings --  \nunits after date: "
-        f"{api_date}\nunit download limit per data: "
+        f"{date}\nunit download limit per data: "
         f"{api_limit}\nparallel_processes: {api_processes}\nchunksize: "
         f"{api_chunksize}\ndata_api: {data}"
     )
