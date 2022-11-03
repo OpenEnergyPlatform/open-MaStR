@@ -25,6 +25,7 @@ Here is a template for new release sections:
 - Constants.py for central hardcoded variables [#345](https://github.com/OpenEnergyPlatform/open-MaStR/pull/345)
 
 ### Changed
+- Update documentation for readthedocs [#356](https://github.com/rl-institut/super-repo/pull/356)
 - Update release procedure [#355](https://github.com/rl-institut/super-repo/pull/355)
 - Update README.md to README.rst [#354](https://github.com/rl-institut/super-repo/pull/354)
 - Technology parameter is renamed to data for better comprehension [#337](https://github.com/OpenEnergyPlatform/open-MaStR/pull/337)
