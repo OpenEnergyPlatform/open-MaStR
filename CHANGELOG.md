@@ -25,6 +25,7 @@ Here is a template for new release sections:
 - Constants.py for central hardcoded variables [#345](https://github.com/OpenEnergyPlatform/open-MaStR/pull/345)
 
 ### Changed
+- Fix bug occuring for permit and location download [#358](https://github.com/OpenEnergyPlatform/open-MaStR/pull/358)
 - Update documentation for readthedocs [#356](https://github.com/OpenEnergyPlatform/open-MaStR/pull/356)
 - Update release procedure [#355](https://github.com/OpenEnergyPlatform/open-MaStR/pull/355)
 - Update README.md to README.rst [#354](https://github.com/OpenEnergyPlatform/open-MaStR/pull/354)
