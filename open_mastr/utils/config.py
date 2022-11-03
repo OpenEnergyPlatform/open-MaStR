@@ -90,7 +90,7 @@ def get_data_config():
 
     today = date.today()
 
-    data_config = f'dataversion-{today.strftime("%Y-%m-%d")}_AB_rli'
+    data_config = f'dataversion-{today.strftime("%Y-%m-%d")}'
 
     return data_config
 
