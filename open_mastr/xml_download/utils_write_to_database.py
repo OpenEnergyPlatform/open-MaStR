@@ -7,9 +7,10 @@ import sqlite3
 import sqlalchemy
 from sqlalchemy import select
 from sqlalchemy.sql import text
+
+from open_mastr.utils.constants import BULK_INCLUDE_TABLES_MAP
 from open_mastr.utils.orm import tablename_mapping
 from open_mastr.xml_download.utils_cleansing_bulk import cleanse_bulk_data
-from open_mastr.utils import orm
 
 
 def write_mastr_xml_to_database(
@@ -384,7 +385,6 @@ def data_to_include_tables(
     -------
 
     """
-    tables_map = orm.bulk_include_tables_map
     # Map data selection to include tables
-    include_tables = [table for tech in data for table in tables_map[tech]]
+    include_tables = [table for tech in data for table in BULK_INCLUDE_TABLES_MAP[tech]]
     return include_tables

@@ -1786,6 +1786,44 @@
                         ]
                     },
                     {
+                        "name": "Buergerenergie",
+                        "description": "Bürgerenergieeigenschaft der Einheit",
+                        "type": "boolean",
+                        "unit": null,
+                        "isAbout": [
+                            {
+                                "name": null,
+                                "path": null
+                            }
+                        ],
+                        "valueReference": [
+                            {
+                                "value": null,
+                                "name": null,
+                                "path": null
+                            }
+                        ]
+                    },
+                    {
+                        "name": "Nachtkennzeichen",
+                        "description": "Nachtkennzeichen der Einheit,",
+                        "type": "boolean",
+                        "unit": null,
+                        "isAbout": [
+                            {
+                                "name": null,
+                                "path": null
+                            }
+                        ],
+                        "valueReference": [
+                            {
+                                "value": null,
+                                "name": null,
+                                "path": null
+                            }
+                        ]
+                    },
+                    {
                         "name": "EegMastrNummer_w",
                         "description": "MaStR-Nummer zugeordneten der EEG-Anlage (power unit)",
                         "type": "string",
@@ -7531,7 +7569,7 @@
                         ]
                     },
                     {
-                        "name": "BiogasHoechstbemessungsleistung",
+                        "name": "Hoechstbemessungsleistung",
                         "description": "Höchstbemessungsleistung der Anlage",
                         "type": "string",
                         "unit": null,
@@ -9998,6 +10036,25 @@
                         "name": "Nutzungsbereich",
                         "description": "Vorrangige Nutzung des in Anspruch genommenen Gebäudes",
                         "type": "string",
+                        "unit": null,
+                        "isAbout": [
+                            {
+                                "name": null,
+                                "path": null
+                            }
+                        ],
+                        "valueReference": [
+                            {
+                                "value": null,
+                                "name": null,
+                                "path": null
+                            }
+                        ]
+                    },
+                    {
+                        "name": "Buergerenergie",
+                        "description": "Bürgerenergieeigenschaft der Einheit",
+                        "type": "boolean",
                         "unit": null,
                         "isAbout": [
                             {
@@ -12842,6 +12899,63 @@
                         "name": "EegAnlagentyp",
                         "description": "Typ der Einheit",
                         "type": "string",
+                        "unit": null,
+                        "isAbout": [
+                            {
+                                "name": null,
+                                "path": null
+                            }
+                        ],
+                        "valueReference": [
+                            {
+                                "value": null,
+                                "name": null,
+                                "path": null
+                            }
+                        ]
+                    },
+                    {
+                        "name": "eegAnlagenschluessel",
+                        "description": " Vom Netzbetreiber vergebene Kennziffer zur Identifikation der EEG-Anlage",
+                        "type": "string",
+                        "unit": null,
+                        "isAbout": [
+                            {
+                                "name": null,
+                                "path": null
+                            }
+                        ],
+                        "valueReference": [
+                            {
+                                "value": null,
+                                "name": null,
+                                "path": null
+                            }
+                        ]
+                    },
+                    {
+                        "name": "eegZuschlagsnummer",
+                        "description": "Von der Bundesnetzagentur im Rahmen des Ausschreibungsverfahrens vergebene Nummern",
+                        "type": "string",
+                        "unit": null,
+                        "isAbout": [
+                            {
+                                "name": null,
+                                "path": null
+                            }
+                        ],
+                        "valueReference": [
+                            {
+                                "value": null,
+                                "name": null,
+                                "path": null
+                            }
+                        ]
+                    },
+                    {
+                        "name": "eegAusschreibungZuschlag",
+                        "description": " Angabe ob für die EEG-Anlage Im Rahmen des Ausschreibungsverfahren der Bundesnetzagentur ein Zuschlag erlangt wurde",
+                        "type": "boolean",
                         "unit": null,
                         "isAbout": [
                             {

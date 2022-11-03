@@ -4,14 +4,13 @@ import os
 import pandas as pd
 import pathlib
 import pynodo
-import yaml
 
 from open_mastr.utils.config import (
     get_filenames,
     get_data_version_dir,
-    get_power_unit_types,
 )
 from open_mastr.soap_api.metadata.create import datapackage_meta_json
+from open_mastr.utils.constants import TECHNOLOGIES
 from open_mastr.utils.credentials import get_zenodo_token
 
 
@@ -74,11 +73,10 @@ def read_csv_data(data_stage):
 
     data_dir = get_data_version_dir()
     filenames = get_filenames()
-    power_unit_types = get_power_unit_types()
 
     data = {}
     for technology, filename in filenames[data_stage].items():
-        if technology in power_unit_types:
+        if technology in TECHNOLOGIES:
             if data_stage == "raw":
                 filename = filename["joined"]
             data_file = os.path.join(data_dir, filename)
@@ -155,7 +153,6 @@ def zenodo_upload(
     data_dir = get_data_version_dir()
     filenames = get_filenames()
     metadata_file = os.path.join(data_dir, filenames["metadata"])
-    power_unit_types = get_power_unit_types()
 
     if not zenodo_token:
         # If no token for Zenodo is given, read from credentials.yml
@@ -202,7 +199,7 @@ def zenodo_upload(
     # Upload actual data
     for data_stage in data_stages:
         for tech, file_specs in filenames[data_stage].items():
-            if data_stage == "raw" and tech in power_unit_types:
+            if data_stage == "raw" and tech in TECHNOLOGIES:
                 zen_files.upload(os.path.join(data_dir, file_specs["joined"]))
             else:
                 zen_files.upload(os.path.join(data_dir, file_specs))

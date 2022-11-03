@@ -30,6 +30,7 @@ InAnspruchGenommeneFlaeche,In Anspruch genommene Fläche,decimal,456.981
 ArtDerFlaeche,Art der in Anspruch genommenen Fläche,string,BimaFlaeche
 InAnspruchGenommeneAckerflaeche,In Anspruch genommene Ackerfläche,decimal,124.098
 Nutzungsbereich,Vorrangige Nutzung des in Anspruch genommenen Gebäudes,string,Industrie
+Buergerenergie,Bürgerenergieeigenschaft der Einheit,boolean,false
 EegMastrNummer_extended,MaStR-Nummer der zugeordneten EEG-Anlage,string,EEG91234567890
 NameStromerzeugungseinheit,Vom Betreiber frei wählbare Bezeichnung der Stromerzeugungseinheit.,string,Windpark II Einheit 14
 Weic,W-Code der Stromerzeugungseinheit,mastr:ErweiterterString,11XVE-SALESPK-P

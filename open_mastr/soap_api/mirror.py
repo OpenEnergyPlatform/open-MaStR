@@ -514,88 +514,89 @@ class MaStRMirror:
                 log.info("No further data is requested")
                 break
 
-    def create_additional_data_requests(
-        self,
-        data,
-        data_types=["unit_data", "eeg_data", "kwk_data", "permit_data"],
-        delete_existing=True,
-    ):
-        """
-        Create new requests for additional unit data
+    # def create_additional_data_requests(
+    #    self,
+    #    technology,
+    #    data_types=["unit_data", "eeg_data", "kwk_data", "permit_data"],
+    #    delete_existing=True,
+    # ):
+    #    """
+    #    Create new requests for additional unit data
+    #
+    #    For units that exist in basic_units but not in the table for additional
+    #    data of `data_type`, a new data request
+    #    is submitted.
+    #
+    #    Parameters
+    #    ----------
+    #    technology: str
+    #        Specify technology additional data should be requested for.
+    #    data_types: list
+    #        Select type of additional data that is to be requested.
+    #        Defaults to all data that is available for a
+    #        technology.
+    #    delete_existing: bool
+    #        Toggle deletion of already existing requests for additional data.
+    #        Defaults to True.
+    #    """
+    #
+    #    data_requests = []
+    #
+    #    with session_scope(engine=self._engine) as session:
+    #        # Check which additional data is missing
+    #        for data_type in data_types:
+    #            if data_type_available := self.orm_map[technology].get(data_type, None):
+    #                log.info(
+    #                    f"Create requests for additional data of type {data_type} for {technology}"
+    #                )
+    #
+    #                # Get ORM for additional data by technology and data_type
+    #                additional_data_orm = getattr(orm, data_type_available)
+    #
+    #                # Delete prior additional data requests for this technology and data_type
+    #                if delete_existing:
+    #                    session.query(orm.AdditionalDataRequested).filter(
+    #                        orm.AdditionalDataRequested.technology == technology,
+    #                        orm.AdditionalDataRequested.data_type == data_type,
+    #                    ).delete()
+    #                    session.commit()
+    #
+    #                # Query database for missing additional data
+    #                units_for_request = self._get_units_for_request(
+    #                    data_type, session, additional_data_orm, technology
+    #                )
+    #
+    #                # Prepare data for additional data request
+    #                for basic_unit in units_for_request:
+    #                    data_request = {
+    #                        "EinheitMastrNummer": basic_unit.EinheitMastrNummer,
+    #                        "technology": self.unit_type_map[basic_unit.Einheittyp],
+    #                        "data_type": data_type,
+    #                        "request_date": datetime.datetime.now(
+    #                            tz=datetime.timezone.utc
+    #                        ),
+    #                    }
+    #                    if data_type == "unit_data":
+    #                        data_request[
+    #                            "additional_data_id"
+    #                        ] = basic_unit.EinheitMastrNummer
+    #                    elif data_type == "eeg_data":
+    #                        data_request[
+    #                            "additional_data_id"
+    #                        ] = basic_unit.EegMastrNummer
+    #                    elif data_type == "kwk_data":
+    #                        data_request[
+    #                            "additional_data_id"
+    #                        ] = basic_unit.KwkMastrNummer
+    #                    elif data_type == "permit_data":
+    #                        data_request[
+    #                            "additional_data_id"
+    #                        ] = basic_unit.GenMastrNummer
+    #                    data_requests.append(data_request)
+    #
+    #        # Insert new requests for additional data into database
+    #        session.bulk_insert_mappings(orm.AdditionalDataRequested, data_requests)
 
-        For units that exist in basic_units but not in the table for additional
-        data of `data_type`, a new data request
-        is submitted.
-
-        Parameters
-        ----------
-        data: str
-            Specify data type, additional data should be requested for.
-        data_types: list
-            Select type of additional data that is to be requested.
-            Defaults to all data that is available for a
-            data type.
-        delete_existing: bool
-            Toggle deletion of already existing requests for additional data.
-            Defaults to True.
-        """
-
-        data_requests = []
-
-        with session_scope(engine=self._engine) as session:
-            # Check which additional data is missing
-            for data_type in data_types:
-                if data_type_available := self.orm_map[data].get(data_type, None):
-                    log.info(
-                        f"Create requests for additional data of type {data_type} for {data}"
-                    )
-
-                    # Get ORM for additional data by data and data_type
-                    additional_data_orm = getattr(orm, data_type_available)
-
-                    # Delete prior additional data requests for this data and data_type
-                    if delete_existing:
-                        session.query(orm.AdditionalDataRequested).filter(
-                            orm.AdditionalDataRequested.technology == data,
-                            orm.AdditionalDataRequested.data_type == data_type,
-                        ).delete()
-                        session.commit()
-
-                    # Query database for missing additional data
-                    units_for_request = self._get_units_for_request(
-                        data_type, session, additional_data_orm, data
-                    )
-
-                    # Prepare data for additional data request
-                    for basic_unit in units_for_request:
-                        data_request = {
-                            "EinheitMastrNummer": basic_unit.EinheitMastrNummer,
-                            "technology": self.unit_type_map[basic_unit.Einheittyp],
-                            "data_type": data_type,
-                            "request_date": datetime.datetime.now(
-                                tz=datetime.timezone.utc
-                            ),
-                        }
-                        if data_type == "unit_data":
-                            data_request[
-                                "additional_data_id"
-                            ] = basic_unit.EinheitMastrNummer
-                        elif data_type == "eeg_data":
-                            data_request[
-                                "additional_data_id"
-                            ] = basic_unit.EegMastrNummer
-                        elif data_type == "kwk_data":
-                            data_request[
-                                "additional_data_id"
-                            ] = basic_unit.KwkMastrNummer
-                        elif data_type == "permit_data":
-                            data_request[
-                                "additional_data_id"
-                            ] = basic_unit.GenMastrNummer
-                        data_requests.append(data_request)
-
-            # Insert new requests for additional data into database
-            session.bulk_insert_mappings(orm.AdditionalDataRequested, data_requests)
 
     def _add_data_source_and_download_date(self, entry: dict) -> dict:
         """Adds DatenQuelle = 'APT' and DatumDownload = date.today"""
@@ -1311,82 +1312,6 @@ class MaStRMirror:
                 )
 
                 session.execute(insert_query)
-
-    def locations_to_csv(self, location_type, limit=None):
-        """
-        Save location raw data to CSV file
-
-        During data export to CSV file, data is reshaped to tabular format.
-        Data stored in JSON types is flattened and
-        concated to separate rows.
-
-        Parameters
-        ----------
-        location_type: `str`
-            Select type of location that is to be retrieved. Choose from
-            "location_elec_generation", "location_elec_consumption", "location_gas_generation",
-            "location_gas_consumption".
-        limit: int
-            Limit number of rows. Defaults to None which implies all rows are selected.
-        """
-        location_type_shorthand = {
-            "location_elec_generation": "SEL",
-            "location_elec_consumption": "SVL",
-            "location_gas_generation": "GEL",
-            "location_gas_consumption": "GVL",
-        }
-
-        with session_scope(engine=self._engine) as session:
-            # Load basic and extended location data into DataFrame
-            locations_extended = (
-                session.query(
-                    *[
-                        c
-                        for c in orm.LocationBasic.__table__.columns
-                        if c.name not in ["NameDerTechnischenLokation"]
-                    ],
-                    *[
-                        c
-                        for c in orm.LocationExtended.__table__.columns
-                        if c.name not in ["MaStRNummer"]
-                    ],
-                )
-                .join(
-                    orm.LocationExtended,
-                    orm.LocationBasic.LokationMastrNummer
-                    == orm.LocationExtended.MastrNummer,
-                )
-                .filter(
-                    orm.LocationBasic.LokationMastrNummer.startswith(
-                        location_type_shorthand[location_type]
-                    )
-                )
-                .limit(limit)
-            )
-
-            df = pd.read_sql(locations_extended.statement, session.bind)
-
-        # Expand data about grid connection points from dict into separate columns
-        df_expanded = pd.concat(
-            [pd.DataFrame(x) for x in df["Netzanschlusspunkte"]], keys=df.index
-        ).reset_index(level=1, drop=True)
-        df = (
-            df.drop("Netzanschlusspunkte", axis=1)
-            .join(df_expanded)
-            .reset_index(drop=True)
-        )
-
-        # Expand data about related units into separate columns (with lists of related units)
-        df = df.drop("VerknuepfteEinheiten", axis=1).join(
-            df["VerknuepfteEinheiten"].apply(list_of_dicts_to_columns)
-        )
-
-        # Save to file
-        create_data_dir()
-        data_path = get_data_version_dir()
-        filenames = get_filenames()
-        csv_file = os.path.join(data_path, filenames["raw"][location_type])
-        df.to_csv(csv_file, index=False, encoding="utf-8")
 
 
 def list_of_dicts_to_columns(row) -> pd.Series:
