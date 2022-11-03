@@ -11,11 +11,11 @@ Here is a template for new release sections:
 ## [v0.0.0] Major/Minor Release - Name of Release - 20YY-MM-DD
 
 ### Added
-- [#](https://github.com/rl-institut/super-repo/pull/)
+- [#](https://github.com/OpenEnergyPlatform/open-MaStR/pull/)
 ### Changed
-- [#](https://github.com/rl-institut/super-repo/pull/)
+- [#](https://github.com/OpenEnergyPlatform/open-MaStR/pull/)
 ### Removed
-- [#](https://github.com/rl-institut/super-repo/pull/)
+- [#](https://github.com/OpenEnergyPlatform/open-MaStR/pull/)
 ```
 
 ## [unreleased]
