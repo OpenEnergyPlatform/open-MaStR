@@ -87,16 +87,17 @@ For downloading data from the
 via its API a registration is mandatory (please `read here <https://www.marktstammdatenregister.de/MaStRHilfe/files/
 regHilfen/201108_Handbuch%20f%C3%BCr%20Registrierungen%20durch%20Dienstleister.pdf>`_).
 
-To download data using `open-MaStR` the credentials (MaStR user and token) need to be provided in a certain way.
+To download data using `open-MaStR`, the credentials (MaStR user and token) need to be provided in a certain way.
 Three options exist
 
-* **Credentials file:** Both, user and token, are stored in plain text in the credentials file
-  (`$HOME/.open-MaStR/config/credentials.cfg`)
+1. **Credentials file:** Both, user and token, are stored in plain text in the credentials file
+
 
 For storing the credentials in the credentials file (plus optionally using keyring for the token) simply instantiate
-:py:class:`open_mastr.soap_api.download.MaStRDownload` once and you get asked for a user name and a token.
+:py:class:`open_mastr.soap_api.download.MaStRDownload` once and you get asked for a user name and a token. The
+information you insert will be used to create the credentials file.
 
-It is also possible to create the credentials file by hand using this format
+It is also possible to create the credentials file by hand, using this format:
 
 .. code-block::
 
@@ -104,15 +105,16 @@ It is also possible to create the credentials file by hand using this format
     user = SOM123456789012
     token = msöiöo8u2o29933n31733m§=§1n33§304n... # optional, 540 characters
 
-The token should be written in one line, without line breaks.
+The `token` should be written in one line, without line breaks.
 
-* **Credentials file + keyring:** The user is stored in the credentials file, while the token is stored encrypted in
-  the `keyring <https://pypi.org/project/keyring/>`_
+The credentials file needs to be stored at: `$HOME/.open-MaStR/config/credentials.cfg`
+
+2. **Credentials file + keyring:** The user is stored in the credentials file, while the token is stored encrypted in the `keyring <https://pypi.org/project/keyring/>`_.
 
 Read in the documentation of the `keyring library <https://pypi.org/project/keyring/>`_ how to store your token in the
 keyring.
 
-* **Don't store:** Just use the password for one query and forget it
+3. **Don't store:** Just use the password for one query and forget it
 
 The latter option is only available when using :class:`open_mastr.soap_api.download.MaStRAPI`.
 Instantiate with
@@ -127,9 +129,8 @@ credentials in subsequent queries.
 Logs
 ----
 
-For the download via the API, logs are stored in a single file in `logs/`. 
-New logging messages are appended. It is recommended to delete the log file
-from time to time because of required disk space.
+For the download via the API, logs are stored in a single file in `/$HOME/cwm/.open-MaStR/logs/open_mastr.log`.
+New logging messages are appended. It is recommended to delete the log file from time to time because of its required disk space.
 
 
 Zenodo token
@@ -190,11 +191,61 @@ Follow this checklist for configuration:
 #. Configure your :ref:`database <Database settings>`.
 #. Configure your :ref:`API download <API download>` settings.
 
+Database settings
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Configure your database with the `engine` parameter of :class:`Mastr`.
+It defines the engine of the database where the MaStR is mirrored to. Default is 'sqlite'.
+
+Choose from: {'sqlite', 'docker-postgres', sqlalchemy.engine.Engine}
+
+
+API download settings
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 Prior to starting the download of data from MaStR-API, you might want to adjust parameters in the config file.
 Please read in :ref:`Configuration`.
 For downloading data from Marktstammdatenregister (MaStR) registering an account is required.
 Find more information :ref:`here <MaStR account and credentials>`.
+
+By using the API (e.g. by setting `method` ="API" in the `Mastr.download()` method)
+additional parameters can be set to define in detail which data should be obtained.
+
+.. list-table:: API-related download arguments and explanation
+   :widths: 5 5 5
+   :header-rows: 1
+
+   * - argument
+     - options for specification
+     - explanation
+   * - data
+     - ["wind","biomass","combustion","gsgk","hydro","nuclear","storage","solar"]
+     - Select data to download.
+   * - date
+     - None or :class:`datetime.datetime` or str
+     - Specify backfill date from which on data is retrieved. Only data with time stamp greater than `date` will be retrieved. Defaults to `None` which means that todays date is chosen.
+   * - api_data_types
+     - ["unit_data","eeg_data","kwk_data","permit_data"]
+     - Select the type of data to download.
+   * - api_location_types
+     - ["location_elec_generation","location_elec_consumption","location_gas_generation","location_gas_consumption"]
+     - Select location_types to download.
+   * - api_processes
+     - Number of type int, e.g.: 5
+     - Select the number of parallel download processes. Possible number depends on the capabilities of your machine. Defaults to `None`.
+   * - api_limit
+     - Number of type int, e.g.: 1500
+     - Select the number of entries to download. Defaults to 50.
+   * - api_chunksize
+     - int or None, e.g.: 1000
+     - Data is downloaded and inserted into the database in chunks of `api_chunksize`. Defaults to 1000.
+
+.. warning::
+    The implementation of parallel processes is currently under construction. Please let the argument `api_processes` at the default value `None`.
+
+
+
+
 
 Three different levels of access to data are offered where the code builds on top of each other.
 
