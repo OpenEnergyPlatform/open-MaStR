@@ -191,6 +191,17 @@ Follow this checklist for configuration:
 #. Configure your :ref:`database <Database settings>`.
 #. Configure your :ref:`API download <API download>` settings.
 
+Database settings
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Configure your database with the `engine` parameter of :class:`Mastr`.
+It defines the engine of the database where the MaStR is mirrored to. Default is 'sqlite'.
+
+Choose from: {'sqlite', 'docker-postgres', sqlalchemy.engine.Engine}
+
+
+API download settings
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 Prior to starting the download of data from MaStR-API, you might want to adjust parameters in the config file.
 Please read in :ref:`Configuration`.
@@ -231,6 +242,9 @@ additional parameters can be set to define in detail which data should be obtain
 
 .. warning::
     The implementation of parallel processes is currently under construction. Please let the argument `api_processes` at the default value `None`.
+
+
+
 
 
 Three different levels of access to data are offered where the code builds on top of each other.
