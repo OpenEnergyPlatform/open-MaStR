@@ -15,6 +15,7 @@ BULK_DATA = [
     "grid",
     "balancing_area",
     "permit",
+    "deleted_units",
 ]
 
 # Possible values for parameter 'data' with API download method
@@ -95,4 +96,5 @@ BULK_INCLUDE_TABLES_MAP = {
     "grid": ["netzanschlusspunkte", "netze"],
     "balancing_area": ["bilanzierungsgebiete"],
     "permit": ["einheitengenehmigung"],
+    "deleted_units": ["geloeschteunddeaktivierteeinheiten"],
 }
