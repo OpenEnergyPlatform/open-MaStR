@@ -21,6 +21,7 @@ Here is a template for new release sections:
 ## [unreleased]
 
 ### Added
+- New table deleted_units [#360](https://github.com/OpenEnergyPlatform/open-MaStR/pull/360)
 - Read version number for CI from setup.py [#333](https://github.com/OpenEnergyPlatform/open-MaStR/pull/333)
 - Constants.py for central hardcoded variables [#345](https://github.com/OpenEnergyPlatform/open-MaStR/pull/345)
 
