@@ -386,6 +386,7 @@ class StorageEeg(Eeg, ParentAllTables, Base):
     eegZuschlagsnummer = Column(String)
     eegAusschreibungZuschlag = Column(Boolean)
 
+
 class Kwk(ParentAllTables, Base):
     __tablename__ = "kwk"
 
@@ -776,6 +777,16 @@ class GridConnections(ParentAllTables, Base):
     Netzanschlusskapazitaet = Column(Float)
 
 
+class DeletedUnits(ParentAllTables, Base):
+    __tablename__ = "deleted_units"
+
+    DatumLetzteAktualisierung = Column(DateTime(timezone=True))
+    EinheitMastrNummer = Column(String, primary_key=True)
+    Einheittyp = Column(String)
+    EinheitSystemstatus = Column(String)
+    EinheitBetriebsstatus = Column(String)
+
+
 tablename_mapping = {
     "anlageneegbiomasse": {
         "__name__": BiomassEeg.__tablename__,
@@ -956,6 +967,11 @@ tablename_mapping = {
             "LokationMaStRNummer": "LokationMastrNummer",
             "KwkMaStRNummer": "KwkMastrNummer",
         },
+    },
+    "geloeschteunddeaktivierteeinheiten": {
+        "__name__": DeletedUnits.__tablename__,
+        "__class__": DeletedUnits,
+        "replace_column_names": None,
     },
     "marktrollen": {
         "__name__": MarketRoles.__tablename__,
