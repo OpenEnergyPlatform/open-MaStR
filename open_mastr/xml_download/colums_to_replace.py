@@ -54,7 +54,6 @@ columns_replace_list = [
     "Pumpspeichertechnologie",
     "Einsatzort",
     # geloeschteunddeaktivierteEinheiten
-    "Einheittyp",
     # lokationen
     # marktakteure
     "Personenart",
