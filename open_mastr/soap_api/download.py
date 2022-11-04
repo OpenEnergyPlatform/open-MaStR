@@ -310,9 +310,12 @@ def replace_linked_units_with_unit_identifier(dic: dict) -> dict:
         "Netzanschlusspunkte": "NetzanschlusspunktMastrNummer",
     }
     for k, v in flatten_rule_replace_list.items():
-        if k in dic and len(dic[k]) != 0:
-            mastr_nr_list = [unit[v] for unit in dic[k]]
-            dic[k] = ", ".join(mastr_nr_list)
+        if k in dic:
+            if len(dic[k]) != 0:
+                mastr_nr_list = [unit[v] for unit in dic[k]]
+                dic[k] = ", ".join(mastr_nr_list)
+            else:  # in case list is emtpy
+                dic[k] = ""
     return dic
 
 
