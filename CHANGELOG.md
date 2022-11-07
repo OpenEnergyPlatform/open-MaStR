@@ -5,27 +5,14 @@ For each version important additions, changes and removals are listed here.
 
 The format is inspired from [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
-
-Here is a template for new release sections:
-```
-## [v0.0.0] Major/Minor Release - Name of Release - 20YY-MM-DD
-
-### Added
-- [#](https://github.com/OpenEnergyPlatform/open-MaStR/pull/)
-### Changed
-- [#](https://github.com/OpenEnergyPlatform/open-MaStR/pull/)
-### Removed
-- [#](https://github.com/OpenEnergyPlatform/open-MaStR/pull/)
-```
-
-## [unreleased]
+## [v0.12.0] Minor Release - 2022-11-07
 
 ### Added
 - New table deleted_units [#360](https://github.com/OpenEnergyPlatform/open-MaStR/pull/360)
-- Read version number for CI from setup.py [#333](https://github.com/OpenEnergyPlatform/open-MaStR/pull/333)
 - Constants.py for central hardcoded variables [#345](https://github.com/OpenEnergyPlatform/open-MaStR/pull/345)
 
 ### Changed
+- Handle case for empty list [#362](https://github.com/OpenEnergyPlatform/open-MaStR/pull/362)
 - Fix bug occuring for permit and location download from the bulk download source [#358](https://github.com/OpenEnergyPlatform/open-MaStR/pull/358)
 - Update documentation for readthedocs [#356](https://github.com/OpenEnergyPlatform/open-MaStR/pull/356)
 - Update release procedure [#355](https://github.com/OpenEnergyPlatform/open-MaStR/pull/355)
