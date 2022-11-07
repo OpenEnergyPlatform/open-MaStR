@@ -92,7 +92,7 @@ BiogasLeistungserhoehung,"Angabe, ob die Leistung der Anlage im Zusammenhang mit
 BiogasDatumLeistungserhoehung,Datum der Inbetriebnahme der Leistungserhöhung,date,2014-10-11
 BiogasUmfangLeistungserhoehung,Umfang der Leistungserhöhung bei dieser Biogas-Anlage nach dem 31.07.2014,decimal,125.987
 BiogasGaserzeugungskapazitaet,"Leistungsangabe: Kapazität an Gas, das erzeugt werden kann. Gasproduktionskapazität nach Genehmigungsbescheid, bzw. anhand der eingesetzten Inputstoffe.",mastr:ErweitertesDecimal,241.369
-BiogasHoechstbemessungsleistung,Höchstbemessungsleistung der Anlage,decimal,785.987
+Hoechstbemessungsleistung,Höchstbemessungsleistung der Anlage,decimal,785.987
 BiomethanErstmaligerEinsatz,Datum des erstmaligen ausschließlichen Einsatzes von Biomethan,mastr:ErweitertesDate,2013-12-14
 AnlageBetriebsstatus,"Betriebsstatus der Anlage, welche sich aus den zugeordneten Einheiten ergibt",string,InPlanung
 VerknuepfteEinheit,Die verknüpften Einheiten zu diesem Objekt,mastr:VerknuepfteEinheit,[OBJEKT]

@@ -29,7 +29,7 @@ The following code block shows the basic download commands:
        db = Mastr()
        db.download()
 
-The main entry point to open_mastr is the :class:`Mastr` class (see :ref:`mastr module`). When it is initialized, a sqlite database is created
+When a :class:`Mastr` object is initialized, a sqlite database is created
 in `$HOME/.open-MaStR/data/sqlite`. With the function `Mastr.download()`, the **whole MaStR is downloaded** in the zipped xml file 
 format. It is then read into the sqlite database and simple data cleansing functions are started.
 
@@ -38,42 +38,16 @@ More detailed information can be found in :ref:`Get data via the bulk download <
 API download
 -----------------------------------
 When using `download(method="API")`, the data is retrieved from the MaStR API. For using the MaStR API,
-credentials are needed (see :ref:`Get data via the MaStR-API`). By using the API,
-additional parameters can be set to define in detail which data should be obtained.
+credentials are needed (see :ref:`Get data via the MaStR-API`). 
 
-.. list-table:: API-related download arguments and explanation
-   :widths: 5 5 5
-   :header-rows: 1
+    .. code-block:: python
 
-   * - argument
-     - options for specification
-     - explanation
-   * - technology
-     - ["wind","biomass","combustion","gsgk","hydro","nuclear","storage","solar"]
-     - Select technologies to download.
-   * - api_data_types
-     - ["unit_data","eeg_data","kwk_data","permit_data"]
-     - Select the type of data to download.
-   * - api_location_types
-     - ["location_elec_generation","location_elec_consumption","location_gas_generation","location_gas_consumption"]
-     - Select location_types to download.
-   * - api_processes
-     - Number of type int, e.g.: 5
-     - Select the number of parallel download processes. Possible number depends on the capabilities of your machine. Defaults to `None`.
-   * - api_limit
-     - Number of type int, e.g.: 1500
-     - Select the number of entries to download. Defaults to 50.
-   * - api_date
-     - None or :class:`datetime.datetime` or str
-     - Specify backfill date from which on data is retrieved. Only data with time stamp greater that `api_date` will be retrieved. Defaults to `None`.
-   * - api_chunksize
-     - int or None, e.g.: 1000
-     - Data is downloaded and inserted into the database in chunks of `api_chunksize`. Defaults to 1000.
+       from open_mastr import Mastr
 
-.. warning::
-    The implementation of parallel processes is currently under construction. Please let the argument `api_processes` at the default value `None`.
+       db = Mastr()
+       db.download(method='API')
 
-The default settings will download retrieved data into the sqlite database. The function can be used to mirror the open-MaStR database regularly
+The default settings will save retrieved data into the sqlite database. The function can be used to mirror the open-MaStR database regularly
 without needing to download the `provided dumps <https://www.marktstammdatenregister.de/MaStR/Datendownload>`_  daily.
 
 More detailed information can be found in :ref:`Get data via the MaStR-API <Get data via the MaStR-API>`.
@@ -92,18 +66,16 @@ which can process sqlite data. Pandas, for example, comes with the function
       import pandas as pd
 
       table="wind_extended"
-      df = pd.read_sql(sql=table, con=db._engine)
+      df = pd.read_sql(sql=table, con=db.engine)
 
 
-The tables that exist in the database are listed below. Their relations can be found in :ref:`Data Description <Data Description>`
+The tables that exist in the database are listed below. Their relations can be found in the chapter :ref:`Data Description <Data Description>`
 
 .. list-table:: Tables in the sqlite database
   :widths: 5
   :header-rows: 1
 
   * - table
-  * - additional_data_requested
-  * - additional_locations_requested
   * - balancing_area
   * - basic_units
   * - biomass_eeg
@@ -125,13 +97,10 @@ The tables that exist in the database are listed below. Their relations can be f
   * - locations_extended
   * - market_actors
   * - market_roles
-  * - missed_additional_data
-  * - missed_extended_location_data
   * - nuclear_extended
   * - permit
   * - solar_eeg
   * - solar_extended
-  * - sqlite_sequence
   * - storage_eeg
   * - storage_extended
   * - storage_units

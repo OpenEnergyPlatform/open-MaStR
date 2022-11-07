@@ -5,7 +5,7 @@ import os
 here = path.abspath(path.dirname(__file__))
 
 # Get the long description from the README file
-with open(path.join(here, "README.md"), encoding="utf-8") as f:
+with open(path.join(here, "README.rst"), encoding="utf-8") as f:
     long_description = f.read()
 
 setup(
@@ -18,14 +18,14 @@ setup(
         "open_mastr.utils.config",
         "open_mastr.xml_download",
     ],
-    version="0.11.7",
+    version="0.12.0",
     description="A package that provides an interface for downloading and"
-    "processing the data of the Marktstammdatenregister (MaStR)",
+    " processing the data of the Marktstammdatenregister (MaStR)",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/OpenEnergyPlatform/open-MaStR",
     download_url="https://github.com/OpenEnergyPlatform/open-MaStR/archive"
-    "/refs/tags/v0.11.7.tar.gz",
+    "/refs/tags/v0.12.0.tar.gz",
     author="Open Energy Family",
     author_email="datenzentrum@rl-institut.de",
     maintainer="Ludwig Hülk",
@@ -79,5 +79,3 @@ setup(
         "Source": "https://github.com/OpenEnergyPlatform/open-MaStR",
     },
 )
-
-# os.system("ulimit -n 1000000")

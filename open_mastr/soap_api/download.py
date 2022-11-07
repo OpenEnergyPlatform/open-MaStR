@@ -310,9 +310,12 @@ def replace_linked_units_with_unit_identifier(dic: dict) -> dict:
         "Netzanschlusspunkte": "NetzanschlusspunktMastrNummer",
     }
     for k, v in flatten_rule_replace_list.items():
-        if k in dic and len(dic[k]) != 0:
-            mastr_nr_list = [unit[v] for unit in dic[k]]
-            dic[k] = ", ".join(mastr_nr_list)
+        if k in dic:
+            if len(dic[k]) != 0:
+                mastr_nr_list = [unit[v] for unit in dic[k]]
+                dic[k] = ", ".join(mastr_nr_list)
+            else:  # in case list is emtpy
+                dic[k] = ""
     return dic
 
 
@@ -427,14 +430,14 @@ def to_csv(df: pd.DataFrame, technology: str, chunk_number: int) -> None:
         log.info(f"Appended {len(df)} rows to {csv_file.split('/')[-1:]}.")
 
 
-def _missed_units_to_file(technology, data_type, missed_units):
+def _missed_units_to_file(data, data_type, missed_units):
     """
     Write IDs of missed units to file
 
     Parameters
     ----------
-    technology : str
-        Technology, see :meth:`MaStRDownload.download_power_plants`
+    data : str
+        Data, see :meth:`MaStRDownload.download_power_plants`
     data_type : str
         Which type of additional data. Options: 'extended', 'eeg', 'kwk', 'permit'
     missed_units : list
@@ -444,7 +447,7 @@ def _missed_units_to_file(technology, data_type, missed_units):
     data_path = get_data_version_dir()
     filenames = get_filenames()
     missed_units_file = os.path.join(
-        data_path, filenames["raw"][technology][f"{data_type}_fail"]
+        data_path, filenames["raw"][data][f"{data_type}_fail"]
     )
 
     with open(missed_units_file, "w") as f:
@@ -600,9 +603,9 @@ class MaStRDownload:
         self._mastr_api._user = cred.check_and_set_mastr_user()
         self._mastr_api._key = cred.check_and_set_mastr_token(self._mastr_api._user)
 
-    def download_power_plants(self, technology, limit=None):
+    def download_power_plants(self, data, limit=None):
         """
-        Download power plant unit data for one technology.
+        Download power plant unit data for one data type.
 
         Based on list with basic information about each unit, subsequently additional
         data is retrieved:
@@ -618,7 +621,7 @@ class MaStRDownload:
 
         Parameters
         ----------
-        technology : str
+        data : str
             Retrieve unit data for one power system unit. Power plants are
             grouped by following technologies:
 
@@ -650,39 +653,31 @@ class MaStRDownload:
         # This was introduced later, after creation of this method
         units = [
             unit
-            for sublist in self.basic_unit_data(technology=technology, limit=limit)
+            for sublist in self.basic_unit_data(data=data, limit=limit)
             for unit in sublist
         ]
 
         # Prepare list of unit ID for different additional data (extended, eeg, kwk, permit)
-        mastr_ids = self._create_ID_list(
-            units, "unit_data", "EinheitMastrNummer", technology
-        )
-        eeg_ids = self._create_ID_list(units, "eeg_data", "EegMastrNummer", technology)
-        kwk_ids = self._create_ID_list(units, "kwk_data", "KwkMastrNummer", technology)
-        permit_ids = self._create_ID_list(
-            units, "permit_data", "GenMastrNummer", technology
-        )
+        mastr_ids = self._create_ID_list(units, "unit_data", "EinheitMastrNummer", data)
+        eeg_ids = self._create_ID_list(units, "eeg_data", "EegMastrNummer", data)
+        kwk_ids = self._create_ID_list(units, "kwk_data", "KwkMastrNummer", data)
+        permit_ids = self._create_ID_list(units, "permit_data", "GenMastrNummer", data)
 
         # Download additional data for unit
         extended_data, extended_missed = self.additional_data(
-            technology, mastr_ids, "extended_unit_data"
+            data, mastr_ids, "extended_unit_data"
         )
         if eeg_ids:
-            eeg_data, eeg_missed = self.additional_data(
-                technology, eeg_ids, "eeg_unit_data"
-            )
+            eeg_data, eeg_missed = self.additional_data(data, eeg_ids, "eeg_unit_data")
         else:
             eeg_data = eeg_missed = []
         if kwk_ids:
-            kwk_data, kwk_missed = self.additional_data(
-                technology, kwk_ids, "kwk_unit_data"
-            )
+            kwk_data, kwk_missed = self.additional_data(data, kwk_ids, "kwk_unit_data")
         else:
             kwk_data = kwk_missed = []
         if permit_ids:
             permit_data, permit_missed = self.additional_data(
-                technology, permit_ids, "permit_unit_data"
+                data, permit_ids, "permit_unit_data"
             )
         else:
             permit_data = permit_missed = []
@@ -693,28 +688,28 @@ class MaStRDownload:
                 extended_data_retry,
                 extended_missed_retry,
             ) = self._retry_missed_additional_data(
-                technology, [_[0] for _ in extended_missed], "extended_unit_data"
+                data, [_[0] for _ in extended_missed], "extended_unit_data"
             )
             extended_data.extend(extended_data_retry)
-            _missed_units_to_file(technology, "extended", extended_missed_retry)
+            _missed_units_to_file(data, "extended", extended_missed_retry)
         if eeg_missed:
             eeg_data_retry, eeg_missed_retry = self._retry_missed_additional_data(
-                technology, [_[0] for _ in eeg_missed], "eeg_unit_data"
+                data, [_[0] for _ in eeg_missed], "eeg_unit_data"
             )
             eeg_data.extend(eeg_data_retry)
-            _missed_units_to_file(technology, "eeg", eeg_missed_retry)
+            _missed_units_to_file(data, "eeg", eeg_missed_retry)
         if kwk_missed:
             kwk_data_retry, kwk_missed_retry = self._retry_missed_additional_data(
-                technology, [_[0] for _ in kwk_missed], "kwk_unit_data"
+                data, [_[0] for _ in kwk_missed], "kwk_unit_data"
             )
             kwk_data.extend(kwk_data_retry)
-            _missed_units_to_file(technology, "kwk", kwk_missed_retry)
+            _missed_units_to_file(data, "kwk", kwk_missed_retry)
         if permit_missed:
             permit_data_retry, permit_missed_retry = self._retry_missed_additional_data(
-                technology, [_[0] for _ in permit_missed], "permit_unit_data"
+                data, [_[0] for _ in permit_missed], "permit_unit_data"
             )
             permit_data.extend(permit_data_retry)
-            _missed_units_to_file(technology, "permit", permit_missed_retry)
+            _missed_units_to_file(data, "permit", permit_missed_retry)
 
         # Flatten data
         extended_data = flatten_dict(extended_data, serialize_with_json=True)
@@ -743,30 +738,28 @@ class MaStRDownload:
         # Remove duplicates
         joined_data.drop_duplicates(inplace=True)
 
-        to_csv(joined_data, technology)
+        to_csv(joined_data, data)
 
         return joined_data
 
-    def _create_ID_list(self, units, data_descriptor, key, technology):
+    def _create_ID_list(self, units, data_descriptor, key, data):
         """Extracts a list of MaStR numbers (eeg, kwk, or permit Mastr Nr) from the given units."""
         return (
             [basic[key] for basic in units if basic[key]]
-            if data_descriptor in self._unit_data_specs[technology]
+            if data_descriptor in self._unit_data_specs[data]
             else []
         )
 
-    def basic_unit_data(
-        self, technology=None, limit=2000, date_from=None, max_retries=3
-    ):
+    def basic_unit_data(self, data=None, limit=2000, date_from=None, max_retries=3):
         """
-        Download basic unit information for one technology.
+        Download basic unit information for one data type.
 
         Retrieves basic information about units. The number of unit in
         bound to `limit`.
 
         Parameters
         ----------
-        technology : str, optional
+        data : str, optional
             Technology data is requested for. See :meth:`MaStRDownload.download_power_plants`
             for options.
             Data is retrieved using :meth:`MaStRAPI.GetGefilterteListeStromErzeuger`.
@@ -802,18 +795,16 @@ class MaStRDownload:
             for x in chunks_start
         ]
 
-        # Deal with or w/o technology being specified
+        # Deal with or w/o data type being specified
         energietraeger = (
-            self._unit_data_specs[technology]["energietraeger"]
-            if technology
-            else [None]
+            self._unit_data_specs[data]["energietraeger"] if data else [None]
         )
 
-        # In case multiple energy carriers (energietraeger) exist for one technology,
+        # In case multiple energy carriers (energietraeger) exist for one data type,
         # loop over these and join data to one list
         for et in energietraeger:
             log.info(
-                f"Get list of units with basic information for technology {technology} ({et})"
+                f"Get list of units with basic information for data type {data} ({et})"
             )
             yield from basic_data_download(
                 self._mastr_api,
@@ -823,7 +814,7 @@ class MaStRDownload:
                 limits,
                 date_from,
                 max_retries,
-                technology,
+                data,
                 et=et,
             ) if et is None else basic_data_download(
                 self._mastr_api,
@@ -833,11 +824,11 @@ class MaStRDownload:
                 limits,
                 date_from,
                 max_retries,
-                technology,
+                data,
                 et=et,
             )
 
-    def additional_data(self, technology, unit_ids, data_fcn, timeout=10):
+    def additional_data(self, data, unit_ids, data_fcn, timeout=10):
         """
         Retrieve addtional informations about units.
 
@@ -847,8 +838,8 @@ class MaStRDownload:
 
         Parameters
         ----------
-        technology : str
-            Technology, see :meth:`MaStRDownload.download_power_plants`
+        data : str
+            data, see :meth:`MaStRDownload.download_power_plants`
         unit_ids : list
             Unit identifier for additional data
         data_fcn : str
@@ -857,10 +848,10 @@ class MaStRDownload:
 
             * "extended_unit_data" (:meth:`~.extended_unit_data`): Extended information
               (i.e. technical, location)
-              about a unit. The exact set of information depends on the technology.
+              about a unit. The exact set of information depends on the data type.
             * "eeg_unit_data" (:meth:`~.eeg_unit_data`): Unit Information from
               EEG unit registry. The exact
-              set of information depends on the technology.
+              set of information depends on the data.
             * "kwk_unit_data" (:meth:`~.kwk_unit_data`): Unit information from KWK unit registry.
             * "permit_unit_data" (:meth:`~.permit_unit_data`): Information about the permit
               process of a unit.
@@ -880,18 +871,18 @@ class MaStRDownload:
                     [tuple("SME930865355925", "Reason for failing dowload"), ...]
                     )
         """
-        # Prepare a list of unit IDs packed as tuple associated with technology
-        prepared_args = list(product(unit_ids, [technology]))
+        # Prepare a list of unit IDs packed as tuple associated with data
+        prepared_args = list(product(unit_ids, [data]))
 
         # Prepare results lists
 
         if self.parallel_processes:
             data, data_missed = self._retrieve_data_in_parallel_process(
-                prepared_args, data_fcn, technology, timeout
+                prepared_args, data_fcn, data, timeout
             )
         else:
             data, data_missed = self._retrieve_data_in_single_process(
-                prepared_args, data_fcn, technology
+                prepared_args, data_fcn, data
             )
 
         # Remove Nones and empty dicts
@@ -909,39 +900,39 @@ class MaStRDownload:
 
         return data, data_missed
 
-    def _retrieve_data_in_single_process(self, prepared_args, data_fcn, technology):
-        data = []
-        data_missed = []
+    def _retrieve_data_in_single_process(self, prepared_args, data_fcn, data):
+        data_list = []
+        data_missed_list = []
         for unit_specs in tqdm(
             prepared_args,
             total=len(prepared_args),
-            desc=f"Downloading {data_fcn} ({technology})",
+            desc=f"Downloading {data_fcn} ({data})",
             unit="unit",
         ):
             data_tmp, data_missed_tmp = self.__getattribute__(data_fcn)(unit_specs)
             if not data_tmp:
                 log.debug(
                     f"Download for additional data for "
-                    f"{data_missed_tmp[0]} ({technology}) failed. "
+                    f"{data_missed_tmp[0]} ({data}) failed. "
                     f"Traceback of caught error:\n{data_missed_tmp[1]}"
                 )
-            data.append(data_tmp)
-            data_missed.append(data_missed_tmp)
+            data_list.append(data_tmp)
+            data_missed_list.append(data_missed_tmp)
 
-        return data, data_missed
+        return data_list, data_missed_list
 
     def _retrieve_data_in_parallel_process(
-        self, prepared_args, data_fcn, technology, timeout
+        self, prepared_args, data_fcn, data, timeout
     ):
-        data = []
-        data_missed = []
+        data_list = []
+        data_missed_list = []
         with multiprocessing.Pool(
             processes=self.parallel_processes, maxtasksperchild=1
         ) as pool:
 
             with tqdm(
                 total=len(prepared_args),
-                desc=f"Downloading {data_fcn} ({technology})",
+                desc=f"Downloading {data_fcn} ({data})",
                 unit="unit",
             ) as pbar:
                 unit_result = pool.imap_unordered(
@@ -955,19 +946,19 @@ class MaStRDownload:
                         if not data_tmp:
                             log.debug(
                                 f"Download for additional data for "
-                                f"{data_missed_tmp[0]} ({technology}) failed. "
+                                f"{data_missed_tmp[0]} ({data}) failed. "
                                 f"Traceback of caught error:\n{data_missed_tmp[1]}"
                             )
-                        data.append(data_tmp)
-                        data_missed.append(data_missed_tmp)
+                        data_list.append(data_tmp)
+                        data_missed_list.append(data_missed_tmp)
                         pbar.update()
                     except StopIteration:
                         # Multiprocessing returns StropIteration when results list gets empty
                         break
                     except multiprocessing.TimeoutError:
                         # If retrieval time exceeds timeout of next(), pass on
-                        log.debug(f"Data request for 1 {technology} unit timed out")
-        return data, data_missed
+                        log.debug(f"Data request for 1 {data} unit timed out")
+        return data_list, data_missed_list
 
     def extended_unit_data(self, unit_specs):
         """
@@ -978,7 +969,7 @@ class MaStRDownload:
         Parameters
         ----------
         unit_specs : tuple
-            *EinheitMastrNummer* and technology as tuple that for example looks like
+            *EinheitMastrNummer* and data type as tuple that for example looks like
 
             .. code-block:: python
 
@@ -997,10 +988,10 @@ class MaStRDownload:
                tuple("SME930865355925", "Reason for failing dowload")
         """
 
-        mastr_id, technology = unit_specs
+        mastr_id, data = unit_specs
         try:
             unit_data = self._mastr_api.__getattribute__(
-                self._unit_data_specs[technology]["unit_data"]
+                self._unit_data_specs[data]["unit_data"]
             )(einheitMastrNummer=mastr_id)
             unit_missed = None
         except (
@@ -1027,7 +1018,7 @@ class MaStRDownload:
         Parameters
         ----------
         unit_specs : tuple
-            *EegMastrnummer* and technology as tuple that for example looks like
+            *EegMastrnummer* and data type as tuple that for example looks like
 
             .. code-block:: python
 
@@ -1045,10 +1036,10 @@ class MaStRDownload:
 
                tuple("EEG961554380393", "Reason for failing dowload")
         """
-        eeg_id, technology = unit_specs
+        eeg_id, data = unit_specs
         try:
             eeg_data = self._mastr_api.__getattribute__(
-                self._unit_data_specs[technology]["eeg_data"]
+                self._unit_data_specs[data]["eeg_data"]
             )(eegMastrNummer=eeg_id)
             eeg_missed = None
         except (
@@ -1075,7 +1066,7 @@ class MaStRDownload:
         Parameters
         ----------
         unit_specs : tuple
-            *KwkMastrnummer* and technology as tuple that for example looks like
+            *KwkMastrnummer* and data type as tuple that for example looks like
 
             .. code-block:: python
 
@@ -1094,10 +1085,10 @@ class MaStRDownload:
 
                tuple("KWK910493229164", "Reason for failing dowload")
         """
-        kwk_id, technology = unit_specs
+        kwk_id, data = unit_specs
         try:
             kwk_data = self._mastr_api.__getattribute__(
-                self._unit_data_specs[technology]["kwk_data"]
+                self._unit_data_specs[data]["kwk_data"]
             )(kwkMastrNummer=kwk_id)
             kwk_missed = None
         except (
@@ -1121,7 +1112,7 @@ class MaStRDownload:
         Parameters
         ----------
         unit_specs : tuple
-            *GenMastrnummer* and technology as tuple that for example looks like
+            *GenMastrnummer* and data type as tuple that for example looks like
 
             .. code-block:: python
 
@@ -1140,10 +1131,10 @@ class MaStRDownload:
 
                tuple("GEN952474728808", "Reason for failing dowload")
         """
-        permit_id, technology = unit_specs
+        permit_id, data = unit_specs
         try:
             permit_data = self._mastr_api.__getattribute__(
-                self._unit_data_specs[technology]["permit_data"]
+                self._unit_data_specs[data]["permit_data"]
             )(genMastrNummer=permit_id)
             permit_missed = None
         except (
@@ -1209,9 +1200,7 @@ class MaStRDownload:
 
         return data, missed
 
-    def _retry_missed_additional_data(
-        self, technology, missed_ids, data_fcn, retries=3
-    ):
+    def _retry_missed_additional_data(self, data, missed_ids, data_fcn, retries=3):
         """
         Retry to download extended data that was missed earlier.
 
@@ -1219,8 +1208,8 @@ class MaStRDownload:
 
         Parameters
         ----------
-        technology : str
-            Technology, see :meth:`MaStRDownload.download_power_plants`
+        data : str
+            data, see :meth:`MaStRDownload.download_power_plants`
         missed_ids : list
             Unit identifiers for additional data
         data_fcn : str
@@ -1236,7 +1225,7 @@ class MaStRDownload:
 
         log.info(
             f"Retrying to download additional data for {len(missed_ids)} "
-            f"{technology} units with {retries} retries"
+            f"{data} units with {retries} retries"
         )
 
         data = []
@@ -1244,7 +1233,7 @@ class MaStRDownload:
         missed_ids_remaining = missed_ids
         for _ in range(1, retries + 1):
             data_tmp, missed_ids_tmp = self.additional_data(
-                technology, missed_ids_remaining, data_fcn
+                data, missed_ids_remaining, data_fcn
             )
             if data_tmp:
                 data.extend(data_tmp)
@@ -1336,7 +1325,7 @@ def basic_data_download(
     limits,
     date_from,
     max_retries,
-    technology=None,
+    data=None,
     et=None,
 ):
     """
@@ -1367,11 +1356,11 @@ def basic_data_download(
         Date for querying only newer data than this date
     max_retries: int
         Number of maximum retries for each chunk
-    technology: str, optional
+    data: str, optional
         Choose a subset from available technologies. Only relevant if category="Einheiten".
         Defaults to all technologies.
     et: str
-        Energietraeger of a technology. Some technologies are subdivided into a list of
+        Energietraeger of a data type. Some technologies are subdivided into a list of
         energietraeger. Only relevant if category="Einheiten". Defaults to None.
 
     Yields
@@ -1382,8 +1371,8 @@ def basic_data_download(
 
     # Construct description string
     description = f"Get basic {category} data information"
-    if technology:
-        description += f" for technology {technology}"
+    if data:
+        description += f" for data {data}"
     if et:
         description += f" ({et})"
 
@@ -1392,7 +1381,7 @@ def basic_data_download(
     # Iterate over chunks and download data
     # Results are first collected per 'et' (units_tech) for properly
     # displaying download progress.
-    # Later, all units of a single technology are collected in 'units'
+    # Later, all units of a single data are collected in 'units'
     for chunk_start, limit_iter in zip(chunks_start, limits):
         # Use a retry loop to retry on connection errors
         for try_number in range(max_retries + 1):
@@ -1440,7 +1429,7 @@ def basic_data_download(
         if response["Ergebniscode"] == "OkWeitereDatenVorhanden":
             continue
 
-        # Update progress bar and move on with next et or technology
+        # Update progress bar and move on with next et or data type
         pbar.total = pbar.n
         pbar.refresh()
         pbar.close()

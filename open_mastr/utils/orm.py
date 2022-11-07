@@ -167,6 +167,8 @@ class WindExtended(Extended, ParentAllTables, Base):
     AuflagenAbschaltungSonstige = Column(Boolean)
     Wassertiefe = Column(Float)
     Kuestenentfernung = Column(Float)
+    Buergerenergie = Column(Boolean)
+    Nachtkennzeichen = Column(Boolean)
     EegMastrNummer = Column(String)
 
 
@@ -187,6 +189,7 @@ class SolarExtended(Extended, ParentAllTables, Base):
     ArtDerFlaeche = Column(String)
     InAnspruchGenommeneAckerflaeche = Column(Float)
     Nutzungsbereich = Column(String)
+    Buergerenergie = Column(Boolean)
     EegMastrNummer = Column(String)
     ArtDerFlaecheIds = Column(String)
 
@@ -346,7 +349,7 @@ class BiomassEeg(Eeg, ParentAllTables, Base):
     BiogasDatumLeistungserhoehung = Column(Date)
     BiogasUmfangLeistungserhoehung = Column(Float)
     BiogasGaserzeugungskapazitaet = Column(Float)
-    BiogasHoechstbemessungsleistung = Column(Float)
+    Hoechstbemessungsleistung = Column(Float)
     BiomethanErstmaligerEinsatz = Column(Date)
     AnlageBetriebsstatus = Column(String)
     AnlagenkennzifferAnlagenregister_nv = Column(Boolean)
@@ -378,6 +381,10 @@ class HydroEeg(Eeg, ParentAllTables, Base):
 
 class StorageEeg(Eeg, ParentAllTables, Base):
     __tablename__ = "storage_eeg"
+
+    eegAnlagenschluessel = Column(String)
+    eegZuschlagsnummer = Column(String)
+    eegAusschreibungZuschlag = Column(Boolean)
 
 
 class Kwk(ParentAllTables, Base):
@@ -770,6 +777,16 @@ class GridConnections(ParentAllTables, Base):
     Netzanschlusskapazitaet = Column(Float)
 
 
+class DeletedUnits(ParentAllTables, Base):
+    __tablename__ = "deleted_units"
+
+    DatumLetzteAktualisierung = Column(DateTime(timezone=True))
+    EinheitMastrNummer = Column(String, primary_key=True)
+    Einheittyp = Column(String)
+    EinheitSystemstatus = Column(String)
+    EinheitBetriebsstatus = Column(String)
+
+
 tablename_mapping = {
     "anlageneegbiomasse": {
         "__name__": BiomassEeg.__tablename__,
@@ -951,6 +968,11 @@ tablename_mapping = {
             "KwkMaStRNummer": "KwkMastrNummer",
         },
     },
+    "geloeschteunddeaktivierteeinheiten": {
+        "__name__": DeletedUnits.__tablename__,
+        "__class__": DeletedUnits,
+        "replace_column_names": None,
+    },
     "marktrollen": {
         "__name__": MarketRoles.__tablename__,
         "__class__": MarketRoles,
@@ -997,51 +1019,4 @@ tablename_mapping = {
         "__class__": None,
         "replace_column_names": None,
     },
-}
-
-# List of technologies which can be called by mastr.download()
-#  as well as by MastrMirror.basic_backfill()
-bulk_technologies = [
-    "wind",
-    "solar",
-    "biomass",
-    "hydro",
-    "gsgk",
-    "combustion",
-    "nuclear",
-    "gas",
-    "storage",
-    "electricity_consumer",
-    "location",
-    "market",
-    "grid",
-    "balancing_area",
-    "permit",
-]
-
-# Map bulk technologies to bulk download tables
-bulk_include_tables_map = {
-    "wind": ["anlageneegwind", "einheitenwind"],
-    "solar": ["anlageneegsolar", "einheitensolar"],
-    "biomass": ["anlageneegbiomasse", "einheitenbiomasse"],
-    "hydro": ["anlageneegwasser", "einheitenwasser"],
-    "gsgk": [
-        "anlageneeggeosolarthermiegrubenklaerschlammdruckentspannung",
-        "einheitengeosolarthermiegrubenklaerschlammdruckentspannung",
-    ],
-    "combustion": ["anlagenkwk", "einheitenverbrennung"],
-    "nuclear": ["einheitenkernkraft"],
-    "storage": ["anlageneegspeicher", "anlagenstromspeicher", "einheitenstromspeicher"],
-    "gas": [
-        "anlagengasspeicher",
-        "einheitengaserzeuger",
-        "einheitengasspeicher",
-        "einheitengasverbraucher",
-    ],
-    "electricity_consumer": ["einheitenstromverbraucher"],
-    "location": ["lokationen"],
-    "market": ["marktakteure", "marktrollen"],
-    "grid": ["netzanschlusspunkte", "netze"],
-    "balancing_area": ["bilanzierungsgebiete"],
-    "permit": ["einheitengenehmigung"],
 }
