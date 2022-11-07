@@ -18,7 +18,7 @@ Here is a template for new release sections:
 - [#](https://github.com/OpenEnergyPlatform/open-MaStR/pull/)
 ```
 
-## [unreleased]
+## [v0.12.0] Minor Release - 2022-11-07
 
 ### Added
 - New table deleted_units [#360](https://github.com/OpenEnergyPlatform/open-MaStR/pull/360)
