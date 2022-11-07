@@ -73,7 +73,7 @@ It always has the format `YYYY-MM-DD`, e.g. `2022-05-16`.
     * Update `version`
     * Update `download_url` (.../v0.11.7.tar.gz)
 * `📝ci-production.yml`
-    * Update `version_number` (line 37)
+    * Update version number in `run` command (line 36)
 
 ### 7. 🐙 Create a `Release Pull Request`
 * Use `📝PR_TEMPLATE_RELEASE` (❗ToDo❗)
