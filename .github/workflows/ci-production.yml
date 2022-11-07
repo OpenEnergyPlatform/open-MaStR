@@ -34,7 +34,7 @@ jobs:
       run: python setup.py sdist
     - name: import open-mastr
       run: |
-        version_number=$(python setup.py --version)
+        version_number=0.12.0
         wheel_name="./dist/open_mastr-"$version_number".tar.gz"
         python -m pip install $wheel_name	
     - name: Create credentials file
