@@ -72,6 +72,8 @@ It always has the format `YYYY-MM-DD`, e.g. `2022-05-16`.
 * `📝setup.py`
     * Update `version`
     * Update `download_url` (.../v0.11.7.tar.gz)
+* `📝ci-production.yml`
+    * Update `version_number` (line 37)
 
 ### 7. 🐙 Create a `Release Pull Request`
 * Use `📝PR_TEMPLATE_RELEASE` (❗ToDo❗)
