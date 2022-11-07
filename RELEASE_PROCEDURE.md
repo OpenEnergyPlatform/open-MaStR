@@ -68,6 +68,7 @@ It always has the format `YYYY-MM-DD`, e.g. `2022-05-16`.
     * Give the suitable name to the release
 * `📝CITATION.cff`
     * Update the version number
+    * Update `date-released`
 * `📝setup.py`
     * Update `version`
     * Update `download_url` (.../v0.11.7.tar.gz)
