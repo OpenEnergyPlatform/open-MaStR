@@ -97,6 +97,9 @@ It always has the format `YYYY-MM-DD`, e.g. `2022-05-16`.
 ### 9. 💻 Create and publish package on PyPI
 * Navigate to git folder `cd D:\git\github\GROUP\REPO\`
 * Create package using `python setup.py sdist`
+* Check that README.rst  will render correctly on PyPI
+  * with `twine check dist/*`
+  * check locally, e.g. with package`restview`
 * Check that file has been created in folder `dist`
 * Activate python environment `activate release_py38`
 * Upload to PyPI using `twine upload dist/NAME_0.5.1.tar.gz`
@@ -116,7 +119,6 @@ It always has the format `YYYY-MM-DD`, e.g. `2022-05-16`.
 
 ### 11. 🐙 Set up new development
 * Create a Pull request from `production` to `develop`
-* Delete the `release` branch
 * Create a new **unreleased section** in the `📝CHANGELOG.md`
 
 ▶️ Continue the developments 🛠
