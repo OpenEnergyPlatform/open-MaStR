@@ -11,6 +11,7 @@ from sqlalchemy.sql import text
 from open_mastr.utils.constants import BULK_INCLUDE_TABLES_MAP
 from open_mastr.utils.orm import tablename_mapping
 from open_mastr.xml_download.utils_cleansing_bulk import cleanse_bulk_data
+from open_mastr.utils.config import setup_logger
 
 
 def write_mastr_xml_to_database(
@@ -306,6 +307,7 @@ def add_missing_column_to_table(
     -------
 
     """
+    log = setup_logger()
 
     if engine.name == "postgresql":
         missing_column = err.args[0].split("»")[1].split("«")[0]
@@ -321,6 +323,10 @@ def add_missing_column_to_table(
         missing_column,
     )
     engine.execute(text(alter_query).execution_options(autocommit=True))
+    log.info(
+        "From the downloaded xml files following new attribute was "
+        f"introduced: {table.name}.{missing_column}"
+    )
 
 
 def delete_wrong_xml_entry(err: Error, df: pd.DataFrame) -> None:
