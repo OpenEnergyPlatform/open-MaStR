@@ -82,7 +82,7 @@ It always has the format `YYYY-MM-DD`, e.g. `2022-05-16`.
 * Run all test
 * Execute the software locally
 * Wait for reviews and tests
-* Merge PR but do not delete `release` branch
+* Merge PR and delete `release` branch
 
 ### 8. 💠 Set the `Git Tag`
 * Checkout `production` branch and pull
