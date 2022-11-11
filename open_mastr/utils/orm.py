@@ -170,7 +170,6 @@ class WindExtended(Extended, ParentAllTables, Base):
     Buergerenergie = Column(Boolean)
     Nachtkennzeichen = Column(Boolean)
     EegMastrNummer = Column(String)
-    Nachtkennzeichnung = Column(Boolean)
 
 
 class SolarExtended(Extended, ParentAllTables, Base):
@@ -874,6 +873,7 @@ tablename_mapping = {
         "replace_column_names": {
             "LokationMaStRNummer": "LokationMastrNummer",
             "EegMaStRNummer": "EegMastrNummer",
+            "Nachtkennzeichnung": "Nachtkennzeichen",
         },
     },
     "anlagengasspeicher": {
