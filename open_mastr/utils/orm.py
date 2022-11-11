@@ -351,7 +351,6 @@ class BiomassEeg(Eeg, ParentAllTables, Base):
     AnlagenkennzifferAnlagenregister_nv = Column(Boolean)
     BiogasGaserzeugungskapazitaet_nv = Column(Boolean)
     BiomethanErstmaligerEinsatz_nv = Column(Boolean)
-    BiogasHoechstbemessungsleistung = Column(Float)
 
 
 class GsgkEeg(Eeg, ParentAllTables, Base):
@@ -790,6 +789,7 @@ tablename_mapping = {
         "replace_column_names": {
             "EegMaStRNummer": "EegMastrNummer",
             "VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheit",
+            "BiogasHoechstbemessungsleistung": "Hoechstbemessungsleistung",
         },
     },
     "einheitenbiomasse": {
