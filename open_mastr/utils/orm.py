@@ -380,6 +380,7 @@ class StorageEeg(Eeg, ParentAllTables, Base):
 
     eegAnlagenschluessel = Column(String)
     eegZuschlagsnummer = Column(String)
+    eegAusschreibungZuschlag = Column(Boolean)
 
 
 class Kwk(ParentAllTables, Base):
