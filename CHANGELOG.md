@@ -8,6 +8,7 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 
 ## [v0.XX.X] unreleased - 202X-XX-XX
 ### Added
+- Add workflows to release on PyPI and Test-PyPI
 ### Changed
 ### Removed
 
