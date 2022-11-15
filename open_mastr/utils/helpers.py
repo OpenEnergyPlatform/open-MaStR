@@ -173,6 +173,8 @@ def validate_parameter_api_limit(api_limit) -> None:
 
 
 def validate_parameter_date(method, date) -> None:
+    if date is None:  # default
+        return
     if method == "bulk":
         if date != "today":
             try:
@@ -183,7 +185,7 @@ def validate_parameter_date(method, date) -> None:
                     "or 'today' for bulk method."
                 ) from e
     elif method == "API":
-        if not isinstance(date, datetime) and date not in ["latest", None]:
+        if not isinstance(date, datetime) and date != "latest":
             raise ValueError(
                 "parameter api_date has to be 'latest' or a datetime object or 'None' for API method."
             )
@@ -232,7 +234,7 @@ def raise_warning_for_invalid_parameter_combinations(
     api_limit,
     api_chunksize,
 ):
-    if method == "API" and (bulk_cleansing is not True or date != "today"):
+    if method == "API" and bulk_cleansing is not True:
         warn(
             "For method = 'API', bulk download related parameters "
             "(with prefix bulk_) are ignored."
@@ -296,6 +298,7 @@ def transform_date_parameter(method, date, **kwargs):
 
     if method == "bulk":
         date = kwargs.get("bulk_date", date)
+        date = "today" if date is None else date
     elif method == "API":
         date = kwargs.get("api_date", date)
 

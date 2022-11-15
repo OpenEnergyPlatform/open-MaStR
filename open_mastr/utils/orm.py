@@ -290,13 +290,15 @@ class Eeg(object):
     DatumLetzteAktualisierung = Column(DateTime(timezone=True))
     EegInbetriebnahmedatum = Column(Date)
     VerknuepfteEinheit = Column(String)
+    AnlagenschluesselEeg = Column(String)
+    AusschreibungZuschlag = Column(Boolean)
+    AnlagenkennzifferAnlagenregister = Column(String)
+    AnlagenkennzifferAnlagenregister_nv = Column(Boolean)
 
 
 class WindEeg(Eeg, ParentAllTables, Base):
     __tablename__ = "wind_eeg"
 
-    AnlagenkennzifferAnlagenregister = Column(String)
-    AnlagenschluesselEeg = Column(String)
     PrototypAnlage = Column(Boolean)
     PilotAnlage = Column(Boolean)
     InstallierteLeistung = Column(Float)
@@ -304,10 +306,8 @@ class WindEeg(Eeg, ParentAllTables, Base):
     VerhaeltnisReferenzertragErtrag5Jahre = Column(Float)
     VerhaeltnisReferenzertragErtrag10Jahre = Column(Float)
     VerhaeltnisReferenzertragErtrag15Jahre = Column(Float)
-    AusschreibungZuschlag = Column(Boolean)
     Zuschlagsnummer = Column(String)
     AnlageBetriebsstatus = Column(String)
-    AnlagenkennzifferAnlagenregister_nv = Column(Boolean)
     VerhaeltnisErtragsschaetzungReferenzertrag_nv = Column(Boolean)
     VerhaeltnisReferenzertragErtrag5Jahre_nv = Column(Boolean)
     VerhaeltnisReferenzertragErtrag10Jahre_nv = Column(Boolean)
@@ -318,30 +318,23 @@ class SolarEeg(Eeg, ParentAllTables, Base):
     __tablename__ = "solar_eeg"
 
     InanspruchnahmeZahlungNachEeg = Column(Boolean)
-    AnlagenschluesselEeg = Column(String)
-    AnlagenkennzifferAnlagenregister = Column(String)
     InstallierteLeistung = Column(Float)
     RegistrierungsnummerPvMeldeportal = Column(String)
     MieterstromRegistrierungsdatum = Column(Date)
     MieterstromZugeordnet = Column(Boolean)
     MieterstromMeldedatum = Column(Date)
     MieterstromErsteZuordnungZuschlag = Column(Date)
-    AusschreibungZuschlag = Column(Boolean)
     ZugeordneteGebotsmenge = Column(Float)
     Zuschlagsnummer = Column(String)
     AnlageBetriebsstatus = Column(String)
-    AnlagenkennzifferAnlagenregister_nv = Column(Boolean)
     RegistrierungsnummerPvMeldeportal_nv = Column(Boolean)
 
 
 class BiomassEeg(Eeg, ParentAllTables, Base):
     __tablename__ = "biomass_eeg"
 
-    AnlagenschluesselEeg = Column(String)
-    AnlagenkennzifferAnlagenregister = Column(String)
     InstallierteLeistung = Column(Float)
     AusschliesslicheVerwendungBiomasse = Column(Boolean)
-    AusschreibungZuschlag = Column(Boolean)
     Zuschlagsnummer = Column(String)
     BiogasInanspruchnahmeFlexiPraemie = Column(Boolean)
     BiogasDatumInanspruchnahmeFlexiPraemie = Column(Date)
@@ -352,7 +345,6 @@ class BiomassEeg(Eeg, ParentAllTables, Base):
     Hoechstbemessungsleistung = Column(Float)
     BiomethanErstmaligerEinsatz = Column(Date)
     AnlageBetriebsstatus = Column(String)
-    AnlagenkennzifferAnlagenregister_nv = Column(Boolean)
     BiogasGaserzeugungskapazitaet_nv = Column(Boolean)
     BiomethanErstmaligerEinsatz_nv = Column(Boolean)
 
@@ -360,22 +352,16 @@ class BiomassEeg(Eeg, ParentAllTables, Base):
 class GsgkEeg(Eeg, ParentAllTables, Base):
     __tablename__ = "gsgk_eeg"
 
-    AnlagenschluesselEeg = Column(String)
-    AnlagenkennzifferAnlagenregister = Column(String)
     InstallierteLeistung = Column(Float)
     AnlageBetriebsstatus = Column(String)
-    AnlagenkennzifferAnlagenregister_nv = Column(Boolean)
 
 
 class HydroEeg(Eeg, ParentAllTables, Base):
     __tablename__ = "hydro_eeg"
 
-    AnlagenschluesselEeg = Column(String)
-    AnlagenkennzifferAnlagenregister = Column(String)
     InstallierteLeistung = Column(Float)
     AnlageBetriebsstatus = Column(String)
     Ertuechtigung = Column(JSON)
-    AnlagenkennzifferAnlagenregister_nv = Column(Boolean)
     ErtuechtigungIds = Column(String)
 
 
@@ -392,7 +378,6 @@ class Kwk(ParentAllTables, Base):
 
     Registrierungsdatum = Column(Date)
     KwkMastrNummer = Column(String, primary_key=True)
-    AusschreibungZuschlag = Column(Boolean)
     Zuschlagnummer = Column(String)
     DatumLetzteAktualisierung = Column(DateTime(timezone=True))
     Inbetriebnahmedatum = Column(Date)
@@ -401,6 +386,7 @@ class Kwk(ParentAllTables, Base):
     ElektrischeKwkLeistung = Column(Float)
     VerknuepfteEinheiten = Column(String)
     AnlageBetriebsstatus = Column(String)
+    AusschreibungZuschlag = Column(Boolean)
 
 
 class Permit(ParentAllTables, Base):
@@ -662,6 +648,7 @@ class ElectricityConsumer(ParentAllTables, Base):
     ArtAbschaltbareLast = Column(String)
     DatumDesBetreiberwechsels = Column(Date)
     DatumRegistrierungDesBetreiberwechsels = Column(Date)
+    DatumBeginnVoruebergehendeStilllegung = Column(Date)
     DatumEndgueltigeStilllegung = Column(Date)
     GeplantesInbetriebnahmedatum = Column(Date)
 
@@ -794,6 +781,7 @@ tablename_mapping = {
         "replace_column_names": {
             "EegMaStRNummer": "EegMastrNummer",
             "VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheit",
+            "BiogasHoechstbemessungsleistung": "Hoechstbemessungsleistung",
         },
     },
     "einheitenbiomasse": {
@@ -877,6 +865,7 @@ tablename_mapping = {
         "replace_column_names": {
             "LokationMaStRNummer": "LokationMastrNummer",
             "EegMaStRNummer": "EegMastrNummer",
+            "Nachtkennzeichnung": "Nachtkennzeichen",
         },
     },
     "anlagengasspeicher": {

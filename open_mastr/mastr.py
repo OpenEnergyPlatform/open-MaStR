@@ -78,7 +78,7 @@ class Mastr:
         self,
         method="bulk",
         data=None,
-        date="today",
+        date=None,
         bulk_cleansing=True,
         api_processes=None,
         api_limit=50,
@@ -129,9 +129,9 @@ class Mastr:
         date: None or :class:`datetime.datetime` or str, optional
             For bulk method:
 
-            Either "today" if the newest data dump should be downloaded from the MaStR website. If
+            Either "today" or None if the newest data dump should be downloaded from the MaStR website. If
             an already downloaded dump should be used, state the date of the download in the format
-            "yyyymmdd". Default to "today".
+            "yyyymmdd". Defaults to None.
 
             For API method:
 
