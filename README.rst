@@ -1,3 +1,4 @@
+
 .. image:: https://user-images.githubusercontent.com/14353512/199113556-4b53660f-c628-4138-8d01-3719595ecda1.png
     :align: left
     :target: https://github.com/OpenEnergyPlatform/open-MaStR
@@ -53,7 +54,7 @@ Documentation
 =============
 
 | The documentation is in `sphinx <http://www.sphinx-doc.org/en/stable/>`_ reStructuredText format in the ``doc`` sub-folder of the repository.
-| Find the `documentation <https://open-mastr.readthedocs.io/en/dev>`_ hosted on ReadTheDocs.
+| Find the `documentation <https://open-mastr.readthedocs.io/en/latest/>`_ hosted on ReadTheDocs.
 
 | The original API documentation can be found on the `Webhilfe des Marktstammdatenregisters <https://www.marktstammdatenregister.de/MaStRHilfe/subpages/webdienst.html>`_.
 | If you are interested in browsing the MaStR online, check out the privately hosted `Marktstammdatenregister.dev <https://marktstammdatenregister.dev/>`_.
