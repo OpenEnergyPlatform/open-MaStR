@@ -10,6 +10,7 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 ### Added
 - Add workflows to release on PyPI and Test-PyPI [#375](https://github.com/OpenEnergyPlatform/open-MaStR/pull/375)
 ### Changed
+- Change error handling for missing tables in postgres [#370](https://github.com/OpenEnergyPlatform/open-MaStR/pull/370)
 ### Removed
 
 ## [v0.12.0] Minor Release - 2022-11-07
