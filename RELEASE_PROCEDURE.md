@@ -117,6 +117,12 @@ It always has the format `YYYY-MM-DD`, e.g. `2022-05-16`.
 ### 11. 🐙 Set up new development
 * Create a Pull request from `production` to `develop`
 * Create a new **unreleased section** in the `📝CHANGELOG.md`
+```
+## [v0.XX.X] unreleased
+### Added
+### Changed
+### Removed
+```
 
 ▶️ Continue the developments 🛠
 
