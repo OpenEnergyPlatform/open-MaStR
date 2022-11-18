@@ -350,4 +350,4 @@ class Mastr:
                 continue
             if not df.empty:
                 path_of_table = os.path.join(data_path, f"bnetza_mastr_{table}_raw.csv")
-                df.to_csv(path_or_buf=path_of_table, encoding="utf-16")
+                df.to_csv(path_or_buf=path_of_table, encoding="utf-8")
