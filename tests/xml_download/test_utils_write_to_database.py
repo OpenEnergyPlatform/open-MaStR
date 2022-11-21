@@ -11,8 +11,8 @@ from open_mastr.xml_download.utils_write_to_database import (
     add_table_to_database,
     add_zero_as_first_character_for_too_short_string,
     correct_ordering_of_filelist,
-    data_to_include_tables,
 )
+from open_mastr.utils.helpers import data_to_include_tables
 import os
 from os.path import expanduser
 import sqlite3
