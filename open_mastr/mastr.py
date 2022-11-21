@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+from tqdm import tqdm
 
 # import xml dependencies
 from open_mastr.xml_download.utils_download_bulk import download_xml_Mastr
@@ -19,6 +20,7 @@ from open_mastr.utils.helpers import (
     transform_data_parameter,
     parse_date_string,
     transform_date_parameter,
+    data_to_include_tables,
 )
 from open_mastr.utils.config import (
     create_data_dir,
@@ -318,6 +320,10 @@ class Mastr:
                 technologies_to_export.append(table)
             elif table in ADDITIONAL_TABLES:
                 additional_tables_to_export.append(table)
+            else:
+                additional_tables_to_export.extend(
+                    data_to_include_tables([table], source="export_csv")
+                )
 
         if technologies_to_export:
             print(f"\nTechnology tables: {technologies_to_export}")
@@ -340,14 +346,18 @@ class Mastr:
             )
 
         # Export additional tables mirrored via pd.DataFrame.to_csv()
-        for table in additional_tables_to_export:
+        for additional_table in tqdm(
+            additional_tables_to_export, desc=f"Saving additional tables"
+        ):
             try:
-                df = pd.read_sql(table, con=self.engine)
+                df = pd.read_sql(additional_table, con=self.engine)
             except ValueError as e:
                 print(
-                    f"While reading table '{table}', the following error occured: {e}"
+                    f"While reading table '{additional_table}', the following error occured: {e}"
                 )
                 continue
             if not df.empty:
-                path_of_table = os.path.join(data_path, f"bnetza_mastr_{table}_raw.csv")
+                path_of_table = os.path.join(
+                    data_path, f"bnetza_mastr_{additional_table}_raw.csv"
+                )
                 df.to_csv(path_or_buf=path_of_table, encoding="utf-8")
