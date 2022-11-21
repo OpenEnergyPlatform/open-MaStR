@@ -16,7 +16,7 @@ from open_mastr.utils.config import (
     get_data_version_dir,
     column_renaming,
 )
-from open_mastr.soap_api.download import MaStRDownload, flatten_dict, to_csv
+from open_mastr.soap_api.download import MaStRDownload, flatten_dict, to_csv, tqdm
 from open_mastr.utils import orm
 from open_mastr.soap_api.metadata.create import datapackage_meta_json
 from open_mastr.utils.helpers import session_scope
@@ -1281,7 +1281,7 @@ class MaStRMirror:
             # Empty the basic_units table, because it will be filled entirely from extended tables
             session.query(getattr(orm, "BasicUnit", None)).delete()
 
-            for tech in technology:
+            for tech in tqdm(technology, desc="Performing reverse backfill: "):
                 # Get the class of extended table
                 unit_data_orm = getattr(orm, self.orm_map[tech]["unit_data"], None)
                 basic_unit_column_names = [
