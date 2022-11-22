@@ -322,7 +322,7 @@ class Mastr:
                 additional_tables_to_export.append(table)
             else:
                 additional_tables_to_export.extend(
-                    data_to_include_tables([table], source="export_csv")
+                    data_to_include_tables([table], mapping="export_db_tables")
                 )
 
         if technologies_to_export:

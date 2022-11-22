@@ -373,29 +373,32 @@ def validate_api_credentials() -> None:
     assert mastr_api.GetAktuellerStandTageskontingent()["Ergebniscode"] == "OK"
 
 
-def data_to_include_tables(data: list, source: str = None) -> list:
+def data_to_include_tables(data: list, mapping: str = None) -> list:
     """
-    Convert user input 'data' to the list 'include_tables' which contains
-    file names from zipped bulk download.
+    Convert user input 'data' to the list 'include_tables'.
+    It contains file names from zipped bulk download, if mapping="write_xml".
+    It contains database table names, if mapping="export_db_tables".
     Parameters
     ----------
     data: list
         The user input for data selection
+    mapping: str
+        Specify the mapping dict for the function and thus the list output.
     Returns
     -------
     list
-        List of file names
+        List of file names | List of database table names
     -------
 
     """
-    if source == "write_xml":
+    if mapping == "write_xml":
         # Map data selection to include tables in xml
         include_tables = [
             table for tech in data for table in BULK_INCLUDE_TABLES_MAP[tech]
         ]
         return include_tables
-    elif source == "export_csv":
-        # Map data selection to include tables in csv export
+    elif mapping == "export_db_tables":
+        # Map data selection to include tables for csv export
         include_tables = [
             table
             for possible_data_bulk in data
@@ -404,5 +407,5 @@ def data_to_include_tables(data: list, source: str = None) -> list:
         return include_tables
     else:
         raise NotImplementedError(
-            "This function is only implemented for 'write_xml' and 'export_csv', please specify when calling the function."
+            "This function is only implemented for 'write_xml' and 'export_db_tables', please specify when calling the function."
         )

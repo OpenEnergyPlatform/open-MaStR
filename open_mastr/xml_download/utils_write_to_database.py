@@ -22,7 +22,7 @@ def write_mastr_xml_to_database(
     bulk_download_date: str,
 ) -> None:
     """Write the Mastr in xml format into a database defined by the engine parameter."""
-    include_tables = data_to_include_tables(data, source="write_xml")
+    include_tables = data_to_include_tables(data, mapping="write_xml")
 
     with ZipFile(zipped_xml_file_path, "r") as f:
         files_list = f.namelist()
