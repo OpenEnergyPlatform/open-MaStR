@@ -3,7 +3,8 @@ from open_mastr.utils.helpers import (
     validate_parameter_format_for_download_method,
     validate_parameter_format_for_mastr_init,
     validate_api_credentials,
-    transform_data_parameter, data_to_include_tables,
+    transform_data_parameter,
+    data_to_include_tables,
 )
 import pytest
 import sys
@@ -249,9 +250,26 @@ def test_data_to_include_tables():
     map_to_db_table_list = ["market_actors", "market_roles"]
     map_to_db_table_str = ["locations_extended"]
 
-
     # Assert
-    assert include_tables_list == data_to_include_tables(data=["wind", "hydro"], mapping="write_xml")
-    assert include_tables_str == data_to_include_tables(data=["electricity_consumer"], mapping="write_xml")
-    assert map_to_db_table_list == data_to_include_tables(data=["market"], mapping="export_db_tables")
-    assert map_to_db_table_str == data_to_include_tables(data=["location"], mapping="export_db_tables")
+    assert include_tables_list == data_to_include_tables(
+        data=["wind", "hydro"], mapping="write_xml"
+    )
+    assert include_tables_str == data_to_include_tables(
+        data=["electricity_consumer"], mapping="write_xml"
+    )
+    assert map_to_db_table_list == data_to_include_tables(
+        data=["market"], mapping="export_db_tables"
+    )
+    assert map_to_db_table_str == data_to_include_tables(
+        data=["location"], mapping="export_db_tables"
+    )
+
+
+
+def test_data_to_include_tables_error():
+    # test for non-existent 'mapping' parameter input
+    with pytest.raises(
+        NotImplementedError,
+        match="This function is only implemented for 'write_xml' and 'export_db_tables', please specify when calling the function.",
+    ):
+        data_to_include_tables(data=["wind", "hydro"], mapping="X32J_22")
