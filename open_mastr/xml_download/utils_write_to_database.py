@@ -12,6 +12,7 @@ from open_mastr.utils.constants import BULK_INCLUDE_TABLES_MAP
 from open_mastr.utils.orm import tablename_mapping
 from open_mastr.xml_download.utils_cleansing_bulk import cleanse_bulk_data
 from open_mastr.utils.config import setup_logger
+import os
 
 
 def write_mastr_xml_to_database(
@@ -283,11 +284,18 @@ def write_single_entries_until_not_unique_comes_up(
     )
     df = df.set_index(primary_key.name)
     len_df_before = len(df)
-    df = df.drop(labels=key_list, errors="ignore")
-    df = df.reset_index()
-    print(f"{len_df_before-len(df)} entries already existed in the database.")
+    df_cleaned = df.drop(labels=key_list, errors="ignore")
+    df_duplicated_index = df.drop(df_cleaned.index)
 
-    return df
+    df_cleaned = df_cleaned.reset_index()
+    print(f"{len_df_before-len(df_cleaned)} entries already existed in the database.")
+
+    deleted_duplicates_path = os.path.join(
+        os.path.expanduser("~"), ".open-MaStR", "logs", f"{xml_tablename}.csv"
+    )
+    df_duplicated_index.to_csv(path_or_buf=deleted_duplicates_path, mode="a")
+
+    return df_cleaned
 
 
 def add_missing_column_to_table(
