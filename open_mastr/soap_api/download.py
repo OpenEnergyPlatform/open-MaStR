@@ -416,7 +416,7 @@ def to_csv(df: pd.DataFrame, technology: str, chunk_number: int) -> None:
             encoding="utf-8",
         )
         log.info(
-            f"Technology csv {csv_file.split('/')[-1:]} didn't exist and was created."
+            f"Technology csv: {csv_file.split('/')[-1:]} was created."
         )
     else:
         df.to_csv(

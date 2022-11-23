@@ -26,6 +26,7 @@ from open_mastr.utils.config import (
     create_data_dir,
     get_data_version_dir,
     get_project_home_dir,
+    setup_logger
 )
 import open_mastr.utils.orm as orm
 
@@ -37,6 +38,8 @@ from open_mastr.utils.helpers import (
 # constants
 from open_mastr.utils.constants import TECHNOLOGIES, ADDITIONAL_TABLES
 
+# setup logger
+log = setup_logger()
 
 class Mastr:
     """
@@ -71,7 +74,7 @@ class Mastr:
         print(
             f"Data will be written to the following database: {self.engine.url}\n"
             "If you run into problems, try to "
-            "delete the database and update the package by running 'pip install --upgrade open-mastr'"
+            "delete the database and update the package by running 'pip install --upgrade open-mastr'\n"
         )
 
         orm.Base.metadata.create_all(self.engine)
@@ -297,8 +300,8 @@ class Mastr:
         limit: None or int
             Limits the number of exported data and location units.
         """
+        log.info("Starting csv-export")
 
-        create_data_dir()
         data_path = get_data_version_dir()
 
         # Validate and parse tables parameter TODO parameter renaming
@@ -326,11 +329,11 @@ class Mastr:
                 )
 
         if technologies_to_export:
-            print(f"\nTechnology tables: {technologies_to_export}")
+            log.info(f"Technology tables: {technologies_to_export}")
         if additional_tables_to_export:
-            print(f"\nAdditional tables: {additional_tables_to_export}")
+            log.info(f"Additional tables: {additional_tables_to_export}")
 
-        print(f"are saved to: {data_path}")
+        log.info(f"Tables are saved to: {data_path}")
 
         api_export = MaStRMirror(engine=self.engine)
 
@@ -346,9 +349,7 @@ class Mastr:
             )
 
         # Export additional tables mirrored via pd.DataFrame.to_csv()
-        for additional_table in tqdm(
-            additional_tables_to_export, desc=f"Saving additional tables"
-        ):
+        for additional_table in additional_tables_to_export:
             try:
                 df = pd.read_sql(additional_table, con=self.engine)
             except ValueError as e:
@@ -361,3 +362,7 @@ class Mastr:
                     data_path, f"bnetza_mastr_{additional_table}_raw.csv"
                 )
                 df.to_csv(path_or_buf=path_of_table, encoding="utf-8")
+
+                log.info(
+                    f"Additional table csv: ['bnetza_mastr_{additional_table}_raw.csv'] was created."
+                )

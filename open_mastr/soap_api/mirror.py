@@ -1281,7 +1281,7 @@ class MaStRMirror:
             # Empty the basic_units table, because it will be filled entirely from extended tables
             session.query(getattr(orm, "BasicUnit", None)).delete()
 
-            for tech in tqdm(technology, desc="Performing reverse backfill: "):
+            for tech in tqdm(technology, desc="Performing reverse fill of basic units: "):
                 # Get the class of extended table
                 unit_data_orm = getattr(orm, self.orm_map[tech]["unit_data"], None)
                 basic_unit_column_names = [
