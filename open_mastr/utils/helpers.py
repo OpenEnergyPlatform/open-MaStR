@@ -397,7 +397,8 @@ def data_to_include_tables(data: list, mapping: str = None) -> list:
             table for tech in data for table in BULK_INCLUDE_TABLES_MAP[tech]
         ]
         return include_tables
-    elif mapping == "export_db_tables":
+
+    if mapping == "export_db_tables":
         # Map data selection to include tables for csv export
         include_tables = [
             table
@@ -405,7 +406,7 @@ def data_to_include_tables(data: list, mapping: str = None) -> list:
             for table in BULK_ADDITIONAL_TABLES_CSV_EXPORT_MAP[possible_data_bulk]
         ]
         return include_tables
-    else:
-        raise NotImplementedError(
-            "This function is only implemented for 'write_xml' and 'export_db_tables', please specify when calling the function."
-        )
+
+    raise NotImplementedError(
+        "This function is only implemented for 'write_xml' and 'export_db_tables', please specify when calling the function."
+    )
