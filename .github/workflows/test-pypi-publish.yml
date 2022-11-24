@@ -1,6 +1,7 @@
 name: Build and release on pypi tests
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - test-release # update setup.py version number manually before pushing to branch workflow
