@@ -11,7 +11,6 @@ from open_mastr.xml_download.utils_write_to_database import (
     add_table_to_database,
     add_zero_as_first_character_for_too_short_string,
     correct_ordering_of_filelist,
-    data_to_include_tables,
 )
 import os
 from os.path import expanduser
@@ -238,16 +237,3 @@ def test_cast_date_columns_to_datetime():
     )
 
 
-def test_data_to_include_tables():
-    # Prepare
-    include_tables_list = [
-        "anlageneegwind",
-        "einheitenwind",
-        "anlageneegwasser",
-        "einheitenwasser",
-    ]
-    include_tables_str = ["einheitenstromverbraucher"]
-
-    # Assert
-    assert include_tables_list == data_to_include_tables(data=["wind", "hydro"])
-    assert include_tables_str == data_to_include_tables(data=["electricity_consumer"])

@@ -4,6 +4,7 @@ import sys
 from contextlib import contextmanager
 from datetime import date, datetime
 from warnings import warn
+from typing import Union
 
 import dateutil
 import sqlalchemy
@@ -17,6 +18,8 @@ from open_mastr.utils.constants import (
     API_DATA,
     API_DATA_TYPES,
     API_LOCATION_TYPES,
+    BULK_INCLUDE_TABLES_MAP,
+    BULK_ADDITIONAL_TABLES_CSV_EXPORT_MAP
 )
 
 
@@ -368,3 +371,42 @@ def print_api_settings(
 def validate_api_credentials() -> None:
     mastr_api = MaStRAPI()
     assert mastr_api.GetAktuellerStandTageskontingent()["Ergebniscode"] == "OK"
+
+
+def data_to_include_tables(data: list, mapping: str = None) -> list:
+    """
+    Convert user input 'data' to the list 'include_tables'.
+    It contains file names from zipped bulk download, if mapping="write_xml".
+    It contains database table names, if mapping="export_db_tables".
+    Parameters
+    ----------
+    data: list
+        The user input for data selection
+    mapping: str
+        Specify the mapping dict for the function and thus the list output.
+    Returns
+    -------
+    list
+        List of file names | List of database table names
+    -------
+
+    """
+    if mapping == "write_xml":
+        # Map data selection to include tables in xml
+        include_tables = [
+            table for tech in data for table in BULK_INCLUDE_TABLES_MAP[tech]
+        ]
+        return include_tables
+
+    if mapping == "export_db_tables":
+        # Map data selection to include tables for csv export
+        include_tables = [
+            table
+            for possible_data_bulk in data
+            for table in BULK_ADDITIONAL_TABLES_CSV_EXPORT_MAP[possible_data_bulk]
+        ]
+        return include_tables
+
+    raise NotImplementedError(
+        "This function is only implemented for 'write_xml' and 'export_db_tables', please specify when calling the function."
+    )

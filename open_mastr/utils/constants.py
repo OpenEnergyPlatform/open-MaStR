@@ -98,3 +98,20 @@ BULK_INCLUDE_TABLES_MAP = {
     "permit": ["einheitengenehmigung"],
     "deleted_units": ["geloeschteunddeaktivierteeinheiten"],
 }
+
+# Map bulk data to database table names, for csv export
+BULK_ADDITIONAL_TABLES_CSV_EXPORT_MAP = {
+    "gas": [
+        "gas_consumer",
+        "gas_producer",
+        "gas_storage",
+        "gas_storage_extended",
+    ],
+    "electricity_consumer": ["electricity_consumer"],
+    "location": ["locations_extended"],
+    "market": ["market_actors", "market_roles"],
+    "grid": ["grid_connections", "grids"],
+    "balancing_area": ["balancing_area"],
+    "permit": ["permit"],
+    "deleted_units": ["deleted_units"]
+}

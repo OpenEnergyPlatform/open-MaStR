@@ -7,9 +7,10 @@ The format is inspired from [Keep a Changelog](http://keepachangelog.com/en/1.0.
 and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 
-## [v0.XX.X] unreleased
+## [v0.12.2] unreleased
 ### Added
 ### Changed
+- Repair the csv export [#384](https://github.com/OpenEnergyPlatform/open-MaStR/pull/384)
 ### Removed
 
 ## [v0.12.1] Patch release - 2022-11-15

@@ -8,7 +8,7 @@ import sqlalchemy
 from sqlalchemy import select
 from sqlalchemy.sql import text
 
-from open_mastr.utils.constants import BULK_INCLUDE_TABLES_MAP
+from open_mastr.utils.helpers import data_to_include_tables
 from open_mastr.utils.orm import tablename_mapping
 from open_mastr.xml_download.utils_cleansing_bulk import cleanse_bulk_data
 from open_mastr.utils.config import setup_logger
@@ -22,7 +22,7 @@ def write_mastr_xml_to_database(
     bulk_download_date: str,
 ) -> None:
     """Write the Mastr in xml format into a database defined by the engine parameter."""
-    include_tables = data_to_include_tables(data)
+    include_tables = data_to_include_tables(data, mapping="write_xml")
 
     with ZipFile(zipped_xml_file_path, "r") as f:
         files_list = f.namelist()
@@ -374,23 +374,3 @@ def handle_xml_syntax_error(data: bytes, err: Error) -> pd.DataFrame:
     return df
 
 
-def data_to_include_tables(
-    data: list,
-) -> list:
-    """
-    Convert user input 'data' to the list 'include_tables' which contains
-    file names from zipped bulk download.
-    Parameters
-    ----------
-    data: list
-        The user input for data selection
-    Returns
-    -------
-    list
-        List of file names
-    -------
-
-    """
-    # Map data selection to include tables
-    include_tables = [table for tech in data for table in BULK_INCLUDE_TABLES_MAP[tech]]
-    return include_tables
