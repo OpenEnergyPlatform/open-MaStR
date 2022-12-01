@@ -1258,6 +1258,7 @@ class MaStRMirror:
             )
         metadata = datapackage_meta_json(newest_date, technology, json_serialize=False)
 
+        log.info("Save metadata")
         with open(metadata_file, "w", encoding="utf-8") as f:
             json.dump(metadata, f, ensure_ascii=False, indent=4)
 

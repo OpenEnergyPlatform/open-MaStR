@@ -5,7 +5,10 @@ from bs4 import BeautifulSoup
 import numpy as np
 import os
 import shutil
+from open_mastr.utils.config import setup_logger
 
+# setup logger
+log = setup_logger()
 
 def get_url_from_Mastr_website() -> str:
     """Get the url of the latest MaStR file from markstammdatenregister.de.
@@ -34,7 +37,7 @@ def download_xml_Mastr(save_path: str, bulk_date_string: str, xml_folder_path: s
     """
 
     if os.path.exists(save_path):
-        print("MaStR already downloaded.")
+        log.info("MaStR already downloaded.")
         return None
 
     if bulk_date_string != "today":
@@ -53,7 +56,7 @@ def download_xml_Mastr(save_path: str, bulk_date_string: str, xml_folder_path: s
         "Warning: The servers from MaStR restrict the download speed."
         " You may want to download it another time."
     )
-    print(print_message)
+    log.info(print_message)
     url = get_url_from_Mastr_website()
     time_a = time.perf_counter()
     r = requests.get(url, stream=True)
@@ -75,5 +78,5 @@ def download_xml_Mastr(save_path: str, bulk_date_string: str, xml_folder_path: s
                 # remove warning
                 bar.set_postfix_str(s="")
     time_b = time.perf_counter()
-    print(f"Download is finished. It took {int(np.around(time_b - time_a))} seconds.")
-    print(f"MaStR was successfully downloaded to {xml_folder_path}.")
+    log.info(f"Download is finished. It took {int(np.around(time_b - time_a))} seconds.")
+    log.info(f"MaStR was successfully downloaded to {xml_folder_path}.")

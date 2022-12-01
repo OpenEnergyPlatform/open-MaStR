@@ -71,7 +71,7 @@ class Mastr:
 
         self.engine = create_database_engine(engine, self.home_directory)
 
-        print(
+        log.info(
             f"Data will be written to the following database: {self.engine.url}\n"
             "If you run into problems, try to "
             "delete the database and update the package by running 'pip install --upgrade open-mastr'\n"
@@ -236,7 +236,7 @@ class Mastr:
             # Set api_processes to None in order to avoid the malfunctioning usage
             if api_processes:
                 api_processes = None
-                print(
+                log.info(
                     "Warning: The implementation of parallel processes is currently under construction. Please let "
                     "the argument api_processes at the default value None."
                 )
@@ -353,7 +353,7 @@ class Mastr:
             try:
                 df = pd.read_sql(additional_table, con=self.engine)
             except ValueError as e:
-                print(
+                log.info(
                     f"While reading table '{additional_table}', the following error occured: {e}"
                 )
                 continue
