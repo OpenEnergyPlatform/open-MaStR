@@ -11,6 +11,7 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 ### Added
 ### Changed
 - Repair the csv export [#384](https://github.com/OpenEnergyPlatform/open-MaStR/pull/384)
+- Replace numeric value in hydro_extended [#392](https://github.com/OpenEnergyPlatform/open-MaStR/pull/392)
 ### Removed
 
 ## [v0.12.1] Patch release - 2022-11-15
