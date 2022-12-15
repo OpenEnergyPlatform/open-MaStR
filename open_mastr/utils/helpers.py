@@ -426,3 +426,312 @@ def data_to_include_tables(data: list, mapping: str = None) -> list:
     raise NotImplementedError(
         "This function is only implemented for 'write_xml' and 'export_db_tables', please specify when calling the function."
     )
+
+
+
+
+def reverse_unit_type_map():
+    return {v: k for k, v in UNIT_TYPE_MAP.items()}
+
+
+##### EXPORT RELEVANT FUNCTIONS #####
+
+def create_db_query(
+    self,
+    technology=None,
+    limit=None,
+    additional_data=["unit_data", "eeg_data", "kwk_data", "permit_data"],
+    chunksize=500000,
+    engine=None
+):
+    """
+    Export a snapshot MaStR data from mirrored database to CSV
+
+    During the export, additional available data is joined on list of basic units.
+    A CSV file for each technology is
+    created separately because of multiple non-overlapping columns.
+    Duplicate columns for a single technology (a results on data from
+    different sources) are suffixed.
+
+    The data in the database probably has duplicates because
+    of the history how data was collected in the
+    Marktstammdatenregister.
+
+    Along with the CSV files, metadata is saved in the file `datapackage.json`.
+
+    Parameters
+    ----------
+    technology: `str` or `list` of `str`
+        See list of available technologies in
+        :meth:`open_mastr.soap_api.download.py.MaStRDownload.download_power_plants`
+    limit: int
+        Limit number of rows
+    additional_data: `list`
+        Defaults to "export all available additional data" which is described by
+        `["unit_data", "eeg_data", "kwk_data", "permit_data"]`.
+    chunksize: int or None
+        Defines the chunksize of the tables export. Default to 500.000 which is roughly 2.5 GB.
+    """
+
+    renaming = column_renaming()
+
+    unit_type_map_reversed = reverse_unit_type_map()
+
+    with session_scope(engine=engine) as session:
+
+        for tech in technology:
+            unit_data_orm = getattr(orm, ORM_MAP[tech]["unit_data"], None)
+            eeg_data_orm = getattr(
+                orm, ORM_MAP[tech].get("eeg_data", "KeyNotAvailable"), None
+            )
+            kwk_data_orm = getattr(
+                orm, ORM_MAP[tech].get("kwk_data", "KeyNotAvailable"), None
+            )
+            permit_data_orm = getattr(
+                orm, ORM_MAP[tech].get("permit_data", "KeyNotAvailable"), None
+            )
+
+            # Define query based on available tables for tech and user input
+            subtables = partially_suffixed_columns(
+                orm.BasicUnit,
+                renaming["basic_data"]["columns"],
+                renaming["basic_data"]["suffix"],
+            )
+            if unit_data_orm and "unit_data" in additional_data:
+                subtables.extend(
+                    partially_suffixed_columns(
+                        unit_data_orm,
+                        renaming["unit_data"]["columns"],
+                        renaming["unit_data"]["suffix"],
+                    )
+                )
+            if eeg_data_orm and "eeg_data" in additional_data:
+                subtables.extend(
+                    partially_suffixed_columns(
+                        eeg_data_orm,
+                        renaming["eeg_data"]["columns"],
+                        renaming["eeg_data"]["suffix"],
+                    )
+                )
+            if kwk_data_orm and "kwk_data" in additional_data:
+                subtables.extend(
+                    partially_suffixed_columns(
+                        kwk_data_orm,
+                        renaming["kwk_data"]["columns"],
+                        renaming["kwk_data"]["suffix"],
+                    )
+                )
+            if permit_data_orm and "permit_data" in additional_data:
+                subtables.extend(
+                    partially_suffixed_columns(
+                        permit_data_orm,
+                        renaming["permit_data"]["columns"],
+                        renaming["permit_data"]["suffix"],
+                    )
+                )
+            query = Query(subtables, session=session)
+
+            # Define joins based on available tables for data and user input
+            if unit_data_orm and "unit_data" in additional_data:
+                query = query.join(
+                    unit_data_orm,
+                    orm.BasicUnit.EinheitMastrNummer
+                    == unit_data_orm.EinheitMastrNummer,
+                    isouter=True,
+                )
+            if eeg_data_orm and "eeg_data" in additional_data:
+                query = query.join(
+                    eeg_data_orm,
+                    orm.BasicUnit.EegMastrNummer == eeg_data_orm.EegMastrNummer,
+                    isouter=True,
+                )
+            if kwk_data_orm and "kwk_data" in additional_data:
+                query = query.join(
+                    kwk_data_orm,
+                    orm.BasicUnit.KwkMastrNummer == kwk_data_orm.KwkMastrNummer,
+                    isouter=True,
+                )
+            if permit_data_orm and "permit_data" in additional_data:
+                query = query.join(
+                    permit_data_orm,
+                    orm.BasicUnit.GenMastrNummer == permit_data_orm.GenMastrNummer,
+                    isouter=True,
+                )
+
+            # Restricted to technology
+
+            query = query.filter(
+                orm.BasicUnit.Einheittyp == unit_type_map_reversed[tech]
+            )
+
+
+            # Limit returned rows of query
+            if limit:
+                query = query.limit(limit)
+
+            ######
+
+            # Read data into pandas.DataFrame in chunks of max. 500000 rows of ~2.5 GB RAM
+            for chunck_number, chunk_df in enumerate(
+                pd.read_sql(
+                    query.statement,
+                    query.session.bind,
+                    index_col="EinheitMastrNummer",
+                    chunksize=chunksize,
+                )
+            ):
+                # For debugging purposes, check RAM usage of chunk_df
+                # chunk_df.info(memory_usage='deep')
+
+                # Make sure no duplicate column names exist
+                assert not any(chunk_df.columns.duplicated())
+
+                # Remove newline statements from certain strings
+                for col in ["Aktenzeichen", "Behoerde"]:
+                    chunk_df[col] = chunk_df[col].str.replace("\r", "")
+
+                to_csv(df=chunk_df, technology=tech, chunk_number=chunck_number)
+
+        # Create and save data package metadata file along with data
+        data_path = get_data_version_dir()
+        filenames = get_filenames()
+        metadata_file = os.path.join(data_path, filenames["metadata"])
+
+        mastr_technologies = [
+            unit_type_map_reversed[tech] for tech in technology
+        ]
+        newest_date = (
+            session.query(orm.BasicUnit.DatumLetzteAktualisierung)
+            .filter(orm.BasicUnit.Einheittyp.in_(mastr_technologies))
+            .order_by(orm.BasicUnit.DatumLetzteAktualisierung.desc())
+            .first()[0]
+        )
+    metadata = datapackage_meta_json(newest_date, technology, json_serialize=False)
+
+    with open(metadata_file, "w", encoding="utf-8") as f:
+        json.dump(metadata, f, ensure_ascii=False, indent=4)
+
+
+
+def reverse_fill_basic_units(technology=None, engine=None):
+    """
+    The basic_units table is empty after bulk download.
+    To enable csv export, the table is filled from extended
+    tables reversely.
+
+    .. warning::
+    The basic_units table will be dropped and then recreated.
+    Returns -------
+
+    Parameters
+    ----------
+    technology: list of str
+        Available technologies are in open_mastr.Mastr.to_csv()
+    """
+
+    with session_scope(engine=engine) as session:
+        # Empty the basic_units table, because it will be filled entirely from extended tables
+        session.query(getattr(orm, "BasicUnit", None)).delete()
+
+        for tech in tqdm(technology, desc="Performing reverse fill of basic units: "):
+            # Get the class of extended table
+            unit_data_orm = getattr(orm, ORM_MAP[tech]["unit_data"], None)
+            basic_unit_column_names = [
+                column.name
+                for column in getattr(orm, "BasicUnit", None).__mapper__.columns
+            ]
+
+            unit_columns_to_reverse_fill = [
+                column
+                for column in unit_data_orm.__mapper__.columns
+                if column.name in basic_unit_column_names
+            ]
+            unit_column_names_to_reverse_fill = [
+                column.name for column in unit_columns_to_reverse_fill
+            ]
+
+            unit_type_map_reversed = reverse_unit_type_map()
+
+            # Add Einheittyp artificially
+            unit_typ = "'" + unit_type_map_reversed.get(tech, None) + "'"
+            unit_columns_to_reverse_fill.append(
+                literal_column(unit_typ).label("Einheittyp")
+            )
+            unit_column_names_to_reverse_fill.append("Einheittyp")
+
+            # Build query
+            query = Query(unit_columns_to_reverse_fill, session=session)
+            insert_query = insert(orm.BasicUnit).from_select(
+                unit_column_names_to_reverse_fill, query
+            )
+
+            session.execute(insert_query)
+
+
+def partially_suffixed_columns(mapper, column_names, suffix):
+    """
+    Add a suffix to a subset of ORM map tables for a query
+
+    Parameters
+    ----------
+    mapper:
+        SQLAlchemy ORM table mapper
+    column_names: list
+        Names of columns to be suffixed
+    suffix: str
+        Suffix that is append like + "_" + suffix
+
+    Returns
+    -------
+    list
+        List of ORM table mapper instance
+    """
+    columns = list(mapper.__mapper__.columns)
+    return [
+        _.label(f"{_.name}_{suffix}") if _.name in column_names else _ for _ in columns
+    ]
+
+
+def to_csv(df: pd.DataFrame, technology: str, chunk_number: int) -> None:
+    """
+    Write joined unit data to CSV file
+
+    Save CSV files to the respective data version directory, see
+    :meth:`open_mastr.soap_api.config.get_data_version_dir`.
+
+    Parameters
+    ----------
+    df: pd.DataFrame
+        Dataframe of unit data.
+    technology: str
+        See list of available technologies in
+        :meth:`open_mastr.soap_api.download.MaStRDownload.download_power_plants`.
+    chunk_number: int
+        Number of the chunk that is taken from the table. chunk_number = 0 means it is
+        the first chunk from that table.
+    """
+    data_path = get_data_version_dir()
+    filenames = get_filenames()
+
+    csv_file = os.path.join(data_path, filenames["raw"][technology]["joined"])
+
+    if chunk_number == 0:
+        df.to_csv(
+            csv_file,
+            index=True,
+            index_label="EinheitMastrNummer",
+            encoding="utf-8",
+        )
+        log.info(
+            f"Technology csv: {csv_file.split('/')[-1:]} was created."
+        )
+    else:
+        df.to_csv(
+            csv_file,
+            mode="a",
+            header=False,
+            index=True,
+            index_label="EinheitMastrNummer",
+            encoding="utf-8",
+        )
+        log.info(f"Appended {len(df)} rows to {csv_file.split('/')[-1:]}.")
