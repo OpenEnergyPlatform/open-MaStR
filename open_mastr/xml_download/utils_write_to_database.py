@@ -278,9 +278,11 @@ def write_single_entries_until_not_unique_comes_up(
     table = tablename_mapping[xml_tablename]["__class__"].__table__
     primary_key = next(c for c in table.columns if c.primary_key)
 
-    key_list = (
-        pd.read_sql(sql=select(primary_key), con=engine).values.squeeze().tolist()
-    )
+    with engine.connect() as con:
+        with con.begin():
+            key_list = (
+                pd.read_sql(sql=select(primary_key), con=con).values.squeeze().tolist()
+            )
     df = df.set_index(primary_key.name)
     len_df_before = len(df)
     df = df.drop(labels=key_list, errors="ignore")
@@ -322,7 +324,9 @@ def add_missing_column_to_table(
         table.name,
         missing_column,
     )
-    engine.execute(text(alter_query).execution_options(autocommit=True))
+    with engine.connect().execution_options(autocommit=True) as con:
+        with con.begin():
+            con.execute(text(alter_query).execution_options(autocommit=True))
     log.info(
         "From the downloaded xml files following new attribute was "
         f"introduced: {table.name}.{missing_column}"
