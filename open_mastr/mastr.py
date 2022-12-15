@@ -23,9 +23,7 @@ from open_mastr.utils.helpers import (
     data_to_include_tables,
 )
 from open_mastr.utils.config import (
-    create_data_dir,
-    get_data_version_dir,
-    get_project_home_dir,
+    get_project_output_dir,
     setup_logger
 )
 import open_mastr.utils.orm as orm
@@ -61,15 +59,17 @@ class Mastr:
             Defines the engine of the database where the MaStR is mirrored to. Default is 'sqlite'.
     """
 
-    def __init__(self, engine="sqlite") -> None:
+    def __init__(self, engine="sqlite", output_path:str = None) -> None:
 
-        validate_parameter_format_for_mastr_init(engine)
+        validate_parameter_format_for_mastr_init(engine, output_path)
 
-        self.home_directory = get_project_home_dir()
-        self._sqlite_folder_path = os.path.join(self.home_directory, "data", "sqlite")
+        self.output_directory = get_project_output_dir(output_path)
+
+        print("directory_path: ", output_path, "|", self.output_directory, "\n")
+        self._sqlite_folder_path = os.path.join(self.output_directory, "data", "sqlite")
         os.makedirs(self._sqlite_folder_path, exist_ok=True)
 
-        self.engine = create_database_engine(engine, self.home_directory)
+        self.engine = create_database_engine(engine, self.output_directory)
 
         print(
             f"Data will be written to the following database: {self.engine.url}\n"
@@ -214,7 +214,7 @@ class Mastr:
 
             # Find the name of the zipped xml folder
             bulk_download_date = parse_date_string(date)
-            xml_folder_path = os.path.join(self.home_directory, "data", "xml_download")
+            xml_folder_path = os.path.join(self.output_directory, "data", "xml_download")
             os.makedirs(xml_folder_path, exist_ok=True)
             zipped_xml_file_path = os.path.join(
                 xml_folder_path,
@@ -302,7 +302,7 @@ class Mastr:
         """
         log.info("Starting csv-export")
 
-        data_path = get_data_version_dir()
+        data_path = os.path.join(self.output_directory, "data", data_version)
 
         # Validate and parse tables parameter TODO parameter renaming
         validate_parameter_data(method="bulk", data=tables)
