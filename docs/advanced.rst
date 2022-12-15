@@ -53,7 +53,8 @@ of the dump overwrite older versions.
 The data can then be written to an sql database. The type of the sql database is determined
 by the parameter `engine` in the Mastr class (see :ref:`mastr module`). The possible databases are:
 
-* sqlite: This database will be stored in `$HOME/.open-MaStR/data/sqlite`.
+* sqlite: This database will be stored in `$HOME/.open-MaStR/data/sqlite` (can be customized via the
+  :ref:`environment variable <Environment variables>` `$SQLITE_DATABASE_PATH`).
 * docker-postgres: A docker container of a PostgreSQL database. 
 * own database: The Mastr class accepts a sqlalchemy.engine.Engine object as engine which enables the user to 
   use any other desired database.
@@ -77,6 +78,22 @@ by the parameter `engine` in the Mastr class (see :ref:`mastr module`). The poss
 Resulting data of download, post-processing and analysis is saved under `$HOME/.open-MaStR/data/<data-version>`.
 Files that are suffixed with `_raw` contain joined data retrieved during :ref:`downloading <Download>`.
 The structure of the data is described in :ref:`Data Description`.
+
+Environment variables
+^^^^^^^^^^^^^^^^^^^^^
+
+There are some environment variables to customize open-MaStR:
+
+.. list-table::
+   :widths: 5 5 5
+   :header-rows: 1
+
+   * - variable
+     - description
+     - example
+   * - SQLITE_DATABASE_PATH
+     - Path to the SQLite file. This allows to use to use multiple instances of the MaStR database.
+     - `/home/mastr-rabbit/.open-MaStR/data/sqlite/open-mastr-2022-12-15.db`
 
 MaStR account and credentials
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
