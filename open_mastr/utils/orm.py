@@ -42,7 +42,6 @@ class BasicUnit(Base):
     GenMastrNummer = Column(String)
     BestandsanlageMastrNummer = Column(String)
     NichtVorhandenInMigriertenEinheiten = Column(String)
-    StatisikFlag = Column(String)
 
 
 class AdditionalDataRequested(Base):
@@ -118,7 +117,6 @@ class Extended(object):
     AltAnlagenbetreiberMastrNummer = Column(String)
     DatumDesBetreiberwechsels = Column(Date)
     DatumRegistrierungDesBetreiberwechsels = Column(Date)
-    StatisikFlag = Column(String)
     NameStromerzeugungseinheit = Column(String)
     Weic = Column(String)
     WeicDisplayName = Column(String)
