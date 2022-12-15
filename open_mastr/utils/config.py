@@ -281,7 +281,7 @@ def column_renaming():
     """
     return {
         "basic_data": {
-            "columns": ["StatisikFlag", "BestandsanlageMastrNummer"],
+            "columns": ["BestandsanlageMastrNummer"],
             "suffix": "basic",
         },
         "unit_data": {

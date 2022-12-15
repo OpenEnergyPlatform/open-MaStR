@@ -343,7 +343,6 @@ class Mastr:
             # export to csv per data
             api_export.to_csv(
                 technology=technologies_to_export,
-                statistic_flag=None,
                 limit=limit,
                 chunksize=chunksize,
             )

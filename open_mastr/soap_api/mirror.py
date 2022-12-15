@@ -1079,7 +1079,6 @@ class MaStRMirror:
         technology=None,
         limit=None,
         additional_data=["unit_data", "eeg_data", "kwk_data", "permit_data"],
-        statistic_flag="B",
         chunksize=500000,
     ):
         """
@@ -1093,10 +1092,7 @@ class MaStRMirror:
 
         The data in the database probably has duplicates because
         of the history how data was collected in the
-        Marktstammdatenregister. Consider using the parameter
-        `statistic_flag`. Read more in the
-        `documentation <https://www.marktstammdatenregister.de/MaStRHilfe/subpages/statistik.html>`_
-        of the original data source.
+        Marktstammdatenregister.
 
         Along with the CSV files, metadata is saved in the file `datapackage.json`.
 
@@ -1110,15 +1106,6 @@ class MaStRMirror:
         additional_data: `list`
             Defaults to "export all available additional data" which is described by
             `["unit_data", "eeg_data", "kwk_data", "permit_data"]`.
-        statistic_flag: `str`
-            Choose between 'A' or 'B' (default) to select a subset of the data for the
-            export to CSV.
-
-            * 'B': Migrated that was migrated to the Marktstammdatenregister +
-              newly registered units with commissioning
-              date after 31.01.2019 (recommended for statistical purposes).
-            * 'A':  Newly registered units with commissioning date before 31.01.2019
-            * None: Export all data
         chunksize: int or None
             Defines the chunksize of the tables export. Default to 500.000 which is roughly 2.5 GB.
         """
@@ -1213,9 +1200,6 @@ class MaStRMirror:
                     orm.BasicUnit.Einheittyp == self.unit_type_map_reversed[tech]
                 )
 
-                # Decide if migrated data or data of newly registered units or both is selected
-                if statistic_flag and "unit_data" in additional_data:
-                    query = query.filter(unit_data_orm.StatisikFlag == statistic_flag)
 
                 # Limit returned rows of query
                 if limit:
