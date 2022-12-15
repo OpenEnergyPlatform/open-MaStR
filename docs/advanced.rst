@@ -1,4 +1,4 @@
-    ********************
+********************
 Advanced Topics
 ********************
 In the following sections, a deeper description of the package and its functionalities is given.
@@ -73,9 +73,10 @@ by the parameter `engine` in the Mastr class (see :ref:`mastr module`). The poss
         engine = create_engine("postgresql://myusername:mypassword@localhost/mydatabase"
         db = Mastr(engine=engine)
 ..
-  Resulting data of download, post-processing and analysis is saved under `$HOME/.open-MaStR/data/<data-version>`.
-  Files that are suffixed with `_raw` contain joined data retrieved during :ref:`downloading <Downloading raw data>`.
-  The structure of the data is described in :ref:`Data documentation`.
+
+Resulting data of download, post-processing and analysis is saved under `$HOME/.open-MaStR/data/<data-version>`.
+Files that are suffixed with `_raw` contain joined data retrieved during :ref:`downloading <Download>`.
+The structure of the data is described in :ref:`Data Description`.
 
 MaStR account and credentials
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
