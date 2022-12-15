@@ -337,17 +337,19 @@ class Mastr:
 
         log.info(f"Tables are saved to: {data_path}")
 
-        api_export = MaStRMirror(engine=self.engine)
 
-        if technologies_to_export:
-            # fill basic unit table, after downloading with method = 'bulk' to use API export functions
-            api_export.reverse_fill_basic_units(technology=technologies_to_export)
-            # export to csv per data
-            api_export.to_csv(
-                technology=technologies_to_export,
-                limit=limit,
-                chunksize=chunksize,
-            )
+
+        reverse_fill_basic_units(technology=technologies_to_export, engine=self.engine)
+
+
+        create_db_query(self,
+                        technology=technologies_to_export,
+                        limit=limit,
+                        chunksize=chunksize,
+                        engine=self.engine
+                        )
+
+
 
         # Export additional tables mirrored via pd.DataFrame.to_csv()
         for additional_table in additional_tables_to_export:
