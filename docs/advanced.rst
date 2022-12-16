@@ -93,7 +93,7 @@ There are some environment variables to customize open-MaStR:
      - example
    * - SQLITE_DATABASE_PATH
      - Path to the SQLite file. This allows to use to use multiple instances of the MaStR database.
-     - `/home/mastr-rabbit/.open-MaStR/data/sqlite/open-mastr-2022-12-15.db`
+     - `/home/mastr-rabbit/.open-MaStR/data/sqlite/your_custom_instance_name.db`
 
 MaStR account and credentials
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
