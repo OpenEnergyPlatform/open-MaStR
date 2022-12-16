@@ -480,53 +480,26 @@ def create_db_query(
     with session_scope(engine=engine) as session:
 
         for tech in technology:
-            unit_data_orm = getattr(orm, ORM_MAP[tech]["unit_data"], None)
-            eeg_data_orm = getattr(
-                orm, ORM_MAP[tech].get("eeg_data", "KeyNotAvailable"), None
-            )
-            kwk_data_orm = getattr(
-                orm, ORM_MAP[tech].get("kwk_data", "KeyNotAvailable"), None
-            )
-            permit_data_orm = getattr(
-                orm, ORM_MAP[tech].get("permit_data", "KeyNotAvailable"), None
-            )
 
-            # Define query based on available tables for tech and user input
+            # Select orm tables for specified additional_data. Filter tables that exist (are not None).
+            orm_tables = {f"{dat}": getattr(orm, ORM_MAP[tech].get(dat, "KeyNotAvailable"), None) for dat in additional_data}
+            orm_tables = {k:v for k,v in orm_tables.items() if v is not None}
+
+            # Build query based on available tables for tech and user input; always use basic units
             subtables = partially_suffixed_columns(
                 orm.BasicUnit,
                 renaming["basic_data"]["columns"],
                 renaming["basic_data"]["suffix"],
             )
-            if unit_data_orm and "unit_data" in additional_data:
-                subtables.extend(
-                    partially_suffixed_columns(
-                        unit_data_orm,
-                        renaming["unit_data"]["columns"],
-                        renaming["unit_data"]["suffix"],
-                    )
-                )
-            if eeg_data_orm and "eeg_data" in additional_data:
-                subtables.extend(
-                    partially_suffixed_columns(
-                        eeg_data_orm,
-                        renaming["eeg_data"]["columns"],
-                        renaming["eeg_data"]["suffix"],
-                    )
-                )
-            if kwk_data_orm and "kwk_data" in additional_data:
-                subtables.extend(
-                    partially_suffixed_columns(
-                        kwk_data_orm,
-                        renaming["kwk_data"]["columns"],
-                        renaming["kwk_data"]["suffix"],
-                    )
-                )
-            if permit_data_orm and "permit_data" in additional_data:
-                subtables.extend(
-                    partially_suffixed_columns(
-                        permit_data_orm,
-                        renaming["permit_data"]["columns"],
-                        renaming["permit_data"]["suffix"],
+
+            # Extend table with columns from selected addtional_data orm
+            for addit_data_type, addit_data_orm in orm_tables.items():
+                    subtables.extend(
+                        partially_suffixed_columns(
+                            addit_data_orm,
+                            renaming[addit_data_type]["columns"],
+                            renaming[addit_data_type]["suffix"],
+                        )
                     )
                 )
             query = Query(subtables, session=session)
