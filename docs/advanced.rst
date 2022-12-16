@@ -53,7 +53,7 @@ of the dump overwrite older versions.
 The data can then be written to an sql database. The type of the sql database is determined
 by the parameter `engine` in the Mastr class (see :ref:`mastr module`). The possible databases are:
 
-* sqlite: This database will be stored in `$HOME/.open-MaStR/data/sqlite` (can be customized via the
+* sqlite: By default the database will be stored in `$HOME/.open-MaStR/data/sqlite/open-mastr.db` (can be customized via the
   :ref:`environment variable <Environment variables>` `$SQLITE_DATABASE_PATH`).
 * docker-postgres: A docker container of a PostgreSQL database. 
 * own database: The Mastr class accepts a sqlalchemy.engine.Engine object as engine which enables the user to 
