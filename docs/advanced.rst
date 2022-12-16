@@ -92,7 +92,7 @@ There are some environment variables to customize open-MaStR:
      - description
      - example
    * - SQLITE_DATABASE_PATH
-     - Path to the SQLite file. This allows to use to use multiple instances of the MaStR database.
+     - Path to the SQLite file. This allows to use to use multiple instances of the MaStR database. The database instances exist in parallel and are independent of each other.
      - `/home/mastr-rabbit/.open-MaStR/data/sqlite/your_custom_instance_name.db`
 
 MaStR account and credentials
