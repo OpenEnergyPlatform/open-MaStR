@@ -22,7 +22,8 @@ from open_mastr.utils.helpers import (
     transform_date_parameter,
     data_to_include_tables,
     create_db_query,
-    reverse_fill_basic_units
+    reverse_fill_basic_units,
+    to_csv
 )
 from open_mastr.utils.config import (
     create_data_dir,
@@ -305,6 +306,8 @@ class Mastr:
 
         data_path = get_data_version_dir()
 
+        create_data_dir()
+
         # Validate and parse tables parameter TODO parameter renaming
         validate_parameter_data(method="csv_export", data=tables)
         (
@@ -336,35 +339,12 @@ class Mastr:
 
         log.info(f"Tables are saved to: {data_path}")
 
-
-
         reverse_fill_basic_units(technology=technologies_to_export, engine=self.engine)
 
-
-        create_db_query(self,
+        create_db_query(
                         technology=technologies_to_export,
+                        additional_tables=additional_tables_to_export,
                         limit=limit,
                         chunksize=chunksize,
                         engine=self.engine
                         )
-
-
-
-        # Export additional tables mirrored via pd.DataFrame.to_csv()
-        for additional_table in additional_tables_to_export:
-            try:
-                df = pd.read_sql(additional_table, con=self.engine)
-            except ValueError as e:
-                print(
-                    f"While reading table '{additional_table}', the following error occured: {e}"
-                )
-                continue
-            if not df.empty:
-                path_of_table = os.path.join(
-                    data_path, f"bnetza_mastr_{additional_table}_raw.csv"
-                )
-                df.to_csv(path_or_buf=path_of_table, encoding="utf-8")
-
-                log.info(
-                    f"Additional table csv: ['bnetza_mastr_{additional_table}_raw.csv'] was created."
-                )

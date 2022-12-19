@@ -117,6 +117,8 @@ BULK_ADDITIONAL_TABLES_CSV_EXPORT_MAP = {
     "permit": ["permit"],
     "deleted_units": ["deleted_units"],
 }
+
+# used to map the parameter options in open-mastr to the exact table class names in orm.py
 ORM_MAP = {
     "wind": {
         "unit_data": "WindExtended",
@@ -150,13 +152,30 @@ ORM_MAP = {
         "eeg_data": "HydroEeg",
         "permit_data": "Permit",
     },
-    "nuclear": {"unit_data": "NuclearExtended", "permit_data": "Permit"},
+    "nuclear": {
+        "unit_data": "NuclearExtended",
+        "permit_data": "Permit"
+    },
     "storage": {
         "unit_data": "StorageExtended",
         "eeg_data": "StorageEeg",
         "permit_data": "Permit",
     },
+    "gas_consumer": "GasConsumer",
+    "gas_producer": "GasProducer",
+    "gas_storage": "GasStorage",
+    "gas_storage_extended": "GasStorageExtended",
+    "electricity_consumer": "ElectricityConsumer",
+    "locations_extended": "LocationExtended",
+    "market_actors": "MarketActors",
+    "market_roles": "MarketRoles",
+    "grid_connections": "GridConnections",
+    "grids": "Grids",
+    "balancing_area": "BalancingArea",
+    "permit": "Permit",
+    "deleted_units": "DeletedUnits"
 }
+
 
 
 UNIT_TYPE_MAP = {

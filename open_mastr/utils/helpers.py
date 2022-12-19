@@ -443,10 +443,10 @@ def reverse_unit_type_map():
 ##### EXPORT RELEVANT FUNCTIONS #####
 
 def create_db_query(
-    self,
     technology=None,
     limit=None,
     additional_data=["unit_data", "eeg_data", "kwk_data", "permit_data"],
+    additional_tables = None,
     chunksize=500000,
     engine=None
 ):
@@ -539,59 +539,70 @@ def create_db_query(
                 )
 
             # Restricted to technology
-
             query = query.filter(
                 orm.BasicUnit.Einheittyp == unit_type_map_reversed[tech]
             )
-
 
             # Limit returned rows of query
             if limit:
                 query = query.limit(limit)
 
-            ######
+            to_csv(db_query=query, data_table=tech, chunksize=chunksize)
 
-            # Read data into pandas.DataFrame in chunks of max. 500000 rows of ~2.5 GB RAM
-            for chunck_number, chunk_df in enumerate(
-                pd.read_sql(
-                    query.statement,
-                    query.session.bind,
-                    index_col="EinheitMastrNummer",
-                    chunksize=chunksize,
-                )
-            ):
-                # For debugging purposes, check RAM usage of chunk_df
-                # chunk_df.info(memory_usage='deep')
+            # FIXME: Currently metadata is only created for technology data, Fix in #386
+            # check for latest db entry for exported technologies
+            mastr_technologies = [
+                unit_type_map_reversed[tech] for tech in technology
+            ]
+            newest_date = (
+                session.query(orm.BasicUnit.DatumLetzteAktualisierung)
+                .filter(orm.BasicUnit.Einheittyp.in_(mastr_technologies))
+                .order_by(orm.BasicUnit.DatumLetzteAktualisierung.desc())
+                .first()[0]
+            )
 
-                # Make sure no duplicate column names exist
-                assert not any(chunk_df.columns.duplicated())
+            # Configure and save data package metadata file along with data
+            save_metadata(data=technology, newest_date=newest_date)
 
-                # Remove newline statements from certain strings
-                for col in ["Aktenzeichen", "Behoerde"]:
-                    chunk_df[col] = chunk_df[col].str.replace("\r", "")
+        for additional_table in additional_tables:
 
-                to_csv(df=chunk_df, technology=tech, chunk_number=chunck_number)
+            orm_table = getattr(orm, ORM_MAP[additional_table], None)
 
-        # Create and save data package metadata file along with data
-        data_path = get_data_version_dir()
-        filenames = get_filenames()
-        metadata_file = os.path.join(data_path, filenames["metadata"])
+            query_additional_tables = Query(orm_table, session=session)
 
-        mastr_technologies = [
-            unit_type_map_reversed[tech] for tech in technology
-        ]
-        newest_date = (
-            session.query(orm.BasicUnit.DatumLetzteAktualisierung)
-            .filter(orm.BasicUnit.Einheittyp.in_(mastr_technologies))
-            .order_by(orm.BasicUnit.DatumLetzteAktualisierung.desc())
-            .first()[0]
-        )
-    metadata = datapackage_meta_json(newest_date, technology, json_serialize=False)
+            # Limit returned rows of query
+            if limit:
+                query_additional_tables = query_additional_tables.limit(limit)
+
+            to_csv(db_query=query_additional_tables, data_table=additional_table, chunksize=chunksize)
+
+
+
+
+
+
+
+
+def save_metadata(data:list = None, newest_date= None) -> None:
+    """
+
+    Parameters
+    ----------
+    data
+    newest_date
+
+    Returns
+    -------
+
+    """
+    data_path = get_data_version_dir()
+    filenames = get_filenames()
+    metadata_file = os.path.join(data_path, filenames["metadata"])
+
+    metadata = create_datapackage_meta_json(newest_date, data, json_serialize=False)
 
     with open(metadata_file, "w", encoding="utf-8") as f:
         json.dump(metadata, f, ensure_ascii=False, indent=4)
-
-
 
 def reverse_fill_basic_units(technology=None, engine=None):
     """
@@ -672,7 +683,7 @@ def partially_suffixed_columns(mapper, column_names, suffix):
     ]
 
 
-def to_csv(df: pd.DataFrame, technology: str, chunk_number: int) -> None:
+def to_csv(db_query, data_table:str, chunksize:int) -> None:
     """
     Write joined unit data to CSV file
 
@@ -693,25 +704,61 @@ def to_csv(df: pd.DataFrame, technology: str, chunk_number: int) -> None:
     data_path = get_data_version_dir()
     filenames = get_filenames()
 
-    csv_file = os.path.join(data_path, filenames["raw"][technology]["joined"])
+    # FIXME: fix filenames.yaml - add new additional tables or think about other solution or omit it and do in code
+    # table naming
+    try:
+        csv_file = os.path.join(data_path, filenames["raw"][data_table]["joined"])
+    except:
+        csv_file = os.path.join(data_path, f"{data_table}.csv")
 
-    if chunk_number == 0:
-        df.to_csv(
-            csv_file,
-            index=True,
-            index_label="EinheitMastrNummer",
-            encoding="utf-8",
-        )
-        log.info(
-            f"Technology csv: {csv_file.split('/')[-1:]} was created."
-        )
-    else:
-        df.to_csv(
-            csv_file,
-            mode="a",
-            header=False,
-            index=True,
-            index_label="EinheitMastrNummer",
-            encoding="utf-8",
-        )
-        log.info(f"Appended {len(df)} rows to {csv_file.split('/')[-1:]}.")
+    # Set index per table type
+    if data_table in TECHNOLOGIES:
+        index = True
+        index_col = "EinheitMastrNummer"
+    if data_table in ADDITIONAL_TABLES:
+        index = False
+        index_col = None
+
+    # Read data into pandas.DataFrame in chunks of max. 500000 rows of ~2.5 GB RAM
+    for chunk_number, chunk_df in enumerate(
+            pd.read_sql(
+                db_query.statement,
+                db_query.session.bind,
+                index_col=index_col,
+                chunksize=chunksize,
+            )
+
+    ):
+        # For debugging purposes, check RAM usage of chunk_df
+        # chunk_df.info(memory_usage='deep')
+
+        # Make sure no duplicate column names exist
+        assert not any(chunk_df.columns.duplicated())
+
+        # Remove newline statements from certain strings
+        if data_table in TECHNOLOGIES:
+            for col in ["Aktenzeichen", "Behoerde"]:
+                chunk_df[col] = chunk_df[col].str.replace("\r", "")
+
+        if not chunk_df.empty:
+
+            if chunk_number == 0:
+                chunk_df.to_csv(
+                    csv_file,
+                    index=index,
+                    index_label="EinheitMastrNummer",
+                    encoding="utf-8",
+                )
+                log.info(
+                    f"Technology csv: {csv_file.split('/')[-1:]} was created."
+                )
+            else:
+                chunk_df.to_csv(
+                    csv_file,
+                    mode="a",
+                    header=False,
+                    index=index,
+                    index_label="EinheitMastrNummer",
+                    encoding="utf-8",
+                )
+                log.info(f"Appended {len(chunk_df)} rows to {csv_file.split('/')[-1:]}.")
