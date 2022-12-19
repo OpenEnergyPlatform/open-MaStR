@@ -487,8 +487,10 @@ def create_db_query(
 
         for tech in technology:
 
-            # Select orm tables for specified additional_data. Filter tables that exist (are not None).
+            # Select orm tables for specified additional_data.
             orm_tables = {f"{dat}": getattr(orm, ORM_MAP[tech].get(dat, "KeyNotAvailable"), None) for dat in additional_data}
+
+            # Filter for possible orm-additional_data combinations (not None)
             orm_tables = {k:v for k,v in orm_tables.items() if v is not None}
 
             # Build query based on available tables for tech and user input; always use basic units
@@ -498,7 +500,7 @@ def create_db_query(
                 renaming["basic_data"]["suffix"],
             )
 
-            # Extend table with columns from selected addtional_data orm
+            # Extend table with columns from selected additional_data orm
             for addit_data_type, addit_data_orm in orm_tables.items():
                     subtables.extend(
                         partially_suffixed_columns(
@@ -507,33 +509,32 @@ def create_db_query(
                             renaming[addit_data_type]["suffix"],
                         )
                     )
-                )
+
             query = Query(subtables, session=session)
 
             # Define joins based on available tables for data and user input
-            if unit_data_orm and "unit_data" in additional_data:
+            if "unit_data" in orm_tables:
                 query = query.join(
-                    unit_data_orm,
-                    orm.BasicUnit.EinheitMastrNummer
-                    == unit_data_orm.EinheitMastrNummer,
+                    orm_tables["unit_data"],
+                    orm.BasicUnit.EinheitMastrNummer == orm_tables["unit_data"].EinheitMastrNummer,
                     isouter=True,
                 )
-            if eeg_data_orm and "eeg_data" in additional_data:
+            if "eeg_data" in orm_tables:
                 query = query.join(
-                    eeg_data_orm,
-                    orm.BasicUnit.EegMastrNummer == eeg_data_orm.EegMastrNummer,
+                    orm_tables["eeg_data"],
+                    orm.BasicUnit.EegMastrNummer == orm_tables["eeg_data"].EegMastrNummer,
                     isouter=True,
                 )
-            if kwk_data_orm and "kwk_data" in additional_data:
+            if "kwk_data" in orm_tables:
                 query = query.join(
-                    kwk_data_orm,
-                    orm.BasicUnit.KwkMastrNummer == kwk_data_orm.KwkMastrNummer,
+                    orm_tables["kwk_data"],
+                    orm.BasicUnit.KwkMastrNummer == orm_tables["kwk_data"].KwkMastrNummer,
                     isouter=True,
                 )
-            if permit_data_orm and "permit_data" in additional_data:
+            if "permit_data" in orm_tables:
                 query = query.join(
-                    permit_data_orm,
-                    orm.BasicUnit.GenMastrNummer == permit_data_orm.GenMastrNummer,
+                    orm_tables["permit_data"],
+                    orm.BasicUnit.GenMastrNummer == orm_tables["permit_data"].GenMastrNummer,
                     isouter=True,
                 )
 
