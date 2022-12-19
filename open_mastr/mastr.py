@@ -295,8 +295,7 @@ class Mastr:
                 "balancing_area", "electricity_consumer", "gas_consumer", "gas_producer",
                 "gas_storage", "gas_storage_extended",
                 "grid_connections", "grids", "market_actors", "market_roles",
-                "location_elec_generation","location_elec_consumption","location_gas_generation",
-                "location_gas_consumption"]
+                "locations_extended, 'permit', 'deleted_units' ]
         chunksize: int
             Defines the chunksize of the tables export. Default value is 500.000.
         limit: None or int
@@ -307,7 +306,7 @@ class Mastr:
         data_path = get_data_version_dir()
 
         # Validate and parse tables parameter TODO parameter renaming
-        validate_parameter_data(method="bulk", data=tables)
+        validate_parameter_data(method="csv_export", data=tables)
         (
             data,
             api_data_types,

@@ -58,6 +58,8 @@ ADDITIONAL_TABLES = [
     "locations_extended",
     "market_actors",
     "market_roles",
+    "permit",
+    "deleted_units"
 ]
 
 # Possible data types for API download

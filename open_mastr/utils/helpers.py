@@ -29,13 +29,15 @@ from open_mastr.utils.config import (
 from open_mastr.soap_api.download import MaStRAPI, log
 from open_mastr.utils.constants import (
     BULK_DATA,
+    TECHNOLOGIES,
     API_DATA,
     API_DATA_TYPES,
     API_LOCATION_TYPES,
     BULK_INCLUDE_TABLES_MAP,
     BULK_ADDITIONAL_TABLES_CSV_EXPORT_MAP,
     ORM_MAP,
-    UNIT_TYPE_MAP
+    UNIT_TYPE_MAP,
+    ADDITIONAL_TABLES
 )
 
 
@@ -240,6 +242,10 @@ def validate_parameter_data(method, data) -> None:
             if method == "API" and value not in API_DATA:
                 raise ValueError(
                     f"Allowed values for parameter data with API method are {API_DATA}"
+                )
+            if method == "csv_export" and value not in TECHNOLOGIES or ADDITIONAL_TABLES:
+                raise ValueError(
+                    f"Allowed values for parameter data with API method are {TECHNOLOGIES} or {ADDITIONAL_TABLES}"
                 )
 
 
