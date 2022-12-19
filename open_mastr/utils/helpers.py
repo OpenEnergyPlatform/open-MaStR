@@ -16,7 +16,7 @@ from sqlalchemy.orm import Query, sessionmaker
 
 import pandas as pd
 from tqdm import tqdm
-from open_mastr.soap_api.metadata.create import datapackage_meta_json
+from open_mastr.soap_api.metadata.create import create_datapackage_meta_json
 from open_mastr.utils import orm
 from open_mastr.utils.config import (
     setup_logger,
@@ -243,7 +243,7 @@ def validate_parameter_data(method, data) -> None:
                 raise ValueError(
                     f"Allowed values for parameter data with API method are {API_DATA}"
                 )
-            if method == "csv_export" and value not in TECHNOLOGIES or ADDITIONAL_TABLES:
+            if method == "csv_export" and value not in TECHNOLOGIES + ADDITIONAL_TABLES:
                 raise ValueError(
                     f"Allowed values for parameter data with API method are {TECHNOLOGIES} or {ADDITIONAL_TABLES}"
                 )
