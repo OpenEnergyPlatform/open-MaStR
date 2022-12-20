@@ -715,9 +715,11 @@ def to_csv(db_query, data_table:str, chunksize:int) -> None:
     if data_table in TECHNOLOGIES:
         index = True
         index_col = "EinheitMastrNummer"
+        index_label = "EinheitMastrNummer"
     if data_table in ADDITIONAL_TABLES:
         index = False
         index_col = None
+        index_label = None
 
     # Read data into pandas.DataFrame in chunks of max. 500000 rows of ~2.5 GB RAM
     for chunk_number, chunk_df in enumerate(
@@ -746,7 +748,7 @@ def to_csv(db_query, data_table:str, chunksize:int) -> None:
                 chunk_df.to_csv(
                     csv_file,
                     index=index,
-                    index_label="EinheitMastrNummer",
+                    index_label=index_label,
                     encoding="utf-8",
                 )
                 log.info(
@@ -758,7 +760,7 @@ def to_csv(db_query, data_table:str, chunksize:int) -> None:
                     mode="a",
                     header=False,
                     index=index,
-                    index_label="EinheitMastrNummer",
+                    index_label=index_label,
                     encoding="utf-8",
                 )
                 log.info(f"Appended {len(chunk_df)} rows to {csv_file.split('/')[-1:]}.")
