@@ -704,22 +704,17 @@ def to_csv(db_query, data_table:str, chunksize:int) -> None:
     data_path = get_data_version_dir()
     filenames = get_filenames()
 
-    # FIXME: fix filenames.yaml - add new additional tables or think about other solution or omit it and do in code
-    # table naming
-    try:
-        csv_file = os.path.join(data_path, filenames["raw"][data_table]["joined"])
-    except:
-        csv_file = os.path.join(data_path, f"{data_table}.csv")
-
-    # Set index per table type
+    # Set export settings per table type
     if data_table in TECHNOLOGIES:
         index = True
         index_col = "EinheitMastrNummer"
         index_label = "EinheitMastrNummer"
+        csv_file = os.path.join(data_path, filenames["raw"][data_table]["joined"])
     if data_table in ADDITIONAL_TABLES:
         index = False
         index_col = None
         index_label = None
+        csv_file = os.path.join(data_path, filenames["raw"]["additional_table"][data_table])
 
     # Read data into pandas.DataFrame in chunks of max. 500000 rows of ~2.5 GB RAM
     for chunk_number, chunk_df in enumerate(
@@ -752,7 +747,7 @@ def to_csv(db_query, data_table:str, chunksize:int) -> None:
                     encoding="utf-8",
                 )
                 log.info(
-                    f"Technology csv: {csv_file.split('/')[-1:]} was created."
+                    f"Created csv: {csv_file.split('/')[-1:]} "
                 )
             else:
                 chunk_df.to_csv(
@@ -763,4 +758,4 @@ def to_csv(db_query, data_table:str, chunksize:int) -> None:
                     index_label=index_label,
                     encoding="utf-8",
                 )
-                log.info(f"Appended {len(chunk_df)} rows to {csv_file.split('/')[-1:]}.")
+                log.info(f"Appended {len(chunk_df)} rows to: {csv_file.split('/')[-1:]}")
