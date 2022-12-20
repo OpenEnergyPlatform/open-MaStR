@@ -441,36 +441,39 @@ def reverse_unit_type_map():
 
 def create_db_query(
     technology=None,
-    limit=None,
+    additional_tables=None,
     additional_data=["unit_data", "eeg_data", "kwk_data", "permit_data"],
-    additional_tables = None,
+    limit=None,
     chunksize=500000,
     engine=None
 ):
     """
-    Export a snapshot MaStR data from mirrored database to CSV
+    Create a database query to export a snapshot MaStR data from database to CSV.
 
-    During the export, additional available data is joined on list of basic units.
-    A CSV file for each technology is
-    created separately because of multiple non-overlapping columns.
-    Duplicate columns for a single technology (a results on data from
-    different sources) are suffixed.
+    For technologies, during the query creation, additional available data is joined on list of basic units.
+    A query for a single technology is created separately because of multiple non-overlapping columns.
+    Duplicate columns for a single technology (a results on data from different sources) are suffixed.
 
     The data in the database probably has duplicates because
     of the history how data was collected in the
     Marktstammdatenregister.
 
-    Along with the CSV files, metadata is saved in the file `datapackage.json`.
+    Along with the data, metadata is saved in the file `datapackage.json`.
 
     Parameters
     ----------
-    technology: `str` or `list` of `str`
+    technology: `list` of `str`
         See list of available technologies in
-        :meth:`open_mastr.soap_api.download.py.MaStRDownload.download_power_plants`
+        `open_mastr.utils.constants.TECHNOLOGIES`
+    additional_tables: `list` of `str`
+        See list of available technologies or additional tables in
+        `open_mastr.utils.constants.ADDITIONAL_TABLES`
+    engine: <class 'sqlalchemy.engine.base.Engine'>
+        User-define database engine.
     limit: int
-        Limit number of rows
+        Limit number of rows.
     additional_data: `list`
-        Defaults to "export all available additional data" which is described by
+        Defaults to "export all available additional data" which is:
         `["unit_data", "eeg_data", "kwk_data", "permit_data"]`.
     chunksize: int or None
         Defines the chunksize of the tables export. Default to 500.000 which is roughly 2.5 GB.
