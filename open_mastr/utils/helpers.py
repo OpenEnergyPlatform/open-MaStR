@@ -582,12 +582,14 @@ def create_db_query(
 
 def save_metadata(data:list = None, newest_date= None) -> None:
     """
+    Save metadata during csv export.
 
     Parameters
     ----------
-    data
-    newest_date
-
+    data: list
+        List of exported technologies for which metadata is needed.
+    newest_date: <class 'datetime.datetime'>
+        Newest entry in database. Used for OEMetaData key `referenceDate`.
     Returns
     -------
 
