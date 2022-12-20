@@ -295,9 +295,9 @@ class Mastr:
                 "grid_connections", "grids", "market_actors", "market_roles",
                 "locations_extended, 'permit', 'deleted_units' ]
         chunksize: int
-            Defines the chunksize of the tables export. Default value is 500.000.
+            Defines the chunksize of the tables export. Default value is 500.000 rows to include in each chunk.
         limit: None or int
-            Limits the number of exported data and location units.
+            Limits the number of exported data rows.
         """
         log.info("Starting csv-export")
 
@@ -305,7 +305,7 @@ class Mastr:
 
         create_data_dir()
 
-        # Validate and parse tables parameter TODO parameter renaming
+        # Validate and parse tables parameter
         validate_parameter_data(method="csv_export", data=tables)
         (
             data,
@@ -336,7 +336,7 @@ class Mastr:
 
         log.info(f"Tables are saved to: {data_path}")
 
-        reverse_fill_basic_units(technology=technologies_to_export, engine=self.engine)
+        #reverse_fill_basic_units(technology=technologies_to_export, engine=self.engine)
 
         create_db_query(
                         technology=technologies_to_export,
