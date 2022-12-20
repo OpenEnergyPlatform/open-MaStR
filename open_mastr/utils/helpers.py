@@ -5,7 +5,6 @@ import sys
 from contextlib import contextmanager
 from datetime import date, datetime
 from warnings import warn
-from typing import Union
 
 import dateutil
 import sqlalchemy
@@ -19,8 +18,6 @@ from tqdm import tqdm
 from open_mastr.soap_api.metadata.create import create_datapackage_meta_json
 from open_mastr.utils import orm
 from open_mastr.utils.config import (
-    setup_logger,
-    create_data_dir,
     get_filenames,
     get_data_version_dir,
     column_renaming,

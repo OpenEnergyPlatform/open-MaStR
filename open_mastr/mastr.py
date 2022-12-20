@@ -1,6 +1,4 @@
 import os
-import pandas as pd
-from tqdm import tqdm
 
 # import xml dependencies
 from open_mastr.xml_download.utils_download_bulk import download_xml_Mastr
@@ -22,8 +20,7 @@ from open_mastr.utils.helpers import (
     transform_date_parameter,
     data_to_include_tables,
     create_db_query,
-    reverse_fill_basic_units,
-    to_csv
+    reverse_fill_basic_units
 )
 from open_mastr.utils.config import (
     create_data_dir,
