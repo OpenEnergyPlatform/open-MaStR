@@ -544,7 +544,7 @@ def create_db_query(
             if limit:
                 query = query.limit(limit)
 
-            to_csv(db_query=query, data_table=tech, chunksize=chunksize)
+            db_query_to_csv(db_query=query, data_table=tech, chunksize=chunksize)
 
             # FIXME: Currently metadata is only created for technology data, Fix in #386
             # check for latest db entry for exported technologies
@@ -571,7 +571,7 @@ def create_db_query(
             if limit:
                 query_additional_tables = query_additional_tables.limit(limit)
 
-            to_csv(db_query=query_additional_tables, data_table=additional_table, chunksize=chunksize)
+            db_query_to_csv(db_query=query_additional_tables, data_table=additional_table, chunksize=chunksize)
 
 
 
@@ -680,23 +680,23 @@ def partially_suffixed_columns(mapper, column_names, suffix):
     ]
 
 
-def to_csv(db_query, data_table:str, chunksize:int) -> None:
+def db_query_to_csv(db_query, data_table:str, chunksize:int) -> None:
     """
-    Write joined unit data to CSV file
+    Export database query to CSV file
 
     Save CSV files to the respective data version directory, see
-    :meth:`open_mastr.soap_api.config.get_data_version_dir`.
+    :meth:`open_mastr.utils.config.get_data_version_dir`.
 
     Parameters
     ----------
-    df: pd.DataFrame
-        Dataframe of unit data.
-    technology: str
-        See list of available technologies in
-        :meth:`open_mastr.soap_api.download.MaStRDownload.download_power_plants`.
-    chunk_number: int
-        Number of the chunk that is taken from the table. chunk_number = 0 means it is
-        the first chunk from that table.
+    db_query: <class 'sqlalchemy.orm.query.Query'>
+        QueryORM-level SQL construction object that holds tables for export.
+    data_table: str
+        See list of available technologies or additional tables in
+        `open_mastr.utils.constants.TECHNOLOGIES` and
+        `open_mastr.utils.constants.ADDITIONAL_TABLES`
+    chunksize: int
+        Defines the size of the chunks that are saved to csv. Useful when export fails due to memory issues.
     """
     data_path = get_data_version_dir()
     filenames = get_filenames()
