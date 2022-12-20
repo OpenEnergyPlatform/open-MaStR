@@ -201,14 +201,16 @@ def add_table_to_database(
     continueloop = True
     while continueloop:
         try:
-            df.to_sql(
-                sql_tablename,
-                con=engine,
-                index=False,
-                if_exists=if_exists,
-                dtype=dtypes_for_writing_sql,
-            )
-            continueloop = False
+            with engine.connect() as con:
+                with con.begin():
+                    df.to_sql(
+                        sql_tablename,
+                        con=con,
+                        index=False,
+                        if_exists=if_exists,
+                        dtype=dtypes_for_writing_sql,
+                    )
+                    continueloop = False
         except sqlalchemy.exc.OperationalError as err:
             add_missing_column_to_table(err, engine, xml_tablename)
 
