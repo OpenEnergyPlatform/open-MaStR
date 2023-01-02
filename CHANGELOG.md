@@ -9,7 +9,7 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 
 ## [v0.12.2] unreleased
 ### Added
-- Add a workflow dispatch to run CI pipelines from a button click [#389](https://github.com/OpenEnergyPlatform/open-MaStR/pull/389)
+- Add a `workflow_dispatch` to run CI pipelines from a button click [#389](https://github.com/OpenEnergyPlatform/open-MaStR/pull/389)
 ### Changed
 - Repair the csv export [#384](https://github.com/OpenEnergyPlatform/open-MaStR/pull/384)
 ### Removed
