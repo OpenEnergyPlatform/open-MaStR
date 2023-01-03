@@ -1221,26 +1221,28 @@ class MaStRMirror:
                 if limit:
                     query = query.limit(limit)
 
-                # Read data into pandas.DataFrame in chunks of max. 500000 rows of ~2.5 GB RAM
-                for chunck_number, chunk_df in enumerate(
-                    pd.read_sql(
-                        query.statement,
-                        query.session.bind,
-                        index_col="EinheitMastrNummer",
-                        chunksize=chunksize,
-                    )
-                ):
-                    # For debugging purposes, check RAM usage of chunk_df
-                    # chunk_df.info(memory_usage='deep')
+                with query.session.bind.connect() as con:
+                    with con.begin():
+                        # Read data into pandas.DataFrame in chunks of max. 500000 rows of ~2.5 GB RAM
+                        for chunck_number, chunk_df in enumerate(
+                            pd.read_sql(
+                                sql=query.statement,
+                                con=con,
+                                index_col="EinheitMastrNummer",
+                                chunksize=chunksize,
+                            )
+                        ):
+                            # For debugging purposes, check RAM usage of chunk_df
+                            # chunk_df.info(memory_usage='deep')
 
-                    # Make sure no duplicate column names exist
-                    assert not any(chunk_df.columns.duplicated())
+                            # Make sure no duplicate column names exist
+                            assert not any(chunk_df.columns.duplicated())
 
-                    # Remove newline statements from certain strings
-                    for col in ["Aktenzeichen", "Behoerde"]:
-                        chunk_df[col] = chunk_df[col].str.replace("\r", "")
+                            # Remove newline statements from certain strings
+                            for col in ["Aktenzeichen", "Behoerde"]:
+                                chunk_df[col] = chunk_df[col].str.replace("\r", "")
 
-                    to_csv(df=chunk_df, technology=tech, chunk_number=chunck_number)
+                            to_csv(df=chunk_df, technology=tech, chunk_number=chunck_number)
 
             # Create and save data package metadata file along with data
             data_path = get_data_version_dir()
