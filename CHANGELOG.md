@@ -10,8 +10,11 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 ## [v0.12.2] unreleased
 ### Added
 - Add a `workflow_dispatch` to run CI pipelines from a button click [#389](https://github.com/OpenEnergyPlatform/open-MaStR/pull/389)
+- Update version number with bump2version [#407](https://github.com/OpenEnergyPlatform/open-MaStR/pull/407)
 ### Changed
 - Repair the csv export [#384](https://github.com/OpenEnergyPlatform/open-MaStR/pull/384)
+- Replace numeric value in hydro_extended [#392](https://github.com/OpenEnergyPlatform/open-MaStR/pull/392)
+- Fix DB query errors when using SQLAlchemy v2.0 [#405](https://github.com/OpenEnergyPlatform/open-MaStR/pull/405)
 ### Removed
 
 ## [v0.12.1] Patch release - 2022-11-15

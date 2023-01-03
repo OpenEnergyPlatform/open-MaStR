@@ -94,6 +94,7 @@ columns_replace_list = [
     "ArtDerStilllegung",
     # einheitenwasser
     "ArtDesZuflusses",
+    "ArtDerWasserkraftanlage",
     # marktrollen
     # netze
     "Sparte",
