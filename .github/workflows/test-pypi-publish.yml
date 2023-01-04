@@ -4,8 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - test-release # update setup.py version number manually before pushing to branch workflow
-      - 'release-*'  # update setup.py version number manually before pushing to branch workflow
+      - test-release # update setup.py version number with bump2version (implemented in #407)
 
 jobs:
   build-n-publish:
