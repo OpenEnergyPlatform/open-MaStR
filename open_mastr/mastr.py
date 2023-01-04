@@ -20,6 +20,8 @@ from open_mastr.utils.helpers import (
     transform_date_parameter,
     data_to_include_tables,
     create_db_query,
+    db_query_to_csv,
+    save_metadata,
     reverse_fill_basic_units
 )
 from open_mastr.utils.config import (
@@ -336,12 +338,31 @@ class Mastr:
 
         log.info(f"Tables are saved to: {data_path}")
 
-        #reverse_fill_basic_units(technology=technologies_to_export, engine=self.engine)
+        reverse_fill_basic_units(technology=technologies_to_export, engine=self.engine)
 
-        create_db_query(
-                        technology=technologies_to_export,
-                        additional_tables=additional_tables_to_export,
-                        limit=limit,
-                        chunksize=chunksize,
-                        engine=self.engine
-                        )
+        # Export technologies to csv
+        for tech in technologies_to_export:
+
+            db_query_to_csv(db_query=create_db_query
+                                    (tech=tech,
+                                    limit=limit,
+                                    engine=self.engine
+                                    ),
+                            data_table=tech,
+                            chunksize=chunksize
+                            )
+        # Export additional tables to csv
+        for addit_table in additional_tables_to_export:
+
+            db_query_to_csv(db_query=create_db_query
+                                    (additional_table=addit_table,
+                                    limit=limit,
+                                    engine=self.engine
+                                    ),
+                            data_table=addit_table,
+                            chunksize=chunksize
+                            )
+
+        # FIXME: Currently metadata is only created for technology data, Fix in #386
+        # Configure and save data package metadata file along with data
+        save_metadata(data=technologies_to_export, engine=self.engine)

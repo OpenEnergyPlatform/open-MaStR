@@ -440,11 +440,10 @@ def reverse_unit_type_map():
 ##### EXPORT RELEVANT FUNCTIONS #####
 
 def create_db_query(
-    technology=None,
-    additional_tables=None,
+    tech=None,
+    additional_table=None,
     additional_data=["unit_data", "eeg_data", "kwk_data", "permit_data"],
     limit=None,
-    chunksize=500000,
     engine=None
 ):
     """
@@ -465,11 +464,11 @@ def create_db_query(
     technology: `list` of `str`
         See list of available technologies in
         `open_mastr.utils.constants.TECHNOLOGIES`
-    additional_tables: `list` of `str`
+    additional_table: `list` of `str`
         See list of available technologies or additional tables in
         `open_mastr.utils.constants.ADDITIONAL_TABLES`
     engine: <class 'sqlalchemy.engine.base.Engine'>
-        User-define database engine.
+        User-defined database engine.
     limit: int
         Limit number of rows.
     additional_data: `list`
@@ -485,7 +484,7 @@ def create_db_query(
 
     with session_scope(engine=engine) as session:
 
-        for tech in technology:
+        if tech:
 
             # Select orm tables for specified additional_data.
             orm_tables = {f"{dat}": getattr(orm, ORM_MAP[tech].get(dat, "KeyNotAvailable"), None) for dat in additional_data}
@@ -510,61 +509,46 @@ def create_db_query(
                         )
                     )
 
-            query = Query(subtables, session=session)
+            query_tech = Query(subtables, session=session)
 
             # Define joins based on available tables for data and user input
             if "unit_data" in orm_tables:
-                query = query.join(
+                query_tech = query_tech.join(
                     orm_tables["unit_data"],
                     orm.BasicUnit.EinheitMastrNummer == orm_tables["unit_data"].EinheitMastrNummer,
                     isouter=True,
                 )
             if "eeg_data" in orm_tables:
-                query = query.join(
+                query_tech = query_tech.join(
                     orm_tables["eeg_data"],
                     orm.BasicUnit.EegMastrNummer == orm_tables["eeg_data"].EegMastrNummer,
                     isouter=True,
                 )
             if "kwk_data" in orm_tables:
-                query = query.join(
+                query_tech = query_tech.join(
                     orm_tables["kwk_data"],
                     orm.BasicUnit.KwkMastrNummer == orm_tables["kwk_data"].KwkMastrNummer,
                     isouter=True,
                 )
             if "permit_data" in orm_tables:
-                query = query.join(
+                query_tech = query_tech.join(
                     orm_tables["permit_data"],
                     orm.BasicUnit.GenMastrNummer == orm_tables["permit_data"].GenMastrNummer,
                     isouter=True,
                 )
 
             # Restricted to technology
-            query = query.filter(
+            query_tech = query_tech.filter(
                 orm.BasicUnit.Einheittyp == unit_type_map_reversed[tech]
             )
 
             # Limit returned rows of query
             if limit:
-                query = query.limit(limit)
+                query_tech = query_tech.limit(limit)
 
-            db_query_to_csv(db_query=query, data_table=tech, chunksize=chunksize)
+            return query_tech
 
-            # FIXME: Currently metadata is only created for technology data, Fix in #386
-            # check for latest db entry for exported technologies
-            mastr_technologies = [
-                unit_type_map_reversed[tech] for tech in technology
-            ]
-            newest_date = (
-                session.query(orm.BasicUnit.DatumLetzteAktualisierung)
-                .filter(orm.BasicUnit.Einheittyp.in_(mastr_technologies))
-                .order_by(orm.BasicUnit.DatumLetzteAktualisierung.desc())
-                .first()[0]
-            )
-
-            # Configure and save data package metadata file along with data
-            save_metadata(data=technology, newest_date=newest_date)
-
-        for additional_table in additional_tables:
+        if additional_table:
 
             orm_table = getattr(orm, ORM_MAP[additional_table], None)
 
@@ -574,16 +558,9 @@ def create_db_query(
             if limit:
                 query_additional_tables = query_additional_tables.limit(limit)
 
-            db_query_to_csv(db_query=query_additional_tables, data_table=additional_table, chunksize=chunksize)
+            return query_additional_tables
 
-
-
-
-
-
-
-
-def save_metadata(data:list = None, newest_date= None) -> None:
+def save_metadata(data:list = None, engine=None) -> None:
     """
     Save metadata during csv export.
 
@@ -591,8 +568,9 @@ def save_metadata(data:list = None, newest_date= None) -> None:
     ----------
     data: list
         List of exported technologies for which metadata is needed.
-    newest_date: <class 'datetime.datetime'>
-        Newest entry in database. Used for OEMetaData key `referenceDate`.
+    engine: <class 'sqlalchemy.engine.base.Engine'>
+        User-defined database engine.
+
     Returns
     -------
 
@@ -600,11 +578,27 @@ def save_metadata(data:list = None, newest_date= None) -> None:
     data_path = get_data_version_dir()
     filenames = get_filenames()
     metadata_file = os.path.join(data_path, filenames["metadata"])
+    unit_type_map_reversed = reverse_unit_type_map()
+
+    with session_scope(engine=engine) as session:
+
+        # check for latest db entry for exported technologies
+        mastr_technologies = [
+            unit_type_map_reversed[tech] for tech in data
+        ]
+        newest_date = (
+            session.query(orm.BasicUnit.DatumLetzteAktualisierung)
+            .filter(orm.BasicUnit.Einheittyp.in_(mastr_technologies))
+            .order_by(orm.BasicUnit.DatumLetzteAktualisierung.desc())
+            .first()[0]
+        )
 
     metadata = create_datapackage_meta_json(newest_date, data, json_serialize=False)
 
     with open(metadata_file, "w", encoding="utf-8") as f:
         json.dump(metadata, f, ensure_ascii=False, indent=4)
+
+    log.info("Saved metadata")
 
 def reverse_fill_basic_units(technology=None, engine=None):
     """
