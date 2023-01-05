@@ -1,5 +1,6 @@
 import pytest
 import os
+from os.path import expanduser
 import sys
 import random
 from os.path import join
@@ -22,6 +23,14 @@ from open_mastr.utils.helpers import (
     reverse_unit_type_map
 )
 
+
+# Check if db is empty
+_db_exists = False
+_db_path = os.path.join(expanduser("~"), ".open-MaStR", "data", "sqlite", "open-mastr.db") # FIXME: use path in tmpdir when implemented
+if os.path.isdir(_db_path):
+    for entry in os.scandir(path=_db_path):
+        if os.path.getsize(_db_path) > 1000000: # empty db = 327.7kB < 1 MB
+            _db_exists = True
 
 @pytest.fixture
 def db():
@@ -286,7 +295,7 @@ def test_data_to_include_tables_error():
         data_to_include_tables(data=["wind", "hydro"], mapping="X32J_22")
 
 
-
+@pytest.mark.skipif(not _db_exists, reason="The database is smaller than 1 MB, thus suspected to be empty or non-existent.")
 def test_db_query_to_csv(tmpdir, engine):
     '''
     The test checks for 2 random tech and 2 random additional tables:
