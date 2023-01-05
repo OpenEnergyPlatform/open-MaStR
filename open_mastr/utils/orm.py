@@ -505,6 +505,8 @@ class GasStorageExtended(ParentAllTables, Base):
     FlurFlurstuecknummern = Column(String)
     Adresszusatz = Column(String)
     DatumBeginnVoruebergehendeStilllegung = Column(Date)
+    DatumDesBetreiberwechsels = Column(Date)
+    DatumRegistrierungDesBetreiberwechsels = Column(Date)
 
 
 class StorageUnits(ParentAllTables, Base):
@@ -833,6 +835,7 @@ tablename_mapping = {
         "replace_column_names": {
             "EegMaStRNummer": "EegMastrNummer",
             "VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheit",
+            "Zuschlagsnummer": "eegZuschlagsnummer",
         },
     },
     "anlageneegwasser": {
