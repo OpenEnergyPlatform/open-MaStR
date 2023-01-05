@@ -13,6 +13,10 @@ https://docs.pytest.org/en/7.2.x/reference/fixtures.html
 import pytest
 from open_mastr import Mastr
 
+from open_mastr.utils.config import get_project_home_dir
+from open_mastr.utils.helpers import create_database_engine
+
+
 @pytest.fixture(scope='function')
 def make_Mastr_class():
     """
@@ -34,3 +38,7 @@ def make_Mastr_class():
     return _make_Mastr_class
 
 
+
+@pytest.fixture
+def engine():
+    return create_database_engine("sqlite", get_project_home_dir())

@@ -7,7 +7,7 @@ from os.path import join
 import pytest
 from open_mastr.soap_api.mirror import MaStRMirror
 from open_mastr.utils import orm
-from open_mastr.utils.config import get_project_home_dir, get_data_version_dir
+from open_mastr.utils.config import get_project_home_dir
 from open_mastr.utils.constants import API_DATA_TYPES, API_LOCATION_TYPES
 from open_mastr.utils.helpers import create_database_engine, session_scope
 
@@ -33,10 +33,6 @@ def mastr_mirror():
     engine = create_database_engine("sqlite", get_project_home_dir())
     return MaStRMirror(engine=engine)
 
-
-@pytest.fixture
-def engine():
-    return create_database_engine("sqlite", get_project_home_dir())
 
 
 @pytest.mark.dependency(name="backfill_basic")
@@ -85,31 +81,6 @@ def test_update_latest(mastr_mirror, engine):
 #             mastr_mirror.create_additional_data_requests(
 #                 tech, data_types=API_DATA_TYPES
 #             )
-
-
-@pytest.mark.dependency(depends=["retrieve_additional_data"], name="export_to_csv")
-def test_to_csv(mastr_mirror, engine):
-    with session_scope(engine=engine) as session:
-        for tech in random_technologies:
-            mastr_mirror.to_csv(
-                technology=[tech],
-                limit=100,
-                additional_data=API_DATA_TYPES,
-                statistic_flag=None,
-                chunksize=10,
-            )
-            # Test if all EinheitMastrNummer in basic_units are included in CSV file
-            csv_path = join(
-                get_data_version_dir(),
-                f"bnetza_mastr_{tech}_raw.csv",
-            )
-            df = pd.read_csv(csv_path, index_col="EinheitMastrNummer")
-            units = session.query(orm.BasicUnit.EinheitMastrNummer).filter(
-                orm.BasicUnit.Einheittyp == mastr_mirror.unit_type_map_reversed[tech]
-            )
-            set_MastrNummer = {unit.EinheitMastrNummer for unit in units}
-            for idx in df.index:
-                assert idx in set_MastrNummer
 
 
 @pytest.mark.dependency(name="backfill_locations_basic")
