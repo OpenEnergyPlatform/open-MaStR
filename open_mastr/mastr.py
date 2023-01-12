@@ -365,4 +365,4 @@ class Mastr:
 
         # FIXME: Currently metadata is only created for technology data, Fix in #386
         # Configure and save data package metadata file along with data
-        save_metadata(data=technologies_to_export, engine=self.engine)
+        # save_metadata(data=technologies_to_export, engine=self.engine)
