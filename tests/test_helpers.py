@@ -9,7 +9,12 @@ import pandas as pd
 from open_mastr import Mastr
 
 from open_mastr.utils import orm
-from open_mastr.utils.constants import API_LOCATION_TYPES, TECHNOLOGIES, API_DATA_TYPES, ADDITIONAL_TABLES
+from open_mastr.utils.constants import (
+    API_LOCATION_TYPES,
+    TECHNOLOGIES,
+    API_DATA_TYPES,
+    ADDITIONAL_TABLES,
+)
 from open_mastr.utils.config import get_data_version_dir, create_data_dir
 from open_mastr.utils.helpers import (
     validate_parameter_format_for_download_method,
@@ -20,18 +25,21 @@ from open_mastr.utils.helpers import (
     session_scope,
     create_db_query,
     db_query_to_csv,
-    reverse_unit_type_map
+    reverse_unit_type_map,
 )
 
 
 # Check if db is empty
 _db_exists = False
-_db_path = os.path.join(expanduser("~"), ".open-MaStR", "data", "sqlite") # FIXME: use path in tmpdir when implemented
-if os.path.isdir(_db_path):
-    for entry in os.scandir(path=_db_path):
-        _db_path = os.path.join(_db_path, 'open-mastr.db')
-        if os.path.getsize(_db_path) > 1000000: # empty db = 327.7kB < 1 MB
+_db_folder_path = os.path.join(
+    expanduser("~"), ".open-MaStR", "data", "sqlite"
+)  # FIXME: use path in tmpdir when implemented
+if os.path.isdir(_db_folder_path):
+    for entry in os.scandir(path=_db_folder_path):
+        _db_path = os.path.join(_db_folder_path, "open-mastr.db")
+        if os.path.getsize(_db_path) > 1000000:  # empty db = 327.7kB < 1 MB
             _db_exists = True
+
 
 @pytest.fixture
 def db():
@@ -286,7 +294,6 @@ def test_data_to_include_tables():
     )
 
 
-
 def test_data_to_include_tables_error():
     # test for non-existent 'mapping' parameter input
     with pytest.raises(
@@ -296,9 +303,12 @@ def test_data_to_include_tables_error():
         data_to_include_tables(data=["wind", "hydro"], mapping="X32J_22")
 
 
-@pytest.mark.skipif(not _db_exists, reason="The database is smaller than 1 MB, thus suspected to be empty or non-existent.")
+@pytest.mark.skipif(
+    not _db_exists,
+    reason="The database is smaller than 1 MB, thus suspected to be empty or non-existent.",
+)
 def test_db_query_to_csv(tmpdir, engine):
-    '''
+    """
     The test checks for 2 random tech and 2 random additional tables:
     1. If csv's have been created and encoded in 'utf-8' and are not empty
     2. For techs, if limited (limit=60) EinheitMastrNummer in basic_units are included in CSV file
@@ -312,7 +322,7 @@ def test_db_query_to_csv(tmpdir, engine):
     Returns
     -------
 
-    '''
+    """
     unit_type_map_reversed = reverse_unit_type_map()
 
     # FIXME: Define path to tmpdir (pytest internal temporary dir) to not delete actual data export, when test is run locally
@@ -325,14 +335,11 @@ def test_db_query_to_csv(tmpdir, engine):
 
     with session_scope(engine=engine) as session:
         for tech in techs:
-            db_query_to_csv(db_query=create_db_query
-                                    (tech=tech,
-                                     limit=60,
-                                     engine=engine
-                                     ),
-                            data_table=tech,
-                            chunksize=20
-                            )
+            db_query_to_csv(
+                db_query=create_db_query(tech=tech, limit=60, engine=engine),
+                data_table=tech,
+                chunksize=20,
+            )
 
             # Test if LIMITED EinheitMastrNummer in basic_units are included in CSV file
             csv_path = join(
@@ -340,7 +347,9 @@ def test_db_query_to_csv(tmpdir, engine):
                 f"bnetza_mastr_{tech}_raw.csv",
             )
             # check if table has been created and encoding is correct
-            df_tech = pd.read_csv(csv_path, index_col="EinheitMastrNummer", encoding='utf-8')
+            df_tech = pd.read_csv(
+                csv_path, index_col="EinheitMastrNummer", encoding="utf-8"
+            )
 
             # check if table is empty (returns True if it is)
             assert False == df_tech.empty
@@ -363,17 +372,16 @@ def test_db_query_to_csv(tmpdir, engine):
                 f"bnetza_mastr_{addit_table}_raw.csv",
             )
 
-            db_query_to_csv(db_query=create_db_query
-                                    (additional_table=addit_table,
-                                     limit=60,
-                                     engine=engine
-                                     ),
-                            data_table=addit_table,
-                            chunksize=20
-                            )
+            db_query_to_csv(
+                db_query=create_db_query(
+                    additional_table=addit_table, limit=60, engine=engine
+                ),
+                data_table=addit_table,
+                chunksize=20,
+            )
 
             # check if table has been created and encoding is correct
-            df_at = pd.read_csv(csv_path, encoding='utf-8')
+            df_at = pd.read_csv(csv_path, encoding="utf-8")
 
             # check if table is empty (returns True if it is)
             assert False == df_at.empty
@@ -385,6 +393,7 @@ def test_db_query_to_csv(tmpdir, engine):
     # FIXME: delete when tmpdir is implemented
     # delete empty data dir
     os.rmdir(get_data_version_dir())
+
 
 def test_save_metadata():
     # FIXME: implement in #386
