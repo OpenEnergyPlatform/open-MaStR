@@ -113,7 +113,7 @@ changes in a Pull Request.
 Collaboration
 =============
 | Everyone is invited to develop this repository with good intentions.
-| Please follow the workflow described in the `CONTRIBUTING.md <CONTRIBUTING.md>`_.
+| Please follow the workflow described in the `CONTRIBUTING.md <https://github.com/OpenEnergyPlatform/open-MaStR/blob/production/CONTRIBUTING.md>`_.
 
 
 License and Citation
@@ -123,8 +123,8 @@ Software
 --------
 
 | This repository is licensed under the **GNU Affero General Public License v3.0 or later** (AGPL-3.0-or-later).
-| See `LICENSE.txt <LICENSE.txt>`_ for rights and obligations.
-| See the *Cite this repository* function or `CITATION.cff <CITATION.cff>`_ for citation of this repository.
+| See `LICENSE.md <https://github.com/OpenEnergyPlatform/open-MaStR/blob/production/LICENSE.md>`_ for rights and obligations.
+| See the *Cite this repository* function or `CITATION.cff <https://github.com/OpenEnergyPlatform/open-MaStR/blob/production/CITATION.cff>`_ for citation of this repository.
 | Copyright: `open-MaStR <https://github.com/OpenEnergyPlatform/open-MaStR/>`_ © `Reiner Lemoine Institut <https://reiner-lemoine-institut.de/>`_ © `fortiss <https://www.fortiss.org/>`_  | `AGPL-3.0-or-later <https://www.gnu.org/licenses/agpl-3.0.txt>`_
 
 Data
