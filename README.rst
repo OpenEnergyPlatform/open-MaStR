@@ -104,7 +104,7 @@ Examples of Usage
 ==================
 If you want to see your project in this list, write an  
 `Issue <https://github.com/OpenEnergyPlatform/open-MaStR/issues>`_ or add
-changes in a Pull Request.
+changes in a `Pull Request <https://github.com/OpenEnergyPlatform/open-MaStR/pulls>`_.
 
 - 
 
