@@ -58,6 +58,8 @@ ADDITIONAL_TABLES = [
     "locations_extended",
     "market_actors",
     "market_roles",
+    "permit",
+    "deleted_units"
 ]
 
 # Possible data types for API download
@@ -113,5 +115,84 @@ BULK_ADDITIONAL_TABLES_CSV_EXPORT_MAP = {
     "grid": ["grid_connections", "grids"],
     "balancing_area": ["balancing_area"],
     "permit": ["permit"],
-    "deleted_units": ["deleted_units"]
+    "deleted_units": ["deleted_units"],
+}
+
+# used to map the parameter options in open-mastr to the exact table class names in orm.py
+ORM_MAP = {
+    "wind": {
+        "unit_data": "WindExtended",
+        "eeg_data": "WindEeg",
+        "permit_data": "Permit",
+    },
+    "solar": {
+        "unit_data": "SolarExtended",
+        "eeg_data": "SolarEeg",
+        "permit_data": "Permit",
+    },
+    "biomass": {
+        "unit_data": "BiomassExtended",
+        "eeg_data": "BiomassEeg",
+        "kwk_data": "Kwk",
+        "permit_data": "Permit",
+    },
+    "combustion": {
+        "unit_data": "CombustionExtended",
+        "kwk_data": "Kwk",
+        "permit_data": "Permit",
+    },
+    "gsgk": {
+        "unit_data": "GsgkExtended",
+        "eeg_data": "GsgkEeg",
+        "kwk_data": "Kwk",
+        "permit_data": "Permit",
+    },
+    "hydro": {
+        "unit_data": "HydroExtended",
+        "eeg_data": "HydroEeg",
+        "permit_data": "Permit",
+    },
+    "nuclear": {
+        "unit_data": "NuclearExtended",
+        "permit_data": "Permit"
+    },
+    "storage": {
+        "unit_data": "StorageExtended",
+        "eeg_data": "StorageEeg",
+        "permit_data": "Permit",
+    },
+    "gas_consumer": "GasConsumer",
+    "gas_producer": "GasProducer",
+    "gas_storage": "GasStorage",
+    "gas_storage_extended": "GasStorageExtended",
+    "electricity_consumer": "ElectricityConsumer",
+    "locations_extended": "LocationExtended",
+    "market_actors": "MarketActors",
+    "market_roles": "MarketRoles",
+    "grid_connections": "GridConnections",
+    "grids": "Grids",
+    "balancing_area": "BalancingArea",
+    "permit": "Permit",
+    "deleted_units": "DeletedUnits"
+}
+
+
+
+UNIT_TYPE_MAP = {
+    "Windeinheit": "wind",
+    "Solareinheit": "solar",
+    "Biomasse": "biomass",
+    "Wasser": "hydro",
+    "Geothermie": "gsgk",
+    "Verbrennung": "combustion",
+    "Kernenergie": "nuclear",
+    "Stromspeichereinheit": "storage",
+    "Gasspeichereinheit": "gas_storage",
+    "Gasverbrauchseinheit": "gas_consumer",
+    "Stromverbrauchseinheit": "electricity_consumer",
+    "Gaserzeugungseinheit": "gas_producer",
+    "Stromerzeugungslokation": "location_elec_generation",
+    "Stromverbrauchslokation": "location_elec_consumption",
+    "Gaserzeugungslokation": "location_gas_generation",
+    "Gasverbrauchslokation": "location_gas_consumption",
 }

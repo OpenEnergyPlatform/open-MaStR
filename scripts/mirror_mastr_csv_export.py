@@ -1,4 +1,4 @@
-from open_mastr.soap_api.mirror import MaStRMirror
+from open_mastr.utils.helpers import (reverse_fill_basic_units, create_db_query)
 
 
 technology = [
@@ -20,12 +20,10 @@ location_types = [
     "location_gas_consumption",
 ]
 
-mastr_refl = MaStRMirror()
-
 # Fill the basic_units table from extended tables
-mastr_refl.reverse_fill_basic_units()
+reverse_fill_basic_units()
 
 # to csv per tech
-mastr_refl.to_csv(
-    technology=technology, additional_data=data_types, statistic_flag=None, limit=None
+create_db_query(
+    technology=technology, additional_data=data_types, limit=None
 )

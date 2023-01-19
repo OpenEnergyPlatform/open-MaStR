@@ -9,7 +9,7 @@ from open_mastr.utils.config import (
     get_filenames,
     get_data_version_dir,
 )
-from open_mastr.soap_api.metadata.create import datapackage_meta_json
+from open_mastr.soap_api.metadata.create import create_datapackage_meta_json
 from open_mastr.utils.constants import TECHNOLOGIES
 from open_mastr.utils.credentials import get_zenodo_token
 
@@ -120,7 +120,7 @@ def save_cleaned_data(data):
 
     # Save metadata along with data
     metadata_file = os.path.join(data_dir, filenames["metadata"])
-    metadata = datapackage_meta_json(
+    metadata = create_datapackage_meta_json(
         newest_date, data.keys(), data=["raw", "cleaned"], json_serialize=False
     )
 

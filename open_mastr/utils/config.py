@@ -26,7 +26,7 @@ from datetime import date
 
 import logging
 import logging.config
-from open_mastr.utils.constants import TECHNOLOGIES, API_LOCATION_TYPES
+from open_mastr.utils.constants import TECHNOLOGIES, API_LOCATION_TYPES, ADDITIONAL_TABLES
 
 
 log = logging.getLogger(__name__)
@@ -192,10 +192,10 @@ def _filenames_generator():
                 files = ["joined", "basic", "extended", "extended_fail"]
 
                 # Additional file for some technologies
-                for t, techs in type_specific_data.items():
+                for addit_data_type, techs in type_specific_data.items():
                     if tech in techs:
-                        files.append(t)
-                        files.append(t + "_fail")
+                        files.append(addit_data_type)
+                        files.append(addit_data_type + "_fail")
 
                     # Create filename dictionary for one technologies
                     tmp = {
@@ -220,6 +220,11 @@ def _filenames_generator():
         # Add filenames for location data
         filenames["raw"].update(
             {loc: f"{prefix}_{loc}_raw.csv" for loc in API_LOCATION_TYPES}
+        )
+
+        # Add filenames for additional tables
+        filenames["raw"].update({"additional_table":
+            {addit_table: f"{prefix}_{addit_table}_raw.csv" for addit_table in ADDITIONAL_TABLES}}
         )
 
         # Add metadata file
@@ -281,7 +286,7 @@ def column_renaming():
     """
     return {
         "basic_data": {
-            "columns": ["StatisikFlag", "BestandsanlageMastrNummer"],
+            "columns": ["BestandsanlageMastrNummer"],
             "suffix": "basic",
         },
         "unit_data": {
