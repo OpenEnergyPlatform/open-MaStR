@@ -10,6 +10,7 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 ## [v0.12.2] unreleased
 ### Added
 - Update version number with bump2version [#407](https://github.com/OpenEnergyPlatform/open-MaStR/pull/407)
+- Add usage examples to Readme [#419](https://github.com/OpenEnergyPlatform/open-MaStR/pull/419)
 ### Changed
 - Repair the csv export [#384](https://github.com/OpenEnergyPlatform/open-MaStR/pull/384)
 - Replace numeric value in hydro_extended [#392](https://github.com/OpenEnergyPlatform/open-MaStR/pull/392)
