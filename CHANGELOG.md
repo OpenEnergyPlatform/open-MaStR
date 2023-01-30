@@ -11,6 +11,7 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 ### Added
 - Add a `workflow_dispatch` to run CI pipelines from a button click [#389](https://github.com/OpenEnergyPlatform/open-MaStR/pull/389)
 - Update version number with bump2version [#407](https://github.com/OpenEnergyPlatform/open-MaStR/pull/407)
+- Check if the zipped file is corrupted [#422](https://github.com/OpenEnergyPlatform/open-MaStR/pull/422)
 ### Changed
 - Repair the csv export [#384](https://github.com/OpenEnergyPlatform/open-MaStR/pull/384)
 - Refactor csv export for better maintainability [#401](https://github.com/OpenEnergyPlatform/open-MaStR/pull/401)
