@@ -106,8 +106,6 @@ If you want to see your project in this list, write an
 `Issue <https://github.com/OpenEnergyPlatform/open-MaStR/issues>`_ or add
 changes in a `Pull Request <https://github.com/OpenEnergyPlatform/open-MaStR/pulls>`_.
 
-`documentation <https://open-mastr.readthedocs.io/en/latest/>`_
-
 - `PV- und Windflächenrechner <https://www.agora-energiewende.de/service/pv-und-windflaechenrechner/>`_
 - `Wasserstoffatlas <https://wasserstoffatlas.de/>`_
 - `EE-Status App <https://ee-status.herokuapp.com/>`_
