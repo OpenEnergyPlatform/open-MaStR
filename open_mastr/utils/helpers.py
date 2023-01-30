@@ -34,7 +34,7 @@ from open_mastr.utils.constants import (
     BULK_ADDITIONAL_TABLES_CSV_EXPORT_MAP,
     ORM_MAP,
     UNIT_TYPE_MAP,
-    ADDITIONAL_TABLES
+    ADDITIONAL_TABLES,
 )
 
 
@@ -431,20 +431,19 @@ def data_to_include_tables(data: list, mapping: str = None) -> list:
     )
 
 
-
-
 def reverse_unit_type_map():
     return {v: k for k, v in UNIT_TYPE_MAP.items()}
 
 
 ##### EXPORT RELEVANT FUNCTIONS #####
 
+
 def create_db_query(
     tech=None,
     additional_table=None,
     additional_data=["unit_data", "eeg_data", "kwk_data", "permit_data"],
     limit=None,
-    engine=None
+    engine=None,
 ):
     """
     Create a database query to export a snapshot MaStR data from database to CSV.
@@ -487,10 +486,13 @@ def create_db_query(
         if tech:
 
             # Select orm tables for specified additional_data.
-            orm_tables = {f"{dat}": getattr(orm, ORM_MAP[tech].get(dat, "KeyNotAvailable"), None) for dat in additional_data}
+            orm_tables = {
+                f"{dat}": getattr(orm, ORM_MAP[tech].get(dat, "KeyNotAvailable"), None)
+                for dat in additional_data
+            }
 
             # Filter for possible orm-additional_data combinations (not None)
-            orm_tables = {k:v for k,v in orm_tables.items() if v is not None}
+            orm_tables = {k: v for k, v in orm_tables.items() if v is not None}
 
             # Build query based on available tables for tech and user input; always use basic units
             subtables = partially_suffixed_columns(
@@ -501,13 +503,13 @@ def create_db_query(
 
             # Extend table with columns from selected additional_data orm
             for addit_data_type, addit_data_orm in orm_tables.items():
-                    subtables.extend(
-                        partially_suffixed_columns(
-                            addit_data_orm,
-                            renaming[addit_data_type]["columns"],
-                            renaming[addit_data_type]["suffix"],
-                        )
+                subtables.extend(
+                    partially_suffixed_columns(
+                        addit_data_orm,
+                        renaming[addit_data_type]["columns"],
+                        renaming[addit_data_type]["suffix"],
                     )
+                )
 
             query_tech = Query(subtables, session=session)
 
@@ -515,25 +517,29 @@ def create_db_query(
             if "unit_data" in orm_tables:
                 query_tech = query_tech.join(
                     orm_tables["unit_data"],
-                    orm.BasicUnit.EinheitMastrNummer == orm_tables["unit_data"].EinheitMastrNummer,
+                    orm.BasicUnit.EinheitMastrNummer
+                    == orm_tables["unit_data"].EinheitMastrNummer,
                     isouter=True,
                 )
             if "eeg_data" in orm_tables:
                 query_tech = query_tech.join(
                     orm_tables["eeg_data"],
-                    orm.BasicUnit.EegMastrNummer == orm_tables["eeg_data"].EegMastrNummer,
+                    orm.BasicUnit.EegMastrNummer
+                    == orm_tables["eeg_data"].EegMastrNummer,
                     isouter=True,
                 )
             if "kwk_data" in orm_tables:
                 query_tech = query_tech.join(
                     orm_tables["kwk_data"],
-                    orm.BasicUnit.KwkMastrNummer == orm_tables["kwk_data"].KwkMastrNummer,
+                    orm.BasicUnit.KwkMastrNummer
+                    == orm_tables["kwk_data"].KwkMastrNummer,
                     isouter=True,
                 )
             if "permit_data" in orm_tables:
                 query_tech = query_tech.join(
                     orm_tables["permit_data"],
-                    orm.BasicUnit.GenMastrNummer == orm_tables["permit_data"].GenMastrNummer,
+                    orm.BasicUnit.GenMastrNummer
+                    == orm_tables["permit_data"].GenMastrNummer,
                     isouter=True,
                 )
 
@@ -560,7 +566,8 @@ def create_db_query(
 
             return query_additional_tables
 
-def save_metadata(data:list = None, engine=None) -> None:
+
+def save_metadata(data: list = None, engine=None) -> None:
     """
     Save metadata during csv export.
 
@@ -583,9 +590,7 @@ def save_metadata(data:list = None, engine=None) -> None:
     with session_scope(engine=engine) as session:
 
         # check for latest db entry for exported technologies
-        mastr_technologies = [
-            unit_type_map_reversed[tech] for tech in data
-        ]
+        mastr_technologies = [unit_type_map_reversed[tech] for tech in data]
         newest_date = (
             session.query(orm.BasicUnit.DatumLetzteAktualisierung)
             .filter(orm.BasicUnit.Einheittyp.in_(mastr_technologies))
@@ -599,6 +604,7 @@ def save_metadata(data:list = None, engine=None) -> None:
         json.dump(metadata, f, ensure_ascii=False, indent=4)
 
     log.info("Saved metadata")
+
 
 def reverse_fill_basic_units(technology=None, engine=None):
     """
@@ -679,7 +685,7 @@ def partially_suffixed_columns(mapper, column_names, suffix):
     ]
 
 
-def db_query_to_csv(db_query, data_table:str, chunksize:int) -> None:
+def db_query_to_csv(db_query, data_table: str, chunksize: int) -> None:
     """
     Export database query to CSV file
 
@@ -710,48 +716,51 @@ def db_query_to_csv(db_query, data_table:str, chunksize:int) -> None:
         index = False
         index_col = None
         index_label = None
-        csv_file = os.path.join(data_path, filenames["raw"]["additional_table"][data_table])
+        csv_file = os.path.join(
+            data_path, filenames["raw"]["additional_table"][data_table]
+        )
 
-    # Read data into pandas.DataFrame in chunks of max. 500000 rows of ~2.5 GB RAM
-    for chunk_number, chunk_df in enumerate(
-            pd.read_sql(
-                db_query.statement,
-                db_query.session.bind,
-                index_col=index_col,
-                chunksize=chunksize,
-            )
-
-    ):
-        # For debugging purposes, check RAM usage of chunk_df
-        # chunk_df.info(memory_usage='deep')
-
-        # Make sure no duplicate column names exist
-        assert not any(chunk_df.columns.duplicated())
-
-        # Remove newline statements from certain strings
-        if data_table in TECHNOLOGIES:
-            for col in ["Aktenzeichen", "Behoerde"]:
-                chunk_df[col] = chunk_df[col].str.replace("\r", "")
-
-        if not chunk_df.empty:
-
-            if chunk_number == 0:
-                chunk_df.to_csv(
-                    csv_file,
-                    index=index,
-                    index_label=index_label,
-                    encoding="utf-8",
+    with db_query.session.bind.connect() as con:
+        with con.begin():
+            # Read data into pandas.DataFrame in chunks of max. 500000 rows of ~2.5 GB RAM
+            for chunk_number, chunk_df in enumerate(
+                pd.read_sql(
+                    sql=db_query.statement,
+                    con=con,
+                    index_col=index_col,
+                    chunksize=chunksize,
                 )
-                log.info(
-                    f"Created csv: {csv_file.split('/')[-1:]} "
-                )
-            else:
-                chunk_df.to_csv(
-                    csv_file,
-                    mode="a",
-                    header=False,
-                    index=index,
-                    index_label=index_label,
-                    encoding="utf-8",
-                )
-                log.info(f"Appended {len(chunk_df)} rows to: {csv_file.split('/')[-1:]}")
+            ):
+                # For debugging purposes, check RAM usage of chunk_df
+                # chunk_df.info(memory_usage='deep')
+
+                # Make sure no duplicate column names exist
+                assert not any(chunk_df.columns.duplicated())
+
+                # Remove newline statements from certain strings
+                if data_table in TECHNOLOGIES:
+                    for col in ["Aktenzeichen", "Behoerde"]:
+                        chunk_df[col] = chunk_df[col].str.replace("\r", "")
+
+                if not chunk_df.empty:
+
+                    if chunk_number == 0:
+                        chunk_df.to_csv(
+                            csv_file,
+                            index=index,
+                            index_label=index_label,
+                            encoding="utf-8",
+                        )
+                        log.info(f"Created csv: {csv_file.split('/')[-1:]} ")
+                    else:
+                        chunk_df.to_csv(
+                            csv_file,
+                            mode="a",
+                            header=False,
+                            index=index,
+                            index_label=index_label,
+                            encoding="utf-8",
+                        )
+                        log.info(
+                            f"Appended {len(chunk_df)} rows to: {csv_file.split('/')[-1:]}"
+                        )

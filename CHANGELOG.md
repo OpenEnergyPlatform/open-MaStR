@@ -20,6 +20,7 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 - New columns introduced [#409](https://github.com/OpenEnergyPlatform/open-MaStR/pull/409)
 - Replace numeric value in combustion [#413](https://github.com/OpenEnergyPlatform/open-MaStR/pull/413)
 - Filenames.yml is created everytime Mastr class is called [#415](https://github.com/OpenEnergyPlatform/open-MaStR/pull/415)
+- Omit connectionless DB query (SQLAlchemy v2.0 compatibility) [#421](https://github.com/OpenEnergyPlatform/open-MaStR/pull/421)
 ### Removed
 - Option to filter & export by parameter StatistikFlag [#401](https://github.com/OpenEnergyPlatform/open-MaStR/pull/401)
 
