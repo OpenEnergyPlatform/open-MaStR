@@ -50,7 +50,6 @@ setup(
         "tqdm",
         "requests",
         "keyring",
-        "pynodo",
         "tqdm",
         "beautifulsoup4",
         "pyyaml",

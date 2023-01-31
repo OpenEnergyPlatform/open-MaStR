@@ -385,51 +385,6 @@ def flatten_dict(data: list, serialize_with_json: bool = False) -> list:
     return data
 
 
-def to_csv(df: pd.DataFrame, technology: str, chunk_number: int) -> None:
-    """
-    Write joined unit data to CSV file
-
-    Save CSV files to the respective data version directory, see
-    :meth:`open_mastr.soap_api.config.get_data_version_dir`.
-
-    Parameters
-    ----------
-    df: pd.DataFrame
-        Dataframe of unit data.
-    technology: str
-        See list of available technologies in
-        :meth:`open_mastr.soap_api.download.MaStRDownload.download_power_plants`.
-    chunk_number: int
-        Number of the chunk that is taken from the table. chunk_number = 0 means it is
-        the first chunk from that table.
-    """
-    data_path = get_data_version_dir()
-    filenames = get_filenames()
-
-    csv_file = os.path.join(data_path, filenames["raw"][technology]["joined"])
-
-    if chunk_number == 0:
-        df.to_csv(
-            csv_file,
-            index=True,
-            index_label="EinheitMastrNummer",
-            encoding="utf-8",
-        )
-        log.info(
-            f"Technology csv: {csv_file.split('/')[-1:]} was created."
-        )
-    else:
-        df.to_csv(
-            csv_file,
-            mode="a",
-            header=False,
-            index=True,
-            index_label="EinheitMastrNummer",
-            encoding="utf-8",
-        )
-        log.info(f"Appended {len(df)} rows to {csv_file.split('/')[-1:]}.")
-
-
 def _missed_units_to_file(data, data_type, missed_units):
     """
     Write IDs of missed units to file
@@ -738,7 +693,7 @@ class MaStRDownload:
         # Remove duplicates
         joined_data.drop_duplicates(inplace=True)
 
-        to_csv(joined_data, data)
+        to_csv(joined_data, data) #FIXME: reference to helpers im import
 
         return joined_data
 

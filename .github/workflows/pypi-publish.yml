@@ -1,6 +1,7 @@
 name: Build 📦 and release on pypi
 
 on:
+  workflow_dispatch:
   release:
     types: [published]
 

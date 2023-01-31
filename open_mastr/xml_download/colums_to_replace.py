@@ -91,6 +91,7 @@ columns_replace_list = [
     # einheitentypen
     # einheitenverbrennung
     "WeitererHauptbrennstoff",
+    "WeitereBrennstoffe",
     "ArtDerStilllegung",
     # einheitenwasser
     "ArtDesZuflusses",
