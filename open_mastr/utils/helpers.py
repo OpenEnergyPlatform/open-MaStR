@@ -58,26 +58,8 @@ def create_database_engine(engine, home_directory) -> sqlalchemy.engine.Engine:
         db_url = f"sqlite:///{sqlite_database_path}"
         return create_engine(db_url)
 
-    if engine == "docker-postgres":
-        db_url = (
-            "postgresql+psycopg2://open-mastr:open-mastr@localhost:55443/open-mastr"
-        )
-        setup_docker()
-        return create_engine(db_url)
-
     if type(engine) == sqlalchemy.engine.Engine:
         return engine
-
-
-def setup_docker():
-    """Initialize a PostgreSQL database with docker-compose"""
-
-    conf_file_path = os.path.abspath(os.path.dirname(__file__))
-    print(conf_file_path)
-    subprocess.run(
-        ["docker-compose", "up", "-d"],
-        cwd=conf_file_path,
-    )
 
 
 def parse_date_string(bulk_date_string: str) -> str:
@@ -88,12 +70,10 @@ def parse_date_string(bulk_date_string: str) -> str:
 
 
 def validate_parameter_format_for_mastr_init(engine) -> None:
-    if engine not in ["sqlite", "docker-postgres"] and not isinstance(
-        engine, sqlalchemy.engine.Engine
-    ):
+    if engine not in ["sqlite"] and not isinstance(engine, sqlalchemy.engine.Engine):
         raise ValueError(
             "parameter engine has to be either 'sqlite' "
-            "or 'docker-postgres' or an sqlalchemy.engine.Engine object."
+            "or an sqlalchemy.engine.Engine object."
         )
 
 
