@@ -26,6 +26,7 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 ### Removed
 - Option to filter & export by parameter StatistikFlag [#401](https://github.com/OpenEnergyPlatform/open-MaStR/pull/401)
 - Removed unused package pynodo from dependencies [#424](https://github.com/OpenEnergyPlatform/open-MaStR/pull/424)
+- Removed feature for dockered databases [#426](https://github.com/OpenEnergyPlatform/open-MaStR/pull/426)
 ## [v0.12.1] Patch release - 2022-11-15
 ### Added
 - Add workflows to release on PyPI and Test-PyPI [#375](https://github.com/OpenEnergyPlatform/open-MaStR/pull/375)
