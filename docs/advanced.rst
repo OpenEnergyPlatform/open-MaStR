@@ -55,7 +55,6 @@ by the parameter `engine` in the Mastr class (see :ref:`mastr module`). The poss
 
 * sqlite: By default the database will be stored in `$HOME/.open-MaStR/data/sqlite/open-mastr.db` (can be customized via the
   :ref:`environment variable <Environment variables>` `$SQLITE_DATABASE_PATH`).
-* docker-postgres: A docker container of a PostgreSQL database. 
 * own database: The Mastr class accepts a sqlalchemy.engine.Engine object as engine which enables the user to 
   use any other desired database.
 .. tabs::
@@ -213,7 +212,7 @@ Database settings
 Configure your database with the `engine` parameter of :class:`Mastr`.
 It defines the engine of the database where the MaStR is mirrored to. Default is 'sqlite'.
 
-Choose from: {'sqlite', 'docker-postgres', sqlalchemy.engine.Engine}
+Choose from: {'sqlite', sqlalchemy.engine.Engine}
 
 
 API download settings
