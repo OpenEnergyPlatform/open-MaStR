@@ -12,7 +12,6 @@ from open_mastr.utils import orm
 from open_mastr.utils.constants import (
     API_LOCATION_TYPES,
     TECHNOLOGIES,
-    API_DATA_TYPES,
     ADDITIONAL_TABLES,
 )
 from open_mastr.utils.config import get_data_version_dir, create_data_dir
@@ -298,7 +297,8 @@ def test_data_to_include_tables_error():
     # test for non-existent 'mapping' parameter input
     with pytest.raises(
         NotImplementedError,
-        match="This function is only implemented for 'write_xml' and 'export_db_tables', please specify when calling the function.",
+        match="This function is only implemented for 'write_xml' and 'export_db_tables',"
+        " please specify when calling the function.",
     ):
         data_to_include_tables(data=["wind", "hydro"], mapping="X32J_22")
 
@@ -325,7 +325,8 @@ def test_db_query_to_csv(tmpdir, engine):
     """
     unit_type_map_reversed = reverse_unit_type_map()
 
-    # FIXME: Define path to tmpdir (pytest internal temporary dir) to not delete actual data export, when test is run locally
+    # FIXME: Define path to tmpdir (pytest internal temporary dir)
+    # to not delete actual data export, when test is run locally
     #  Use the parameter that will be implemented in #394
     # create data dir
     create_data_dir()
@@ -351,7 +352,7 @@ def test_db_query_to_csv(tmpdir, engine):
                 csv_path, index_col="EinheitMastrNummer", encoding="utf-8"
             )
 
-            # check if table is empty (returns True if it is)
+            # check whether table is empty (returns True if it is)
             assert False == df_tech.empty
 
             units = session.query(orm.BasicUnit.EinheitMastrNummer).filter(
