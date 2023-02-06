@@ -21,7 +21,6 @@ from open_mastr.utils.helpers import (
     data_to_include_tables,
     create_db_query,
     db_query_to_csv,
-    save_metadata,
     reverse_fill_basic_units,
 )
 from open_mastr.utils.config import (
@@ -139,8 +138,9 @@ class Mastr:
         date: None or :class:`datetime.datetime` or str, optional
             For bulk method:
 
-            Either "today" or None if the newest data dump should be downloaded from the MaStR website. If
-            an already downloaded dump should be used, state the date of the download in the format
+            Either "today" or None if the newest data dump should be downloaded
+            rom the MaStR website. If an already downloaded dump should be used,
+            state the date of the download in the format
             "yyyymmdd". Defaults to None.
 
             For API method:
@@ -242,7 +242,8 @@ class Mastr:
             if api_processes:
                 api_processes = None
                 print(
-                    "Warning: The implementation of parallel processes is currently under construction. Please let "
+                    "Warning: The implementation of parallel processes "
+                    "is currently under construction. Please let "
                     "the argument api_processes at the default value None."
                 )
 
@@ -300,7 +301,8 @@ class Mastr:
                 "grid_connections", "grids", "market_actors", "market_roles",
                 "locations_extended, 'permit', 'deleted_units' ]
         chunksize: int
-            Defines the chunksize of the tables export. Default value is 500.000 rows to include in each chunk.
+            Defines the chunksize of the tables export.
+            Default value is 500.000 rows to include in each chunk.
         limit: None or int
             Limits the number of exported data rows.
         """
