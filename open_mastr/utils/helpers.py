@@ -1,6 +1,5 @@
 import os
 import json
-import subprocess
 import sys
 from contextlib import contextmanager
 from datetime import date, datetime
@@ -8,7 +7,7 @@ from warnings import warn
 
 import dateutil
 import sqlalchemy
-from sqlalchemy.sql import exists, insert, literal_column
+from sqlalchemy.sql import insert, literal_column
 from dateutil.parser import parse
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Query, sessionmaker
@@ -185,7 +184,8 @@ def validate_parameter_date(method, date) -> None:
     elif method == "API":
         if not isinstance(date, datetime) and date != "latest":
             raise ValueError(
-                "parameter api_date has to be 'latest' or a datetime object or 'None' for API method."
+                "parameter api_date has to be 'latest' or a datetime object or 'None'"
+                " for API method."
             )
 
 
@@ -222,7 +222,8 @@ def validate_parameter_data(method, data) -> None:
                 )
             if method == "csv_export" and value not in TECHNOLOGIES + ADDITIONAL_TABLES:
                 raise ValueError(
-                    f"Allowed values for parameter data with API method are {TECHNOLOGIES} or {ADDITIONAL_TABLES}"
+                    "Allowed values for parameter data with API method are "
+                    f"{TECHNOLOGIES} or {ADDITIONAL_TABLES}"
                 )
 
 
@@ -342,7 +343,8 @@ def print_api_settings(
     if "permit" in harmonisation_log:
         print(
             f"data_types: {api_data_types}" "\033[31m",
-            "Attention, 'permit_data' was automatically set in api_data_types, as you defined 'permit' in parameter data_api.",
+            "Attention, 'permit_data' was automatically set in api_data_types, "
+            "as you defined 'permit' in parameter data_api.",
             "\033[m",
         )
 
@@ -353,10 +355,11 @@ def print_api_settings(
         print(
             "location_types:",
             "\033[31m",
-            f"Attention, 'location' is in parameter data. location_types are set to",
+            "Attention, 'location' is in parameter data. location_types are set to",
             "\033[m",
             f"{api_location_types}"
-            "\n                 If you want to change location_types, please remove 'location' from data_api and specify api_location_types."
+            "\n                 If you want to change location_types, please remove 'location' "
+            "from data_api and specify api_location_types."
             "\n   ------------------  \n",
         )
 
@@ -407,7 +410,8 @@ def data_to_include_tables(data: list, mapping: str = None) -> list:
         return include_tables
 
     raise NotImplementedError(
-        "This function is only implemented for 'write_xml' and 'export_db_tables', please specify when calling the function."
+        "This function is only implemented for 'write_xml' and 'export_db_tables', "
+        "please specify when calling the function."
     )
 
 
@@ -415,7 +419,7 @@ def reverse_unit_type_map():
     return {v: k for k, v in UNIT_TYPE_MAP.items()}
 
 
-##### EXPORT RELEVANT FUNCTIONS #####
+# EXPORT RELEVANT FUNCTIONS
 
 
 def create_db_query(
@@ -428,9 +432,10 @@ def create_db_query(
     """
     Create a database query to export a snapshot MaStR data from database to CSV.
 
-    For technologies, during the query creation, additional available data is joined on list of basic units.
-    A query for a single technology is created separately because of multiple non-overlapping columns.
-    Duplicate columns for a single technology (a results on data from different sources) are suffixed.
+    For technologies, during the query creation, additional available data is joined on
+    list of basic units. A query for a single technology is created separately because
+    of multiple non-overlapping columns. Duplicate columns for a single technology
+    (a results on data from different sources) are suffixed.
 
     The data in the database probably has duplicates because
     of the history how data was collected in the
@@ -681,7 +686,8 @@ def db_query_to_csv(db_query, data_table: str, chunksize: int) -> None:
         `open_mastr.utils.constants.TECHNOLOGIES` and
         `open_mastr.utils.constants.ADDITIONAL_TABLES`
     chunksize: int
-        Defines the size of the chunks that are saved to csv. Useful when export fails due to memory issues.
+        Defines the size of the chunks that are saved to csv.
+        Useful when export fails due to memory issues.
     """
     data_path = get_data_version_dir()
     filenames = get_filenames()
