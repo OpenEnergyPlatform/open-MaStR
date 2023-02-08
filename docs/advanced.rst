@@ -51,33 +51,14 @@ If the zipped dump of the MaStR is downloaded, it is saved in the folder `$HOME/
 of the dump overwrite older versions. 
 
 The data can then be written to an sql database. The type of the sql database is determined
-by the parameter `engine` in the Mastr class (see :ref:`mastr module`). The possible databases are:
+by the parameter `engine` in the Mastr class (see :ref:`mastr module`).
 
-* sqlite: By default the database will be stored in `$HOME/.open-MaStR/data/sqlite/open-mastr.db` (can be customized via the
-  :ref:`environment variable <Environment variables>` `$SQLITE_DATABASE_PATH`).
-* docker-postgres: A docker container of a PostgreSQL database. 
-* own database: The Mastr class accepts a sqlalchemy.engine.Engine object as engine which enables the user to 
-  use any other desired database.
-.. tabs::
+For more information regarding the database see :ref:`Database settings <Database settings>`.
 
-    .. code-tab:: py SQLite
-
-        from sqlalchemy import create_engine
-
-        engine = create_engine("sqlite:///path/to/sqlite/database.db")
-        db = Mastr(engine=engine)
-
-    .. code-tab:: py PostgreSQL
-
-        from sqlalchemy import create_engine
-
-        engine = create_engine("postgresql://myusername:mypassword@localhost/mydatabase"
-        db = Mastr(engine=engine)
-..
-
-Resulting data of download, post-processing and analysis is saved under `$HOME/.open-MaStR/data/<data-version>`.
-Files that are suffixed with `_raw` contain joined data retrieved during :ref:`downloading <Download>`.
+Exported data is saved under `$HOME/.open-MaStR/data/<data-version>`.
+Files that are suffixed with `_raw` can contain joined data retrieved during :ref:`downloading <Download>`.
 The structure of the data is described in :ref:`Data Description`.
+
 
 Environment variables
 ^^^^^^^^^^^^^^^^^^^^^
@@ -213,7 +194,43 @@ Database settings
 Configure your database with the `engine` parameter of :class:`Mastr`.
 It defines the engine of the database where the MaStR is mirrored to. Default is 'sqlite'.
 
-Choose from: {'sqlite', 'docker-postgres', sqlalchemy.engine.Engine}
+Choose from: {'sqlite', sqlalchemy.engine.Engine}
+
+The possible databases are:
+
+* **sqlite**: By default the database will be stored in `$HOME/.open-MaStR/data/sqlite/open-mastr.db` (can be customized via the
+  :ref:`environment variable <Environment variables>` `$SQLITE_DATABASE_PATH`).
+* **own database**: The Mastr class accepts a sqlalchemy.engine.Engine object as engine which enables the user to
+  use any other desired database.
+  If you're planning to use docker with a postgresql database, you need to set up the docker container including a postegresql database yourself.
+  To do so, you can build upon the 'docker-compose.yml' in the scripts folder.
+  If you do so, you need to insert the connection parameter into the engine variable. It'll look like this:
+
+.. code-block::
+
+  from sqlalchemy import create_engine
+
+  engine = create_engine("postgresql+psycopg2://open-mastr:open-mastr@localhost:55443/open-mastr")
+  db = Mastr(engine=engine)
+
+
+.. tabs::
+
+    .. code-tab:: py SQLite
+
+        from sqlalchemy import create_engine
+
+        engine = create_engine("sqlite:///path/to/sqlite/database.db")
+        db = Mastr(engine=engine)
+
+    .. code-tab:: py PostgreSQL
+
+        from sqlalchemy import create_engine
+
+        engine = create_engine("postgresql://myusername:mypassword@localhost/mydatabase")
+        db = Mastr(engine=engine)
+..
+
 
 
 API download settings
