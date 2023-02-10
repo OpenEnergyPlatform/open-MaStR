@@ -6,6 +6,8 @@ For each version important additions, changes and removals are listed here.
 The format is inspired from [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [v0.13.0] Intermediate Heading - deleted within Merge conflicts
+- Add Issue and PR Templates [#428](https://github.com/OpenEnergyPlatform/open-MaStR/pull/428)
 ## [v0.12.1] Patch release - 2022-11-15
 ### Added
 - Add workflows to release on PyPI and Test-PyPI [#375](https://github.com/OpenEnergyPlatform/open-MaStR/pull/375)
