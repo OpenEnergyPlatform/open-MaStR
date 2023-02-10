@@ -8,7 +8,7 @@ import os
 from urllib.request import urlretrieve
 from open_mastr.postprocessing import orm
 from open_mastr.utils.config import setup_logger, get_filenames, get_data_version_dir
-from open_mastr.soap_api.metadata.create import datapackage_meta_json
+from open_mastr.soap_api.metadata.create import create_datapackage_meta_json
 from open_mastr.utils.helpers import chunks, session_scope, db_engine
 import geopandas as gpd
 from shapely.wkb import loads as wkb_loads
@@ -345,8 +345,8 @@ def to_csv(limit=None):
 
     # Save metadata along with data
     metadata_file = os.path.join(data_path, filenames["metadata"])
-    metadata = datapackage_meta_json(newest_date, TECHNOLOGIES, data=["raw", "cleaned", "postprocessed"],
-                                     json_serialize=False)
+    metadata = create_datapackage_meta_json(newest_date, TECHNOLOGIES, data=["raw", "cleaned", "postprocessed"],
+                                            json_serialize=False)
 
     with open(metadata_file, 'w', encoding='utf-8') as f:
         json.dump(metadata, f, ensure_ascii=False, indent=4)

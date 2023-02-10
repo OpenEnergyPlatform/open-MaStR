@@ -37,9 +37,21 @@ def replace_mastr_katalogeintraege(
 
     for column_name in df.columns:
         if column_name in columns_replace_list:
-            df[column_name] = (
-                df[column_name].astype("float").astype("Int64").map(katalogwerte)
-            )
+            if df[column_name].dtype == "O":
+                # Handle comma seperated strings from catalog values
+                df[column_name] = (
+                    df[column_name]
+                    .str.split(",", expand=True)
+                    .apply(lambda x: x.str.strip())
+                    .astype("Int64")
+                    .applymap(katalogwerte.get)
+                    .agg(lambda d: ",".join(i for i in d if isinstance(i, str)), axis=1)
+                    .replace("", None)
+                )
+            else:
+                df[column_name] = (
+                    df[column_name].astype("float").astype("Int64").map(katalogwerte)
+                )
 
     return df
 

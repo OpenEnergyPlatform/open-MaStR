@@ -8,7 +8,7 @@ import sqlalchemy
 from sqlalchemy import select
 from sqlalchemy.sql import text
 
-from open_mastr.utils.constants import BULK_INCLUDE_TABLES_MAP
+from open_mastr.utils.helpers import data_to_include_tables
 from open_mastr.utils.orm import tablename_mapping
 from open_mastr.xml_download.utils_cleansing_bulk import cleanse_bulk_data
 from open_mastr.utils.config import setup_logger
@@ -22,7 +22,7 @@ def write_mastr_xml_to_database(
     bulk_download_date: str,
 ) -> None:
     """Write the Mastr in xml format into a database defined by the engine parameter."""
-    include_tables = data_to_include_tables(data)
+    include_tables = data_to_include_tables(data, mapping="write_xml")
 
     with ZipFile(zipped_xml_file_path, "r") as f:
         files_list = f.namelist()
@@ -201,14 +201,16 @@ def add_table_to_database(
     continueloop = True
     while continueloop:
         try:
-            df.to_sql(
-                sql_tablename,
-                con=engine,
-                index=False,
-                if_exists=if_exists,
-                dtype=dtypes_for_writing_sql,
-            )
-            continueloop = False
+            with engine.connect() as con:
+                with con.begin():
+                    df.to_sql(
+                        sql_tablename,
+                        con=con,
+                        index=False,
+                        if_exists=if_exists,
+                        dtype=dtypes_for_writing_sql,
+                    )
+                    continueloop = False
         except sqlalchemy.exc.OperationalError as err:
             add_missing_column_to_table(err, engine, xml_tablename)
 
@@ -278,9 +280,11 @@ def write_single_entries_until_not_unique_comes_up(
     table = tablename_mapping[xml_tablename]["__class__"].__table__
     primary_key = next(c for c in table.columns if c.primary_key)
 
-    key_list = (
-        pd.read_sql(sql=select(primary_key), con=engine).values.squeeze().tolist()
-    )
+    with engine.connect() as con:
+        with con.begin():
+            key_list = (
+                pd.read_sql(sql=select(primary_key), con=con).values.squeeze().tolist()
+            )
     df = df.set_index(primary_key.name)
     len_df_before = len(df)
     df = df.drop(labels=key_list, errors="ignore")
@@ -322,7 +326,9 @@ def add_missing_column_to_table(
         table.name,
         missing_column,
     )
-    engine.execute(text(alter_query).execution_options(autocommit=True))
+    with engine.connect().execution_options(autocommit=True) as con:
+        with con.begin():
+            con.execute(text(alter_query).execution_options(autocommit=True))
     log.info(
         "From the downloaded xml files following new attribute was "
         f"introduced: {table.name}.{missing_column}"
@@ -374,23 +380,3 @@ def handle_xml_syntax_error(data: bytes, err: Error) -> pd.DataFrame:
     return df
 
 
-def data_to_include_tables(
-    data: list,
-) -> list:
-    """
-    Convert user input 'data' to the list 'include_tables' which contains
-    file names from zipped bulk download.
-    Parameters
-    ----------
-    data: list
-        The user input for data selection
-    Returns
-    -------
-    list
-        List of file names
-    -------
-
-    """
-    # Map data selection to include tables
-    include_tables = [table for tech in data for table in BULK_INCLUDE_TABLES_MAP[tech]]
-    return include_tables

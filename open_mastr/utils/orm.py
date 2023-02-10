@@ -42,7 +42,6 @@ class BasicUnit(Base):
     GenMastrNummer = Column(String)
     BestandsanlageMastrNummer = Column(String)
     NichtVorhandenInMigriertenEinheiten = Column(String)
-    StatisikFlag = Column(String)
 
 
 class AdditionalDataRequested(Base):
@@ -118,7 +117,6 @@ class Extended(object):
     AltAnlagenbetreiberMastrNummer = Column(String)
     DatumDesBetreiberwechsels = Column(Date)
     DatumRegistrierungDesBetreiberwechsels = Column(Date)
-    StatisikFlag = Column(String)
     NameStromerzeugungseinheit = Column(String)
     Weic = Column(String)
     WeicDisplayName = Column(String)
@@ -505,6 +503,8 @@ class GasStorageExtended(ParentAllTables, Base):
     FlurFlurstuecknummern = Column(String)
     Adresszusatz = Column(String)
     DatumBeginnVoruebergehendeStilllegung = Column(Date)
+    DatumDesBetreiberwechsels = Column(Date)
+    DatumRegistrierungDesBetreiberwechsels = Column(Date)
 
 
 class StorageUnits(ParentAllTables, Base):
@@ -833,6 +833,7 @@ tablename_mapping = {
         "replace_column_names": {
             "EegMaStRNummer": "EegMastrNummer",
             "VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheit",
+            "Zuschlagsnummer": "eegZuschlagsnummer",
         },
     },
     "anlageneegwasser": {

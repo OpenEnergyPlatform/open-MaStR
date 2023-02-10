@@ -11,7 +11,6 @@ from open_mastr.xml_download.utils_write_to_database import (
     add_table_to_database,
     add_zero_as_first_character_for_too_short_string,
     correct_ordering_of_filelist,
-    data_to_include_tables,
 )
 import os
 from os.path import expanduser
@@ -134,8 +133,9 @@ def test_add_table_to_database(zipped_xml_file_path, engine_testdb):
         if_exists="replace",
         engine=engine_testdb,
     )
-
-    df_read = pd.read_sql_table(table_name=sql_tablename, con=engine_testdb)
+    with engine_testdb.connect() as con:
+        with con.begin():
+            df_read = pd.read_sql_table(table_name=sql_tablename, con=con)
     # Drop the empty columns which come from orm and are not filled by bulk download
     df_read.dropna(how="all", axis=1, inplace=True)
     # Rename LokationMaStRNummer -> LokationMastrNummer unresolved error
@@ -238,16 +238,3 @@ def test_cast_date_columns_to_datetime():
     )
 
 
-def test_data_to_include_tables():
-    # Prepare
-    include_tables_list = [
-        "anlageneegwind",
-        "einheitenwind",
-        "anlageneegwasser",
-        "einheitenwasser",
-    ]
-    include_tables_str = ["einheitenstromverbraucher"]
-
-    # Assert
-    assert include_tables_list == data_to_include_tables(data=["wind", "hydro"])
-    assert include_tables_str == data_to_include_tables(data=["electricity_consumer"])

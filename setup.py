@@ -50,7 +50,6 @@ setup(
         "tqdm",
         "requests",
         "keyring",
-        "pynodo",
         "tqdm",
         "beautifulsoup4",
         "pyyaml",
@@ -64,6 +63,7 @@ setup(
             "pytest-dependency",
             "xmltodict",
             "pre-commit",
+            "bump2version",
         ]
     },
     package_data={
