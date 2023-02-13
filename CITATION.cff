@@ -27,7 +27,7 @@ authors:
 title: "open-MaStR"
 type: software
 license: AGPL-3.0
-version: 0.13.0a1
+version: 0.13.0
 doi: 
 date-released: 2022-11-15
 url: "https://github.com/OpenEnergyPlatform/open-MaStR/"
