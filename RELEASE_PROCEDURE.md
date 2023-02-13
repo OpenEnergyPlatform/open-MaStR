@@ -71,7 +71,6 @@ It always has the format `YYYY-MM-DD`, e.g. `2022-05-16`.
   * Note: The branch status can only be released to a version on Test-PyPI once. Thus, for every branch status that you want to see on Test-PyPI increment the build version with `bump2version build` and push afterwards.
 * Once testing on Test-PyPI is done, change the release version to the final desired version with `bump2version release`
   * Note: The release on Test-PyPI might fail, but it will be the correct release version for the PyPI server.
-* Change `date-released` in `CITATION.cff` to the release date
 * Push commits to the `release-*` branch
 
 ### 7. 📝 Update the version files
