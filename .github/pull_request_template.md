@@ -25,5 +25,5 @@ Closes #
 - [ ] 📙 Update the documentation
 
 ### Reviewer
-- [ ] 🐙 Follow the [Reviewer Guidelines](https://github.com/rl-institut/super-repo/blob/develop/CONTRIBUTING.md#40-let-someone-else-review-your-pr)
+- [ ] 🐙 Follow the [Reviewer Guidelines](https://github.com/OpenEnergyPlatform/open-MaStR/blob/production/CONTRIBUTING.md#40-let-someone-else-review-your-pr)
 - [ ] 🐙 Provided feedback and show sufficient appreciation for the work done
