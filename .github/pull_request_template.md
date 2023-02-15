@@ -8,7 +8,7 @@ Describe the findings of the discussion in the issue or meeting.
 - Add a new class [(#)](https://github.com/OpenEnergyPlatform/open-MaStR/pull/)
 
 ### Updated
-- Update a definition [(#)](https://github.com/rl-institut/super-repo/pull/)
+- Update a definition [(#)](https://github.com/OpenEnergyPlatform/open-MaStR/pull/)
 
 ### Removed
 - Remove a broken link [(#)](https://github.com/rl-institut/super-repo/pull/)
