@@ -28,4 +28,4 @@ Describe possible ideas for solution and evaluate advantages and disadvantages.
 * Environment setup and (python) version: 
 
 ## Workflow checklist
-- [ ] I am aware of the workflow in [CONTRIBUTING.md](https://github.com/rl-institut/super-repo/blob/develop/CONTRIBUTING.md)
+- [ ] I am aware of the workflow in [CONTRIBUTING.md](https://github.com/OpenEnergyPlatform/open-MaStR/blob/production/CONTRIBUTING.md)
