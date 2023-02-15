@@ -21,7 +21,7 @@ Closes #
 
 ### PR-Assignee
 - [ ] 🐙 Follow the workflow in [CONTRIBUTING.md](https://github.com/OpenEnergyPlatform/open-MaStR/blob/production/CONTRIBUTING.md)
-- [ ] 📝 Update the [CHANGELOG.md](https://github.com/rl-institut/super-repo/blob/develop/CHANGELOG.md)
+- [ ] 📝 Update the [CHANGELOG.md](https://github.com/OpenEnergyPlatform/open-MaStR/blob/production/CHANGELOG.md)
 - [ ] 📙 Update the documentation
 
 ### Reviewer
