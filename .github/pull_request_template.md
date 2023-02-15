@@ -11,7 +11,7 @@ Describe the findings of the discussion in the issue or meeting.
 - Update a definition [(#)](https://github.com/OpenEnergyPlatform/open-MaStR/pull/)
 
 ### Removed
-- Remove a broken link [(#)](https://github.com/rl-institut/super-repo/pull/)
+- Remove a broken link [(#)](https://github.com/OpenEnergyPlatform/open-MaStR/pull/)
 
 
 ## Workflow checklist
