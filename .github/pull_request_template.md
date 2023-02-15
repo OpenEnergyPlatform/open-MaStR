@@ -20,7 +20,7 @@ Describe the findings of the discussion in the issue or meeting.
 Closes #
 
 ### PR-Assignee
-- [ ] 🐙 Follow the workflow in [CONTRIBUTING.md](https://github.com/rl-institut/super-repo/blob/develop/CONTRIBUTING.md)
+- [ ] 🐙 Follow the workflow in [CONTRIBUTING.md](https://github.com/OpenEnergyPlatform/open-MaStR/blob/production/CONTRIBUTING.md)
 - [ ] 📝 Update the [CHANGELOG.md](https://github.com/rl-institut/super-repo/blob/develop/CHANGELOG.md)
 - [ ] 📙 Update the documentation
 
