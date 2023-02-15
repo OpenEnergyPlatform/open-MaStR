@@ -16,4 +16,4 @@ Describe the problem in as much detail as possible.
 Describe possible ideas for solution and evaluate advantages and disadvantages.
 
 ## Workflow checklist
-- [ ] I am aware of the workflow in [CONTRIBUTING.md](https://github.com/rl-institut/super-repo/blob/develop/CONTRIBUTING.md)
+- [ ] I am aware of the workflow in [CONTRIBUTING.md](https://github.com/OpenEnergyPlatform/open-MaStR/blob/production/CONTRIBUTING.md)
