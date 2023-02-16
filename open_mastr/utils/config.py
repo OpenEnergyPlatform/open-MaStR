@@ -26,7 +26,7 @@ from datetime import date
 
 import logging
 import logging.config
-from open_mastr.utils.constants import TECHNOLOGIES, API_LOCATION_TYPES
+from open_mastr.utils.constants import TECHNOLOGIES, API_LOCATION_TYPES, ADDITIONAL_TABLES
 
 
 log = logging.getLogger(__name__)
@@ -145,89 +145,92 @@ def _filenames_generator():
 
     filenames_file = os.path.join(get_project_home_dir(), "config", "filenames.yml")
 
-    if not os.path.isfile(filenames_file):
+    # How files are prefixed
+    prefix = "bnetza_mastr"
 
-        # How files are prefixed
-        prefix = "bnetza_mastr"
+    # Additional data available for certain technologies
+    type_specific_data = {
+        "eeg": ["wind", "hydro", "solar", "biomass", "gsgk", "storage"],
+        "kwk": ["combustion", "biomass", "gsgk"],
+        "permit": [
+            "wind",
+            "biomass",
+            "combustion",
+            "gsgk",
+            "nuclear",
+            "solar",
+            "hydro",
+        ],
+    }
 
-        # Additional data available for certain technologies
-        type_specific_data = {
-            "eeg": ["wind", "hydro", "solar", "biomass", "gsgk", "storage"],
-            "kwk": ["combustion", "biomass", "gsgk"],
-            "permit": [
-                "wind",
-                "biomass",
-                "combustion",
-                "gsgk",
-                "nuclear",
-                "solar",
-                "hydro",
-            ],
+    # Template for file names
+    filenames_template = {
+        "raw": {
+            "joined": "{prefix}_{technology}_raw.csv",
+            "basic": "{prefix}_{technology}_basic.csv",  # power-unit
+            "extended": "{prefix}_{technology}_extended.csv",  # unit
+            "eeg": "{prefix}_{technology}_eeg.csv",
+            "kwk": "{prefix}_{technology}_kwk.csv",
+            "permit": "{prefix}_{technology}_permit.csv",
+            "extended_fail": "{prefix}_{technology}_extended_fail.csv",
+            "eeg_fail": "{prefix}_{technology}_eeg_fail.csv",
+            "kwk_fail": "{prefix}_{technology}_kwk_fail.csv",
+            "permit_fail": "{prefix}_{technology}_permit_fail.csv",
         }
+    }
 
-        # Template for file names
-        filenames_template = {
-            "raw": {
-                "joined": "{prefix}_{technology}_raw.csv",
-                "basic": "{prefix}_{technology}_basic.csv",  # power-unit
-                "extended": "{prefix}_{technology}_extended.csv",  # unit
-                "eeg": "{prefix}_{technology}_eeg.csv",
-                "kwk": "{prefix}_{technology}_kwk.csv",
-                "permit": "{prefix}_{technology}_permit.csv",
-                "extended_fail": "{prefix}_{technology}_extended_fail.csv",
-                "eeg_fail": "{prefix}_{technology}_eeg_fail.csv",
-                "kwk_fail": "{prefix}_{technology}_kwk_fail.csv",
-                "permit_fail": "{prefix}_{technology}_permit_fail.csv",
-            }
-        }
+    filenames = {}
 
-        filenames = {}
+    # Define filenames .yml with a dict
+    for section, section_filenames in filenames_template.items():
+        filenames[section] = {}
+        for tech in TECHNOLOGIES:
 
-        # Define filenames .yml with a dict
-        for section, section_filenames in filenames_template.items():
-            filenames[section] = {}
-            for tech in TECHNOLOGIES:
+            # Files for all technologies
+            files = ["joined", "basic", "extended", "extended_fail"]
 
-                # Files for all technologies
-                files = ["joined", "basic", "extended", "extended_fail"]
+            # Additional file for some technologies
+            for addit_data_type, techs in type_specific_data.items():
+                if tech in techs:
+                    files.append(addit_data_type)
+                    files.append(addit_data_type + "_fail")
 
-                # Additional file for some technologies
-                for t, techs in type_specific_data.items():
-                    if tech in techs:
-                        files.append(t)
-                        files.append(t + "_fail")
+                # Create filename dictionary for one technologies
+                tmp = {
+                    k: v.format(prefix=prefix, technology=tech)
+                    for k, v in section_filenames.items()
+                    if k in files
+                }
 
-                    # Create filename dictionary for one technologies
-                    tmp = {
-                        k: v.format(prefix=prefix, technology=tech)
-                        for k, v in section_filenames.items()
-                        if k in files
-                    }
+                # Collect file names for all technologies
+                filenames[section].update({tech: tmp})
 
-                    # Collect file names for all technologies
-                    filenames[section].update({tech: tmp})
+    # Add file names of cleaned data
+    filenames["cleaned"] = {
+        tech: f"{prefix}_{tech}_cleaned.csv" for tech in TECHNOLOGIES
+    }
 
-        # Add file names of cleaned data
-        filenames["cleaned"] = {
-            tech: f"{prefix}_{tech}_cleaned.csv" for tech in TECHNOLOGIES
-        }
+    # Add file names of processed data
+    filenames["postprocessed"] = {
+        tech: f"{prefix}_{tech}.csv" for tech in TECHNOLOGIES
+    }
 
-        # Add file names of processed data
-        filenames["postprocessed"] = {
-            tech: f"{prefix}_{tech}.csv" for tech in TECHNOLOGIES
-        }
+    # Add filenames for location data
+    filenames["raw"].update(
+        {loc: f"{prefix}_{loc}_raw.csv" for loc in API_LOCATION_TYPES}
+    )
 
-        # Add filenames for location data
-        filenames["raw"].update(
-            {loc: f"{prefix}_{loc}_raw.csv" for loc in API_LOCATION_TYPES}
-        )
+    # Add filenames for additional tables
+    filenames["raw"].update({"additional_table":
+        {addit_table: f"{prefix}_{addit_table}_raw.csv" for addit_table in ADDITIONAL_TABLES}}
+    )
 
-        # Add metadata file
-        filenames["metadata"] = "datapackage.json"
+    # Add metadata file
+    filenames["metadata"] = "datapackage.json"
 
-        with open(filenames_file, "w") as outfile:
-            yaml.dump(filenames, outfile)
-        log.info(f"File names configuration saved to {filenames_file}")
+    with open(filenames_file, "w") as outfile:
+        yaml.dump(filenames, outfile)
+    log.info(f"File names configuration saved to {filenames_file}")
 
 
 def setup_project_home():
@@ -281,7 +284,7 @@ def column_renaming():
     """
     return {
         "basic_data": {
-            "columns": ["StatisikFlag", "BestandsanlageMastrNummer"],
+            "columns": ["BestandsanlageMastrNummer"],
             "suffix": "basic",
         },
         "unit_data": {
