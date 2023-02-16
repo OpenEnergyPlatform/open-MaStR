@@ -7,12 +7,13 @@ The format is inspired from [Keep a Changelog](http://keepachangelog.com/en/1.0.
 and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 
-## [v0.13.0] Maintenance release - 2023-02-13
+## [v0.13.0] Maintenance release - 2023-02-16
 ### Added
 - Add a `workflow_dispatch` to run CI pipelines from a button click [#389](https://github.com/OpenEnergyPlatform/open-MaStR/pull/389)
 - Update version number with bump2version [#407](https://github.com/OpenEnergyPlatform/open-MaStR/pull/407)
 - Add usage examples to Readme [#419](https://github.com/OpenEnergyPlatform/open-MaStR/pull/419)
 - Check if the zipped file is corrupted [#422](https://github.com/OpenEnergyPlatform/open-MaStR/pull/422)
+- Add Issue and PR Templates [#428](https://github.com/OpenEnergyPlatform/open-MaStR/pull/428)
 
 ### Changed
 - Repair the csv export [#384](https://github.com/OpenEnergyPlatform/open-MaStR/pull/384)
