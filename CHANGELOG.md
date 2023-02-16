@@ -6,7 +6,8 @@ For each version important additions, changes and removals are listed here.
 The format is inspired from [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [v0.13.0] unreleased
+
+## [v0.13.0] Maintenance release - 2023-02-16
 ### Added
 - Add a `workflow_dispatch` to run CI pipelines from a button click [#389](https://github.com/OpenEnergyPlatform/open-MaStR/pull/389)
 - Update version number with bump2version [#407](https://github.com/OpenEnergyPlatform/open-MaStR/pull/407)
@@ -28,7 +29,6 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 - Option to filter & export by parameter StatistikFlag [#401](https://github.com/OpenEnergyPlatform/open-MaStR/pull/401)
 - Removed unused package pynodo from dependencies [#424](https://github.com/OpenEnergyPlatform/open-MaStR/pull/424)
 - Removed feature for dockered databases [#426](https://github.com/OpenEnergyPlatform/open-MaStR/pull/426)
-
 
 ## [v0.12.1] Patch release - 2022-11-15
 ### Added

@@ -59,7 +59,7 @@ It always has the format `YYYY-MM-DD`, e.g. `2022-05-16`.
 
 ### 5. 💠 Create a `release` branch
 * Checkout `develop` and branch with `git checkout -b release-v0.12.1`
-* Update version for test release with e.g. `bump2version patch`
+* Update version for test release with e.g. `bump2version patch`. To specify version numbers manually use `bump2version --current-version <current_version> --new-version <new_version> patch`
 * Commit version update with `git commit -am "version update v0.12.1a1"`
 * Push branch with `git push --set-upstream origin release-v0.12.1`
 
@@ -71,6 +71,7 @@ It always has the format `YYYY-MM-DD`, e.g. `2022-05-16`.
   * Note: The branch status can only be released to a version on Test-PyPI once. Thus, for every branch status that you want to see on Test-PyPI increment the build version with `bump2version build` and push afterwards.
 * Once testing on Test-PyPI is done, change the release version to the final desired version with `bump2version release`
   * Note: The release on Test-PyPI might fail, but it will be the correct release version for the PyPI server.
+* Push commits to the `release-*` branch
 
 ### 7. 📝 Update the version files
 * `📝CHANGELOG.md`
