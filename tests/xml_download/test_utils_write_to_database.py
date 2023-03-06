@@ -133,8 +133,9 @@ def test_add_table_to_database(zipped_xml_file_path, engine_testdb):
         if_exists="replace",
         engine=engine_testdb,
     )
-
-    df_read = pd.read_sql_table(table_name=sql_tablename, con=engine_testdb)
+    with engine_testdb.connect() as con:
+        with con.begin():
+            df_read = pd.read_sql_table(table_name=sql_tablename, con=con)
     # Drop the empty columns which come from orm and are not filled by bulk download
     df_read.dropna(how="all", axis=1, inplace=True)
     # Rename LokationMaStRNummer -> LokationMastrNummer unresolved error

@@ -14,6 +14,7 @@ authors:
     given-names: "Christoph"
     alias: "@chrwm"
     affiliation: "Reiner Lemoine Institut"
+    orcid: " https://orcid.org/0000-0001-8144-5260"
   - family-names: "Kotthoff"
     given-names: "Florian"
     alias: "@FlorianK13"
@@ -27,7 +28,7 @@ authors:
 title: "open-MaStR"
 type: software
 license: AGPL-3.0
-version: 0.12.1
+version: 0.13.0
 doi: 
-date-released: 2022-11-15
+date-released: 2023-02-16
 url: "https://github.com/OpenEnergyPlatform/open-MaStR/"

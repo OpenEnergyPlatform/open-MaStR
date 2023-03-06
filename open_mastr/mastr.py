@@ -1,6 +1,4 @@
 import os
-import pandas as pd
-from tqdm import tqdm
 
 # import xml dependencies
 from open_mastr.xml_download.utils_download_bulk import download_xml_Mastr
@@ -21,12 +19,15 @@ from open_mastr.utils.helpers import (
     parse_date_string,
     transform_date_parameter,
     data_to_include_tables,
+    create_db_query,
+    db_query_to_csv,
+    reverse_fill_basic_units,
 )
 from open_mastr.utils.config import (
     create_data_dir,
     get_data_version_dir,
     get_project_home_dir,
-    setup_logger
+    setup_logger,
 )
 import open_mastr.utils.orm as orm
 
@@ -40,6 +41,7 @@ from open_mastr.utils.constants import TECHNOLOGIES, ADDITIONAL_TABLES
 
 # setup logger
 log = setup_logger()
+
 
 class Mastr:
     """
@@ -57,7 +59,7 @@ class Mastr:
 
     Parameters
     ------------
-        engine: {'sqlite', 'docker-postgres', sqlalchemy.engine.Engine}, optional
+        engine: {'sqlite', sqlalchemy.engine.Engine}, optional
             Defines the engine of the database where the MaStR is mirrored to. Default is 'sqlite'.
     """
 
@@ -71,10 +73,11 @@ class Mastr:
 
         self.engine = create_database_engine(engine, self.home_directory)
 
-        log.info(
+        print(
             f"Data will be written to the following database: {self.engine.url}\n"
             "If you run into problems, try to "
-            "delete the database and update the package by running 'pip install --upgrade open-mastr'\n"
+            "delete the database and update the package by running "
+            "'pip install --upgrade open-mastr'\n"
         )
 
         orm.Base.metadata.create_all(self.engine)
@@ -105,8 +108,9 @@ class Mastr:
             (see :ref:`Configuration <Configuration>`). Default to 'bulk'.
         data: str or list or None, optional
             Determines which types of data are written to the database. If None, all data is
-            used. If it is a list, possible entries are listed at the table below with respect to the download method.
-            Missing categories are being developed. If only one data is of interest, this can be
+            used. If it is a list, possible entries are listed at the table
+            below with respect to the download method. Missing categories are
+            being developed. If only one data is of interest, this can be
             given as a string. Default to None, where all data is included.
 
             .. csv-table:: Values for data parameter
@@ -134,8 +138,9 @@ class Mastr:
         date: None or :class:`datetime.datetime` or str, optional
             For bulk method:
 
-            Either "today" or None if the newest data dump should be downloaded from the MaStR website. If
-            an already downloaded dump should be used, state the date of the download in the format
+            Either "today" or None if the newest data dump should be downloaded
+            rom the MaStR website. If an already downloaded dump should be used,
+            state the date of the download in the format
             "yyyymmdd". Defaults to None.
 
             For API method:
@@ -236,8 +241,9 @@ class Mastr:
             # Set api_processes to None in order to avoid the malfunctioning usage
             if api_processes:
                 api_processes = None
-                log.info(
-                    "Warning: The implementation of parallel processes is currently under construction. Please let "
+                print(
+                    "Warning: The implementation of parallel processes "
+                    "is currently under construction. Please let "
                     "the argument api_processes at the default value None."
                 )
 
@@ -293,19 +299,21 @@ class Mastr:
                 "balancing_area", "electricity_consumer", "gas_consumer", "gas_producer",
                 "gas_storage", "gas_storage_extended",
                 "grid_connections", "grids", "market_actors", "market_roles",
-                "location_elec_generation","location_elec_consumption","location_gas_generation",
-                "location_gas_consumption"]
+                "locations_extended, 'permit', 'deleted_units' ]
         chunksize: int
-            Defines the chunksize of the tables export. Default value is 500.000.
+            Defines the chunksize of the tables export.
+            Default value is 500.000 rows to include in each chunk.
         limit: None or int
-            Limits the number of exported data and location units.
+            Limits the number of exported data rows.
         """
         log.info("Starting csv-export")
 
         data_path = get_data_version_dir()
 
-        # Validate and parse tables parameter TODO parameter renaming
-        validate_parameter_data(method="bulk", data=tables)
+        create_data_dir()
+
+        # Validate and parse tables parameter
+        validate_parameter_data(method="csv_export", data=tables)
         (
             data,
             api_data_types,
@@ -335,34 +343,27 @@ class Mastr:
 
         log.info(f"Tables are saved to: {data_path}")
 
-        api_export = MaStRMirror(engine=self.engine)
+        reverse_fill_basic_units(technology=technologies_to_export, engine=self.engine)
 
-        if technologies_to_export:
-            # fill basic unit table, after downloading with method = 'bulk' to use API export functions
-            api_export.reverse_fill_basic_units(technology=technologies_to_export)
-            # export to csv per data
-            api_export.to_csv(
-                technology=technologies_to_export,
-                statistic_flag=None,
-                limit=limit,
+        # Export technologies to csv
+        for tech in technologies_to_export:
+
+            db_query_to_csv(
+                db_query=create_db_query(tech=tech, limit=limit, engine=self.engine),
+                data_table=tech,
+                chunksize=chunksize,
+            )
+        # Export additional tables to csv
+        for addit_table in additional_tables_to_export:
+
+            db_query_to_csv(
+                db_query=create_db_query(
+                    additional_table=addit_table, limit=limit, engine=self.engine
+                ),
+                data_table=addit_table,
                 chunksize=chunksize,
             )
 
-        # Export additional tables mirrored via pd.DataFrame.to_csv()
-        for additional_table in additional_tables_to_export:
-            try:
-                df = pd.read_sql(additional_table, con=self.engine)
-            except ValueError as e:
-                log.info(
-                    f"While reading table '{additional_table}', the following error occured: {e}"
-                )
-                continue
-            if not df.empty:
-                path_of_table = os.path.join(
-                    data_path, f"bnetza_mastr_{additional_table}_raw.csv"
-                )
-                df.to_csv(path_or_buf=path_of_table, encoding="utf-8")
-
-                log.info(
-                    f"Additional table csv: ['bnetza_mastr_{additional_table}_raw.csv'] was created."
-                )
+        # FIXME: Currently metadata is only created for technology data, Fix in #386
+        # Configure and save data package metadata file along with data
+        # save_metadata(data=technologies_to_export, engine=self.engine)

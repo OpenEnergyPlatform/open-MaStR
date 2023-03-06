@@ -5,10 +5,13 @@ from bs4 import BeautifulSoup
 import numpy as np
 import os
 import shutil
-from open_mastr.utils.config import setup_logger
+from zipfile import ZipFile, BadZipfile
 
 # setup logger
+from open_mastr.utils.config import setup_logger
+
 log = setup_logger()
+
 
 def get_url_from_Mastr_website() -> str:
     """Get the url of the latest MaStR file from markstammdatenregister.de.
@@ -27,7 +30,9 @@ def get_url_from_Mastr_website() -> str:
     return str(element).split('href="')[1].split('" title')[0]
 
 
-def download_xml_Mastr(save_path: str, bulk_date_string: str, xml_folder_path: str) -> None:
+def download_xml_Mastr(
+    save_path: str, bulk_date_string: str, xml_folder_path: str
+) -> None:
     """Downloads the zipped MaStR.
 
     Parameters
@@ -37,8 +42,14 @@ def download_xml_Mastr(save_path: str, bulk_date_string: str, xml_folder_path: s
     """
 
     if os.path.exists(save_path):
-        log.info("MaStR already downloaded.")
-        return None
+        try:
+            _ = ZipFile(save_path)
+        except BadZipfile:
+            log.info(f"Bad Zip file is deleted: {save_path}")
+            os.remove(save_path)
+        else:
+            print("MaStR already downloaded.")
+            return None
 
     if bulk_date_string != "today":
         raise OSError(
@@ -56,7 +67,7 @@ def download_xml_Mastr(save_path: str, bulk_date_string: str, xml_folder_path: s
         "Warning: The servers from MaStR restrict the download speed."
         " You may want to download it another time."
     )
-    log.info(print_message)
+    print(print_message)
     url = get_url_from_Mastr_website()
     time_a = time.perf_counter()
     r = requests.get(url, stream=True)
@@ -78,5 +89,5 @@ def download_xml_Mastr(save_path: str, bulk_date_string: str, xml_folder_path: s
                 # remove warning
                 bar.set_postfix_str(s="")
     time_b = time.perf_counter()
-    log.info(f"Download is finished. It took {int(np.around(time_b - time_a))} seconds.")
-    log.info(f"MaStR was successfully downloaded to {xml_folder_path}.")
+    print(f"Download is finished. It took {int(np.around(time_b - time_a))} seconds.")
+    print(f"MaStR was successfully downloaded to {xml_folder_path}.")

@@ -18,14 +18,14 @@ setup(
         "open_mastr.utils.config",
         "open_mastr.xml_download",
     ],
-    version="0.12.1",
+    version="0.13.0",
     description="A package that provides an interface for downloading and"
     " processing the data of the Marktstammdatenregister (MaStR)",
     long_description=long_description,
     long_description_content_type="text/x-rst",
     url="https://github.com/OpenEnergyPlatform/open-MaStR",
     download_url="https://github.com/OpenEnergyPlatform/open-MaStR/archive"
-    "/refs/tags/v0.12.1.tar.gz",
+    "/refs/tags/v0.13.0.tar.gz",
     author="Open Energy Family",
     author_email="datenzentrum@rl-institut.de",
     maintainer="Ludwig Hülk",
@@ -50,7 +50,6 @@ setup(
         "tqdm",
         "requests",
         "keyring",
-        "pynodo",
         "tqdm",
         "beautifulsoup4",
         "pyyaml",
@@ -64,6 +63,7 @@ setup(
             "pytest-dependency",
             "xmltodict",
             "pre-commit",
+            "bump2version",
         ]
     },
     package_data={
