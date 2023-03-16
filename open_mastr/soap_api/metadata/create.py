@@ -69,6 +69,7 @@ def datapackag_base(reference_date, publication_date=None, statistik_flag=None):
         "id": str(uuid.uuid4()),
         "description": f"Raw data download Marktstammdatenregister (MaStR) data using the webservice.\n\n{description_extra}",
         "language": ["en-GB", "de-DE"],
+        "subject" : [{"name": None, "path": None}],
         "keywords": ["powerplants", "renewables"],
         "created": publication_date,
         "version": data_version,
@@ -157,7 +158,7 @@ def datapackag_base(reference_date, publication_date=None, statistik_flag=None):
         ],
         "review": {"path": None, "badge": None},
         "metaMetadata": {
-            "metadataVersion": "OEP-1.4.0",
+            "metadataVersion": "OEP-1.5.2",
             "metadataLicense": {
                 "name": "CC0-1.0",
                 "title": "Creative Commons Zero v1.0 Universal",
@@ -172,6 +173,7 @@ def datapackag_base(reference_date, publication_date=None, statistik_flag=None):
             "licenses": "License name must follow the SPDX License List (https://spdx.org/licenses/)",
             "review": "Following the OEP Data Review (https://github.com/OpenEnergyPlatform/data-preprocessing/wiki)",
             "null": "If not applicable use (null)",
+            "todo": "If a value ist not yet available, use: todo"
         },
     }
 
