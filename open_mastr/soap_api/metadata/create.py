@@ -69,9 +69,9 @@ def datapackag_base(reference_date, publication_date=None, statistik_flag=None):
         "id": str(uuid.uuid4()),
         "description": f"Raw data download Marktstammdatenregister (MaStR) data using the webservice.\n\n{description_extra}",
         "language": ["en-GB", "de-DE"],
-        "subject" : [{"name": None, "path": None}],
+        "subject": [{"name": None, "path": None}],
         "keywords": ["powerplants", "renewables"],
-        "created": publication_date,
+        "publicationDate": publication_date,
         "version": data_version,
         "context": {
             "homepage": "https://www.marktstammdatenregister.de/MaStR/",
@@ -86,13 +86,15 @@ def datapackag_base(reference_date, publication_date=None, statistik_flag=None):
         "spatial": {"location": None, "extent": "Germany", "resolution": "vector"},
         "temporal": {
             "referenceDate": reference_date.strftime("%Y-%m-%d %H:%M:%S"),
-            "timeseries": {
+            "timeseries": [
+                {
                 "start": None,
                 "end": None,
                 "resolution": None,
                 "alignment": None,
                 "aggregationType": None,
-            },
+                }
+            ]
         },
         "sources": [
             {
@@ -107,7 +109,7 @@ def datapackag_base(reference_date, publication_date=None, statistik_flag=None):
                         "instruction": "You are free: To Share, To Create, To Adapt; As long as you: Attribute",
                         "attribution": f"© Marktstammdatenregister {datetime.date.today().year} | dl-de/by-2-0",
                     }
-                ],
+                ]
             },
             {
                 "title": "RLI - open_MaStR",
@@ -121,8 +123,8 @@ def datapackag_base(reference_date, publication_date=None, statistik_flag=None):
                         "instruction": "You are free: To Share, To Create, To Adapt; As long as you: Attribute, Share-Alike, Keep open!",
                         "attribution": "open_MaStR © Reiner Lemoine Institut | AGPL-3.0",
                     }
-                ],
-            },
+                ]
+            }
         ],
         "licenses": [
             {
@@ -154,7 +156,7 @@ def datapackag_base(reference_date, publication_date=None, statistik_flag=None):
                 "path": "https://github.com/oakca",
                 "role": "contributor",
                 "organization": "Reiner Lemoine Institut gGmbH",
-            },
+            }
         ],
         "review": {"path": None, "badge": None},
         "metaMetadata": {
