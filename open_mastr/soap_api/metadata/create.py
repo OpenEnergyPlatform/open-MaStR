@@ -137,25 +137,11 @@ def datapackag_base(reference_date, publication_date=None, statistik_flag=None):
         ],
         "contributors": [
             {
-                "title": "Ludee",
+                "title": None,
                 "email": None,
-                "path": "https://github.com/ludee",
-                "role": "maintainer",
-                "organization": "Reiner Lemoine Institut gGmbH",
-            },
-            {
-                "title": "Guido Pleßmann",
-                "email": None,
-                "path": "https://gplssm.de",
-                "role": "maintainer",
-                "organization": "Reiner Lemoine Institut gGmbH",
-            },
-            {
-                "title": "oakca",
-                "email": None,
-                "path": "https://github.com/oakca",
-                "role": "contributor",
-                "organization": "Reiner Lemoine Institut gGmbH",
+                "date": None,
+                "object": None,
+                "comment": None
             }
         ],
         "review": {"path": None, "badge": None},
