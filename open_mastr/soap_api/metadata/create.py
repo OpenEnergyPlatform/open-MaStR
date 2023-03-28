@@ -243,11 +243,9 @@ def create_datapackage_meta_json(
             resource = {
                 "profile": "tabular-data-resource",
                 "name": f"bnetza_mastr_{tech}_raw",
-                "title": f"open-MaStR {tech} units (raw)",
                 "path": filenames["raw"][tech]["joined"],
-                "scheme": "file",
+                "format": "PostgreSQL",
                 "encoding": "utf-8",
-                "mediatype": "text/csv",
                 "schema": {
                     "fields": raw_fields,
                     "primaryKey": ["EinheitMastrNummer"],
@@ -260,11 +258,9 @@ def create_datapackage_meta_json(
             resource = {
                 "profile": "tabular-data-resource",
                 "name": f"bnetza_mastr_{tech}_cleaned",
-                "title": f"open-MaStR {tech} units (cleaned)",
                 "path": filenames["cleaned"][tech],
-                "scheme": "file",
+                "format": "PostgreSQL",
                 "encoding": "utf-8",
-                "mediatype": "text/csv",
                 "schema": {
                     "fields": raw_fields,
                     "primaryKey": ["EinheitMastrNummer"],
