@@ -240,34 +240,36 @@ def create_datapackage_meta_json(
                     raw_fields.append({"name": name, **specification, "unit": None})
 
         if "raw" in data:
-            resource = {
-                "profile": "tabular-data-resource",
-                "name": f"bnetza_mastr_{tech}_raw",
-                "path": filenames["raw"][tech]["joined"],
-                "format": "PostgreSQL",
-                "encoding": "utf-8",
-                "schema": {
-                    "fields": raw_fields,
-                    "primaryKey": ["EinheitMastrNummer"],
-                },
-                "dialect": {"delimiter": ","},
-            }
-
+            resource = [
+                {
+                    "profile": "tabular-data-resource",
+                    "name": f"bnetza_mastr_{tech}_raw",
+                    "path": filenames["raw"][tech]["joined"],
+                    "format": "PostgreSQL",
+                    "encoding": "utf-8",
+                    "schema": {
+                        "fields": raw_fields,
+                        "primaryKey": ["EinheitMastrNummer"],
+                    },
+                    "dialect": {"delimiter": ","},
+                }
+            ]
             resources_meta["resources"].append(resource)
         if "cleaned" in data:
-            resource = {
-                "profile": "tabular-data-resource",
-                "name": f"bnetza_mastr_{tech}_cleaned",
-                "path": filenames["cleaned"][tech],
-                "format": "PostgreSQL",
-                "encoding": "utf-8",
-                "schema": {
-                    "fields": raw_fields,
-                    "primaryKey": ["EinheitMastrNummer"],
-                },
-                "dialect": {"delimiter": ","},
-            }
-
+            resource = [
+                {
+                    "profile": "tabular-data-resource",
+                    "name": f"bnetza_mastr_{tech}_cleaned",
+                    "path": filenames["cleaned"][tech],
+                    "format": "PostgreSQL",
+                    "encoding": "utf-8",
+                    "schema": {
+                        "fields": raw_fields,
+                        "primaryKey": ["EinheitMastrNummer"],
+                    },
+                    "dialect": {"delimiter": ","},
+                }
+            ]
             resources_meta["resources"].append(resource)
         if "postprocessed" in data:
             processed_fields = [
@@ -312,11 +314,9 @@ def create_datapackage_meta_json(
             resource = {
                 "profile": "tabular-data-resource",
                 "name": f"bnetza_mastr_{tech}",
-                "title": f"open-MaStR {tech} units",
                 "path": filenames["postprocessed"][tech],
-                "scheme": "file",
+                "format": "PostgreSQL",
                 "encoding": "utf-8",
-                "mediatype": "text/csv",
                 "schema": {
                     "fields": raw_fields + processed_fields,
                     "primaryKey": ["EinheitMastrNummer"],
