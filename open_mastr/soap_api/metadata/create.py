@@ -273,14 +273,14 @@ def create_datapackage_meta_json(
                     "name": "geom",
                     "unit": None,
                     "type": "str",
-                    "desciption": "Standort der Anlage als Punktgeometrie im WKB Format",
+                    "description": "Standort der Anlage als Punktgeometrie im WKB Format",
                     "examples": "0101000020e610000071fbe59315131c40a2b437f8c20e4a40",
                 },
                 {
                     "name": "comment",
                     "unit": None,
                     "type": "str",
-                    "desciption": "Information about data post-processing",
+                    "description": "Information about data post-processing",
                     "examples": "has_geom; outside_vg250",
                 },
             ]
@@ -290,7 +290,7 @@ def create_datapackage_meta_json(
                         "name": "tags",
                         "unit": None,
                         "type": "json",
-                        "desciption": "Data insights and report about post-processing steps",
+                        "description": "Data insights and report about post-processing steps",
                         "examples": {
                             "plz_check": False,
                             "processed": True,
@@ -303,7 +303,7 @@ def create_datapackage_meta_json(
                         "name": "geom",
                         "unit": None,
                         "type": "str",
-                        "desciption": "Standort der Anlage als Punktgeometrie im WKB Format (EPSG 3035)",
+                        "description": "Standort der Anlage als Punktgeometrie im WKB Format (EPSG 3035)",
                         "examples": "0101000020e610000071fbe59315131c40a2b437f8c20e4a40",
                     }
                 )
