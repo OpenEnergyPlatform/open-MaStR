@@ -244,7 +244,7 @@ def create_datapackage_meta_json(
                 "profile": "tabular-data-resource",
                 "name": f"bnetza_mastr_{tech}_raw",
                 "path": filenames["raw"][tech]["joined"],
-                "format": "PostgreSQL",
+                "format": "csv",
                 "encoding": "utf-8",
                 "schema": {
                     "fields": raw_fields,
@@ -258,7 +258,7 @@ def create_datapackage_meta_json(
                 "profile": "tabular-data-resource",
                 "name": f"bnetza_mastr_{tech}_cleaned",
                 "path": filenames["cleaned"][tech],
-                "format": "PostgreSQL",
+                "format": "csv",
                 "encoding": "utf-8",
                 "schema": {
                     "fields": raw_fields,
@@ -311,7 +311,7 @@ def create_datapackage_meta_json(
                 "profile": "tabular-data-resource",
                 "name": f"bnetza_mastr_{tech}",
                 "path": filenames["postprocessed"][tech],
-                "format": "PostgreSQL",
+                "format": "csv",
                 "encoding": "utf-8",
                 "schema": {
                     "fields": raw_fields + processed_fields,
