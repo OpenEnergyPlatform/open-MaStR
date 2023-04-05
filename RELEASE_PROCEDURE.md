@@ -59,6 +59,8 @@ It always has the format `YYYY-MM-DD`, e.g. `2022-05-16`.
 
 ### 5. 💠 Create a `release` branch
 * Checkout `develop` and branch with `git checkout -b release-v0.12.1`
+* Update version for test release with e.g. `bump2version patch`. To specify version numbers manually use `bump2version --current-version <current_version> --new-version <new_version> patch`
+* Commit version update with `git commit -am "version update v0.12.1a1"`
 * Push branch with `git push --set-upstream origin release-v0.12.1`
 
 ### 6. Check release on Test-PyPI 
@@ -66,9 +68,10 @@ It always has the format `YYYY-MM-DD`, e.g. `2022-05-16`.
 * Check if the release it correctly displayed on [Test-PyPI](https://test.pypi.org/project/open-mastr/#history)
 * With each push to the release branch or the branch `test-release` the package is released on [Test-PyPI](https://test.pypi.org/project/open-mastr/#history) by GitHub workflow (test-pypi-publish.yml).
   * Note: Pre-releases on Test-PyPI are only shown under `Release history` in the navigation bar.
-  * Note: The branch status can only be released to a version on Test-PyPI once. Thus, for every branch status that you want to see on Test-PyPI you'll need to increase the version in `📝setup.py` to a number that has not been released on Test-PyPI yet, otherwise the workflow fails. Use alpha-versioning, e.g. `v0.12.1a1`, `v0.12.1a2`,...
-* Once testing on Test-PyPI is done, change the release version to the final desired version in `📝setup.py`, e.g. `v0.12.1`
-  * Note: The release on Test-PyPI might fail but it will be the correct release version for the PyPI server.
+  * Note: The branch status can only be released to a version on Test-PyPI once. Thus, for every branch status that you want to see on Test-PyPI increment the build version with `bump2version build` and push afterwards.
+* Once testing on Test-PyPI is done, change the release version to the final desired version with `bump2version release`
+  * Note: The release on Test-PyPI might fail, but it will be the correct release version for the PyPI server.
+* Push commits to the `release-*` branch
 
 ### 7. 📝 Update the version files
 * `📝CHANGELOG.md`
@@ -76,13 +79,7 @@ It always has the format `YYYY-MM-DD`, e.g. `2022-05-16`.
     * Add a new section with correct version number
     * Give the suitable name to the release
 * `📝CITATION.cff`
-    * Update the version number
     * Update `date-released`
-* `📝setup.py`
-    * Update `version`
-    * Update `download_url` (.../v0.12.1.tar.gz)
-* `📝ci-production.yml`
-    * Update version number in `run` command (line 36)
 
 ### 8. 🐙 Create a `Release Pull Request`
 * Use `📝PR_TEMPLATE_RELEASE` (❗ToDo❗)

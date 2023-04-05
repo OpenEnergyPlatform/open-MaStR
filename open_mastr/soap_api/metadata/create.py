@@ -178,7 +178,7 @@ def datapackag_base(reference_date, publication_date=None, statistik_flag=None):
     return datapackage_meta
 
 
-def datapackage_meta_json(
+def create_datapackage_meta_json(
     reference_date,
     technologies=None,
     data=["raw"],
@@ -349,7 +349,7 @@ def datapackage_meta_json(
 
 
 def column_docs_csv(technologies, base_path):
-    metadata = datapackage_meta_json(
+    metadata = create_datapackage_meta_json(
         datetime.datetime.now(), technologies, json_serialize=False
     )
 

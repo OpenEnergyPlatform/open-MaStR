@@ -5,6 +5,12 @@ from bs4 import BeautifulSoup
 import numpy as np
 import os
 import shutil
+from zipfile import ZipFile, BadZipfile
+
+# setup logger
+from open_mastr.utils.config import setup_logger
+
+log = setup_logger()
 
 
 def get_url_from_Mastr_website() -> str:
@@ -24,7 +30,9 @@ def get_url_from_Mastr_website() -> str:
     return str(element).split('href="')[1].split('" title')[0]
 
 
-def download_xml_Mastr(save_path: str, bulk_date_string: str, xml_folder_path: str) -> None:
+def download_xml_Mastr(
+    save_path: str, bulk_date_string: str, xml_folder_path: str
+) -> None:
     """Downloads the zipped MaStR.
 
     Parameters
@@ -34,8 +42,14 @@ def download_xml_Mastr(save_path: str, bulk_date_string: str, xml_folder_path: s
     """
 
     if os.path.exists(save_path):
-        print("MaStR already downloaded.")
-        return None
+        try:
+            _ = ZipFile(save_path)
+        except BadZipfile:
+            log.info(f"Bad Zip file is deleted: {save_path}")
+            os.remove(save_path)
+        else:
+            print("MaStR already downloaded.")
+            return None
 
     if bulk_date_string != "today":
         raise OSError(
