@@ -215,7 +215,7 @@ class Mastr:
 
             # Find the name of the zipped xml folder
             bulk_download_date = parse_date_string(date)
-            xml_folder_path = os.path.join(self.home_directory, "data", "xml_download")
+            xml_folder_path = os.path.join(self.output_dir, "data", "xml_download")
             os.makedirs(xml_folder_path, exist_ok=True)
             zipped_xml_file_path = os.path.join(
                 xml_folder_path,
