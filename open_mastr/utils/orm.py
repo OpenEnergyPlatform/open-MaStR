@@ -42,6 +42,7 @@ class BasicUnit(Base):
     GenMastrNummer = Column(String)
     BestandsanlageMastrNummer = Column(String)
     NichtVorhandenInMigriertenEinheiten = Column(String)
+    EinheitSystemstatus = Column(String)
 
 
 class AdditionalDataRequested(Base):
