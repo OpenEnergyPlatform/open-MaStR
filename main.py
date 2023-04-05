@@ -77,7 +77,7 @@ if __name__ == "__main__":
 
     ## download Markstammdatenregister
     # bulk download
-    #db.download(method="bulk", data=data_bulk, date=bulk_date, bulk_cleansing=True)
+    db.download(method="bulk", data=data_bulk, date=bulk_date, bulk_cleansing=True)
 
     # API download
     db.download(
@@ -96,4 +96,4 @@ if __name__ == "__main__":
     Technology-related tables are exported as joined, whereas additional tables
     are duplicated as they are in the database. 
     """
-    db.to_csv(limit=10)
+    db.to_csv()
