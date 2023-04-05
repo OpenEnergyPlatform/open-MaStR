@@ -11,8 +11,12 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 """
 
 from open_mastr import Mastr
+import os
 
 ## specify download parameter
+
+# set env
+os.environ['OUTPUT_PATH'] = '/home/cwm/.openMASTERPATH'
 
 # bulk download
 bulk_date = "today"
@@ -67,25 +71,28 @@ api_location_types = [
 db = Mastr()
 
 if __name__ == "__main__":
+
+
+
     ## download Markstammdatenregister
     # bulk download
-    db.download(method="bulk", data=data_bulk, date=bulk_date, bulk_cleansing=True)
+    #db.download(method="bulk", data=data_bulk, date=bulk_date, bulk_cleansing=True)
 
     # API download
-    db.download(
-        method="API",
-        data=data_api,
-        date=api_date,
-        api_processes=api_processes,
-        api_limit=api_limit,
-        api_chunksize=api_chunksize,
-        api_data_types=api_data_types,
-        api_location_types=api_location_types,
-    )
+    # db.download(
+    #     method="API",
+    #     data=data_api,
+    #     date=api_date,
+    #     api_processes=api_processes,
+    #     api_limit=api_limit,
+    #     api_chunksize=api_chunksize,
+    #     api_data_types=api_data_types,
+    #     api_location_types=api_location_types,
+    # )
 
     ## export to csv
     """
     Technology-related tables are exported as joined, whereas additional tables
     are duplicated as they are in the database. 
     """
-    db.to_csv()
+    db.to_csv(limit=10)

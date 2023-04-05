@@ -47,6 +47,21 @@ def get_project_home_dir():
     return os.path.join(os.path.expanduser("~"), ".open-MaStR")
 
 
+def get_output_dir():
+    """Get output directory for csv data and database. Defaults to get_project_home_dir()
+
+    Returns
+    -------
+    path-like object
+        Absolute path to output path
+    """
+
+    if "OUTPUT_PATH" in os.environ:
+        return os.environ.get('OUTPUT_PATH')
+
+    return get_project_home_dir()
+
+
 def get_data_version_dir():
     """
     Subdirectory of data/ in PROJECTHOME
@@ -59,6 +74,10 @@ def get_data_version_dir():
         Absolute path to `PROJECTHOME/data/<data-version>/`
     """
     data_version = get_data_config()
+
+    if "OUTPUT_PATH" in os.environ:
+        return os.path.join(os.environ.get('OUTPUT_PATH'), "data", data_version)
+
     return os.path.join(get_project_home_dir(), "data", data_version)
 
 
