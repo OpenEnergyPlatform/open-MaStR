@@ -228,6 +228,7 @@ class CombustionExtended(Extended, ParentAllTables, Base):
     Einsatzort = Column(String)
     KwkMastrNummer = Column(String)
     Technologie = Column(String)
+    AusschliesslicheVerwendungImKombibetrieb = Column(Boolean)
 
 
 class GsgkExtended(Extended, ParentAllTables, Base):
