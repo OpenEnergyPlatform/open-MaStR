@@ -15,8 +15,9 @@ import os
 
 ## specify download parameter
 
-# set env
-os.environ['OUTPUT_PATH'] = '/home/cwm/.openMASTERPATH'
+# set custom output path for: csv-export, database, xml-export.
+# see documentation: https://open-mastr.readthedocs.io/en/latest/advanced.html#environment-variables
+# os.environ['OUTPUT_PATH'] = "/your/custom/output_path"
 
 # bulk download
 bulk_date = "today"
@@ -79,16 +80,16 @@ if __name__ == "__main__":
     #db.download(method="bulk", data=data_bulk, date=bulk_date, bulk_cleansing=True)
 
     # API download
-    # db.download(
-    #     method="API",
-    #     data=data_api,
-    #     date=api_date,
-    #     api_processes=api_processes,
-    #     api_limit=api_limit,
-    #     api_chunksize=api_chunksize,
-    #     api_data_types=api_data_types,
-    #     api_location_types=api_location_types,
-    # )
+    db.download(
+        method="API",
+        data=data_api,
+        date=api_date,
+        api_processes=api_processes,
+        api_limit=api_limit,
+        api_chunksize=api_chunksize,
+        api_data_types=api_data_types,
+        api_location_types=api_location_types,
+    )
 
     ## export to csv
     """

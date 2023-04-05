@@ -48,7 +48,7 @@ def get_project_home_dir():
 
 
 def get_output_dir():
-    """Get output directory for csv data and database. Defaults to get_project_home_dir()
+    """Get output directory for csv data, xml file and database. Defaults to get_project_home_dir()
 
     Returns
     -------
