@@ -776,6 +776,18 @@ class DeletedUnits(ParentAllTables, Base):
     EinheitBetriebsstatus = Column(String)
 
 
+class RetrofitUnits(ParentAllTables, Base):
+    __tablename__ = "retrofit_units"
+
+    Id = Column(Integer, primary_key=True)
+    EegMastrNummer = Column(String)
+    Leistungserhoehung = Column(Float)
+    WiederinbetriebnahmeDatum = Column(Date)
+    DatumLetzteAktualisierung = Column(DateTime(timezone=True))
+    Ertuechtigungsart = Column(String)
+    ErtuechtigungIstZulassungspflichtig = Column(Boolean)
+
+
 tablename_mapping = {
     "anlageneegbiomasse": {
         "__name__": BiomassEeg.__tablename__,
@@ -795,7 +807,7 @@ tablename_mapping = {
             "LokationMaStRNummer": "LokationMastrNummer",
         },
     },
-    "anlageneeggeosolarthermiegrubenklaerschlammdruckentspannung": {
+    "anlageneeggeothermiegrubengasdruckentspannung": {
         "__name__": GsgkEeg.__tablename__,
         "__class__": GsgkEeg,
         "replace_column_names": {
@@ -803,7 +815,7 @@ tablename_mapping = {
             "VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheit",
         },
     },
-    "einheitengeosolarthermiegrubenklaerschlammdruckentspannung": {
+    "einheitengeothermiegrubengasdruckentspannung": {
         "__name__": GsgkExtended.__tablename__,
         "__class__": GsgkExtended,
         "replace_column_names": {
@@ -959,6 +971,11 @@ tablename_mapping = {
             "LokationMaStRNummer": "LokationMastrNummer",
             "KwkMaStRNummer": "KwkMastrNummer",
         },
+    },
+    "ertuechtigungen": {
+        "__name__": RetrofitUnits.__tablename__,
+        "__class__": RetrofitUnits,
+        "replace_column_names": None,
     },
     "geloeschteunddeaktivierteeinheiten": {
         "__name__": DeletedUnits.__tablename__,

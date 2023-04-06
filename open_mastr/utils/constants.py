@@ -16,6 +16,7 @@ BULK_DATA = [
     "balancing_area",
     "permit",
     "deleted_units",
+    "retrofit_units",
 ]
 
 # Possible values for parameter 'data' with API download method
@@ -99,6 +100,7 @@ BULK_INCLUDE_TABLES_MAP = {
     "balancing_area": ["bilanzierungsgebiete"],
     "permit": ["einheitengenehmigung"],
     "deleted_units": ["geloeschteunddeaktivierteeinheiten"],
+    "retrofit_units": ["ertuechtigungen"],
 }
 
 # Map bulk data to database table names, for csv export
