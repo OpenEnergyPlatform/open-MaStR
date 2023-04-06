@@ -743,6 +743,7 @@ class Grids(ParentAllTables, Base):
     GeschlossenesVerteilnetz = Column(String)
     Bezeichnung = Column(String)
     Marktgebiet = Column(String)
+    Bundesland = Column(String)
 
 
 class GridConnections(ParentAllTables, Base):
