@@ -65,6 +65,8 @@ def parameter_dict_working_list():
             "grid",
             "balancing_area",
             "permit",
+            "deleted_units",
+            "retrofit_units",
             None,
             ["wind", "solar"],
         ],
