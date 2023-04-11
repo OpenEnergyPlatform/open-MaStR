@@ -42,6 +42,7 @@ class BasicUnit(Base):
     GenMastrNummer = Column(String)
     BestandsanlageMastrNummer = Column(String)
     NichtVorhandenInMigriertenEinheiten = Column(String)
+    EinheitSystemstatus = Column(String)
 
 
 class AdditionalDataRequested(Base):
@@ -134,6 +135,7 @@ class Extended(object):
     Einspeisungsart = Column(String)
     PraequalifiziertFuerRegelenergie = Column(Boolean)
     GenMastrNummer = Column(String)
+    Netzbetreiberzuordnungen = Column(String)
     # from bulk download
     Hausnummer_nv = Column(Boolean)
     Weic_nv = Column(Boolean)
@@ -227,6 +229,7 @@ class CombustionExtended(Extended, ParentAllTables, Base):
     Einsatzort = Column(String)
     KwkMastrNummer = Column(String)
     Technologie = Column(String)
+    AusschliesslicheVerwendungImKombibetrieb = Column(Boolean)
 
 
 class GsgkExtended(Extended, ParentAllTables, Base):
@@ -292,6 +295,7 @@ class Eeg(object):
     AusschreibungZuschlag = Column(Boolean)
     AnlagenkennzifferAnlagenregister = Column(String)
     AnlagenkennzifferAnlagenregister_nv = Column(Boolean)
+    Netzbetreiberzuordnungen = Column(String)
 
 
 class WindEeg(Eeg, ParentAllTables, Base):
@@ -385,6 +389,7 @@ class Kwk(ParentAllTables, Base):
     VerknuepfteEinheiten = Column(String)
     AnlageBetriebsstatus = Column(String)
     AusschreibungZuschlag = Column(Boolean)
+    Netzbetreiberzuordnungen = Column(String)
 
 
 class Permit(ParentAllTables, Base):
@@ -404,6 +409,7 @@ class Permit(ParentAllTables, Base):
     VerknuepfteEinheiten = Column(String)
     Frist_nv = Column(Boolean)
     WasserrechtAblaufdatum_nv = Column(Boolean)
+    Netzbetreiberzuordnungen = Column(String)
 
 
 class LocationBasic(Base):
@@ -741,6 +747,7 @@ class Grids(ParentAllTables, Base):
     GeschlossenesVerteilnetz = Column(String)
     Bezeichnung = Column(String)
     Marktgebiet = Column(String)
+    Bundesland = Column(String)
 
 
 class GridConnections(ParentAllTables, Base):
@@ -774,6 +781,18 @@ class DeletedUnits(ParentAllTables, Base):
     EinheitBetriebsstatus = Column(String)
 
 
+class RetrofitUnits(ParentAllTables, Base):
+    __tablename__ = "retrofit_units"
+
+    Id = Column(Integer, primary_key=True)
+    EegMastrNummer = Column(String)
+    Leistungserhoehung = Column(Float)
+    WiederinbetriebnahmeDatum = Column(Date)
+    DatumLetzteAktualisierung = Column(DateTime(timezone=True))
+    Ertuechtigungsart = Column(String)
+    ErtuechtigungIstZulassungspflichtig = Column(Boolean)
+
+
 tablename_mapping = {
     "anlageneegbiomasse": {
         "__name__": BiomassEeg.__tablename__,
@@ -793,7 +812,7 @@ tablename_mapping = {
             "LokationMaStRNummer": "LokationMastrNummer",
         },
     },
-    "anlageneeggeosolarthermiegrubenklaerschlammdruckentspannung": {
+    "anlageneeggeothermiegrubengasdruckentspannung": {
         "__name__": GsgkEeg.__tablename__,
         "__class__": GsgkEeg,
         "replace_column_names": {
@@ -801,7 +820,7 @@ tablename_mapping = {
             "VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheit",
         },
     },
-    "einheitengeosolarthermiegrubenklaerschlammdruckentspannung": {
+    "einheitengeothermiegrubengasdruckentspannung": {
         "__name__": GsgkExtended.__tablename__,
         "__class__": GsgkExtended,
         "replace_column_names": {
@@ -957,6 +976,11 @@ tablename_mapping = {
             "LokationMaStRNummer": "LokationMastrNummer",
             "KwkMaStRNummer": "KwkMastrNummer",
         },
+    },
+    "ertuechtigungen": {
+        "__name__": RetrofitUnits.__tablename__,
+        "__class__": RetrofitUnits,
+        "replace_column_names": None,
     },
     "geloeschteunddeaktivierteeinheiten": {
         "__name__": DeletedUnits.__tablename__,

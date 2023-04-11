@@ -16,6 +16,7 @@ BULK_DATA = [
     "balancing_area",
     "permit",
     "deleted_units",
+    "retrofit_units",
 ]
 
 # Possible values for parameter 'data' with API download method
@@ -59,7 +60,8 @@ ADDITIONAL_TABLES = [
     "market_actors",
     "market_roles",
     "permit",
-    "deleted_units"
+    "deleted_units",
+    "retrofit_units",
 ]
 
 # Possible data types for API download
@@ -99,6 +101,7 @@ BULK_INCLUDE_TABLES_MAP = {
     "balancing_area": ["bilanzierungsgebiete"],
     "permit": ["einheitengenehmigung"],
     "deleted_units": ["geloeschteunddeaktivierteeinheiten"],
+    "retrofit_units": ["ertuechtigungen"],
 }
 
 # Map bulk data to database table names, for csv export
@@ -116,6 +119,7 @@ BULK_ADDITIONAL_TABLES_CSV_EXPORT_MAP = {
     "balancing_area": ["balancing_area"],
     "permit": ["permit"],
     "deleted_units": ["deleted_units"],
+    "retrofit_units": ["retrofit_units"],
 }
 
 # used to map the parameter options in open-mastr to the exact table class names in orm.py
@@ -152,10 +156,7 @@ ORM_MAP = {
         "eeg_data": "HydroEeg",
         "permit_data": "Permit",
     },
-    "nuclear": {
-        "unit_data": "NuclearExtended",
-        "permit_data": "Permit"
-    },
+    "nuclear": {"unit_data": "NuclearExtended", "permit_data": "Permit"},
     "storage": {
         "unit_data": "StorageExtended",
         "eeg_data": "StorageEeg",
@@ -173,9 +174,9 @@ ORM_MAP = {
     "grids": "Grids",
     "balancing_area": "BalancingArea",
     "permit": "Permit",
-    "deleted_units": "DeletedUnits"
+    "deleted_units": "DeletedUnits",
+    "retrofit_units": "RetrofitUnits",
 }
-
 
 
 UNIT_TYPE_MAP = {

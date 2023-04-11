@@ -318,7 +318,7 @@ class MaStRMirror:
                     data, requested_ids, download_functions[data_type]
                 )
 
-                unit_data = flatten_dict(unit_data)
+                unit_data = flatten_dict(unit_data, serialize_with_json=False)
                 number_units_merged = 0
 
                 # Prepare data and add to database table
@@ -839,20 +839,21 @@ class MaStRMirror:
                 ertuechtigung["ProzentualeErhoehungDesLv"] = float(
                     ertuechtigung["ProzentualeErhoehungDesLv"]
                 )
-        # The NetzbetreiberMastrNummer is handed over as type:list, hence
-        # non-compatible with sqlite)
-        # This replaces the list with the first (string)element in the list
-        # to make it sqlite compatible
-        if (
-            "NetzbetreiberMastrNummer" in unit_dat
-            and type(unit_dat["NetzbetreiberMastrNummer"]) == list
-        ):
-            if len(unit_dat["NetzbetreiberMastrNummer"]) > 0:
-                unit_dat["NetzbetreiberMastrNummer"] = unit_dat[
-                    "NetzbetreiberMastrNummer"
-                ][0]
-            else:
-                unit_dat["NetzbetreiberMastrNummer"] = None
+        # Some data (data_in_list) is handed over as type:list, hence
+        # non-compatible with sqlite or postgresql
+        # This replaces the list with the first element in the list
+
+        data_as_list = ["NetzbetreiberMastrNummer","Netzbetreiberzuordnungen"]
+
+        for dat in data_as_list:
+            if (
+                dat in unit_dat
+                and type(unit_dat[dat]) == list
+            ):
+                if len(unit_dat[dat]) > 0:
+                    unit_dat[dat] = f"{unit_dat[dat][0]}"
+                else:
+                    unit_dat[dat] = None
 
         # Rename the typo in column zugeordneteWirkleistungWechselrichter
         if "zugeordneteWirkleistungWechselrichter" in unit_dat.keys():
