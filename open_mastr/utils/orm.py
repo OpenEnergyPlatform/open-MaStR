@@ -135,6 +135,7 @@ class Extended(object):
     Einspeisungsart = Column(String)
     PraequalifiziertFuerRegelenergie = Column(Boolean)
     GenMastrNummer = Column(String)
+    Netzbetreiberzuordnungen = Column(String)
     # from bulk download
     Hausnummer_nv = Column(Boolean)
     Weic_nv = Column(Boolean)
@@ -294,6 +295,7 @@ class Eeg(object):
     AusschreibungZuschlag = Column(Boolean)
     AnlagenkennzifferAnlagenregister = Column(String)
     AnlagenkennzifferAnlagenregister_nv = Column(Boolean)
+    Netzbetreiberzuordnungen = Column(String)
 
 
 class WindEeg(Eeg, ParentAllTables, Base):
@@ -387,6 +389,7 @@ class Kwk(ParentAllTables, Base):
     VerknuepfteEinheiten = Column(String)
     AnlageBetriebsstatus = Column(String)
     AusschreibungZuschlag = Column(Boolean)
+    Netzbetreiberzuordnungen = Column(String)
 
 
 class Permit(ParentAllTables, Base):
@@ -406,6 +409,7 @@ class Permit(ParentAllTables, Base):
     VerknuepfteEinheiten = Column(String)
     Frist_nv = Column(Boolean)
     WasserrechtAblaufdatum_nv = Column(Boolean)
+    Netzbetreiberzuordnungen = Column(String)
 
 
 class LocationBasic(Base):
