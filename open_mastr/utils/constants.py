@@ -61,6 +61,7 @@ ADDITIONAL_TABLES = [
     "market_roles",
     "permit",
     "deleted_units",
+    "retrofit_units",
 ]
 
 # Possible data types for API download
@@ -118,6 +119,7 @@ BULK_ADDITIONAL_TABLES_CSV_EXPORT_MAP = {
     "balancing_area": ["balancing_area"],
     "permit": ["permit"],
     "deleted_units": ["deleted_units"],
+    "retrofit_units": ["retrofit_units"],
 }
 
 # used to map the parameter options in open-mastr to the exact table class names in orm.py
@@ -173,6 +175,7 @@ ORM_MAP = {
     "balancing_area": "BalancingArea",
     "permit": "Permit",
     "deleted_units": "DeletedUnits",
+    "retrofit_units": "RetrofitUnits",
 }
 
 
