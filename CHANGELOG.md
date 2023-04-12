@@ -6,10 +6,16 @@ For each version important additions, changes and removals are listed here.
 The format is inspired from [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [v0.13.1] Hotfix - 2023-04-11
+## [v0.1X.X] current  - 2023-XX-XX
+### Added
+- User-defined output path for csv, xml, database [#402](https://github.com/OpenEnergyPlatform/open-MaStR/pull/402)
+### Changed
+### Removed
 
+## [v0.13.1] Hotfix - 2023-04-11
 ### Added
 - Add new table and new columns to the data model [#440](https://github.com/OpenEnergyPlatform/open-MaStR/pull/440)
+
 ## [v0.13.0] Maintenance release - 2023-02-16
 ### Added
 - Add a `workflow_dispatch` to run CI pipelines from a button click [#389](https://github.com/OpenEnergyPlatform/open-MaStR/pull/389)
