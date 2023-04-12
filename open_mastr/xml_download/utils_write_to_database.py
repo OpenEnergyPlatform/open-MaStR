@@ -285,9 +285,16 @@ def write_single_entries_until_not_unique_comes_up(
             key_list = (
                 pd.read_sql(sql=select(primary_key), con=con).values.squeeze().tolist()
             )
-    df = df.set_index(primary_key.name)
+
     len_df_before = len(df)
-    df = df.drop(labels=key_list, errors="ignore")
+    df = df.drop_duplicates(
+        subset=[primary_key.name]
+    )  # drop all entries with duplicated primary keys in the dataframe
+    df = df.set_index(primary_key.name)
+
+    df = df.drop(
+        labels=key_list, errors="ignore"
+    )  # drop primary keys that already exist in the table
     df = df.reset_index()
     print(f"{len_df_before-len(df)} entries already existed in the database.")
 
@@ -378,5 +385,3 @@ def handle_xml_syntax_error(data: bytes, err: Error) -> pd.DataFrame:
     df = pd.read_xml(decoded_data)
     print("One invalid xml expression was deleted.")
     return df
-
-

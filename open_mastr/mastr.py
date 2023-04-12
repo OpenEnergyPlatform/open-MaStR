@@ -135,6 +135,7 @@ class Mastr:
                 "balancing_area", "Yes", "No"
                 "permit", "Yes", "Yes"
                 "deleted_units", "Yes", "No"
+                "retrofit_units", "Yes", "No"
 
         date: None or :class:`datetime.datetime` or str, optional
             For bulk method:

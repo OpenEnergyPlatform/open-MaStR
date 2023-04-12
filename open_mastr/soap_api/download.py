@@ -479,7 +479,7 @@ class MaStRDownload:
                 "permit_data": "GetEinheitGenehmigung",
             },
             "gsgk": {
-                "unit_data": "GetEinheitGeoSolarthermieGrubenKlaerschlammDruckentspannung",
+                "unit_data": "GetEinheitGeothermieGrubengasDruckentspannung",
                 "energietraeger": [
                     "Geothermie",
                     "Solarthermie",
@@ -487,7 +487,7 @@ class MaStRDownload:
                     "Klaerschlamm",
                 ],
                 "kwk_data": "GetAnlageKwk",
-                "eeg_data": "GetAnlageEegGeoSolarthermieGrubenKlaerschlammDruckentspannung",
+                "eeg_data": "GetAnlageEegGeothermieGrubengasDruckentspannung",
                 "permit_data": "GetEinheitGenehmigung",
             },
             "nuclear": {

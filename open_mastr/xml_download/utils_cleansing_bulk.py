@@ -34,7 +34,6 @@ def replace_mastr_katalogeintraege(
     """Replaces the IDs from the mastr database by its mapped string values from
     the table katalogwerte"""
     katalogwerte = create_katalogwerte_from_bulk_download(zipped_xml_file_path)
-
     for column_name in df.columns:
         if column_name in columns_replace_list:
             if df[column_name].dtype == "O":
@@ -43,6 +42,7 @@ def replace_mastr_katalogeintraege(
                     df[column_name]
                     .str.split(",", expand=True)
                     .apply(lambda x: x.str.strip())
+                    .replace("", None)
                     .astype("Int64")
                     .applymap(katalogwerte.get)
                     .agg(lambda d: ",".join(i for i in d if isinstance(i, str)), axis=1)
