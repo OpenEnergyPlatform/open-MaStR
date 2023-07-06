@@ -1,0 +1,10 @@
+customtkinter
+numpy
+pandas
+pyproj
+SQLAlchemy
+tkintermapview
+psycopg2
+matplotlib
+geopandas #probably from conda-forge channel
+GeoAlchemy2
