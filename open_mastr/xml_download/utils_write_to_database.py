@@ -98,7 +98,6 @@ def is_first_file(file_name: str) -> bool:
 
 
 def cast_date_columns_to_datetime(xml_tablename: str, df: pd.DataFrame) -> pd.DataFrame:
-
     sqlalchemy_columnlist = tablename_mapping[xml_tablename][
         "__class__"
     ].__table__.columns.items()
@@ -186,7 +185,6 @@ def add_table_to_database(
     if_exists: str,
     engine: sqlalchemy.engine.Engine,
 ) -> None:
-
     # get a dictionary for the data types
 
     table_columns_list = list(
@@ -198,8 +196,8 @@ def add_table_to_database(
         if column.name in df.columns
     }
 
-    continueloop = True
-    while continueloop:
+    # Trying to run through the columns and exceptions
+    for _ in range(10000):
         try:
             with engine.connect() as con:
                 with con.begin():
@@ -210,7 +208,7 @@ def add_table_to_database(
                         if_exists=if_exists,
                         dtype=dtypes_for_writing_sql,
                     )
-                    continueloop = False
+            break
         except sqlalchemy.exc.OperationalError as err:
             add_missing_column_to_table(err, engine, xml_tablename)
 
@@ -232,7 +230,8 @@ def add_table_to_database(
 
 def add_zero_as_first_character_for_too_short_string(df: pd.DataFrame) -> pd.DataFrame:
     """Some columns are read as integer even though they are actually strings starting with
-    a 0. This function converts those columns back to strings and adds a 0 as first character."""
+    a 0. This function converts those columns back to strings and adds a 0 as first character.
+    """
 
     dict_of_columns_and_string_length = {
         "Gemeindeschluessel": 8,
