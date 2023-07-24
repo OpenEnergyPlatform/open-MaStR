@@ -177,4 +177,4 @@ Data
     :alt: counter
     
 .. |PyPI download month| image:: https://img.shields.io/pypi/dm/open-mastr?label=PyPi%20Downloads
-    :target: https://pypi.org/project/open-mastr/
+    :target: https://pypistats.org/packages/open-mastr
