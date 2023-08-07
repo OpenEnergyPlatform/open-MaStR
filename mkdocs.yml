@@ -30,6 +30,13 @@ plugins:
   - mkdocstrings:
       default_handler: python
       docstring_style: numpy
+      handlers:
+        python:
+          options:
+            show_root_heading: true
+            show_source: false
+            docstring_style: numpy
+            docstring_section_style: spacy
   - include-markdown
   
 
@@ -58,14 +65,16 @@ markdown_extensions:
       emoji_generator: !!python/name:materialx.emoji.to_svg
 
 nav:
-  - open-mastr: index.md
+  - Home: index.md
   - Getting Started: getting_started.md
   - The dataset: dataset.md
   - Development: 
     - Contributing: development/contributing_mirror.md
     - Release Procedure: development/release_procedure_mirror.md
     - Changelog: development/changelog_mirror.md
-  - API Reference: reference.md
+  - API Reference: 
+    - Basic Usage: reference/basic.md
+    - Advanced Usage of the MaStR SOAP-API: reference/advanced.md
 
 repo_url: https://github.com/OpenEnergyPlatform/open-MaStR
 site_description: A package that provides an interface for downloading and processing the data of the Marktstammdatenregister (MaStR)
