@@ -97,7 +97,7 @@ Install the package with
 
 .. code-block:: python
 
-    python setup.py install
+    pip install "open_mastr[dev]"
 
 
 Examples of Usage
