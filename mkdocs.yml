@@ -26,10 +26,12 @@ theme:
       accent: lime
 plugins:
   - search
+  - autorefs
   - mkdocstrings:
       default_handler: python
       docstring_style: numpy
   - include-markdown
+  
 
 watch:
   - open_mastr
