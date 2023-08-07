@@ -31,6 +31,9 @@ plugins:
       docstring_style: numpy
   - include-markdown
 
+watch:
+  - open_mastr
+
 markdown_extensions:
   - pymdownx.highlight:
       anchor_linenums: true
