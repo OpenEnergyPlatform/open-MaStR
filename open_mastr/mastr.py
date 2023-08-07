@@ -52,14 +52,13 @@ class Mastr:
         Defines the engine of the database where the MaStR is mirrored to.
         Default is 'sqlite'.
 
-    Example
-    -------
-    ```python
-    from open_mastr import Mastr
+    !!! example
+        ```python
+        from open_mastr import Mastr
 
-    db = Mastr()
-    db.download()
-    ```
+        db = Mastr()
+        db.download()
+        ```
     """
 
     def __init__(self, engine="sqlite") -> None:
@@ -128,22 +127,17 @@ class Mastr:
             | "permit"              | Yes  | Yes  |
             | "deleted_units"       | Yes  | No   |
             | "retrofit_units"      | Yes  | No   |
-
         date : None or `datetime.datetime` or str, optional
-            For bulk method
-            Either "today" or None if the newest data dump should be downloaded
-            from the MaStR website. If an already downloaded dump should be used,
-            state the date of the download in the format "yyyymmdd". Defaults to None.
-            For API method
-            Specify backfill date from which on data is retrieved.
-            Only data with a modification time stamp greater than `date` is retrieved.
-            - `datetime.datetime(2020, 11, 27)`: Retrieve data that is newer than this time stamp.
-            - 'latest': Retrieve data that is newer than the newest data already in the table.
-            .. warning::
-                Don't use "latest" in combination with "api_limit". This might lead to unexpected results.
-            - `None`: Complete backfill.
-            Defaults to `None`.
 
+            | date                  | Bulk | API  |
+            |-----------------------|------|------|
+            | "today"                | latest files are downloaded from marktstammdatenregister.de  | -  |
+            | "20230101"      | If file from this date exists locally, it is used. Otherwise it throws an error (You can only receive todays data from the server)  | -   |
+            | "latest"               | -  | Retrieve data that is newer than the newest data already in the table  |
+            | datetime.datetime(2020, 11, 27)      | -  | Retrieve data that is newer than this time stamp   |
+            | None      | set date="today"  | set date="latest"   |
+
+            Default to `None`.
         bulk_cleansing : bool, optional
             If True, data cleansing is applied after the download (which is recommended). Default
             to True.
@@ -152,15 +146,14 @@ class Mastr:
             Defaults to `None`. If set to "max", the maximum number of possible processes
             is used.
 
-            .. warning::
+            !!! warning
 
                 The implementation of parallel processes is currently under construction.
                 Please let the argument `api_processes` at the default value `None`.
-
         api_limit : int or None, optional
             Limit the number of units that data is downloaded for. Defaults to `None` which refers
             to query data for existing data requests, for example created by
-            :meth:`~.create_additional_data_requests`. Note: There is a limited number of
+            [`create_additional_data_requests`][open_mastr.soap_api.mirror.create_additional_data_requests]. Note: There is a limited number of
             requests you are allowed to have per day, so setting api_limit to a value is
             recommended.
         api_chunksize : int or None, optional
@@ -277,7 +270,7 @@ class Mastr:
         ------------
         tables: None or list
             For exporting selected tables choose from:
-                ["wind","solar","biomass","hydro","gsgk","combustion","nuclear","storage",
+                ["wind", "solar", "biomass", "hydro", "gsgk", "combustion", "nuclear", "storage",
                 "balancing_area", "electricity_consumer", "gas_consumer", "gas_producer",
                 "gas_storage", "gas_storage_extended",
                 "grid_connections", "grids", "market_actors", "market_roles",
