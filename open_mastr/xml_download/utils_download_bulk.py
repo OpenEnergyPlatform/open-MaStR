@@ -1,11 +1,12 @@
-import requests
-from tqdm import tqdm
-import time
-from bs4 import BeautifulSoup
-import numpy as np
 import os
 import shutil
-from zipfile import ZipFile, BadZipfile
+import time
+from zipfile import BadZipfile, ZipFile
+
+import numpy as np
+import requests
+from bs4 import BeautifulSoup
+from tqdm import tqdm
 
 # setup logger
 from open_mastr.utils.config import setup_logger
@@ -71,9 +72,9 @@ def download_xml_Mastr(
     url = get_url_from_Mastr_website()
     time_a = time.perf_counter()
     r = requests.get(url, stream=True)
-    total_length = int(10000 * 1024 * 1024)
+    total_length = int(18000 * 1024 * 1024)
     with open(save_path, "wb") as zfile, tqdm(
-        desc=save_path, total=(total_length / 1024 / 1024), unit="MB"
+        desc=save_path, total=(total_length / 1024 / 1024), unit=""
     ) as bar:
         for chunk in r.iter_content(chunk_size=1024 * 1024):
             # chunk size of 1024 * 1024 needs 9min 11 sek = 551sek

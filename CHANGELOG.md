@@ -6,7 +6,6 @@ For each version important additions, changes and removals are listed here.
 The format is inspired from [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-
 ## [v0.1X.X] current  - 2023-XX-XX
 ### Added
 - User-defined output path for csv, xml, database [#402](https://github.com/OpenEnergyPlatform/open-MaStR/pull/402)
@@ -14,6 +13,10 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 - Using sphinx version <7 to build documentation [#454](https://github.com/OpenEnergyPlatform/open-MaStR/pull/454)
 ### Removed
 - Delete `on push` for github workflow [#445](https://github.com/OpenEnergyPlatform/open-MaStR/pull/445)
+
+## [v0.13.2] Hotfix - 2023-08-07
+### Changed
+- Changed the name of the bulk tables for technology=gsgk [#456](https://github.com/OpenEnergyPlatform/open-MaStR/pull/456)
 
 ## [v0.13.1] Hotfix - 2023-04-11
 ### Added
