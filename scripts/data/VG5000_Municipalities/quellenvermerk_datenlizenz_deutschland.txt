@@ -1,0 +1,19 @@
+Die hier angebotenen Geodaten stehen gemäß der Open Data Datenlizenz Deutschland – Namensnennung – Version 2.0 
+geldleistungsfrei zum Download und zur Online-Nutzung zur Verfügung. 
+ 
+Insbesondere hat jeder Nutzer den Quellenvermerk zu allen Geodaten, Metadaten und 
+Geodatendiensten erkennbar und in optischem Zusammenhang zu platzieren. 
+Veränderungen, Bearbeitungen, neue Gestaltungen oder sonstige Abwandlungen sind mit 
+einem Veränderungshinweis im Quellenvermerk zu versehen.
+
+Quellenvermerk und Veränderungshinweis sind wie folgt zu gestalten. Bei der Darstellung 
+auf einer Webseite ist der Quellenvermerk mit der URL "http://www.bkg.bund.de" zu verlinken.
+
+© GeoBasis-DE / BKG <Jahr des letzten Datenbezugs>
+© GeoBasis-DE / BKG <Jahr des letzten Datenbezugs> (Daten verändert)
+ 
+Beispiel:
+ 
+© GeoBasis-DE / BKG 2018
+ 
+
