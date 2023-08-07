@@ -1,4 +1,4 @@
-sphinx>=2
+sphinx<7
 sphinx-rtd-theme
 sphinx-tabs
 m2r2

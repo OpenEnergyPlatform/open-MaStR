@@ -6,6 +6,10 @@ For each version important additions, changes and removals are listed here.
 The format is inspired from [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [v0.13.2] Hotfix - 2023-08-07
+### Changed
+- Changed the name of the bulk tables for technology=gsgk [#456](https://github.com/OpenEnergyPlatform/open-MaStR/pull/456)
+
 ## [v0.13.1] Hotfix - 2023-04-11
 
 ### Added
