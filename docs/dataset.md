@@ -21,9 +21,9 @@ As you might have noticed, we distinguish between `bulk` and `API` datasets. Wit
 ## Tables in the database
 
 !!! note
-    :sparkles: Confused of the amount of tables? We regularly run the whole download and cleansing pipeline and upload the dataset as csv files at [zenodo](https://zenodo.org/record/8225106)! 
+    :sparkles: Confused of all the different of tables? We regularly run the whole download and cleansing pipeline and upload the dataset as csv files at [zenodo](https://zenodo.org/record/8225106)! 
 
-After downloading the MaStR, you will find a database with a large number of tables. We name the most important ones here together with their content:
+After downloading the MaStR, you will find a database with a large number of tables. Here we give a brief overview of what you can find in those tables:
 
 ### _extended tables
 The main information about the different technologies lies in the `_extended` tables. You can find the capacity, location, and other technology-specific attributes here.
