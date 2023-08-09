@@ -29,39 +29,42 @@ class MaStRAPI(object):
     """
     Access the Marktstammdatenregister (MaStR) SOAP API via a Python wrapper
 
-    :ref:`Read about <MaStR account and credentials>`
+    Read about [MaStR account and credentials](../advanced/api_download.md#MaStR account and credentials)
     how to create a user account and a role including a token to access the
     MaStR SOAP API.
 
-    Create an :class:`.MaStRAPI()` instance with your role credentials
+    Create an `MaStRAPI` instance with your role credentials
 
-    .. code-block:: python
+    ```python
 
        mastr_api = MaStRAPI(
             user="SOM123456789012",
             key=""koo5eixeiQuoi'w8deighai8ahsh1Ha3eib3coqu7ceeg%ies..."
        )
+    ```
 
     Alternatively, leave `user` and `key` empty if user and token are accessible via
     `credentials.cfg`. How to configure this is described
-    :ref:`here <MaStR account and credentials>`.
+    [here](../advanced/api_download.md#MaStR account and credentials).
 
-    .. code-block:: python
+    ```python
 
         mastr_api = MaStRAPI()
+    ```
 
-    Now, you can use the MaStR API instance to call `pre-defined SOAP API
-    queries
-    <https://www.marktstammdatenregister.de/MaStRHilfe/files/webdienst/Funktionen_MaStR_Webdienste_V1.2.39.html>`_
+    Now, you can use the MaStR API instance to call [pre-defined SOAP API
+    queries](https://www.marktstammdatenregister.de/MaStRHilfe/files/webdienst/Funktionen_MaStR_Webdienste_V1.2.39.html)
     via the class' methods.
     For example, get a list of units limited to two entries.
 
-    .. code-block:: python
+    ```python
 
        mastr_api.GetListeAlleEinheiten(limit=2)
+    ```
 
-    Note, as the example shows, you don't have to pass credentials for calling
-    wrapped SOAP queries. This is handled internally.
+    !!! Note
+        As the example shows, you don't have to pass credentials for calling
+        wrapped SOAP queries. This is handled internally.
     """
 
     def __init__(self, user=None, key=None):
@@ -693,7 +696,7 @@ class MaStRDownload:
         # Remove duplicates
         joined_data.drop_duplicates(inplace=True)
 
-        to_csv(joined_data, data) #FIXME: reference to helpers im import
+        to_csv(joined_data, data)  # FIXME: reference to helpers im import
 
         return joined_data
 
@@ -884,7 +887,6 @@ class MaStRDownload:
         with multiprocessing.Pool(
             processes=self.parallel_processes, maxtasksperchild=1
         ) as pool:
-
             with tqdm(
                 total=len(prepared_args),
                 desc=f"Downloading {data_fcn} ({data})",
