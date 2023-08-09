@@ -1,5 +1,7 @@
 # Getting Started
 
+!!! note
+    :sparkles: Just here for the data? We regularly run the whole download and cleansing pipeline and upload the dataset as csv files at [zenodo](https://zenodo.org/record/8225106)! 
 
 The intention of open-MaStR is to provide tools for receiving a complete as possible and accurate as possible list of
 power plant units based on the public registry Marktstammdatenregister (short: [MaStR](https://www.marktstammdatenregister.de)).
@@ -7,14 +9,11 @@ power plant units based on the public registry Marktstammdatenregister (short: [
 ## Downloading the MaStR data
 
 
-For downloading the MaStR and saving it in a sqlite database, you will use the `Mastr` class and its `download` method (For documentation of those methods see [mastr module](#mastr-module))
+For downloading the MaStR and saving it in a sqlite database, you will use the [`Mastr`][open_mastr.Mastr] class and its [`download`][open_mastr.Mastr.download] method. The [`download`][open_mastr.Mastr.download] method offers two different ways to get the data by changing the `method` parameter (if not specified, `method` defaults to "bulk"):
 
-The `download` function offers two different ways to get the data by changing the `method` parameter (if not specified, `method` defaults to "bulk"):
+1. `method` = "bulk": Get data via the bulk download from [MaStR/Datendownload](https://www.marktstammdatenregister.de/MaStR/Datendownload). Use this if you want to download the whole dataset (few Gigabite) or if you want to download all units of a given technology (e.g. all wind turbines in Germany).
+2. `method` = "API": Get data via the MaStR SOAP-API. Use this if you want specific information about single units and if you have registerd to get an API token.
 
-1. `method` = "bulk": Get data via the bulk download from [MaStR/Datendownload](https://www.marktstammdatenregister.de/MaStR/Datendownload)
-2. `method` = "API": Get data via the MaStR-API
-
-Keep in mind: While the data from both methods is quiet similar, it is not exactly the same!
 
 ### Bulk download
 
