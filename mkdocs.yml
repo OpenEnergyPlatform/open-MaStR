@@ -69,13 +69,17 @@ nav:
   - Home: index.md
   - Getting Started: getting_started.md
   - The dataset: dataset.md
+  - Advanced:
+    - Configuration: advanced/configuration.md
+    - Bulk Download: advanced/bulk_download.md
+    - SOAP API Download: advanced/api_download.md
+  - API Reference: 
+    - Basic Usage: reference/basic.md
+    - Advanced Usage of the MaStR SOAP-API: reference/advanced.md
   - Development: 
     - Contributing: development/contributing_mirror.md
     - Release Procedure: development/release_procedure_mirror.md
     - Changelog: development/changelog_mirror.md
-  - API Reference: 
-    - Basic Usage: reference/basic.md
-    - Advanced Usage of the MaStR SOAP-API: reference/advanced.md
 
 repo_url: https://github.com/OpenEnergyPlatform/open-MaStR
 site_description: A package that provides an interface for downloading and processing the data of the Marktstammdatenregister (MaStR)
