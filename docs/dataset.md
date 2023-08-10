@@ -70,3 +70,9 @@ Other tables contain information about the grid, the energy market, or gas consu
 | permit  |  |
 | storage_units  |  |
 | kwk  | *short for: Combined heat and power (CHP)* |
+
+### MaStR data model
+A useful overview of the MaStR data model can be found [here (in german)](https://www.marktstammdatenregister.de/MaStRHilfe/files/webdienst/Objektmodell%20-%20Fachliche%20Ansicht%20V1.2.0.pdf). A translated version using the names from the tables you can find in your local database is presented here: 
+
+
+![Data model of the MaStR](../images/DetailAnlagen_english.PNG)
