@@ -1,8 +1,5 @@
 # Getting Started
 
-!!! note
-    :sparkles: Just here for the data? We regularly run the whole download and cleansing pipeline and upload the dataset as csv files at [zenodo](https://zenodo.org/record/8225106)! 
-
 The intention of open-MaStR is to provide tools for receiving a complete as possible and accurate as possible list of
 power plant units based on the public registry Marktstammdatenregister (short: [MaStR](https://www.marktstammdatenregister.de)).
 

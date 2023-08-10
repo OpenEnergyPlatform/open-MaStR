@@ -20,8 +20,8 @@ As you might have noticed, we distinguish between `bulk` and `API` datasets. Wit
 
 ## Tables in the database
 
-!!! note
-    :sparkles: Confused of all the different of tables? We regularly run the whole download and cleansing pipeline and upload the dataset as csv files at [zenodo](https://zenodo.org/record/8225106)! 
+!!! question "Confused by all the tables?"
+    :sparkles: We regularly run the whole download and cleansing pipeline and upload the dataset as csv files at [zenodo](https://doi.org/10.5281/zenodo.6807425)! 
 
 After downloading the MaStR, you will find a database with a large number of tables. Here we give a brief overview of what you can find in those tables:
 

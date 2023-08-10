@@ -15,6 +15,9 @@ It contains methods to download and parse the xml files (bulk) and the SOAP web 
 In this repository we are developing methods to analyze, validate and enrich the data.
 We want to collect and compile post processing scripts to improve data quality.
 
+!!! question "Just here for the data?"
+    :sparkles: We regularly run the whole download and cleansing pipeline and upload the dataset as csv files at [zenodo](https://doi.org/10.5281/zenodo.6807425)! 
+
 ## License
 The original dataset is licensed under the **Datenlizenz Deutschland – Namensnennung – Version 2.0** (DL-DE-BY-2.0)
 [Marktstammdatenregister](https://www.marktstammdatenregister.de/MaStR) - © Bundesnetzagentur für Elektrizität, Gas, Telekommunikation, Post und Eisenbahnen | [DL-DE-BY-2.0](https://www.govdata.de/dl-de/by-2-0)
