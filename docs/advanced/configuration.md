@@ -1,3 +1,25 @@
+## Choose your own database
+
+
+Configure your database with the `engine` parameter of [`Mastr`][open_mastr.Mastr].
+It defines the engine of the database where the MaStR is mirrored to. Default is 'sqlite'.
+
+The possible databases are:
+
+* **sqlite**: By default the database will be stored in `$HOME/.open-MaStR/data/sqlite/open-mastr.db`.
+* **own database**: The Mastr class accepts a sqlalchemy.engine.Engine object as engine which enables the user to
+  use any other desired database.
+  If you do so, you need to insert the connection parameter into the engine variable. It'll look like this:
+
+```python
+
+  from sqlalchemy import create_engine
+
+  engine_postgres = create_engine("postgresql+psycopg2://open-mastr:open-mastr@localhost:55443/open-mastr")
+  engine_sqlite = create_engine("sqlite:///path/to/sqlite/database.db")
+  db = Mastr(engine=engine_sqlite)
+```
+
 ## Project directory
 
 The directory `$HOME/.open-MaStR` is automatically created. It is used to store configuration files and save data.
