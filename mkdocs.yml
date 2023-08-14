@@ -25,6 +25,9 @@ theme:
         name: Switch to dark mode
   icon:
     repo: fontawesome/brands/github
+  logo: images/OpenEnergyFamily_Logo_OpenMaStR_no_name_white.png
+  favicon: images/OpenEnergyFamily_Logo_OpenMaStR_no_name_white.png
+
 plugins:
   - search
   - autorefs
