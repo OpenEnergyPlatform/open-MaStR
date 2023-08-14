@@ -68,12 +68,12 @@ markdown_extensions:
 nav:
   - Home: index.md
   - Getting Started: getting_started.md
-  - The dataset: dataset.md
+  - Dataset: dataset.md
   - Advanced:
     - Configuration: advanced/configuration.md
     - Bulk Download: advanced/bulk_download.md
     - SOAP API Download: advanced/api_download.md
-  - API Reference: 
+  - Reference:
     - Basic Usage: reference/basic.md
     - Advanced Usage of the MaStR SOAP-API: reference/advanced.md
   - Development: 

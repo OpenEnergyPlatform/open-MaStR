@@ -43,3 +43,16 @@ To download data from the MaStR API using the `open-MaStR`, the credentials (MaS
 
     to provide user and token in a script and use these
     credentials in subsequent queries.
+
+## Mastr API
+
+chrwm
+
+## MastrDownload
+
+chrwm
+
+## MastrMirror
+
+chrwm 
+Decide to include or not - depending on use
