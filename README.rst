@@ -20,7 +20,9 @@ open-mastr
    * - Tests
      - |badge_ci|
    * - Publication
-     - |badge_pypi| |badge_zenodo|
+     - |badge_pypi|
+   * - Data Publication
+     - |badge_zenodo|
    * - Development
      - |badge_issue_open| |badge_issue_closes| |badge_pr_open| |badge_pr_closes|
    * - Community
