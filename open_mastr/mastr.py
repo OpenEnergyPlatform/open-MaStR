@@ -1,4 +1,5 @@
 import os
+import sqlalchemy
 
 # import xml dependencies
 from open_mastr.xml_download.utils_download_bulk import download_xml_Mastr
@@ -28,17 +29,18 @@ from open_mastr.utils.config import (
     get_data_version_dir,
     get_project_home_dir,
     get_output_dir,
-    setup_logger
+    setup_logger,
 )
 import open_mastr.utils.orm as orm
 
 # import initialize_database dependencies
 from open_mastr.utils.helpers import (
     create_database_engine,
+    create_database_schema,
 )
 
 # constants
-from open_mastr.utils.constants import TECHNOLOGIES, ADDITIONAL_TABLES
+from open_mastr.utils.constants import TECHNOLOGIES, ADDITIONAL_TABLES, DATABASE_SCHEMA
 
 # setup logger
 log = setup_logger()
@@ -80,7 +82,7 @@ class Mastr:
             "delete the database and update the package by running "
             "'pip install --upgrade open-mastr'\n"
         )
-
+        create_database_schema(self.engine)
         orm.Base.metadata.create_all(self.engine)
 
     def download(

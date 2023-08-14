@@ -12,8 +12,9 @@ from sqlalchemy import (
     Date,
     JSON,
 )
+from open_mastr.utils.constants import DATABASE_SCHEMA
 
-meta = MetaData()
+meta = MetaData(schema=DATABASE_SCHEMA)
 Base = declarative_base(metadata=meta)
 
 

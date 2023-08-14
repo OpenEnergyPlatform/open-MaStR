@@ -11,6 +11,7 @@ from sqlalchemy.sql import insert, literal_column
 from dateutil.parser import parse
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Query, sessionmaker
+from sqlalchemy import event
 
 import pandas as pd
 from tqdm import tqdm
@@ -34,6 +35,7 @@ from open_mastr.utils.constants import (
     ORM_MAP,
     UNIT_TYPE_MAP,
     ADDITIONAL_TABLES,
+    DATABASE_SCHEMA,
 )
 
 
@@ -55,10 +57,42 @@ def create_database_engine(engine, output_dir) -> sqlalchemy.engine.Engine:
             os.path.join(output_dir, "data", "sqlite", "open-mastr.db"),
         )
         db_url = f"sqlite:///{sqlite_database_path}"
-        return create_engine(db_url)
+        return create_engine(
+            db_url, execution_options={"schema_translate_map": {"mastr": None}}
+        )
 
     if type(engine) == sqlalchemy.engine.Engine:
+
+        @event.listens_for(engine, "connect", insert=True)
+        def set_current_schema(dbapi_connection, connection_record):
+            # From https://docs.sqlalchemy.org/en/20/dialects/postgresql.html#postgresql-alternate-search-path
+            # Probably only works for POSTGRES SCHEMAS
+            existing_autocommit = dbapi_connection.autocommit
+            dbapi_connection.autocommit = True
+            cursor = dbapi_connection.cursor()
+            cursor.execute("SET SESSION search_path='%s'" % DATABASE_SCHEMA)
+            cursor.close()
+            dbapi_connection.autocommit = existing_autocommit
+
         return engine
+
+
+def create_database_schema(engine: sqlalchemy.engine.Engine) -> None:
+    """Creates a database schema if the database is not sqlite.
+
+    Parameters
+    ----------
+    engine : sqlalchemy.engine.Engine
+        Database engine.
+    """
+    with engine.connect() as conn:
+        if (
+            not conn.dialect.has_schema(conn, DATABASE_SCHEMA)
+            and engine.driver != "pysqlite"
+        ):
+            # create schema if database is not sqlite
+            conn.execute(sqlalchemy.schema.CreateSchema(DATABASE_SCHEMA))
+            conn.commit()
 
 
 def parse_date_string(bulk_date_string: str) -> str:

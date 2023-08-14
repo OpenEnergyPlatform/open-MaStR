@@ -197,3 +197,5 @@ UNIT_TYPE_MAP = {
     "Gaserzeugungslokation": "location_gas_generation",
     "Gasverbrauchslokation": "location_gas_consumption",
 }
+
+DATABASE_SCHEMA = "mastr"
