@@ -42,15 +42,18 @@ It can be used to build and update a local database of the whole registry.
 
 
 # Statement of need
-- No other software that handles Marktstammdatenregister, can save several days for individual user
-- Data comes in hard to handle format (substituted words with numbers, )
-- Two ways of receiving data combined in one package
-- Merged information about technologies in .csv files
-- State of the field: 
+open-mastr was built to simplify the process of downloading, parsing, and cleaning the MaStR dataset.
+Due to its rich and diverse content, this dataset is a key component for research in the domains of energy research and sustainability studies in Germany [@Tepe2023_MaStR].
+The original source data format however is hard to handle: First, it can be retreived via two different methods, and both methods are only described in German. Second, many entries in the dataset are encoded. And finally, information that belongs together is distributed over several tables.
+Hence, open-mastr is a tool that diminishes the time needed to start actual research about the German energy system.
 
+Besides open-mastr, no other software solutions exists that provides an interface to download and clean the MaStR dataset.
+For other energy-related data, similar solutions exist: The iotools module from pvlib implements access to different raw data sources via its get methods [@Holmgren2018_pvlib]. 
 # Package description
 It contains methods to download and parse the data from the two different sources: the bulk download and the SOAP web service (API).
 The cleaned data is then written to a SQL database.
+
+**Take this from the finished documentation page**
 
 
 # Research and Future Development
@@ -58,18 +61,6 @@ The cleaned data is then written to a SQL database.
 - 
 
 # Citations
-
-Citations to entries in paper.bib should be in
-[rMarkdown](http://rmarkdown.rstudio.com/authoring_bibliographies_and_citations.html)
-format.
-
-If you want to cite a software repository URL (e.g. something on GitHub without a preferred
-citation) then you can do it with the example BibTeX entry below for @fidgit.
-
-For a quick reference, the following citation commands can be used:
-- `@author:2001`  ->  "Author et al. (2001)"
-- `[@author:2001]` -> "(Author et al., 2001)"
-- `[@author1:2001; @author2:2001]` -> "(Author1 et al., 2001; Author2 et al., 2002)"
 
 # Figures
 
@@ -81,7 +72,6 @@ Figure sizes can be customized by adding an optional second parameter:
 ![Caption for example figure.](figure.png){ width=20% }
 
 # Acknowledgements
-
 
 
 # References
