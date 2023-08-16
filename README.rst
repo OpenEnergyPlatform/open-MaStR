@@ -154,7 +154,7 @@ Data
     :alt: PyPI
 
 .. |badge_zenodo| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.6807426.svg
-    :target: https://doi.org/10.5281/zenodo.6807426
+    :target: https://doi.org/10.5281/zenodo.6807425
     :alt: zenodo
 
 .. |badge_issue_open| image:: https://img.shields.io/github/issues-raw/OpenEnergyPlatform/open-MaStR
