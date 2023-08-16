@@ -16,12 +16,9 @@ As an example, instead of writing the german states where the unit is registered
 corresponding digits (7, 2, 9, ...). One major step of cleansing is therefore to replace those digits with their original meaning. 
 Moreover, the datatypes of different entries are set in the data cleansing process and corrupted files are repaired.
 
-Advantages of the bulk download:
-
- * No registration for an API key is needed
- * Download of the whole dataset is possible
-
-Disadvantages of the bulk download:
-
- * No single tables or entries can be downloaded
- * Download takes long time
+???+ info "Bulk download trade-offs"
+     
+    | **Advantages**                            | **Disadvantages**                                |
+    |:-------------------------------------------:|:--------------------------------------------------:|
+    | No registration for an API key is needed  | No single tables or entries can be downloaded    |
+    | Download of the whole dataset is possible | Download takes long time                         |
