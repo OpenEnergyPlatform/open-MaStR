@@ -26,7 +26,6 @@ date: 01 August 2023
 bibliography: paper.bib
 #This paper compiles with the following command: docker run --rm --volume $PWD/paper:/data --user $(id -u):$(id -g) --env JOURNAL=joss openjournals/inara
 #Here $PWD/paper is the folder where the paper.md file lies
-C:\Users\kotthoff\Documents\Projekte\eTwin\Code\github\open-mastr\open-MaStR\open_mastr
 ---
 
 # Summary
