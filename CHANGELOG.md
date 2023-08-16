@@ -10,6 +10,7 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 ## [v0.1X.X] current  - 2023-XX-XX
 ### Added
 - User-defined output path for csv, xml, database [#402](https://github.com/OpenEnergyPlatform/open-MaStR/pull/402)
+- Add date=existing parameter to Mastr.download [#452](https://github.com/OpenEnergyPlatform/open-MaStR/pull/452)
 ### Changed
 ### Removed
 - Delete `on push` for github workflow [#445](https://github.com/OpenEnergyPlatform/open-MaStR/pull/445)
