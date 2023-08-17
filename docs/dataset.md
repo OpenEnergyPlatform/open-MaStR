@@ -18,12 +18,31 @@ The German Federal Network Agency regularly updates the dataset and adds new tab
 
 As you might have noticed, we distinguish between `bulk` and `API` datasets. With the `bulk` dataset we mean the data obtained from the zipped xml-files downloaded from [here](https://www.marktstammdatenregister.de/MaStR/Datendownload) using the [`Mastr.download`][open_mastr.Mastr.download]. The `API` data is obtained by requesting information via the SOAP-API and the [`soap_api.download.MaStRDownload`][open_mastr.soap_api.download.MaStRDownload] module.
 
+??? question "Why is the table structure in the open-mastr database as it is?"
+
+    The structure of the database is historically determined by the data retrieved via API. (open-mastr existed before the XML-dump was provided).
+    <br> See [MaStR data model](#Mastr-data-model)
+
+??? question "Why does the XML table structure and some column headers are different to the data retrieved via API requests?"
+
+    The difference in structure might stem from zipping the data to XML. <br> The reason for difference in column 
+    header naming is unknown to us. However, open-mastr maps XML-dump columns to API columns.
+
+
 ## Tables in the database
 
 !!! question "Confused by all the tables?"
     :sparkles: We regularly run the whole download and cleansing pipeline and upload the dataset as csv files at [zenodo](https://doi.org/10.5281/zenodo.6807425)! 
 
 After downloading the MaStR, you will find a database with a large number of tables. Here we give a brief overview of what you can find in those tables:
+
+??? question "How are the database tables created from the XML files?"
+    
+    #FIXME: link to bulk reference 
+
+??? question "How are the csv files created from the database tables?"
+
+    FIXME: how to link to Reference section?
 
 ### _extended tables
 The main information about the different technologies lies in the `_extended` tables. You can find the capacity, location, and other technology-specific attributes here.
