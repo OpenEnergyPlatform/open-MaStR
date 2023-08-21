@@ -1,5 +1,3 @@
-## Get data via the bulk download
-
 On the homepage [MaStR/Datendownload](https://www.marktstammdatenregister.de/MaStR/Datendownload) a zipped folder containing the whole
 MaStR is offered. The data is delivered as xml-files. The official documentation can be found 
 on the same page (in german). This data is updated on a daily base. 
