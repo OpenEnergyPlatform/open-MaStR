@@ -75,6 +75,11 @@ There are some environment variables to customize open-MaStR:
    * - SQLITE_DATABASE_PATH
      - Path to the SQLite file. This allows to use to use multiple instances of the MaStR database. The database instances exist in parallel and are independent of each other.
      - `/home/mastr-rabbit/.open-MaStR/data/sqlite/your_custom_instance_name.db`
+   * - OUTPUT_PATH
+     - | Path to user-defined output directory for CSV data, XML file and database.
+       | If not specified, output directory defaults to `$HOME/.open-MaStR/`
+     - | Linux: `/home/mastr-rabbit/open-mastr-user-defined-output-path`
+       | Windows: `C:\\Users\\open-mastr-user-defined-output-path`
 
 MaStR account and credentials
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

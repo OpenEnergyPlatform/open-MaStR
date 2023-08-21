@@ -8,7 +8,8 @@ from open_mastr.utils.config import (
     create_data_dir,
     get_data_version_dir,
     get_project_home_dir,
-    setup_logger,
+    get_output_dir,
+    setup_logger
 )
 
 from open_mastr.utils.constants import ADDITIONAL_TABLES, TECHNOLOGIES
@@ -63,12 +64,12 @@ class Mastr:
 
     def __init__(self, engine="sqlite") -> None:
         validate_parameter_format_for_mastr_init(engine)
-
+        self.output_dir = get_output_dir()
         self.home_directory = get_project_home_dir()
-        self._sqlite_folder_path = os.path.join(self.home_directory, "data", "sqlite")
+        self._sqlite_folder_path = os.path.join(self.output_dir, "data", "sqlite")
         os.makedirs(self._sqlite_folder_path, exist_ok=True)
 
-        self.engine = create_database_engine(engine, self.home_directory)
+        self.engine = create_database_engine(engine, self.output_dir)
 
         print(
             f"Data will be written to the following database: {self.engine.url}\n"
@@ -194,7 +195,7 @@ class Mastr:
         if method == "bulk":
             # Find the name of the zipped xml folder
             bulk_download_date = parse_date_string(date)
-            xml_folder_path = os.path.join(self.home_directory, "data", "xml_download")
+            xml_folder_path = os.path.join(self.output_dir, "data", "xml_download")
             os.makedirs(xml_folder_path, exist_ok=True)
             zipped_xml_file_path = os.path.join(
                 xml_folder_path,

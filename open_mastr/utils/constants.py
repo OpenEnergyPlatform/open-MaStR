@@ -82,8 +82,8 @@ BULK_INCLUDE_TABLES_MAP = {
     "biomass": ["anlageneegbiomasse", "einheitenbiomasse"],
     "hydro": ["anlageneegwasser", "einheitenwasser"],
     "gsgk": [
-        "anlageneeggeosolarthermiegrubenklaerschlammdruckentspannung",
-        "einheitengeosolarthermiegrubenklaerschlammdruckentspannung",
+        "anlageneeggeothermiegrubengasdruckentspannung",
+        "einheitengeothermiegrubengasdruckentspannung",
     ],
     "combustion": ["anlagenkwk", "einheitenverbrennung"],
     "nuclear": ["einheitenkernkraft"],
