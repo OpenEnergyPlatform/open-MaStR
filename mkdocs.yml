@@ -33,7 +33,6 @@ plugins:
   - autorefs
   - mkdocstrings:
       default_handler: python
-      docstring_style: numpy
       handlers:
         python:
           options:
