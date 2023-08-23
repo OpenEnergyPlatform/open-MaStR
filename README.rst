@@ -26,7 +26,7 @@ open-mastr
    * - Development
      - |badge_issue_open| |badge_issue_closes| |badge_pr_open| |badge_pr_closes|
    * - Community
-     - |badge_contributing| |badge_contributors| |badge_repo_counts| |PyPI download month|
+     - |badge_contributing| |badge_contributors| |badge_repo_counts| |PyPI download month| |Total PyPI downloads|
    
 
 .. contents::
@@ -180,3 +180,8 @@ Data
     
 .. |PyPI download month| image:: https://img.shields.io/pypi/dm/open-mastr?label=PyPi%20Downloads
     :target: https://pypistats.org/packages/open-mastr
+
+.. |Total PyPI downloads| image:: https://static.pepy.tech/badge/open-mastr
+    :target: https://pepy.tech/project/open-mastr
+
+
