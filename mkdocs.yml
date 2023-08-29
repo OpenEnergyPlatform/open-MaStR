@@ -69,6 +69,11 @@ markdown_extensions:
   - pymdownx.tabbed:
       alternate_style: true
 
+# Customization
+extra:
+  version:
+    provider: mike
+
 nav:
   - Home: index.md
   - Getting Started: getting_started.md
