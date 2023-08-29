@@ -34,7 +34,7 @@ The project home directory is structured as follows (files and folders below `da
     │   ├── filenames.yml
     │   ├── logging.yml
     ├── data
-    │   ├── rli_v3.0.0
+    │   ├── dataversion-<date>
     │       ├── bnetza_mastr_solar_eeg_fail.csv
     │       ├── bnetza_mastr_solar_extended_fail.csv
     │       └── bnetza_mastr_solar_raw.csv
@@ -59,7 +59,7 @@ The project home directory is structured as follows (files and folders below `da
 
 ### Logs
 
-For the download via the API, logs are stored in a single file in `/$HOME/cwm/.open-MaStR/logs/open_mastr.log`.
+For the download via the API, logs are stored in a single file in `/$HOME/<user>/.open-MaStR/logs/open_mastr.log`.
 New logging messages are appended. It is recommended to delete the log file from time to time because of its required disk space.
 
 
@@ -77,27 +77,3 @@ Files that are suffixed with `_raw` can contain joined data retrieved during :re
 The structure of the data is described in :ref:`Data Description`.
 
 
-## Environment variables
-
-
-There are some environment variables to customize open-MaStR:
-
-
-| variable | description | example |
-| :--------: | :--------: | :--------: |
-| SQLITE_DATABASE_PATH |Path to the SQLite file. This allows to use to use multiple instances of the MaStR database. The database instances exist in parallel and are independent of each other. | `/home/mastr-rabbit/.open-MaStR/data/sqlite/your_custom_instance_name.db` |
-
-
-
-## Zenodo token
-!!! danger
-    Do we want users to do this?
-Uploading data to `Zenodo <https://www.zenodo.org/>`_ requires authentication. When logged in with your account you can
-`create tokens <https://zenodo.org/account/settings/applications/tokens/new/>`_ for API requests.
-
-The section in `credentials.cfg` looks like:
-
-.. code-block::
-
-    [Zenodo]
-    token = voh6Zo2ohbohReith4ec2iezeiJ9Miefohso0DohK9ohtha6mahfame7hohc
