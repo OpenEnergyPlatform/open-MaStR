@@ -49,11 +49,14 @@ The project home directory is structured as follows (files and folders below `da
 ### Configuration files
 
 * `credentials.cfg`: Credentials used to access
-  `Marktstammdatenregister (MaStR) <https://www.marktstammdatenregister.de/MaStR>`_ API (read more in
-  `MaStR account and credentials <MaStR account and credentials>`) and token for Zenodo.
+  [Marktstammdatenregister (MaStR)](https://www.marktstammdatenregister.de/MaStR) API
 * `filenames.yml`: File names are defined here.
 * `logging.yml`: Logging configuration. For changing the log level to increase or decrease details of log
   messages, edit the `level` of the handlers.
+* `dataversion` <br>
+  Exported data is as csv files from [`to_csv`][open_mastr.Mastr.to_csv]
+* `Gesamtdatenexport_<date>.zip` <br>
+  New versions of the dump overwrite older versions. 
 
 
 
@@ -65,15 +68,14 @@ New logging messages are appended. It is recommended to delete the log file from
 
 ## Data
 
-If the zipped dump of the MaStR is downloaded, it is saved in the folder `$HOME/.open-MaStR/data/xml_download`. New versions
-of the dump overwrite older versions. 
+If the zipped dump of the MaStR is downloaded, it is saved in the folder `$HOME/.open-MaStR/data/xml_download`. 
 
 The data can then be written to any sql database supported by [sqlalchemy](https://docs.sqlalchemy.org/). The type of the sql database is determined by the parameter `engine` in the [Mastr][open_mastr.Mastr] class.
 
-For more information regarding the database see :ref:`Database settings <Database settings>`.
+For more information regarding the database see [Database settings](Database settings).
 
-Exported data is saved under `$HOME/.open-MaStR/data/<data-version>`.
-Files that are suffixed with `_raw` can contain joined data retrieved during :ref:`downloading <Download>`.
-The structure of the data is described in :ref:`Data Description`.
+
+
+
 
 
