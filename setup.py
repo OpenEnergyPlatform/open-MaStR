@@ -68,6 +68,7 @@ setup(
             "mkdocstrings[python]",
             "mkdocs-material",
             "mkdocs-include-markdown-plugin",
+            "mike"
         ]
     },
     package_data={
