@@ -1,39 +1,38 @@
-import os
 import json
+import os
 import sys
 from contextlib import contextmanager
 from datetime import date, datetime
 from warnings import warn
 
 import dateutil
+import pandas as pd
 import sqlalchemy
-from sqlalchemy.sql import insert, literal_column
 from dateutil.parser import parse
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Query, sessionmaker
-
-import pandas as pd
+from sqlalchemy.sql import insert, literal_column
 from tqdm import tqdm
+
+from open_mastr.soap_api.download import MaStRAPI, log
 from open_mastr.soap_api.metadata.create import create_datapackage_meta_json
 from open_mastr.utils import orm
 from open_mastr.utils.config import (
-    get_filenames,
-    get_data_version_dir,
     column_renaming,
+    get_data_version_dir,
+    get_filenames,
 )
-
-from open_mastr.soap_api.download import MaStRAPI, log
 from open_mastr.utils.constants import (
-    BULK_DATA,
-    TECHNOLOGIES,
+    ADDITIONAL_TABLES,
     API_DATA,
     API_DATA_TYPES,
     API_LOCATION_TYPES,
-    BULK_INCLUDE_TABLES_MAP,
     BULK_ADDITIONAL_TABLES_CSV_EXPORT_MAP,
+    BULK_DATA,
+    BULK_INCLUDE_TABLES_MAP,
     ORM_MAP,
+    TECHNOLOGIES,
     UNIT_TYPE_MAP,
-    ADDITIONAL_TABLES,
 )
 
 
@@ -307,11 +306,13 @@ def transform_date_parameter(self, method, date, **kwargs):
             if not existing_files_list:
                 date = "today"
                 print(
-                    "By choosing `date`='existing' you want to use an existing xml download."
+                    "By choosing `date`='existing' you want to use an existing "
+                    "xml download."
                     "However no xml_files were downloaded yet. The parameter `date` is"
-                    "therefore set to 'latest'."
+                    "therefore set to 'today'."
                 )
-            # we assume that there is only one file in the folder which is the zipped xml folder
+            # we assume that there is only one file in the folder which is the
+            # zipped xml folder
             date = existing_files_list[0].split("_")[1].split(".")[0]
     elif method == "API":
         date = kwargs.get("api_date", date)
