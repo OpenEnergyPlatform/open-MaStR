@@ -33,7 +33,6 @@ The project home directory is structured as follows (files and folders below `da
     │   ├── credentials.cfg
     │   ├── filenames.yml
     │   ├── logging.yml
-    │   └── tables.yml
     ├── data
     │   ├── rli_v3.0.0
     │       ├── bnetza_mastr_solar_eeg_fail.csv
@@ -55,7 +54,7 @@ The project home directory is structured as follows (files and folders below `da
 * `filenames.yml`: File names are defined here.
 * `logging.yml`: Logging configuration. For changing the log level to increase or decrease details of log
   messages, edit the `level` of the handlers.
-* `tables.yml`: Names of tables where data gets imported to during :ref:`Post-processing (Outdated)`
+
 
 
 ### Logs
