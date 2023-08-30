@@ -1,5 +1,5 @@
-# Configuration
-## Choose your own database
+## Configuration
+### Database settings
 
 
 Configure your database with the `engine` parameter of [`Mastr`][open_mastr.Mastr].
@@ -21,7 +21,7 @@ The possible databases are:
   db = Mastr(engine=engine_sqlite)
 ```
 
-## Project directory
+### Project directory
 
 The directory `$HOME/.open-MaStR` is automatically created. It is used to store configuration files and save data.
 Default config files are copied to this directory which can be modified - but with caution.
@@ -47,8 +47,6 @@ The project home directory is structured as follows (files and folders below `da
         └── open_mastr.log
 ```
 
-### Configuration files
-
 * `credentials.cfg`: Credentials used to access
   [Marktstammdatenregister (MaStR)](https://www.marktstammdatenregister.de/MaStR) API
 * `filenames.yml`: File names are defined here.
@@ -67,7 +65,7 @@ For the download via the API, logs are stored in a single file in `/$HOME/<user>
 New logging messages are appended. It is recommended to delete the log file from time to time because of its required disk space.
 
 
-## Data
+### Data
 
 If the zipped dump of the MaStR is downloaded, it is saved in the folder `$HOME/.open-MaStR/data/xml_download`. 
 
@@ -76,7 +74,7 @@ The data can then be written to any sql database supported by [sqlalchemy](https
 For more information regarding the database see [Database settings](Database settings).
 
 
-# Bulk download
+## Bulk download
 
 On the homepage [MaStR/Datendownload](https://www.marktstammdatenregister.de/MaStR/Datendownload) a zipped folder containing the whole
 MaStR is offered. The data is delivered as xml-files. The official documentation can be found 
@@ -102,9 +100,9 @@ Moreover, the datatypes of different entries are set in the data cleansing proce
     | Download of the whole dataset is possible | Download takes long time                         |
 
 
-# SOAP API download
+## SOAP API download
 
-## MaStR account and credentials
+### MaStR account and credentials
 
 
 For downloading data from the
@@ -150,15 +148,15 @@ To download data from the MaStR API using the `open-MaStR`, the credentials (MaS
     to provide user and token in a script and use these
     credentials in subsequent queries.
 
-## Mastr API
+### Mastr API
 
 chrwm
 
-## MastrDownload
+### MastrDownload
 
 chrwm
 
-## MastrMirror
+### MastrMirror
 
 chrwm 
 Decide to include or not - depending on use
