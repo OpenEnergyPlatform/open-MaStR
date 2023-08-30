@@ -44,54 +44,60 @@ After downloading the MaStR, you will find a database with a large number of tab
 
     FIXME: how to link to Reference section?
 
-### _extended tables
-The main information about the different technologies lies in the `_extended` tables. You can find the capacity, location, and other technology-specific attributes here.
+### Tables in the local database
 
-| _extended tables | Comments |
-|------|------| 
-| biomass_extended  |  |
-| combustion_extended  | *Conventional powerplants: Gas, Oil, Coal, ...* |  
-| gsgk_extended  | *gsgk is short for: Geothermal, Mine gas, and Pressure relaxation* |
-| hydro_extended  |  |
-| nuclear_extended  |  | 
-| solar_extended  |  |
-| storage_extended  |  | 
-| wind_extended  |  |
 
-### _eeg tables
-In germany, renewable energies were subsidized by the state - according to a law called 'EEG'. Relevant information like the 'EEG ID' are in the `_eeg` tables.
+=== "_extended tables"
+    The main information about the different technologies lies in the `_extended` tables. You can find the capacity, location, and other technology-specific attributes here.
 
-| Tables in the database | Comments |
-|------|------| 
-| biomass_eeg | |
-| gsgk_eeg  | *gsgk is short for: Geothermal, Mine gas, and Pressure relaxation* |
-| hydro_eeg  |  |
-| solar_eeg  |  |
-| storage_eeg  |  | 
-| wind_eeg  |  |
+    | Table name | Comments |
+    |------|------| 
+    | biomass_extended  |  |
+    | combustion_extended  | *Conventional powerplants: Gas, Oil, Coal, ...* |  
+    | gsgk_extended  | *gsgk is short for: Geothermal, Mine gas, and Pressure relaxation* |
+    | hydro_extended  |  |
+    | nuclear_extended  |  | 
+    | solar_extended  |  |
+    | storage_extended  |  | 
+    | wind_extended  |  |
 
-### Other tables
-Other tables contain information about the grid, the energy market, or gas consumers and producers:
+=== "_eeg tables"
+    In germany, renewable energies were subsidized by the state - according to a law called 'EEG'. Relevant information like the 'EEG ID' are in the `_eeg` tables.
 
-| Tables in the database | Comments |
-|------|------| 
-| balancing_area | *Related to the energy market* |
-| electricity_consumer  |  *Only large consumers* |
-| gas_consumer  |  *Only large consumers* |
-| gas_producer  |  |
-| gas_storage  |  |
-| gas_storage_extended  |  |
-| grid_connections  | *Does not contain geoinformation* |
-| grids  | *Does not contain geoinformation* |
-| locations_extended  | *Connects units with grids - to get coordinates of units use the _extended tables*|
-| market_actors  |  |
-| market_roles  |  |
-| permit  |  |
-| storage_units  |  |
-| kwk  | *short for: Combined heat and power (CHP)* |
+    | Table name | Comments |
+    |------|------| 
+    | biomass_eeg | |
+    | gsgk_eeg  | *gsgk is short for: Geothermal, Mine gas, and Pressure relaxation* |
+    | hydro_eeg  |  |
+    | solar_eeg  |  |
+    | storage_eeg  |  | 
+    | wind_eeg  |  |
+
+=== "Other tables"
+    Other tables contain information about the grid, the energy market, or gas consumers and producers:
+
+    | Table name | Comments |
+    |------|------| 
+    | balancing_area | *Related to the energy market* |
+    | electricity_consumer  |  *Only large consumers* |
+    | gas_consumer  |  *Only large consumers* |
+    | gas_producer  |  |
+    | gas_storage  |  |
+    | gas_storage_extended  |  |
+    | grid_connections  | *Does not contain geoinformation* |
+    | grids  | *Does not contain geoinformation* |
+    | locations_extended  | *Connects units with grids - to get coordinates of units use the _extended tables*|
+    | market_actors  |  |
+    | market_roles  |  |
+    | permit  |  |
+    | storage_units  |  |
+    | kwk  | *short for: Combined heat and power (CHP)* |
 
 ### MaStR data model
 A useful overview of the MaStR data model can be found [here (in german)](https://www.marktstammdatenregister.de/MaStRHilfe/files/webdienst/Objektmodell%20-%20Fachliche%20Ansicht%20V1.2.0.pdf). A translated version using the names from the tables you can find in your local database is presented here: 
 
+=== "translated image (english)"
+    ![Data model of the MaStR](images/DetailAnlagen_english.PNG)
 
-![Data model of the MaStR](images/DetailAnlagen_english.PNG)
+=== "original image (german)"
+    ![Data model of the MaStR](images/DetailAnlagenModellMaStR.png)
