@@ -78,11 +78,7 @@ nav:
   - Home: index.md
   - Getting Started: getting_started.md
   - Dataset: dataset.md
-  - Advanced:
-    - "": advanced/welcome.md
-    - Configuration: advanced/configuration.md
-    - Bulk Download: advanced/bulk_download.md
-    - SOAP API Download: advanced/api_download.md
+  - Advanced: advanced.md
   - Reference:
     - Basic Usage: reference/basic.md
     - Advanced Usage of the MaStR SOAP-API: reference/advanced.md
