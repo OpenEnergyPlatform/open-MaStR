@@ -42,20 +42,22 @@ The default settings will save retrieved data into the sqlite database. The func
 
 ## Accessing the database
 
-
-
 For accessing and working with the MaStR database after you have downloaded it, you can use sqlite browsers 
 such as [DB Browser for SQLite](https://sqlitebrowser.org/) or any python module
 which can process sqlite data. Pandas, for example, comes with the function
 [read_sql](https://pandas.pydata.org/docs/reference/api/pandas.read_sql.html).
 
-```python
-import pandas as pd
 
-table="wind_extended"
-df = pd.read_sql(sql=table, con=db.engine)
-```
+=== "pandas"
+    ```python
+    import pandas as pd
 
+    table="wind_extended"
+    df = pd.read_sql(sql=table, con=db.engine)
+    ```
+
+=== "DB Browser for sqlite"
+    ![Image caption](images/DBBrowser.PNG){ loading=lazy }
 
 ## Exporting data
 
