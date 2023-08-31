@@ -1,39 +1,38 @@
-import os
 import json
+import os
 import sys
 from contextlib import contextmanager
 from datetime import date, datetime
 from warnings import warn
 
 import dateutil
+import pandas as pd
 import sqlalchemy
-from sqlalchemy.sql import insert, literal_column
 from dateutil.parser import parse
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Query, sessionmaker
-
-import pandas as pd
+from sqlalchemy.sql import insert, literal_column
 from tqdm import tqdm
+
+from open_mastr.soap_api.download import MaStRAPI, log
 from open_mastr.soap_api.metadata.create import create_datapackage_meta_json
 from open_mastr.utils import orm
 from open_mastr.utils.config import (
-    get_filenames,
-    get_data_version_dir,
     column_renaming,
+    get_data_version_dir,
+    get_filenames,
 )
-
-from open_mastr.soap_api.download import MaStRAPI, log
 from open_mastr.utils.constants import (
-    BULK_DATA,
-    TECHNOLOGIES,
+    ADDITIONAL_TABLES,
     API_DATA,
     API_DATA_TYPES,
     API_LOCATION_TYPES,
-    BULK_INCLUDE_TABLES_MAP,
     BULK_ADDITIONAL_TABLES_CSV_EXPORT_MAP,
+    BULK_DATA,
+    BULK_INCLUDE_TABLES_MAP,
     ORM_MAP,
+    TECHNOLOGIES,
     UNIT_TYPE_MAP,
-    ADDITIONAL_TABLES,
 )
 
 
@@ -88,7 +87,6 @@ def validate_parameter_format_for_download_method(
     api_location_types,
     **kwargs,
 ) -> None:
-
     if "technology" in kwargs:
         data = kwargs["technology"]
         warn("'technology' parameter is deprecated. Use 'data' instead")
@@ -173,7 +171,7 @@ def validate_parameter_date(method, date) -> None:
     if date is None:  # default
         return
     if method == "bulk":
-        if date != "today":
+        if date not in ["today", "existing"]:
             try:
                 _ = parse(date)
             except (dateutil.parser._parser.ParserError, TypeError) as e:
@@ -297,11 +295,25 @@ def transform_data_parameter(
     return data, api_data_types, api_location_types, harmonisation_log
 
 
-def transform_date_parameter(method, date, **kwargs):
-
+def transform_date_parameter(self, method, date, **kwargs):
     if method == "bulk":
         date = kwargs.get("bulk_date", date)
         date = "today" if date is None else date
+        if date == "existing":
+            existing_files_list = os.listdir(
+                os.path.join(self.home_directory, "data", "xml_download")
+            )
+            if not existing_files_list:
+                date = "today"
+                print(
+                    "By choosing `date`='existing' you want to use an existing "
+                    "xml download."
+                    "However no xml_files were downloaded yet. The parameter `date` is"
+                    "therefore set to 'today'."
+                )
+            # we assume that there is only one file in the folder which is the
+            # zipped xml folder
+            date = existing_files_list[0].split("_")[1].split(".")[0]
     elif method == "API":
         date = kwargs.get("api_date", date)
 
@@ -333,7 +345,6 @@ def print_api_settings(
     api_processes,
     api_location_types,
 ):
-
     print(
         f"Downloading with soap_API.\n\n   -- API settings --  \nunits after date: "
         f"{date}\nunit download limit per data: "
@@ -467,9 +478,7 @@ def create_db_query(
     unit_type_map_reversed = reverse_unit_type_map()
 
     with session_scope(engine=engine) as session:
-
         if tech:
-
             # Select orm tables for specified additional_data.
             orm_tables = {
                 f"{dat}": getattr(orm, ORM_MAP[tech].get(dat, "KeyNotAvailable"), None)
@@ -540,7 +549,6 @@ def create_db_query(
             return query_tech
 
         if additional_table:
-
             orm_table = getattr(orm, ORM_MAP[additional_table], None)
 
             query_additional_tables = Query(orm_table, session=session)
@@ -573,7 +581,6 @@ def save_metadata(data: list = None, engine=None) -> None:
     unit_type_map_reversed = reverse_unit_type_map()
 
     with session_scope(engine=engine) as session:
-
         # check for latest db entry for exported technologies
         mastr_technologies = [unit_type_map_reversed[tech] for tech in data]
         newest_date = (
@@ -729,7 +736,6 @@ def db_query_to_csv(db_query, data_table: str, chunksize: int) -> None:
                         chunk_df[col] = chunk_df[col].str.replace("\r", "")
 
                 if not chunk_df.empty:
-
                     if chunk_number == 0:
                         chunk_df.to_csv(
                             csv_file,
