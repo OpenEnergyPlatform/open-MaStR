@@ -1,38 +1,39 @@
-import json
 import os
+import json
 import sys
 from contextlib import contextmanager
 from datetime import date, datetime
 from warnings import warn
 
 import dateutil
-import pandas as pd
 import sqlalchemy
+from sqlalchemy.sql import insert, literal_column, text
 from dateutil.parser import parse
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Query, sessionmaker
-from sqlalchemy.sql import insert, literal_column
-from tqdm import tqdm
 
-from open_mastr.soap_api.download import MaStRAPI, log
+import pandas as pd
+from tqdm import tqdm
 from open_mastr.soap_api.metadata.create import create_datapackage_meta_json
 from open_mastr.utils import orm
 from open_mastr.utils.config import (
-    column_renaming,
-    get_data_version_dir,
     get_filenames,
+    get_data_version_dir,
+    column_renaming,
 )
+
+from open_mastr.soap_api.download import MaStRAPI, log
 from open_mastr.utils.constants import (
-    ADDITIONAL_TABLES,
+    BULK_DATA,
+    TECHNOLOGIES,
     API_DATA,
     API_DATA_TYPES,
     API_LOCATION_TYPES,
-    BULK_ADDITIONAL_TABLES_CSV_EXPORT_MAP,
-    BULK_DATA,
     BULK_INCLUDE_TABLES_MAP,
+    BULK_ADDITIONAL_TABLES_CSV_EXPORT_MAP,
     ORM_MAP,
-    TECHNOLOGIES,
     UNIT_TYPE_MAP,
+    ADDITIONAL_TABLES,
 )
 
 
@@ -44,14 +45,19 @@ def chunks(lst, n):
     """
     length = lst.count() if isinstance(lst, Query) else len(lst)
     for i in range(0, length, n):
-        yield lst[i : i + n]
+        yield lst[i: i + n]
 
 
-def create_database_engine(engine, output_dir) -> sqlalchemy.engine.Engine:
+def create_database_engine(engine, home_directory, is_translated=False) -> sqlalchemy.engine.Engine:
     if engine == "sqlite":
+        if is_translated:
+            db_name = "open-mastr-translated.db"
+        else:
+            db_name = "open-mastr.db"
+
         sqlite_database_path = os.environ.get(
             "SQLITE_DATABASE_PATH",
-            os.path.join(output_dir, "data", "sqlite", "open-mastr.db"),
+            os.path.join(home_directory, "data", "sqlite", db_name),
         )
         db_url = f"sqlite:///{sqlite_database_path}"
         return create_engine(db_url)
@@ -76,16 +82,16 @@ def validate_parameter_format_for_mastr_init(engine) -> None:
 
 
 def validate_parameter_format_for_download_method(
-    method,
-    data,
-    date,
-    bulk_cleansing,
-    api_processes,
-    api_limit,
-    api_chunksize,
-    api_data_types,
-    api_location_types,
-    **kwargs,
+        method,
+        data,
+        date,
+        bulk_cleansing,
+        api_processes,
+        api_limit,
+        api_chunksize,
+        api_data_types,
+        api_location_types,
+        **kwargs,
 ) -> None:
     if "technology" in kwargs:
         data = kwargs["technology"]
@@ -171,7 +177,7 @@ def validate_parameter_date(method, date) -> None:
     if date is None:  # default
         return
     if method == "bulk":
-        if date not in ["today", "existing"]:
+        if date != "today":
             try:
                 _ = parse(date)
             except (dateutil.parser._parser.ParserError, TypeError) as e:
@@ -226,14 +232,14 @@ def validate_parameter_data(method, data) -> None:
 
 
 def raise_warning_for_invalid_parameter_combinations(
-    method,
-    bulk_cleansing,
-    date,
-    api_processes,
-    api_data_types,
-    api_location_types,
-    api_limit,
-    api_chunksize,
+        method,
+        bulk_cleansing,
+        date,
+        api_processes,
+        api_data_types,
+        api_location_types,
+        api_limit,
+        api_chunksize,
 ):
     if method == "API" and bulk_cleansing is not True:
         warn(
@@ -242,18 +248,18 @@ def raise_warning_for_invalid_parameter_combinations(
         )
 
     if method == "bulk" and (
-        (
-            any(
-                parameter is not None
-                for parameter in [
-                    api_processes,
-                    api_data_types,
-                    api_location_types,
-                ]
+            (
+                    any(
+                        parameter is not None
+                        for parameter in [
+                            api_processes,
+                            api_data_types,
+                            api_location_types,
+                        ]
+                    )
+                    or api_limit != 50
+                    or api_chunksize != 1000
             )
-            or api_limit != 50
-            or api_chunksize != 1000
-        )
     ):
         warn(
             "For method = 'bulk', API related parameters (with prefix api_) are ignored."
@@ -261,7 +267,7 @@ def raise_warning_for_invalid_parameter_combinations(
 
 
 def transform_data_parameter(
-    method, data, api_data_types, api_location_types, **kwargs
+        method, data, api_data_types, api_location_types, **kwargs
 ):
     """
     Parse input parameters related to data as lists. Harmonize variables for later use.
@@ -295,25 +301,10 @@ def transform_data_parameter(
     return data, api_data_types, api_location_types, harmonisation_log
 
 
-def transform_date_parameter(self, method, date, **kwargs):
+def transform_date_parameter(method, date, **kwargs):
     if method == "bulk":
         date = kwargs.get("bulk_date", date)
         date = "today" if date is None else date
-        if date == "existing":
-            existing_files_list = os.listdir(
-                os.path.join(self.home_directory, "data", "xml_download")
-            )
-            if not existing_files_list:
-                date = "today"
-                print(
-                    "By choosing `date`='existing' you want to use an existing "
-                    "xml download."
-                    "However no xml_files were downloaded yet. The parameter `date` is"
-                    "therefore set to 'today'."
-                )
-            # we assume that there is only one file in the folder which is the
-            # zipped xml folder
-            date = existing_files_list[0].split("_")[1].split(".")[0]
     elif method == "API":
         date = kwargs.get("api_date", date)
 
@@ -336,14 +327,14 @@ def session_scope(engine):
 
 
 def print_api_settings(
-    harmonisation_log,
-    data,
-    date,
-    api_data_types,
-    api_chunksize,
-    api_limit,
-    api_processes,
-    api_location_types,
+        harmonisation_log,
+        data,
+        date,
+        api_data_types,
+        api_chunksize,
+        api_limit,
+        api_processes,
+        api_location_types,
 ):
     print(
         f"Downloading with soap_API.\n\n   -- API settings --  \nunits after date: "
@@ -434,11 +425,11 @@ def reverse_unit_type_map():
 
 
 def create_db_query(
-    tech=None,
-    additional_table=None,
-    additional_data=["unit_data", "eeg_data", "kwk_data", "permit_data"],
-    limit=None,
-    engine=None,
+        tech=None,
+        additional_table=None,
+        additional_data=["unit_data", "eeg_data", "kwk_data", "permit_data"],
+        limit=None,
+        engine=None,
 ):
     """
     Create a database query to export a snapshot MaStR data from database to CSV.
@@ -478,7 +469,9 @@ def create_db_query(
     unit_type_map_reversed = reverse_unit_type_map()
 
     with session_scope(engine=engine) as session:
+
         if tech:
+
             # Select orm tables for specified additional_data.
             orm_tables = {
                 f"{dat}": getattr(orm, ORM_MAP[tech].get(dat, "KeyNotAvailable"), None)
@@ -549,6 +542,7 @@ def create_db_query(
             return query_tech
 
         if additional_table:
+
             orm_table = getattr(orm, ORM_MAP[additional_table], None)
 
             query_additional_tables = Query(orm_table, session=session)
@@ -717,12 +711,12 @@ def db_query_to_csv(db_query, data_table: str, chunksize: int) -> None:
         with con.begin():
             # Read data into pandas.DataFrame in chunks of max. 500000 rows of ~2.5 GB RAM
             for chunk_number, chunk_df in enumerate(
-                pd.read_sql(
-                    sql=db_query.statement,
-                    con=con,
-                    index_col=index_col,
-                    chunksize=chunksize,
-                )
+                    pd.read_sql(
+                        sql=db_query.statement,
+                        con=con,
+                        index_col=index_col,
+                        chunksize=chunksize,
+                    )
             ):
                 # For debugging purposes, check RAM usage of chunk_df
                 # chunk_df.info(memory_usage='deep')
@@ -736,6 +730,7 @@ def db_query_to_csv(db_query, data_table: str, chunksize: int) -> None:
                         chunk_df[col] = chunk_df[col].str.replace("\r", "")
 
                 if not chunk_df.empty:
+
                     if chunk_number == 0:
                         chunk_df.to_csv(
                             csv_file,
@@ -756,3 +751,19 @@ def db_query_to_csv(db_query, data_table: str, chunksize: int) -> None:
                         log.info(
                             f"Appended {len(chunk_df)} rows to: {csv_file.split('/')[-1:]}"
                         )
+
+
+def rename_table(table, column_translations, engine) -> None:
+    alter_statements = []
+
+    for german, english in column_translations.items():
+        alter_statement = text(f"ALTER TABLE {table} RENAME COLUMN {german} TO {english}")
+        alter_statements.append(alter_statement)
+
+    with engine.connect() as connection:
+        for statement in alter_statements:
+            try:
+                connection.execute(statement)
+            except sqlalchemy.exc.OperationalError:
+                continue
+
