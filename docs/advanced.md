@@ -168,7 +168,207 @@ To download data from the MaStR API using the `open-MaStR`, the credentials (MaS
 
 ### Mastr API
 
-chrwm
+You can access the MaStR data via API by using the `class MaStRAPI` directly if you have the API credentials 
+configured correctly,
+
+```python
+from open_mastr.soap_api.download import MaStRAPI
+
+if __name__ == "__main__":
+
+    mastr_api = MaStRAPI()
+    print(mastr_api.GetLokaleUhrzeit())
+```
+
+For API calls and their optional parameters refer to [API documentation](https://www.marktstammdatenregister.
+de/MaStRHilfe/subpages/webdienst.html).
+
+???+ example "Example queries and their responses"
+
+    === "mastr_api.GetLokaleUhrzeit()"
+        
+        Response: 
+        ```python
+        {
+        'Ergebniscode': 'OK',
+        'AufrufVeraltet': False,
+        'AufrufLebenszeitEnde': None,
+        'AufrufVersion': 1,
+        'LokaleUhrzeit': datetime.datetime(2023, 9, 25, 8, 1, 46, 24766, tzinfo=<FixedOffset '+02:00'>)
+        }
+        ```
+
+        API function name: `GetLokaleUhrzeit` <br>
+        Example query: `mastr_api.GetLokaleUhrzeit()` <br>
+        Parameter: `None`
+        
+
+    
+    === "mastr_api.GetListeAlleEinheiten(limit=1)"
+        
+        Response:  
+        ```python
+        {
+        "Ergebniscode": "OkWeitereDatenVorhanden",
+        "AufrufVeraltet": False,
+        "AufrufLebenszeitEnde": None,
+        "AufrufVersion": 1,
+        "Einheiten": [
+            {
+                "EinheitMastrNummer": "SEE984033548619",
+                "DatumLetzeAktualisierung": datetime.datetime(
+                    2020, 2, 20, 16, 28, 35, 250812
+                ),
+                "Name": "Photovoltaikanlage ERWin4",
+                "Einheitart": "Stromerzeugungseinheit",
+                "Einheittyp": "Solareinheit",
+                "Standort": "48147 Münster",
+                "Bruttoleistung": Decimal("3.960"),
+                "Erzeugungsleistung": None,
+                "EinheitSystemstatus": "Aktiv",
+                "EinheitBetriebsstatus": "InBetrieb",
+                "Anlagenbetreiber": "ABR949444220202",
+                "EegMastrNummer": "EEG920083771065",
+                "KwkMastrNummer": None,
+                "SpeMastrNummer": None,
+                "GenMastrNummer": None,
+                "BestandsanlageMastrNummer": None,
+                "NichtVorhandenInMigriertenEinheiten": None,
+            }
+        ],
+        }
+        ```
+
+        API function name: `GetEinheitSolar` <br>
+        Example query: `mastr_api.GetListeAlleEinheiten(limit=1)`
+    
+        | Parameter                 | Description                                                              |
+        |------------------------|-----------------------------------------------------------------------------------------------------------|
+        | marktakteurMastrNummer | The MaStR number of the requested unit                                                                    |
+        | startAb                | Sets the beginning of the records to be delivered [default value: 1]                                      |
+        | datumAb                | Restrict the amount of data to be retrieved to changed data from the specified date [Default value: NULL] |
+        | limit                  | Limit of the maximum data records to be delivered [default/maximum value: maximum of own limit]           |
+        | einheitMastrNummern[]  |                                                                                                           |
+    
+    === "mastr_api.GetEinheitSolar(einheitMastrNummer="SEE984033548619")"
+        
+        Response: 
+        ```python
+        {
+        "Ergebniscode": "OK",
+        "AufrufVeraltet": False,
+        "AufrufLebenszeitEnde": None,
+        "AufrufVersion": 1,
+        "EinheitMastrNummer": "SEE984033548619",
+        "DatumLetzteAktualisierung": datetime.datetime(2020, 2, 20, 16, 28, 35, 250812),
+        "LokationMastrNummer": "SEL948991715391",
+        "NetzbetreiberpruefungStatus": "Geprueft",
+        "Netzbetreiberzuordnungen": [
+            {
+                "NetzbetreiberMastrNummer": "SNB980883363112",
+                "NetzbetreiberpruefungsDatum": datetime.date(2020, 2, 25),
+                "NetzbetreiberpruefungsStatus": "Geprueft",
+            }
+        ],
+        "NetzbetreiberpruefungDatum": datetime.date(2020, 2, 25),
+        "AnlagenbetreiberMastrNummer": "ABR949444220202",
+        "NetzbetreiberMastrNummer": ["SNB980883363112"],
+        "Land": "Deutschland",
+        "Bundesland": "NordrheinWestfalen",
+        "Landkreis": "Münster",
+        "Gemeinde": "Münster",
+        "Gemeindeschluessel": "05515000",
+        "Postleitzahl": "48147",
+        "Gemarkung": None,
+        "FlurFlurstuecknummern": None,
+        "Strasse": None,
+        "StrasseNichtGefunden": False,
+        "Hausnummer": {"Wert": None, "NichtVorhanden": False},
+        "HausnummerNichtGefunden": False,
+        "Adresszusatz": None,
+        "Ort": "Münster",
+        "Laengengrad": None,
+        "Breitengrad": None,
+        "UtmZonenwert": None,
+        "UtmEast": None,
+        "UtmNorth": None,
+        "GaussKruegerHoch": None,
+        "GaussKruegerRechts": None,
+        "Registrierungsdatum": datetime.date(2019, 2, 1),
+        "GeplantesInbetriebnahmedatum": None,
+        "Inbetriebnahmedatum": datetime.date(2007, 7, 20),
+        "DatumEndgueltigeStilllegung": None,
+        "DatumBeginnVoruebergehendeStilllegung": None,
+        "DatumWiederaufnahmeBetrieb": None,
+        "EinheitSystemstatus": "Aktiv",
+        "EinheitBetriebsstatus": "InBetrieb",
+        "BestandsanlageMastrNummer": None,
+        "NichtVorhandenInMigriertenEinheiten": None,
+        "AltAnlagenbetreiberMastrNummer": None,
+        "DatumDesBetreiberwechsels": None,
+        "DatumRegistrierungDesBetreiberwechsels": None,
+        "NameStromerzeugungseinheit": "Photovoltaikanlage ERWin4",
+        "Weic": {"Wert": None, "NichtVorhanden": False},
+        "WeicDisplayName": None,
+        "Kraftwerksnummer": {"Wert": None, "NichtVorhanden": False},
+        "Energietraeger": "SolareStrahlungsenergie",
+        "Bruttoleistung": Decimal("3.960"),
+        "Nettonennleistung": Decimal("3.960"),
+        "Schwarzstartfaehigkeit": None,
+        "Inselbetriebsfaehigkeit": None,
+        "Einsatzverantwortlicher": None,
+        "FernsteuerbarkeitNb": False,
+        "FernsteuerbarkeitDv": None,
+        "FernsteuerbarkeitDr": None,
+        "Einspeisungsart": "Volleinspeisung",
+        "PraequalifiziertFuerRegelenergie": None,
+        "GenMastrNummer": None,
+        "zugeordneteWirkleistungWechselrichter": Decimal("4.000"),
+        "GemeinsamerWechselrichterMitSpeicher": "KeinStromspeicherVorhanden",
+        "AnzahlModule": 22,
+        "Lage": "BaulicheAnlagen",
+        "Leistungsbegrenzung": "Nein",
+        "EinheitlicheAusrichtungUndNeigungswinkel": True,
+        "Hauptausrichtung": "Sued",
+        "HauptausrichtungNeigungswinkel": "Grad20Bis40",
+        "Nebenausrichtung": "None",
+        "NebenausrichtungNeigungswinkel": "None",
+        "InAnspruchGenommeneFlaeche": None,
+        "ArtDerFlaeche": [],
+        "InAnspruchGenommeneAckerflaeche": None,
+        "Nutzungsbereich": "Haushalt",
+        "Buergerenergie": None,
+        "EegMastrNummer": "EEG920083771065",
+        }
+        ```
+
+        API function name: `GetEinheitSolar` <br>
+        Example query: `mastr_api.GetEinheitSolar(einheitMastrNummer="SEE984033548619")` <br>
+
+        | Parameter                | Description                                                       |
+        |--------------------------|-------------------------------------------------------------------|
+        | `apiKey`                 | The web service key for validation                                |
+        | `marktakteurMastrNummer` | The MaStR number of the market actor used by the web service user |
+        | `einheitMastrNummer`     | The MaStR number of the requested unit                            | 
+
+
+??? note "Why can't I just query all information of all units of a specific power plant type?"
+
+    As the example queries above demonstrate, the API is structured so that units of power plants types (e.g. wind 
+    turbine, solar PV systems, gas power plant) have to be queried directly by their unique identifier ( 
+    `EinheitMastrNummer"`) and a distinct API query. To download all unit information of a specific power plant 
+    you need to know the "EinheitMastrNummer". <br>
+
+    Firstly, by querying for all units with `mastr_api.GetListeAlleEinheiten()` you'll get all units, their unique 
+    identifier (`EinheitMastrNummer`) and their power plant type (`Einheitentyp`). You can then sort them by power 
+    plant type and use the power plant type specific API query to retrieve information about it. <br>
+
+    Cumbersome? <br>
+    Luckily, `open-MaStR` has you covered and provides methods to just query for all units of a power 
+    plant type.    
+
+
+
 
 ### MastrDownload
 
