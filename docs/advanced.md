@@ -168,8 +168,9 @@ To download data from the MaStR API using the `open-MaStR`, the credentials (MaS
 
 ### Mastr API
 
-You can access the MaStR data via API by using the `class MaStRAPI` directly if you have the API credentials 
-configured correctly,
+You can access the MaStR data via API by using the class `MaStRAPI` directly if you have the API credentials 
+configured correctly. Use the code snippet below for queries.
+
 
 ```python
 from open_mastr.soap_api.download import MaStRAPI
@@ -372,7 +373,13 @@ de/MaStRHilfe/subpages/webdienst.html).
 
 ### MastrDownload
 
-chrwm
+The class ` MaStRDownload` provides methods to download power plant unit types and additional information 
+for each unit type, such as extended unit data, permit data, chp-specific data, location data 
+or eeg-specific data. <br>
+
+The class handles the querying logic and knows which additional data for each unit type is available 
+and which SOAP service has to be used to query it. 
+
 
 ### MastrMirror
 
