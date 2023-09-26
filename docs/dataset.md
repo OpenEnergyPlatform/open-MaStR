@@ -23,11 +23,6 @@ As you might have noticed, we distinguish between `bulk` and `API` datasets. Wit
     The structure of the database is historically determined by the data retrieved via API. (open-mastr existed before the XML-dump was provided).
     <br> See [MaStR data model](#Mastr-data-model)
 
-??? question "Why does the XML table structure and some column headers are different to the data retrieved via API requests?"
-
-    The difference in structure might stem from zipping the data to XML. <br> The reason for difference in column 
-    header naming is unknown to us. However, open-mastr maps XML-dump columns to API columns.
-
 
 ## Tables in the database
 
@@ -35,14 +30,6 @@ As you might have noticed, we distinguish between `bulk` and `API` datasets. Wit
     :sparkles: We regularly run the whole download and cleansing pipeline and upload the dataset as csv files at [zenodo](https://doi.org/10.5281/zenodo.6807425)! 
 
 After downloading the MaStR, you will find a database with a large number of tables. Here we give a brief overview of what you can find in those tables:
-
-??? question "How are the database tables created from the XML files?"
-    
-    #FIXME: link to bulk reference 
-
-??? question "How are the csv files created from the database tables?"
-
-    FIXME: how to link to Reference section?
 
 ### Tables in the local database
 
@@ -101,3 +88,12 @@ A useful overview of the MaStR data model can be found [here (in german)](https:
 
 === "original image (german)"
     ![Data model of the MaStR](images/DetailAnlagenModellMaStR.png)
+
+
+## Tables as CSV
+
+Tables from the database can be exported to csv files. By default, all available power plant unit data will be exported
+to csv files. 
+
+For exported csv's additional available data is joined on basic unit data. For example: For biomass power plants one csv
+is exported consisting of the join of four database tables (unit data, chp data, permit data, eeg data).
