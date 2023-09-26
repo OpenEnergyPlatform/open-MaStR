@@ -36,26 +36,35 @@ The project home directory is structured as follows (files and folders below `da
     │   ├── logging.yml
     ├── data
     │   ├── dataversion-<date>
-    │       ├── bnetza_mastr_solar_eeg_fail.csv
-    │       ├── bnetza_mastr_solar_extended_fail.csv
-    │       └── bnetza_mastr_solar_raw.csv
     │   ├── sqlite
     │       └── open-mastr.db
         └── xml_download
-            └── Gesamtdatenexport.zip
+            └── Gesamtdatenexport_<date>.zip
     └── logs
         └── open_mastr.log
 ```
-
-* `credentials.cfg`: Credentials used to access
-  [Marktstammdatenregister (MaStR)](https://www.marktstammdatenregister.de/MaStR) API
-* `filenames.yml`: File names are defined here.
-* `logging.yml`: Logging configuration. For changing the log level to increase or decrease details of log
-  messages, edit the `level` of the handlers.
-* `dataversion` <br>
-  Exported data is as csv files from [`to_csv`][open_mastr.Mastr.to_csv]
-* `Gesamtdatenexport_<date>.zip` <br>
-  New versions of the dump overwrite older versions. 
+ 
+ 
+* **config**
+     * `credentials.cfg` <br>
+        Credentials used to access
+        [Marktstammdatenregister (MaStR)](https://www.marktstammdatenregister.de/MaStR) API
+     * `filenames.yml` <br>
+        File names are defined here.
+     * `logging.yml` <br>
+        Logging configuration. For changing the log level to increase or decrease details of log
+        messages, edit the level of the handlers.
+* **data**
+     * `dataversion-<date>` <br>
+        Contains exported data as csv files from method [`to_csv`][open_mastr.Mastr.to_csv]
+     * `sqlite` <br>
+        Contains the sqlite database in `open-mastr.db`
+     * `xml_download` <br>
+        Contains the bulk download in `Gesamtdatenexport_<date>.zip` <br>
+        New bulk download versions overwrite older versions. 
+* **logs**
+     *  `open_mastr.log` <br>
+        The files stores the logging information from executing open-mastr.
 
 
 
