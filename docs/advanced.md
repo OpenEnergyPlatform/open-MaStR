@@ -166,7 +166,7 @@ To download data from the MaStR API using the `open-MaStR`, the credentials (MaS
     to provide user and token in a script and use these
     credentials in subsequent queries.
 
-### Mastr API
+### MaStRAPI
 
 You can access the MaStR data via API by using the class `MaStRAPI` directly if you have the API credentials 
 configured correctly. Use the code snippet below for queries.
@@ -371,9 +371,11 @@ de/MaStRHilfe/subpages/webdienst.html).
 
 
 
-### MastrDownload
+### MaStRDownload
 
-The class ` MaStRDownload` provides methods to download power plant unit types and additional information 
+The class `MaStRDownload` builds upon methods provided in the class `MaStRAPI`. <br> 
+
+It provides methods to download power plant unit types and additional information 
 for each unit type, such as extended unit data, permit data, chp-specific data, location data 
 or eeg-specific data. <br>
 
@@ -381,9 +383,14 @@ The class handles the querying logic and knows which additional data for each un
 and which SOAP service has to be used to query it. 
 
 
-### MastrMirror
+### MaStRMirror
 
-chrwm 
-Decide to include or not - depending on use
+The class `MaStRMirror` builds upon methods provided in the class `MaStRDownload`. <br>
+
+The aim of the class has been to mirror the Marktstammdatenregister database and keep it up-to-date.
+Historically `open-mastr` has been developed before the `bulk` download was available. The class can still be used for
+use-cases where only the most recent changes to a local database are of interest. For downloading the entire MaStR 
+database we recommend the bulk download functionalities.
+
 
 
