@@ -9,7 +9,7 @@ from open_mastr.utils.config import (
     get_data_version_dir,
     get_project_home_dir,
     get_output_dir,
-    setup_logger
+    setup_logger,
 )
 
 from open_mastr.utils.constants import ADDITIONAL_TABLES, TECHNOLOGIES
@@ -134,12 +134,13 @@ class Mastr:
             |-----------------------|------|------|
             | "today"                | latest files are downloaded from marktstammdatenregister.de  | -  |
             | "20230101"      | If file from this date exists locally, it is used. Otherwise it throws an error (You can only receive todays data from the server)  | -   |
+            | "existing"               | Use latest downloaded zipped xml files, throws an error if the bulk download folder is empty  | -  |
             | "latest"               | -  | Retrieve data that is newer than the newest data already in the table  |
             | datetime.datetime(2020, 11, 27)      | -  | Retrieve data that is newer than this time stamp   |
             | None      | set date="today"  | set date="latest"   |
 
             Default to `None`.
-        bulk_cleansing : bool, optional
+        bulk_cleansing : bool, optional            
             If True, data cleansing is applied after the download (which is recommended). Default
             to True.
         api_processes : int or None or "max", optional
@@ -190,7 +191,7 @@ class Mastr:
             method, data, api_data_types, api_location_types, **kwargs
         )
 
-        date = transform_date_parameter(method, date, **kwargs)
+        date = transform_date_parameter(self, method, date, **kwargs)
 
         if method == "bulk":
             # Find the name of the zipped xml folder
