@@ -1,3 +1,6 @@
+For most users, the functionalites described in [Getting Started](/getting_started) are sufficient.  If you want to examine how you can configure the package's behavior for your own needs, check out [Cofiguration](#configuration). Or you can explore the two main functionalities of the package, namely the [Bulk Download](#bulk-download)
+or the [SOAP API download](#soap-api-download).
+
 ## Configuration
 ### Database settings
 
@@ -103,6 +106,7 @@ flowchart LR
   click id2 "https://github.com/OpenEnergyPlatform/open-MaStR/blob/7b155a9ebdd5204de8ae6ba7a96036775a1f4aec/open_mastr/xml_download/utils_write_to_database.py#L17C6-L17C6" _blank
   click id4 "https://github.com/OpenEnergyPlatform/open-MaStR/blob/7b155a9ebdd5204de8ae6ba7a96036775a1f4aec/open_mastr/xml_download/utils_cleansing_bulk.py#L10" _blank
   click id5 "https://github.com/OpenEnergyPlatform/open-MaStR/blob/7b155a9ebdd5204de8ae6ba7a96036775a1f4aec/open_mastr/mastr.py#L288" _blank
+  click id6 "https://doi.org/10.5281/zenodo.6807425" _blank
 ```
 
 
@@ -165,7 +169,7 @@ To download data from the MaStR API using the `open-MaStR`, the credentials (MaS
 3. **Don't store:** 
     Just use the password for one query and forget it
 
-    The latter option is only available when using :class:`open_mastr.soap_api.download.MaStRAPI`.
+    The latter option is only available when using [`MaStRAPI`][open_mastr.soap_api.download.MaStRAPI].
     Instantiate with
 
     ```python
@@ -397,9 +401,9 @@ and which SOAP service has to be used to query it.
 The class `MaStRMirror` builds upon methods provided in the class `MaStRDownload`. <br>
 
 The aim of the class has been to mirror the Marktstammdatenregister database and keep it up-to-date.
-Historically `open-mastr` has been developed before the `bulk` download was available. The class can still be used for
-use-cases where only the most recent changes to a local database are of interest. For downloading the entire MaStR 
-database we recommend the bulk download functionalities.
+Historically, `open-mastr` has been developed before the owner of the dataset, BNetzA, offered the `bulk` download.
+The class can still be used for use-cases where only the most recent changes to a local database are of interest. 
+For downloading the entire MaStR database we recommend the bulk download functionalities by specifying `donwload(method="bulk")`.
 
 
 

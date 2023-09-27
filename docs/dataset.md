@@ -1,11 +1,12 @@
 ## Background
 
-The Marktstammdatenregister (MaStR) is operated by the German Federal Network Agency (de: Bundesnetzagentur, short: BNetzA) since January 31, 2019 as a central online database for data related to the German energy system. Owners of electricity or gas generating plants are obliged to report master data on themselves and their plants. Additionally, plants consuming large amounts of electricity have to be registered if they are connected to at least a high-voltage electricity grid.
+The Marktstammdatenregister (MaStR) has been operated by the German Federal Network Agency (Bundesnetzagentur, abbreviated as BNetzA) since January 31, 2019, as a central online database for data related to the German energy system. Owners of electricity or gas generating plants are obligated to report master data about themselves and their plants. Additionally, industrial facilities consuming large amounts of electricity must register if they are connected to at least a high-voltage electricity grid.
 
-Most information on units is openly accessible. The data is published under an open data license, the Data licence Germany – attribution – version 2.0 (DL-DE-BY-2.0) and can be downloaded, used and republished with no restriction if proper attribution to the Bundesnetzagentur is given.
-For units with a net capacity of up to 30 kW, some location information is restricted from publication. This applies to street name, house number, parcel designation and exact coordinates of units. The most granular location information accessible for all units is the postal code or the municipality.
+Most unit information is openly accessible and is published under an open data license, the Data licence Germany – attribution – version 2.0 (DL-DE-BY-2.0). This data can be downloaded, used, and republished with no restrictions, provided that proper attribution to the Bundesnetzagentur is given.
 
-Within our paper [Analyzing Data Reliability in Germany's Energy System: A Validation of Unit Locations of the Marktstammdatenregister](https://arxiv.org/abs/2304.10581) we give further insights into the content and quality of the dataset.
+For units with a net capacity of less than 30 kW, some location information is restricted from publication. This includes street names, house numbers, parcel designations, and exact coordinates of units. The most detailed location information accessible for all units is the postal code or the municipality.
+
+In our paper titled [Analyzing Data Reliability in Germany's Energy System: A Validation of Unit Locations of the Marktstammdatenregister](https://arxiv.org/abs/2304.10581), we provide further insights into the content and quality of the dataset.
 
 ## Content
 
@@ -16,7 +17,7 @@ The German Federal Network Agency regularly updates the dataset and adds new tab
 
 ## Difference between `bulk` and `API` dataset
 
-As you might have noticed, we distinguish between `bulk` and `API` datasets. With the `bulk` dataset we mean the data obtained from the zipped xml-files downloaded from [here](https://www.marktstammdatenregister.de/MaStR/Datendownload) using the [`Mastr.download`][open_mastr.Mastr.download]. The `API` data is obtained by requesting information via the SOAP-API and the [`soap_api.download.MaStRDownload`][open_mastr.soap_api.download.MaStRDownload] module.
+As you may have noticed, we distinguish between `bulk` and `API` datasets. The `bulk` dataset refers to the data obtained from the zipped XML files downloaded from [here](https://www.marktstammdatenregister.de/MaStR/Datendownload) using the [`Mastr.download`][open_mastr.Mastr.download] function. The `API` data is obtained by requesting information via the SOAP-API and the [`soap_api.download.MaStRDownload`][open_mastr.soap_api.download.MaStRDownload] module.
 
 ??? question "Why is the table structure in the open-mastr database as it is?"
 
@@ -96,4 +97,4 @@ Tables from the database can be exported to csv files. By default, all available
 to csv files. 
 
 For exported csv's additional available data is joined on basic unit data. For example: For biomass power plants one csv
-is exported consisting of the join of four database tables (unit data, chp data, permit data, eeg data).
+is exported consisting of the join of four database tables (unit data, chp data, permit data, eeg data). We regularly run the whole download and cleansing pipeline and upload the dataset as csv files at [zenodo](https://doi.org/10.5281/zenodo.6807425). 
