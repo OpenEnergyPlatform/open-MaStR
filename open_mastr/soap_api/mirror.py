@@ -63,7 +63,7 @@ class MaStRMirror:
     ```
 
     The data can be joined to one table for each data type and exported to
-    CSV files using [`MaStRMirror.to_csv`][open_mastr.soap_api.mirror.MaStRMirror.to_csv].
+    CSV files using [`Mastr.to_csv`][open_mastr.mastr.Mastr.to_csv].
 
     Also consider to use `~.dump` and `~.restore` for specific purposes.
 

@@ -140,7 +140,7 @@ class Mastr:
             | None      | set date="today"  | set date="latest"   |
 
             Default to `None`.
-        bulk_cleansing : bool, optional            
+        bulk_cleansing : bool, optional
             If True, data cleansing is applied after the download (which is recommended). Default
             to True.
         api_processes : int or None or "max", optional
@@ -155,7 +155,7 @@ class Mastr:
         api_limit : int or None, optional
             Limit the number of units that data is downloaded for. Defaults to `None` which refers
             to query data for existing data requests, for example created by
-            [`create_additional_data_requests`][open_mastr.soap_api.mirror.create_additional_data_requests]. Note: There is a limited number of
+            [`create_additional_data_requests`][open_mastr.soap_api.mirror.MaStRMirror.create_additional_data_requests]. Note: There is a limited number of
             requests you are allowed to have per day, so setting api_limit to a value is
             recommended.
         api_chunksize : int or None, optional

@@ -29,7 +29,7 @@ class MaStRAPI(object):
     """
     Access the Marktstammdatenregister (MaStR) SOAP API via a Python wrapper
 
-    Read about [MaStR account and credentials](../advanced/api_download.md#MaStR account and credentials)
+    Read about [MaStR account and credentials](/advanced/#mastr-account-and-credentials)
     how to create a user account and a role including a token to access the
     MaStR SOAP API.
 
@@ -45,7 +45,7 @@ class MaStRAPI(object):
 
     Alternatively, leave `user` and `key` empty if user and token are accessible via
     `credentials.cfg`. How to configure this is described
-    [here](../advanced/api_download.md#MaStR account and credentials).
+    [here](/advanced/#mastr-account-and-credentials).
 
     ```python
 
@@ -416,7 +416,7 @@ def _missed_units_to_file(data, data_type, missed_units):
 class MaStRDownload:
     """Use the higher level interface for bulk download
 
-    `MaStRDownload` builds on top of [`MaStRAPI`][open_mastr.soap_api.MaStRAPI] and provides
+    `MaStRDownload` builds on top of [`MaStRAPI`][open_mastr.soap_api.download.MaStRAPI] and provides
     an interface for easier downloading.
     Use methods documented below to retrieve specific data. On the example of
     data for nuclear power plants, this looks like
