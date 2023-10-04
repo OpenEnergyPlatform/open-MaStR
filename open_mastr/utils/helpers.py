@@ -34,6 +34,7 @@ from open_mastr.utils.constants import (
     ORM_MAP,
     UNIT_TYPE_MAP,
     ADDITIONAL_TABLES,
+    TRANSLATIONS,
 )
 
 
@@ -45,19 +46,14 @@ def chunks(lst, n):
     """
     length = lst.count() if isinstance(lst, Query) else len(lst)
     for i in range(0, length, n):
-        yield lst[i: i + n]
+        yield lst[i : i + n]
 
 
-def create_database_engine(engine, home_directory, is_translated=False) -> sqlalchemy.engine.Engine:
+def create_database_engine(engine, home_directory) -> sqlalchemy.engine.Engine:
     if engine == "sqlite":
-        if is_translated:
-            db_name = "open-mastr-translated.db"
-        else:
-            db_name = "open-mastr.db"
-
         sqlite_database_path = os.environ.get(
             "SQLITE_DATABASE_PATH",
-            os.path.join(home_directory, "data", "sqlite", db_name),
+            os.path.join(home_directory, "data", "sqlite", "open-mastr.db"),
         )
         db_url = f"sqlite:///{sqlite_database_path}"
         return create_engine(db_url)
@@ -82,16 +78,16 @@ def validate_parameter_format_for_mastr_init(engine) -> None:
 
 
 def validate_parameter_format_for_download_method(
-        method,
-        data,
-        date,
-        bulk_cleansing,
-        api_processes,
-        api_limit,
-        api_chunksize,
-        api_data_types,
-        api_location_types,
-        **kwargs,
+    method,
+    data,
+    date,
+    bulk_cleansing,
+    api_processes,
+    api_limit,
+    api_chunksize,
+    api_data_types,
+    api_location_types,
+    **kwargs,
 ) -> None:
     if "technology" in kwargs:
         data = kwargs["technology"]
@@ -232,14 +228,14 @@ def validate_parameter_data(method, data) -> None:
 
 
 def raise_warning_for_invalid_parameter_combinations(
-        method,
-        bulk_cleansing,
-        date,
-        api_processes,
-        api_data_types,
-        api_location_types,
-        api_limit,
-        api_chunksize,
+    method,
+    bulk_cleansing,
+    date,
+    api_processes,
+    api_data_types,
+    api_location_types,
+    api_limit,
+    api_chunksize,
 ):
     if method == "API" and bulk_cleansing is not True:
         warn(
@@ -248,18 +244,18 @@ def raise_warning_for_invalid_parameter_combinations(
         )
 
     if method == "bulk" and (
-            (
-                    any(
-                        parameter is not None
-                        for parameter in [
-                            api_processes,
-                            api_data_types,
-                            api_location_types,
-                        ]
-                    )
-                    or api_limit != 50
-                    or api_chunksize != 1000
+        (
+            any(
+                parameter is not None
+                for parameter in [
+                    api_processes,
+                    api_data_types,
+                    api_location_types,
+                ]
             )
+            or api_limit != 50
+            or api_chunksize != 1000
+        )
     ):
         warn(
             "For method = 'bulk', API related parameters (with prefix api_) are ignored."
@@ -267,7 +263,7 @@ def raise_warning_for_invalid_parameter_combinations(
 
 
 def transform_data_parameter(
-        method, data, api_data_types, api_location_types, **kwargs
+    method, data, api_data_types, api_location_types, **kwargs
 ):
     """
     Parse input parameters related to data as lists. Harmonize variables for later use.
@@ -327,14 +323,14 @@ def session_scope(engine):
 
 
 def print_api_settings(
-        harmonisation_log,
-        data,
-        date,
-        api_data_types,
-        api_chunksize,
-        api_limit,
-        api_processes,
-        api_location_types,
+    harmonisation_log,
+    data,
+    date,
+    api_data_types,
+    api_chunksize,
+    api_limit,
+    api_processes,
+    api_location_types,
 ):
     print(
         f"Downloading with soap_API.\n\n   -- API settings --  \nunits after date: "
@@ -425,11 +421,11 @@ def reverse_unit_type_map():
 
 
 def create_db_query(
-        tech=None,
-        additional_table=None,
-        additional_data=["unit_data", "eeg_data", "kwk_data", "permit_data"],
-        limit=None,
-        engine=None,
+    tech=None,
+    additional_table=None,
+    additional_data=["unit_data", "eeg_data", "kwk_data", "permit_data"],
+    limit=None,
+    engine=None,
 ):
     """
     Create a database query to export a snapshot MaStR data from database to CSV.
@@ -711,12 +707,12 @@ def db_query_to_csv(db_query, data_table: str, chunksize: int) -> None:
         with con.begin():
             # Read data into pandas.DataFrame in chunks of max. 500000 rows of ~2.5 GB RAM
             for chunk_number, chunk_df in enumerate(
-                    pd.read_sql(
-                        sql=db_query.statement,
-                        con=con,
-                        index_col=index_col,
-                        chunksize=chunksize,
-                    )
+                pd.read_sql(
+                    sql=db_query.statement,
+                    con=con,
+                    index_col=index_col,
+                    chunksize=chunksize,
+                )
             ):
                 # For debugging purposes, check RAM usage of chunk_df
                 # chunk_df.info(memory_usage='deep')
@@ -753,12 +749,20 @@ def db_query_to_csv(db_query, data_table: str, chunksize: int) -> None:
                         )
 
 
-def rename_table(table, column_translations, engine) -> None:
+def rename_table(table, columns, engine) -> None:
+    """
+    Rename table based on translation dictionary.
+    """
     alter_statements = []
 
-    for german, english in column_translations.items():
-        alter_statement = text(f"ALTER TABLE {table} RENAME COLUMN {german} TO {english}")
-        alter_statements.append(alter_statement)
+    for column in columns:
+        column = column["name"]
+
+        if column in TRANSLATIONS:
+            alter_statement = text(
+                f"ALTER TABLE {table} RENAME COLUMN {column} TO {TRANSLATIONS[column]}"
+            )
+            alter_statements.append(alter_statement)
 
     with engine.connect() as connection:
         for statement in alter_statements:
@@ -767,3 +771,27 @@ def rename_table(table, column_translations, engine) -> None:
             except sqlalchemy.exc.OperationalError:
                 continue
 
+
+def create_translated_database_engine(engine, folder_path) -> sqlalchemy.engine.Engine:
+    """
+    Check if translated version of the database, as defined with engine parameter, exists.
+    Return sqlite engine connected with the translated database.
+    """
+
+    if engine == "sqlite":
+        db_path = os.path.join(folder_path, "open-mastr-translated.db")
+    else:
+        if "sqlite" not in engine.dialect.name:
+            raise ValueError("engine has to be of type 'sqlite'")
+
+        prev_path = r"{}".format(engine.url.database)
+        engine.dispose()
+        db_path = prev_path[:-3] + "-translated.db"
+
+    if not os.path.exists(db_path):
+        raise FileNotFoundError(
+            f"no database at {db_path} found.\n"
+            "make sure the database has been translated before with translate()"
+        )
+
+    return create_engine(f"sqlite:///{db_path}")

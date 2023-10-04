@@ -1,4 +1,5 @@
 import os
+from sqlalchemy import inspect, create_engine
 
 # import xml dependencies
 from open_mastr.xml_download.utils_download_bulk import download_xml_Mastr
@@ -35,13 +36,11 @@ import open_mastr.utils.orm as orm
 from open_mastr.utils.helpers import (
     create_database_engine,
     rename_table,
+    create_translated_database_engine,
 )
 
-# import methods to work with tables
-from sqlalchemy import inspect
-
 # constants
-from open_mastr.utils.constants import TECHNOLOGIES, ADDITIONAL_TABLES, TRANSLATIONS
+from open_mastr.utils.constants import TECHNOLOGIES, ADDITIONAL_TABLES
 
 # setup logger
 log = setup_logger()
@@ -65,9 +64,13 @@ class Mastr:
     ------------
         engine: {'sqlite', sqlalchemy.engine.Engine}, optional
             Defines the engine of the database where the MaStR is mirrored to. Default is 'sqlite'.
+
+        connect_to_translated_db: boolean, optional
+            Allows connection to an existing translated database. Default is 'False'.
+            Only for 'sqlite'-type engines.
     """
 
-    def __init__(self, engine="sqlite") -> None:
+    def __init__(self, engine="sqlite", connect_to_translated_db=False) -> None:
 
         validate_parameter_format_for_mastr_init(engine)
 
@@ -75,7 +78,13 @@ class Mastr:
         self._sqlite_folder_path = os.path.join(self.home_directory, "data", "sqlite")
         os.makedirs(self._sqlite_folder_path, exist_ok=True)
 
-        self.engine = create_database_engine(engine, self.home_directory)
+        self.is_translated = connect_to_translated_db
+        if connect_to_translated_db:
+            self.engine = create_translated_database_engine(
+                engine, self._sqlite_folder_path
+            )
+        else:
+            self.engine = create_database_engine(engine, self.home_directory)
 
         print(
             f"Data will be written to the following database: {self.engine.url}\n"
@@ -87,17 +96,17 @@ class Mastr:
         orm.Base.metadata.create_all(self.engine)
 
     def download(
-            self,
-            method="bulk",
-            data=None,
-            date=None,
-            bulk_cleansing=True,
-            api_processes=None,
-            api_limit=50,
-            api_chunksize=1000,
-            api_data_types=None,
-            api_location_types=None,
-            **kwargs,
+        self,
+        method="bulk",
+        data=None,
+        date=None,
+        bulk_cleansing=True,
+        api_processes=None,
+        api_limit=50,
+        api_chunksize=1000,
+        api_data_types=None,
+        api_location_types=None,
+        **kwargs,
     ) -> None:
         """
         Download the MaStR either via the bulk download or via the MaStR API and write it to a
@@ -220,6 +229,13 @@ class Mastr:
 
         date = transform_date_parameter(method, date, **kwargs)
 
+        if self.is_translated:
+            raise TypeError(
+                "you are currently connected to a translated database\n"
+                "a translated database cannot be further altered\n"
+                "translate a new database to replace the current one"
+            )
+
         if method == "bulk":
             # Find the name of the zipped xml folder
             bulk_download_date = parse_date_string(date)
@@ -289,7 +305,7 @@ class Mastr:
                     )
 
     def to_csv(
-            self, tables: list = None, chunksize: int = 500000, limit: int = None
+        self, tables: list = None, chunksize: int = 500000, limit: int = None
     ) -> None:
         """
         Save the database as csv files along with the metadata file.
@@ -370,31 +386,58 @@ class Mastr:
         # Configure and save data package metadata file along with data
         # save_metadata(data=technologies_to_export, engine=self.engine)
 
-    def translate(self, engine="sqlite") -> None:
-        #make sure data is downloaded before use
+    def translate(self) -> None:
+        """
+        A database can be translated only once.
+
+        Deletes translated versions of the currently connected database.
+
+        Translates currently connected database,renames it with '-translated'
+        suffix and updates self.engine's path accordingly.
+
+        !!! example
+            ```python
+
+            from open_mastr import Mastr
+            import pandas as pd
+
+            db = Mastr()
+            db.download(data='biomass')
+            db.translate()
+
+            df = pd.read_sql(table='biomass_extended', con=db.engine)
+            print(df.head(10))
+            ```
+
+        """
+
+        if "sqlite" not in self.engine.dialect.name:
+            raise ValueError("engine has to be of type 'sqlite'")
+        if self.is_translated:
+            raise TypeError("the currently connected database is already translated")
+
         inspector = inspect(self.engine)
-        tables = inspector.get_table_names()
-        old_path = os.path.join(self.home_directory, 'data', 'sqlite', 'open-mastr.db')
-        new_path = os.path.join(self.home_directory, 'data', 'sqlite', 'open-mastr-translated.db')
+        old_path = r"{}".format(self.engine.url.database)
+        new_path = old_path[:-3] + "-translated.db"
 
         if os.path.exists(new_path):
-            self.engine.dispose()
-            validate_parameter_format_for_mastr_init(engine)
-            self.engine = create_database_engine(engine, self.home_directory, is_translated=True)
-            print('Connected to database', new_path)
-            return
+            try:
+                os.remove(new_path)
+            except Exception as e:
+                print(f"An error occurred: {e}")
 
-        for count, table in enumerate(tables):
-            print(count+1, '/', len(tables), ' translating ', table, sep="")
-            rename_table(table, TRANSLATIONS[table], self.engine)
+            print("Replacing previous version of the translated database...")
+
+        for table in inspector.get_table_names():
+            rename_table(table, inspector.get_columns(table), self.engine)
 
         self.engine.dispose()
 
         try:
             os.rename(old_path, new_path)
-            print(f"Database '{old_path}' renamed to '{new_path}'")
+            print(f"Database '{old_path}' changed to '{new_path}'")
         except Exception as e:
             print(f"An error occurred: {e}")
 
-        validate_parameter_format_for_mastr_init(engine)
-        self.engine = create_database_engine(engine, self.home_directory, is_translated=True)
+        self.engine = create_engine(f"sqlite:///{new_path}")
+        self.is_translated = True
