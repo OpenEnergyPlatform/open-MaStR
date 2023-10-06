@@ -198,6 +198,7 @@ def add_table_to_database(
     }
 
     continueloop = True
+    add_missing_columns_to_table(engine, xml_tablename, df)
     for _ in range(10000):
         try:
             with engine.connect() as con:
@@ -209,15 +210,7 @@ def add_table_to_database(
                         if_exists=if_exists,
                         dtype=dtypes_for_writing_sql,
                     )
-                    continueloop = False
-        except sqlalchemy.exc.OperationalError as err:
-            add_missing_column_to_table(err, engine, xml_tablename, df)
-
-        except sqlalchemy.exc.ProgrammingError as err:
-            add_missing_column_to_table(err, engine, xml_tablename, df)
-
-        except sqlite3.OperationalError as err:
-            add_missing_column_to_table(err, engine, xml_tablename, df)
+                    break
 
         except sqlalchemy.exc.DataError as err:
             delete_wrong_xml_entry(err, df)
@@ -301,20 +294,17 @@ def write_single_entries_until_not_unique_comes_up(
     return df
 
 
-def add_missing_column_to_table(
-    err: Error,
+def add_missing_columns_to_table(
     engine: sqlalchemy.engine.Engine,
     xml_tablename: str,
     df: pd.DataFrame,
 ) -> None:
     """
     Some files introduce new columns for existing tables.
-    If this happens, the error from writing entries into
-    non-existing columns is caught and non-existing
-    columns are created.
+    If the pandas dataframe contains columns that do not
+    exist in the database, they are added to the database.
     Parameters
     ----------
-    err
     engine
     xml_tablename
     df
