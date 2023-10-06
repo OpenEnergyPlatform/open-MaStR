@@ -198,7 +198,7 @@ def add_table_to_database(
     }
 
     continueloop = True
-    while continueloop:
+    for _ in range(10000):
         try:
             with engine.connect() as con:
                 with con.begin():
