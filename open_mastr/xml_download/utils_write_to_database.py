@@ -1,4 +1,3 @@
-import sqlite3
 from shutil import Error
 from zipfile import ZipFile
 
@@ -197,8 +196,7 @@ def add_table_to_database(
         if column.name in df.columns
     }
 
-    continueloop = True
-    add_missing_columns_to_table(engine, xml_tablename, df)
+    add_missing_columns_to_table(engine, xml_tablename, column_list=df.columns.tolist())
     for _ in range(10000):
         try:
             with engine.connect() as con:
@@ -297,7 +295,7 @@ def write_single_entries_until_not_unique_comes_up(
 def add_missing_columns_to_table(
     engine: sqlalchemy.engine.Engine,
     xml_tablename: str,
-    df: pd.DataFrame,
+    column_list: list,
 ) -> None:
     """
     Some files introduce new columns for existing tables.
@@ -321,9 +319,7 @@ def add_missing_columns_to_table(
     columns = inspector.get_columns(table_name)
     column_names_from_database = [column["name"] for column in columns]
 
-    column_names_from_df = df.columns.tolist()
-
-    missing_columns = set(column_names_from_df) - set(column_names_from_database)
+    missing_columns = set(column_list) - set(column_names_from_database)
 
     for column_name in missing_columns:
         alter_query = 'ALTER TABLE %s ADD "%s" VARCHAR NULL;' % (
