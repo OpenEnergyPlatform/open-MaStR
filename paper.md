@@ -37,22 +37,22 @@ bibliography: paper.bib
 
 The Marktstammdatenregister (MaStR) is a German register provided by the German Federal Network Agency (Bundesnetzagentur / BNetzA) [@Bundesnetzagentur2019_Marktstammdatenregister].
 It was first published in 2019 and includes detailed information about more than 8.2 million electricity and gas producers, electricity and gas consumers, storages, grids, and actors from the energy market.
-The python package open-mastr provides an interface for accessing and cleaning the dataset.
+The python package `open-mastr` provides an interface for accessing and cleaning the dataset.
 It can be used to build and update a local database of the whole registry.
 
 
 # Statement of need
-open-mastr was built to simplify the process of downloading, parsing, and cleaning the MaStR dataset.
+`open-mastr` was built to simplify the process of downloading, parsing, and cleaning the MaStR dataset.
 @Tepe2023_MaStR found 54 papers in the fields of sustainability studies, energy politics, energy data, energy system ananlysis, and energy economics that used the MaStR dataset in their research.
 The raw data format of the MaStR, as it is provided by BNetzA, is hard to handle: First, it can be retreived via two different methods, and both methods are only described in German. Second, many entries in the dataset are encoded. And finally, information that belongs together is distributed over several tables.
-Hence, open-mastr is a tool that diminishes the time needed to parse and process data and instead enables researchers to start working with the data right away.
+Hence, `open-mastr` is a tool that diminishes the time needed to parse and process data and instead enables researchers to start working with the data right away.
 
-Besides open-mastr, no other software solutions exists that provides an interface to download and clean the MaStR dataset.
+Besides `open-mastr`, no other software solutions exists that provides an interface to download and clean the MaStR dataset.
 For other energy-related data, similar solutions exist: The iotools module from pvlib implements access to different raw data sources via its get methods [@Holmgren2018_pvlib]. 
 Another existing approach is to offer cleansed datasets via the web: This is done by the Open Energy Platform [@Hulk2022_OpenEnergyFamily], the Open Power System Data [@Wiese2019_openPSD], the Global Power Plant Database [@byers2018_global], or the Public Utility Data Liberation Project [@Selvans2020_pudl].
 The advantage of these web platforms is the easy access for end users, they can simply download files, often in easy to handle formats such as csv.
 The disadvantage is, that the end users have to rely on the maintainers of the platforms to regularily update their files.
-Here, open-mastr comes at hand, since end users can directly get the original data and hence do not depend on others to keep their data updated. 
+Here, `open-mastr` comes at hand, since end users can directly get the original data and hence do not depend on others to keep their data updated. 
 # Package description
 It contains methods to download and parse the data from the two different sources: the bulk download and the SOAP web service (API).
 The cleaned data is then written to a SQL database.
