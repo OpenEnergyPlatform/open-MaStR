@@ -207,6 +207,13 @@ class Mastr:
             "location_elec_generation", "location_elec_consumption", "location_gas_generation",
             "location_gas_consumption". Defaults to all.
         """
+        
+        if self.is_translated:
+            raise TypeError(
+                "you are currently connected to a translated database\n"
+                "a translated database cannot be further altered\n"
+                "translate a new database to replace the current one"
+            )
 
         validate_parameter_format_for_download_method(
             method=method,
@@ -230,13 +237,6 @@ class Mastr:
         )
 
         date = transform_date_parameter(self, method, date, **kwargs)
-
-        if self.is_translated:
-            raise TypeError(
-                "you are currently connected to a translated database\n"
-                "a translated database cannot be further altered\n"
-                "translate a new database to replace the current one"
-            )
 
         if method == "bulk":
             # Find the name of the zipped xml folder
