@@ -297,10 +297,25 @@ def transform_data_parameter(
     return data, api_data_types, api_location_types, harmonisation_log
 
 
-def transform_date_parameter(method, date, **kwargs):
+def transform_date_parameter(self, method, date, **kwargs):
     if method == "bulk":
         date = kwargs.get("bulk_date", date)
         date = "today" if date is None else date
+        if date == "existing":
+            existing_files_list = os.listdir(
+                os.path.join(self.home_directory, "data", "xml_download")
+            )
+            if not existing_files_list:
+                date = "today"
+                print(
+                    "By choosing `date`='existing' you want to use an existing "
+                    "xml download."
+                    "However no xml_files were downloaded yet. The parameter `date` is"
+                    "therefore set to 'today'."
+                )
+            # we assume that there is only one file in the folder which is the
+            # zipped xml folder
+            date = existing_files_list[0].split("_")[1].split(".")[0]
     elif method == "API":
         date = kwargs.get("api_date", date)
 
