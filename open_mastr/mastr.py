@@ -28,6 +28,7 @@ from open_mastr.utils.config import (
     create_data_dir,
     get_data_version_dir,
     get_project_home_dir,
+    get_output_dir,
     setup_logger,
 )
 import open_mastr.utils.orm as orm
@@ -74,8 +75,9 @@ class Mastr:
 
         validate_parameter_format_for_mastr_init(engine)
 
+        self.output_dir = get_output_dir()
         self.home_directory = get_project_home_dir()
-        self._sqlite_folder_path = os.path.join(self.home_directory, "data", "sqlite")
+        self._sqlite_folder_path = os.path.join(self.output_dir, "data", "sqlite")
         os.makedirs(self._sqlite_folder_path, exist_ok=True)
 
         self.is_translated = connect_to_translated_db
@@ -155,7 +157,7 @@ class Mastr:
             Either "today" or None if the newest data dump should be downloaded
             rom the MaStR website. If an already downloaded dump should be used,
             state the date of the download in the format
-            "yyyymmdd". Defaults to None.
+            "yyyymmdd" or use the string "existing". Defaults to None.
 
             For API method:
 
@@ -227,7 +229,7 @@ class Mastr:
             method, data, api_data_types, api_location_types, **kwargs
         )
 
-        date = transform_date_parameter(method, date, **kwargs)
+        date = transform_date_parameter(self, method, date, **kwargs)
 
         if self.is_translated:
             raise TypeError(
@@ -239,7 +241,7 @@ class Mastr:
         if method == "bulk":
             # Find the name of the zipped xml folder
             bulk_download_date = parse_date_string(date)
-            xml_folder_path = os.path.join(self.home_directory, "data", "xml_download")
+            xml_folder_path = os.path.join(self.output_dir, "data", "xml_download")
             os.makedirs(xml_folder_path, exist_ok=True)
             zipped_xml_file_path = os.path.join(
                 xml_folder_path,
