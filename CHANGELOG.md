@@ -11,6 +11,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 - User-defined output path for csv, xml, database [#402](https://github.com/OpenEnergyPlatform/open-MaStR/pull/402)
 - Add date=existing parameter to Mastr.download [#452](https://github.com/OpenEnergyPlatform/open-MaStR/pull/452)
 - Replace values in ArtDerFlaecheIds with their entries from katalogwerte [#464](https://github.com/OpenEnergyPlatform/open-MaStR/pull/464)
+- Adapt column names to the API web service update [#472](https://github.com/OpenEnergyPlatform/open-MaStR/pull/472)
+
 ### Changed
 - Using sphinx version <7 to build documentation [#454](https://github.com/OpenEnergyPlatform/open-MaStR/pull/454)
 ### Removed
