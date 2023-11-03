@@ -1,38 +1,40 @@
-import json
 import os
+import json
 import sys
 from contextlib import contextmanager
 from datetime import date, datetime
 from warnings import warn
 
 import dateutil
-import pandas as pd
 import sqlalchemy
+from sqlalchemy.sql import insert, literal_column, text
 from dateutil.parser import parse
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Query, sessionmaker
-from sqlalchemy.sql import insert, literal_column
-from tqdm import tqdm
 
-from open_mastr.soap_api.download import MaStRAPI, log
+import pandas as pd
+from tqdm import tqdm
 from open_mastr.soap_api.metadata.create import create_datapackage_meta_json
 from open_mastr.utils import orm
 from open_mastr.utils.config import (
-    column_renaming,
-    get_data_version_dir,
     get_filenames,
+    get_data_version_dir,
+    column_renaming,
 )
+
+from open_mastr.soap_api.download import MaStRAPI, log
 from open_mastr.utils.constants import (
-    ADDITIONAL_TABLES,
+    BULK_DATA,
+    TECHNOLOGIES,
     API_DATA,
     API_DATA_TYPES,
     API_LOCATION_TYPES,
-    BULK_ADDITIONAL_TABLES_CSV_EXPORT_MAP,
-    BULK_DATA,
     BULK_INCLUDE_TABLES_MAP,
+    BULK_ADDITIONAL_TABLES_CSV_EXPORT_MAP,
     ORM_MAP,
-    TECHNOLOGIES,
     UNIT_TYPE_MAP,
+    ADDITIONAL_TABLES,
+    TRANSLATIONS,
 )
 
 
@@ -478,7 +480,9 @@ def create_db_query(
     unit_type_map_reversed = reverse_unit_type_map()
 
     with session_scope(engine=engine) as session:
+
         if tech:
+
             # Select orm tables for specified additional_data.
             orm_tables = {
                 f"{dat}": getattr(orm, ORM_MAP[tech].get(dat, "KeyNotAvailable"), None)
@@ -549,6 +553,7 @@ def create_db_query(
             return query_tech
 
         if additional_table:
+
             orm_table = getattr(orm, ORM_MAP[additional_table], None)
 
             query_additional_tables = Query(orm_table, session=session)
@@ -736,6 +741,7 @@ def db_query_to_csv(db_query, data_table: str, chunksize: int) -> None:
                         chunk_df[col] = chunk_df[col].str.replace("\r", "")
 
                 if not chunk_df.empty:
+
                     if chunk_number == 0:
                         chunk_df.to_csv(
                             csv_file,
@@ -756,3 +762,51 @@ def db_query_to_csv(db_query, data_table: str, chunksize: int) -> None:
                         log.info(
                             f"Appended {len(chunk_df)} rows to: {csv_file.split('/')[-1:]}"
                         )
+
+
+def rename_table(table, columns, engine) -> None:
+    """
+    Rename table based on translation dictionary.
+    """
+    alter_statements = []
+
+    for column in columns:
+        column = column["name"]
+
+        if column in TRANSLATIONS:
+            alter_statement = text(
+                f"ALTER TABLE {table} RENAME COLUMN {column} TO {TRANSLATIONS[column]}"
+            )
+            alter_statements.append(alter_statement)
+
+    with engine.connect() as connection:
+        for statement in alter_statements:
+            try:
+                connection.execute(statement)
+            except sqlalchemy.exc.OperationalError:
+                continue
+
+
+def create_translated_database_engine(engine, folder_path) -> sqlalchemy.engine.Engine:
+    """
+    Check if translated version of the database, as defined with engine parameter, exists.
+    Return sqlite engine connected with the translated database.
+    """
+
+    if engine == "sqlite":
+        db_path = os.path.join(folder_path, "open-mastr-translated.db")
+    else:
+        if "sqlite" not in engine.dialect.name:
+            raise ValueError("engine has to be of type 'sqlite'")
+
+        prev_path = r"{}".format(engine.url.database)
+        engine.dispose()
+        db_path = prev_path[:-3] + "-translated.db"
+
+    if not os.path.exists(db_path):
+        raise FileNotFoundError(
+            f"no database at {db_path} found.\n"
+            "make sure the database has been translated before with translate()"
+        )
+
+    return create_engine(f"sqlite:///{db_path}")

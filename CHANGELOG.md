@@ -10,10 +10,14 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 ### Added
 - User-defined output path for csv, xml, database [#402](https://github.com/OpenEnergyPlatform/open-MaStR/pull/402)
 - Add date=existing parameter to Mastr.download [#452](https://github.com/OpenEnergyPlatform/open-MaStR/pull/452)
-- Adapt column names to the API web service update [#472](https://github.com/OpenEnergyPlatform/open-MaStR/pull/472)
+- Replace values in ArtDerFlaecheIds with their entries from katalogwerte [#464](https://github.com/OpenEnergyPlatform/open-MaStR/pull/464)
+- Add a Mastr.translate method for english translation [##471](https://github.com/OpenEnergyPlatform/open-MaStR/pull/471)
+
 ### Changed
 - Using sphinx version <7 to build documentation [#454](https://github.com/OpenEnergyPlatform/open-MaStR/pull/454)
 - Get missing column names in xml download in a robust way [#470](https://github.com/OpenEnergyPlatform/open-MaStR/pull/470)
+- Adapt column names to the API web service update [#472](https://github.com/OpenEnergyPlatform/open-MaStR/pull/472)
+- 
 ### Removed
 - Delete `on push` for github workflow [#445](https://github.com/OpenEnergyPlatform/open-MaStR/pull/445)
 
