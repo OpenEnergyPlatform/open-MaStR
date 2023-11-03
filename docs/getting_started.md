@@ -38,7 +38,7 @@ db = Mastr()
 db.download(method='API')
 ```
 
-The default settings will save retrieved data into the sqlite database. The function can be used to mirror the open-MaStR database regularly without needing to download the provided dumps daily.
+The default settings will save retrieved data into the sqlite database. The function can be used to mirror the open-MaStR database using the SOAP API. Note that the data provided by the bulk download and the SOAP API is similar, but not exactly the same.
 
 ## Accessing the database
 
