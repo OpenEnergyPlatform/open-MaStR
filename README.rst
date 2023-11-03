@@ -55,7 +55,7 @@ The MaStR data can be
 Documentation
 =============
 
-| The documentation is in `sphinx <http://www.sphinx-doc.org/en/stable/>`_ reStructuredText format in the ``doc`` sub-folder of the repository.
+| The documentation is in `Material for Mkdocs <https://squidfunk.github.io/mkdocs-material/>`_ markdown format in the ``doc`` sub-folder of the repository.
 | Find the `documentation <https://open-mastr.readthedocs.io/en/latest/>`_ hosted on ReadTheDocs.
 
 | The original API documentation can be found on the `Webhilfe des Marktstammdatenregisters <https://www.marktstammdatenregister.de/MaStRHilfe/subpages/webdienst.html>`_.
