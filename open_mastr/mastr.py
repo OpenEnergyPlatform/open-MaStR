@@ -1,9 +1,29 @@
 import os
+from sqlalchemy import inspect, create_engine
 
-import open_mastr.utils.orm as orm
+# import xml dependencies
+from open_mastr.xml_download.utils_download_bulk import download_xml_Mastr
+from open_mastr.xml_download.utils_write_to_database import (
+    write_mastr_xml_to_database,
+)
 
 # import soap_API dependencies
 from open_mastr.soap_api.mirror import MaStRMirror
+
+from open_mastr.utils.helpers import (
+    print_api_settings,
+    validate_api_credentials,
+    validate_parameter_format_for_download_method,
+    validate_parameter_format_for_mastr_init,
+    validate_parameter_data,
+    transform_data_parameter,
+    parse_date_string,
+    transform_date_parameter,
+    data_to_include_tables,
+    create_db_query,
+    db_query_to_csv,
+    reverse_fill_basic_units,
+)
 from open_mastr.utils.config import (
     create_data_dir,
     get_data_version_dir,
@@ -11,30 +31,17 @@ from open_mastr.utils.config import (
     get_output_dir,
     setup_logger,
 )
-
-from open_mastr.utils.constants import ADDITIONAL_TABLES, TECHNOLOGIES
+import open_mastr.utils.orm as orm
 
 # import initialize_database dependencies
 from open_mastr.utils.helpers import (
     create_database_engine,
-    create_db_query,
-    data_to_include_tables,
-    db_query_to_csv,
-    parse_date_string,
-    print_api_settings,
-    reverse_fill_basic_units,
-    transform_data_parameter,
-    transform_date_parameter,
-    validate_api_credentials,
-    validate_parameter_data,
-    validate_parameter_format_for_download_method,
-    validate_parameter_format_for_mastr_init,
+    rename_table,
+    create_translated_database_engine,
 )
 
-from open_mastr.xml_download.utils_download_bulk import download_xml_Mastr
-from open_mastr.xml_download.utils_write_to_database import (
-    write_mastr_xml_to_database,
-)
+# constants
+from open_mastr.utils.constants import TECHNOLOGIES, ADDITIONAL_TABLES
 
 # setup logger
 log = setup_logger()
@@ -52,6 +59,9 @@ class Mastr:
     engine : {'sqlite', sqlalchemy.engine.Engine}, optional
         Defines the engine of the database where the MaStR is mirrored to.
         Default is 'sqlite'.
+    connect_to_translated_db: boolean, optional
+            Allows connection to an existing translated database. Default is 'False'.
+            Only for 'sqlite'-type engines.
 
     !!! example
         ```python
@@ -62,14 +72,22 @@ class Mastr:
         ```
     """
 
-    def __init__(self, engine="sqlite") -> None:
+    def __init__(self, engine="sqlite", connect_to_translated_db=False) -> None:
+
         validate_parameter_format_for_mastr_init(engine)
+
         self.output_dir = get_output_dir()
         self.home_directory = get_project_home_dir()
         self._sqlite_folder_path = os.path.join(self.output_dir, "data", "sqlite")
         os.makedirs(self._sqlite_folder_path, exist_ok=True)
 
-        self.engine = create_database_engine(engine, self.output_dir)
+        self.is_translated = connect_to_translated_db
+        if connect_to_translated_db:
+            self.engine = create_translated_database_engine(
+                engine, self._sqlite_folder_path
+            )
+        else:
+            self.engine = create_database_engine(engine, self.home_directory)
 
         print(
             f"Data will be written to the following database: {self.engine.url}\n"
@@ -169,6 +187,13 @@ class Mastr:
             "location_elec_generation", "location_elec_consumption", "location_gas_generation",
             "location_gas_consumption". Defaults to all.
         """
+
+        if self.is_translated:
+            raise TypeError(
+                "you are currently connected to a translated database\n"
+                "a translated database cannot be further altered\n"
+                "translate a new database to replace the current one"
+            )
 
         validate_parameter_format_for_download_method(
             method=method,
@@ -342,3 +367,59 @@ class Mastr:
         # FIXME: Currently metadata is only created for technology data, Fix in #386
         # Configure and save data package metadata file along with data
         # save_metadata(data=technologies_to_export, engine=self.engine)
+
+    def translate(self) -> None:
+        """
+        A database can be translated only once.
+
+        Deletes translated versions of the currently connected database.
+
+        Translates currently connected database,renames it with '-translated'
+        suffix and updates self.engine's path accordingly.
+
+        !!! example
+            ```python
+
+            from open_mastr import Mastr
+            import pandas as pd
+
+            db = Mastr()
+            db.download(data='biomass')
+            db.translate()
+
+            df = pd.read_sql(table='biomass_extended', con=db.engine)
+            print(df.head(10))
+            ```
+
+        """
+
+        if "sqlite" not in self.engine.dialect.name:
+            raise ValueError("engine has to be of type 'sqlite'")
+        if self.is_translated:
+            raise TypeError("the currently connected database is already translated")
+
+        inspector = inspect(self.engine)
+        old_path = r"{}".format(self.engine.url.database)
+        new_path = old_path[:-3] + "-translated.db"
+
+        if os.path.exists(new_path):
+            try:
+                os.remove(new_path)
+            except Exception as e:
+                print(f"An error occurred: {e}")
+
+            print("Replacing previous version of the translated database...")
+
+        for table in inspector.get_table_names():
+            rename_table(table, inspector.get_columns(table), self.engine)
+
+        self.engine.dispose()
+
+        try:
+            os.rename(old_path, new_path)
+            print(f"Database '{old_path}' changed to '{new_path}'")
+        except Exception as e:
+            print(f"An error occurred: {e}")
+
+        self.engine = create_engine(f"sqlite:///{new_path}")
+        self.is_translated = True

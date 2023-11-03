@@ -18,7 +18,6 @@ Base = declarative_base(metadata=meta)
 
 
 class ParentAllTables(object):
-
     DatenQuelle = Column(String)
     DatumDownload = Column(Date)
 
@@ -74,7 +73,6 @@ class MissedAdditionalData(Base):
 
 
 class Extended(object):
-
     NetzbetreiberMastrNummer = Column(String)
     Registrierungsdatum = Column(Date)
     EinheitMastrNummer = Column(String, primary_key=True)
@@ -192,6 +190,7 @@ class SolarExtended(Extended, ParentAllTables, Base):
     Buergerenergie = Column(Boolean)
     EegMastrNummer = Column(String)
     ArtDerFlaecheIds = Column(String)
+    Zaehlernummer = Column(String)
 
 
 class BiomassExtended(Extended, ParentAllTables, Base):
@@ -281,10 +280,10 @@ class StorageExtended(Extended, ParentAllTables, Base):
     EegMastrNummer = Column(String)
     EegAnlagentyp = Column(String)
     Technologie = Column(String)
+    LeistungsaufnahmeBeimEinspeichern = Column(Float)
 
 
 class Eeg(object):
-
     Registrierungsdatum = Column(Date)
     EegMastrNummer = Column(String, primary_key=True)
     Meldedatum = Column(Date)
