@@ -10,6 +10,7 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 ### Added
 - User-defined output path for csv, xml, database [#402](https://github.com/OpenEnergyPlatform/open-MaStR/pull/402)
 - Add date=existing parameter to Mastr.download [#452](https://github.com/OpenEnergyPlatform/open-MaStR/pull/452)
+- Update documentation and release it on mkdocs [#460](https://github.com/OpenEnergyPlatform/open-MaStR/pull/460)
 - Replace values in ArtDerFlaecheIds with their entries from katalogwerte [#464](https://github.com/OpenEnergyPlatform/open-MaStR/pull/464)
 - Add a Mastr.translate method for english translation [##471](https://github.com/OpenEnergyPlatform/open-MaStR/pull/471)
 
