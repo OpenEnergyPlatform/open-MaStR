@@ -15,7 +15,9 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 
 ### Changed
 - Using sphinx version <7 to build documentation [#454](https://github.com/OpenEnergyPlatform/open-MaStR/pull/454)
+- Get missing column names in xml download in a robust way [#470](https://github.com/OpenEnergyPlatform/open-MaStR/pull/470)
 - Adapt column names to the API web service update [#472](https://github.com/OpenEnergyPlatform/open-MaStR/pull/472)
+- 
 ### Removed
 - Delete `on push` for github workflow [#445](https://github.com/OpenEnergyPlatform/open-MaStR/pull/445)
 
