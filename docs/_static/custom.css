@@ -1,3 +1,7 @@
 .wy-nav-content {
     max-width: 80% !important;
 }
+
+:not([data-md-state="blur"]) + nav {
+  display: none;
+}

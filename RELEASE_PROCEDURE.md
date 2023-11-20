@@ -41,14 +41,7 @@ It always has the format `YYYY-MM-DD`, e.g. `2022-05-16`.
 * [Draft a new release](https://github.com/OpenEnergyPlatform/open-MaStR/releases/new)
 * Enter the release version number `v0.12.1` as title
 * Summarize key changes in the description
-    * `## [v0.12.1] Patch - Name - Date`
-    * `### Added`
-    * `### Changed`
-    * `### Removed`
-* Add a link to compare versions
-    * `**Compare versions:** [v0.12.0 - v0.12.1](https://github.com/OpenEnergyPlatform/open-MaStR/compare/v0.12.0...v0.12.1)`
-* Add a link to the `📝CHANGELOG.md`
-    * `Also see [**CHANGELOG.md**](https://github.com/OpenEnergyPlatform/open-MaStR/blob/production/CHANGELOG.md)`
+    * Use the `generate release notes` button provided by github
 * Save draft
 
 ### 4. 🐙 Finish all planned Developments

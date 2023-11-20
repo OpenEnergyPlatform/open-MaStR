@@ -21,51 +21,55 @@ log = setup_logger()
 
 class MaStRMirror:
     """
-    Mirror the Marktstammdatenregister database and keep it up-to-date
+    Mirror the Marktstammdatenregister database and keep it up-to-date.
 
     A PostgreSQL database is used to mirror the MaStR database. It builds
     on functionality for bulk data download
-    provided by :class:`open_mastr.soap_api.download.MaStRDownload`.
+    provided by [`MaStRDownload`][open_mastr.soap_api.download.MaStRDownload].
 
     A rough overview is given by the following schema on the example of wind power units.
+    ![Schema on the example of downloading wind power units using the API](../images/MaStR_Mirror.svg){ loading=lazy width=70%  align=center}
 
-    .. figure:: /images/MaStR_Mirror.svg
-       :width: 70%
-       :align: center
 
-    Initially, basic unit data gets backfilled with :meth:`~.backfill_basic`
+
+    Initially, basic unit data gets backfilled with `~.backfill_basic`
     (downloads basic unit data for 2,000
     units of type 'solar').
 
-    .. code-block:: python
+    ```python
 
        from open_mastr.soap_api.prototype_mastr_reflected import MaStRMirror
 
        mastr_mirror = MaStRMirror()
        mastr_mirror.backfill_basic("solar", limit=2000)
-
+    ```
     Based on this, requests for
     additional data are created. This happens during backfilling basic data.
     But it is also possible to (re-)create
-    requests for remaining additional data using :meth:`~.create_additional_data_requests`.
+    requests for remaining additional data using
+    [`MaStRMirror.create_additional_data_requests`][open_mastr.soap_api.mirror.MaStRMirror.create_additional_data_requests].
 
-    .. code-block:: python
+    ```python
 
        mastr_mirror.create_additional_data_requests("solar")
+    ```
 
     Additional unit data, in the case of wind power this is extended data,
     EEG data and permit data, can be
-    retrieved subsequently by :meth:`~.retrieve_additional_data`.
+    retrieved subsequently by `~.retrieve_additional_data`.
 
-    .. code-block:: python
-
-       mastr_mirror.retrieve_additional_data("solar", ["unit_data"])
-
+    ```python
+        mastr_mirror.retrieve_additional_data("solar", ["unit_data"])
+    ```
 
     The data can be joined to one table for each data type and exported to
-    CSV files using :meth:`~.to_csv`.
+    CSV files using [`Mastr.to_csv`][open_mastr.mastr.Mastr.to_csv].
 
-    Also consider to use :meth:`~.dump` and :meth:`~.restore` for specific purposes.
+    Also consider to use `~.dump` and `~.restore` for specific purposes.
+
+    !!! Note
+        This feature was built before the bulk download was offered at marktstammdatenregister.de.
+        It can still be used to compare the two datasets received from the API and the bulk download.
 
     """
 
@@ -106,14 +110,14 @@ class MaStRMirror:
         self.unit_type_map = UNIT_TYPE_MAP
         self.unit_type_map_reversed = reverse_unit_type_map()
 
-    def backfill_basic(self, data=None, date=None, limit=10 ** 8) -> None:
+    def backfill_basic(self, data=None, date=None, limit=10**8) -> None:
         """Backfill basic unit data.
 
         Fill database table 'basic_units' with data. It allows specification
         of which data should be retrieved via
         the described parameter options.
 
-        Under the hood, :meth:`open_mastr.soap_api.download.MaStRDownload.basic_unit_data` is used.
+        Under the hood, [`MaStRDownload.basic_unit_data`][open_mastr.soap_api.download.MaStRDownload.basic_unit_data] is used.
 
         Parameters
         ----------
@@ -122,7 +126,6 @@ class MaStRMirror:
 
             * ['solar']: Backfill data for a single data type.
             * ['solar', 'wind'] (`list`):  Backfill data for multiple technologies given in a list.
-
         date: None, :class:`datetime.datetime`, str
             Specify backfill date from which on data is retrieved
 
@@ -136,13 +139,11 @@ class MaStRMirror:
               Hence, it works in combination with
               `data=None` and `data=["wind", "solar"]` for example.
 
-              .. warning::
+              !!! warning
 
                  Don't use 'latest' in combination with `limit`. This might
                  lead to unexpected results.
             * `None`: Complete backfill
-
-            Defaults to `None`.
         limit: int
             Maximum number of units.
             Defaults to the large number of 10**8 which means
@@ -155,7 +156,7 @@ class MaStRMirror:
             self._write_basic_data_for_one_data_type_to_db(data_type, date, limit)
 
     def backfill_locations_basic(
-        self, limit=10 ** 7, date=None, delete_additional_data_requests=True
+        self, limit=10**7, date=None, delete_additional_data_requests=True
     ):
         """
         Backfill basic location data.
@@ -164,12 +165,12 @@ class MaStRMirror:
         of which data should be retrieved via
         the described parameter options.
 
-        Under the hood, :meth:`open_mastr.soap_api.download.MaStRDownload.basic_location_data`
+        Under the hood, [`MaStRDownload.basic_location_data`][open_mastr.soap_api.download.MaStRDownload.basic_location_data]
         is used.
 
         Parameters
         ----------
-        date: None, :class:`datetime.datetime`, str
+        date: None, `datetime.datetime`, str
             Specify backfill date from which on data is retrieved
 
             Only data with modification time stamp greater that `date` is retrieved.
@@ -177,13 +178,11 @@ class MaStRMirror:
             * `datetime.datetime(2020, 11, 27)`: Retrieve data which is newer than
             this time stamp
             * 'latest': Retrieve data which is newer than the newest data already in the table.
-              .. warning::
+              !!! warning
 
                  Don't use 'latest' in combination with `limit`. This might lead to
                  unexpected results.
             * `None`: Complete backfill
-
-            Defaults to `None`.
         limit: int
             Maximum number of locations to download.
             Defaults to `None` which means no limit is set and all available data is queried.
@@ -198,7 +197,6 @@ class MaStRMirror:
         locations_basic = self.mastr_dl.basic_location_data(limit, date_from=date)
 
         for locations_chunk in locations_basic:
-
             # Remove duplicates returned from API
             locations_chunk_unique = [
                 location
@@ -211,7 +209,6 @@ class MaStRMirror:
             ]
 
             with session_scope(engine=self._engine) as session:
-
                 # Find units that are already in the DB
                 common_ids = [
                     _.LokationMastrNummer
@@ -257,27 +254,27 @@ class MaStRMirror:
                     orm.AdditionalLocationsRequested, new_requests
                 )
 
-    def retrieve_additional_data(self, data, data_type, limit=10 ** 8, chunksize=1000):
+    def retrieve_additional_data(self, data, data_type, limit=10**8, chunksize=1000):
         """
         Retrieve additional unit data
 
         Execute additional data requests stored in
-        :class:`open_mastr.soap_api.orm.AdditionalDataRequested`.
-        See also docs of :meth:`open_mastr.soap_api.download.py.MaStRDownload.additional_data`
+        `open_mastr.soap_api.orm.AdditionalDataRequested`.
+        See also docs of [`MaStRDownload.additional_data`][open_mastr.soap_api.download.MaStRDownload.additional_data]
         for more information on how data is downloaded.
 
         Parameters
         ----------
         data: `str`
             See list of available technologies in
-            :meth:`open_mastr.soap_api.download.py.MaStRDownload.download_power_plants`.
+            `open_mastr.soap_api.download.py.MaStRDownload.download_power_plants`.
         data_type: `str`
             Select type of additional data that is to be retrieved. Choose from
             "unit_data", "eeg_data", "kwk_data", "permit_data".
         limit: int
             Limit number of units that data is download for. Defaults to the very large number 10**8
             which refers to query data for existing data requests, for example created by
-            :meth:`~.create_additional_data_requests`.
+            `~.create_additional_data_requests`.
         chunksize: int
             Data is downloaded and inserted into the database in chunks of `chunksize`.
             Defaults to 1000.
@@ -296,7 +293,6 @@ class MaStRMirror:
 
         number_units_queried = 0
         while number_units_queried < limit:
-
             with session_scope(engine=self._engine) as session:
                 (
                     requested_chunk,
@@ -348,14 +344,14 @@ class MaStRMirror:
                 break
 
     def retrieve_additional_location_data(
-        self, location_type, limit=10 ** 8, chunksize=1000
+        self, location_type, limit=10**8, chunksize=1000
     ):
         """
         Retrieve extended location data
 
         Execute additional data requests stored in
-        :class:`open_mastr.soap_api.orm.AdditionalLocationsRequested`.
-        See also docs of :meth:`open_mastr.soap_api.download.py.MaStRDownload.additional_data`
+        `open_mastr.soap_api.orm.AdditionalLocationsRequested`.
+        See also docs of `open_mastr.soap_api.download.py.MaStRDownload.additional_data`
         for more information on how data is downloaded.
 
         Parameters
@@ -378,7 +374,6 @@ class MaStRMirror:
 
         locations_queried = 0
         while locations_queried < limit:
-
             with session_scope(engine=self._engine) as session:
                 # Get a chunk
                 (
@@ -453,89 +448,88 @@ class MaStRMirror:
                 log.info("No further data is requested")
                 break
 
-    # def create_additional_data_requests(
-    #    self,
-    #    technology,
-    #    data_types=["unit_data", "eeg_data", "kwk_data", "permit_data"],
-    #    delete_existing=True,
-    # ):
-    #    """
-    #    Create new requests for additional unit data
-    #
-    #    For units that exist in basic_units but not in the table for additional
-    #    data of `data_type`, a new data request
-    #    is submitted.
-    #
-    #    Parameters
-    #    ----------
-    #    technology: str
-    #        Specify technology additional data should be requested for.
-    #    data_types: list
-    #        Select type of additional data that is to be requested.
-    #        Defaults to all data that is available for a
-    #        technology.
-    #    delete_existing: bool
-    #        Toggle deletion of already existing requests for additional data.
-    #        Defaults to True.
-    #    """
-    #
-    #    data_requests = []
-    #
-    #    with session_scope(engine=self._engine) as session:
-    #        # Check which additional data is missing
-    #        for data_type in data_types:
-    #            if data_type_available := self.orm_map[technology].get(data_type, None):
-    #                log.info(
-    #                    f"Create requests for additional data of type {data_type} for {technology}"
-    #                )
-    #
-    #                # Get ORM for additional data by technology and data_type
-    #                additional_data_orm = getattr(orm, data_type_available)
-    #
-    #                # Delete prior additional data requests for this technology and data_type
-    #                if delete_existing:
-    #                    session.query(orm.AdditionalDataRequested).filter(
-    #                        orm.AdditionalDataRequested.technology == technology,
-    #                        orm.AdditionalDataRequested.data_type == data_type,
-    #                    ).delete()
-    #                    session.commit()
-    #
-    #                # Query database for missing additional data
-    #                units_for_request = self._get_units_for_request(
-    #                    data_type, session, additional_data_orm, technology
-    #                )
-    #
-    #                # Prepare data for additional data request
-    #                for basic_unit in units_for_request:
-    #                    data_request = {
-    #                        "EinheitMastrNummer": basic_unit.EinheitMastrNummer,
-    #                        "technology": self.unit_type_map[basic_unit.Einheittyp],
-    #                        "data_type": data_type,
-    #                        "request_date": datetime.datetime.now(
-    #                            tz=datetime.timezone.utc
-    #                        ),
-    #                    }
-    #                    if data_type == "unit_data":
-    #                        data_request[
-    #                            "additional_data_id"
-    #                        ] = basic_unit.EinheitMastrNummer
-    #                    elif data_type == "eeg_data":
-    #                        data_request[
-    #                            "additional_data_id"
-    #                        ] = basic_unit.EegMastrNummer
-    #                    elif data_type == "kwk_data":
-    #                        data_request[
-    #                            "additional_data_id"
-    #                        ] = basic_unit.KwkMastrNummer
-    #                    elif data_type == "permit_data":
-    #                        data_request[
-    #                            "additional_data_id"
-    #                        ] = basic_unit.GenMastrNummer
-    #                    data_requests.append(data_request)
-    #
-    #        # Insert new requests for additional data into database
-    #        session.bulk_insert_mappings(orm.AdditionalDataRequested, data_requests)
+    def create_additional_data_requests(
+        self,
+        technology,
+        data_types=["unit_data", "eeg_data", "kwk_data", "permit_data"],
+        delete_existing=True,
+    ):
+        """
+        Create new requests for additional unit data
 
+        For units that exist in basic_units but not in the table for additional
+        data of `data_type`, a new data request
+        is submitted.
+
+        Parameters
+        ----------
+        technology: str
+            Specify technology additional data should be requested for.
+        data_types: list
+            Select type of additional data that is to be requested.
+            Defaults to all data that is available for a
+            technology.
+        delete_existing: bool
+            Toggle deletion of already existing requests for additional data.
+            Defaults to True.
+        """
+
+        data_requests = []
+
+        with session_scope(engine=self._engine) as session:
+            # Check which additional data is missing
+            for data_type in data_types:
+                if data_type_available := self.orm_map[technology].get(data_type, None):
+                    log.info(
+                        f"Create requests for additional data of type {data_type} for {technology}"
+                    )
+
+                    # Get ORM for additional data by technology and data_type
+                    additional_data_orm = getattr(orm, data_type_available)
+
+                    # Delete prior additional data requests for this technology and data_type
+                    if delete_existing:
+                        session.query(orm.AdditionalDataRequested).filter(
+                            orm.AdditionalDataRequested.technology == technology,
+                            orm.AdditionalDataRequested.data_type == data_type,
+                        ).delete()
+                        session.commit()
+
+                    # Query database for missing additional data
+                    units_for_request = self._get_units_for_request(
+                        data_type, session, additional_data_orm, technology
+                    )
+
+                    # Prepare data for additional data request
+                    for basic_unit in units_for_request:
+                        data_request = {
+                            "EinheitMastrNummer": basic_unit.EinheitMastrNummer,
+                            "technology": self.unit_type_map[basic_unit.Einheittyp],
+                            "data_type": data_type,
+                            "request_date": datetime.datetime.now(
+                                tz=datetime.timezone.utc
+                            ),
+                        }
+                        if data_type == "unit_data":
+                            data_request[
+                                "additional_data_id"
+                            ] = basic_unit.EinheitMastrNummer
+                        elif data_type == "eeg_data":
+                            data_request[
+                                "additional_data_id"
+                            ] = basic_unit.EegMastrNummer
+                        elif data_type == "kwk_data":
+                            data_request[
+                                "additional_data_id"
+                            ] = basic_unit.KwkMastrNummer
+                        elif data_type == "permit_data":
+                            data_request[
+                                "additional_data_id"
+                            ] = basic_unit.GenMastrNummer
+                        data_requests.append(data_request)
+
+            # Insert new requests for additional data into database
+            session.bulk_insert_mappings(orm.AdditionalDataRequested, data_requests)
 
     def _add_data_source_and_download_date(self, entry: dict) -> dict:
         """Adds DatenQuelle = 'APT' and DatumDownload = date.today"""
@@ -843,13 +837,10 @@ class MaStRMirror:
         # non-compatible with sqlite or postgresql
         # This replaces the list with the first element in the list
 
-        data_as_list = ["NetzbetreiberMastrNummer","Netzbetreiberzuordnungen"]
+        data_as_list = ["NetzbetreiberMastrNummer", "Netzbetreiberzuordnungen"]
 
         for dat in data_as_list:
-            if (
-                dat in unit_dat
-                and type(unit_dat[dat]) == list
-            ):
+            if dat in unit_dat and type(unit_dat[dat]) == list:
                 if len(unit_dat[dat]) > 0:
                     unit_dat[dat] = f"{unit_dat[dat][0]}"
                 else:
@@ -987,9 +978,8 @@ class MaStRMirror:
             dump is restored from CWD.
 
 
-        Warnings
-        --------
-        If tables that are restored from the dump contain data, restore doesn't work!
+        !!! warning
+            If tables that are restored from the dump contain data, restore doesn't work!
 
         """
         # Interpret file name and path
@@ -1015,7 +1005,7 @@ class MaStRMirror:
         proc.wait()
 
 
-def list_of_dicts_to_columns(row) -> pd.Series: #FIXME: Function not used
+def list_of_dicts_to_columns(row) -> pd.Series:  # FIXME: Function not used
     """
     Expand data stored in dict to spearate columns
 
@@ -1041,5 +1031,3 @@ def list_of_dicts_to_columns(row) -> pd.Series: #FIXME: Function not used
             columns[k].append(v)
 
     return pd.Series(columns)
-
-

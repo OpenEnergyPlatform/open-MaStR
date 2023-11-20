@@ -20,11 +20,13 @@ open-mastr
    * - Tests
      - |badge_ci|
    * - Publication
-     - |badge_pypi| |badge_zenodo|
+     - |badge_pypi|
+   * - Data Publication
+     - |badge_zenodo|
    * - Development
      - |badge_issue_open| |badge_issue_closes| |badge_pr_open| |badge_pr_closes|
    * - Community
-     - |badge_contributing| |badge_contributors| |badge_repo_counts| |PyPI download month|
+     - |badge_contributing| |badge_contributors| |badge_repo_counts| |PyPI download month| |Total PyPI downloads|
    
 
 .. contents::
@@ -53,7 +55,7 @@ The MaStR data can be
 Documentation
 =============
 
-| The documentation is in `sphinx <http://www.sphinx-doc.org/en/stable/>`_ reStructuredText format in the ``doc`` sub-folder of the repository.
+| The documentation is in `Material for Mkdocs <https://squidfunk.github.io/mkdocs-material/>`_ markdown format in the ``doc`` sub-folder of the repository.
 | Find the `documentation <https://open-mastr.readthedocs.io/en/latest/>`_ hosted on ReadTheDocs.
 
 | The original API documentation can be found on the `Webhilfe des Marktstammdatenregisters <https://www.marktstammdatenregister.de/MaStRHilfe/subpages/webdienst.html>`_.
@@ -97,7 +99,7 @@ Install the package with
 
 .. code-block:: python
 
-    python setup.py install
+    pip install "open_mastr[dev]"
 
 
 Examples of Usage
@@ -152,7 +154,7 @@ Data
     :alt: PyPI
 
 .. |badge_zenodo| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.6807426.svg
-    :target: https://doi.org/10.5281/zenodo.6807426
+    :target: https://doi.org/10.5281/zenodo.6807425
     :alt: zenodo
 
 .. |badge_issue_open| image:: https://img.shields.io/github/issues-raw/OpenEnergyPlatform/open-MaStR
@@ -177,4 +179,9 @@ Data
     :alt: counter
     
 .. |PyPI download month| image:: https://img.shields.io/pypi/dm/open-mastr?label=PyPi%20Downloads
-    :target: https://pypi.org/project/open-mastr/
+    :target: https://pypistats.org/packages/open-mastr
+
+.. |Total PyPI downloads| image:: https://static.pepy.tech/badge/open-mastr
+    :target: https://pepy.tech/project/open-mastr
+
+
