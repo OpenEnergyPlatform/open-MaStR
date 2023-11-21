@@ -25,11 +25,12 @@ db.download()
 
 When a `Mastr` object is initialized, a sqlite database is created in `$HOME/.open-MaStR/data/sqlite`. With the function `Mastr.download()`, the **whole MaStR is downloaded** in the zipped xml file format. It is then read into the sqlite database and simple data cleansing functions are started.
 
-More detailed information can be found in the section [bulk download](advanced/#bulk-download).
+More detailed information can be found in the section [bulk download](advanced.md#bulk-download).
 
 API download
 -----------------------------------
-When using `download(method="API")`, the data is retrieved from the MaStR API. For using the MaStR API, credentials are needed (see [SOAP API download](advanced/#soap-api-download)).
+When using `download(method="API")`, the data is retrieved from the MaStR API. For using the MaStR API, credentials 
+are needed (see [SOAP API download](advanced.md#soap-api-download)).
 
 ```python
 from open_mastr import Mastr

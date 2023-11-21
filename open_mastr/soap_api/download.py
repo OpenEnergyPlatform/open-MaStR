@@ -45,7 +45,7 @@ class MaStRAPI(object):
 
     Alternatively, leave `user` and `key` empty if user and token are accessible via
     `credentials.cfg`. How to configure this is described
-    [here](/advanced/#mastr-account-and-credentials).
+    [here](/advanced.md#mastr-account-and-credentials).
 
     ```python
 
