@@ -41,4 +41,4 @@ def make_Mastr_class():
 
 @pytest.fixture
 def engine():
-    return create_database_engine("sqlite", get_project_home_dir())
+    return create_database_engine("sqlite", get_project_home_dir(), "data", "sqlite")
