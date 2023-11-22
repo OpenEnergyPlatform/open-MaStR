@@ -84,7 +84,7 @@ If the zipped dump of the MaStR is downloaded, it is saved in the folder `$HOME/
 
 The data can then be written to any sql database supported by [sqlalchemy](https://docs.sqlalchemy.org/). The type of the sql database is determined by the parameter `engine` in the [Mastr][open_mastr.Mastr] class.
 
-For more information regarding the database see [Database settings](###Database settings).
+For more information regarding the database see [Database settings](#database-settings).
 
 
 ## Bulk download
