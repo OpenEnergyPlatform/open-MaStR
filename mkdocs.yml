@@ -1,0 +1,96 @@
+site_name: open-mastr
+theme: 
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.tabs.link
+    - content.code.annotation
+    - content.code.copy
+    - toc.integrate
+  language: en
+  palette:
+    # Palette toggle for dark mode
+    - scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+    # Palette toggle for light mode
+    - scheme: default
+      toggle:
+        icon: material/brightness-7 
+        name: Switch to dark mode
+  icon:
+    repo: fontawesome/brands/github
+  logo: images/OpenEnergyFamily_Logo_OpenMaStR_no_name_white.png
+  favicon: images/OpenEnergyFamily_Logo_OpenMaStR_no_name_grey.png
+
+plugins:
+  - search
+  - autorefs
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          options:
+            show_root_heading: true
+            show_source: false
+            docstring_style: numpy
+            docstring_section_style: spacy
+  - include-markdown
+  
+
+watch:
+  - open_mastr
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - admonition
+  - pymdownx.arithmatex:
+      generic: true
+  - footnotes
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.mark
+  - attr_list
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.tabbed:
+      alternate_style: true
+
+# Customization
+extra:
+  version:
+    provider: mike
+
+nav:
+  - Home: index.md
+  - Getting Started: getting_started.md
+  - Dataset: dataset.md
+  - Advanced: advanced.md
+  - Reference:
+    - Basic Usage: reference/basic.md
+    - Advanced Usage of the MaStR SOAP-API: reference/advanced.md
+  - Development: 
+    - Contributing: development/contributing_mirror.md
+    - Release Procedure: development/release_procedure_mirror.md
+    - Changelog: development/changelog_mirror.md
+
+repo_url: https://github.com/OpenEnergyPlatform/open-MaStR
+site_description: A package that provides an interface for downloading and processing the data of the Marktstammdatenregister (MaStR)
+site_dir: _build
+
+
+copyright: |
+  &copy; 2023 <a href="https://reiner-lemoine-institut.de/"  target="_blank" rel="noopener">RLI</a> and <a href="https://fortiss.org"  target="_blank" rel="noopener">fortiss GmbH</a>

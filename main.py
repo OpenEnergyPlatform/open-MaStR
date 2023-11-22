@@ -11,8 +11,12 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 """
 
 from open_mastr import Mastr
+import os
 
 ## specify download parameter
+
+# set custom output path for: csv-export, database, xml-export.
+# os.environ['OUTPUT_PATH'] = r"/your/custom/output_path"
 
 # bulk download
 bulk_date = "today"
@@ -36,7 +40,7 @@ data_bulk = [
 ]
 
 # API download
-# for parameter explanation see: https://open-mastr.readthedocs.io/en/latest/getting_started.html#api-download
+# for parameter explanation see: https://open-mastr.readthedocs.io/en/latest/advanced/#soap-api-download
 
 api_date = "latest"
 api_chunksize = 10
@@ -67,6 +71,7 @@ api_location_types = [
 db = Mastr()
 
 if __name__ == "__main__":
+
     ## download Markstammdatenregister
     # bulk download
     db.download(method="bulk", data=data_bulk, date=bulk_date, bulk_cleansing=True)

@@ -29,39 +29,42 @@ class MaStRAPI(object):
     """
     Access the Marktstammdatenregister (MaStR) SOAP API via a Python wrapper
 
-    :ref:`Read about <MaStR account and credentials>`
+    Read about [MaStR account and credentials](../advanced.md/#mastr-account-and-credentials)
     how to create a user account and a role including a token to access the
     MaStR SOAP API.
 
-    Create an :class:`.MaStRAPI()` instance with your role credentials
+    Create an `MaStRAPI` instance with your role credentials
 
-    .. code-block:: python
+    ```python
 
        mastr_api = MaStRAPI(
             user="SOM123456789012",
             key=""koo5eixeiQuoi'w8deighai8ahsh1Ha3eib3coqu7ceeg%ies..."
        )
+    ```
 
     Alternatively, leave `user` and `key` empty if user and token are accessible via
     `credentials.cfg`. How to configure this is described
-    :ref:`here <MaStR account and credentials>`.
+    [here](../advanced.md/#mastr-account-and-credentials).
 
-    .. code-block:: python
+    ```python
 
         mastr_api = MaStRAPI()
+    ```
 
-    Now, you can use the MaStR API instance to call `pre-defined SOAP API
-    queries
-    <https://www.marktstammdatenregister.de/MaStRHilfe/files/webdienst/Funktionen_MaStR_Webdienste_V1.2.39.html>`_
+    Now, you can use the MaStR API instance to call [pre-defined SOAP API
+    queries](https://www.marktstammdatenregister.de/MaStRHilfe/files/webdienst/Funktionen_MaStR_Webdienste_V1.2.39.html)
     via the class' methods.
     For example, get a list of units limited to two entries.
 
-    .. code-block:: python
+    ```python
 
        mastr_api.GetListeAlleEinheiten(limit=2)
+    ```
 
-    Note, as the example shows, you don't have to pass credentials for calling
-    wrapped SOAP queries. This is handled internally.
+    !!! Note
+        As the example shows, you don't have to pass credentials for calling
+        wrapped SOAP queries. This is handled internally.
     """
 
     def __init__(self, user=None, key=None):
@@ -413,12 +416,12 @@ def _missed_units_to_file(data, data_type, missed_units):
 class MaStRDownload:
     """Use the higher level interface for bulk download
 
-    :class:`.MaStRDownload` builds on top of :class:`.MaStRAPI()` and provides
+    `MaStRDownload` builds on top of [`MaStRAPI`][open_mastr.soap_api.download.MaStRAPI] and provides
     an interface for easier downloading.
     Use methods documented below to retrieve specific data. On the example of
     data for nuclear power plants, this looks like
 
-    .. code-block:: python
+    ```python
 
         from open_mastr.soap_api.download import MaStRDownload
 
@@ -427,10 +430,11 @@ class MaStRDownload:
         for tech in ["nuclear", "hydro", "wind", "solar", "biomass", "combustion", "gsgk"]:
             power_plants = mastr_dl.download_power_plants(tech, limit=10)
             print(power_plants.head())
+    ```
 
-    .. warning::
+    !!! warning
 
-        Be careful with increasing `limit`. Typically, your account allows only for 10.000 API
+        Be careful with increasing `limit`. Typically, your account allows only for 10,000 API
         request per day.
 
     """
@@ -588,14 +592,13 @@ class MaStRDownload:
             * 'combustion'
             * 'gsgk'
             * 'storage'
-
         limit : int
-            Maximum number of units to be downloaded. Defaults to :code:`None`.
+            Maximum number of units to be downloaded.
 
         Returns
         -------
         pd.DataFrame
-            Joined data tables
+            Joined data tables.
         """
         # Create data version directory
         create_data_dir()
@@ -693,7 +696,7 @@ class MaStRDownload:
         # Remove duplicates
         joined_data.drop_duplicates(inplace=True)
 
-        to_csv(joined_data, data) #FIXME: reference to helpers im import
+        to_csv(joined_data, data)  # FIXME: reference to helpers im import
 
         return joined_data
 
@@ -717,18 +720,16 @@ class MaStRDownload:
         data : str, optional
             Technology data is requested for. See :meth:`MaStRDownload.download_power_plants`
             for options.
-            Data is retrieved using :meth:`MaStRAPI.GetGefilterteListeStromErzeuger`.
+            Data is retrieved using `MaStRAPI.GetGefilterteListeStromErzeuger`.
             If not given, it defaults to `None`. This implies data for all available
             technologies is retrieved using the web service function
-            :meth:`MaStRAPI.GetListeAlleEinheiten`.
+            `MaStRAPI.GetListeAlleEinheiten`.
         limit : int, optional
             Maximum number of units to download.
             If not provided, data for all units is downloaded.
 
-            .. warning:
-
-               Mind the daily request limit for your MaStR account.
-
+            !!! warning
+                Mind the daily request limit for your MaStR account.
         date_from: `datetime.datetime()`, optional
             If specified, only units with latest change date newer than this are queried.
             Defaults to `None`.
@@ -810,21 +811,19 @@ class MaStRDownload:
             * "kwk_unit_data" (:meth:`~.kwk_unit_data`): Unit information from KWK unit registry.
             * "permit_unit_data" (:meth:`~.permit_unit_data`): Information about the permit
               process of a unit.
-
         timeout: int, optional
-            Timeout limit for data retrieval for each unit when using multiprocessing
+            Timeout limit for data retrieval for each unit when using multiprocessing. Defaults to 10.
 
         Returns
         -------
         tuple of list of dict and tuple
-            Returns additional data in dictionaries that are packed into a list. Format
-
-            .. code-block:: python
-
-               return = (
+            Returns additional data in dictionaries that are packed into a list.
+            ```python
+                return = (
                     [additional_unit_data_dict1, additional_unit_data_dict2, ...],
                     [tuple("SME930865355925", "Reason for failing dowload"), ...]
                     )
+            ```
         """
         # Prepare a list of unit IDs packed as tuple associated with data
         prepared_args = list(product(unit_ids, [data]))
@@ -884,7 +883,6 @@ class MaStRDownload:
         with multiprocessing.Pool(
             processes=self.parallel_processes, maxtasksperchild=1
         ) as pool:
-
             with tqdm(
                 total=len(prepared_args),
                 desc=f"Downloading {data_fcn} ({data})",
@@ -926,9 +924,10 @@ class MaStRDownload:
         unit_specs : tuple
             *EinheitMastrNummer* and data type as tuple that for example looks like
 
-            .. code-block:: python
+            ```python
 
                tuple("SME930865355925", "hydro")
+            ```
 
         Returns
         -------
@@ -938,9 +937,10 @@ class MaStRDownload:
         tuple
             *EinheitMastrNummer* and message the explains why a download failed. Format
 
-            .. code-block:: python
+            ```python
 
                tuple("SME930865355925", "Reason for failing dowload")
+            ```
         """
 
         mastr_id, data = unit_specs
@@ -987,9 +987,10 @@ class MaStRDownload:
         tuple
             *EegMastrNummer* and message the explains why a download failed. Format
 
-            .. code-block:: python
+            ```python
 
                tuple("EEG961554380393", "Reason for failing dowload")
+            ```
         """
         eeg_id, data = unit_specs
         try:
@@ -1013,7 +1014,8 @@ class MaStRDownload:
 
     def kwk_unit_data(self, unit_specs):
         """
-        Download KWK (Kraft-Wärme-Kopplung) data for a unit.
+        Download KWK (german: Kraft-Wärme-Kopplung, english: Combined Heat and Power, CHP)
+        data for a unit.
 
         Additional data collected during a subsidy program for supporting
         combined heat power plants.
@@ -1023,9 +1025,10 @@ class MaStRDownload:
         unit_specs : tuple
             *KwkMastrnummer* and data type as tuple that for example looks like
 
-            .. code-block:: python
+            ```python
 
                tuple("KWK910493229164", "biomass")
+            ```
 
 
         Returns
@@ -1036,9 +1039,10 @@ class MaStRDownload:
         tuple
             *KwkMastrNummer* and message the explains why a download failed. Format
 
-            .. code-block:: python
+            ```python
 
                tuple("KWK910493229164", "Reason for failing dowload")
+            ```
         """
         kwk_id, data = unit_specs
         try:
@@ -1069,9 +1073,10 @@ class MaStRDownload:
         unit_specs : tuple
             *GenMastrnummer* and data type as tuple that for example looks like
 
-            .. code-block:: python
+            ```python
 
                tuple("SGE952474728808", "biomass")
+            ```
 
 
         Returns
@@ -1082,9 +1087,10 @@ class MaStRDownload:
         tuple
             *GenMastrNummer* and message the explains why a download failed. Format
 
-            .. code-block:: python
+            ```python
 
                tuple("GEN952474728808", "Reason for failing dowload")
+            ```
         """
         permit_id, data = unit_specs
         try:
@@ -1118,9 +1124,10 @@ class MaStRDownload:
         specs : tuple
             Location *Mastrnummer* and data_name as tuple that for example looks like
 
-            .. code-block:: python
+            ```python
 
                tuple("SEL927688371072", "location_elec_generation")
+            ```
 
 
         Returns
@@ -1131,9 +1138,10 @@ class MaStRDownload:
         tuple
             Location *MastrNummer* and message the explains why a download failed. Format
 
-            .. code-block:: python
+            ```python
 
                tuple("SEL927688371072", "Reason for failing dowload")
+            ```
         """
 
         # Unpack tuple argument to two separate variables
@@ -1204,7 +1212,7 @@ class MaStRDownload:
         Retrieve basic location data in chunks
 
         Retrieves data for all types of locations at once using
-        :meth:`MaStRAPI.GetListeAlleLokationen`.
+        `MaStRAPI.GetListeAlleLokationen`.
         Locations include
 
         * Electricity generation location (SEL - Stromerzeugungslokation)
@@ -1216,15 +1224,11 @@ class MaStRDownload:
         ----------
         limit: int, optional
             Maximum number of locations to download.
-            Defaults to 2000.
 
-            .. warning:
-
-               Mind the daily request limit for your MaStR account.
-
-        date_from: :obj:`datetime.datetime`, optional
+            !!! warning
+                Mind the daily request limit for your MaStR account, usually 10,000 per day.
+        date_from: `datetime.datetime`, optional
             If specified, only locations with latest change date newer than this are queried.
-            Defaults to :obj:`None`.
         max_retries: int, optional
             Maximum number of retries for each chunk in case of errors with the connection to
             the server.
@@ -1235,7 +1239,7 @@ class MaStRDownload:
             For each chunk a separate generator is returned all wrapped into another generator.
             Access with
 
-            .. code-block:: python
+            ```python
 
                 chunks = mastr_dl.basic_location_data(
                     date_from=datetime.datetime(2020, 11, 7, 0, 0, 0), limit=2010
@@ -1244,6 +1248,7 @@ class MaStRDownload:
                 for chunk in chunks:
                     for location in chunk:
                         print(location) # prints out one dict per location one after another
+            ```
         """
         # Prepare indices for chunked data retrieval
         chunksize = 2000

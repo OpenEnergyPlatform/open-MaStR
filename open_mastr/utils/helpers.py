@@ -7,7 +7,7 @@ from warnings import warn
 
 import dateutil
 import sqlalchemy
-from sqlalchemy.sql import insert, literal_column
+from sqlalchemy.sql import insert, literal_column, text
 from dateutil.parser import parse
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Query, sessionmaker
@@ -34,6 +34,7 @@ from open_mastr.utils.constants import (
     ORM_MAP,
     UNIT_TYPE_MAP,
     ADDITIONAL_TABLES,
+    TRANSLATIONS,
 )
 
 
@@ -48,11 +49,11 @@ def chunks(lst, n):
         yield lst[i : i + n]
 
 
-def create_database_engine(engine, home_directory) -> sqlalchemy.engine.Engine:
+def create_database_engine(engine, sqlite_db_path) -> sqlalchemy.engine.Engine:
     if engine == "sqlite":
         sqlite_database_path = os.environ.get(
             "SQLITE_DATABASE_PATH",
-            os.path.join(home_directory, "data", "sqlite", "open-mastr.db"),
+            os.path.join(sqlite_db_path, "open-mastr.db"),
         )
         db_url = f"sqlite:///{sqlite_database_path}"
         return create_engine(db_url)
@@ -88,7 +89,6 @@ def validate_parameter_format_for_download_method(
     api_location_types,
     **kwargs,
 ) -> None:
-
     if "technology" in kwargs:
         data = kwargs["technology"]
         warn("'technology' parameter is deprecated. Use 'data' instead")
@@ -173,7 +173,7 @@ def validate_parameter_date(method, date) -> None:
     if date is None:  # default
         return
     if method == "bulk":
-        if date != "today":
+        if date not in ["today", "existing"]:
             try:
                 _ = parse(date)
             except (dateutil.parser._parser.ParserError, TypeError) as e:
@@ -297,11 +297,25 @@ def transform_data_parameter(
     return data, api_data_types, api_location_types, harmonisation_log
 
 
-def transform_date_parameter(method, date, **kwargs):
-
+def transform_date_parameter(self, method, date, **kwargs):
     if method == "bulk":
         date = kwargs.get("bulk_date", date)
         date = "today" if date is None else date
+        if date == "existing":
+            existing_files_list = os.listdir(
+                os.path.join(self.output_dir, "data", "xml_download")
+            )
+            if not existing_files_list:
+                date = "today"
+                print(
+                    "By choosing `date`='existing' you want to use an existing "
+                    "xml download."
+                    "However no xml_files were downloaded yet. The parameter `date` is"
+                    "therefore set to 'today'."
+                )
+            # we assume that there is only one file in the folder which is the
+            # zipped xml folder
+            date = existing_files_list[0].split("_")[1].split(".")[0]
     elif method == "API":
         date = kwargs.get("api_date", date)
 
@@ -333,7 +347,6 @@ def print_api_settings(
     api_processes,
     api_location_types,
 ):
-
     print(
         f"Downloading with soap_API.\n\n   -- API settings --  \nunits after date: "
         f"{date}\nunit download limit per data: "
@@ -573,7 +586,6 @@ def save_metadata(data: list = None, engine=None) -> None:
     unit_type_map_reversed = reverse_unit_type_map()
 
     with session_scope(engine=engine) as session:
-
         # check for latest db entry for exported technologies
         mastr_technologies = [unit_type_map_reversed[tech] for tech in data]
         newest_date = (
@@ -750,3 +762,51 @@ def db_query_to_csv(db_query, data_table: str, chunksize: int) -> None:
                         log.info(
                             f"Appended {len(chunk_df)} rows to: {csv_file.split('/')[-1:]}"
                         )
+
+
+def rename_table(table, columns, engine) -> None:
+    """
+    Rename table based on translation dictionary.
+    """
+    alter_statements = []
+
+    for column in columns:
+        column = column["name"]
+
+        if column in TRANSLATIONS:
+            alter_statement = text(
+                f"ALTER TABLE {table} RENAME COLUMN {column} TO {TRANSLATIONS[column]}"
+            )
+            alter_statements.append(alter_statement)
+
+    with engine.connect() as connection:
+        for statement in alter_statements:
+            try:
+                connection.execute(statement)
+            except sqlalchemy.exc.OperationalError:
+                continue
+
+
+def create_translated_database_engine(engine, folder_path) -> sqlalchemy.engine.Engine:
+    """
+    Check if translated version of the database, as defined with engine parameter, exists.
+    Return sqlite engine connected with the translated database.
+    """
+
+    if engine == "sqlite":
+        db_path = os.path.join(folder_path, "open-mastr-translated.db")
+    else:
+        if "sqlite" not in engine.dialect.name:
+            raise ValueError("engine has to be of type 'sqlite'")
+
+        prev_path = r"{}".format(engine.url.database)
+        engine.dispose()
+        db_path = prev_path[:-3] + "-translated.db"
+
+    if not os.path.exists(db_path):
+        raise FileNotFoundError(
+            f"no database at {db_path} found.\n"
+            "make sure the database has been translated before with translate()"
+        )
+
+    return create_engine(f"sqlite:///{db_path}")

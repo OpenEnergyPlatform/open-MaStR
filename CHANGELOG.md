@@ -6,14 +6,30 @@ For each version important additions, changes and removals are listed here.
 The format is inspired from [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [v0.14.0] Shiny New Documentation Page - 2023-11-22
+### Added
+- User-defined output path for csv, xml, database [#402](https://github.com/OpenEnergyPlatform/open-MaStR/pull/402)
+- Add date=existing parameter to Mastr.download [#452](https://github.com/OpenEnergyPlatform/open-MaStR/pull/452)
+- Update documentation and release it on mkdocs [#460](https://github.com/OpenEnergyPlatform/open-MaStR/pull/460)
+- Replace values in ArtDerFlaecheIds with their entries from katalogwerte [#464](https://github.com/OpenEnergyPlatform/open-MaStR/pull/464)
+- Add a Mastr.translate method for english translation [##471](https://github.com/OpenEnergyPlatform/open-MaStR/pull/471)
+
+### Changed
+- Using sphinx version <7 to build documentation [#454](https://github.com/OpenEnergyPlatform/open-MaStR/pull/454)
+- Get missing column names in xml download in a robust way [#470](https://github.com/OpenEnergyPlatform/open-MaStR/pull/470)
+- Adapt column names to the API web service update [#472](https://github.com/OpenEnergyPlatform/open-MaStR/pull/472)
+
+### Removed
+- Delete `on push` for github workflow [#445](https://github.com/OpenEnergyPlatform/open-MaStR/pull/445)
+
 ## [v0.13.2] Hotfix - 2023-08-07
 ### Changed
 - Changed the name of the bulk tables for technology=gsgk [#456](https://github.com/OpenEnergyPlatform/open-MaStR/pull/456)
 
 ## [v0.13.1] Hotfix - 2023-04-11
-
 ### Added
 - Add new table and new columns to the data model [#440](https://github.com/OpenEnergyPlatform/open-MaStR/pull/440)
+
 ## [v0.13.0] Maintenance release - 2023-02-16
 ### Added
 - Add a `workflow_dispatch` to run CI pipelines from a button click [#389](https://github.com/OpenEnergyPlatform/open-MaStR/pull/389)

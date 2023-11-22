@@ -15,9 +15,10 @@ from open_mastr import Mastr
 
 from open_mastr.utils.config import get_project_home_dir
 from open_mastr.utils.helpers import create_database_engine
+import os
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 def make_Mastr_class():
     """
     Factory to create different Mastr class objects.
@@ -32,13 +33,15 @@ def make_Mastr_class():
     -------
         Mastr class object
     """
+
     def _make_Mastr_class(engine_type):
         return Mastr(engine=engine_type)
 
     return _make_Mastr_class
 
 
-
 @pytest.fixture
 def engine():
-    return create_database_engine("sqlite", get_project_home_dir())
+    return create_database_engine(
+        "sqlite", os.path.join(get_project_home_dir(), "data", "sqlite")
+    )

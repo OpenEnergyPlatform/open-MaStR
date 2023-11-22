@@ -30,9 +30,10 @@ DATE = datetime.datetime(2020, 11, 27, 0, 0, 0)
 
 @pytest.fixture
 def mastr_mirror():
-    engine = create_database_engine("sqlite", get_project_home_dir())
+    engine = create_database_engine(
+        "sqlite", join(get_project_home_dir(), "data", "sqlite")
+    )
     return MaStRMirror(engine=engine)
-
 
 
 @pytest.mark.dependency(name="backfill_basic")

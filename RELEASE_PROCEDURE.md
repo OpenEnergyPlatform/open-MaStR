@@ -41,14 +41,7 @@ It always has the format `YYYY-MM-DD`, e.g. `2022-05-16`.
 * [Draft a new release](https://github.com/OpenEnergyPlatform/open-MaStR/releases/new)
 * Enter the release version number `v0.12.1` as title
 * Summarize key changes in the description
-    * `## [v0.12.1] Patch - Name - Date`
-    * `### Added`
-    * `### Changed`
-    * `### Removed`
-* Add a link to compare versions
-    * `**Compare versions:** [v0.12.0 - v0.12.1](https://github.com/OpenEnergyPlatform/open-MaStR/compare/v0.12.0...v0.12.1)`
-* Add a link to the `📝CHANGELOG.md`
-    * `Also see [**CHANGELOG.md**](https://github.com/OpenEnergyPlatform/open-MaStR/blob/production/CHANGELOG.md)`
+    * Use the `generate release notes` button provided by github (This might only work after the release branch is merged on production)
 * Save draft
 
 ### 4. 🐙 Finish all planned Developments
@@ -66,7 +59,7 @@ It always has the format `YYYY-MM-DD`, e.g. `2022-05-16`.
 ### 6. Check release on Test-PyPI 
 
 * Check if the release it correctly displayed on [Test-PyPI](https://test.pypi.org/project/open-mastr/#history)
-* With each push to the release branch or the branch `test-release` the package is released on [Test-PyPI](https://test.pypi.org/project/open-mastr/#history) by GitHub workflow (test-pypi-publish.yml).
+  * You can trigger the release manually within github actions using the `run workflow` button on branch `release-v0.12.1` on the workflow `Build and release on pypi tests`
   * Note: Pre-releases on Test-PyPI are only shown under `Release history` in the navigation bar.
   * Note: The branch status can only be released to a version on Test-PyPI once. Thus, for every branch status that you want to see on Test-PyPI increment the build version with `bump2version build` and push afterwards.
 * Once testing on Test-PyPI is done, change the release version to the final desired version with `bump2version release`

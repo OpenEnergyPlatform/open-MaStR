@@ -70,7 +70,7 @@ def parameter_dict_working_list():
             None,
             ["wind", "solar"],
         ],
-        "date": ["today", "20200108"],
+        "date": ["today", "20200108", "existing"],
         "bulk_cleansing": [True, False],
         "api_processes": [None],
         "api_limit": [50],

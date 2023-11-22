@@ -32,7 +32,7 @@ solar
 
 .. csv-table::
    :file: raw/bnetza_mastr_solar_raw.csv
-   :widths: 20, 35, 15, 15
+   :widths: 20, 35, 15, 30
    :header-rows: 1
 
 
