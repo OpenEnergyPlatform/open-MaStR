@@ -1,17 +1,17 @@
 from shutil import Error
 from zipfile import ZipFile
+
 import lxml
 import numpy as np
 import pandas as pd
-import sqlite3
 import sqlalchemy
 from sqlalchemy import select
 from sqlalchemy.sql import text
 
+from open_mastr.utils.config import setup_logger
 from open_mastr.utils.helpers import data_to_include_tables
 from open_mastr.utils.orm import tablename_mapping
 from open_mastr.xml_download.utils_cleansing_bulk import cleanse_bulk_data
-from open_mastr.utils.config import setup_logger
 
 
 def write_mastr_xml_to_database(
@@ -98,7 +98,6 @@ def is_first_file(file_name: str) -> bool:
 
 
 def cast_date_columns_to_datetime(xml_tablename: str, df: pd.DataFrame) -> pd.DataFrame:
-
     sqlalchemy_columnlist = tablename_mapping[xml_tablename][
         "__class__"
     ].__table__.columns.items()
@@ -186,7 +185,6 @@ def add_table_to_database(
     if_exists: str,
     engine: sqlalchemy.engine.Engine,
 ) -> None:
-
     # get a dictionary for the data types
 
     table_columns_list = list(
@@ -198,8 +196,8 @@ def add_table_to_database(
         if column.name in df.columns
     }
 
-    continueloop = True
-    while continueloop:
+    add_missing_columns_to_table(engine, xml_tablename, column_list=df.columns.tolist())
+    for _ in range(10000):
         try:
             with engine.connect() as con:
                 with con.begin():
@@ -210,20 +208,12 @@ def add_table_to_database(
                         if_exists=if_exists,
                         dtype=dtypes_for_writing_sql,
                     )
-                    continueloop = False
-        except sqlalchemy.exc.OperationalError as err:
-            add_missing_column_to_table(err, engine, xml_tablename)
-
-        except sqlalchemy.exc.ProgrammingError as err:
-            add_missing_column_to_table(err, engine, xml_tablename)
-
-        except sqlite3.OperationalError as err:
-            add_missing_column_to_table(err, engine, xml_tablename)
+                    break
 
         except sqlalchemy.exc.DataError as err:
             delete_wrong_xml_entry(err, df)
 
-        except sqlalchemy.exc.IntegrityError as err:
+        except sqlalchemy.exc.IntegrityError:
             # error resulting from Unique constraint failed
             df = write_single_entries_until_not_unique_comes_up(
                 df=df, xml_tablename=xml_tablename, engine=engine
@@ -232,7 +222,8 @@ def add_table_to_database(
 
 def add_zero_as_first_character_for_too_short_string(df: pd.DataFrame) -> pd.DataFrame:
     """Some columns are read as integer even though they are actually strings starting with
-    a 0. This function converts those columns back to strings and adds a 0 as first character."""
+    a 0. This function converts those columns back to strings and adds a 0 as first character.
+    """
 
     dict_of_columns_and_string_length = {
         "Gemeindeschluessel": 8,
@@ -301,18 +292,20 @@ def write_single_entries_until_not_unique_comes_up(
     return df
 
 
-def add_missing_column_to_table(
-    err: Error, engine: sqlalchemy.engine.Engine, xml_tablename: str
+def add_missing_columns_to_table(
+    engine: sqlalchemy.engine.Engine,
+    xml_tablename: str,
+    column_list: list,
 ) -> None:
     """
     Some files introduce new columns for existing tables.
-    If this happens, the error from writing entries into
-    non-existing columns is caught and the column is created.
+    If the pandas dataframe contains columns that do not
+    exist in the database, they are added to the database.
     Parameters
     ----------
-    err
     engine
     xml_tablename
+    df
 
     Returns
     -------
@@ -320,26 +313,26 @@ def add_missing_column_to_table(
     """
     log = setup_logger()
 
-    if engine.name == "postgresql":
-        missing_column = err.args[0].split("»")[1].split("«")[0]
-    elif engine.name == "sqlite":
-        missing_column = err.args[0].split()[-1]
-    else:
-        # only a guess, can fail with other db systems
-        missing_column = err.args[0].split()[-1]
-    table = tablename_mapping[xml_tablename]["__class__"].__table__
+    # get the columns name from the existing database
+    inspector = sqlalchemy.inspect(engine)
+    table_name = tablename_mapping[xml_tablename]["__class__"].__table__.name
+    columns = inspector.get_columns(table_name)
+    column_names_from_database = [column["name"] for column in columns]
 
-    alter_query = 'ALTER TABLE %s ADD "%s" VARCHAR NULL;' % (
-        table.name,
-        missing_column,
-    )
-    with engine.connect().execution_options(autocommit=True) as con:
-        with con.begin():
-            con.execute(text(alter_query).execution_options(autocommit=True))
-    log.info(
-        "From the downloaded xml files following new attribute was "
-        f"introduced: {table.name}.{missing_column}"
-    )
+    missing_columns = set(column_list) - set(column_names_from_database)
+
+    for column_name in missing_columns:
+        alter_query = 'ALTER TABLE %s ADD "%s" VARCHAR NULL;' % (
+            table_name,
+            column_name,
+        )
+        with engine.connect().execution_options(autocommit=True) as con:
+            with con.begin():
+                con.execute(text(alter_query).execution_options(autocommit=True))
+        log.info(
+            "From the downloaded xml files following new attribute was "
+            f"introduced: {table_name}.{column_name}"
+        )
 
 
 def delete_wrong_xml_entry(err: Error, df: pd.DataFrame) -> None:
