@@ -49,11 +49,11 @@ def chunks(lst, n):
         yield lst[i : i + n]
 
 
-def create_database_engine(engine, output_dir) -> sqlalchemy.engine.Engine:
+def create_database_engine(engine, sqlite_db_path) -> sqlalchemy.engine.Engine:
     if engine == "sqlite":
         sqlite_database_path = os.environ.get(
             "SQLITE_DATABASE_PATH",
-            os.path.join(output_dir, "data", "sqlite", "open-mastr.db"),
+            os.path.join(sqlite_db_path, "open-mastr.db"),
         )
         db_url = f"sqlite:///{sqlite_database_path}"
         return create_engine(db_url)
@@ -303,7 +303,7 @@ def transform_date_parameter(self, method, date, **kwargs):
         date = "today" if date is None else date
         if date == "existing":
             existing_files_list = os.listdir(
-                os.path.join(self.home_directory, "data", "xml_download")
+                os.path.join(self.output_dir, "data", "xml_download")
             )
             if not existing_files_list:
                 date = "today"

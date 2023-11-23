@@ -19,14 +19,14 @@ setup(
         "open_mastr.utils.config",
         "open_mastr.xml_download",
     ],
-    version="0.13.2",
+    version="0.14.0",
     description="A package that provides an interface for downloading and"
     " processing the data of the Marktstammdatenregister (MaStR)",
     long_description=long_description,
     long_description_content_type="text/x-rst",
     url="https://github.com/OpenEnergyPlatform/open-MaStR",
     download_url="https://github.com/OpenEnergyPlatform/open-MaStR/archive"
-    "/refs/tags/v0.13.2.tar.gz",
+    "/refs/tags/v0.14.0.tar.gz",
     author="Open Energy Family",
     author_email="datenzentrum@rl-institut.de",
     maintainer="Ludwig Hülk",
@@ -68,7 +68,7 @@ setup(
             "mkdocstrings[python]",
             "mkdocs-material",
             "mkdocs-include-markdown-plugin",
-            "mike"
+            "mike",
         ]
     },
     package_data={

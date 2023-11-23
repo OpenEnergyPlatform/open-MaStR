@@ -1,4 +1,5 @@
-For most users, the functionalites described in [Getting Started](/getting_started) are sufficient.  If you want to examine how you can configure the package's behavior for your own needs, check out [Cofiguration](#configuration). Or you can explore the two main functionalities of the package, namely the [Bulk Download](#bulk-download)
+For most users, the functionalites described in [Getting Started](getting_started.md) are sufficient.  If you want 
+to examine how you can configure the package's behavior for your own needs, check out [Cofiguration](#configuration). Or you can explore the two main functionalities of the package, namely the [Bulk Download](#bulk-download)
 or the [SOAP API download](#soap-api-download).
 
 ## Configuration
@@ -83,7 +84,7 @@ If the zipped dump of the MaStR is downloaded, it is saved in the folder `$HOME/
 
 The data can then be written to any sql database supported by [sqlalchemy](https://docs.sqlalchemy.org/). The type of the sql database is determined by the parameter `engine` in the [Mastr][open_mastr.Mastr] class.
 
-For more information regarding the database see [Database settings](Database settings).
+For more information regarding the database see [Database settings](#database-settings).
 
 
 ## Bulk download

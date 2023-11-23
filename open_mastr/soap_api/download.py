@@ -29,7 +29,7 @@ class MaStRAPI(object):
     """
     Access the Marktstammdatenregister (MaStR) SOAP API via a Python wrapper
 
-    Read about [MaStR account and credentials](/advanced/#mastr-account-and-credentials)
+    Read about [MaStR account and credentials](../advanced.md/#mastr-account-and-credentials)
     how to create a user account and a role including a token to access the
     MaStR SOAP API.
 
@@ -45,7 +45,7 @@ class MaStRAPI(object):
 
     Alternatively, leave `user` and `key` empty if user and token are accessible via
     `credentials.cfg`. How to configure this is described
-    [here](/advanced/#mastr-account-and-credentials).
+    [here](../advanced.md/#mastr-account-and-credentials).
 
     ```python
 

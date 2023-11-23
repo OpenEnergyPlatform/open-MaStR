@@ -87,7 +87,7 @@ class Mastr:
                 engine, self._sqlite_folder_path
             )
         else:
-            self.engine = create_database_engine(engine, self.home_directory)
+            self.engine = create_database_engine(engine, self._sqlite_folder_path)
 
         print(
             f"Data will be written to the following database: {self.engine.url}\n"
@@ -190,9 +190,8 @@ class Mastr:
 
         if self.is_translated:
             raise TypeError(
-                "you are currently connected to a translated database\n"
-                "a translated database cannot be further altered\n"
-                "translate a new database to replace the current one"
+                "You are currently connected to a translated database.\n"
+                "A translated database cannot be further processed."
             )
 
         validate_parameter_format_for_download_method(
@@ -308,6 +307,13 @@ class Mastr:
         limit: None or int
             Limits the number of exported data rows.
         """
+
+        if self.is_translated:
+            raise TypeError(
+                "You are currently connected to a translated database.\n"
+                "A translated database cannot be used for the csv export."
+            )
+
         log.info("Starting csv-export")
 
         data_path = get_data_version_dir()
@@ -396,7 +402,7 @@ class Mastr:
         if "sqlite" not in self.engine.dialect.name:
             raise ValueError("engine has to be of type 'sqlite'")
         if self.is_translated:
-            raise TypeError("the currently connected database is already translated")
+            raise TypeError("The currently connected database is already translated.")
 
         inspector = inspect(self.engine)
         old_path = r"{}".format(self.engine.url.database)

@@ -16,8 +16,7 @@ import os
 ## specify download parameter
 
 # set custom output path for: csv-export, database, xml-export.
-# see documentation: https://open-mastr.readthedocs.io/en/latest/advanced.html#environment-variables
-# os.environ['OUTPUT_PATH'] = "/your/custom/output_path"
+# os.environ['OUTPUT_PATH'] = r"/your/custom/output_path"
 
 # bulk download
 bulk_date = "today"
@@ -41,7 +40,7 @@ data_bulk = [
 ]
 
 # API download
-# for parameter explanation see: https://open-mastr.readthedocs.io/en/latest/getting_started.html#api-download
+# for parameter explanation see: https://open-mastr.readthedocs.io/en/latest/advanced/#soap-api-download
 
 api_date = "latest"
 api_chunksize = 10
@@ -72,8 +71,6 @@ api_location_types = [
 db = Mastr()
 
 if __name__ == "__main__":
-
-
 
     ## download Markstammdatenregister
     # bulk download

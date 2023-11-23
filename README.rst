@@ -175,7 +175,7 @@ Data
 .. |badge_contributors| image:: https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square
     :alt: contributors
 
-.. |badge_repo_counts| image:: http://hits.dwyl.com/OpenEnergyPlatform/open-MaStR.svg
+.. |badge_repo_counts| image:: https://hits.dwyl.com/OpenEnergyPlatform/open-MaStR.svg
     :alt: counter
     
 .. |PyPI download month| image:: https://img.shields.io/pypi/dm/open-mastr?label=PyPi%20Downloads
