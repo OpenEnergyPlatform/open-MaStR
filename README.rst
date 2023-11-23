@@ -25,20 +25,6 @@ open-mastr
      - |badge_issue_open| |badge_issue_closes| |badge_pr_open| |badge_pr_closes|
    * - Community
      - |badge_contributing| |badge_contributors| |badge_repo_counts| |PyPI download month|
-   
-.. list-table::
-   :widths: auto
-
-   * - License
-     - |badge_license|
-   * - Documentation
-     - |badge_documentation|
-   * - Publication
-     -
-   * - Development
-     - |badge_issue_open| |badge_issue_closes| |badge_pr_open| |badge_pr_closes|
-   * - Community
-     - |badge_contributing| |badge_contributors| |badge_repo_counts|
 
 .. contents::
     :depth: 2
@@ -192,31 +178,3 @@ Data
 .. |PyPI download month| image:: https://img.shields.io/pypi/dm/open-mastr?label=PyPi%20Downloads
     :target: https://pypi.org/project/open-mastr/
 
-.. |badge_license| image:: https://img.shields.io/github/license/OpenEnergyPlatform/open-MaStR
-    :target: LICENSE.txt
-    :alt: License
-
-.. |badge_documentation| image::
-    :target:
-    :alt: Documentation
-
-.. |badge_contributing| image:: https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat
-    :alt: contributions
-
-.. |badge_repo_counts| image:: http://hits.dwyl.com/OpenEnergyPlatform/open-MaStR.svg
-    :alt: counter
-
-.. |badge_contributors| image:: https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square
-    :alt: contributors
-
-.. |badge_issue_open| image:: https://img.shields.io/github/issues-raw/OpenEnergyPlatform/open-MaStR
-    :alt: open issues
-
-.. |badge_issue_closes| image:: https://img.shields.io/github/issues-closed-raw/OpenEnergyPlatform/open-MaStR
-    :alt: closes issues
-
-.. |badge_pr_open| image:: https://img.shields.io/github/issues-pr-raw/OpenEnergyPlatform/open-MaStR
-    :alt: closes issues
-
-.. |badge_pr_closes| image:: https://img.shields.io/github/issues-pr-closed-raw/OpenEnergyPlatform/open-MaStR
-    :alt: closes issues
