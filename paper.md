@@ -40,16 +40,16 @@ The python package `open-mastr` provides an interface for accessing and cleaning
 Ultimately, the package provides methods to reduce the registry's parsing and processing time and thus enables energy system researchers to access and start working with the entire dataset right away.
 
 # Statement of need
-`open-mastr` was built to simplify the process of downloading, parsing, and cleaning the Marktstammdatenregister (MaStR) dataset.
+`open-mastr` was built to facilitate the process of downloading, parsing, and cleaning the Marktstammdatenregister dataset.
 The MaStR is a German registry provided by the German Federal Network Agency (Bundesnetzagentur / BNetzA) [@Bundesnetzagentur2019_Marktstammdatenregister].
-It was first published in 2019 and includes detailed information about more than 8.2 million electricity and gas producers, electricity and gas consumers, storages, grids, and actors from the energy market.
-@Tepe2023_MaStR found 54 papers in the fields of sustainability studies, energy politics, energy data, energy system analysis, and energy economics that used the MaStR dataset in their research.
+It was first published in 2019 and includes detailed information about more than 8.2 million electricity and gas production units, electricity and gas consumers, storages, grids, and energy market actors.
+@Tepe2023_MaStR found 54 papers in the fields of sustainability studies, energy politics, energy data, energy system analysis, and energy economics that applied the MaStR dataset in their research.
 
-Besides its relevance in research, the raw MaStR dataset provided by BNetzA bears some obstacles: 
+Besides its relevance in research, the MaStR dataset provided by BNetzA bears some obstacles: 
 First, the documentation of the data model and download methods are only provided in German. 
 Second, many entries in the dataset are encoded. 
 And finally, information that belongs together is distributed over several tables.
-The python package `open-mastr` addresses those issues.
+The python package `open-mastr` addresses those issues by translating the data model to English, encoding dataset information and the sensible restructuring of information in tables.
 
 
 \textbf{Table 1. Summary of benefits provided by `open-mastr`}
