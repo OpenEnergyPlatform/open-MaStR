@@ -49,7 +49,7 @@ Besides its relevance in research, the MaStR dataset provided by BNetzA bears so
 First, the documentation of the data model and download methods are only provided in German. 
 Second, many entries in the dataset are encoded. 
 And finally, information that belongs together is distributed over several tables.
-The python package `open-mastr` addresses those issues by translating the data model to English, encoding dataset information and the sensible restructuring of information in tables.
+The python package `open-mastr` addresses those issues by translating the data model to English, decoding dataset information and the sensible restructuring of information in tables.
 
 
 \textbf{Table 1. Summary of benefits provided by `open-mastr`}
@@ -63,11 +63,11 @@ Translation to english | Translate table names and columns from German to Englis
 Data processing | Merge relevant information about different technologies to single csv files
 
 Besides `open-mastr`, no other software solutions exists that provides an interface to download and clean the MaStR dataset.
-For other energy-related data, similar solutions exist: The iotools module from pvlib implements access to different raw data sources via its get methods [@Holmgren2018_pvlib]. 
-Another existing approach is to offer cleansed datasets via the web: This is done by the Open Energy Platform [@Hulk2022_OpenEnergyFamily], the Open Power System Data [@Wiese2019_openPSD], the Global Power Plant Database [@byers2018_global], or the Public Utility Data Liberation Project [@Selvans2020_pudl].
-The advantage of these web platforms is the easy access for end users, as they can simply download files in simple formats such as csv.
-The disadvantage is, that the end users have to rely on the maintainers of the platforms to regularily update their files.
-Here, `open-mastr` comes at hand, since end users can directly get the original data and hence do not depend on others to keep their data updated. 
+For other energy-related data, similar solutions exist: The _iotools_ module from `pvlib` implements access to different raw data sources via its _get_ methods [@Holmgren2018_pvlib]. 
+Websites offer another approach to provide cleansed datasets : This is done by the Open Energy Platform [@Hulk2022_OpenEnergyFamily], the Open Power System Data [@Wiese2019_openPSD], the Global Power Plant Database [@byers2018_global], or the Public Utility Data Liberation Project [@Selvans2020_pudl].
+The advantage of aforementioned web platforms is their simplicity in accessing data for end users, as users can simply download files in standardised formats, such as csv.
+The disadvantage is, that end users have to rely on platform maintainers for data relevance and correctness.
+Here, `open-mastr` comes at hand, and provides direct access for end users to the original data ensuring their recency and relevance.  
 
 
 # Package description
