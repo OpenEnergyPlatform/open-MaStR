@@ -1,5 +1,5 @@
 ---
-title: 'open-mastr: A Python package to download and clean the energy database Marktstammdatenregister'
+title: 'open-mastr: A Python Package to Download and Clean the German Energy Registry Marktstammdatenregister'
 tags:
   - Python
   - energy
@@ -17,7 +17,7 @@ authors:
     affiliation: 1
     orcid: 0000-0002-7605-0173
   - name: Guido Pleßmann
-    affiliation: 
+    affiliation: 2
     orcid: 
   - name: Ludwig Hülk
     orcid: 0000-0003-4655-2321
@@ -49,7 +49,7 @@ The raw data format of the MaStR, as it is provided by BNetzA, is hard to handle
 Besides `open-mastr`, no other software solutions exists that provides an interface to download and clean the MaStR dataset.
 For other energy-related data, similar solutions exist: The iotools module from pvlib implements access to different raw data sources via its get methods [@Holmgren2018_pvlib]. 
 Another existing approach is to offer cleansed datasets via the web: This is done by the Open Energy Platform [@Hulk2022_OpenEnergyFamily], the Open Power System Data [@Wiese2019_openPSD], the Global Power Plant Database [@byers2018_global], or the Public Utility Data Liberation Project [@Selvans2020_pudl].
-The advantage of these web platforms is the easy access for end users, they can simply download files, often in easy to handle formats such as csv.
+The advantage of these web platforms is the easy access for end users, as they can simply download files in simple formats such as csv.
 The disadvantage is, that the end users have to rely on the maintainers of the platforms to regularily update their files.
 Here, `open-mastr` comes at hand, since end users can directly get the original data and hence do not depend on others to keep their data updated. 
 
@@ -59,7 +59,7 @@ Benefit | Description
 ------- | ------ 
 Data download and parsing | Download, decode, and write data to a local database 
  |
-Translation to english | Translate table names and columns as well as an english documentation page of the dataset 
+Translation to english | Translate table names and columns from German to English as well as an english documentation page of the dataset 
  |
 Data processing | Merge relevant information about different technologies to single csv files
 
@@ -68,8 +68,8 @@ The first and main use case for the `open-mastr` package lies in downloading and
 To achieve this, the `open_mastr.Mastr` class and its download method are used. 
 When running the download method, the whole MaStR registry is downloaded from the MaStR website as zipped xml files. 
 It is then extracted and parsed to a sqlite database.
-This results in a local database of the MaStR, but many data points are still encoded. 
-Hence as a last step, the `Mastr.download` method decodes the values back to a readable format.
+This results in a local database of the MaStR, but many data points are still encoded, meaning that many words are replaced by IDs. 
+Hence as a last step, the `Mastr.download` method decodes the IDs back to their actual meaning.
 
 The local database can then be further processed. 
 Its columns can be translated to english with the `Mastr.translate` method.
@@ -90,12 +90,13 @@ To enhance the provision of FAIR data, it is also planned to add metadata to the
 
 
 # CRediT Authorship Statement
-FK: Writing original draft, creating code for bulk download
-CM: Creating code for API download, Review of draft
+FK: Writing original draft, creating code for bulk download, writing documentation page
+CM: Creating code for API download, Review of draft, writing documentation page
 DT: Maintaining code for API, bulk download, and csv export
 GP: Creating code for API download
 LH: Creating code for API download, Review of draft
+
 # Acknowledgements
-This material is supported by 
+FK and DT acknowledge support by "Bayerische Staatsministerium für Wirtschaft, Landesentwicklung und Energie" as part of "Bayerischen Verbundförderprogramms (BayVFP) – Förderlinie Digitalisierung – Förderbereich Informations- und Kommunikationstechnik".
 
 # References
