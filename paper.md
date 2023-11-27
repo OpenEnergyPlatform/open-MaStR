@@ -92,10 +92,10 @@ Hence, the use-cases of the `MaStRDownload` and `MaStRMirror` are limited since 
 As an extra service for people that are not familiar with python, the developers offer the cleaned and reduced dataset created with `Mastr.to_csv` on Zenodo [@hulk2022_mastr_zenodo]. 
 
 # Conclusion
-In summary, `open-mastr` gathers the collaborative development of code used to work with the Marktstammdatenregister.
+In summary, `open-mastr` gathers community developed code to work with the Marktstammdatenregister.
 It simplifies the data parsing and cleaning process for working on the German Energy System.
-In the future, a steady maintanance of the python package is needed to handle changes in the dataset and datamodel introduced by BNetzA. 
-To enhance the provision of FAIR data, it is also planned to add metadata to the MaStR in the future. 
+In the future, a steady maintenance of the python package is needed to handle changes in the dataset and its data model introduced by BNetzA. 
+It is also planned to enhance MaStR's metadata in the future to further comply with FAIR data standards. 
 
 
 # CRediT Authorship Statement
