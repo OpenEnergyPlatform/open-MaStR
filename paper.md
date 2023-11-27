@@ -100,7 +100,7 @@ It is also planned to enhance MaStR's metadata in the future to further comply w
 
 # CRediT Authorship Statement
 FK: Writing original draft, creating code for bulk download, writing documentation page
-CM: Creating code for API download, Review of draft, writing documentation page
+CM: Creating and maintaining code for API download, Review of draft, writing documentation page
 DT: Maintaining code for API, bulk download, and csv export
 GP: Creating code for API download
 LH: Creating code for API download, Review of draft
