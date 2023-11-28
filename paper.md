@@ -36,8 +36,9 @@ bibliography: paper.bib
 
 # Summary
 The python package `open-mastr` provides an interface for accessing and cleaning the German Energy Unit dataset called *Marktstammdatenregister* (MaStR).
-`open-mastr` provides the possibility to build and update a local database of the entire registry, as well as to process the data for further evaluation.
-Ultimately, the package provides methods to reduce the registry's parsing and processing time and thus enables energy system researchers to access and start working with the entire dataset right away.
+The MaStR is a central registry with detailed information about renewable and conventional power plants in the German energy system.
+`open-mastr` enables the creation and updating of a local database of the entire registry, as well as processing the data for further evaluation.
+Ultimately, the package offers methods to reduce the registry's parsing time and thus enables energy system researchers to start working with the entire dataset right away.
 
 # Statement of need
 `open-mastr` was built to facilitate the process of downloading, parsing, and cleaning the Marktstammdatenregister dataset.
