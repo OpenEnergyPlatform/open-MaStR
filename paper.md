@@ -1,5 +1,5 @@
 ---
-title: 'open-mastr: A Python Package to Download and Clean the German Energy Registry Marktstammdatenregister'
+title: 'open-mastr: A Python Package to Download and Process the German Energy Registry Marktstammdatenregister'
 tags:
   - Python
   - energy
@@ -24,11 +24,11 @@ authors:
     corresponding: true # (This is how to denote the corresponding author)
     affiliation: 2
 affiliations:
- - name: fortiss, Research Institute of the Free State of Bavaria, Germany
+ - name: fortiss, Research Institute of the Free State of Bavaria, Guerickestraße 25, 80805 München, Germany 
    index: 1
- - name: Reiner Lemoine Institut gGmbH, Germany
+ - name: Reiner Lemoine Institut gGmbH, Rudower Chaussee 12, 12489 Berlin, Germany
    index: 2
-date: 01 August 2023
+date: 01 November 2023
 bibliography: paper.bib
 #This paper compiles with the following command: docker run --rm --volume $PWD/paper:/data --user $(id -u):$(id -g) --env JOURNAL=joss openjournals/inara
 #Here $PWD/paper is the folder where the paper.md file lies
