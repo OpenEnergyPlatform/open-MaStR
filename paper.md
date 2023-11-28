@@ -41,17 +41,17 @@ The MaStR is a central registry with detailed information about renewable and co
 Ultimately, the package offers methods to reduce the registry's parsing time and thus enables energy system researchers to start working with the entire dataset right away.
 
 # Statement of need
-`open-mastr` was built to facilitate the process of downloading, parsing, and cleaning the Marktstammdatenregister dataset.
+`open-mastr` has been built to facilitate the process of downloading, parsing, and cleaning the MaStR dataset.
 The MaStR is a German registry provided by the German Federal Network Agency (Bundesnetzagentur / BNetzA) [@Bundesnetzagentur2019_Marktstammdatenregister].
-It was first published in 2019 and includes detailed information about more than 8.2 million electricity and gas production units, electricity and gas consumers, storages, grids, and energy market actors.
-@Tepe2023_MaStR found 54 papers in the fields of sustainability studies, energy politics, energy data, energy system analysis, and energy economics that applied the MaStR dataset in their research.
+It was first published in 2019 and includes detailed information about more than 8.2 million data points covering electricity and gas production units, electricity and gas consumers, storages, grids, and energy market participants.
+@Tepe2023_MaStR found 54 papers in the fields of sustainability studies, energy politics, energy data, energy system analysis, and energy economics that used the MaStR dataset in their research.
 
-Besides its relevance in research, the MaStR dataset provided by BNetzA bears some obstacles: 
+Besides its relevance in research, the raw MaStR dataset provided by BNetzA bears some obstacles: 
 First, the documentation of the data model and download methods are only provided in German. 
-Second, many entries in the dataset are encoded. 
-And finally, information that belongs together is distributed over several tables.
-The python package `open-mastr` addresses those issues by translating the data model to English, decoding dataset information and the sensible restructuring of information in tables.
-
+Second, many entries in the dataset are encoded.
+Third, information that belongs together is distributed over several tables.
+And finally, the provision of the raw MaStR dataset as xml files is not optimal for fast and simple access. 
+The python package `open-mastr` addresses those issues as shown in Table 1.
 
 \textbf{Table 1. Summary of benefits provided by `open-mastr`}
 
@@ -59,16 +59,16 @@ Benefit | Description
 ------- | ------ 
 Data download and parsing | Download, decode, and write data to a local database 
  |
-Translation to english | Translate table names and columns from German to English as well as an english documentation page of the dataset 
+Translation to English | Translate table names and columns from German to English as well as an English documentation page of the dataset 
  |
 Data processing | Merge relevant information about different technologies to single csv files
 
-Besides `open-mastr`, no other software solutions exists that provides an interface to download and clean the MaStR dataset.
+Besides `open-mastr`, no other software solution exists that provides an interface to download and clean the MaStR dataset.
 For other energy-related data, similar solutions exist: The _iotools_ module from `pvlib` implements access to different raw data sources via its _get_ methods [@Holmgren2018_pvlib]. 
-Websites offer another approach to provide cleansed datasets : This is done by the Open Energy Platform [@Hulk2022_OpenEnergyFamily], the Open Power System Data [@Wiese2019_openPSD], the Global Power Plant Database [@byers2018_global], or the Public Utility Data Liberation Project [@Selvans2020_pudl].
-The advantage of aforementioned web platforms is their simplicity in accessing data for end users, as users can simply download files in standardised formats, such as csv.
-The disadvantage is, that end users have to rely on platform maintainers for data relevance and correctness.
-Here, `open-mastr` comes at hand, and provides direct access for end users to the original data ensuring their recency and relevance.  
+Data platforms offer another approach to provide cleansed datasets: This is done by the Open Energy Platform [@Hulk2022_OpenEnergyFamily], the Open Power System Data [@Wiese2019_openPSD], the Global Power Plant Database [@byers2018_global], or the Public Utility Data Liberation Project [@Selvans2020_pudl].
+The advantage of aforementioned data platforms is their simplicity in accessing data for end users, as users can simply download files in standardised formats, such as csv.
+The disadvantage is that end users have to rely on platform maintainers for data currency and correctness.
+Here, `open-mastr` comes at hand by providing direct access for end users to the original data. 
 
 
 # Package description
