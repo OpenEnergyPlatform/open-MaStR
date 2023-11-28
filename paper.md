@@ -73,24 +73,24 @@ Here, `open-mastr` comes at hand by providing direct access for end users to the
 
 # Package description
 The first and main use-case of the `open-mastr` package is to download and parse the MaStR registry to a local database.
-The `open_mastr.Mastr` class and its download methods are used to achieve this. 
-When running the _download_ method, the whole MaStR registry is downloaded from the MaStR website as zipped xml files. 
+The `open_mastr.Mastr` class and its `download` methods are used to achieve this. 
+The whole MaStR registry is downloaded from the MaStR website as zipped xml files when running the `download` method.  
 The downloaded xml files are extracted and parsed to a sqlite database.
-The result is a local database of the MaStR. However, many textual data points are still encoded by IDs. 
+This results in a local database of the MaStR with a size larger than 5GB. However, many textual data points are still encoded by IDs. 
 Thus, as a last step, the `Mastr.download` method decodes the IDs to their actual meaning.
 
 The local database is then ready for further processing.
 Its columns can be translated to English with the `Mastr.translate` method.
-Relevant information about different technologies, like wind turbines or PV systems, can be merged from multiple tables and written to csv using the method `Mastr.to_csv`.
+Relevant information about different technologies, like wind turbines or PV systems, can be merged from multiple tables and written to csv using the `Mastr.to_csv` method.
 
 A second use-case is the wrapper for the MaStR SOAP API. 
 Calling the SOAP API directly can be interesting for specific users who do not need to download the whole registry.
 All possible API requests, as described in the [official documentation](https://www.marktstammdatenregister.de/MaStRHilfe/subpages/webdienst.html) are callable as methods of an `soap_api.download.MaStRAPI` object.
 The classes `soap_api.download.MaStRDownload` and `soap_api.mirror.MaStRMirror` use the API to download some tables or the whole registry. 
-Both classes offer very similar functionalities to the basic `Mastr.download` function with the differences, that they require an API key and daily API request limit exists.
-Hence, the use-cases of the `MaStRDownload` and `MaStRMirror` are limited since BNetzA offers a way to download the whole registry as zipped xml files, as it is used by `Mastr.download`.
+Both classes offer very similar functionalities to the basic `Mastr.download` function with the differences, that they require an API key and a daily API request limit exists.
+Hence, the use-cases of the `MaStRDownload` and `MaStRMirror` are limited since BNetzA offers a way to download the whole registry as zipped xml files, as implemented in aforementioned `Mastr.download`.
 
-As an extra service for people that are not familiar with python, the developers offer the cleaned and reduced dataset created with `Mastr.to_csv` on Zenodo [@hulk2022_mastr_zenodo]. 
+As an extra service for people that are not familiar with Python, the developers offer the cleaned and reduced dataset created with `Mastr.to_csv` on Zenodo [@hulk2022_mastr_zenodo]. 
 
 # Conclusion
 In summary, `open-mastr` gathers community developed code to work with the Marktstammdatenregister.
