@@ -94,8 +94,8 @@ As an extra service for people that are not familiar with Python, the developers
 
 # Conclusion
 In summary, `open-mastr` gathers community developed code to work with the Marktstammdatenregister.
-It simplifies the data parsing and cleaning process for working on the German Energy System.
-In the future, a steady maintenance of the python package is needed to handle changes in the dataset and its data model introduced by BNetzA. 
+It simplifies the data parsing and cleaning process and thus facilitates data-based research and energy system planning.
+In the future, a steady maintenance of the Python package is needed to handle BNetzA induced changes in the dataset and its data model. 
 It is also planned to enhance MaStR's metadata in the future to further comply with FAIR data standards. 
 
 
