@@ -66,7 +66,7 @@ Data processing | Merge relevant information about different technologies to sin
 Besides `open-mastr`, no other software solution exists that provides an interface to download and clean the MaStR dataset.
 For other energy-related data, similar solutions exist: The _iotools_ module from `pvlib` implements access to different raw data sources via its _get_ methods [@Holmgren2018_pvlib]. 
 Data platforms offer another approach to provide cleansed datasets: This is done by the Open Energy Platform [@Hulk2022_OpenEnergyFamily], the Open Power System Data [@Wiese2019_openPSD], the Global Power Plant Database [@byers2018_global], or the Public Utility Data Liberation Project [@Selvans2020_pudl].
-The advantage of aforementioned data platforms is their simplicity in accessing data for end users, as users can simply download files in standardised formats, such as csv.
+The advantage of aforementioned data platforms is their simplicity in accessing data for end users, as users can simply download files in standardized formats, such as csv.
 The disadvantage is that end users have to rely on platform maintainers for data currency and correctness.
 Here, `open-mastr` comes at hand by providing direct access for end users to the original data. 
 
