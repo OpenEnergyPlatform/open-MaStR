@@ -6,6 +6,13 @@ For each version important additions, changes and removals are listed here.
 The format is inspired from [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [vX.XX.X] Unreleased - 2024-XX-XX
+### Added
+
+### Changed
+
+### Removed
+
 ## [v0.14.0] Shiny New Documentation Page - 2023-11-22
 ### Added
 - User-defined output path for csv, xml, database [#402](https://github.com/OpenEnergyPlatform/open-MaStR/pull/402)
