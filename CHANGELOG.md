@@ -10,6 +10,7 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 ### Added
 
 ### Changed
+- Fix and add URLs of example projects in readme
 
 ### Removed
 
