@@ -110,8 +110,8 @@ changes in a `Pull Request <https://github.com/OpenEnergyPlatform/open-MaStR/pul
 
 - `PV- und Windflächenrechner <https://www.agora-energiewende.de/service/pv-und-windflaechenrechner/>`_
 - `Wasserstoffatlas <https://wasserstoffatlas.de/>`_
-- `EE-Status App <https://ee-status.herokuapp.com/>`_
-
+- `EE-Status App <https://ee-status.de/>`_
+- `Digiplan Anhalt <https://digiplan.rl-institut.de/>`_
 
 
 Collaboration
