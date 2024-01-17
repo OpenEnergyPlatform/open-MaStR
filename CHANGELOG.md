@@ -6,7 +6,12 @@ For each version important additions, changes and removals are listed here.
 The format is inspired from [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [v0.14.1] Hotfix - 2023-01-17
+## [v0.XX.X] unreleased - 2024-XX-XX
+### Added
+### Changed
+### Removed
+
+## [v0.14.1] Hotfix - 2024-01-17
 ### Changed
 - Change data type of NetzbetreiberpruefungStatus to string [#483](https://github.com/OpenEnergyPlatform/open-MaStR/pull/483)
 
