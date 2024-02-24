@@ -5,7 +5,6 @@ from zipfile import BadZipfile, ZipFile
 
 import numpy as np
 import requests
-from bs4 import BeautifulSoup
 from tqdm import tqdm
 
 # setup logger
@@ -13,22 +12,66 @@ from open_mastr.utils.config import setup_logger
 
 log = setup_logger()
 
+def gen_version(when: time.struct_time = time.localtime()) -> str:
+    """
+    Generates the current version.
 
-def get_url_from_Mastr_website() -> str:
-    """Get the url of the latest MaStR file from markstammdatenregister.de.
+    The version number is determined according to a fixed release cycle,
+    which is by convention in sync with the changes to other german regulatory
+    frameworks of the energysuch as GeLI Gas and GPKE.
 
-    The file and the corresponding url are updated once per day.
-    The url has a randomly generated string appended, so it has to be
-    grabbed from the marktstammdatenregister.de homepage.
-    For further details visit https://www.marktstammdatenregister.de/MaStR/Datendownload
+    The release schedule is twice per year on 1st of April and October.
+    The version number is determined by the year of release and the running
+    number of the release, i.e. the release on April 1st is release 1,
+    while the release in October is release 2.
+
+    Further, the release happens during the day, so on the day of the
+    changeover, the exported data will still be in the old version/format.
+
+    see <https://www.marktstammdatenregister.de/MaStRHilfe/files/webdienst/Release-Termine.pdf>
+
+    Examples:
+    2024-01-01 = version 23.2
+    2024-04-01 = version 23.2
+    2024-04-02 = version 24.1
+    2024-09-30 = version 24.1
+    2024-10-01 = version 24.1
+    2024-10-02 = version 24.2
+    2024-31-12 = version 24.2
     """
 
-    html = requests.get("https://www.marktstammdatenregister.de/MaStR/Datendownload")
-    soup = BeautifulSoup(html.text, "lxml")
-    # find the download button element on the website
-    element = soup.find_all("a", "btn btn-primary text-right")[0]
-    # extract the url from the html element
-    return str(element).split('href="')[1].split('" title')[0]
+    year = when.tm_year
+    release = 1
+
+    if when.tm_mon < 4 or (when.tm_mon == 4 and when.tm_mday == 1):
+        year = year - 1
+        release = 2
+    elif when.tm_mon > 10 or (when.tm_mon == 10 and when.tm_mday > 1):
+        release = 2
+
+    # only the last two digits of the year are used
+    year = str(year)[-2:]
+
+    return f'{year}.{release}'
+
+def gen_url(when: time.struct_time = time.localtime()) -> str:
+    """
+    Generates the download URL for the specified date.
+
+    Note that not all dates are archived on the website.
+    Normally only today is available, the export is usually made
+    between 02:00 and 04:00, which means before 04:00 the current data may not
+    yet be available and the download could fail.
+
+    Note also that this function will not be able to generate URLs for dates
+    before 2024 because a different URL scheme was used then which had some random
+    data embedded in the name to make it harder to automate downloads.
+    """
+
+    version = gen_version(when)
+    date = time.strftime("%Y%m%d", when)
+
+    return f'https://download.marktstammdatenregister.de/Gesamtdatenexport_{date}_{version}.zip'
 
 
 def download_xml_Mastr(
@@ -69,7 +112,7 @@ def download_xml_Mastr(
         " You may want to download it another time."
     )
     print(print_message)
-    url = get_url_from_Mastr_website()
+    url = gen_url()
     time_a = time.perf_counter()
     r = requests.get(url, stream=True)
     total_length = int(18000 * 1024 * 1024)

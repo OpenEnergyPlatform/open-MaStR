@@ -52,7 +52,6 @@ setup(
         "requests",
         "keyring",
         "tqdm",
-        "beautifulsoup4",
         "pyyaml",
         "xmltodict",
     ],
