@@ -54,6 +54,15 @@ class Mastr:
     A SQL database is used to mirror the MaStR database. It can be filled with
     data either from the MaStR-bulk download or from the MaStR-API.
 
+    !!! example
+
+        ```python
+        from open_mastr import Mastr
+
+        db = Mastr()
+        db.download()
+        ```
+
     Parameters
     ----------
     engine : {'sqlite', sqlalchemy.engine.Engine}, optional
@@ -63,13 +72,8 @@ class Mastr:
             Allows connection to an existing translated database. Default is 'False'.
             Only for 'sqlite'-type engines.
 
-    !!! example
-        ```python
-        from open_mastr import Mastr
 
-        db = Mastr()
-        db.download()
-        ```
+
     """
 
     def __init__(self, engine="sqlite", connect_to_translated_db=False) -> None:
