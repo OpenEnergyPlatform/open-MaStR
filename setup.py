@@ -69,6 +69,7 @@ setup(
             "mkdocs-material",
             "mkdocs-include-markdown-plugin",
             "mike",
+            "black",
         ]
     },
     package_data={
