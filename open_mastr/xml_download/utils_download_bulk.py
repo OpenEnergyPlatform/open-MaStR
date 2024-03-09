@@ -112,9 +112,21 @@ def download_xml_Mastr(
         " You may want to download it another time."
     )
     print(print_message)
-    url = gen_url()
+
+    now = time.localtime()
+    url = gen_url(now)
+
     time_a = time.perf_counter()
     r = requests.get(url, stream=True)
+    if r.status_code == 404:
+        # presumably todays download is not ready yet, retry with yesterdays date
+        log.warning("Download file was not found. Assuming that the new file was not published yet and retrying with yesterday.")
+        now = time.localtime(time.mktime(now) - (24 * 60 * 60)) # subtract 1 day from the date
+        r = requests.get(url, stream=True)
+    if r.status_code == 404:
+        log.error("Could not download file: download URL not found")
+        return
+
     total_length = int(18000 * 1024 * 1024)
     with open(save_path, "wb") as zfile, tqdm(
         desc=save_path, total=(total_length / 1024 / 1024), unit=""
