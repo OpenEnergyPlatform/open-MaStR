@@ -9,7 +9,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 ## [v0.XX.X] unreleased - 2024-XX-XX
 ### Added
 ### Changed
-- Fix and add URLs of example projects in readme [#481]((https://github.com/OpenEnergyPlatform/open-MaStR/pull/481)
+- Fix and add URLs of example projects in readme [#481](https://github.com/OpenEnergyPlatform/open-MaStR/pull/481)
+- No longer require web scraping for bulk download [#488](https://github.com/OpenEnergyPlatform/open-MaStR/pull/488)
 ### Removed
 
 ## [v0.14.1] Hotfix - 2024-01-17
