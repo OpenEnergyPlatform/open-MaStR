@@ -69,8 +69,9 @@ def datapackag_base(reference_date, publication_date=None, statistik_flag=None):
         "id": str(uuid.uuid4()),
         "description": f"Raw data download Marktstammdatenregister (MaStR) data using the webservice.\n\n{description_extra}",
         "language": ["en-GB", "de-DE"],
+        "subject": [{"name": None, "path": None}],
         "keywords": ["powerplants", "renewables"],
-        "created": publication_date,
+        "publicationDate": publication_date,
         "version": data_version,
         "context": {
             "homepage": "https://www.marktstammdatenregister.de/MaStR/",
@@ -85,13 +86,15 @@ def datapackag_base(reference_date, publication_date=None, statistik_flag=None):
         "spatial": {"location": None, "extent": "Germany", "resolution": "vector"},
         "temporal": {
             "referenceDate": reference_date.strftime("%Y-%m-%d %H:%M:%S"),
-            "timeseries": {
+            "timeseries": [
+                {
                 "start": None,
                 "end": None,
                 "resolution": None,
                 "alignment": None,
                 "aggregationType": None,
-            },
+                }
+            ]
         },
         "sources": [
             {
@@ -106,7 +109,7 @@ def datapackag_base(reference_date, publication_date=None, statistik_flag=None):
                         "instruction": "You are free: To Share, To Create, To Adapt; As long as you: Attribute",
                         "attribution": f"© Marktstammdatenregister {datetime.date.today().year} | dl-de/by-2-0",
                     }
-                ],
+                ]
             },
             {
                 "title": "RLI - open_MaStR",
@@ -120,8 +123,8 @@ def datapackag_base(reference_date, publication_date=None, statistik_flag=None):
                         "instruction": "You are free: To Share, To Create, To Adapt; As long as you: Attribute, Share-Alike, Keep open!",
                         "attribution": "open_MaStR © Reiner Lemoine Institut | AGPL-3.0",
                     }
-                ],
-            },
+                ]
+            }
         ],
         "licenses": [
             {
@@ -134,30 +137,16 @@ def datapackag_base(reference_date, publication_date=None, statistik_flag=None):
         ],
         "contributors": [
             {
-                "title": "Ludee",
+                "title": None,
                 "email": None,
-                "path": "https://github.com/ludee",
-                "role": "maintainer",
-                "organization": "Reiner Lemoine Institut gGmbH",
-            },
-            {
-                "title": "Guido Pleßmann",
-                "email": None,
-                "path": "https://gplssm.de",
-                "role": "maintainer",
-                "organization": "Reiner Lemoine Institut gGmbH",
-            },
-            {
-                "title": "oakca",
-                "email": None,
-                "path": "https://github.com/oakca",
-                "role": "contributor",
-                "organization": "Reiner Lemoine Institut gGmbH",
-            },
+                "date": None,
+                "object": None,
+                "comment": None
+            }
         ],
         "review": {"path": None, "badge": None},
         "metaMetadata": {
-            "metadataVersion": "OEP-1.4.0",
+            "metadataVersion": "OEP-1.5.2",
             "metadataLicense": {
                 "name": "CC0-1.0",
                 "title": "Creative Commons Zero v1.0 Universal",
@@ -172,6 +161,7 @@ def datapackag_base(reference_date, publication_date=None, statistik_flag=None):
             "licenses": "License name must follow the SPDX License List (https://spdx.org/licenses/)",
             "review": "Following the OEP Data Review (https://github.com/OpenEnergyPlatform/data-preprocessing/wiki)",
             "null": "If not applicable use (null)",
+            "todo": "If a value ist not yet available, use: todo"
         },
     }
 
@@ -253,35 +243,29 @@ def create_datapackage_meta_json(
             resource = {
                 "profile": "tabular-data-resource",
                 "name": f"bnetza_mastr_{tech}_raw",
-                "title": f"open-MaStR {tech} units (raw)",
                 "path": filenames["raw"][tech]["joined"],
-                "scheme": "file",
+                "format": "csv",
                 "encoding": "utf-8",
-                "mediatype": "text/csv",
                 "schema": {
                     "fields": raw_fields,
                     "primaryKey": ["EinheitMastrNummer"],
                 },
                 "dialect": {"delimiter": ","},
             }
-
             resources_meta["resources"].append(resource)
         if "cleaned" in data:
             resource = {
                 "profile": "tabular-data-resource",
                 "name": f"bnetza_mastr_{tech}_cleaned",
-                "title": f"open-MaStR {tech} units (cleaned)",
                 "path": filenames["cleaned"][tech],
-                "scheme": "file",
+                "format": "csv",
                 "encoding": "utf-8",
-                "mediatype": "text/csv",
                 "schema": {
                     "fields": raw_fields,
                     "primaryKey": ["EinheitMastrNummer"],
                 },
                 "dialect": {"delimiter": ","},
             }
-
             resources_meta["resources"].append(resource)
         if "postprocessed" in data:
             processed_fields = [
@@ -289,14 +273,14 @@ def create_datapackage_meta_json(
                     "name": "geom",
                     "unit": None,
                     "type": "str",
-                    "desciption": "Standort der Anlage als Punktgeometrie im WKB Format",
+                    "description": "Standort der Anlage als Punktgeometrie im WKB Format",
                     "examples": "0101000020e610000071fbe59315131c40a2b437f8c20e4a40",
                 },
                 {
                     "name": "comment",
                     "unit": None,
                     "type": "str",
-                    "desciption": "Information about data post-processing",
+                    "description": "Information about data post-processing",
                     "examples": "has_geom; outside_vg250",
                 },
             ]
@@ -306,7 +290,7 @@ def create_datapackage_meta_json(
                         "name": "tags",
                         "unit": None,
                         "type": "json",
-                        "desciption": "Data insights and report about post-processing steps",
+                        "description": "Data insights and report about post-processing steps",
                         "examples": {
                             "plz_check": False,
                             "processed": True,
@@ -319,18 +303,16 @@ def create_datapackage_meta_json(
                         "name": "geom",
                         "unit": None,
                         "type": "str",
-                        "desciption": "Standort der Anlage als Punktgeometrie im WKB Format (EPSG 3035)",
+                        "description": "Standort der Anlage als Punktgeometrie im WKB Format (EPSG 3035)",
                         "examples": "0101000020e610000071fbe59315131c40a2b437f8c20e4a40",
                     }
                 )
             resource = {
                 "profile": "tabular-data-resource",
                 "name": f"bnetza_mastr_{tech}",
-                "title": f"open-MaStR {tech} units",
                 "path": filenames["postprocessed"][tech],
-                "scheme": "file",
+                "format": "csv",
                 "encoding": "utf-8",
-                "mediatype": "text/csv",
                 "schema": {
                     "fields": raw_fields + processed_fields,
                     "primaryKey": ["EinheitMastrNummer"],

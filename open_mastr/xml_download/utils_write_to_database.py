@@ -13,6 +13,7 @@ from open_mastr.utils.helpers import data_to_include_tables
 from open_mastr.utils.orm import tablename_mapping
 from open_mastr.xml_download.utils_cleansing_bulk import cleanse_bulk_data
 
+log = setup_logger()
 
 def write_mastr_xml_to_database(
     engine: sqlalchemy.engine.Engine,
@@ -38,11 +39,11 @@ def write_mastr_xml_to_database(
 
                 if is_first_file(file_name):
                     create_database_table(engine=engine, xml_tablename=xml_tablename)
-                    print(
+                    log.info(
                         f"Table '{sql_tablename}' is filled with data '{xml_tablename}' "
                         "from the bulk download."
                     )
-                print(f"File '{file_name}' is parsed.")
+                log.info(f"File '{file_name}' is parsed.")
 
                 df = preprocess_table_for_writing_to_database(
                     f=f,
@@ -64,7 +65,7 @@ def write_mastr_xml_to_database(
                     if_exists="append",
                     engine=engine,
                 )
-    print("Bulk download and data cleansing were successful.")
+    log.info("Bulk download and data cleansing were successful.")
 
 
 def is_table_relevant(xml_tablename: str, include_tables: list) -> bool:
@@ -287,7 +288,7 @@ def write_single_entries_until_not_unique_comes_up(
         labels=key_list, errors="ignore"
     )  # drop primary keys that already exist in the table
     df = df.reset_index()
-    print(f"{len_df_before-len(df)} entries already existed in the database.")
+    log.info(f"{len_df_before-len(df)} entries already existed in the database.")
 
     return df
 
@@ -311,7 +312,7 @@ def add_missing_columns_to_table(
     -------
 
     """
-    log = setup_logger()
+
 
     # get the columns name from the existing database
     inspector = sqlalchemy.inspect(engine)
@@ -337,7 +338,7 @@ def add_missing_columns_to_table(
 
 def delete_wrong_xml_entry(err: Error, df: pd.DataFrame) -> None:
     delete_entry = str(err).split("«")[0].split("»")[1]
-    print(f"The entry {delete_entry} was deleted due to its false data type.")
+    log.info(f"The entry {delete_entry} was deleted due to its false data type.")
     df = df.replace(delete_entry, np.nan)
 
 
@@ -376,5 +377,5 @@ def handle_xml_syntax_error(data: bytes, err: Error) -> pd.DataFrame:
         else:
             decoded_data = decoded_data[:start_char] + decoded_data[start_char + 1 :]
     df = pd.read_xml(decoded_data)
-    print("One invalid xml expression was deleted.")
+    log.info("One invalid xml expression was deleted.")
     return df
