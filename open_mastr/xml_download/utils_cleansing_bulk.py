@@ -44,7 +44,7 @@ def replace_mastr_katalogeintraege(
                     .apply(lambda x: x.str.strip())
                     .replace("", None)
                     .astype("Int64")
-                    .applymap(katalogwerte.get)
+                    .map(katalogwerte.get)
                     .agg(lambda d: ",".join(i for i in d if isinstance(i, str)), axis=1)
                     .replace("", None)
                 )
