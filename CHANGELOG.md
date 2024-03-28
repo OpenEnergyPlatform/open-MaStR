@@ -8,6 +8,7 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 
 ## [v0.XX.X] unreleased - 2024-XX-XX
 ### Added
+- Add deprecation warning for `MaStRMirror` and `MaStRDownload` [#492](https://github.com/OpenEnergyPlatform/open-MaStR/pull/492)
 ### Changed
 - Fix and add URLs of example projects in readme [#481](https://github.com/OpenEnergyPlatform/open-MaStR/pull/481)
 - No longer require web scraping for bulk download [#488](https://github.com/OpenEnergyPlatform/open-MaStR/pull/488)
