@@ -730,6 +730,8 @@ class MarketActors(ParentAllTables, Base):
     Stromgrosshaendler = Column(Boolean)
     MarktakteurVorname = Column(String)
     MarktakteurNachname = Column(String)
+    WebportalDesNetzbetreibers = Column(String)
+    RegisternummerPraefix = Column(String)
 
 
 class Grids(ParentAllTables, Base):
