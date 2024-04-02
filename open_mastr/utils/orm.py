@@ -134,6 +134,8 @@ class Extended(object):
     PraequalifiziertFuerRegelenergie = Column(Boolean)
     GenMastrNummer = Column(String)
     Netzbetreiberzuordnungen = Column(String)
+    ReserveartNachDemEnWG = Column(String)
+    DatumUeberfuehrungInReserve = Column(Date)
     # from bulk download
     Hausnummer_nv = Column(Boolean)
     Weic_nv = Column(Boolean)
@@ -201,8 +203,6 @@ class BiomassExtended(Extended, ParentAllTables, Base):
     Technologie = Column(String)
     EegMastrNummer = Column(String)
     KwkMastrNummer = Column(String)
-    ReserveartNachDemEnWG = Column(String)
-    DatumUeberfuehrungInReserve = Column(Date)
 
 class CombustionExtended(Extended, ParentAllTables, Base):
     __tablename__ = "combustion_extended"
@@ -230,9 +230,6 @@ class CombustionExtended(Extended, ParentAllTables, Base):
     KwkMastrNummer = Column(String)
     Technologie = Column(String)
     AusschliesslicheVerwendungImKombibetrieb = Column(Boolean)
-    ReserveartNachDemEnWG = Column(String)
-    DatumUeberfuehrungInReserve = Column(Date)
-
 
 class GsgkExtended(Extended, ParentAllTables, Base):
     __tablename__ = "gsgk_extended"
