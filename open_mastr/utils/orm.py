@@ -210,7 +210,6 @@ class CombustionExtended(Extended, ParentAllTables, Base):
     NameKraftwerk = Column(String)
     NameKraftwerksblock = Column(String)
     DatumBaubeginn = Column(Date)
-    AnzeigeEinerStilllegung = Column(Boolean)
     ArtDerStilllegung = Column(String)
     DatumBeginnVorlaeufigenOderEndgueltigenStilllegung = Column(Date)
     SteigerungNettonennleistungKombibetrieb = Column(Float)
@@ -244,7 +243,6 @@ class HydroExtended(Extended, ParentAllTables, Base):
 
     NameKraftwerk = Column(String)
     ArtDerWasserkraftanlage = Column(String)
-    AnzeigeEinerStilllegung = Column(Boolean)
     ArtDerStilllegung = Column(String)
     DatumBeginnVorlaeufigenOderEndgueltigenStilllegung = Column(Date)
     MinderungStromerzeugung = Column(Boolean)
