@@ -231,6 +231,7 @@ class CombustionExtended(Extended, ParentAllTables, Base):
     Technologie = Column(String)
     AusschliesslicheVerwendungImKombibetrieb = Column(Boolean)
     ReserveartNachDemEnWG = Column(String)
+    DatumUeberfuehrungInReserve = Column(Date)
 
 
 class GsgkExtended(Extended, ParentAllTables, Base):
