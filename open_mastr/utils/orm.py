@@ -564,6 +564,7 @@ class GasProducer(ParentAllTables, Base):
     FlurFlurstuecknummern = Column(String)
     GeplantesInbetriebnahmedatum = Column(Date)
     DatumBeginnVoruebergehendeStilllegung = Column(Date)
+    DatumEndgueltigeStilllegung = Column(Date)
 
 
 class GasConsumer(ParentAllTables, Base):
