@@ -504,6 +504,7 @@ class GasStorageExtended(ParentAllTables, Base):
     DatumBeginnVoruebergehendeStilllegung = Column(Date)
     DatumDesBetreiberwechsels = Column(Date)
     DatumRegistrierungDesBetreiberwechsels = Column(Date)
+    DatumEndgueltigeStilllegung = Column(Date)
 
 
 class StorageUnits(ParentAllTables, Base):
