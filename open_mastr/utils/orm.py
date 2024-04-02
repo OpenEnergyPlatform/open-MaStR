@@ -201,6 +201,7 @@ class BiomassExtended(Extended, ParentAllTables, Base):
     Technologie = Column(String)
     EegMastrNummer = Column(String)
     KwkMastrNummer = Column(String)
+    ReserveartNachDemEnWG = Column(String)
 
 
 class CombustionExtended(Extended, ParentAllTables, Base):
