@@ -202,7 +202,7 @@ class BiomassExtended(Extended, ParentAllTables, Base):
     EegMastrNummer = Column(String)
     KwkMastrNummer = Column(String)
     ReserveartNachDemEnWG = Column(String)
-
+    DatumUeberfuehrungInReserve = Column(Date)
 
 class CombustionExtended(Extended, ParentAllTables, Base):
     __tablename__ = "combustion_extended"
