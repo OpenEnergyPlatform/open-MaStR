@@ -12,6 +12,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 ### Changed
 - Fix and add URLs of example projects in readme [#481](https://github.com/OpenEnergyPlatform/open-MaStR/pull/481)
 - No longer require web scraping for bulk download [#488](https://github.com/OpenEnergyPlatform/open-MaStR/pull/488)
+- Replace deprecated pandas map function [#491](https://github.com/OpenEnergyPlatform/open-MaStR/pull/491)
+- Fix the handling of corrupted xml syntax in the downloaded files [#494](https://github.com/OpenEnergyPlatform/open-MaStR/pull/494)
 ### Removed
 
 ## [v0.14.1] Hotfix - 2024-01-17

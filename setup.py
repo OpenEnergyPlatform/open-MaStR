@@ -43,7 +43,7 @@ setup(
     ],
     python_requires=">=3.8, <4",  # 3.8 is needed for pandas 1.4
     install_requires=[
-        "pandas>=1.4",  # pandas 1.4 is needed for pd.read_xml
+        "pandas>=2.1",  # pandas 2.1 is needed for dataframe.map()
         "numpy",
         "sqlalchemy",
         "psycopg2-binary",
@@ -68,6 +68,7 @@ setup(
             "mkdocs-material",
             "mkdocs-include-markdown-plugin",
             "mike",
+            "black",
         ]
     },
     package_data={
