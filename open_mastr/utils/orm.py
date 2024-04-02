@@ -268,7 +268,7 @@ class StorageExtended(Extended, ParentAllTables, Base):
     Notstromaggregat = Column(Boolean)
     BestandteilGrenzkraftwerk = Column(Boolean)
     NettonennleistungDeutschland = Column(Float)
-    ZugeordnenteWirkleistungWechselrichter = Column(Float)
+    ZugeordneteWirkleistungWechselrichter = Column(Float)
     NutzbareSpeicherkapazitaet = Column(Float)
     SpeMastrNummer = Column(String)
     EegMastrNummer = Column(String)
