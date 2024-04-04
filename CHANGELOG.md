@@ -13,6 +13,7 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 - No longer require web scraping for bulk download [#488](https://github.com/OpenEnergyPlatform/open-MaStR/pull/488)
 - Replace deprecated pandas map function [#491](https://github.com/OpenEnergyPlatform/open-MaStR/pull/491)
 - Fix the handling of corrupted xml syntax in the downloaded files [#494](https://github.com/OpenEnergyPlatform/open-MaStR/pull/494)
+- Implement relevant API WSDL Patchnotes V24.1.128 [#499](https://github.com/OpenEnergyPlatform/open-MaStR/pull/499)
 ### Removed
 - Remove unused Docker File [#501](https://github.com/OpenEnergyPlatform/open-MaStR/pull/501)
 
