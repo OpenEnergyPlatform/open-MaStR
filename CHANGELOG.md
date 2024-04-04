@@ -20,7 +20,6 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 ### Changed
 - Change data type of NetzbetreiberpruefungStatus to string [#483](https://github.com/OpenEnergyPlatform/open-MaStR/pull/483)
 
-
 ## [v0.14.0] Shiny New Documentation Page - 2023-11-22
 ### Added
 - User-defined output path for csv, xml, database [#402](https://github.com/OpenEnergyPlatform/open-MaStR/pull/402)
