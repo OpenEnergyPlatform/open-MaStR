@@ -51,7 +51,6 @@ setup(
         "tqdm",
         "requests",
         "keyring",
-        "tqdm",
         "pyyaml",
         "xmltodict",
     ],
