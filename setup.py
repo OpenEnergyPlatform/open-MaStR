@@ -45,7 +45,7 @@ setup(
     install_requires=[
         "pandas>=2.1",  # pandas 2.1 is needed for dataframe.map()
         "numpy",
-        "sqlalchemy",
+        "sqlalchemy>=2.0",
         "psycopg2-binary",
         "zeep",
         "tqdm",
