@@ -1,4 +1,4 @@
-name: CI
+name: CI - Pytest Develop
 
 on:
   workflow_dispatch:
