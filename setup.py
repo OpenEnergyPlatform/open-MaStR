@@ -19,14 +19,14 @@ setup(
         "open_mastr.utils.config",
         "open_mastr.xml_download",
     ],
-    version="0.14.1",
+    version="0.14.2",
     description="A package that provides an interface for downloading and"
     " processing the data of the Marktstammdatenregister (MaStR)",
     long_description=long_description,
     long_description_content_type="text/x-rst",
     url="https://github.com/OpenEnergyPlatform/open-MaStR",
     download_url="https://github.com/OpenEnergyPlatform/open-MaStR/archive"
-    "/refs/tags/v0.14.1.tar.gz",
+    "/refs/tags/v0.14.2.tar.gz",
     author="Open Energy Family",
     author_email="datenzentrum@rl-institut.de",
     maintainer="Ludwig Hülk",
@@ -43,7 +43,7 @@ setup(
     ],
     python_requires=">=3.8, <4",  # 3.8 is needed for pandas 1.4
     install_requires=[
-        "pandas>=1.4",  # pandas 1.4 is needed for pd.read_xml
+        "pandas>=2.1",  # pandas 2.1 is needed for dataframe.map()
         "numpy",
         "sqlalchemy",
         "psycopg2-binary",
@@ -52,7 +52,6 @@ setup(
         "requests",
         "keyring",
         "tqdm",
-        "beautifulsoup4",
         "pyyaml",
         "xmltodict",
     ],
@@ -69,6 +68,7 @@ setup(
             "mkdocs-material",
             "mkdocs-include-markdown-plugin",
             "mike",
+            "black",
         ]
     },
     package_data={

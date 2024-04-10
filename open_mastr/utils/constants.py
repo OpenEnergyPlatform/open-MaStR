@@ -310,7 +310,7 @@ TRANSLATIONS = {
     "AuflagenAbschaltungTierschutz": "requirementShutdownAnimalProtection",
     "AnlagenkennzifferAnlagenregister_nv": "plantIdentificationNumberRegister_nv",
     "BiogasDatumLeistungserhoehung": "biogasCapacityIncreaseDate",
-    "InAnspruchGenommeneAckerflaeche": "areaOfAgriculturalLandInUse",
+    "InAnspruchGenommeneLandwirtschaftlichGenutzteFlaeche": "areaOfAgriculturalLandInUse",
     "Aktenzeichen": "fileReference",
     "NetzbetreiberpruefungStatus": "gridOperatorCheckStatus",
     "AnlageBetriebsstatus": "plantOperatingStatus",
@@ -511,4 +511,8 @@ TRANSLATIONS = {
     "MastrNummer": "mastrNumber",
     "Kuestenentfernung": "distanceToCoast",
     "eegAusschreibungZuschlag": "eegAuctionBidAward",
+    "DatumUeberfuehrungInReserve": "dateTransferToReserve",
+    "ReserveartNachDemEnWG": "typeOfReserveFromEnWG",
+    "WebportalDesNetzbetreibers": "webPortalGridOperator",
+    "RegisternummerPraefix": "registerNumberPrefix",
 }
