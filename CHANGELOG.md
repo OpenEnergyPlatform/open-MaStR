@@ -9,6 +9,7 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 
 ## [v0.XX.X] - 202X-XX-XX
 ### Added
+- Add new table `changed_dso_assignment` [#510](https://github.com/OpenEnergyPlatform/open-MaStR/pull/510)
 ### Changed
 ### Removed
 
