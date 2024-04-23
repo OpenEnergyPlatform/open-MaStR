@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "open_mastr"
-version = "0.14.3"
+version = "0.14.2"
 dependencies = [
   "pandas>=2.1",  # pandas 2.1 is needed for dataframe.map()
   "numpy",
