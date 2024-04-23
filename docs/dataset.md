@@ -67,6 +67,7 @@ After downloading the MaStR, you will find a database with a large number of tab
     | Table name | Comments |
     |------|------| 
     | balancing_area | *Related to the energy market* |
+    | changed_dso_assignment  | *Units where the DSO responsibility changed* |
     | electricity_consumer  |  *Only large consumers* |
     | gas_consumer  |  *Only large consumers* |
     | gas_producer  |  |
@@ -80,6 +81,7 @@ After downloading the MaStR, you will find a database with a large number of tab
     | permit  |  |
     | storage_units  |  |
     | kwk  | *short for: Combined heat and power (CHP)* |
+
 
 ### MaStR data model
 A useful overview of the MaStR data model can be found [here (in german)](https://www.marktstammdatenregister.de/MaStRHilfe/files/webdienst/Objektmodell%20-%20Fachliche%20Ansicht%20V1.2.0.pdf). A translated version using the names from the tables you can find in your local database is presented here: 
