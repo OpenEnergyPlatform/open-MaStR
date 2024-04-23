@@ -157,10 +157,10 @@ def test_add_table_to_database(zipped_xml_file_path, engine_testdb):
 def test_add_zero_as_first_character_for_too_short_string():
     # Prepare
     df_raw = pd.DataFrame(
-        {"ID": [0, 1, 2], "Gemeindeschluessel": [9162000, None, 19123456]}
+        {"ID": [0, 1, 2], "Gemeindeschluessel": [9162000, np.nan, 19123456]}
     )
     df_correct = pd.DataFrame(
-        {"ID": [0, 1, 2], "Gemeindeschluessel": ["09162000", None, "19123456"]}
+        {"ID": [0, 1, 2], "Gemeindeschluessel": ["09162000", np.nan, "19123456"]}
     )
 
     # Act
@@ -236,5 +236,3 @@ def test_cast_date_columns_to_datetime():
     pd.testing.assert_frame_equal(
         df_replaced, cast_date_columns_to_datetime("anlageneegwasser", df_raw)
     )
-
-

@@ -10,8 +10,10 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 ## [v0.XX.X] - 202X-XX-XX
 ### Added
 - Add new table `changed_dso_assignment` [#510](https://github.com/OpenEnergyPlatform/open-MaStR/pull/510)
+- Add deprecation warning for `MaStRMirror` and `MaStRDownload` [#492](https://github.com/OpenEnergyPlatform/open-MaStR/pull/492)
 ### Changed
 ### Removed
+- Remove outdated and deprecated dependencies [#506](https://github.com/OpenEnergyPlatform/open-MaStR/pull/506)
 
 ## [v0.14.2] Maintenance - 2024-04-10
 ### Changed
@@ -22,6 +24,7 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 - Implement relevant API WSDL Patchnotes V24.1.128 [#499](https://github.com/OpenEnergyPlatform/open-MaStR/pull/499)
 ### Removed
 - Remove unused Docker File [#501](https://github.com/OpenEnergyPlatform/open-MaStR/pull/501)
+
 
 ## [v0.14.1] Hotfix - 2024-01-17
 ### Changed

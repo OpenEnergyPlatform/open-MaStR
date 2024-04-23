@@ -414,7 +414,14 @@ def _missed_units_to_file(data, data_type, missed_units):
 
 
 class MaStRDownload:
-    """Use the higher level interface for bulk download
+    """
+    !!! warning
+
+        **This class is deprecated** and will not be maintained from version 0.15.0 onwards.
+        Instead use [`Mastr.download`][open_mastr.Mastr.download] with parameter
+        `method` = "bulk" to get bulk downloads of the dataset.
+
+    Use the higher level interface for bulk download
 
     `MaStRDownload` builds on top of [`MaStRAPI`][open_mastr.soap_api.download.MaStRAPI] and provides
     an interface for easier downloading.
@@ -451,6 +458,17 @@ class MaStRDownload:
             multiprocessing package) choose False.
             Defaults to number of cores (including hyperthreading).
         """
+        log.warn(
+            """
+            The `MaStRDownload` class is deprecated and will not be maintained in the future.
+            To get a full table of the Marktstammdatenregister, use the open_mastr.Mastr.download
+            method.
+
+            If this change causes problems for you, please comment in this issue on github:
+            https://github.com/OpenEnergyPlatform/open-MaStR/issues/487
+
+            """
+        )
 
         # Number of parallel processes
         if parallel_processes == "max":
@@ -762,26 +780,30 @@ class MaStRDownload:
             log.info(
                 f"Get list of units with basic information for data type {data} ({et})"
             )
-            yield from basic_data_download(
-                self._mastr_api,
-                "GetListeAlleEinheiten",
-                "Einheiten",
-                chunks_start,
-                limits,
-                date_from,
-                max_retries,
-                data,
-                et=et,
-            ) if et is None else basic_data_download(
-                self._mastr_api,
-                "GetGefilterteListeStromErzeuger",
-                "Einheiten",
-                chunks_start,
-                limits,
-                date_from,
-                max_retries,
-                data,
-                et=et,
+            yield from (
+                basic_data_download(
+                    self._mastr_api,
+                    "GetListeAlleEinheiten",
+                    "Einheiten",
+                    chunks_start,
+                    limits,
+                    date_from,
+                    max_retries,
+                    data,
+                    et=et,
+                )
+                if et is None
+                else basic_data_download(
+                    self._mastr_api,
+                    "GetGefilterteListeStromErzeuger",
+                    "Einheiten",
+                    chunks_start,
+                    limits,
+                    date_from,
+                    max_retries,
+                    data,
+                    et=et,
+                )
             )
 
     def additional_data(self, data, unit_ids, data_fcn, timeout=10):
