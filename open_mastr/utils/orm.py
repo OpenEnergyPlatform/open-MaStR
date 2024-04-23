@@ -134,6 +134,8 @@ class Extended(object):
     PraequalifiziertFuerRegelenergie = Column(Boolean)
     GenMastrNummer = Column(String)
     Netzbetreiberzuordnungen = Column(String)
+    ReserveartNachDemEnWG = Column(String)
+    DatumUeberfuehrungInReserve = Column(Date)
     # from bulk download
     Hausnummer_nv = Column(Boolean)
     Weic_nv = Column(Boolean)
@@ -185,7 +187,7 @@ class SolarExtended(Extended, ParentAllTables, Base):
     NebenausrichtungNeigungswinkel = Column(String)
     InAnspruchGenommeneFlaeche = Column(Float)
     ArtDerFlaeche = Column(String)
-    InAnspruchGenommeneAckerflaeche = Column(Float)
+    InAnspruchGenommeneLandwirtschaftlichGenutzteFlaeche = Column(Float)
     Nutzungsbereich = Column(String)
     Buergerenergie = Column(Boolean)
     EegMastrNummer = Column(String)
@@ -202,16 +204,12 @@ class BiomassExtended(Extended, ParentAllTables, Base):
     EegMastrNummer = Column(String)
     KwkMastrNummer = Column(String)
 
-
 class CombustionExtended(Extended, ParentAllTables, Base):
     __tablename__ = "combustion_extended"
 
     NameKraftwerk = Column(String)
     NameKraftwerksblock = Column(String)
     DatumBaubeginn = Column(Date)
-    AnzeigeEinerStilllegung = Column(Boolean)
-    ArtDerStilllegung = Column(String)
-    DatumBeginnVorlaeufigenOderEndgueltigenStilllegung = Column(Date)
     SteigerungNettonennleistungKombibetrieb = Column(Float)
     AnlageIstImKombibetrieb = Column(Boolean)
     MastrNummernKombibetrieb = Column(String)
@@ -230,7 +228,6 @@ class CombustionExtended(Extended, ParentAllTables, Base):
     Technologie = Column(String)
     AusschliesslicheVerwendungImKombibetrieb = Column(Boolean)
 
-
 class GsgkExtended(Extended, ParentAllTables, Base):
     __tablename__ = "gsgk_extended"
 
@@ -244,9 +241,6 @@ class HydroExtended(Extended, ParentAllTables, Base):
 
     NameKraftwerk = Column(String)
     ArtDerWasserkraftanlage = Column(String)
-    AnzeigeEinerStilllegung = Column(Boolean)
-    ArtDerStilllegung = Column(String)
-    DatumBeginnVorlaeufigenOderEndgueltigenStilllegung = Column(Date)
     MinderungStromerzeugung = Column(Boolean)
     BestandteilGrenzkraftwerk = Column(Boolean)
     NettonennleistungDeutschland = Column(Float)
@@ -274,7 +268,7 @@ class StorageExtended(Extended, ParentAllTables, Base):
     Notstromaggregat = Column(Boolean)
     BestandteilGrenzkraftwerk = Column(Boolean)
     NettonennleistungDeutschland = Column(Float)
-    ZugeordnenteWirkleistungWechselrichter = Column(Float)
+    ZugeordneteWirkleistungWechselrichter = Column(Float)
     NutzbareSpeicherkapazitaet = Column(Float)
     SpeMastrNummer = Column(String)
     EegMastrNummer = Column(String)
@@ -510,6 +504,7 @@ class GasStorageExtended(ParentAllTables, Base):
     DatumBeginnVoruebergehendeStilllegung = Column(Date)
     DatumDesBetreiberwechsels = Column(Date)
     DatumRegistrierungDesBetreiberwechsels = Column(Date)
+    DatumEndgueltigeStilllegung = Column(Date)
 
 
 class StorageUnits(ParentAllTables, Base):
@@ -570,6 +565,7 @@ class GasProducer(ParentAllTables, Base):
     FlurFlurstuecknummern = Column(String)
     GeplantesInbetriebnahmedatum = Column(Date)
     DatumBeginnVoruebergehendeStilllegung = Column(Date)
+    DatumEndgueltigeStilllegung = Column(Date)
 
 
 class GasConsumer(ParentAllTables, Base):
@@ -734,6 +730,8 @@ class MarketActors(ParentAllTables, Base):
     Stromgrosshaendler = Column(Boolean)
     MarktakteurVorname = Column(String)
     MarktakteurNachname = Column(String)
+    WebportalDesNetzbetreibers = Column(String)
+    RegisternummerPraefix = Column(String)
 
 
 class Grids(ParentAllTables, Base):

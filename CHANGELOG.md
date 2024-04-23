@@ -6,20 +6,26 @@ For each version important additions, changes and removals are listed here.
 The format is inspired from [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [v0.XX.X] unreleased - 2024-XX-XX
+
+## [v0.XX.X] - 202X-XX-XX
 ### Added
 - Add deprecation warning for `MaStRMirror` and `MaStRDownload` [#492](https://github.com/OpenEnergyPlatform/open-MaStR/pull/492)
+### Changed
+### Removed
+
+## [v0.14.2] Maintenance - 2024-04-10
 ### Changed
 - Fix and add URLs of example projects in readme [#481](https://github.com/OpenEnergyPlatform/open-MaStR/pull/481)
 - No longer require web scraping for bulk download [#488](https://github.com/OpenEnergyPlatform/open-MaStR/pull/488)
 - Replace deprecated pandas map function [#491](https://github.com/OpenEnergyPlatform/open-MaStR/pull/491)
 - Fix the handling of corrupted xml syntax in the downloaded files [#494](https://github.com/OpenEnergyPlatform/open-MaStR/pull/494)
+- Implement relevant API WSDL Patchnotes V24.1.128 [#499](https://github.com/OpenEnergyPlatform/open-MaStR/pull/499)
 ### Removed
+- Remove unused Docker File [#501](https://github.com/OpenEnergyPlatform/open-MaStR/pull/501)
 
 ## [v0.14.1] Hotfix - 2024-01-17
 ### Changed
 - Change data type of NetzbetreiberpruefungStatus to string [#483](https://github.com/OpenEnergyPlatform/open-MaStR/pull/483)
-
 
 ## [v0.14.0] Shiny New Documentation Page - 2023-11-22
 ### Added
