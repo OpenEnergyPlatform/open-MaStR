@@ -21,6 +21,12 @@ log = setup_logger()
 
 class MaStRMirror:
     """
+    !!! warning
+
+        **This class is deprecated** and will not be maintained from version 0.15.0 onwards.
+        Instead use [`Mastr.download`][open_mastr.Mastr.download] with parameter
+        `method` = "bulk" to mirror the MaStR dataset to a local database.
+
     Mirror the Marktstammdatenregister database and keep it up-to-date.
 
     A PostgreSQL database is used to mirror the MaStR database. It builds
@@ -93,6 +99,18 @@ class MaStRMirror:
             Number of parallel processes used to download additional data.
             Defaults to `None`.
         """
+        log.warn(
+            """
+            The `MaStRMirror` class is deprecated and will not be maintained in the future.
+            To get a full table of the Marktstammdatenregister, use the open_mastr.Mastr.download
+            method.
+
+            If this change causes problems for you, please comment in this issue on github:
+            https://github.com/OpenEnergyPlatform/open-MaStR/issues/487
+
+            """
+        )
+
         self._engine = engine
 
         # Associate downloader
@@ -979,6 +997,7 @@ class MaStRMirror:
 
 
         !!! warning
+
             If tables that are restored from the dump contain data, restore doesn't work!
 
         """
