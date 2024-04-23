@@ -792,6 +792,21 @@ class RetrofitUnits(ParentAllTables, Base):
     ErtuechtigungIstZulassungspflichtig = Column(Boolean)
 
 
+class ChangedDSOAssignment(ParentAllTables, Base):
+    __tablename__ = "changed_dso_assignment"
+
+    EinheitMastrNummer = Column(String, primary_key=True)
+    LokationMastrNummer = Column(String)
+    NetzanschlusspunktMastrNummer = Column(String)
+    NetzbetreiberMastrNummerNeu = Column(String)
+    NetzbetreiberMastrNummerAlt = Column(String)
+    ArtDerAenderung = Column(String)
+    RegistrierungsdatumNetzbetreiberzuordnungsaenderung = Column(
+        DateTime(timezone=True)
+    )
+    Netzbetreiberzuordnungsaenderungsdatum = Column(DateTime(timezone=True))
+
+
 tablename_mapping = {
     "anlageneegbiomasse": {
         "__name__": BiomassEeg.__tablename__,
@@ -921,6 +936,11 @@ tablename_mapping = {
     "bilanzierungsgebiete": {
         "__name__": BalancingArea.__tablename__,
         "__class__": BalancingArea,
+        "replace_column_names": None,
+    },
+    "einheitenaenderungnetzbetreiberzuordnungen": {
+        "__name__": ChangedDSOAssignment.__tablename__,
+        "__class__": ChangedDSOAssignment,
         "replace_column_names": None,
     },
     "einheitengaserzeuger": {
