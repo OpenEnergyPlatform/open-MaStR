@@ -29,7 +29,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
     - name: create package
-      run: python setup.py sdist
+      run: python -m build --sdist
     - name: import open-mastr
       run: python -m pip install ./dist/open_mastr-0.14.2.tar.gz
     - name: Create credentials file
