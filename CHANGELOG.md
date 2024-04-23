@@ -21,6 +21,7 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 - Implement relevant API WSDL Patchnotes V24.1.128 [#499](https://github.com/OpenEnergyPlatform/open-MaStR/pull/499)
 ### Removed
 - Remove unused Docker File [#501](https://github.com/OpenEnergyPlatform/open-MaStR/pull/501)
+- Remove outdated and deprecated dependencies [#506](https://github.com/OpenEnergyPlatform/open-MaStR/pull/506)
 
 ## [v0.14.1] Hotfix - 2024-01-17
 ### Changed

@@ -1,5 +1,4 @@
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.schema import MetaData
+from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy import (
     Column,
     Integer,
@@ -13,8 +12,9 @@ from sqlalchemy import (
     JSON,
 )
 
-meta = MetaData()
-Base = declarative_base(metadata=meta)
+
+class Base(DeclarativeBase):
+    pass
 
 
 class ParentAllTables(object):
@@ -204,6 +204,7 @@ class BiomassExtended(Extended, ParentAllTables, Base):
     EegMastrNummer = Column(String)
     KwkMastrNummer = Column(String)
 
+
 class CombustionExtended(Extended, ParentAllTables, Base):
     __tablename__ = "combustion_extended"
 
@@ -227,6 +228,7 @@ class CombustionExtended(Extended, ParentAllTables, Base):
     KwkMastrNummer = Column(String)
     Technologie = Column(String)
     AusschliesslicheVerwendungImKombibetrieb = Column(Boolean)
+
 
 class GsgkExtended(Extended, ParentAllTables, Base):
     __tablename__ = "gsgk_extended"
