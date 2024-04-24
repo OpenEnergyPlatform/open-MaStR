@@ -7,11 +7,12 @@ The format is inspired from [Keep a Changelog](http://keepachangelog.com/en/1.0.
 and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 
-## [v0.XX.X] - 202X-XX-XX
+## [v0.14.3] Fix Pypi Release - 2024-04-24 
 ### Added
 - Add new table `changed_dso_assignment` [#510](https://github.com/OpenEnergyPlatform/open-MaStR/pull/510)
 - Add deprecation warning for `MaStRMirror` and `MaStRDownload` [#492](https://github.com/OpenEnergyPlatform/open-MaStR/pull/492)
 ### Changed
+- Change from `setup.py` to `pyproject.toml` based installation [#513](https://github.com/OpenEnergyPlatform/open-MaStR/pull/513)
 ### Removed
 - Remove outdated and deprecated dependencies [#506](https://github.com/OpenEnergyPlatform/open-MaStR/pull/506)
 
