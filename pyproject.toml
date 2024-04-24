@@ -1,0 +1,86 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "open_mastr"
+version = "0.14.3"
+dependencies = [
+  "pandas>=2.1",  # pandas 2.1 is needed for dataframe.map()
+  "numpy",
+  "sqlalchemy>=2.0",
+  "psycopg2-binary",
+  "zeep",
+  "tqdm",
+  "requests",
+  "keyring",
+  "pyyaml",
+  "xmltodict",
+]
+
+requires-python = ">=3.9, <4"
+authors = [
+  {name = "Hülk Ludwig"},
+  {name = "Pleßmann Guido"},
+  {name = "Muschner Christoph"},
+  {name = "Kotthoff Florian"},
+  {name = "Tepe Deniz"},
+  {name = "Open Energy Family"},
+]
+
+maintainers = [
+  {name = "Ludwig Hülk", email = "datenzentrum@rl-institut.de"},
+  {name = "Florian Kotthoff"},
+  {name = "Christoph Muschner", email = "datenzentrum@rl-institut.de"}  
+]
+description = "A package that provides an interface for downloading and processing the data of the Marktstammdatenregister (MaStR)"
+readme = "README.rst"
+license = {file = "LICENSE.md"}
+keywords = ["Markstammdatenregister", "Energy", "Dataset", "Solar", "Wind", "Energy-data", "OEP", "OpenEnergyFamily"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Science/Research",
+  "Topic :: Scientific/Engineering",
+  "Topic :: Scientific/Engineering :: GIS",
+  "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+]
+
+[project.optional-dependencies]
+dev = [
+  "flake8",
+  "pylint",
+  "pytest",
+  "pytest-dependency",
+  "xmltodict",
+  "pre-commit",
+  "bump2version",
+  "mkdocstrings[python]",
+  "mkdocs-material",
+  "mkdocs-include-markdown-plugin",
+  "mike",
+  "black",
+]
+
+[project.urls]
+Homepage = "https://github.com/OpenEnergyPlatform/open-MaStR"
+Documentation = "https://open-mastr.readthedocs.io/"
+Repository = "https://github.com/OpenEnergyPlatform/open-MaStR"
+"Bug Tracker" = "https://github.com/OpenEnergyPlatform/open-MaStR/issues"
+Changelog = "https://github.com/OpenEnergyPlatform/open-MaStR/blob/production/CHANGELOG.md"
+
+[tool.setuptools.package-data]
+open_mastr = [
+  "utils/config/*.yml",
+  "soap_api/metadata/LICENSE",
+]
+
+[tool.setuptools.packages.find]
+include = ["open_mastr", "open_mastr.soap_api", "open_mastr.soap_api.metadata", "open_mastr.utils", "open_mastr.utils.config", "open_mastr.xml_download"] # package names should match these glob patterns (["*"] by default)
+
+# from setup.py - not yet included in here
+# download_url="https://github.com/OpenEnergyPlatform/open-MaStR/archive""/refs/tags/v0.14.3.tar.gz",
