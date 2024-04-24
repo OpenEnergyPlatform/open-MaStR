@@ -17,6 +17,7 @@ BULK_DATA = [
     "permit",
     "deleted_units",
     "retrofit_units",
+    "changed_dso_assignment",
 ]
 
 # Possible values for parameter 'data' with API download method
@@ -62,6 +63,7 @@ ADDITIONAL_TABLES = [
     "permit",
     "deleted_units",
     "retrofit_units",
+    "changed_dso_assignment",
 ]
 
 # Possible data types for API download
@@ -102,6 +104,7 @@ BULK_INCLUDE_TABLES_MAP = {
     "permit": ["einheitengenehmigung"],
     "deleted_units": ["geloeschteunddeaktivierteeinheiten"],
     "retrofit_units": ["ertuechtigungen"],
+    "changed_dso_assignment": ["einheitenaenderungnetzbetreiberzuordnungen"],
 }
 
 # Map bulk data to database table names, for csv export
@@ -120,6 +123,7 @@ BULK_ADDITIONAL_TABLES_CSV_EXPORT_MAP = {
     "permit": ["permit"],
     "deleted_units": ["deleted_units"],
     "retrofit_units": ["retrofit_units"],
+    "changed_dso_assignment": ["changed_dso_assignment"],
 }
 
 # used to map the parameter options in open-mastr to the exact table class names in orm.py
@@ -176,6 +180,7 @@ ORM_MAP = {
     "permit": "Permit",
     "deleted_units": "DeletedUnits",
     "retrofit_units": "RetrofitUnits",
+    "changed_dso_assignment": "ChangedDSOAssignment",
 }
 
 UNIT_TYPE_MAP = {
