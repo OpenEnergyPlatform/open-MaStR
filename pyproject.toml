@@ -29,9 +29,9 @@ authors = [
 ]
 
 maintainers = [
+  {name = "Ludwig Hülk", email = "datenzentrum@rl-institut.de"},
   {name = "Florian Kotthoff"},
-  {name = "Christoph Muschner", email = "datenzentrum@rl-institut.de"},
-  {name = "Ludwig Hülk", email = "datenzentrum@rl-institut.de"}
+  {name = "Christoph Muschner", email = "datenzentrum@rl-institut.de"}  
 ]
 description = "A package that provides an interface for downloading and processing the data of the Marktstammdatenregister (MaStR)"
 readme = "README.rst"
