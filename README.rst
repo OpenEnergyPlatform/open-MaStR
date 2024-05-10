@@ -110,6 +110,7 @@ changes in a `Pull Request <https://github.com/OpenEnergyPlatform/open-MaStR/pul
 - `Wasserstoffatlas <https://wasserstoffatlas.de/>`_
 - `EE-Status App <https://ee-status.de/>`_
 - `Digiplan Anhalt <https://digiplan.rl-institut.de/>`_
+- `Data Quality Assessment of the MaStR <https://marktstammdaten.kotthoff.dev/>`_
 
 
 Collaboration
