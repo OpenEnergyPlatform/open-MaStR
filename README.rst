@@ -1,5 +1,5 @@
 
-.. image:: https://private-user-images.githubusercontent.com/74312290/311242144-1992d975-c410-4cb9-8a05-117731d37084.svg?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MDk5MDM2MDMsIm5iZiI6MTcwOTkwMzMwMywicGF0aCI6Ii83NDMxMjI5MC8zMTEyNDIxNDQtMTk5MmQ5NzUtYzQxMC00Y2I5LThhMDUtMTE3NzMxZDM3MDg0LnN2Zz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNDAzMDglMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjQwMzA4VDEzMDgyM1omWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTA0MmE0YTE2ZmNiNGYzYjVhNDMwZTljMmU3NWM1YTkxMDM5MDJiYjA2YTUwMDE4ZDJjNDA5ZDc5NzgwYTIyNmUmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0JmFjdG9yX2lkPTAma2V5X2lkPTAmcmVwb19pZD0wIn0.jtYbCYD9mbLe-U76BKpjY7p6jXKkAbvEdwp0oocx1Tw
+.. image:: https://github-production-user-asset-6210df.s3.amazonaws.com/74312290/329603097-11e37434-fd0c-44f6-a3f0-0954799d2d79.svg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAVCODYLSA53PQK4ZA%2F20240510%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240510T140340Z&X-Amz-Expires=300&X-Amz-Signature=d34978545782f50965d33bdffbac21cfc4841c3e4b7a125fff8dba39ca69696e&X-Amz-SignedHeaders=host&actor_id=74312290&key_id=0&repo_id=203598131
     :align: left
     :target: https://github.com/OpenEnergyPlatform/open-MaStR
     :alt: MaStR logo
