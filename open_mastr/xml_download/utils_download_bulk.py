@@ -12,6 +12,7 @@ from open_mastr.utils.config import setup_logger
 
 log = setup_logger()
 
+
 def gen_version(when: time.struct_time = time.localtime()) -> str:
     """
     Generates the current version.
@@ -52,7 +53,8 @@ def gen_version(when: time.struct_time = time.localtime()) -> str:
     # only the last two digits of the year are used
     year = str(year)[-2:]
 
-    return f'{year}.{release}'
+    return f"{year}.{release}"
+
 
 def gen_url(when: time.struct_time = time.localtime()) -> str:
     """
@@ -71,7 +73,7 @@ def gen_url(when: time.struct_time = time.localtime()) -> str:
     version = gen_version(when)
     date = time.strftime("%Y%m%d", when)
 
-    return f'https://download.marktstammdatenregister.de/Gesamtdatenexport_{date}_{version}.zip'
+    return f"https://download.marktstammdatenregister.de/Gesamtdatenexport_{date}_{version}.zip"
 
 
 def download_xml_Mastr(
@@ -117,20 +119,27 @@ def download_xml_Mastr(
     url = gen_url(now)
 
     time_a = time.perf_counter()
-    r = requests.get(url, stream=True)
+
+    headers = {"User-Agent": "python-package-open-mastr"}
+    r = requests.get(url, stream=True, headers=headers)
     if r.status_code == 404:
         # presumably todays download is not ready yet, retry with yesterdays date
-        log.warning("Download file was not found. Assuming that the new file was not published yet and retrying with yesterday.")
-        now = time.localtime(time.mktime(now) - (24 * 60 * 60)) # subtract 1 day from the date
-        r = requests.get(url, stream=True)
+        log.warning(
+            "Download file was not found. Assuming that the new file was not published yet and retrying with yesterday."
+        )
+        now = time.localtime(
+            time.mktime(now) - (24 * 60 * 60)
+        )  # subtract 1 day from the date
+        r = requests.get(url, stream=True, headers=headers)
     if r.status_code == 404:
         log.error("Could not download file: download URL not found")
         return
 
     total_length = int(18000 * 1024 * 1024)
-    with open(save_path, "wb") as zfile, tqdm(
-        desc=save_path, total=(total_length / 1024 / 1024), unit=""
-    ) as bar:
+    with (
+        open(save_path, "wb") as zfile,
+        tqdm(desc=save_path, total=(total_length / 1024 / 1024), unit="") as bar,
+    ):
         for chunk in r.iter_content(chunk_size=1024 * 1024):
             # chunk size of 1024 * 1024 needs 9min 11 sek = 551sek
             # chunk size of 1024 needs 9min 11 sek as well
