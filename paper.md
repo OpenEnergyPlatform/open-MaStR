@@ -9,25 +9,29 @@ tags:
 authors:
   - name: Florian Kotthoff
     orcid: 0000-0003-3666-6122
-    affiliation: 1 # (Multiple affiliations must be quoted)
+    corresponding: true # (This is how to denote the corresponding author)
+    affiliation: "1,2" # (Multiple affiliations must be quoted)
   - name: Christoph Muschner
     orcid: 0000-0001-8144-5260
-    affiliation: 2
+    affiliation: 3
   - name: Deniz Tepe
-    affiliation: 1
+    affiliation: 2
     orcid: 0000-0002-7605-0173
   - name: Guido Pleßmann
-    affiliation: 2
+    affiliation: 3
     orcid: 0000-0002-4176-9946
   - name: Ludwig Hülk
     orcid: 0000-0003-4655-2321
-    corresponding: true # (This is how to denote the corresponding author)
-    affiliation: 2
+    affiliation: 3
 affiliations:
- - name: fortiss, Research Institute of the Free State of Bavaria, Guerickestraße 25, 80805 München, Germany 
+ - name: OFFIS Institute for Information Technology, Escherweg 2, 26121 Oldenburg, Germany 
    index: 1
- - name: Reiner Lemoine Institut gGmbH, Rudower Chaussee 12, 12489 Berlin, Germany
+ - name: fortiss, Research Institute of the Free State of Bavaria, Guerickestraße 25, 80805 München, Germany 
    index: 2
+ - name: Reiner Lemoine Institut gGmbH, Rudower Chaussee 12, 12489 Berlin, Germany
+   index: 3
+
+ 
 date: 01 November 2023
 bibliography: paper.bib
 #This paper compiles with the following command: docker run --rm --volume $PWD/paper:/data --user $(id -u):$(id -g) --env JOURNAL=joss openjournals/inara
@@ -44,7 +48,7 @@ Ultimately, the package offers methods to reduce the registry's parsing time and
 `open-mastr` has been built to facilitate the process of downloading, parsing, and cleaning the MaStR dataset.
 The MaStR is a German registry provided by the German Federal Network Agency (Bundesnetzagentur / BNetzA) [@Bundesnetzagentur2019_Marktstammdatenregister].
 It was first published in 2019 and includes detailed information about more than 8.2 million data points covering electricity and gas production units, electricity and gas consumers, storages, grids, and energy market participants.
-@Tepe2023_MaStR found 54 papers in the fields of sustainability studies, energy politics, energy data, energy system analysis, and energy economics that used the MaStR dataset in their research.
+@Kotthoff2024_monitoring found 83 papers in the fields of sustainability studies, energy politics, energy data, energy system analysis, and energy economics that used the MaStR dataset in their research.
 
 Besides its relevance in research, the raw MaStR dataset provided by BNetzA bears some obstacles: 
 First, the documentation of the data model and download methods are only provided in German. 
