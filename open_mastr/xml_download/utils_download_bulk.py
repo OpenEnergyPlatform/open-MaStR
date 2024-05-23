@@ -120,7 +120,7 @@ def download_xml_Mastr(
 
     time_a = time.perf_counter()
 
-    headers = {"User-Agent": "python-package-open-mastr"}
+    HEADERS = {"User-Agent": "python-package-open-mastr"}
     r = requests.get(url, stream=True, headers=headers)
     if r.status_code == 404:
         # presumably todays download is not ready yet, retry with yesterdays date
