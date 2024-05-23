@@ -130,7 +130,7 @@ def download_xml_Mastr(
         now = time.localtime(
             time.mktime(now) - (24 * 60 * 60)
         )  # subtract 1 day from the date
-        r = requests.get(url, stream=True, headers=headers)
+        r = requests.get(url, stream=True, headers=HEADERS)
     if r.status_code == 404:
         log.error("Could not download file: download URL not found")
         return
