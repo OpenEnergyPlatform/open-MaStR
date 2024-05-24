@@ -6,6 +6,11 @@ For each version important additions, changes and removals are listed here.
 The format is inspired from [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [v0.XX.X] unreleased
+### Added
+- Extend documentation section `getting started` based on the JOSS Review [#523](https://github.com/OpenEnergyPlatform/open-MaStR/pull/523)
+### Changed
+### Removed
 
 ## [v0.14.3] Fix Pypi Release - 2024-04-24 
 ### Added
