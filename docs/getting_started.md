@@ -67,6 +67,6 @@ additional tables are mirrored from database to csv as they are. To export the d
 
 ```python
 
-    tables=["wind", "grid"]
+    tables=["wind", "grids"]
     db.to_csv(tables)
 ```
