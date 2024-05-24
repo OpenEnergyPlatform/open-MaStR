@@ -53,6 +53,10 @@ which can process sqlite data. Pandas, for example, comes with the function
     ```python
     import pandas as pd
 
+    # generate a list of all tables
+    df = pd.read_sql_query("SELECT name FROM sqlite_master WHERE type='table';", con=db.engine)
+
+    # read the data of one table
     table="wind_extended"
     df = pd.read_sql(sql=table, con=db.engine)
     ```
@@ -67,6 +71,6 @@ additional tables are mirrored from database to csv as they are. To export the d
 
 ```python
 
-    tables=["wind", "grid"]
+    tables=["wind", "grids"]
     db.to_csv(tables)
 ```
