@@ -1,6 +1,7 @@
 import os
 import shutil
 import time
+from importlib.metadata import PackageNotFoundError, version
 from zipfile import BadZipfile, ZipFile
 
 import numpy as np
@@ -10,7 +11,12 @@ from tqdm import tqdm
 # setup logger
 from open_mastr.utils.config import setup_logger
 
+try:
+    USER_AGENT = f"open-mastr/{version('open-mastr')} python-requests/{version('requests')}"
+except PackageNotFoundError:
+    USER_AGENT = "open-mastr"
 log = setup_logger()
+
 
 def gen_version(when: time.struct_time = time.localtime()) -> str:
     """
@@ -117,12 +123,12 @@ def download_xml_Mastr(
     url = gen_url(now)
 
     time_a = time.perf_counter()
-    r = requests.get(url, stream=True)
+    r = requests.get(url, stream=True, headers={"User-Agent": USER_AGENT})
     if r.status_code == 404:
         # presumably todays download is not ready yet, retry with yesterdays date
         log.warning("Download file was not found. Assuming that the new file was not published yet and retrying with yesterday.")
         now = time.localtime(time.mktime(now) - (24 * 60 * 60)) # subtract 1 day from the date
-        r = requests.get(url, stream=True)
+        r = requests.get(url, stream=True, headers={"User-Agent": USER_AGENT})
     if r.status_code == 404:
         log.error("Could not download file: download URL not found")
         return
