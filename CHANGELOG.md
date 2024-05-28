@@ -9,6 +9,7 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 ## [v0.XX.X] unreleased
 ### Added
 - Extend documentation section `getting started` based on the JOSS Review [#523](https://github.com/OpenEnergyPlatform/open-MaStR/pull/523)
+- Extend and repair documentation based on the JOSS Review [#527](https://github.com/OpenEnergyPlatform/open-MaStR/pull/527)
 ### Changed
 ### Removed
 
