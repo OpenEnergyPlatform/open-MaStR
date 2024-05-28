@@ -15,12 +15,10 @@ Please be self-reflective and always maintain a good culture of discussion and a
 Since the open license allows free use, no notification is required. 
 However, for the authors it is valuable information who uses the software for what purpose. 
 Indicators are `Watch`, `Fork` and `Starred` of the repository. 
-If you are a user, please add your name and details in USERS.cff
 
 ### B. Comment
 You can give ideas, hints or report bugs in issues, in PR, at meetings or other channels. 
 This is no development but can be considered a notable contribution. 
-If you wish, add your name and details to `CITATION.cff`.
 
 ### C. Contribute and Review
 You add code and become an author of the repository. 
