@@ -184,7 +184,7 @@ Data
 .. |Total PyPI downloads| image:: https://static.pepy.tech/badge/open-mastr
     :target: https://pepy.tech/project/open-mastr
 
-.. |badge_joss| image: https://joss.theoj.org/papers/dc0d33e7dc74f7233e15a7b6fe0c7a3e/status.svg
+.. |badge_joss| image:: https://joss.theoj.org/papers/dc0d33e7dc74f7233e15a7b6fe0c7a3e/status.svg
     :target: https://joss.theoj.org/papers/dc0d33e7dc74f7233e15a7b6fe0c7a3e
 
 
