@@ -35,19 +35,14 @@ maintainers = [
 ]
 description = "A package that provides an interface for downloading and processing the data of the Marktstammdatenregister (MaStR)"
 readme = "README.rst"
-license = {file = "LICENSE.md"}
+license = {text = "AGPL-3.0-or-later" }
 keywords = ["Markstammdatenregister", "Energy", "Dataset", "Solar", "Wind", "Energy-data", "OEP", "OpenEnergyFamily"]
 classifiers = [
+  "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
   "Development Status :: 4 - Beta",
   "Intended Audience :: Science/Research",
   "Topic :: Scientific/Engineering",
   "Topic :: Scientific/Engineering :: GIS",
-  "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
-  "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3.9",
-  "Programming Language :: Python :: 3.10",
-  "Programming Language :: Python :: 3.11",
-  "Programming Language :: Python :: 3.12",
 ]
 
 [project.optional-dependencies]
