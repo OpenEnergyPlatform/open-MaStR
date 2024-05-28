@@ -112,6 +112,7 @@ git commit filename.md
 ```
 
 Write a good `commit message`:
+
 - "If applied, this commit will ..."
 - Follow [existing conventions for commit messages](https://chris.beams.io/posts/git-commit)
 - Keep the subject line [shorter than 50 characters](https://chris.beams.io/posts/git-commit/#limit-50)
@@ -154,6 +155,7 @@ Follow the GitHub guide [approving a pull request with required reviews](https:/
 Assign one reviewer or a user group and get into contact.
 
 If you are the reviewer:
+
 - Check the changes in all corresponding files.
 - Checkout the branch and run code.
 - Comment if you would like to change something (Use `Request changes`)
