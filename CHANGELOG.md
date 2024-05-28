@@ -10,6 +10,7 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 ### Added
 - Extend documentation section `getting started` based on the JOSS Review [#523](https://github.com/OpenEnergyPlatform/open-MaStR/pull/523)
 ### Changed
+- Changed License identifier for pypi [#525](https://github.com/OpenEnergyPlatform/open-MaStR/pull/525)
 ### Removed
 
 ## [v0.14.3] Fix Pypi Release - 2024-04-24 
