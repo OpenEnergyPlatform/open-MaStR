@@ -10,6 +10,7 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 ### Added
 - Extend documentation section `getting started` based on the JOSS Review [#523](https://github.com/OpenEnergyPlatform/open-MaStR/pull/523)
 ### Changed
+- Change header to identify as open-mastr during http request [#526](https://github.com/OpenEnergyPlatform/open-MaStR/pull/526)
 ### Removed
 
 ## [v0.14.3] Fix Pypi Release - 2024-04-24 
