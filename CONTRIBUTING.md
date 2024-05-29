@@ -15,6 +15,7 @@ Please be self-reflective and always maintain a good culture of discussion and a
 Since the open license allows free use, no notification is required. 
 However, for the authors it is valuable information who uses the software for what purpose. 
 Indicators are `Watch`, `Fork` and `Starred` of the repository. 
+If you are a user, please add your name and details in [USERS.cff](https://github.com/OpenEnergyPlatform/open-MaStR/blob/production/USERS.cff)
 
 ### B. Comment
 You can give ideas, hints or report bugs in issues, in PR, at meetings or other channels. 
