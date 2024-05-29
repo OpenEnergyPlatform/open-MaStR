@@ -3,6 +3,18 @@
 The intention of open-MaStR is to provide tools for receiving a complete as possible and accurate as possible list of
 power plant units based on the public registry Marktstammdatenregister (short: [MaStR](https://www.marktstammdatenregister.de)).
 
+## Installation
+
+To install `open-mastr`, run
+```bash
+pip install open-mastr
+```
+
+To get the latest bug fixes in your local version of `open-mastr`, run
+```bash
+pip install open-mastr --upgrade
+```
+
 ## Downloading the MaStR data
 
 

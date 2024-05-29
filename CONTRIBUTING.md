@@ -15,12 +15,11 @@ Please be self-reflective and always maintain a good culture of discussion and a
 Since the open license allows free use, no notification is required. 
 However, for the authors it is valuable information who uses the software for what purpose. 
 Indicators are `Watch`, `Fork` and `Starred` of the repository. 
-If you are a user, please add your name and details in USERS.cff
+If you are a user, please add your name and details in [USERS.cff](https://github.com/OpenEnergyPlatform/open-MaStR/blob/production/USERS.cff)
 
 ### B. Comment
 You can give ideas, hints or report bugs in issues, in PR, at meetings or other channels. 
 This is no development but can be considered a notable contribution. 
-If you wish, add your name and details to `CITATION.cff`.
 
 ### C. Contribute and Review
 You add code and become an author of the repository. 
@@ -114,6 +113,7 @@ git commit filename.md
 ```
 
 Write a good `commit message`:
+
 - "If applied, this commit will ..."
 - Follow [existing conventions for commit messages](https://chris.beams.io/posts/git-commit)
 - Keep the subject line [shorter than 50 characters](https://chris.beams.io/posts/git-commit/#limit-50)
@@ -156,6 +156,7 @@ Follow the GitHub guide [approving a pull request with required reviews](https:/
 Assign one reviewer or a user group and get into contact.
 
 If you are the reviewer:
+
 - Check the changes in all corresponding files.
 - Checkout the branch and run code.
 - Comment if you would like to change something (Use `Request changes`)
