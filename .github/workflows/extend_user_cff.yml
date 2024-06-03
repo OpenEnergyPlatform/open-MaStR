@@ -75,7 +75,7 @@ jobs:
       uses: peter-evans/create-pull-request@v6
       with:
         base: develop
-        head: workflow-update-users-cff
+        head: workflow-${{ github.event.issue.number }}-update-users-cff
         branch: workflow-${{ github.event.issue.number }}-update-users-cff
         title: 'Update USERS.cff with new user information'
         commit-message: |
