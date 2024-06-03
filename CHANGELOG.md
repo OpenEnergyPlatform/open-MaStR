@@ -10,6 +10,7 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 ### Added
 - Extend documentation section `getting started` based on the JOSS Review [#523](https://github.com/OpenEnergyPlatform/open-MaStR/pull/523)
 - Extend and repair documentation based on the JOSS Review [#527](https://github.com/OpenEnergyPlatform/open-MaStR/pull/527)
+- Add issue template and workflow to populate USERS.cff [#528](https://github.com/OpenEnergyPlatform/open-MaStR/pull/529)
 ### Changed
 - Change License identifier for pypi [#525](https://github.com/OpenEnergyPlatform/open-MaStR/pull/525)
 - Change header to identify as open-mastr during http request [#526](https://github.com/OpenEnergyPlatform/open-MaStR/pull/526)
