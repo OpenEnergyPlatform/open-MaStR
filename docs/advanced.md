@@ -139,7 +139,7 @@ If needed, the tables in the database can be obtained as csv files. Those files 
 
 For downloading data from the
 [Marktstammdatenregister (MaStR) database](https://www.marktstammdatenregister.de/MaStR)
-via its API a [registration](https://www.marktstammdatenregister.de/MaStRHilfe/files/regHilfen/201108_Handbuch%20f%C3%BCr%20Registrierungen%20durch%20Dienstleister.pdf) is mandatory.
+via its API a [registration](https://www.marktstammdatenregister.de/MaStRHilfe/files/regHilfen/Handbuch_fuer_Registrierungen_durch_Dienstleister.pdf) is mandatory.
 
 To download data from the MaStR API using the `open-MaStR`, the credentials (MaStR user and token) need to be provided in a certain way. Three options exist:
 
