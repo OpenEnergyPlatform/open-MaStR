@@ -14,7 +14,7 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 ### Changed
 - Change License identifier for pypi [#525](https://github.com/OpenEnergyPlatform/open-MaStR/pull/525)
 - Change header to identify as open-mastr during http request [#526](https://github.com/OpenEnergyPlatform/open-MaStR/pull/526)
-- Fixed missing call to gen_url in case first bulk download fails as xml file for today is not yet available [#533]
+- Fixed missing call to gen_url in case first bulk download fails as xml file for today is not yet available [#534](https://github.com/OpenEnergyPlatform/open-MaStR/pull/534)
 ### Removed
 
 ## [v0.14.3] Fix Pypi Release - 2024-04-24 
