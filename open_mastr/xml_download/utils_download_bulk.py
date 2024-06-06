@@ -128,6 +128,7 @@ def download_xml_Mastr(
         # presumably todays download is not ready yet, retry with yesterdays date
         log.warning("Download file was not found. Assuming that the new file was not published yet and retrying with yesterday.")
         now = time.localtime(time.mktime(now) - (24 * 60 * 60)) # subtract 1 day from the date
+        url = gen_url(now) # generate URL for 'yesterday'
         r = requests.get(url, stream=True, headers={"User-Agent": USER_AGENT})
     if r.status_code == 404:
         log.error("Could not download file: download URL not found")
