@@ -62,7 +62,7 @@ It always has the format `YYYY-MM-DD`, e.g. `2022-05-16`.
 * `📝CITATION.cff`
     * Update `date-released`
 
-### 7. Check release on Test-PyPI 
+### 7. Optional: Check release on Test-PyPI 
 
 * Check if the release it correctly displayed on [Test-PyPI](https://test.pypi.org/project/open-mastr/#history)
   * You can trigger the release manually within github actions using the `run workflow` button on branch `release-v0.12.1` on the workflow `Build and release on pypi tests`
