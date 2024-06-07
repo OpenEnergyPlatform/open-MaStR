@@ -12,7 +12,7 @@ It helps the project quite a bit!
 
 We will add you to the list of valued users.
 
-Please, insert your information between the double quotes below - fill out at minimum "affiliation" :purple_heart:
+Please, insert your information below - fill out at minimum affiliation :purple_heart:
 
 :pencil2: **Spaces** and the following special characters are allowed: @ ? ! | . , : ; - _ [ / ( ) \ ] § $ % & = + < >
 
