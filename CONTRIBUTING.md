@@ -3,6 +3,33 @@
 
 # Collaborative Development
 
+## Impostor Syndrome Disclaimer
+
+Before we get into the details: **We want your help. No, really.**
+
+There may be a little voice inside your head that is telling you that you're
+not ready to be an open source contributor; that your skills aren't nearly good
+enough to contribute. What could you possibly offer a project like this one?
+
+We assure you -- the little voice in your head is wrong. If you can write code
+at all, you can contribute code to open source. Contributing to open source
+projects is a fantastic way to advance one's coding skills. Writing perfect
+code isn't the measure of a good developer (that would disqualify all of us!);
+it's trying to create something, making mistakes, and learning from those
+mistakes. That's how we all improve.
+
+We've provided some clear `Contribution Guidelines` that you can read below.
+The guidelines outline the process that you'll need to follow to get a patch
+merged. By making expectations and process explicit, we hope it will make it
+easier for you to contribute.
+
+And you don't just have to write code. You can help out by writing
+documentation, tests, or even by giving feedback about this work. (And yes,
+that includes giving feedback about the contribution guidelines.)
+
+([Adrienne Friend](https://github.com/adriennefriend/imposter-syndrome-disclaimer) 
+came up with this disclaimer language.)
+
 ## Prerequisites
 - [Git](https://git-scm.com/)
 - [GitHub](https://github.com/)
@@ -15,12 +42,11 @@ Please be self-reflective and always maintain a good culture of discussion and a
 Since the open license allows free use, no notification is required. 
 However, for the authors it is valuable information who uses the software for what purpose. 
 Indicators are `Watch`, `Fork` and `Starred` of the repository. 
-If you are a user, please add your name and details in USERS.cff
+If you are a user, please add your name and details in [USERS.cff](https://github.com/OpenEnergyPlatform/open-MaStR/blob/production/USERS.cff) by using the [issue template](https://github.com/OpenEnergyPlatform/open-MaStR/issues/new?assignees=&labels=user&projects=&template=user-kudos.md&title=Add+new+user+to+USERS.cff).
 
 ### B. Comment
 You can give ideas, hints or report bugs in issues, in PR, at meetings or other channels. 
 This is no development but can be considered a notable contribution. 
-If you wish, add your name and details to `CITATION.cff`.
 
 ### C. Contribute and Review
 You add code and become an author of the repository. 
@@ -114,6 +140,7 @@ git commit filename.md
 ```
 
 Write a good `commit message`:
+
 - "If applied, this commit will ..."
 - Follow [existing conventions for commit messages](https://chris.beams.io/posts/git-commit)
 - Keep the subject line [shorter than 50 characters](https://chris.beams.io/posts/git-commit/#limit-50)
@@ -156,6 +183,7 @@ Follow the GitHub guide [approving a pull request with required reviews](https:/
 Assign one reviewer or a user group and get into contact.
 
 If you are the reviewer:
+
 - Check the changes in all corresponding files.
 - Checkout the branch and run code.
 - Comment if you would like to change something (Use `Request changes`)

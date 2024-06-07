@@ -52,9 +52,11 @@ class MaStRAPI(object):
         mastr_api = MaStRAPI()
     ```
 
-    Now, you can use the MaStR API instance to call [pre-defined SOAP API
-    queries](https://www.marktstammdatenregister.de/MaStRHilfe/files/webdienst/Funktionen_MaStR_Webdienste_V1.2.39.html)
-    via the class' methods.
+    Now, you can use the MaStR API instance to call pre-defined SOAP API
+    queries via the class' methods. A documentation of all API methods
+    is available at the
+    [BNetzA website](https://www.marktstammdatenregister.de/MaStRHilfe/subpages/webdienst.html)
+    within the downloadable zip folder `Dienstbeschreibung Produktion Version X.X.X`
     For example, get a list of units limited to two entries.
 
     ```python

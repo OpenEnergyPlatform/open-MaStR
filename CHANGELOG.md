@@ -6,6 +6,18 @@ For each version important additions, changes and removals are listed here.
 The format is inspired from [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [v0.14.4] Release for the Journal of Open Source Software JOSS - 2024-06-07
+### Added
+- Extend documentation section `getting started` based on the JOSS Review [#523](https://github.com/OpenEnergyPlatform/open-MaStR/pull/523)
+- Extend and repair documentation based on the JOSS Review [#527](https://github.com/OpenEnergyPlatform/open-MaStR/pull/527)
+- Add issue template and workflow to populate USERS.cff [#528](https://github.com/OpenEnergyPlatform/open-MaStR/pull/529)
+- Add imposter syndrom disclaimer to `CONTRIBUTING.md` [#537](https://github.com/OpenEnergyPlatform/open-MaStR/pull/537)
+### Changed
+- Change License identifier for pypi [#525](https://github.com/OpenEnergyPlatform/open-MaStR/pull/525)
+- Change header to identify as open-mastr during http request [#526](https://github.com/OpenEnergyPlatform/open-MaStR/pull/526)
+- Fixed missing call to gen_url in case first bulk download fails as xml file for today is not yet available [#534](https://github.com/OpenEnergyPlatform/open-MaStR/pull/534)
+- Repair links in the documentation page [#536](https://github.com/OpenEnergyPlatform/open-MaStR/pull/536)
+
 
 ## [v0.14.3] Fix Pypi Release - 2024-04-24 
 ### Added
