@@ -54,7 +54,15 @@ It always has the format `YYYY-MM-DD`, e.g. `2022-05-16`.
 * Commit version update with `git commit -am "version update v0.12.1a1"`
 * Push branch with `git push --set-upstream origin release-v0.12.1`
 
-### 6. Check release on Test-PyPI 
+### 6. 📝 Update the version files
+* `📝CHANGELOG.md`
+    * All Pull Request are included
+    * Add a new section with correct version number
+    * Give the suitable name to the release
+* `📝CITATION.cff`
+    * Update `date-released`
+
+### 7. Optional: Check release on Test-PyPI 
 
 * Check if the release it correctly displayed on [Test-PyPI](https://test.pypi.org/project/open-mastr/#history)
   * You can trigger the release manually within github actions using the `run workflow` button on branch `release-v0.12.1` on the workflow `Build and release on pypi tests`
@@ -63,14 +71,6 @@ It always has the format `YYYY-MM-DD`, e.g. `2022-05-16`.
 * Once testing on Test-PyPI is done, change the release version to the final desired version with `bump2version release`
   * Note: The release on Test-PyPI might fail, but it will be the correct release version for the PyPI server.
 * Push commits to the `release-*` branch
-
-### 7. 📝 Update the version files
-* `📝CHANGELOG.md`
-    * All Pull Request are included
-    * Add a new section with correct version number
-    * Give the suitable name to the release
-* `📝CITATION.cff`
-    * Update `date-released`
 
 ### 8. 🐙 Create a `Release Pull Request`
 * Use `📝PR_TEMPLATE_RELEASE` (❗ToDo❗)

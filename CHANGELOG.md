@@ -6,7 +6,7 @@ For each version important additions, changes and removals are listed here.
 The format is inspired from [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [v0.XX.X] unreleased
+## [v0.14.4] Release for the Journal of Open Source Software JOSS - 2024-06-07
 ### Added
 - Extend documentation section `getting started` based on the JOSS Review [#523](https://github.com/OpenEnergyPlatform/open-MaStR/pull/523)
 - Extend and repair documentation based on the JOSS Review [#527](https://github.com/OpenEnergyPlatform/open-MaStR/pull/527)
@@ -17,7 +17,7 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 - Change header to identify as open-mastr during http request [#526](https://github.com/OpenEnergyPlatform/open-MaStR/pull/526)
 - Fixed missing call to gen_url in case first bulk download fails as xml file for today is not yet available [#534](https://github.com/OpenEnergyPlatform/open-MaStR/pull/534)
 - Repair links in the documentation page [#536](https://github.com/OpenEnergyPlatform/open-MaStR/pull/536)
-### Removed
+
 
 ## [v0.14.3] Fix Pypi Release - 2024-04-24 
 ### Added

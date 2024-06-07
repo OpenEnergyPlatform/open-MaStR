@@ -32,7 +32,7 @@ jobs:
     - name: create package
       run: python -m build --sdist
     - name: import open-mastr
-      run: python -m pip install ./dist/open_mastr-0.14.3.tar.gz
+      run: python -m pip install ./dist/open_mastr-0.14.4.tar.gz
     - name: Create credentials file
       env:
         MASTR_TOKEN: ${{ secrets.MASTR_TOKEN }}
