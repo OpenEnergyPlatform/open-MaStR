@@ -85,4 +85,4 @@ jobs:
           
           Closes #${{ github.event.issue.number }}
 
-          Many thanks ${{ github.actor }}!
+          Many thanks @${{ github.actor }}!
