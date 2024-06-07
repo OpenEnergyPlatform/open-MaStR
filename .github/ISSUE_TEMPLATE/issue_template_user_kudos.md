@@ -14,10 +14,12 @@ We will add you to the list of valued users.
 
 Please, insert your information between the double quotes below - fill out at minimum "affiliation" :purple_heart:
 
-family-names: ""
-given-names: ""
-alias: ""
-affiliation: ""
-orcid: ""
+:pencil2: **Spaces** and the following special characters are allowed: @ ? ! | . , : ; - _ [ / ( ) \ ] § $ % & = + < >
+
+family-names: 
+given-names: 
+alias: 
+affiliation: 
+orcid: 
 
 Thank you!
