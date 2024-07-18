@@ -25,13 +25,15 @@ authors = [
   {name = "Muschner Christoph"},
   {name = "Kotthoff Florian"},
   {name = "Tepe Deniz"},
+  {name = "Amme Jonathan"},
   {name = "Open Energy Family"},
 ]
 
 maintainers = [
   {name = "Ludwig Hülk", email = "datenzentrum@rl-institut.de"},
   {name = "Florian Kotthoff"},
-  {name = "Christoph Muschner", email = "datenzentrum@rl-institut.de"}  
+  {name = "Christoph Muschner", email = "datenzentrum@rl-institut.de"},
+  {name = "Jonathan Amme", email = "jonathan.amme@rl-institut.de"}
 ]
 description = "A package that provides an interface for downloading and processing the data of the Marktstammdatenregister (MaStR)"
 readme = "README.rst"
