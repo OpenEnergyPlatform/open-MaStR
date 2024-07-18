@@ -10,6 +10,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 ### Added
 ### Changed
 - Fix usercff workflow [#545](https://github.com/OpenEnergyPlatform/open-MaStR/issues/544)
+- Fix docs on user-defined output path for csv, xml, database
+  [#549](https://github.com/OpenEnergyPlatform/open-MaStR/issues/549)
 ### Removed
 
 ## [v0.14.4] Release for the Journal of Open Source Software JOSS - 2024-06-07
