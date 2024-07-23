@@ -25,6 +25,11 @@ authors:
     alias: "@deniztepe"
     affiliation: "fortiss"
     orcid: " https://orcid.org/0000-0002-7605-0173"
+  - family-names: "Amme"
+    given-names: "Jonathan"
+    alias: "@nesnoj"
+    affiliation: "Reiner Lemoine Institut"
+    orcid: " https://orcid.org/0000-0002-8563-5261"
 title: "open-MaStR"
 type: software
 license: AGPL-3.0

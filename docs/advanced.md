@@ -28,6 +28,7 @@ The possible databases are:
 ### Project directory
 
 The directory `$HOME/.open-MaStR` is automatically created. It is used to store configuration files and save data.
+You can change this default path, see [environment variables](#environment-variables).
 Default config files are copied to this directory which can be modified - but with caution.
 The project home directory is structured as follows (files and folders below `data/` just an example).
 
@@ -86,6 +87,15 @@ The data can then be written to any sql database supported by [sqlalchemy](https
 
 For more information regarding the database see [Database settings](#database-settings).
 
+
+### Environment variables
+
+There are some environment variables to customize open-MaStR:
+
+| Variable               | Description                                                                                                                                                              | Example                                                                                                                    |
+|------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------|
+| `SQLITE_DATABASE_PATH` | Path to the SQLite file. This allows to use to use multiple instances of the MaStR database. The database instances exist in parallel and are independent of each other. | `/home/mastr-rabbit/.open-MaStR/data/sqlite/your_custom_instance_name.db`                                                  |
+| `OUTPUT_PATH`          | Path to user-defined output directory for CSV data, XML file and database. If not specified, output directory defaults to `$HOME/.open-MaStR/`                           | Linux: `/home/mastr-rabbit/open-mastr-user-defined-output-path`, Windows: `C:\\Users\\open-mastr-user-defined-output-path` |
 
 ## Bulk download
 
