@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "open_mastr"
 version = "0.14.4"
 dependencies = [
-  "pandas>=2.1",  # pandas 2.1 is needed for dataframe.map()
+  "pandas>=2.2.2",
   "numpy",
   "sqlalchemy>=2.0",
   "psycopg2-binary",
