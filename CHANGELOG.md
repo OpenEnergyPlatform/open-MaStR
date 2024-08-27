@@ -12,6 +12,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 - Fix usercff workflow [#545](https://github.com/OpenEnergyPlatform/open-MaStR/issues/544)
 - Fix docs on user-defined output path for csv, xml, database
   [#549](https://github.com/OpenEnergyPlatform/open-MaStR/issues/549)
+- Set pandas version to >=2.2.2 for compatibility with numpy v2.0
+  [#553](https://github.com/OpenEnergyPlatform/open-MaStR/issues/553)
 ### Removed
 
 ## [v0.14.4] Release for the Journal of Open Source Software JOSS - 2024-06-07
