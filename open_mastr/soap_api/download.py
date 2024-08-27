@@ -39,7 +39,8 @@ class MaStRAPI(object):
 
        mastr_api = MaStRAPI(
             user="SOM123456789012",
-            key=""koo5eixeiQuoi'w8deighai8ahsh1Ha3eib3coqu7ceeg%ies..."
+            key="koo5eixeiQuoi'w8deighai8ahsh1Ha3eib3coqu7ceeg%ies...",
+            service_port="Anlage"
        )
     ```
 
