@@ -205,10 +205,16 @@ if __name__ == "__main__":
     print(mastr_api.GetLokaleUhrzeit())
 ```
 
-For API calls and their optional parameters refer to [API documentation](https://www.marktstammdatenregister.
-de/MaStRHilfe/subpages/webdienst.html).
+The MaStR API has different models to query from, the default are power units
+("Anlage"). To change this, you can pass the desired model to
+[`MaStRAPI`][open_mastr.soap_api.download.MaStRAPI].
+E.g. to query market actors instantiate it using
+`MaStRAPI(service_port="Akteur")`.
 
-???+ example "Example queries and their responses"
+For API calls, models and optional parameters refer to the
+[API documentation](https://www.marktstammdatenregister.de/MaStRHilfe/subpages/webdienst.html).
+
+???+ example "Example queries and their responses (for model 'Anlage')"
 
     === "mastr_api.GetLokaleUhrzeit()"
         

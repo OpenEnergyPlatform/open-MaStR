@@ -39,7 +39,8 @@ class MaStRAPI(object):
 
        mastr_api = MaStRAPI(
             user="SOM123456789012",
-            key=""koo5eixeiQuoi'w8deighai8ahsh1Ha3eib3coqu7ceeg%ies..."
+            key="koo5eixeiQuoi'w8deighai8ahsh1Ha3eib3coqu7ceeg%ies...",
+            service_port="Anlage"
        )
     ```
 
@@ -69,7 +70,7 @@ class MaStRAPI(object):
         wrapped SOAP queries. This is handled internally.
     """
 
-    def __init__(self, user=None, key=None):
+    def __init__(self, user=None, key=None, service_port="Anlage"):
         """
         Parameters
         ----------
@@ -80,10 +81,15 @@ class MaStRAPI(object):
         key : str , optional
             Access token of a role (Benutzerrolle). Might look like:
             "koo5eixeiQuoi'w8deighai8ahsh1Ha3eib3coqu7ceeg%ies..."
+        service_port : str , optional
+            Port/model to be used, e.g. "Anlage" or "Akteur", see docs for
+            full list:
+            https://www.marktstammdatenregister.de/MaStRHilfe/subpages/webdienst.html
+            Defaults to "Anlage".
         """
 
         # Bind MaStR SOAP API functions as instance methods
-        client, client_bind = _mastr_bindings()
+        client, client_bind = _mastr_bindings(service_port=service_port)
 
         # First, all services of registered service_port (i.e. 'Anlage')
         for n, f in client_bind:
@@ -140,19 +146,27 @@ class MaStRAPI(object):
 
 
 def _mastr_bindings(
+    service_port,
+    service_name="Marktstammdatenregister",
+    wsdl="https://www.marktstammdatenregister.de/MaStRAPI/wsdl/mastr.wsdl",
     max_retries=3,
     pool_connections=100,
     pool_maxsize=100,
     timeout=60,
     operation_timeout=600,
-    wsdl="https://www.marktstammdatenregister.de/MaStRAPI/wsdl/mastr.wsdl",
-    service_name="Marktstammdatenregister",
-    service_port="Anlage",
 ):
     """
 
     Parameters
     ----------
+    service_port : str
+        Port of service to be used. Parameters is passed to `zeep.Client.bind`
+        See :class:`MaStRAPI` for more information.
+    service_name : str
+        Service, defined in wsdl file, that is to be used. Parameters is
+        passed to zeep.Client.bind
+    wsdl : str
+        Url of wsdl file to be used. Parameters is passed to zeep.Client
     max_retries : int
         Maximum number of retries for a request. Parameters is passed to
         requests.adapters.HTTPAdapter
@@ -168,14 +182,6 @@ def _mastr_bindings(
     operation_timeout : int
         Timeout for API requests (GET/POST in underlying requests package)
         in seconds. Parameter is passed to `zeep.transports.Transport`.
-    wsdl : str
-        Url of wsdl file to be used. Parameters is passed to zeep.Client
-    service_name : str
-        Service, defined in wsdl file, that is to be used. Parameters is
-        passed to zeep.Client.bind
-    service_port : str
-        Port of service to be used. Parameters is
-        passed to zeep.Client.bind
 
     Returns
     -------
