@@ -1,5 +1,5 @@
 
-.. image:: https://github-production-user-asset-6210df.s3.amazonaws.com/74312290/329603097-11e37434-fd0c-44f6-a3f0-0954799d2d79.svg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAVCODYLSA53PQK4ZA%2F20240510%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240510T140340Z&X-Amz-Expires=300&X-Amz-Signature=d34978545782f50965d33bdffbac21cfc4841c3e4b7a125fff8dba39ca69696e&X-Amz-SignedHeaders=host&actor_id=74312290&key_id=0&repo_id=203598131
+.. image:: https://raw.githubusercontent.com/OpenEnergyPlatform/open-MaStR/feature-490-add-offis-as-partner/docs/images/README_HeaderThreePartners.svg
     :align: left
     :target: https://github.com/OpenEnergyPlatform/open-MaStR
     :alt: MaStR logo
