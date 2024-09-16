@@ -39,7 +39,8 @@ class MaStRAPI(object):
 
        mastr_api = MaStRAPI(
             user="SOM123456789012",
-            key=""koo5eixeiQuoi'w8deighai8ahsh1Ha3eib3coqu7ceeg%ies..."
+            key="koo5eixeiQuoi'w8deighai8ahsh1Ha3eib3coqu7ceeg%ies...",
+            service_port="Anlage"
        )
     ```
 
@@ -52,9 +53,11 @@ class MaStRAPI(object):
         mastr_api = MaStRAPI()
     ```
 
-    Now, you can use the MaStR API instance to call [pre-defined SOAP API
-    queries](https://www.marktstammdatenregister.de/MaStRHilfe/files/webdienst/Funktionen_MaStR_Webdienste_V1.2.39.html)
-    via the class' methods.
+    Now, you can use the MaStR API instance to call pre-defined SOAP API
+    queries via the class' methods. A documentation of all API methods
+    is available at the
+    [BNetzA website](https://www.marktstammdatenregister.de/MaStRHilfe/subpages/webdienst.html)
+    within the downloadable zip folder `Dienstbeschreibung Produktion Version X.X.X`
     For example, get a list of units limited to two entries.
 
     ```python
@@ -67,7 +70,7 @@ class MaStRAPI(object):
         wrapped SOAP queries. This is handled internally.
     """
 
-    def __init__(self, user=None, key=None):
+    def __init__(self, user=None, key=None, service_port="Anlage"):
         """
         Parameters
         ----------
@@ -78,10 +81,15 @@ class MaStRAPI(object):
         key : str , optional
             Access token of a role (Benutzerrolle). Might look like:
             "koo5eixeiQuoi'w8deighai8ahsh1Ha3eib3coqu7ceeg%ies..."
+        service_port : str , optional
+            Port/model to be used, e.g. "Anlage" or "Akteur", see docs for
+            full list:
+            https://www.marktstammdatenregister.de/MaStRHilfe/subpages/webdienst.html
+            Defaults to "Anlage".
         """
 
         # Bind MaStR SOAP API functions as instance methods
-        client, client_bind = _mastr_bindings()
+        client, client_bind = _mastr_bindings(service_port=service_port)
 
         # First, all services of registered service_port (i.e. 'Anlage')
         for n, f in client_bind:
@@ -138,19 +146,27 @@ class MaStRAPI(object):
 
 
 def _mastr_bindings(
+    service_port,
+    service_name="Marktstammdatenregister",
+    wsdl="https://www.marktstammdatenregister.de/MaStRAPI/wsdl/mastr.wsdl",
     max_retries=3,
     pool_connections=100,
     pool_maxsize=100,
     timeout=60,
     operation_timeout=600,
-    wsdl="https://www.marktstammdatenregister.de/MaStRAPI/wsdl/mastr.wsdl",
-    service_name="Marktstammdatenregister",
-    service_port="Anlage",
 ):
     """
 
     Parameters
     ----------
+    service_port : str
+        Port of service to be used. Parameters is passed to `zeep.Client.bind`
+        See :class:`MaStRAPI` for more information.
+    service_name : str
+        Service, defined in wsdl file, that is to be used. Parameters is
+        passed to zeep.Client.bind
+    wsdl : str
+        Url of wsdl file to be used. Parameters is passed to zeep.Client
     max_retries : int
         Maximum number of retries for a request. Parameters is passed to
         requests.adapters.HTTPAdapter
@@ -166,14 +182,6 @@ def _mastr_bindings(
     operation_timeout : int
         Timeout for API requests (GET/POST in underlying requests package)
         in seconds. Parameter is passed to `zeep.transports.Transport`.
-    wsdl : str
-        Url of wsdl file to be used. Parameters is passed to zeep.Client
-    service_name : str
-        Service, defined in wsdl file, that is to be used. Parameters is
-        passed to zeep.Client.bind
-    service_port : str
-        Port of service to be used. Parameters is
-        passed to zeep.Client.bind
 
     Returns
     -------
@@ -414,7 +422,14 @@ def _missed_units_to_file(data, data_type, missed_units):
 
 
 class MaStRDownload:
-    """Use the higher level interface for bulk download
+    """
+    !!! warning
+
+        **This class is deprecated** and will not be maintained from version 0.15.0 onwards.
+        Instead use [`Mastr.download`][open_mastr.Mastr.download] with parameter
+        `method` = "bulk" to get bulk downloads of the dataset.
+
+    Use the higher level interface for bulk download
 
     `MaStRDownload` builds on top of [`MaStRAPI`][open_mastr.soap_api.download.MaStRAPI] and provides
     an interface for easier downloading.
@@ -451,6 +466,17 @@ class MaStRDownload:
             multiprocessing package) choose False.
             Defaults to number of cores (including hyperthreading).
         """
+        log.warn(
+            """
+            The `MaStRDownload` class is deprecated and will not be maintained in the future.
+            To get a full table of the Marktstammdatenregister, use the open_mastr.Mastr.download
+            method.
+
+            If this change causes problems for you, please comment in this issue on github:
+            https://github.com/OpenEnergyPlatform/open-MaStR/issues/487
+
+            """
+        )
 
         # Number of parallel processes
         if parallel_processes == "max":
@@ -762,26 +788,30 @@ class MaStRDownload:
             log.info(
                 f"Get list of units with basic information for data type {data} ({et})"
             )
-            yield from basic_data_download(
-                self._mastr_api,
-                "GetListeAlleEinheiten",
-                "Einheiten",
-                chunks_start,
-                limits,
-                date_from,
-                max_retries,
-                data,
-                et=et,
-            ) if et is None else basic_data_download(
-                self._mastr_api,
-                "GetGefilterteListeStromErzeuger",
-                "Einheiten",
-                chunks_start,
-                limits,
-                date_from,
-                max_retries,
-                data,
-                et=et,
+            yield from (
+                basic_data_download(
+                    self._mastr_api,
+                    "GetListeAlleEinheiten",
+                    "Einheiten",
+                    chunks_start,
+                    limits,
+                    date_from,
+                    max_retries,
+                    data,
+                    et=et,
+                )
+                if et is None
+                else basic_data_download(
+                    self._mastr_api,
+                    "GetGefilterteListeStromErzeuger",
+                    "Einheiten",
+                    chunks_start,
+                    limits,
+                    date_from,
+                    max_retries,
+                    data,
+                    et=et,
+                )
             )
 
     def additional_data(self, data, unit_ids, data_fcn, timeout=10):

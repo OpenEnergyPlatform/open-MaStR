@@ -28,6 +28,7 @@ The possible databases are:
 ### Project directory
 
 The directory `$HOME/.open-MaStR` is automatically created. It is used to store configuration files and save data.
+You can change this default path, see [environment variables](#environment-variables).
 Default config files are copied to this directory which can be modified - but with caution.
 The project home directory is structured as follows (files and folders below `data/` just an example).
 
@@ -87,6 +88,15 @@ The data can then be written to any sql database supported by [sqlalchemy](https
 For more information regarding the database see [Database settings](#database-settings).
 
 
+### Environment variables
+
+There are some environment variables to customize open-MaStR:
+
+| Variable               | Description                                                                                                                                                              | Example                                                                                                                    |
+|------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------|
+| `SQLITE_DATABASE_PATH` | Path to the SQLite file. This allows to use to use multiple instances of the MaStR database. The database instances exist in parallel and are independent of each other. | `/home/mastr-rabbit/.open-MaStR/data/sqlite/your_custom_instance_name.db`                                                  |
+| `OUTPUT_PATH`          | Path to user-defined output directory for CSV data, XML file and database. If not specified, output directory defaults to `$HOME/.open-MaStR/`                           | Linux: `/home/mastr-rabbit/open-mastr-user-defined-output-path`, Windows: `C:\\Users\\open-mastr-user-defined-output-path` |
+
 ## Bulk download
 
 On the homepage [MaStR/Datendownload](https://www.marktstammdatenregister.de/MaStR/Datendownload) a zipped folder containing the whole
@@ -139,7 +149,7 @@ If needed, the tables in the database can be obtained as csv files. Those files 
 
 For downloading data from the
 [Marktstammdatenregister (MaStR) database](https://www.marktstammdatenregister.de/MaStR)
-via its API a [registration](https://www.marktstammdatenregister.de/MaStRHilfe/files/regHilfen/201108_Handbuch%20f%C3%BCr%20Registrierungen%20durch%20Dienstleister.pdf) is mandatory.
+via its API a [registration](https://www.marktstammdatenregister.de/MaStRHilfe/files/regHilfen/Handbuch_fuer_Registrierungen_durch_Dienstleister.pdf) is mandatory.
 
 To download data from the MaStR API using the `open-MaStR`, the credentials (MaStR user and token) need to be provided in a certain way. Three options exist:
 
@@ -195,10 +205,16 @@ if __name__ == "__main__":
     print(mastr_api.GetLokaleUhrzeit())
 ```
 
-For API calls and their optional parameters refer to [API documentation](https://www.marktstammdatenregister.
-de/MaStRHilfe/subpages/webdienst.html).
+The MaStR API has different models to query from, the default are power units
+("Anlage"). To change this, you can pass the desired model to
+[`MaStRAPI`][open_mastr.soap_api.download.MaStRAPI].
+E.g. to query market actors instantiate it using
+`MaStRAPI(service_port="Akteur")`.
 
-???+ example "Example queries and their responses"
+For API calls, models and optional parameters refer to the
+[API documentation](https://www.marktstammdatenregister.de/MaStRHilfe/subpages/webdienst.html).
+
+???+ example "Example queries and their responses (for model 'Anlage')"
 
     === "mastr_api.GetLokaleUhrzeit()"
         

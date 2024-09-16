@@ -9,13 +9,51 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 ## [v0.XX.X] unreleased - 2024-XX-XX
 ### Added
 ### Changed
-- Fix and add URLs of example projects in readme [#481]((https://github.com/OpenEnergyPlatform/open-MaStR/pull/481)
+- Fix usercff workflow [#545](https://github.com/OpenEnergyPlatform/open-MaStR/issues/544)
+- Fix docs on user-defined output path for csv, xml, database
+  [#549](https://github.com/OpenEnergyPlatform/open-MaStR/issues/549)
+- Set pandas version to >=2.2.2 for compatibility with numpy v2.0
+  [#553](https://github.com/OpenEnergyPlatform/open-MaStR/issues/553)
+- Allow to configure model/service port in `soap_api.download.MaStRAPI`
+  [#556](https://github.com/OpenEnergyPlatform/open-MaStR/issues/556)
 ### Removed
+
+## [v0.14.4] Release for the Journal of Open Source Software JOSS - 2024-06-07
+### Added
+- Extend documentation section `getting started` based on the JOSS Review [#523](https://github.com/OpenEnergyPlatform/open-MaStR/pull/523)
+- Extend and repair documentation based on the JOSS Review [#527](https://github.com/OpenEnergyPlatform/open-MaStR/pull/527)
+- Add issue template and workflow to populate USERS.cff [#528](https://github.com/OpenEnergyPlatform/open-MaStR/pull/529)
+- Add imposter syndrom disclaimer to `CONTRIBUTING.md` [#537](https://github.com/OpenEnergyPlatform/open-MaStR/pull/537)
+### Changed
+- Change License identifier for pypi [#525](https://github.com/OpenEnergyPlatform/open-MaStR/pull/525)
+- Change header to identify as open-mastr during http request [#526](https://github.com/OpenEnergyPlatform/open-MaStR/pull/526)
+- Fixed missing call to gen_url in case first bulk download fails as xml file for today is not yet available [#534](https://github.com/OpenEnergyPlatform/open-MaStR/pull/534)
+- Repair links in the documentation page [#536](https://github.com/OpenEnergyPlatform/open-MaStR/pull/536)
+
+
+## [v0.14.3] Fix Pypi Release - 2024-04-24 
+### Added
+- Add new table `changed_dso_assignment` [#510](https://github.com/OpenEnergyPlatform/open-MaStR/pull/510)
+- Add deprecation warning for `MaStRMirror` and `MaStRDownload` [#492](https://github.com/OpenEnergyPlatform/open-MaStR/pull/492)
+### Changed
+- Change from `setup.py` to `pyproject.toml` based installation [#513](https://github.com/OpenEnergyPlatform/open-MaStR/pull/513)
+### Removed
+- Remove outdated and deprecated dependencies [#506](https://github.com/OpenEnergyPlatform/open-MaStR/pull/506)
+
+## [v0.14.2] Maintenance - 2024-04-10
+### Changed
+- Fix and add URLs of example projects in readme [#481](https://github.com/OpenEnergyPlatform/open-MaStR/pull/481)
+- No longer require web scraping for bulk download [#488](https://github.com/OpenEnergyPlatform/open-MaStR/pull/488)
+- Replace deprecated pandas map function [#491](https://github.com/OpenEnergyPlatform/open-MaStR/pull/491)
+- Fix the handling of corrupted xml syntax in the downloaded files [#494](https://github.com/OpenEnergyPlatform/open-MaStR/pull/494)
+- Implement relevant API WSDL Patchnotes V24.1.128 [#499](https://github.com/OpenEnergyPlatform/open-MaStR/pull/499)
+### Removed
+- Remove unused Docker File [#501](https://github.com/OpenEnergyPlatform/open-MaStR/pull/501)
+
 
 ## [v0.14.1] Hotfix - 2024-01-17
 ### Changed
 - Change data type of NetzbetreiberpruefungStatus to string [#483](https://github.com/OpenEnergyPlatform/open-MaStR/pull/483)
-
 
 ## [v0.14.0] Shiny New Documentation Page - 2023-11-22
 ### Added

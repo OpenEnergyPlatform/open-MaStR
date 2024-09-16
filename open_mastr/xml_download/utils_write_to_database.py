@@ -12,6 +12,7 @@ from open_mastr.utils.config import setup_logger
 from open_mastr.utils.helpers import data_to_include_tables
 from open_mastr.utils.orm import tablename_mapping
 from open_mastr.xml_download.utils_cleansing_bulk import cleanse_bulk_data
+from io import StringIO
 
 
 def write_mastr_xml_to_database(
@@ -156,7 +157,7 @@ def preprocess_table_for_writing_to_database(
     try:
         df = pd.read_xml(data, encoding="UTF-16", compression="zip")
     except lxml.etree.XMLSyntaxError as err:
-        df = handle_xml_syntax_error(data, err)
+        df = handle_xml_syntax_error(data.decode("utf-16"), err)
 
     df = add_zero_as_first_character_for_too_short_string(df)
     df = change_column_names_to_orm_format(df, xml_tablename)
@@ -335,19 +336,19 @@ def add_missing_columns_to_table(
         )
 
 
-def delete_wrong_xml_entry(err: Error, df: pd.DataFrame) -> None:
+def delete_wrong_xml_entry(err: Error, df: pd.DataFrame) -> pd.DataFrame:
     delete_entry = str(err).split("«")[0].split("»")[1]
     print(f"The entry {delete_entry} was deleted due to its false data type.")
-    df = df.replace(delete_entry, np.nan)
+    return df.replace(delete_entry, np.nan)
 
 
-def handle_xml_syntax_error(data: bytes, err: Error) -> pd.DataFrame:
+def handle_xml_syntax_error(data: str, err: Error) -> pd.DataFrame:
     """Deletes entries that cause an xml syntax error and produces DataFrame.
 
     Parameters
     -----------
-    data : bytes
-        Unzipped xml data
+    data : str
+        Decoded xml file as one string
     err : ErrorMessage
         Error message that appeared when trying to use pd.read_xml on invalid xml file.
 
@@ -356,25 +357,31 @@ def handle_xml_syntax_error(data: bytes, err: Error) -> pd.DataFrame:
     df : pandas.DataFrame
         DataFrame which is read from the changed xml data.
     """
-    wrong_char_position = int(str(err).split()[-4])
-    decoded_data = data.decode("utf-16")
-    loop_condition = True
 
-    shift = 0
-    while loop_condition:
-        evaluated_string = decoded_data[wrong_char_position + shift]
-        if evaluated_string == ">":
-            start_char = wrong_char_position + shift + 1
-            break
-        else:
-            shift -= 1
-    loop_condition_2 = True
-    while loop_condition_2:
-        evaluated_string = decoded_data[start_char]
-        if evaluated_string == "<":
-            break
-        else:
-            decoded_data = decoded_data[:start_char] + decoded_data[start_char + 1 :]
-    df = pd.read_xml(decoded_data)
-    print("One invalid xml expression was deleted.")
-    return df
+    def find_nearest_brackets(xml_string: str, position: int) -> tuple[int, int]:
+        left_bracket_position = xml_string.rfind(">", 0, position)
+        right_bracket_position = xml_string.find("<", position)
+        return left_bracket_position, right_bracket_position
+
+    data = data.splitlines()
+
+    for _ in range(100):
+        # check for maximum of 100 syntax errors, otherwise return an error
+        wrong_char_row, wrong_char_column = err.position
+        row_with_error = data[wrong_char_row - 1]
+
+        left_bracket, right_bracket = find_nearest_brackets(
+            row_with_error, wrong_char_column
+        )
+        data[wrong_char_row - 1] = (
+            row_with_error[: left_bracket + 1] + row_with_error[right_bracket:]
+        )
+        try:
+            print("One invalid xml expression was deleted.")
+            df = pd.read_xml(StringIO("\n".join(data)))
+            return df
+        except lxml.etree.XMLSyntaxError as e:
+            err = e
+            continue
+
+    raise Error("An error occured when parsing the xml file. Maybe it is corrupted?")

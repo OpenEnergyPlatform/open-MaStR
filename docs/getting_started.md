@@ -3,6 +3,18 @@
 The intention of open-MaStR is to provide tools for receiving a complete as possible and accurate as possible list of
 power plant units based on the public registry Marktstammdatenregister (short: [MaStR](https://www.marktstammdatenregister.de)).
 
+## Installation
+
+To install `open-mastr`, run
+```bash
+pip install open-mastr
+```
+
+To get the latest bug fixes in your local version of `open-mastr`, run
+```bash
+pip install open-mastr --upgrade
+```
+
 ## Downloading the MaStR data
 
 
@@ -53,6 +65,10 @@ which can process sqlite data. Pandas, for example, comes with the function
     ```python
     import pandas as pd
 
+    # generate a list of all tables
+    df = pd.read_sql_query("SELECT name FROM sqlite_master WHERE type='table';", con=db.engine)
+
+    # read the data of one table
     table="wind_extended"
     df = pd.read_sql(sql=table, con=db.engine)
     ```
@@ -67,6 +83,6 @@ additional tables are mirrored from database to csv as they are. To export the d
 
 ```python
 
-    tables=["wind", "grid"]
+    tables=["wind", "grids"]
     db.to_csv(tables)
 ```

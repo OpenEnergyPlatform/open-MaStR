@@ -1,5 +1,4 @@
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.schema import MetaData
+from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy import (
     Column,
     Integer,
@@ -13,8 +12,9 @@ from sqlalchemy import (
     JSON,
 )
 
-meta = MetaData()
-Base = declarative_base(metadata=meta)
+
+class Base(DeclarativeBase):
+    pass
 
 
 class ParentAllTables(object):
@@ -134,6 +134,8 @@ class Extended(object):
     PraequalifiziertFuerRegelenergie = Column(Boolean)
     GenMastrNummer = Column(String)
     Netzbetreiberzuordnungen = Column(String)
+    ReserveartNachDemEnWG = Column(String)
+    DatumUeberfuehrungInReserve = Column(Date)
     # from bulk download
     Hausnummer_nv = Column(Boolean)
     Weic_nv = Column(Boolean)
@@ -185,7 +187,7 @@ class SolarExtended(Extended, ParentAllTables, Base):
     NebenausrichtungNeigungswinkel = Column(String)
     InAnspruchGenommeneFlaeche = Column(Float)
     ArtDerFlaeche = Column(String)
-    InAnspruchGenommeneAckerflaeche = Column(Float)
+    InAnspruchGenommeneLandwirtschaftlichGenutzteFlaeche = Column(Float)
     Nutzungsbereich = Column(String)
     Buergerenergie = Column(Boolean)
     EegMastrNummer = Column(String)
@@ -209,9 +211,6 @@ class CombustionExtended(Extended, ParentAllTables, Base):
     NameKraftwerk = Column(String)
     NameKraftwerksblock = Column(String)
     DatumBaubeginn = Column(Date)
-    AnzeigeEinerStilllegung = Column(Boolean)
-    ArtDerStilllegung = Column(String)
-    DatumBeginnVorlaeufigenOderEndgueltigenStilllegung = Column(Date)
     SteigerungNettonennleistungKombibetrieb = Column(Float)
     AnlageIstImKombibetrieb = Column(Boolean)
     MastrNummernKombibetrieb = Column(String)
@@ -244,9 +243,6 @@ class HydroExtended(Extended, ParentAllTables, Base):
 
     NameKraftwerk = Column(String)
     ArtDerWasserkraftanlage = Column(String)
-    AnzeigeEinerStilllegung = Column(Boolean)
-    ArtDerStilllegung = Column(String)
-    DatumBeginnVorlaeufigenOderEndgueltigenStilllegung = Column(Date)
     MinderungStromerzeugung = Column(Boolean)
     BestandteilGrenzkraftwerk = Column(Boolean)
     NettonennleistungDeutschland = Column(Float)
@@ -274,7 +270,7 @@ class StorageExtended(Extended, ParentAllTables, Base):
     Notstromaggregat = Column(Boolean)
     BestandteilGrenzkraftwerk = Column(Boolean)
     NettonennleistungDeutschland = Column(Float)
-    ZugeordnenteWirkleistungWechselrichter = Column(Float)
+    ZugeordneteWirkleistungWechselrichter = Column(Float)
     NutzbareSpeicherkapazitaet = Column(Float)
     SpeMastrNummer = Column(String)
     EegMastrNummer = Column(String)
@@ -510,6 +506,7 @@ class GasStorageExtended(ParentAllTables, Base):
     DatumBeginnVoruebergehendeStilllegung = Column(Date)
     DatumDesBetreiberwechsels = Column(Date)
     DatumRegistrierungDesBetreiberwechsels = Column(Date)
+    DatumEndgueltigeStilllegung = Column(Date)
 
 
 class StorageUnits(ParentAllTables, Base):
@@ -570,6 +567,7 @@ class GasProducer(ParentAllTables, Base):
     FlurFlurstuecknummern = Column(String)
     GeplantesInbetriebnahmedatum = Column(Date)
     DatumBeginnVoruebergehendeStilllegung = Column(Date)
+    DatumEndgueltigeStilllegung = Column(Date)
 
 
 class GasConsumer(ParentAllTables, Base):
@@ -734,6 +732,8 @@ class MarketActors(ParentAllTables, Base):
     Stromgrosshaendler = Column(Boolean)
     MarktakteurVorname = Column(String)
     MarktakteurNachname = Column(String)
+    WebportalDesNetzbetreibers = Column(String)
+    RegisternummerPraefix = Column(String)
 
 
 class Grids(ParentAllTables, Base):
@@ -790,6 +790,21 @@ class RetrofitUnits(ParentAllTables, Base):
     DatumLetzteAktualisierung = Column(DateTime(timezone=True))
     Ertuechtigungsart = Column(String)
     ErtuechtigungIstZulassungspflichtig = Column(Boolean)
+
+
+class ChangedDSOAssignment(ParentAllTables, Base):
+    __tablename__ = "changed_dso_assignment"
+
+    EinheitMastrNummer = Column(String, primary_key=True)
+    LokationMastrNummer = Column(String)
+    NetzanschlusspunktMastrNummer = Column(String)
+    NetzbetreiberMastrNummerNeu = Column(String)
+    NetzbetreiberMastrNummerAlt = Column(String)
+    ArtDerAenderung = Column(String)
+    RegistrierungsdatumNetzbetreiberzuordnungsaenderung = Column(
+        DateTime(timezone=True)
+    )
+    Netzbetreiberzuordnungsaenderungsdatum = Column(DateTime(timezone=True))
 
 
 tablename_mapping = {
@@ -921,6 +936,11 @@ tablename_mapping = {
     "bilanzierungsgebiete": {
         "__name__": BalancingArea.__tablename__,
         "__class__": BalancingArea,
+        "replace_column_names": None,
+    },
+    "einheitenaenderungnetzbetreiberzuordnungen": {
+        "__name__": ChangedDSOAssignment.__tablename__,
+        "__class__": ChangedDSOAssignment,
         "replace_column_names": None,
     },
     "einheitengaserzeuger": {

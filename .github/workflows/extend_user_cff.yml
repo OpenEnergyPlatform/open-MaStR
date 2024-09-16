@@ -1,0 +1,88 @@
+name: create-pr-to-add-user-to-usercff
+
+on:
+  workflow_dispatch:
+  issues:
+    types: [opened, labeled]
+
+permissions:
+  contents: write
+  pull-requests: write
+  
+jobs:
+  create-pr-to-add-new-user:
+    if: contains(join(github.event.issue.labels.*.name, ','), 'user')
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        # checkout to develop branch of repo
+        ref: develop
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+
+    - name: Extract issue details
+      id: extract_details
+      run: |
+        echo "Extracting issue details..."
+        ISSUE_BODY="${{ github.event.issue.body }}"
+        echo "Issue body content:"
+        echo "$ISSUE_BODY"
+
+        # Extract information
+        FAMILY_NAMES=$(echo "$ISSUE_BODY" | grep '^family-names:' | sed 's/family-names: //')
+        GIVEN_NAMES=$(echo "$ISSUE_BODY" | grep '^given-names:' | sed 's/given-names: //')
+        ALIAS=$(echo "$ISSUE_BODY" | grep '^alias:' | sed 's/alias: //')
+        AFFILIATION=$(echo "$ISSUE_BODY" | grep '^affiliation:' | sed 's/affiliation: //')
+        ORCID=$(echo "$ISSUE_BODY" | grep '^orcid:' | sed 's/orcid: //')
+
+        # Delete new lines and add to env variables
+        echo "FAMILY_NAMES=$(echo -n $FAMILY_NAMES | tr -d '\n')" >> $GITHUB_ENV
+        echo "GIVEN_NAMES=$(echo -n $GIVEN_NAMES | tr -d '\n')" >> $GITHUB_ENV
+        echo "ALIAS=$(echo -n $ALIAS | tr -d '\n')" >> $GITHUB_ENV
+        echo "AFFILIATION=$(echo -n $AFFILIATION | tr -d '\n')" >> $GITHUB_ENV
+        echo "ORCID=$(echo -n $ORCID | tr -d '\n')" >> $GITHUB_ENV
+
+    - name: Debug extracted values
+      run: |
+        echo "Family Names: ${{env.FAMILY_NAMES}}"
+        echo "Given Names: ${{env.GIVEN_NAMES}}"
+        echo "Alias: ${{env.ALIAS}}"
+        echo "Affiliation: ${{env.AFFILIATION}}"
+        echo "ORCID: ${{env.ORCID}}"
+
+    - name: Update USERS.cff
+      run: |
+        # double quotes are not added, due to formatting hell. Double quotes will cause the creation of additional unwanted new lines, even when checked out as \"
+        tee -a USERS.cff <<EOF
+          - family-names: ${{env.FAMILY_NAMES}}
+            given-names: ${{env.GIVEN_NAMES}}
+            alias: ${{env.ALIAS}}
+            affiliation: ${{env.AFFILIATION}}
+            orcid: ${{env.ORCID}}
+        EOF
+
+        
+    - name: Print updated USERS.cff
+      run: cat USERS.cff
+      
+    - name: Create Pull Request
+      uses: peter-evans/create-pull-request@v6
+      with:
+        base: develop
+        head: workflow-${{ github.event.issue.number }}-update-users-cff
+        branch: workflow-${{ github.event.issue.number }}-update-users-cff
+        title: 'Update USERS.cff with new user information'
+        commit-message: |
+          Add new user to USERS.cff
+        body: |
+          This pull request updates the USERS.cff file with new user information extracted from issue #${{ github.event.issue.number }}
+          
+          Closes #${{ github.event.issue.number }}
+
+          Many thanks @${{ github.actor }}!
