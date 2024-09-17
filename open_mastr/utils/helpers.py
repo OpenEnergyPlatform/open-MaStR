@@ -222,7 +222,7 @@ def validate_parameter_data(method, data) -> None:
                 )
             if method == "csv_export" and value not in TECHNOLOGIES + ADDITIONAL_TABLES:
                 raise ValueError(
-                    "Allowed values for parameter data with API method are "
+                    "Allowed values for CSV export are "
                     f"{TECHNOLOGIES} or {ADDITIONAL_TABLES}"
                 )
 
