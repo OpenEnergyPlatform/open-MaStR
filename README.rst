@@ -1,5 +1,5 @@
 
-.. image:: https://raw.githubusercontent.com/OpenEnergyPlatform/open-MaStR/feature-490-add-offis-as-partner/docs/images/README_HeaderThreePartners.svg
+.. image:: docs/images/README_HeaderThreePartners.svg
     :align: left
     :target: https://github.com/OpenEnergyPlatform/open-MaStR
     :alt: MaStR logo
