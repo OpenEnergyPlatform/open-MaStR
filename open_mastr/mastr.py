@@ -304,7 +304,7 @@ class Mastr:
                 "balancing_area", "electricity_consumer", "gas_consumer", "gas_producer",
                 "gas_storage", "gas_storage_extended",
                 "grid_connections", "grids", "market_actors", "market_roles",
-                "locations_extended, 'permit', 'deleted_units' ]
+                "locations_extended", "permit", "deleted_units", "storage_units"]
         chunksize: int
             Defines the chunksize of the tables export.
             Default value is 500.000 rows to include in each chunk.

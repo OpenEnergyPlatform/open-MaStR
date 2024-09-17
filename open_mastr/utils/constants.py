@@ -18,6 +18,7 @@ BULK_DATA = [
     "deleted_units",
     "retrofit_units",
     "changed_dso_assignment",
+    "storage_units",
 ]
 
 # Possible values for parameter 'data' with API download method
@@ -64,6 +65,7 @@ ADDITIONAL_TABLES = [
     "deleted_units",
     "retrofit_units",
     "changed_dso_assignment",
+    "storage_units",
 ]
 
 # Possible data types for API download
@@ -181,6 +183,7 @@ ORM_MAP = {
     "deleted_units": "DeletedUnits",
     "retrofit_units": "RetrofitUnits",
     "changed_dso_assignment": "ChangedDSOAssignment",
+    "storage_units": "StorageUnits",
 }
 
 UNIT_TYPE_MAP = {
