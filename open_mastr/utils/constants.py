@@ -162,7 +162,10 @@ ORM_MAP = {
         "eeg_data": "HydroEeg",
         "permit_data": "Permit",
     },
-    "nuclear": {"unit_data": "NuclearExtended", "permit_data": "Permit"},
+    "nuclear": {
+        "unit_data": "NuclearExtended",
+        "permit_data": "Permit"
+    },
     "storage": {
         "unit_data": "StorageExtended",
         "eeg_data": "StorageEeg",

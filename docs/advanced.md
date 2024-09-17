@@ -1,5 +1,5 @@
 For most users, the functionalites described in [Getting Started](getting_started.md) are sufficient.  If you want 
-to examine how you can configure the package's behavior for your own needs, check out [Cofiguration](#configuration). Or you can explore the two main functionalities of the package, namely the [Bulk Download](#bulk-download)
+to examine how you can configure the package's behavior for your own needs, check out [Configuration](#configuration). Or you can explore the two main functionalities of the package, namely the [Bulk Download](#bulk-download)
 or the [SOAP API download](#soap-api-download).
 
 ## Configuration
