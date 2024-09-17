@@ -112,6 +112,11 @@ changes in a `Pull Request <https://github.com/OpenEnergyPlatform/open-MaStR/pul
 - `Digiplan Anhalt <https://digiplan.rl-institut.de/>`_
 - `Data Quality Assessment of the MaStR <https://marktstammdaten.kotthoff.dev/>`_
 
+External Resources
+===================
+Besides open-mastr, some other resources exist that ease the process of working with the Marktstammdatenregister:
+- If you are interested in browsing the MaStR online, check out the github organisation `Marktstammdatenregister.dev <https://github.com/marktstammdatenregister-dev>`_.
+- The `bundesAPI/Marktstammdaten-API <https://github.com/bundesAPI/marktstammdaten-api>`_ is another implementation to access data via an official API.
 
 Collaboration
 =============
