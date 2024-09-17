@@ -17,6 +17,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
   [#553](https://github.com/OpenEnergyPlatform/open-MaStR/issues/553)
 - Allow to configure model/service port in `soap_api.download.MaStRAPI`
   [#556](https://github.com/OpenEnergyPlatform/open-MaStR/issues/556)
+- Allow CSV export of table `storage_units`
+  [#562](https://github.com/OpenEnergyPlatform/open-MaStR/issues/562)
 ### Removed
 
 ## [v0.14.4] Release for the Journal of Open Source Software JOSS - 2024-06-07
