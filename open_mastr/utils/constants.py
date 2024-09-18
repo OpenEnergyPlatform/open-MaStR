@@ -79,7 +79,7 @@ API_LOCATION_TYPES = [
     "location_gas_consumption",
 ]
 
-# Map bulk data to bulk download tables (xml file names)
+# Map bulk data to bulk download tables (XML file names)
 BULK_INCLUDE_TABLES_MAP = {
     "wind": ["anlageneegwind", "einheitenwind"],
     "solar": ["anlageneegsolar", "einheitensolar"],
