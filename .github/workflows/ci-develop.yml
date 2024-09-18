@@ -11,7 +11,6 @@ jobs:
 
     # Jobs definition
     runs-on: ${{ matrix.os }}
-    if: ${{ (!github.event.pull_request.draft) || (github.event.pull_request.ready_for_review) }}
     strategy:
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
