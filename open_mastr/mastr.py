@@ -142,6 +142,7 @@ class Mastr:
             | "nuclear"             | Yes  | Yes  |
             | "gas"                 | Yes  | Yes  |
             | "storage"             | Yes  | Yes  |
+            | "storage_units"       | Yes  | Yes  |
             | "electricity_consumer"| Yes  | No   |
             | "location"            | Yes  | Yes  |
             | "market"              | Yes  | No   |
