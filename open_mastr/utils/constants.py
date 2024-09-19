@@ -18,6 +18,7 @@ BULK_DATA = [
     "deleted_units",
     "retrofit_units",
     "changed_dso_assignment",
+    "storage_units",
 ]
 
 # Possible values for parameter 'data' with API download method
@@ -64,6 +65,7 @@ ADDITIONAL_TABLES = [
     "deleted_units",
     "retrofit_units",
     "changed_dso_assignment",
+    "storage_units",
 ]
 
 # Possible data types for API download
@@ -77,7 +79,7 @@ API_LOCATION_TYPES = [
     "location_gas_consumption",
 ]
 
-# Map bulk data to bulk download tables (xml file names)
+# Map bulk data to bulk download tables (XML file names)
 BULK_INCLUDE_TABLES_MAP = {
     "wind": ["anlageneegwind", "einheitenwind"],
     "solar": ["anlageneegsolar", "einheitensolar"],
@@ -89,7 +91,8 @@ BULK_INCLUDE_TABLES_MAP = {
     ],
     "combustion": ["anlagenkwk", "einheitenverbrennung"],
     "nuclear": ["einheitenkernkraft"],
-    "storage": ["anlageneegspeicher", "anlagenstromspeicher", "einheitenstromspeicher"],
+    "storage": ["anlageneegspeicher", "einheitenstromspeicher"],
+    "storage_units": ["anlagenstromspeicher"],
     "gas": [
         "anlagengasspeicher",
         "einheitengaserzeuger",
@@ -160,7 +163,10 @@ ORM_MAP = {
         "eeg_data": "HydroEeg",
         "permit_data": "Permit",
     },
-    "nuclear": {"unit_data": "NuclearExtended", "permit_data": "Permit"},
+    "nuclear": {
+        "unit_data": "NuclearExtended",
+        "permit_data": "Permit"
+    },
     "storage": {
         "unit_data": "StorageExtended",
         "eeg_data": "StorageEeg",
@@ -181,6 +187,7 @@ ORM_MAP = {
     "deleted_units": "DeletedUnits",
     "retrofit_units": "RetrofitUnits",
     "changed_dso_assignment": "ChangedDSOAssignment",
+    "storage_units": "StorageUnits",
 }
 
 UNIT_TYPE_MAP = {
