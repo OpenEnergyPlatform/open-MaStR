@@ -9,6 +9,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 ## [v0.XX.X] unreleased - 2024-XX-XX
 ### Added
 - Add OFFIS eV as partner organization [#493](https://github.com/OpenEnergyPlatform/open-MaStR/pull/493)
+- Extended documentation of data cleansing process for bulk download
+  [#568](https://github.com/OpenEnergyPlatform/open-MaStR/pull/568)
 ### Changed
 - Fix usercff workflow [#545](https://github.com/OpenEnergyPlatform/open-MaStR/issues/544)
 - Fix docs on user-defined output path for csv, xml, database
