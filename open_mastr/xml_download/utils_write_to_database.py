@@ -73,9 +73,13 @@ def is_table_relevant(xml_tablename: str, include_tables: list) -> bool:
     have it in the database."""
     # few tables are only needed for data cleansing of the xml files and contain no
     # information of relevance
-    boolean_write_table_to_sql_database = (
-        tablename_mapping[xml_tablename]["__class__"] is not None
-    )
+    try:
+        boolean_write_table_to_sql_database = (
+            tablename_mapping[xml_tablename]["__class__"] is not None
+        )
+    except KeyError:
+        print(f"Table {xml_tablename} is not part of your current open-mastr version.")
+        return False
     # check if the table should be written to sql database (depends on user input)
     include_count = include_tables.count(xml_tablename)
 
