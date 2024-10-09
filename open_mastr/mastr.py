@@ -77,7 +77,6 @@ class Mastr:
     """
 
     def __init__(self, engine="sqlite", connect_to_translated_db=False) -> None:
-
         validate_parameter_format_for_mastr_init(engine)
 
         self.output_dir = get_output_dir()
@@ -150,6 +149,7 @@ class Mastr:
             | "balancing_area"      | Yes  | No   |
             | "permit"              | Yes  | Yes  |
             | "deleted_units"       | Yes  | No   |
+            | "deleted_market_actors"| Yes | No   |
             | "retrofit_units"      | Yes  | No   |
         date : None or `datetime.datetime` or str, optional
 

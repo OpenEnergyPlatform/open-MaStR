@@ -16,6 +16,7 @@ BULK_DATA = [
     "balancing_area",
     "permit",
     "deleted_units",
+    "deleted_market_actors",
     "retrofit_units",
     "changed_dso_assignment",
     "storage_units",
@@ -63,6 +64,7 @@ ADDITIONAL_TABLES = [
     "market_roles",
     "permit",
     "deleted_units",
+    "deleted_market_actors",
     "retrofit_units",
     "changed_dso_assignment",
     "storage_units",
@@ -106,6 +108,7 @@ BULK_INCLUDE_TABLES_MAP = {
     "balancing_area": ["bilanzierungsgebiete"],
     "permit": ["einheitengenehmigung"],
     "deleted_units": ["geloeschteunddeaktivierteeinheiten"],
+    "deleted_market_actors": ["geloeschteunddeaktiviertemarktakteure"],
     "retrofit_units": ["ertuechtigungen"],
     "changed_dso_assignment": ["einheitenaenderungnetzbetreiberzuordnungen"],
 }
@@ -125,6 +128,7 @@ BULK_ADDITIONAL_TABLES_CSV_EXPORT_MAP = {
     "balancing_area": ["balancing_area"],
     "permit": ["permit"],
     "deleted_units": ["deleted_units"],
+    "deleted_market_actors": ["deleted_market_actors"],
     "retrofit_units": ["retrofit_units"],
     "changed_dso_assignment": ["changed_dso_assignment"],
 }
@@ -163,10 +167,7 @@ ORM_MAP = {
         "eeg_data": "HydroEeg",
         "permit_data": "Permit",
     },
-    "nuclear": {
-        "unit_data": "NuclearExtended",
-        "permit_data": "Permit"
-    },
+    "nuclear": {"unit_data": "NuclearExtended", "permit_data": "Permit"},
     "storage": {
         "unit_data": "StorageExtended",
         "eeg_data": "StorageEeg",
@@ -185,6 +186,7 @@ ORM_MAP = {
     "balancing_area": "BalancingArea",
     "permit": "Permit",
     "deleted_units": "DeletedUnits",
+    "deleted_market_actors": "DeletedMarketActors",
     "retrofit_units": "RetrofitUnits",
     "changed_dso_assignment": "ChangedDSOAssignment",
     "storage_units": "StorageUnits",

@@ -66,6 +66,7 @@ def parameter_dict_working_list():
             "balancing_area",
             "permit",
             "deleted_units",
+            "deleted_market_actors",
             "retrofit_units",
             None,
             ["wind", "solar"],
@@ -250,7 +251,12 @@ def test_validate_parameter_format_for_mastr_init(db):
 
 
 def test_transform_data_parameter():
-    (data, api_data_types, api_location_types, harm_log,) = transform_data_parameter(
+    (
+        data,
+        api_data_types,
+        api_location_types,
+        harm_log,
+    ) = transform_data_parameter(
         method="API",
         data=["wind", "location"],
         api_data_types=["eeg_data"],
@@ -369,7 +375,6 @@ def test_db_query_to_csv(tmpdir, engine):
             os.remove(csv_path)
 
         for addit_table in addit_tables:
-
             csv_path = join(
                 get_data_version_dir(),
                 f"bnetza_mastr_{addit_table}_raw.csv",
