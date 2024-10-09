@@ -8,6 +8,7 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 
 ## [v0.XX.X] unreleased - 2024-XX-XX
 ### Added
+- Add `deleted_market_actors` to data model [#575](https://github.com/OpenEnergyPlatform/open-MaStR/pull/575)
 - Add OFFIS eV as partner organization [#493](https://github.com/OpenEnergyPlatform/open-MaStR/pull/493)
 ### Changed
 - Fix usercff workflow [#545](https://github.com/OpenEnergyPlatform/open-MaStR/issues/544)
