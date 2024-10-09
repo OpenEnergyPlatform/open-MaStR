@@ -81,6 +81,8 @@ After downloading the MaStR, you will find a database with a large number of tab
     | permit  |  |
     | storage_units  |  |
     | kwk  | *short for: Combined heat and power (CHP)* |
+    | deleted_units | Units from all technologies that were deleted or deactivated |
+    | deleted_market_actors | Actors that were deleted. Downloading and parsing this table can result in a problem since v0.14.5, as it has no unique keys. |
 
 
 ### MaStR data model
