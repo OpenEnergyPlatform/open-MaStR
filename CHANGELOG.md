@@ -8,11 +8,15 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 
 ## [v0.XX.X] unreleased - 2024-XX-XX
 ### Added
-- Add OFFIS eV as partner organization [#493](https://github.com/OpenEnergyPlatform/open-MaStR/pull/493)
+- Add `deleted_market_actors` to data model and prevent crash on unknown tables
+  [#575](https://github.com/OpenEnergyPlatform/open-MaStR/pull/575)
 - Extended documentation of data cleansing process for bulk download
   [#568](https://github.com/OpenEnergyPlatform/open-MaStR/pull/568)
+- Add OFFIS eV as partner organization
+  [#493](https://github.com/OpenEnergyPlatform/open-MaStR/pull/493)
 ### Changed
-- Fix usercff workflow [#545](https://github.com/OpenEnergyPlatform/open-MaStR/issues/544)
+- Fix usercff workflow
+  [#545](https://github.com/OpenEnergyPlatform/open-MaStR/issues/544)
 - Fix docs on user-defined output path for csv, xml, database
   [#549](https://github.com/OpenEnergyPlatform/open-MaStR/issues/549)
 - Set pandas version to >=2.2.2 for compatibility with numpy v2.0

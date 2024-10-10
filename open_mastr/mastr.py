@@ -149,6 +149,7 @@ class Mastr:
             | "balancing_area"      | Yes  | No   |
             | "permit"              | Yes  | Yes  |
             | "deleted_units"       | Yes  | No   |
+            | "deleted_market_actors"| Yes | No   |
             | "retrofit_units"      | Yes  | No   |
         date : None or `datetime.datetime` or str, optional
 
