@@ -26,6 +26,7 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 - Allow CSV export of table `storage_units`
   [#565](https://github.com/OpenEnergyPlatform/open-MaStR/pull/565)
 ### Removed
+- Removed old code artefacts from `scripts` folder [#561](https://github.com/OpenEnergyPlatform/open-MaStR/pull/561)
 
 ## [v0.14.4] Release for the Journal of Open Source Software JOSS - 2024-06-07
 ### Added
