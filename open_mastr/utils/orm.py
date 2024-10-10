@@ -783,9 +783,9 @@ class DeletedUnits(ParentAllTables, Base):
 class DeletedMarketActors(ParentAllTables, Base):
     __tablename__ = "deleted_market_actors"
 
-    DatumLetzteAktualisierung = Column(DateTime(timezone=True))
     MarktakteurMastrNummer = Column(String, primary_key=True)
     MarktakteurStatus = Column(String)
+    DatumLetzteAktualisierung = Column(DateTime(timezone=True))
 
 
 class RetrofitUnits(ParentAllTables, Base):
