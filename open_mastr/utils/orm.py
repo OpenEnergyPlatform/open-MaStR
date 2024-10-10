@@ -784,7 +784,7 @@ class DeletedMarketActors(ParentAllTables, Base):
     __tablename__ = "deleted_market_actors"
 
     DatumLetzteAktualisierung = Column(DateTime(timezone=True))
-    MastrNummer = Column(String, primary_key=True)
+    MarktakteurMastrNummer = Column(String, primary_key=True)
     MarktakteurStatus = Column(String)
 
 
