@@ -164,8 +164,10 @@ class Mastr:
 
             Default to `None`.
         bulk_cleansing : bool, optional
-            If True, data cleansing is applied after the download (which is recommended). Default
-            to True.
+            If set to True, data cleansing is applied after the download (which is recommended).
+            In its original format, many entries in the MaStR are encoded with IDs. Columns like
+            `state` or `fueltype` do not contain entries such as "Hessen" or "Braunkohle", but instead
+            only contain IDs. Cleansing replaces these IDs with their corresponding original entries.
         api_processes : int or None or "max", optional
             Number of parallel processes used to download additional data.
             Defaults to `None`. If set to "max", the maximum number of possible processes

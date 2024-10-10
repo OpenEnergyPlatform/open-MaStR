@@ -10,6 +10,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 ### Added
 - Add `deleted_market_actors` to data model and prevent crash on unknown tables
   [#575](https://github.com/OpenEnergyPlatform/open-MaStR/pull/575)
+- Extended documentation of data cleansing process for bulk download
+  [#568](https://github.com/OpenEnergyPlatform/open-MaStR/pull/568)
 - Add OFFIS eV as partner organization
   [#493](https://github.com/OpenEnergyPlatform/open-MaStR/pull/493)
 ### Changed
