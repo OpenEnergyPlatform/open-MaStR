@@ -51,7 +51,7 @@ It always has the format `YYYY-MM-DD`, e.g. `2022-05-16`.
 ### 5. 💠 Create a `release` branch
 * Checkout `develop` and branch with `git checkout -b release-v0.12.1`
 * Update version for test release with `bump2version --current-version <current_version> --new-version <new_version> patch`
-* Commit version update with `git commit -am "version update v0.12.1a1"`
+* Commit version update with `git commit -am "version update v0.12.1"`
 * Push branch with `git push --set-upstream origin release-v0.12.1`
 
 ### 6. 📝 Update the version files
