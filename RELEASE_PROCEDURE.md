@@ -48,13 +48,17 @@ It always has the format `YYYY-MM-DD`, e.g. `2022-05-16`.
 * On release day, start the release early to ensure sufficient time for reviews
 * Merge everything on the `develop` branch
 
-### 5. 💠 Create a `release` branch
+### 5. Run tests and apply code linting
+* Run tests locally with `pytest` and fix errors
+* Apply linting with `pre-commit run -a` and fix errors
+
+### 6. 💠 Create a `release` branch
 * Checkout `develop` and branch with `git checkout -b release-v0.12.1`
 * Update version for test release with `bump2version --current-version <current_version> --new-version <new_version> patch`
 * Commit version update with `git commit -am "version update v0.12.1"`
 * Push branch with `git push --set-upstream origin release-v0.12.1`
 
-### 6. 📝 Update the version files
+### 7. 📝 Update the version files
 * `📝CHANGELOG.md`
     * All Pull Request are included
     * Add a new section with correct version number
@@ -62,8 +66,7 @@ It always has the format `YYYY-MM-DD`, e.g. `2022-05-16`.
 * `📝CITATION.cff`
     * Update `date-released`
 
-### 7. Optional: Check release on Test-PyPI 
-
+### 8. Optional: Check release on Test-PyPI
 * Check if the release it correctly displayed on [Test-PyPI](https://test.pypi.org/project/open-mastr/#history)
   * You can trigger the release manually within github actions using the `run workflow` button on branch `release-v0.12.1` on the workflow `Build and release on pypi tests`
   * Note: Pre-releases on Test-PyPI are only shown under `Release history` in the navigation bar.
@@ -72,7 +75,7 @@ It always has the format `YYYY-MM-DD`, e.g. `2022-05-16`.
   * Note: The release on Test-PyPI might fail, but it will be the correct release version for the PyPI server.
 * Push commits to the `release-*` branch
 
-### 8. 🐙 Create a `Release Pull Request`
+### 9. 🐙 Create a `Release Pull Request`
 * Use `📝PR_TEMPLATE_RELEASE` (❗ToDo❗)
 * Merge `release` into `production` branch
 * Assign reviewers to check the release
@@ -81,7 +84,7 @@ It always has the format `YYYY-MM-DD`, e.g. `2022-05-16`.
 * Wait for reviews and tests
 * Merge PR
 
-### 9. 💠 Set the `Git Tag`
+### 10. 💠 Set the `Git Tag`
 * Checkout `production` branch and pull
 * Check existing tags `git tag -n`
 * Create new tag: `git tag -a v0.12.1 -m "open-mastr release v0.12.1 with PyPI"`
@@ -91,7 +94,7 @@ It always has the format `YYYY-MM-DD`, e.g. `2022-05-16`.
     * Delete local tag: `git tag -d v0.12.1`
     * Delete remote tag: `git push --delete origin v0.12.1`
 
-### 10. 🐙 Publish `Release` on GitHub and PyPI
+### 11. 🐙 Publish `Release` on GitHub and PyPI
 * Navigate to your [releases](https://github.com/OpenEnergyPlatform/open-MaStR/releases/) on GitHub and open your draft release.
 * Summarize key changes in the description
     * Use the `generate release notes` button provided by github (This only works after the release branch is merged on production)
@@ -103,7 +106,7 @@ It always has the format `YYYY-MM-DD`, e.g. `2022-05-16`.
 
 ▶️ In the background the GitHub workflow (pypi-publish.yml) will publish the package 📦 on PyPI!
 
-### 11. 🐙 Set up new development
+### 12. 🐙 Set up new development
 * Create a Pull request from `release-*` to `develop`
 * Create a new **unreleased section** in the `📝CHANGELOG.md`
 ```
