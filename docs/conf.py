@@ -12,14 +12,15 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../open_mastr'))
+
+sys.path.insert(0, os.path.abspath("../open_mastr"))
 
 
 # -- Project information -----------------------------------------------------
 
-project = 'open-MaStR'
-copyright = '2022 Reiner Lemoine Institut and fortiss'
-author = ''
+project = "open-MaStR"
+copyright = "2024 Reiner Lemoine Institut gGmbH and fortiss GmbH and OFFIS e.V."
+author = ""
 
 
 # -- General configuration ---------------------------------------------------
@@ -28,22 +29,22 @@ author = ''
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinx.ext.autosectionlabel',
-    'sphinx.ext.autodoc',
-    'sphinx.ext.napoleon',
-    'sphinx_tabs.tabs',
-    'm2r2',
+    "sphinx.ext.autosectionlabel",
+    "sphinx.ext.autodoc",
+    "sphinx.ext.napoleon",
+    "sphinx_tabs.tabs",
+    "m2r2",
 ]
 
 source_suffix = [".rst", ".md"]
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ["_templates"]
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 
 # -- Options for HTML output -------------------------------------------------
@@ -51,13 +52,13 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'sphinx_rtd_theme'
+html_theme = "sphinx_rtd_theme"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
-html_css_files = ['custom.css']
+html_static_path = ["_static"]
+html_css_files = ["custom.css"]
 
-# Autodoc config 
-autoclass_content = 'both'
+# Autodoc config
+autoclass_content = "both"

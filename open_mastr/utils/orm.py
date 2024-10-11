@@ -780,6 +780,14 @@ class DeletedUnits(ParentAllTables, Base):
     EinheitBetriebsstatus = Column(String)
 
 
+class DeletedMarketActors(ParentAllTables, Base):
+    __tablename__ = "deleted_market_actors"
+
+    MarktakteurMastrNummer = Column(String, primary_key=True)
+    MarktakteurStatus = Column(String)
+    DatumLetzteAktualisierung = Column(DateTime(timezone=True))
+
+
 class RetrofitUnits(ParentAllTables, Base):
     __tablename__ = "retrofit_units"
 
@@ -1004,6 +1012,11 @@ tablename_mapping = {
     "geloeschteunddeaktivierteeinheiten": {
         "__name__": DeletedUnits.__tablename__,
         "__class__": DeletedUnits,
+        "replace_column_names": None,
+    },
+    "geloeschteunddeaktiviertemarktakteure": {
+        "__name__": DeletedMarketActors.__tablename__,
+        "__class__": DeletedMarketActors,
         "replace_column_names": None,
     },
     "marktrollen": {

@@ -1,5 +1,5 @@
 
-.. image:: https://user-images.githubusercontent.com/14353512/199113556-4b53660f-c628-4138-8d01-3719595ecda1.png
+.. image:: docs/images/README_HeaderThreePartners.svg
     :align: left
     :target: https://github.com/OpenEnergyPlatform/open-MaStR
     :alt: MaStR logo
@@ -59,8 +59,6 @@ Documentation
 | Find the `documentation <https://open-mastr.readthedocs.io/en/latest/>`_ hosted on ReadTheDocs.
 
 | The original API documentation can be found on the `Webhilfe des Marktstammdatenregisters <https://www.marktstammdatenregister.de/MaStRHilfe/subpages/webdienst.html>`_.
-| If you are interested in browsing the MaStR online, check out the privately hosted `Marktstammdatenregister.dev <https://marktstammdatenregister.dev/>`_.
-| Also see the `bundesAPI/Marktstammdaten-API <https://github.com/bundesAPI/marktstammdaten-api>`_ for another implementation.
 
 
 Installation
@@ -112,7 +110,13 @@ changes in a `Pull Request <https://github.com/OpenEnergyPlatform/open-MaStR/pul
 - `Wasserstoffatlas <https://wasserstoffatlas.de/>`_
 - `EE-Status App <https://ee-status.de/>`_
 - `Digiplan Anhalt <https://digiplan.rl-institut.de/>`_
+- `Data Quality Assessment of the MaStR <https://marktstammdaten.kotthoff.dev/>`_
 
+External Resources
+===================
+Besides open-mastr, some other resources exist that ease the process of working with the Marktstammdatenregister:
+- If you are interested in browsing the MaStR online, check out the github organisation `Marktstammdatenregister.dev <https://github.com/marktstammdatenregister-dev>`_.
+- The `bundesAPI/Marktstammdaten-API <https://github.com/bundesAPI/marktstammdaten-api>`_ is another implementation to access data via an official API.
 
 Collaboration
 =============
@@ -129,7 +133,7 @@ Software
 | This repository is licensed under the **GNU Affero General Public License v3.0 or later** (AGPL-3.0-or-later).
 | See `LICENSE.md <https://github.com/OpenEnergyPlatform/open-MaStR/blob/production/LICENSE.md>`_ for rights and obligations.
 | See the *Cite this repository* function or `CITATION.cff <https://github.com/OpenEnergyPlatform/open-MaStR/blob/production/CITATION.cff>`_ for citation of this repository.
-| Copyright: `open-MaStR <https://github.com/OpenEnergyPlatform/open-MaStR/>`_ © `Reiner Lemoine Institut <https://reiner-lemoine-institut.de/>`_ © `fortiss <https://www.fortiss.org/>`_  | `AGPL-3.0-or-later <https://www.gnu.org/licenses/agpl-3.0.txt>`_
+| Copyright: `open-MaStR <https://github.com/OpenEnergyPlatform/open-MaStR/>`_ © `Reiner Lemoine Institut <https://reiner-lemoine-institut.de/>`_ © `fortiss <https://www.fortiss.org/>`_ © `OFFIS <https://www.offis.de/>`_  | `AGPL-3.0-or-later <https://www.gnu.org/licenses/agpl-3.0.txt>`_
 
 Data
 ----
