@@ -16,25 +16,13 @@ from shapely.wkb import loads as wkb_loads
 
 log = setup_logger()
 
-BKG_VG250 = {
-    "schema": "boundaries",
-    "table": "bkg_vg250_1_sta_union_mview"
-}
+BKG_VG250 = {"schema": "boundaries", "table": "bkg_vg250_1_sta_union_mview"}
 
-OSM_PLZ = {
-    "schema": "boundaries",
-    "table": "osm_postcode"
-}
+OSM_PLZ = {"schema": "boundaries", "table": "osm_postcode"}
 
-OFFSHORE = {
-    "schema": "model_draft",
-    "table": "rli_boundaries_offshore"
-}
+OFFSHORE = {"schema": "model_draft", "table": "rli_boundaries_offshore"}
 
-OSM_WINDPOWER = {
-    "schema": "model_draft",
-    "table": "mastr_osm_deu_point_windpower"
-}
+OSM_WINDPOWER = {"schema": "model_draft", "table": "mastr_osm_deu_point_windpower"}
 
 OEP_QUERY_PATTERN = "https://openenergy-platform.org/api/v0/schema/{schema}/tables/{table}/rows?form=csv"
 
@@ -43,7 +31,16 @@ DATA_BASE_PATH = "data"
 MASTR_RAW_SCHEMA = "model_draft"
 OPEN_MASTR_SCHEMA = "model_draft"
 
-TECHNOLOGIES = ["wind", "hydro", "solar", "biomass", "combustion", "nuclear", "gsgk", "storage"]
+TECHNOLOGIES = [
+    "wind",
+    "hydro",
+    "solar",
+    "biomass",
+    "combustion",
+    "nuclear",
+    "gsgk",
+    "storage",
+]
 
 orm_map = {
     "wind": {
@@ -113,15 +110,17 @@ def table_to_db(csv_data, table, schema, conn, geom_col="geom", srid=4326):
     query = "CREATE SCHEMA IF NOT EXISTS {schema}".format(schema=schema)
     conn.execute(query)
 
-    csv_data.to_sql(table,
-                    con=conn,
-                    schema=schema,
-                    dtype={
-                        geom_col: Geometry(srid=srid),
-                        "plz": String(),
-                    },
-                    chunksize=100000,
-                    if_exists="replace")
+    csv_data.to_sql(
+        table,
+        con=conn,
+        schema=schema,
+        dtype={
+            geom_col: Geometry(srid=srid),
+            "plz": String(),
+        },
+        chunksize=100000,
+        if_exists="replace",
+    )
 
 
 def table_to_db_orm(mapper, data, chunksize=10000):
@@ -143,6 +142,7 @@ def table_to_db_orm(mapper, data, chunksize=10000):
             session.bulk_insert_mappings(mapper, chunk)
             # Commit each chunk separately
             session.commit()
+
 
 def import_boundary_data_csv(schema, table, index_col="id", srid=4326):
     """
@@ -166,32 +166,43 @@ def import_boundary_data_csv(schema, table, index_col="id", srid=4326):
     with db_engine().connect() as con:
 
         # Check if table already exists
-        table_query = "SELECT to_regclass('{schema}.{table}');".format(schema=schema, table=table)
+        table_query = "SELECT to_regclass('{schema}.{table}');".format(
+            schema=schema, table=table
+        )
         table_name = "{schema}.{table}".format(schema=schema, table=table)
         table_exists = table_name in con.execute(table_query).first().values()
 
         if not table_exists:
             # Download CSV file if it does not exist
             if not csv_file_exists:
-                log.info("Downloading table {schema}.{table} from OEP".format(schema=schema, table=table))
+                log.info(
+                    "Downloading table {schema}.{table} from OEP".format(
+                        schema=schema, table=table
+                    )
+                )
                 urlretrieve(
-                    OEP_QUERY_PATTERN.format(schema=schema, table=table),
-                    csv_file)
+                    OEP_QUERY_PATTERN.format(schema=schema, table=table), csv_file
+                )
             else:
                 log.info("Found {} locally.".format(csv_file))
 
             # Read CSV file
-            csv_data = pd.read_csv(csv_file,
-                                   index_col=index_col)
+            csv_data = pd.read_csv(csv_file, index_col=index_col)
 
             # Prepare geom data for DB upload
-            csv_data["geom"] = csv_data["geom"].apply(lambda x: WKTElement(wkb_loads(x, hex=True).wkt, srid=srid))
+            csv_data["geom"] = csv_data["geom"].apply(
+                lambda x: WKTElement(wkb_loads(x, hex=True).wkt, srid=srid)
+            )
 
             # Insert to db
             table_to_db(csv_data, table, schema, con, srid=srid)
             log.info("Data from {} successfully imported to database.".format(csv_file))
         else:
-            log.info("Table '{schema}.{table}' already exists in local database".format(schema=schema, table=table))
+            log.info(
+                "Table '{schema}.{table}' already exists in local database".format(
+                    schema=schema, table=table
+                )
+            )
 
 
 def add_geom_col(df, lat_col="Breitengrad", lon_col="Laengengrad", srid=4326):
@@ -219,17 +230,21 @@ def add_geom_col(df, lat_col="Breitengrad", lon_col="Laengengrad", srid=4326):
     df_with_coords = df.loc[~(df["Breitengrad"].isna() | df["Laengengrad"].isna())]
 
     # Just select data with lat/lon in range [(-90,90), (-180,180)]
-    df_with_coords = df_with_coords[~((df_with_coords["Breitengrad"] < -90)
-                                      | (df_with_coords["Breitengrad"] > 90)
-                                      | (df_with_coords["Laengengrad"] < -180)
-                                      | (df_with_coords["Laengengrad"] > 180))
+    df_with_coords = df_with_coords[
+        ~(
+            (df_with_coords["Breitengrad"] < -90)
+            | (df_with_coords["Breitengrad"] > 90)
+            | (df_with_coords["Laengengrad"] < -180)
+            | (df_with_coords["Laengengrad"] > 180)
+        )
     ]
     df_no_coords = df.loc[~df.index.isin(df_with_coords.index)]
 
-
     gdf = gpd.GeoDataFrame(
-        df_with_coords, geometry=gpd.points_from_xy(df_with_coords[lon_col], df_with_coords[lat_col]),
-        crs="EPSG:{}".format(srid))
+        df_with_coords,
+        geometry=gpd.points_from_xy(df_with_coords[lon_col], df_with_coords[lat_col]),
+        crs="EPSG:{}".format(srid),
+    )
     gdf["geom"] = gdf["geometry"].apply(lambda x: WKTElement(x.wkt, srid=srid))
     gdf.drop(columns=["geometry"], inplace=True)
 
@@ -271,9 +286,15 @@ def run_sql_postprocessing():
             if tech_name not in ["gsgk", "storage", "nuclear"]:
                 log.info(f"Run post-processing on {tech_name} data")
                 # Read SQL query from file
-                with open(os.path.join(os.path.dirname(__file__),
-                                       "db-cleansing",
-                                       "rli-mastr-{tech_name}-cleansing.sql".format(tech_name=tech_name))) as file:
+                with open(
+                    os.path.join(
+                        os.path.dirname(__file__),
+                        "db-cleansing",
+                        "rli-mastr-{tech_name}-cleansing.sql".format(
+                            tech_name=tech_name
+                        ),
+                    )
+                ) as file:
                     escaped_sql = text(file.read())
 
                 # Execute query
@@ -334,21 +355,29 @@ def to_csv(limit=None):
         with session_scope() as session:
             orm_tech = getattr(orm, orm_map[tech]["cleaned"])
             query = session.query(orm_tech).limit(limit)
-            df = pd.read_sql(query.statement, query.session.bind, index_col="EinheitMastrNummer")
+            df = pd.read_sql(
+                query.statement, query.session.bind, index_col="EinheitMastrNummer"
+            )
 
         csv_file = os.path.join(data_path, filenames["postprocessed"][tech])
 
-        df.to_csv(csv_file, index=True, index_label="EinheitMastrNummer", encoding='utf-8')
+        df.to_csv(
+            csv_file, index=True, index_label="EinheitMastrNummer", encoding="utf-8"
+        )
 
         if df["DatumLetzteAktualisierung"].max() > newest_date:
             newest_date = df["DatumLetzteAktualisierung"].max()
 
     # Save metadata along with data
     metadata_file = os.path.join(data_path, filenames["metadata"])
-    metadata = create_datapackage_meta_json(newest_date, TECHNOLOGIES, data=["raw", "cleaned", "postprocessed"],
-                                            json_serialize=False)
+    metadata = create_datapackage_meta_json(
+        newest_date,
+        TECHNOLOGIES,
+        data=["raw", "cleaned", "postprocessed"],
+        json_serialize=False,
+    )
 
-    with open(metadata_file, 'w', encoding='utf-8') as f:
+    with open(metadata_file, "w", encoding="utf-8") as f:
         json.dump(metadata, f, ensure_ascii=False, indent=4)
 
 

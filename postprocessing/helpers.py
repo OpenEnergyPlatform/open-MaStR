@@ -1,4 +1,5 @@
 from bokeh.palettes import Category10_10 as palette
+
 # import geoviews as gv
 import bokeh
 
@@ -9,9 +10,9 @@ def plotPowerPlants(df):
     # size marker according to gross power output
     iMaxSize = 30
     iMinSize = 10
-    df["size"] = (df["Bruttoleistung"] - df["Bruttoleistung"].min()) / \
-                 (df["Bruttoleistung"].max() - df["Bruttoleistung"].min()) * \
-                 (iMaxSize - iMinSize) + iMinSize
+    df["size"] = (df["Bruttoleistung"] - df["Bruttoleistung"].min()) / (
+        df["Bruttoleistung"].max() - df["Bruttoleistung"].min()
+    ) * (iMaxSize - iMinSize) + iMinSize
 
     # convert datetime to string
     df["date"] = df["Inbetriebnahmedatum"].dt.strftime("%Y-%m-%d")
@@ -41,14 +42,32 @@ def plotPowerPlants(df):
     for group in groups:
         df_group = df.loc[
             df["Einheittyp"] == group,
-            ["Name", "Standort", "Bundesland", "Land", "date",
-             "Einheittyp", "Bruttoleistung", "Laengengrad", "Breitengrad", "size"]
+            [
+                "Name",
+                "Standort",
+                "Bundesland",
+                "Land",
+                "date",
+                "Einheittyp",
+                "Bruttoleistung",
+                "Laengengrad",
+                "Breitengrad",
+                "size",
+            ],
         ]
-        points = gv.Points(df_group, ["Laengengrad", "Breitengrad"], label=group).options(
-            aspect=2, responsive=True, tools=[hover_tool], size="size", active_tools=['wheel_zoom'],
-            fill_alpha=0.6, fill_color=colors[group], line_color="white",
+        points = gv.Points(
+            df_group, ["Laengengrad", "Breitengrad"], label=group
+        ).options(
+            aspect=2,
+            responsive=True,
+            tools=[hover_tool],
+            size="size",
+            active_tools=["wheel_zoom"],
+            fill_alpha=0.6,
+            fill_color=colors[group],
+            line_color="white",
         )
-        overlay = (overlay * points)
+        overlay = overlay * points
 
     # hide group when clicking on legend
     overlay.options(click_policy="hide", clone=False)
