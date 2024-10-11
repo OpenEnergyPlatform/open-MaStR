@@ -1,7 +1,18 @@
 from geoalchemy2 import Geometry
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.schema import MetaData
-from sqlalchemy import Column, Integer, String, Float, Sequence, DateTime, Boolean, func, Date, JSON
+from sqlalchemy import (
+    Column,
+    Integer,
+    String,
+    Float,
+    Sequence,
+    DateTime,
+    Boolean,
+    func,
+    Date,
+    JSON,
+)
 from sqlalchemy.dialects.postgresql import JSONB
 
 cleaned_schema = "model_draft"
@@ -28,7 +39,6 @@ class BasicUnit(object):
     BestandsanlageMastrNummer_basic = Column(String)
     NichtVorhandenInMigriertenEinheiten = Column(String)
     StatisikFlag_basic = Column(String)
-
 
 
 class Extended(object):
@@ -91,7 +101,7 @@ class Extended(object):
     Einspeisungsart = Column(String)
     PraequalifiziertFuerRegelenergie = Column(Boolean)
     GenMastrNummer_extended = Column(String)
-    geom = Column(Geometry('POINT'))
+    geom = Column(Geometry("POINT"))
     comment = Column(String)
 
 
@@ -175,6 +185,7 @@ class HydroEeg(Eeg):
 class StorageEeg(Eeg):
     pass
 
+
 class Kwk(object):
 
     KwkMastrNummer_kwk = Column(String)
@@ -205,7 +216,7 @@ class Permit(object):
 
 
 class WindCleaned(Permit, WindEeg, Extended, BasicUnit, Base):
-    __tablename__ = 'bnetza_mastr_wind_clean'
+    __tablename__ = "bnetza_mastr_wind_clean"
 
     # wind specific attributes
     NameWindpark = Column(String)
@@ -231,8 +242,7 @@ class WindCleaned(Permit, WindEeg, Extended, BasicUnit, Base):
     Kuestenentfernung = Column(Float)
     EegMastrNummer_extended = Column(String)
     tags = Column(JSONB)
-    geom_3035 = Column(Geometry('POINT', srid=3035))
-
+    geom_3035 = Column(Geometry("POINT", srid=3035))
 
 
 class SolarCleaned(Permit, SolarEeg, Extended, BasicUnit, Base):
@@ -288,7 +298,7 @@ class CombustionCleaned(Permit, Kwk, Extended, BasicUnit, Base):
     AnteiligNutzungsberechtigte = Column(String)
     Notstromaggregat = Column(Boolean)
     Einsatzort = Column(String)
-    KwkMastrNummer_extended = Column(String) # changed here
+    KwkMastrNummer_extended = Column(String)  # changed here
     Technologie = Column(String)
 
 

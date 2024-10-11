@@ -251,12 +251,7 @@ def test_validate_parameter_format_for_mastr_init(db):
 
 
 def test_transform_data_parameter():
-    (
-        data,
-        api_data_types,
-        api_location_types,
-        harm_log,
-    ) = transform_data_parameter(
+    (data, api_data_types, api_location_types, harm_log,) = transform_data_parameter(
         method="API",
         data=["wind", "location"],
         api_data_types=["eeg_data"],

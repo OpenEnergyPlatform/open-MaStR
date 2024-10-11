@@ -30,6 +30,7 @@ def capture_wrap():
     sys.stdout.close = lambda *args: None
     yield
 
+
 @pytest.fixture(scope="module")
 def con():
     con = sqlite3.connect(_sqlite_file_path)
