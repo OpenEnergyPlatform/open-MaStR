@@ -110,4 +110,6 @@ columns_replace_list = [
     "Seelage",
     "ClusterNordsee",
     "ClusterOstsee",
+    # various tables
+    "NetzbetreiberpruefungStatus",
 ]

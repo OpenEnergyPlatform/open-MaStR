@@ -8,6 +8,9 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 
 ## [v0.14.5] New MaStR data model, battery export, various fixes - 2024-10-11
 ### Added
+- Replace values in NetzbetreiberpruefungStatus with their entries from
+  Katalogwerte
+  [#583](https://github.com/OpenEnergyPlatform/open-MaStR/pull/583)
 - Add `deleted_market_actors` to data model and prevent crash on unknown tables
   [#575](https://github.com/OpenEnergyPlatform/open-MaStR/pull/575)
 - Extended documentation of data cleansing process for bulk download
