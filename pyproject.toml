@@ -33,6 +33,7 @@ maintainers = [
   {name = "Florian Kotthoff"},
   {name = "Jonathan Amme", email = "jonathan.amme@rl-institut.de"},
   {name = "Ludwig Hülk", email = "datenzentrum@rl-institut.de"},
+  {name = "Christoph Muschner"},
 ]
 description = "A package that provides an interface for downloading and processing the data of the Marktstammdatenregister (MaStR)"
 readme = "README.rst"
