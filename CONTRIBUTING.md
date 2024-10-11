@@ -129,6 +129,13 @@ git status
 ```
 
 #### 2.3. Commit your changes 
+First, make sure you have the pre-commit hooks installed to have your code
+automatically checked on commit for programmatic and stylistic errors:
+```bash
+pre-commit install
+```
+
+Now, let's add some file.
 If the file does not exist on the remote server yet, use:
 ```bash
 git add filename.md
