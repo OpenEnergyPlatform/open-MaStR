@@ -9,6 +9,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 ## [v0.XX.X] unreleased - 202X-XX-XX
 ### Added
 ### Changed
+- Repair Header image in Readme
+  [#587](https://github.com/OpenEnergyPlatform/open-MaStR/pull/587)
 ### Removed
 
 ## [v0.14.5] New MaStR data model, battery export, various fixes - 2024-10-11
