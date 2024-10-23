@@ -1,5 +1,5 @@
 
-.. image:: docs/images/README_HeaderThreePartners.svg
+.. image:: https://raw.githubusercontent.com/OpenEnergyPlatform/open-MaStR/refs/heads/production/docs/images/README_HeaderThreePartners.svg
     :align: left
     :target: https://github.com/OpenEnergyPlatform/open-MaStR
     :alt: MaStR logo
