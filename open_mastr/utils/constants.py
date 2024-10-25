@@ -16,8 +16,10 @@ BULK_DATA = [
     "balancing_area",
     "permit",
     "deleted_units",
+    "deleted_market_actors",
     "retrofit_units",
     "changed_dso_assignment",
+    "storage_units",
 ]
 
 # Possible values for parameter 'data' with API download method
@@ -62,8 +64,10 @@ ADDITIONAL_TABLES = [
     "market_roles",
     "permit",
     "deleted_units",
+    "deleted_market_actors",
     "retrofit_units",
     "changed_dso_assignment",
+    "storage_units",
 ]
 
 # Possible data types for API download
@@ -77,7 +81,7 @@ API_LOCATION_TYPES = [
     "location_gas_consumption",
 ]
 
-# Map bulk data to bulk download tables (xml file names)
+# Map bulk data to bulk download tables (XML file names)
 BULK_INCLUDE_TABLES_MAP = {
     "wind": ["anlageneegwind", "einheitenwind"],
     "solar": ["anlageneegsolar", "einheitensolar"],
@@ -89,7 +93,8 @@ BULK_INCLUDE_TABLES_MAP = {
     ],
     "combustion": ["anlagenkwk", "einheitenverbrennung"],
     "nuclear": ["einheitenkernkraft"],
-    "storage": ["anlageneegspeicher", "anlagenstromspeicher", "einheitenstromspeicher"],
+    "storage": ["anlageneegspeicher", "einheitenstromspeicher"],
+    "storage_units": ["anlagenstromspeicher"],
     "gas": [
         "anlagengasspeicher",
         "einheitengaserzeuger",
@@ -103,6 +108,7 @@ BULK_INCLUDE_TABLES_MAP = {
     "balancing_area": ["bilanzierungsgebiete"],
     "permit": ["einheitengenehmigung"],
     "deleted_units": ["geloeschteunddeaktivierteeinheiten"],
+    "deleted_market_actors": ["geloeschteunddeaktiviertemarktakteure"],
     "retrofit_units": ["ertuechtigungen"],
     "changed_dso_assignment": ["einheitenaenderungnetzbetreiberzuordnungen"],
 }
@@ -122,6 +128,7 @@ BULK_ADDITIONAL_TABLES_CSV_EXPORT_MAP = {
     "balancing_area": ["balancing_area"],
     "permit": ["permit"],
     "deleted_units": ["deleted_units"],
+    "deleted_market_actors": ["deleted_market_actors"],
     "retrofit_units": ["retrofit_units"],
     "changed_dso_assignment": ["changed_dso_assignment"],
 }
@@ -179,8 +186,10 @@ ORM_MAP = {
     "balancing_area": "BalancingArea",
     "permit": "Permit",
     "deleted_units": "DeletedUnits",
+    "deleted_market_actors": "DeletedMarketActors",
     "retrofit_units": "RetrofitUnits",
     "changed_dso_assignment": "ChangedDSOAssignment",
+    "storage_units": "StorageUnits",
 }
 
 UNIT_TYPE_MAP = {

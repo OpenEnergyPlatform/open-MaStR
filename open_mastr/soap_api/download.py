@@ -466,7 +466,7 @@ class MaStRDownload:
             multiprocessing package) choose False.
             Defaults to number of cores (including hyperthreading).
         """
-        log.warn(
+        log.warning(
             """
             The `MaStRDownload` class is deprecated and will not be maintained in the future.
             To get a full table of the Marktstammdatenregister, use the open_mastr.Mastr.download

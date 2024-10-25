@@ -20,12 +20,13 @@ from open_mastr.utils.config import get_project_home_dir
 import keyring
 
 import logging
+
 log = logging.getLogger(__name__)
 
 
 def _load_config_file():
 
-    config_file = os.path.join(get_project_home_dir(), 'config', 'credentials.cfg')
+    config_file = os.path.join(get_project_home_dir(), "config", "credentials.cfg")
     cfg = cp.ConfigParser()
 
     # if not os.path.isdir(open_mastr_home):
@@ -35,7 +36,7 @@ def _load_config_file():
         cfg.read(config_file)
         return cfg
     else:
-        with open(config_file, 'w') as configfile:
+        with open(config_file, "w") as configfile:
             cfg.write(configfile)
         return cfg
 
@@ -53,7 +54,7 @@ def get_mastr_user():
     """
     cfg = _load_config_file()
     section = "MaStR"
-    cfg_path = os.path.join(get_project_home_dir(), 'config', 'credentials.cfg')
+    cfg_path = os.path.join(get_project_home_dir(), "config", "credentials.cfg")
 
     try:
         user = cfg.get(section, "user")
@@ -66,10 +67,12 @@ def get_mastr_user():
         # except cp.NoOptionError:
         #     raise cp.Error(f"The option 'user' could not by found in the section "
         #                    f"{section} in file {cfg_path}.")
-        log.warning(f"The option 'user' could not by found in the section "
-                    f"{section} in file {cfg_path}. "
-                    f"You might run into trouble when downloading data via the MaStR API."
-                    f"\n Bulk download works without option 'user'.")
+        log.warning(
+            f"The option 'user' could not by found in the section "
+            f"{section} in file {cfg_path}. "
+            f"You might run into trouble when downloading data via the MaStR API."
+            f"\n Bulk download works without option 'user'."
+        )
         return None
 
 
@@ -79,15 +82,19 @@ def check_and_set_mastr_user():
     user = get_mastr_user()
 
     if not user:
-        credentials_file = os.path.join(get_project_home_dir(), 'config', 'credentials.cfg')
+        credentials_file = os.path.join(
+            get_project_home_dir(), "config", "credentials.cfg"
+        )
         cfg = _load_config_file()
 
-        user = input('\n\nCannot not find a MaStR user name in {config_file}.\n\n'
-                     'Please enter MaStR-ID (pattern: SOM123456789012): '
-                     ''.format(config_file=credentials_file))
+        user = input(
+            "\n\nCannot not find a MaStR user name in {config_file}.\n\n"
+            "Please enter MaStR-ID (pattern: SOM123456789012): "
+            "".format(config_file=credentials_file)
+        )
         cfg["MaStR"] = {"user": user}
 
-        with open(credentials_file, 'w') as configfile:
+        with open(credentials_file, "w") as configfile:
             cfg.write(configfile)
 
     return user
@@ -115,7 +122,7 @@ def get_mastr_token(user):
     # Retrieving password from keyring does currently fail on headless systems
     # Prevent from breaking program execution with following try/except clause
     section = "MaStR"
-    cfg_path = os.path.join(get_project_home_dir(), 'config', 'credentials.cfg')
+    cfg_path = os.path.join(get_project_home_dir(), "config", "credentials.cfg")
     try:
         password = keyring.get_password(section, user)
     except:
@@ -127,10 +134,12 @@ def get_mastr_token(user):
         try:
             password = cfg.get(section, "token")
         except (cp.NoSectionError, cp.NoOptionError):
-            log.warning(f"The option 'token' could not by found in the section "
-                        f"{section} in file {cfg_path}. "
-                        f"You might run into trouble when downloading data via the MaStR API."
-                        f"\n Bulk download works without option 'token'.")
+            log.warning(
+                f"The option 'token' could not by found in the section "
+                f"{section} in file {cfg_path}. "
+                f"You might run into trouble when downloading data via the MaStR API."
+                f"\n Bulk download works without option 'token'."
+            )
             password = None
     return password
 
@@ -142,17 +151,21 @@ def check_and_set_mastr_token(user):
 
     if not password:
         cfg = _load_config_file()
-        credentials_file = os.path.join(get_project_home_dir(), 'config', 'credentials.cfg')
+        credentials_file = os.path.join(
+            get_project_home_dir(), "config", "credentials.cfg"
+        )
 
         # If also no password in credentials file, ask the user to input password
         # Two options: (1) storing in keyring; (2) storing in config file
-        password = input('\n\nCannot not find a MaStR password, neither in keyring nor in {config_file}.\n\n'
-                         "Please enter a valid access token of a role (Benutzerrolle) "
-                         "associated to the user {user}.\n"
-                         "The token might look like: "
-                         "koo5eixeiQuoi'w8deighai8ahsh1Ha3eib3coqu7ceeg%ies...\n".format(
-            config_file=credentials_file,
-            user=user))
+        password = input(
+            "\n\nCannot not find a MaStR password, neither in keyring nor in {config_file}.\n\n"
+            "Please enter a valid access token of a role (Benutzerrolle) "
+            "associated to the user {user}.\n"
+            "The token might look like: "
+            "koo5eixeiQuoi'w8deighai8ahsh1Ha3eib3coqu7ceeg%ies...\n".format(
+                config_file=credentials_file, user=user
+            )
+        )
 
         # let the user decide where to store the password
         # (1) keyring
@@ -160,10 +173,15 @@ def check_and_set_mastr_token(user):
         # (0) don't store, abort
         # Wait for correct input
         while True:
-            choice = int(input("Where do you want to store your password?\n"
-                            "\t(1) Keyring (default, hit ENTER to select)\n"
-                            "\t(2) Config file (credendials.cfg)\n"
-                            "\t(0) Abort. Don't store password\n") or "1\n")
+            choice = int(
+                input(
+                    "Where do you want to store your password?\n"
+                    "\t(1) Keyring (default, hit ENTER to select)\n"
+                    "\t(2) Config file (credendials.cfg)\n"
+                    "\t(0) Abort. Don't store password\n"
+                )
+                or "1\n"
+            )
             # check if choice is valid input
             if choice in [0, 1, 2]:
                 break
@@ -175,7 +193,7 @@ def check_and_set_mastr_token(user):
             keyring.set_password("MaStR", user, password)
         elif choice == 2:
             cfg["MaStR"] = {"user": user, "token": password}
-            with open(credentials_file, 'w') as configfile:
+            with open(credentials_file, "w") as configfile:
                 cfg.write(configfile)
         else:
             log.error("No clue what happened here!?")

@@ -6,18 +6,38 @@ For each version important additions, changes and removals are listed here.
 The format is inspired from [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [v0.XX.X] unreleased - 2024-XX-XX
+## [v0.XX.X] unreleased - 202X-XX-XX
 ### Added
 ### Changed
-- Fix usercff workflow [#545](https://github.com/OpenEnergyPlatform/open-MaStR/issues/544)
+### Removed
+- Moved old code artefacts from `scripts` folder to paper specific 
+  [repository](https://github.com/FlorianK13/verify-marktstammdaten) 
+  [#561](https://github.com/OpenEnergyPlatform/open-MaStR/pull/561)
+
+
+## [v0.14.5] New MaStR data model, battery export, various fixes - 2024-10-11
+### Added
+- Replace values in NetzbetreiberpruefungStatus with their entries from
+  Katalogwerte
+  [#583](https://github.com/OpenEnergyPlatform/open-MaStR/pull/583)
+- Add `deleted_market_actors` to data model and prevent crash on unknown tables
+  [#575](https://github.com/OpenEnergyPlatform/open-MaStR/pull/575)
+- Extended documentation of data cleansing process for bulk download
+  [#568](https://github.com/OpenEnergyPlatform/open-MaStR/pull/568)
+- Add OFFIS eV as partner organization
+  [#493](https://github.com/OpenEnergyPlatform/open-MaStR/pull/493)
+### Changed
+- Fix usercff workflow
+  [#545](https://github.com/OpenEnergyPlatform/open-MaStR/issues/544)
 - Fix docs on user-defined output path for csv, xml, database
   [#549](https://github.com/OpenEnergyPlatform/open-MaStR/issues/549)
 - Set pandas version to >=2.2.2 for compatibility with numpy v2.0
   [#553](https://github.com/OpenEnergyPlatform/open-MaStR/issues/553)
 - Allow to configure model/service port in `soap_api.download.MaStRAPI`
   [#556](https://github.com/OpenEnergyPlatform/open-MaStR/issues/556)
-### Removed
-- Removed old code artefacts from `scripts` folder [#561](https://github.com/OpenEnergyPlatform/open-MaStR/pull/561)
+- Allow CSV export of table `storage_units`
+  [#565](https://github.com/OpenEnergyPlatform/open-MaStR/pull/565)
+
 
 ## [v0.14.4] Release for the Journal of Open Source Software JOSS - 2024-06-07
 ### Added
@@ -30,7 +50,6 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 - Change header to identify as open-mastr during http request [#526](https://github.com/OpenEnergyPlatform/open-MaStR/pull/526)
 - Fixed missing call to gen_url in case first bulk download fails as xml file for today is not yet available [#534](https://github.com/OpenEnergyPlatform/open-MaStR/pull/534)
 - Repair links in the documentation page [#536](https://github.com/OpenEnergyPlatform/open-MaStR/pull/536)
-
 
 ## [v0.14.3] Fix Pypi Release - 2024-04-24 
 ### Added

@@ -1,4 +1,4 @@
-from open_mastr.utils.helpers import (reverse_fill_basic_units, create_db_query)
+from open_mastr.utils.helpers import reverse_fill_basic_units, create_db_query
 
 
 technology = [
@@ -24,6 +24,4 @@ location_types = [
 reverse_fill_basic_units()
 
 # to csv per tech
-create_db_query(
-    technology=technology, additional_data=data_types, limit=None
-)
+create_db_query(technology=technology, additional_data=data_types, limit=None)

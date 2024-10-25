@@ -57,6 +57,8 @@ columns_replace_list = [
     "Pumpspeichertechnologie",
     "Einsatzort",
     # geloeschteunddeaktivierteEinheiten
+    # geloeschteunddeaktivierteMarktAkteure
+    "MarktakteurStatus",
     # lokationen
     # marktakteure
     "Personenart",
@@ -108,4 +110,6 @@ columns_replace_list = [
     "Seelage",
     "ClusterNordsee",
     "ClusterOstsee",
+    # various tables
+    "NetzbetreiberpruefungStatus",
 ]

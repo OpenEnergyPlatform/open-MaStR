@@ -99,7 +99,7 @@ class MaStRMirror:
             Number of parallel processes used to download additional data.
             Defaults to `None`.
         """
-        log.warn(
+        log.warning(
             """
             The `MaStRMirror` class is deprecated and will not be maintained in the future.
             To get a full table of the Marktstammdatenregister, use the open_mastr.Mastr.download

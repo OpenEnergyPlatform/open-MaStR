@@ -77,7 +77,6 @@ class Mastr:
     """
 
     def __init__(self, engine="sqlite", connect_to_translated_db=False) -> None:
-
         validate_parameter_format_for_mastr_init(engine)
 
         self.output_dir = get_output_dir()
@@ -142,6 +141,7 @@ class Mastr:
             | "nuclear"             | Yes  | Yes  |
             | "gas"                 | Yes  | Yes  |
             | "storage"             | Yes  | Yes  |
+            | "storage_units"       | Yes  | Yes  |
             | "electricity_consumer"| Yes  | No   |
             | "location"            | Yes  | Yes  |
             | "market"              | Yes  | No   |
@@ -149,6 +149,7 @@ class Mastr:
             | "balancing_area"      | Yes  | No   |
             | "permit"              | Yes  | Yes  |
             | "deleted_units"       | Yes  | No   |
+            | "deleted_market_actors"| Yes | No   |
             | "retrofit_units"      | Yes  | No   |
         date : None or `datetime.datetime` or str, optional
 
@@ -163,8 +164,10 @@ class Mastr:
 
             Default to `None`.
         bulk_cleansing : bool, optional
-            If True, data cleansing is applied after the download (which is recommended). Default
-            to True.
+            If set to True, data cleansing is applied after the download (which is recommended).
+            In its original format, many entries in the MaStR are encoded with IDs. Columns like
+            `state` or `fueltype` do not contain entries such as "Hessen" or "Braunkohle", but instead
+            only contain IDs. Cleansing replaces these IDs with their corresponding original entries.
         api_processes : int or None or "max", optional
             Number of parallel processes used to download additional data.
             Defaults to `None`. If set to "max", the maximum number of possible processes
@@ -304,7 +307,7 @@ class Mastr:
                 "balancing_area", "electricity_consumer", "gas_consumer", "gas_producer",
                 "gas_storage", "gas_storage_extended",
                 "grid_connections", "grids", "market_actors", "market_roles",
-                "locations_extended, 'permit', 'deleted_units' ]
+                "locations_extended", "permit", "deleted_units", "storage_units"]
         chunksize: int
             Defines the chunksize of the tables export.
             Default value is 500.000 rows to include in each chunk.
