@@ -149,7 +149,7 @@ Data
     :target: https://open-mastr.readthedocs.io/en/latest/
     :alt: Read the Docs
 
-.. |badge_ci| image:: https://github.com/OpenEnergyPlatform/open-MaStR/workflows/CI/badge.svg
+.. |badge_ci| image:: https://github.com/OpenEnergyPlatform/open-MaStR/actions/workflows/ci-production.yml/badge.svg
     :target: https://github.com/OpenEnergyPlatform/open-MaStR/actions?query=workflow%3ACI
     :alt: GitHub Actions
 
