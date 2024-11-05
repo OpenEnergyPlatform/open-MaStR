@@ -10,6 +10,10 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 ### Added
 ### Changed
 ### Removed
+- Moved old code artefacts from `scripts` folder to paper specific 
+  [repository](https://github.com/FlorianK13/verify-marktstammdaten) 
+  [#561](https://github.com/OpenEnergyPlatform/open-MaStR/pull/561)
+
 
 ## [v0.14.5] New MaStR data model, battery export, various fixes - 2024-10-11
 ### Added
@@ -33,6 +37,7 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
   [#556](https://github.com/OpenEnergyPlatform/open-MaStR/issues/556)
 - Allow CSV export of table `storage_units`
   [#565](https://github.com/OpenEnergyPlatform/open-MaStR/pull/565)
+
 
 ## [v0.14.4] Release for the Journal of Open Source Software JOSS - 2024-06-07
 ### Added
