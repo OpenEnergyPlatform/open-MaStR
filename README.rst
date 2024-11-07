@@ -1,5 +1,5 @@
 
-.. image:: docs/images/README_HeaderThreePartners.svg
+.. image:: https://raw.githubusercontent.com/OpenEnergyPlatform/open-MaStR/refs/heads/production/docs/images/README_HeaderThreePartners.svg
     :align: left
     :target: https://github.com/OpenEnergyPlatform/open-MaStR
     :alt: MaStR logo
@@ -149,7 +149,7 @@ Data
     :target: https://open-mastr.readthedocs.io/en/latest/
     :alt: Read the Docs
 
-.. |badge_ci| image:: https://github.com/OpenEnergyPlatform/open-MaStR/workflows/CI/badge.svg
+.. |badge_ci| image:: https://github.com/OpenEnergyPlatform/open-MaStR/actions/workflows/ci-production.yml/badge.svg
     :target: https://github.com/OpenEnergyPlatform/open-MaStR/actions?query=workflow%3ACI
     :alt: GitHub Actions
 

@@ -9,6 +9,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 ## [v0.XX.X] unreleased - 202X-XX-XX
 ### Added
 ### Changed
+- Repair Header image in Readme
+  [#587](https://github.com/OpenEnergyPlatform/open-MaStR/pull/587)
 ### Removed
 - Moved old code artefacts from `scripts` folder to paper specific 
   [repository](https://github.com/FlorianK13/verify-marktstammdaten) 
