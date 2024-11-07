@@ -6,7 +6,7 @@ labels: "release"
 assignees: ''
 
 ---
-**Release Title**:
+**Release Title**: *What is new in one sentence*
 **Release Date**:
 
 
