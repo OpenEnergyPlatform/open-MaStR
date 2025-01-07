@@ -8,6 +8,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 
 ## [v0.XX.X] unreleased - 202X-XX-XX
 ### Added
+- Add an Issue Template for Software Release
+  [#589](https://github.com/OpenEnergyPlatform/open-MaStR/pull/589)
 ### Changed
 - Repair Header image in Readme
   [#587](https://github.com/OpenEnergyPlatform/open-MaStR/pull/587)
