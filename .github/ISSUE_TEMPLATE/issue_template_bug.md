@@ -1,6 +1,6 @@
 ---
 name: Bug Issue
-about: Report bugs and errors for the Python package open-mastr. Not that we are not the maintainers of the actual dataset. Visit https://www.marktstammdatenregister.de/MaStR to reach them.
+about: Report bugs and errors for the Python package open-mastr. Note that we are not the maintainers of the actual dataset. Visit https://www.marktstammdatenregister.de/MaStR to reach them.
 title: Your title should make sense if said after "The issue is <your issue title>"
 labels: "bug"
 assignees: ''
