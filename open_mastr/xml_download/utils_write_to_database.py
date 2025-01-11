@@ -1,3 +1,4 @@
+from io import StringIO
 from shutil import Error
 from zipfile import ZipFile
 
@@ -12,7 +13,6 @@ from open_mastr.utils.config import setup_logger
 from open_mastr.utils.helpers import data_to_include_tables
 from open_mastr.utils.orm import tablename_mapping
 from open_mastr.xml_download.utils_cleansing_bulk import cleanse_bulk_data
-from io import StringIO
 
 
 def write_mastr_xml_to_database(
@@ -28,44 +28,45 @@ def write_mastr_xml_to_database(
     with ZipFile(zipped_xml_file_path, "r") as f:
         files_list = f.namelist()
         files_list = correct_ordering_of_filelist(files_list)
+
         for file_name in files_list:
-            # xml_table_name is the beginning of the filename without the number in lowercase
-            xml_table_name = file_name.split("_")[0].split(".")[0].lower()
+            xml_table_name = extract_xml_table_name(file_name)
 
-            if is_table_relevant(
-                xml_table_name, include_tables
-            ):
-                sql_table_name = tablename_mapping[xml_table_name]["__name__"]
+            if not is_table_relevant(xml_table_name, include_tables):
+                continue
 
-                if is_first_file(file_name):
-                    create_database_table(engine, xml_table_name)
-                    print(
-                        f"Table '{sql_table_name}' is filled with data '{xml_table_name}' "
-                        "from the bulk download."
-                    )
-                print(f"File '{file_name}' is parsed.")
+            sql_table_name = extract_sql_table_name(xml_table_name)
 
-                df = preprocess_table_for_writing_to_database(
-                    f,
-                    file_name,
-                    xml_table_name,
-                    bulk_download_date,
+            if is_first_file(file_name):
+                create_database_table(engine, xml_table_name)
+                print(
+                    f"Table '{sql_table_name}' is filled with data '{xml_table_name}' "
+                    "from the bulk download."
                 )
+            print(f"File '{file_name}' is parsed.")
 
-                # Convert date and datetime columns into the datatype datetime
-                df = cast_date_columns_to_datetime(xml_table_name, df)
+            df = read_xml_file(f, file_name)
+            df = process_table_before_insertion(df, xml_table_name, zipped_xml_file_path, bulk_download_date,
+                                                bulk_cleansing)
 
-                if bulk_cleansing:
-                    df = cleanse_bulk_data(df, zipped_xml_file_path)
+            add_table_to_database(
+                df,
+                xml_table_name,
+                sql_table_name,
+                if_exists="append",
+                engine=engine,
+            )
 
-                add_table_to_database(
-                    df=df,
-                    xml_table_name=xml_table_name,
-                    sql_table_name=sql_table_name,
-                    if_exists="append",
-                    engine=engine,
-                )
     print("Bulk download and data cleansing were successful.")
+
+
+def extract_xml_table_name(file_name: str) -> str:
+    """Extract the table name from the file name."""
+    return file_name.split("_")[0].split(".")[0].lower()
+
+
+def extract_sql_table_name(xml_table_name: str) -> str:
+    return tablename_mapping[xml_table_name]["__name__"]
 
 
 def is_table_relevant(xml_table_name: str, include_tables: list) -> bool:
@@ -154,24 +155,34 @@ def correct_ordering_of_filelist(files_list: list) -> list:
     return files_list
 
 
-def preprocess_table_for_writing_to_database(
-    f: ZipFile,
-    file_name: str,
-    xml_table_name: str,
-    bulk_download_date: str,
-) -> pd.DataFrame:
+def read_xml_file(f: ZipFile, file_name: str) -> pd.DataFrame:
+    """Read the xml file from the zip file and return it as a DataFrame."""
     data = f.read(file_name)
     try:
-        df = pd.read_xml(data, encoding="UTF-16", compression="zip")
+        return pd.read_xml(data, encoding="UTF-16", compression="zip")
     except lxml.etree.XMLSyntaxError as err:
-        df = handle_xml_syntax_error(data.decode("utf-16"), err)
+        return handle_xml_syntax_error(data.decode("utf-16"), err)
 
+
+def process_table_before_insertion(
+    df: pd.DataFrame,
+    xml_table_name: str,
+    zipped_xml_file_path: str,
+    bulk_download_date: str,
+    bulk_cleansing: bool,
+) -> pd.DataFrame:
     df = add_zero_as_first_character_for_too_short_string(df)
     df = change_column_names_to_orm_format(df, xml_table_name)
 
     # Add Column that refers to the source of the data
     df["DatenQuelle"] = "bulk"
     df["DatumDownload"] = bulk_download_date
+
+    # Convert date and datetime columns into the datatype datetime
+    df = cast_date_columns_to_datetime(xml_table_name, df)
+
+    if bulk_cleansing:
+        df = cleanse_bulk_data(df, zipped_xml_file_path)
     return df
 
 
@@ -224,7 +235,7 @@ def add_table_to_database(
         except sqlalchemy.exc.IntegrityError:
             # error resulting from Unique constraint failed
             df = write_single_entries_until_not_unique_comes_up(
-                df=df, xml_table_name=xml_table_name, engine=engine
+                df, xml_table_name, engine
             )
 
 
@@ -295,7 +306,7 @@ def write_single_entries_until_not_unique_comes_up(
         labels=key_list, errors="ignore"
     )  # drop primary keys that already exist in the table
     df = df.reset_index()
-    print(f"{len_df_before-len(df)} entries already existed in the database.")
+    print(f"{len_df_before - len(df)} entries already existed in the database.")
 
     return df
 
