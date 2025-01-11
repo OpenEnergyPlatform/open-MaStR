@@ -26,8 +26,7 @@ def write_mastr_xml_to_database(
     include_tables = data_to_include_tables(data, mapping="write_xml")
 
     with ZipFile(zipped_xml_file_path, "r") as f:
-        files_list = f.namelist()
-        files_list = correct_ordering_of_filelist(files_list)
+        files_list = correct_ordering_of_filelist(f.namelist())
 
         for file_name in files_list:
             xml_table_name = extract_xml_table_name(file_name)
@@ -150,11 +149,11 @@ def correct_ordering_of_filelist(files_list: list) -> list:
 
 def read_xml_file(f: ZipFile, file_name: str) -> pd.DataFrame:
     """Read the xml file from the zip file and return it as a DataFrame."""
-    data = f.read(file_name)
-    try:
-        return pd.read_xml(data, encoding="UTF-16", compression="zip")
-    except lxml.etree.XMLSyntaxError as err:
-        return handle_xml_syntax_error(data.decode("utf-16"), err)
+    with f.open(file_name) as xml_file:
+        try:
+            return pd.read_xml(xml_file, encoding="UTF-16", parser='etree')
+        except lxml.etree.XMLSyntaxError as error:
+            return handle_xml_syntax_error(xml_file.read().decode("utf-16"), error)
 
 
 def process_table_before_insertion(
