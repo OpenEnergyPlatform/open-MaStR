@@ -6,7 +6,7 @@ import lxml
 import numpy as np
 import pandas as pd
 import sqlalchemy
-from sqlalchemy import select
+from sqlalchemy import select, inspect
 from sqlalchemy.sql import text
 
 from open_mastr.utils.config import setup_logger
@@ -85,11 +85,10 @@ def is_table_relevant(xml_table_name: str, include_tables: list) -> bool:
 
 
 def create_database_table(engine: sqlalchemy.engine.Engine, xml_table_name: str) -> None:
+    """Create the table in the database if it does not exist."""
     orm_class = tablename_mapping[xml_table_name]["__class__"]
-    # drop the content from table
-    orm_class.__table__.drop(engine, checkfirst=True)
-    # create table schema
-    orm_class.__table__.create(engine)
+    if not inspect(engine).has_table(orm_class.__tablename__):
+        orm_class.__table__.create(engine, checkfirst=True)
 
 
 def is_first_file(file_name: str) -> bool:
