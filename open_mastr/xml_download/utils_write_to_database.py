@@ -49,13 +49,7 @@ def write_mastr_xml_to_database(
             df = process_table_before_insertion(df, xml_table_name, zipped_xml_file_path, bulk_download_date,
                                                 bulk_cleansing)
 
-            add_table_to_database(
-                df,
-                xml_table_name,
-                sql_table_name,
-                if_exists="append",
-                engine=engine,
-            )
+            add_table_to_database(df, xml_table_name, sql_table_name, engine)
 
     print("Bulk download and data cleansing were successful.")
 
@@ -201,7 +195,6 @@ def add_table_to_database(
     df: pd.DataFrame,
     xml_table_name: str,
     sql_table_name: str,
-    if_exists: str,
     engine: sqlalchemy.engine.Engine,
 ) -> None:
     # get a dictionary for the data types
@@ -224,7 +217,7 @@ def add_table_to_database(
                         sql_table_name,
                         con=con,
                         index=False,
-                        if_exists=if_exists,
+                        if_exists="append",
                         dtype=dtypes_for_writing_sql,
                     )
                     break
