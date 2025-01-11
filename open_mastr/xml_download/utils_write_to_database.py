@@ -29,18 +29,18 @@ def write_mastr_xml_to_database(
         files_list = f.namelist()
         files_list = correct_ordering_of_filelist(files_list)
         for file_name in files_list:
-            # xml_tablename is the beginning of the filename without the number in lowercase
-            xml_tablename = file_name.split("_")[0].split(".")[0].lower()
+            # xml_table_name is the beginning of the filename without the number in lowercase
+            xml_table_name = file_name.split("_")[0].split(".")[0].lower()
 
             if is_table_relevant(
-                xml_tablename=xml_tablename, include_tables=include_tables
+                xml_table_name=xml_table_name, include_tables=include_tables
             ):
-                sql_tablename = tablename_mapping[xml_tablename]["__name__"]
+                sql_table_name = tablename_mapping[xml_table_name]["__name__"]
 
                 if is_first_file(file_name):
-                    create_database_table(engine=engine, xml_tablename=xml_tablename)
+                    create_database_table(engine=engine, xml_table_name=xml_table_name)
                     print(
-                        f"Table '{sql_tablename}' is filled with data '{xml_tablename}' "
+                        f"Table '{sql_table_name}' is filled with data '{xml_table_name}' "
                         "from the bulk download."
                     )
                 print(f"File '{file_name}' is parsed.")
@@ -48,49 +48,49 @@ def write_mastr_xml_to_database(
                 df = preprocess_table_for_writing_to_database(
                     f=f,
                     file_name=file_name,
-                    xml_tablename=xml_tablename,
+                    xml_table_name=xml_table_name,
                     bulk_download_date=bulk_download_date,
                 )
 
                 # Convert date and datetime columns into the datatype datetime
-                df = cast_date_columns_to_datetime(xml_tablename, df)
+                df = cast_date_columns_to_datetime(xml_table_name, df)
 
                 if bulk_cleansing:
                     df = cleanse_bulk_data(df, zipped_xml_file_path)
 
                 add_table_to_database(
                     df=df,
-                    xml_tablename=xml_tablename,
-                    sql_tablename=sql_tablename,
+                    xml_table_name=xml_table_name,
+                    sql_table_name=sql_table_name,
                     if_exists="append",
                     engine=engine,
                 )
     print("Bulk download and data cleansing were successful.")
 
 
-def is_table_relevant(xml_tablename: str, include_tables: list) -> bool:
+def is_table_relevant(xml_table_name: str, include_tables: list) -> bool:
     """Checks if the table contains relevant data and if the user wants to
     have it in the database."""
     # few tables are only needed for data cleansing of the xml files and contain no
     # information of relevance
     try:
         boolean_write_table_to_sql_database = (
-            tablename_mapping[xml_tablename]["__class__"] is not None
+            tablename_mapping[xml_table_name]["__class__"] is not None
         )
     except KeyError:
         print(
-            f"Table '{xml_tablename}' is not supported by your open-mastr version and "
+            f"Table '{xml_table_name}' is not supported by your open-mastr version and "
             f"will be skipped."
         )
         return False
     # check if the table should be written to sql database (depends on user input)
-    include_count = include_tables.count(xml_tablename)
+    include_count = include_tables.count(xml_table_name)
 
     return include_count == 1 and boolean_write_table_to_sql_database
 
 
-def create_database_table(engine: sqlalchemy.engine.Engine, xml_tablename: str) -> None:
-    orm_class = tablename_mapping[xml_tablename]["__class__"]
+def create_database_table(engine: sqlalchemy.engine.Engine, xml_table_name: str) -> None:
+    orm_class = tablename_mapping[xml_table_name]["__class__"]
     # drop the content from table
     orm_class.__table__.drop(engine, checkfirst=True)
     # create table schema
@@ -105,8 +105,8 @@ def is_first_file(file_name: str) -> bool:
     )
 
 
-def cast_date_columns_to_datetime(xml_tablename: str, df: pd.DataFrame) -> pd.DataFrame:
-    sqlalchemy_columnlist = tablename_mapping[xml_tablename][
+def cast_date_columns_to_datetime(xml_table_name: str, df: pd.DataFrame) -> pd.DataFrame:
+    sqlalchemy_columnlist = tablename_mapping[xml_table_name][
         "__class__"
     ].__table__.columns.items()
     for column in sqlalchemy_columnlist:
@@ -157,7 +157,7 @@ def correct_ordering_of_filelist(files_list: list) -> list:
 def preprocess_table_for_writing_to_database(
     f: ZipFile,
     file_name: str,
-    xml_tablename: str,
+    xml_table_name: str,
     bulk_download_date: str,
 ) -> pd.DataFrame:
     data = f.read(file_name)
@@ -167,7 +167,7 @@ def preprocess_table_for_writing_to_database(
         df = handle_xml_syntax_error(data.decode("utf-16"), err)
 
     df = add_zero_as_first_character_for_too_short_string(df)
-    df = change_column_names_to_orm_format(df, xml_tablename)
+    df = change_column_names_to_orm_format(df, xml_table_name)
 
     # Add Column that refers to the source of the data
     df["DatenQuelle"] = "bulk"
@@ -176,11 +176,11 @@ def preprocess_table_for_writing_to_database(
 
 
 def change_column_names_to_orm_format(
-    df: pd.DataFrame, xml_tablename: str
+    df: pd.DataFrame, xml_table_name: str
 ) -> pd.DataFrame:
-    if tablename_mapping[xml_tablename]["replace_column_names"]:
+    if tablename_mapping[xml_table_name]["replace_column_names"]:
         df.rename(
-            columns=tablename_mapping[xml_tablename]["replace_column_names"],
+            columns=tablename_mapping[xml_table_name]["replace_column_names"],
             inplace=True,
         )
     return df
@@ -188,15 +188,15 @@ def change_column_names_to_orm_format(
 
 def add_table_to_database(
     df: pd.DataFrame,
-    xml_tablename: str,
-    sql_tablename: str,
+    xml_table_name: str,
+    sql_table_name: str,
     if_exists: str,
     engine: sqlalchemy.engine.Engine,
 ) -> None:
     # get a dictionary for the data types
 
     table_columns_list = list(
-        tablename_mapping[xml_tablename]["__class__"].__table__.columns
+        tablename_mapping[xml_table_name]["__class__"].__table__.columns
     )
     dtypes_for_writing_sql = {
         column.name: column.type
@@ -204,13 +204,13 @@ def add_table_to_database(
         if column.name in df.columns
     }
 
-    add_missing_columns_to_table(engine, xml_tablename, column_list=df.columns.tolist())
+    add_missing_columns_to_table(engine, xml_table_name, column_list=df.columns.tolist())
     for _ in range(10000):
         try:
             with engine.connect() as con:
                 with con.begin():
                     df.to_sql(
-                        sql_tablename,
+                        sql_table_name,
                         con=con,
                         index=False,
                         if_exists=if_exists,
@@ -224,7 +224,7 @@ def add_table_to_database(
         except sqlalchemy.exc.IntegrityError:
             # error resulting from Unique constraint failed
             df = write_single_entries_until_not_unique_comes_up(
-                df=df, xml_tablename=xml_tablename, engine=engine
+                df=df, xml_table_name=xml_table_name, engine=engine
             )
 
 
@@ -261,14 +261,14 @@ def add_zero_as_first_character_for_too_short_string(df: pd.DataFrame) -> pd.Dat
 
 
 def write_single_entries_until_not_unique_comes_up(
-    df: pd.DataFrame, xml_tablename: str, engine: sqlalchemy.engine.Engine
+    df: pd.DataFrame, xml_table_name: str, engine: sqlalchemy.engine.Engine
 ) -> pd.DataFrame:
     """
     Remove from dataframe these rows, which are already existing in the database table
     Parameters
     ----------
     df
-    xml_tablename
+    xml_table_name
     engine
 
     Returns
@@ -276,7 +276,7 @@ def write_single_entries_until_not_unique_comes_up(
     Filtered dataframe
     """
 
-    table = tablename_mapping[xml_tablename]["__class__"].__table__
+    table = tablename_mapping[xml_table_name]["__class__"].__table__
     primary_key = next(c for c in table.columns if c.primary_key)
 
     with engine.connect() as con:
@@ -302,7 +302,7 @@ def write_single_entries_until_not_unique_comes_up(
 
 def add_missing_columns_to_table(
     engine: sqlalchemy.engine.Engine,
-    xml_tablename: str,
+    xml_table_name: str,
     column_list: list,
 ) -> None:
     """
@@ -312,7 +312,7 @@ def add_missing_columns_to_table(
     Parameters
     ----------
     engine
-    xml_tablename
+    xml_table_name
     df
 
     Returns
@@ -323,7 +323,7 @@ def add_missing_columns_to_table(
 
     # get the columns name from the existing database
     inspector = sqlalchemy.inspect(engine)
-    table_name = tablename_mapping[xml_tablename]["__class__"].__table__.name
+    table_name = tablename_mapping[xml_table_name]["__class__"].__table__.name
     columns = inspector.get_columns(table_name)
     column_names_from_database = [column["name"] for column in columns]
 
