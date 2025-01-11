@@ -8,6 +8,7 @@ import pandas as pd
 import sqlalchemy
 from sqlalchemy import select, inspect
 from sqlalchemy.sql import text
+from sqlalchemy.sql.sqltypes import Date, DateTime
 
 from open_mastr.utils.config import setup_logger
 from open_mastr.utils.helpers import data_to_include_tables
@@ -110,15 +111,27 @@ def cast_date_columns_to_datetime(xml_table_name: str, df: pd.DataFrame) -> pd.D
     return df
 
 
+def cast_date_columns_to_string(xml_table_name: str, df: pd.DataFrame) -> pd.DataFrame:
+    column_list = tablename_mapping[xml_table_name][
+        "__class__"
+    ].__table__.columns.items()
+    for column in column_list:
+        column_name = column[0]
+
+        if not (column[0] in df.columns and is_date_column(column, df)):
+            continue
+
+        df[column_name] = pd.to_datetime(df[column_name], errors='coerce')
+
+        if type(column[1].type) is Date:
+            df[column_name] = df[column_name].dt.strftime('%Y-%m-%d').replace('NaT', None)
+        elif type(column[1].type) is DateTime:
+            df[column_name] = df[column_name].dt.strftime('%Y-%m-%d %H:%M:%S.%f').replace('NaT', None)
+    return df
+
+
 def is_date_column(column, df: pd.DataFrame) -> bool:
-    return (
-        type(column[1].type)
-        in [
-            sqlalchemy.sql.sqltypes.Date,
-            sqlalchemy.sql.sqltypes.DateTime,
-        ]
-        and column[0] in df.columns
-    )
+    return type(column[1].type) in [Date, DateTime] and column[0] in df.columns
 
 
 def correct_ordering_of_filelist(files_list: list) -> list:
@@ -170,9 +183,6 @@ def process_table_before_insertion(
     df["DatenQuelle"] = "bulk"
     df["DatumDownload"] = bulk_download_date
 
-    # Convert date and datetime columns into the datatype datetime
-    df = cast_date_columns_to_datetime(xml_table_name, df)
-
     if bulk_cleansing:
         df = cleanse_bulk_data(df, zipped_xml_file_path)
     return df
@@ -195,38 +205,29 @@ def add_table_to_database(
     sql_table_name: str,
     engine: sqlalchemy.engine.Engine,
 ) -> None:
-    # get a dictionary for the data types
+    column_list = df.columns.tolist()
+    add_missing_columns_to_table(engine, xml_table_name, column_list)
 
-    table_columns_list = list(
-        tablename_mapping[xml_table_name]["__class__"].__table__.columns
-    )
-    dtypes_for_writing_sql = {
-        column.name: column.type
-        for column in table_columns_list
-        if column.name in df.columns
-    }
+    # Convert NaNs to None.
+    df = df.where(pd.notnull(df), None)
 
-    add_missing_columns_to_table(engine, xml_table_name, column_list=df.columns.tolist())
+    # Convert date columns to strings. Dates are not supported directly by SQLite.
+    df = cast_date_columns_to_string(xml_table_name, df)
+
+    # Create SQL statement for bulk insert. ON CONFLICT DO NOTHING prevents duplicates.
+    insert_stmt = f"INSERT INTO {sql_table_name} ({','.join(column_list)}) VALUES ({','.join(['?' for _ in column_list])}) ON CONFLICT DO NOTHING"
+
     for _ in range(10000):
         try:
             with engine.connect() as con:
                 with con.begin():
-                    df.to_sql(
-                        sql_table_name,
-                        con=con,
-                        index=False,
-                        if_exists="append",
-                        dtype=dtypes_for_writing_sql,
-                    )
+                    con.connection.executemany(insert_stmt, df.to_numpy())
                     break
-
         except sqlalchemy.exc.DataError as err:
             delete_wrong_xml_entry(err, df)
-
         except sqlalchemy.exc.IntegrityError:
-            # error resulting from Unique constraint failed
             df = write_single_entries_until_not_unique_comes_up(
-                df, xml_table_name, engine
+                df, xml_table_name,
             )
 
 
