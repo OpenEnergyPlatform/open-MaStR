@@ -33,12 +33,12 @@ def write_mastr_xml_to_database(
             xml_table_name = file_name.split("_")[0].split(".")[0].lower()
 
             if is_table_relevant(
-                xml_table_name=xml_table_name, include_tables=include_tables
+                xml_table_name, include_tables
             ):
                 sql_table_name = tablename_mapping[xml_table_name]["__name__"]
 
                 if is_first_file(file_name):
-                    create_database_table(engine=engine, xml_table_name=xml_table_name)
+                    create_database_table(engine, xml_table_name)
                     print(
                         f"Table '{sql_table_name}' is filled with data '{xml_table_name}' "
                         "from the bulk download."
@@ -46,10 +46,10 @@ def write_mastr_xml_to_database(
                 print(f"File '{file_name}' is parsed.")
 
                 df = preprocess_table_for_writing_to_database(
-                    f=f,
-                    file_name=file_name,
-                    xml_table_name=xml_table_name,
-                    bulk_download_date=bulk_download_date,
+                    f,
+                    file_name,
+                    xml_table_name,
+                    bulk_download_date,
                 )
 
                 # Convert date and datetime columns into the datatype datetime
