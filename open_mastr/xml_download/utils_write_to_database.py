@@ -157,25 +157,6 @@ def read_xml_file(f: ZipFile, file_name: str) -> pd.DataFrame:
             return handle_xml_syntax_error(xml_file.read().decode("utf-16"), error)
 
 
-def process_table_before_insertion(
-    df: pd.DataFrame,
-    xml_table_name: str,
-    zipped_xml_file_path: str,
-    bulk_download_date: str,
-    bulk_cleansing: bool,
-) -> pd.DataFrame:
-    df = add_zero_as_first_character_for_too_short_string(df)
-    df = change_column_names_to_orm_format(df, xml_table_name)
-
-    # Add Column that refers to the source of the data
-    df["DatenQuelle"] = "bulk"
-    df["DatumDownload"] = bulk_download_date
-
-    if bulk_cleansing:
-        df = cleanse_bulk_data(df, zipped_xml_file_path)
-    return df
-
-
 def change_column_names_to_orm_format(
     df: pd.DataFrame, xml_table_name: str
 ) -> pd.DataFrame:
@@ -185,38 +166,6 @@ def change_column_names_to_orm_format(
             inplace=True,
         )
     return df
-
-
-def add_table_to_database(
-    df: pd.DataFrame,
-    xml_table_name: str,
-    sql_table_name: str,
-    engine: sqlalchemy.engine.Engine,
-) -> None:
-    column_list = df.columns.tolist()
-    add_missing_columns_to_table(engine, xml_table_name, column_list)
-
-    # Convert NaNs to None.
-    df = df.where(pd.notnull(df), None)
-
-    # Convert date columns to strings. Dates are not supported directly by SQLite.
-    df = cast_date_columns_to_string(xml_table_name, df)
-
-    # Create SQL statement for bulk insert. ON CONFLICT DO NOTHING prevents duplicates.
-    insert_stmt = f"INSERT INTO {sql_table_name} ({','.join(column_list)}) VALUES ({','.join(['?' for _ in column_list])}) ON CONFLICT DO NOTHING"
-
-    for _ in range(10000):
-        try:
-            with engine.connect() as con:
-                with con.begin():
-                    con.connection.executemany(insert_stmt, df.to_numpy())
-                    break
-        except sqlalchemy.exc.DataError as err:
-            delete_wrong_xml_entry(err, df)
-        except sqlalchemy.exc.IntegrityError:
-            df = write_single_entries_until_not_unique_comes_up(
-                df, xml_table_name,
-            )
 
 
 def add_zero_as_first_character_for_too_short_string(df: pd.DataFrame) -> pd.DataFrame:
@@ -248,46 +197,6 @@ def add_zero_as_first_character_for_too_short_string(df: pd.DataFrame) -> pd.Dat
             cond=df[column_name].str.len() == string_length - 1, other=""
         )
         df[column_name] = string_adding_series + df[column_name]
-    return df
-
-
-def write_single_entries_until_not_unique_comes_up(
-    df: pd.DataFrame, xml_table_name: str, engine: sqlalchemy.engine.Engine
-) -> pd.DataFrame:
-    """
-    Remove from dataframe these rows, which are already existing in the database table
-    Parameters
-    ----------
-    df
-    xml_table_name
-    engine
-
-    Returns
-    -------
-    Filtered dataframe
-    """
-
-    table = tablename_mapping[xml_table_name]["__class__"].__table__
-    primary_key = next(c for c in table.columns if c.primary_key)
-
-    with engine.connect() as con:
-        with con.begin():
-            key_list = (
-                pd.read_sql(sql=select(primary_key), con=con).values.squeeze().tolist()
-            )
-
-    len_df_before = len(df)
-    df = df.drop_duplicates(
-        subset=[primary_key.name]
-    )  # drop all entries with duplicated primary keys in the dataframe
-    df = df.set_index(primary_key.name)
-
-    df = df.drop(
-        labels=key_list, errors="ignore"
-    )  # drop primary keys that already exist in the table
-    df = df.reset_index()
-    print(f"{len_df_before - len(df)} entries already existed in the database.")
-
     return df
 
 
@@ -383,3 +292,51 @@ def handle_xml_syntax_error(data: str, err: Error) -> pd.DataFrame:
             continue
 
     raise Error("An error occured when parsing the xml file. Maybe it is corrupted?")
+
+
+def process_table_before_insertion(
+    df: pd.DataFrame,
+    xml_table_name: str,
+    zipped_xml_file_path: str,
+    bulk_download_date: str,
+    bulk_cleansing: bool,
+) -> pd.DataFrame:
+    df = add_zero_as_first_character_for_too_short_string(df)
+    df = change_column_names_to_orm_format(df, xml_table_name)
+
+    # Add Column that refers to the source of the data
+    df["DatenQuelle"] = "bulk"
+    df["DatumDownload"] = bulk_download_date
+
+    if bulk_cleansing:
+        df = cleanse_bulk_data(df, zipped_xml_file_path)
+    return df
+
+
+def add_table_to_database(
+    df: pd.DataFrame,
+    xml_table_name: str,
+    sql_table_name: str,
+    engine: sqlalchemy.engine.Engine,
+) -> None:
+    column_list = df.columns.tolist()
+    add_missing_columns_to_table(engine, xml_table_name, column_list)
+
+    # Convert NaNs to None.
+    df = df.where(pd.notnull(df), None)
+
+    # Convert date columns to strings. Dates are not supported directly by SQLite.
+    df = cast_date_columns_to_string(xml_table_name, df)
+
+    # Create SQL statement for bulk insert. ON CONFLICT DO NOTHING prevents duplicates.
+    insert_stmt = f"INSERT INTO {sql_table_name} ({','.join(column_list)}) VALUES ({','.join(['?' for _ in column_list])}) ON CONFLICT DO NOTHING"
+
+    for _ in range(10000):
+        try:
+            with engine.connect() as con:
+                with con.begin():
+                    con.connection.executemany(insert_stmt, df.to_numpy())
+                    break
+        except sqlalchemy.exc.DataError as err:
+            delete_wrong_xml_entry(err, df)
+
