@@ -99,18 +99,6 @@ def is_first_file(file_name: str) -> bool:
     )
 
 
-def cast_date_columns_to_datetime(xml_table_name: str, df: pd.DataFrame) -> pd.DataFrame:
-    sqlalchemy_columnlist = tablename_mapping[xml_table_name][
-        "__class__"
-    ].__table__.columns.items()
-    for column in sqlalchemy_columnlist:
-        column_name = column[0]
-        if is_date_column(column, df):
-            # Convert column to datetime64, invalid string -> NaT
-            df[column_name] = pd.to_datetime(df[column_name], errors="coerce")
-    return df
-
-
 def cast_date_columns_to_string(xml_table_name: str, df: pd.DataFrame) -> pd.DataFrame:
     column_list = tablename_mapping[xml_table_name][
         "__class__"
