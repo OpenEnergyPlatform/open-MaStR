@@ -213,7 +213,7 @@ def add_missing_columns_to_table(
     ----------
     engine
     xml_table_name
-    df
+    column_list
 
     Returns
     -------
