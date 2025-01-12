@@ -55,11 +55,12 @@ def write_mastr_xml_to_database(
 
 
 def extract_xml_table_name(file_name: str) -> str:
-    """Extract the table name from the file name."""
+    """Extract the XML table name from the file name."""
     return file_name.split("_")[0].split(".")[0].lower()
 
 
 def extract_sql_table_name(xml_table_name: str) -> str:
+    """Extract the SQL table name from the xml table name."""
     return tablename_mapping[xml_table_name]["__name__"]
 
 
