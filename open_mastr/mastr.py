@@ -400,7 +400,7 @@ class Mastr:
             db.download(data='biomass')
             db.translate()
 
-            df = pd.read_sql(table='biomass_extended', con=db.engine)
+            df = pd.read_sql(sql='biomass_extended', con=db.engine)
             print(df.head(10))
             ```
 
