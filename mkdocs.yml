@@ -84,7 +84,6 @@ nav:
     - Advanced Usage of the MaStR SOAP-API: reference/advanced.md
   - Development: 
     - Contributing: development/contributing_mirror.md
-    - Release Procedure: development/release_procedure_mirror.md
     - Changelog: development/changelog_mirror.md
 
 repo_url: https://github.com/OpenEnergyPlatform/open-MaStR
