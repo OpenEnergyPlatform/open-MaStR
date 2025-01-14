@@ -27,7 +27,8 @@ from open_mastr.xml_download.utils_write_to_database import (
     is_table_relevant,
     process_table_before_insertion,
     read_xml_file,
-    add_table_to_database,
+    add_table_to_non_sqlite_database,
+    add_table_to_sqlite_database,
 )
 
 # Check if xml file exists
@@ -115,16 +116,27 @@ def test_cast_date_columns_to_string():
     initial_df = pd.DataFrame(
         {
             "EegMastrNummer": [1, 2, 3],
-            "Registrierungsdatum": [datetime(2024, 3, 11).date(), datetime(1999, 2, 1).date(), np.datetime64("nat")],
-            "DatumLetzteAktualisierung": [datetime(2022, 3, 22), datetime(2020, 1, 2, 10, 12, 46),
-                                          np.datetime64("nat")],
+            "Registrierungsdatum": [
+                datetime(2024, 3, 11).date(),
+                datetime(1999, 2, 1).date(),
+                np.datetime64("nat"),
+            ],
+            "DatumLetzteAktualisierung": [
+                datetime(2022, 3, 22),
+                datetime(2020, 1, 2, 10, 12, 46),
+                np.datetime64("nat"),
+            ],
         }
     )
     expected_df = pd.DataFrame(
         {
             "EegMastrNummer": [1, 2, 3],
             "Registrierungsdatum": ["2024-03-11", "1999-02-01", np.nan],
-            "DatumLetzteAktualisierung": ["2022-03-22 00:00:00.000000", "2020-01-02 10:12:46.000000", np.nan],
+            "DatumLetzteAktualisierung": [
+                "2022-03-22 00:00:00.000000",
+                "2020-01-02 10:12:46.000000",
+                np.nan,
+            ],
         }
     )
 
@@ -146,10 +158,14 @@ def test_is_date_column():
     date_column = list(filter(lambda col: col[0] == "Id", columns))[0]
     assert is_date_column(date_column, df) is False
 
-    datetime_column = list(filter(lambda col: col[0] == "DatumLetzteAktualisierung", columns))[0]
+    datetime_column = list(
+        filter(lambda col: col[0] == "DatumLetzteAktualisierung", columns)
+    )[0]
     assert is_date_column(datetime_column, df) is True
 
-    date_column = list(filter(lambda col: col[0] == "WiederinbetriebnahmeDatum", columns))[0]
+    date_column = list(
+        filter(lambda col: col[0] == "WiederinbetriebnahmeDatum", columns)
+    )[0]
     assert is_date_column(date_column, df) is True
 
 
@@ -212,7 +228,9 @@ def test_read_xml_file(zipped_xml_file_path):
     # correctly created, we check that all of its columns are associated are included in our mapping.
     for column in df.columns:
         if column in tablename_mapping["einheitenkernkraft"]["replace_column_names"]:
-            column = tablename_mapping["einheitenkernkraft"]["replace_column_names"][column]
+            column = tablename_mapping["einheitenkernkraft"]["replace_column_names"][
+                column
+            ]
         assert column in NuclearExtended.__table__.columns.keys()
 
 
@@ -246,7 +264,8 @@ def test_change_column_names_to_orm_format():
     )
 
     pd.testing.assert_frame_equal(
-        expected_df, change_column_names_to_orm_format(initial_df, "lokationen"))
+        expected_df, change_column_names_to_orm_format(initial_df, "lokationen")
+    )
 
 
 def test_process_table_before_insertion(zipped_xml_file_path):
@@ -272,8 +291,14 @@ def test_process_table_before_insertion(zipped_xml_file_path):
 
     pd.testing.assert_frame_equal(
         expected_df,
-        process_table_before_insertion(initial_df, "einheitenkernkraft", zipped_xml_file_path, bulk_download_date,
-                                       bulk_cleansing=False))
+        process_table_before_insertion(
+            initial_df,
+            "einheitenkernkraft",
+            zipped_xml_file_path,
+            bulk_download_date,
+            bulk_cleansing=False,
+        ),
+    )
 
 
 def test_add_missing_columns_to_table(engine_testdb):
@@ -289,36 +314,49 @@ def test_add_missing_columns_to_table(engine_testdb):
                     "DatumLetzteAktualisierung": [datetime(2022, 2, 2)],
                 }
             )
-            initial_data_in_db.to_sql('gas_consumer', con=con, if_exists='append', index=False)
+            initial_data_in_db.to_sql(
+                "gas_consumer", con=con, if_exists="append", index=False
+            )
 
-    add_missing_columns_to_table(engine_testdb, 'einheitengasverbraucher', ["NewColumn"])
+    add_missing_columns_to_table(
+        engine_testdb, "einheitengasverbraucher", ["NewColumn"]
+    )
 
     expected_df = pd.DataFrame(
         {
             "EinheitMastrNummer": ["id1"],
             "DatumLetzteAktualisierung": [datetime(2022, 2, 2)],
-            "NewColumn": [None]
+            "NewColumn": [None],
         }
     )
     with engine_testdb.connect() as con:
         with con.begin():
-            actual_df = pd.read_sql_table('gas_consumer', con=con)
+            actual_df = pd.read_sql_table("gas_consumer", con=con)
             # The actual_df will contain more columns than the expected_df, so we can't use assert_frame_equal.
             assert expected_df.index.isin(actual_df.index).all()
 
 
-def test_add_table_to_database(engine_testdb):
+@pytest.mark.parametrize(
+    "add_table_to_database_function",
+    [add_table_to_sqlite_database, add_table_to_non_sqlite_database],
+)
+def test_add_table_to_sqlite_database(engine_testdb, add_table_to_database_function):
     with engine_testdb.connect() as con:
         with con.begin():
             # We must recreate the table to be sure that no other data is present.
             con.execute(text("DROP TABLE IF EXISTS gsgk_eeg"))
-            create_database_table(engine_testdb, "anlageneeggeothermiegrubengasdruckentspannung")
+            create_database_table(
+                engine_testdb, "anlageneeggeothermiegrubengasdruckentspannung"
+            )
 
     df = pd.DataFrame(
         {
             "Registrierungsdatum": ["2022-02-02", "2024-03-20"],
             "EegMastrNummer": ["id1", "id2"],
-            "DatumLetzteAktualisierung": ["2022-12-02 10:10:10.000300", "2024-10-10 00:00:00.000000"],
+            "DatumLetzteAktualisierung": [
+                "2022-12-02 10:10:10.000300",
+                "2024-10-10 00:00:00.000000",
+            ],
             "AusschreibungZuschlag": [True, False],
             "Netzbetreiberzuordnungen": ["test1", "test2"],
             "InstallierteLeistung": [1.0, 100.4],
@@ -330,9 +368,12 @@ def test_add_table_to_database(engine_testdb):
             "AnlageBetriebsstatus": [None, None],
             "Registrierungsdatum": [datetime(2022, 2, 2), datetime(2024, 3, 20)],
             "EegMastrNummer": ["id1", "id2"],
-            "Meldedatum": [np.datetime64('NaT'), np.datetime64('NaT')],
-            "DatumLetzteAktualisierung": [datetime(2022, 12, 2, 10, 10, 10, 300), datetime(2024, 10, 10)],
-            "EegInbetriebnahmedatum": [np.datetime64('NaT'), np.datetime64('NaT')],
+            "Meldedatum": [np.datetime64("NaT"), np.datetime64("NaT")],
+            "DatumLetzteAktualisierung": [
+                datetime(2022, 12, 2, 10, 10, 10, 300),
+                datetime(2024, 10, 10),
+            ],
+            "EegInbetriebnahmedatum": [np.datetime64("NaT"), np.datetime64("NaT")],
             "VerknuepfteEinheit": [None, None],
             "AnlagenschluesselEeg": [None, None],
             "AusschreibungZuschlag": [True, False],
@@ -340,11 +381,15 @@ def test_add_table_to_database(engine_testdb):
             "AnlagenkennzifferAnlagenregister_nv": [None, None],
             "Netzbetreiberzuordnungen": ["test1", "test2"],
             "DatenQuelle": [None, None],
-            "DatumDownload": [np.datetime64('NaT'), np.datetime64('NaT')],
+            "DatumDownload": [np.datetime64("NaT"), np.datetime64("NaT")],
         }
     )
 
-    add_table_to_database(df, "anlageneeggeothermiegrubengasdruckentspannung", "gsgk_eeg", engine_testdb)
+    add_table_to_database_function(
+        df, "anlageneeggeothermiegrubengasdruckentspannung", "gsgk_eeg", engine_testdb
+    )
     with engine_testdb.connect() as con:
         with con.begin():
-            pd.testing.assert_frame_equal(expected_df, pd.read_sql_table('gsgk_eeg', con=con))
+            pd.testing.assert_frame_equal(
+                expected_df, pd.read_sql_table("gsgk_eeg", con=con)
+            )
