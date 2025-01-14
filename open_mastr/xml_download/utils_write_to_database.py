@@ -46,10 +46,20 @@ def write_mastr_xml_to_database(
             print(f"File '{file_name}' is parsed.")
 
             df = read_xml_file(f, file_name)
-            df = process_table_before_insertion(df, xml_table_name, zipped_xml_file_path, bulk_download_date,
-                                                bulk_cleansing)
+            df = process_table_before_insertion(
+                df,
+                xml_table_name,
+                zipped_xml_file_path,
+                bulk_download_date,
+                bulk_cleansing,
+            )
 
-            add_table_to_database(df, xml_table_name, sql_table_name, engine)
+            if engine.dialect.name == "sqlite":
+                add_table_to_sqlite_database(df, xml_table_name, sql_table_name, engine)
+            else:
+                add_table_to_non_sqlite_database(
+                    df, xml_table_name, sql_table_name, engine
+                )
 
     print("Bulk download and data cleansing were successful.")
 
@@ -85,7 +95,9 @@ def is_table_relevant(xml_table_name: str, include_tables: list) -> bool:
     return include_count == 1 and boolean_write_table_to_sql_database
 
 
-def create_database_table(engine: sqlalchemy.engine.Engine, xml_table_name: str) -> None:
+def create_database_table(
+    engine: sqlalchemy.engine.Engine, xml_table_name: str
+) -> None:
     """Create the table in the database if it does not exist."""
     orm_class = tablename_mapping[xml_table_name]["__class__"]
     if not inspect(engine).has_table(orm_class.__tablename__):
@@ -110,12 +122,16 @@ def cast_date_columns_to_string(xml_table_name: str, df: pd.DataFrame) -> pd.Dat
         if not (column[0] in df.columns and is_date_column(column, df)):
             continue
 
-        df[column_name] = pd.to_datetime(df[column_name], errors='coerce')
+        df[column_name] = pd.to_datetime(df[column_name], errors="coerce")
 
         if type(column[1].type) is Date:
-            df[column_name] = df[column_name].dt.strftime('%Y-%m-%d').replace('NaT', None)
+            df[column_name] = (
+                df[column_name].dt.strftime("%Y-%m-%d").replace("NaT", None)
+            )
         elif type(column[1].type) is DateTime:
-            df[column_name] = df[column_name].dt.strftime('%Y-%m-%d %H:%M:%S.%f').replace('NaT', None)
+            df[column_name] = (
+                df[column_name].dt.strftime("%Y-%m-%d %H:%M:%S.%f").replace("NaT", None)
+            )
     return df
 
 
@@ -153,7 +169,7 @@ def read_xml_file(f: ZipFile, file_name: str) -> pd.DataFrame:
     """Read the xml file from the zip file and return it as a DataFrame."""
     with f.open(file_name) as xml_file:
         try:
-            return pd.read_xml(xml_file, encoding="UTF-16", parser='etree')
+            return pd.read_xml(xml_file, encoding="UTF-16", parser="etree")
         except lxml.etree.XMLSyntaxError as error:
             return handle_xml_syntax_error(xml_file.read().decode("utf-16"), error)
 
@@ -314,7 +330,7 @@ def process_table_before_insertion(
     return df
 
 
-def add_table_to_database(
+def add_table_to_sqlite_database(
     df: pd.DataFrame,
     xml_table_name: str,
     sql_table_name: str,
@@ -341,3 +357,75 @@ def add_table_to_database(
         except sqlalchemy.exc.DataError as err:
             delete_wrong_xml_entry(err, df)
 
+
+def write_single_entries_until_not_unique_comes_up(
+    df: pd.DataFrame, xml_table_name: str, engine: sqlalchemy.engine.Engine
+) -> pd.DataFrame:
+    """
+    Remove from dataframe these rows, which are already existing in the database table
+    Parameters
+    ----------
+    df
+    xml_table_name
+    engine
+
+    Returns
+    -------
+    Filtered dataframe
+    """
+
+    table = tablename_mapping[xml_table_name]["__class__"].__table__
+    primary_key = next(c for c in table.columns if c.primary_key)
+
+    with engine.connect() as con:
+        with con.begin():
+            key_list = (
+                pd.read_sql(sql=select(primary_key), con=con).values.squeeze().tolist()
+            )
+
+    len_df_before = len(df)
+    df = df.drop_duplicates(
+        subset=[primary_key.name]
+    )  # drop all entries with duplicated primary keys in the dataframe
+    df = df.set_index(primary_key.name)
+
+    df = df.drop(
+        labels=key_list, errors="ignore"
+    )  # drop primary keys that already exist in the table
+    df = df.reset_index()
+    print(f"{len_df_before - len(df)} entries already existed in the database.")
+
+    return df
+
+
+def add_table_to_non_sqlite_database(
+    df: pd.DataFrame,
+    xml_table_name: str,
+    sql_table_name: str,
+    engine: sqlalchemy.engine.Engine,
+) -> None:
+    column_list = df.columns.tolist()
+    add_missing_columns_to_table(engine, xml_table_name, column_list)
+
+    # Convert NaNs to None.
+    df = df.where(pd.notnull(df), None)
+
+    # Convert date columns to strings. Dates are not supported directly by SQLite.
+    df = cast_date_columns_to_string(xml_table_name, df)
+
+    # Create SQL statement for bulk insert. ON CONFLICT DO NOTHING prevents duplicates.
+    insert_stmt = f"INSERT INTO {sql_table_name} ({','.join(column_list)}) VALUES ({','.join(['?' for _ in column_list])}) ON CONFLICT DO NOTHING"
+
+    for _ in range(10000):
+        try:
+            with engine.connect() as con:
+                with con.begin():
+                    con.connection.executemany(insert_stmt, df.to_numpy())
+                    break
+        except sqlalchemy.exc.DataError as err:
+            delete_wrong_xml_entry(err, df)
+        except sqlalchemy.exc.IntegrityError:
+            df = write_single_entries_until_not_unique_comes_up(
+                df,
+                xml_table_name,
+            )
