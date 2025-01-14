@@ -404,28 +404,43 @@ def add_table_to_non_sqlite_database(
     sql_table_name: str,
     engine: sqlalchemy.engine.Engine,
 ) -> None:
-    column_list = df.columns.tolist()
-    add_missing_columns_to_table(engine, xml_table_name, column_list)
+    def add_table_to_database(
+        df: pd.DataFrame,
+        xml_table_name: str,
+        sql_table_name: str,
+        engine: sqlalchemy.engine.Engine,
+    ) -> None:
+        # get a dictionary for the data types
+        table_columns_list = list(
+            tablename_mapping[xml_table_name]["__class__"].__table__.columns
+        )
+        dtypes_for_writing_sql = {
+            column.name: column.type
+            for column in table_columns_list
+            if column.name in df.columns
+        }
 
-    # Convert NaNs to None.
-    df = df.where(pd.notnull(df), None)
+        add_missing_columns_to_table(
+            engine, xml_table_name, column_list=df.columns.tolist()
+        )
+        for _ in range(10000):
+            try:
+                with engine.connect() as con:
+                    with con.begin():
+                        df.to_sql(
+                            sql_table_name,
+                            con=con,
+                            index=False,
+                            if_exists="append",
+                            dtype=dtypes_for_writing_sql,
+                        )
+                        break
 
-    # Convert date columns to strings. Dates are not supported directly by SQLite.
-    df = cast_date_columns_to_string(xml_table_name, df)
+            except sqlalchemy.exc.DataError as err:
+                delete_wrong_xml_entry(err, df)
 
-    # Create SQL statement for bulk insert. ON CONFLICT DO NOTHING prevents duplicates.
-    insert_stmt = f"INSERT INTO {sql_table_name} ({','.join(column_list)}) VALUES ({','.join(['?' for _ in column_list])}) ON CONFLICT DO NOTHING"
-
-    for _ in range(10000):
-        try:
-            with engine.connect() as con:
-                with con.begin():
-                    con.connection.executemany(insert_stmt, df.to_numpy())
-                    break
-        except sqlalchemy.exc.DataError as err:
-            delete_wrong_xml_entry(err, df)
-        except sqlalchemy.exc.IntegrityError:
-            df = write_single_entries_until_not_unique_comes_up(
-                df,
-                xml_table_name,
-            )
+            except sqlalchemy.exc.IntegrityError:
+                # error resulting from Unique constraint failed
+                df = write_single_entries_until_not_unique_comes_up(
+                    df, xml_table_name, engine
+                )
