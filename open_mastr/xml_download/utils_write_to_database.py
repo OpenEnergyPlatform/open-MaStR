@@ -456,3 +456,8 @@ def add_table_to_sqlite_database(
                     break
         except sqlalchemy.exc.DataError as err:
             delete_wrong_xml_entry(err, df)
+        except sqlalchemy.exc.IntegrityError:
+            # error resulting from Unique constraint failed
+            df = write_single_entries_until_not_unique_comes_up(
+                df, xml_table_name, engine
+            )
