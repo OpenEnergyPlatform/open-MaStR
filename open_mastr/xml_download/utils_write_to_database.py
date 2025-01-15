@@ -461,3 +461,7 @@ def add_table_to_sqlite_database(
             df = write_single_entries_until_not_unique_comes_up(
                 df, xml_table_name, engine
             )
+        except:
+            # If any unexpected error occurs, we'll switch back to the non-SQLite method.
+            add_table_to_non_sqlite_database(df, xml_table_name, sql_table_name, engine)
+            break
