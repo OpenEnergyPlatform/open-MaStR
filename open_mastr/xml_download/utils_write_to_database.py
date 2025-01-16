@@ -98,10 +98,9 @@ def is_table_relevant(xml_table_name: str, include_tables: list) -> bool:
 def create_database_table(
     engine: sqlalchemy.engine.Engine, xml_table_name: str
 ) -> None:
-    """Create the table in the database if it does not exist."""
     orm_class = tablename_mapping[xml_table_name]["__class__"]
-    if not inspect(engine).has_table(orm_class.__tablename__):
-        orm_class.__table__.create(engine, checkfirst=True)
+    orm_class.__table__.drop(engine, checkfirst=True)
+    orm_class.__table__.create(engine)
 
 
 def is_first_file(file_name: str) -> bool:
