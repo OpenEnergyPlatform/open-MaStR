@@ -27,6 +27,7 @@ theme:
     repo: fontawesome/brands/github
   logo: images/OpenEnergyFamily_Logo_OpenMaStR_no_name_white.png
   favicon: images/OpenEnergyFamily_Logo_OpenMaStR_no_name_grey.png
+  font: false
 
 plugins:
   - search
@@ -84,7 +85,6 @@ nav:
     - Advanced Usage of the MaStR SOAP-API: reference/advanced.md
   - Development: 
     - Contributing: development/contributing_mirror.md
-    - Release Procedure: development/release_procedure_mirror.md
     - Changelog: development/changelog_mirror.md
 
 repo_url: https://github.com/OpenEnergyPlatform/open-MaStR
