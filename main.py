@@ -67,10 +67,9 @@ api_location_types = [
     "location_gas_consumption",
 ]
 
-# instantiate Mastr class
-db = Mastr()
-
 if __name__ == "__main__":
+    # instantiate Mastr class
+    db = Mastr()
 
     ## download Markstammdatenregister
     # bulk download
