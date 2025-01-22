@@ -30,6 +30,10 @@ authors:
     alias: "@nesnoj"
     affiliation: "Reiner Lemoine Institut"
     orcid: " https://orcid.org/0000-0002-8563-5261"
+  - family-names: "Imbrisca"
+    given-names: "Alexandra-Andreea"
+    alias: "@AlexandraImbrisca"
+    affiliation: "Technical University of Munich"
 title: "open-MaStR"
 type: software
 license: AGPL-3.0

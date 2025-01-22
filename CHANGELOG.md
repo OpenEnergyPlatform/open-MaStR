@@ -13,6 +13,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 ### Changed
 - Repair Header image in Readme
   [#587](https://github.com/OpenEnergyPlatform/open-MaStR/pull/587)
+- Increase XML parsing speed
+  [#598](https://github.com/OpenEnergyPlatform/open-MaStR/pull/598)
 - Update bug issue templates
   [#593](https://github.com/OpenEnergyPlatform/open-MaStR/pull/593)
 - Delete Google Fonts from Documentation Page

@@ -1,25 +1,35 @@
+import os
+import sqlite3
 import sys
+from datetime import datetime
+from os.path import expanduser
 from zipfile import ZipFile
 
-from open_mastr.utils import orm
-from open_mastr.xml_download.utils_cleansing_bulk import (
-    replace_mastr_katalogeintraege,
-)
-from open_mastr.xml_download.utils_write_to_database import (
-    cast_date_columns_to_datetime,
-    preprocess_table_for_writing_to_database,
-    add_table_to_database,
-    add_zero_as_first_character_for_too_short_string,
-    correct_ordering_of_filelist,
-)
-import os
-from os.path import expanduser
-import sqlite3
-from sqlalchemy import create_engine
+import numpy as np
 import pandas as pd
 import pytest
-import numpy as np
-from datetime import datetime
+from sqlalchemy import create_engine, inspect
+from sqlalchemy.sql import text
+
+from open_mastr.utils import orm
+from open_mastr.utils.orm import RetrofitUnits, NuclearExtended, tablename_mapping
+from open_mastr.xml_download.utils_write_to_database import (
+    add_missing_columns_to_table,
+    add_zero_as_first_character_for_too_short_string,
+    cast_date_columns_to_string,
+    change_column_names_to_orm_format,
+    correct_ordering_of_filelist,
+    create_database_table,
+    extract_sql_table_name,
+    extract_xml_table_name,
+    is_date_column,
+    is_first_file,
+    is_table_relevant,
+    process_table_before_insertion,
+    read_xml_file,
+    add_table_to_non_sqlite_database,
+    add_table_to_sqlite_database,
+)
 
 # Check if xml file exists
 _xml_file_exists = False
@@ -70,103 +80,93 @@ def engine_testdb():
     yield create_engine(testdb_url)
 
 
-@pytest.mark.skipif(
-    not _xml_file_exists, reason="The zipped xml file could not be found."
-)
-def test_preprocess_table_for_writing_to_database(zipped_xml_file_path):
-    # Prepare
-    file_name = "EinheitenKernkraft.xml"
-    xml_tablename = "einheitenkernkraft"
-    bulk_download_date = zipped_xml_file_path.split("_")[-1].replace(".zip", "")
-    # Check if bulk_download_date is derived correctly like 20220323
-    assert len(bulk_download_date) == 8
-
-    with ZipFile(zipped_xml_file_path, "r") as f:
-        # Act
-        df = preprocess_table_for_writing_to_database(
-            f=f,
-            file_name=file_name,
-            xml_tablename=xml_tablename,
-            bulk_download_date=bulk_download_date,
-        )
-
-    # Assert
-    assert df["DatenQuelle"].unique().tolist() == ["bulk"]
-    assert df["DatumDownload"].unique().tolist() == [bulk_download_date]
-    assert df["Gemeindeschluessel"].apply(len).unique().tolist() == [8]
-    assert df["Postleitzahl"].apply(len).unique().tolist() == [5]
+def test_extract_xml_table_name():
+    file_name = "Netzanschlusspunkte_31.xml"
+    assert extract_xml_table_name(file_name) == "netzanschlusspunkte"
 
 
-@pytest.mark.skipif(
-    not _xml_file_exists, reason="The zipped xml file could not be found."
-)
-def test_add_table_to_database(zipped_xml_file_path, engine_testdb):
-    # Prepare
+def text_extract_sql_table_name():
+    xml_table_name = "netzanschlusspunkte"
+    assert extract_sql_table_name(xml_table_name) == "network_connection_points"
+
+
+def test_is_table_relevant():
+    include_tables = ["anlagengasspeicher", "marktakteure"]
+    assert is_table_relevant("anlagengasspeicher", include_tables) is True
+    assert is_table_relevant("netzanschlusspunkte", include_tables) is False
+
+
+def test_create_database_table(engine_testdb):
     orm.Base.metadata.create_all(engine_testdb)
-    file_name = "EinheitenKernkraft.xml"
-    xml_tablename = "einheitenkernkraft"
-    sql_tablename = "nuclear_extended"
-    bulk_download_date = zipped_xml_file_path.split("_")[-1].replace(".zip", "")
-    # Check if bulk_download_date is derived correctly like 20220323
-    assert len(bulk_download_date) == 8
-    with ZipFile(zipped_xml_file_path, "r") as f:
-        df_write = preprocess_table_for_writing_to_database(
-            f=f,
-            file_name=file_name,
-            xml_tablename=xml_tablename,
-            bulk_download_date=bulk_download_date,
-        )
+    xml_table_name = "einheitenkernkraft"
+    sql_table_name = "nuclear_extended"
 
-    # Convert date and datetime columns into the datatype datetime
-    df_write = cast_date_columns_to_datetime(xml_tablename, df_write)
+    create_database_table(engine_testdb, xml_table_name)
 
-    # Katalogeintraege: int -> string value
-    df_write = replace_mastr_katalogeintraege(
-        zipped_xml_file_path=zipped_xml_file_path, df=df_write
+    assert inspect(engine_testdb).has_table(sql_table_name) is True
+
+
+def test_is_first_file():
+    assert is_first_file("EinheitenKernkraft.xml") is True
+    assert is_first_file("EinheitenKernkraft_1.xml") is True
+    assert is_first_file("EinheitenKernkraft_2.xml") is False
+
+
+def test_cast_date_columns_to_string():
+    initial_df = pd.DataFrame(
+        {
+            "EegMastrNummer": [1, 2, 3],
+            "Registrierungsdatum": [
+                datetime(2024, 3, 11).date(),
+                datetime(1999, 2, 1).date(),
+                np.datetime64("nat"),
+            ],
+            "DatumLetzteAktualisierung": [
+                datetime(2022, 3, 22),
+                datetime(2020, 1, 2, 10, 12, 46),
+                np.datetime64("nat"),
+            ],
+        }
+    )
+    expected_df = pd.DataFrame(
+        {
+            "EegMastrNummer": [1, 2, 3],
+            "Registrierungsdatum": ["2024-03-11", "1999-02-01", np.nan],
+            "DatumLetzteAktualisierung": [
+                "2022-03-22 00:00:00.000000",
+                "2020-01-02 10:12:46.000000",
+                np.nan,
+            ],
+        }
     )
 
-    # Act
-    add_table_to_database(
-        df=df_write,
-        xml_tablename=xml_tablename,
-        sql_tablename=sql_tablename,
-        if_exists="replace",
-        engine=engine_testdb,
-    )
-    with engine_testdb.connect() as con:
-        with con.begin():
-            df_read = pd.read_sql_table(table_name=sql_tablename, con=con)
-    # Drop the empty columns which come from orm and are not filled by bulk download
-    df_read.dropna(how="all", axis=1, inplace=True)
-    # Rename LokationMaStRNummer -> LokationMastrNummer unresolved error
-    df_write.rename(
-        columns={"LokationMaStRNummer": "LokationMastrNummer"}, inplace=True
-    )
-    # Reorder columns of the df_write since the order of columns doesn't play a role
-    df_read = df_read[df_write.columns.tolist()]
-    # Cast the dtypes of df_write like df_read dtypes
-    # Datatypes are changed during inserting via sqlalchemy and orm
-    df_read = df_read.astype(dict(zip(df_write.columns.tolist(), df_write.dtypes)))
-    # Assert
     pd.testing.assert_frame_equal(
-        df_write.select_dtypes(exclude="datetime"),
-        df_read.select_dtypes(exclude="datetime"),
+        expected_df, cast_date_columns_to_string("anlageneegwasser", initial_df)
     )
 
 
-def test_add_zero_as_first_character_for_too_short_string():
-    # Prepare
-    df_raw = pd.DataFrame(
-        {"ID": [0, 1, 2], "Gemeindeschluessel": [9162000, np.nan, 19123456]}
-    )
-    df_correct = pd.DataFrame(
-        {"ID": [0, 1, 2], "Gemeindeschluessel": ["09162000", np.nan, "19123456"]}
+def test_is_date_column():
+    columns = RetrofitUnits.__table__.columns.items()
+    df = pd.DataFrame(
+        {
+            "Id": [1],
+            "DatumLetzteAktualisierung": [datetime(2022, 3, 22)],
+            "WiederinbetriebnahmeDatum": [datetime(2024, 3, 11).date()],
+        }
     )
 
-    # Act
-    df_edited = add_zero_as_first_character_for_too_short_string(df_raw)
-    # Assert
-    pd.testing.assert_frame_equal(df_edited, df_correct)
+    date_column = list(filter(lambda col: col[0] == "Id", columns))[0]
+    assert is_date_column(date_column, df) is False
+
+    datetime_column = list(
+        filter(lambda col: col[0] == "DatumLetzteAktualisierung", columns)
+    )[0]
+    assert is_date_column(datetime_column, df) is True
+
+    date_column = list(
+        filter(lambda col: col[0] == "WiederinbetriebnahmeDatum", columns)
+    )[0]
+    assert is_date_column(date_column, df) is True
 
 
 def test_correct_ordering_of_filelist():
@@ -215,24 +215,181 @@ def test_correct_ordering_of_filelist():
     ]
 
 
-def test_cast_date_columns_to_datetime():
+@pytest.mark.skipif(
+    not _xml_file_exists, reason="The zipped xml file could not be found."
+)
+def test_read_xml_file(zipped_xml_file_path):
+    with ZipFile(zipped_xml_file_path, "r") as f:
+        df = read_xml_file(f, "EinheitenKernkraft.xml")
+
+    assert df.shape[0] > 0
+
+    # Since the file is from the latest download, its content can vary over time. To make sure that the table is
+    # correctly created, we check that all of its columns are associated are included in our mapping.
+    for column in df.columns:
+        if column in tablename_mapping["einheitenkernkraft"]["replace_column_names"]:
+            column = tablename_mapping["einheitenkernkraft"]["replace_column_names"][
+                column
+            ]
+        assert column in NuclearExtended.__table__.columns.keys()
+
+
+def test_add_zero_as_first_character_for_too_short_string():
+    # Prepare
     df_raw = pd.DataFrame(
+        {"ID": [0, 1, 2], "Gemeindeschluessel": [9162000, np.nan, 19123456]}
+    )
+    df_correct = pd.DataFrame(
+        {"ID": [0, 1, 2], "Gemeindeschluessel": ["09162000", np.nan, "19123456"]}
+    )
+
+    # Act
+    df_edited = add_zero_as_first_character_for_too_short_string(df_raw)
+    # Assert
+    pd.testing.assert_frame_equal(df_edited, df_correct)
+
+
+def test_change_column_names_to_orm_format():
+    initial_df = pd.DataFrame(
         {
-            "ID": [0, 1, 2],
-            "Registrierungsdatum": ["2022-03-22", "2020-01-02", "2022-03-35"],
+            "VerknuepfteEinheitenMaStRNummern": ["test1", "test2"],
+            "NetzanschlusspunkteMaStRNummern": [1, 2],
         }
     )
-    df_replaced = pd.DataFrame(
+    expected_df = pd.DataFrame(
         {
-            "ID": [0, 1, 2],
-            "Registrierungsdatum": [
-                datetime(2022, 3, 22),
-                datetime(2020, 1, 2),
-                np.datetime64("nat"),
-            ],
+            "VerknuepfteEinheiten": ["test1", "test2"],
+            "Netzanschlusspunkte": [1, 2],
         }
     )
 
     pd.testing.assert_frame_equal(
-        df_replaced, cast_date_columns_to_datetime("anlageneegwasser", df_raw)
+        expected_df, change_column_names_to_orm_format(initial_df, "lokationen")
     )
+
+
+def test_process_table_before_insertion(zipped_xml_file_path):
+    bulk_download_date = datetime.now().date().strftime("%Y%m%d")
+    initial_df = pd.DataFrame(
+        {
+            "Gemeindeschluessel": [9162000, 19123456],
+            "Postleitzahl": [1234, 54321],
+            "NameKraftwerk": ["test1", "test2"],
+            "LokationMaStRNummer": ["test3", "test4"],
+        }
+    )
+    expected_df = pd.DataFrame(
+        {
+            "Gemeindeschluessel": ["09162000", "19123456"],
+            "Postleitzahl": ["01234", "54321"],
+            "NameKraftwerk": ["test1", "test2"],
+            "LokationMastrNummer": ["test3", "test4"],
+            "DatenQuelle": ["bulk", "bulk"],
+            "DatumDownload": [bulk_download_date, bulk_download_date],
+        }
+    )
+
+    pd.testing.assert_frame_equal(
+        expected_df,
+        process_table_before_insertion(
+            initial_df,
+            "einheitenkernkraft",
+            zipped_xml_file_path,
+            bulk_download_date,
+            bulk_cleansing=False,
+        ),
+    )
+
+
+def test_add_missing_columns_to_table(engine_testdb):
+    with engine_testdb.connect() as con:
+        with con.begin():
+            # We must recreate the table to be sure that the new colum is not present.
+            con.execute(text("DROP TABLE IF EXISTS gas_consumer"))
+            create_database_table(engine_testdb, "einheitengasverbraucher")
+
+            initial_data_in_db = pd.DataFrame(
+                {
+                    "EinheitMastrNummer": ["id1"],
+                    "DatumLetzteAktualisierung": [datetime(2022, 2, 2)],
+                }
+            )
+            initial_data_in_db.to_sql(
+                "gas_consumer", con=con, if_exists="append", index=False
+            )
+
+    add_missing_columns_to_table(
+        engine_testdb, "einheitengasverbraucher", ["NewColumn"]
+    )
+
+    expected_df = pd.DataFrame(
+        {
+            "EinheitMastrNummer": ["id1"],
+            "DatumLetzteAktualisierung": [datetime(2022, 2, 2)],
+            "NewColumn": [None],
+        }
+    )
+    with engine_testdb.connect() as con:
+        with con.begin():
+            actual_df = pd.read_sql_table("gas_consumer", con=con)
+            # The actual_df will contain more columns than the expected_df, so we can't use assert_frame_equal.
+            assert expected_df.index.isin(actual_df.index).all()
+
+
+@pytest.mark.parametrize(
+    "add_table_to_database_function",
+    [add_table_to_sqlite_database, add_table_to_non_sqlite_database],
+)
+def test_add_table_to_sqlite_database(engine_testdb, add_table_to_database_function):
+    with engine_testdb.connect() as con:
+        with con.begin():
+            # We must recreate the table to be sure that no other data is present.
+            con.execute(text("DROP TABLE IF EXISTS gsgk_eeg"))
+            create_database_table(
+                engine_testdb, "anlageneeggeothermiegrubengasdruckentspannung"
+            )
+
+    df = pd.DataFrame(
+        {
+            "Registrierungsdatum": ["2022-02-02", "2024-03-20"],
+            "EegMastrNummer": ["id1", "id2"],
+            "DatumLetzteAktualisierung": [
+                "2022-12-02 10:10:10.000300",
+                "2024-10-10 00:00:00.000000",
+            ],
+            "AusschreibungZuschlag": [True, False],
+            "Netzbetreiberzuordnungen": ["test1", "test2"],
+            "InstallierteLeistung": [1.0, 100.4],
+        }
+    )
+    expected_df = pd.DataFrame(
+        {
+            "InstallierteLeistung": [1.0, 100.4],
+            "AnlageBetriebsstatus": [None, None],
+            "Registrierungsdatum": [datetime(2022, 2, 2), datetime(2024, 3, 20)],
+            "EegMastrNummer": ["id1", "id2"],
+            "Meldedatum": [np.datetime64("NaT"), np.datetime64("NaT")],
+            "DatumLetzteAktualisierung": [
+                datetime(2022, 12, 2, 10, 10, 10, 300),
+                datetime(2024, 10, 10),
+            ],
+            "EegInbetriebnahmedatum": [np.datetime64("NaT"), np.datetime64("NaT")],
+            "VerknuepfteEinheit": [None, None],
+            "AnlagenschluesselEeg": [None, None],
+            "AusschreibungZuschlag": [True, False],
+            "AnlagenkennzifferAnlagenregister": [None, None],
+            "AnlagenkennzifferAnlagenregister_nv": [None, None],
+            "Netzbetreiberzuordnungen": ["test1", "test2"],
+            "DatenQuelle": [None, None],
+            "DatumDownload": [np.datetime64("NaT"), np.datetime64("NaT")],
+        }
+    )
+
+    add_table_to_database_function(
+        df, "anlageneeggeothermiegrubengasdruckentspannung", "gsgk_eeg", engine_testdb
+    )
+    with engine_testdb.connect() as con:
+        with con.begin():
+            pd.testing.assert_frame_equal(
+                expected_df, pd.read_sql_table("gsgk_eeg", con=con)
+            )
