@@ -6,7 +6,9 @@ import lxml
 import numpy as np
 import pandas as pd
 import sqlalchemy
-from sqlalchemy import select
+from concurrent.futures import ProcessPoolExecutor, wait
+from multiprocessing import cpu_count
+from sqlalchemy import select, create_engine
 from sqlalchemy.sql import text
 from sqlalchemy.sql.sqltypes import Date, DateTime
 
@@ -25,6 +27,7 @@ def write_mastr_xml_to_database(
 ) -> None:
     """Write the Mastr in xml format into a database defined by the engine parameter."""
     include_tables = data_to_include_tables(data, mapping="write_xml")
+    threads_data = []
 
     with ZipFile(zipped_xml_file_path, "r") as f:
         files_list = correct_ordering_of_filelist(f.namelist())
@@ -38,30 +41,107 @@ def write_mastr_xml_to_database(
             sql_table_name = extract_sql_table_name(xml_table_name)
 
             if is_first_file(file_name):
+                print(f"Creating table '{sql_table_name}'...")
                 create_database_table(engine, xml_table_name)
-                print(
-                    f"Table '{sql_table_name}' is filled with data '{xml_table_name}' "
-                    "from the bulk download."
-                )
-            print(f"File '{file_name}' is parsed.")
 
-            df = read_xml_file(f, file_name)
-            df = process_table_before_insertion(
-                df,
-                xml_table_name,
-                zipped_xml_file_path,
-                bulk_download_date,
-                bulk_cleansing,
+            threads_data.append(
+                (
+                    file_name,
+                    xml_table_name,
+                    sql_table_name,
+                    str(engine.url),
+                    zipped_xml_file_path,
+                    bulk_download_date,
+                    bulk_cleansing,
+                )
             )
 
-            if engine.dialect.name == "sqlite":
-                add_table_to_sqlite_database(df, xml_table_name, sql_table_name, engine)
-            else:
-                add_table_to_non_sqlite_database(
-                    df, xml_table_name, sql_table_name, engine
-                )
+    interleaved_files = interleave_files(threads_data)
+    number_of_processes = max(cpu_count() - 1, 1)
+
+    with ProcessPoolExecutor(max_workers=number_of_processes) as executor:
+        print("Starting bulk download and data cleansing...")
+        futures = [
+            executor.submit(process_xml_file, *item) for item in interleaved_files
+        ]
+        for future in futures:
+            future.result()
+        wait(futures)
 
     print("Bulk download and data cleansing were successful.")
+
+
+def process_xml_file(
+    file_name: str,
+    xml_table_name: str,
+    sql_table_name: str,
+    db_connection_url: str,
+    zipped_xml_file_path: str,
+    bulk_cleansing: bool,
+    bulk_download_date: str,
+) -> None:
+    """Process a single xml file and write it to the database."""
+    # Each process will create its own engine to ensure isolation and efficient resource management.
+    engine = create_efficient_engine(db_connection_url)
+    with ZipFile(zipped_xml_file_path, "r") as f:
+        print(f"Processing file '{file_name}'...")
+        df = read_xml_file(f, file_name)
+        df = process_table_before_insertion(
+            df, xml_table_name, zipped_xml_file_path, bulk_download_date, bulk_cleansing
+        )
+        if engine.dialect.name == "sqlite":
+            add_table_to_sqlite_database(df, xml_table_name, sql_table_name, engine)
+        else:
+            add_table_to_non_sqlite_database(df, xml_table_name, sql_table_name, engine)
+
+
+def create_efficient_engine(connection_url: str) -> sqlalchemy.engine.Engine:
+    """Create an efficient engine for the SQLite database."""
+    return create_engine(
+        connection_url,
+        connect_args={
+            "timeout": 300,
+            "check_same_thread": False,
+            "isolation_level": "DEFERRED",
+        },
+        execution_options={"isolation_level": "READ UNCOMMITTED"},
+        pool_pre_ping=True,
+        pool_size=10,
+        max_overflow=20,
+        pool_recycle=180,
+        pool_timeout=30,
+    )
+
+
+def interleave_files(threads_data: []):
+    """
+    Multiple threads will process different files at once. If the files target the same table, the risk of a
+    "database lock" error (i.e., 2 threads attempting to modify the same table at the same time) is increased.
+    To reduce this probability, we can "interleave" the files based on the table they belong to.
+    Example:
+        Initial order: AnlagenEegSolar_1, AnlagenEegSolar_2, ..., AnlagenEegSpeicher_1, AnlagenEegSpeicher_2, ...
+        Interleaved order: AnlagenEegSolar_1, AnlagenEegSpeicher_1, ..., AnlagenEegSolar_2, AnlagenEegSpeicher_2, ...
+    """
+    files_grouped_by_table = {}
+
+    for item in threads_data:
+        table_name = item[2]
+        if table_name not in files_grouped_by_table:
+            files_grouped_by_table[table_name] = []
+        files_grouped_by_table[table_name].append(item)
+
+    sorted_threads_data = []
+    max_no_files_per_table = max(
+        len(group) for group in files_grouped_by_table.values()
+    )
+
+    for idx in range(max_no_files_per_table):
+        for table_name in files_grouped_by_table.keys():
+            files = files_grouped_by_table[table_name]
+            if idx < len(files):
+                sorted_threads_data.append(files[idx])
+
+    return sorted_threads_data
 
 
 def extract_xml_table_name(file_name: str) -> str:
