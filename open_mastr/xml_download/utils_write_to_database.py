@@ -54,7 +54,7 @@ def write_mastr_xml_to_database(
             )
 
     interleaved_files = interleave_files(threads_data)
-    number_of_processes = max(cpu_count() - 1, 1)
+    number_of_processes = max(min(cpu_count() - 1, 3), 1)
 
     with ProcessPoolExecutor(max_workers=number_of_processes) as executor:
         futures = [
