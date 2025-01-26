@@ -29,6 +29,7 @@ from open_mastr.xml_download.utils_write_to_database import (
     read_xml_file,
     add_table_to_non_sqlite_database,
     add_table_to_sqlite_database,
+    interleave_files,
 )
 
 # Check if xml file exists
@@ -393,3 +394,24 @@ def test_add_table_to_sqlite_database(engine_testdb, add_table_to_database_funct
             pd.testing.assert_frame_equal(
                 expected_df, pd.read_sql_table("gsgk_eeg", con=con)
             )
+
+
+def test_interleave_files():
+    input_data = [
+        ("AnlagenEegBiomasse.xml", "anlageneegbiomasse", "anlageneegbiomasse"),
+        ("AnlagenEegSolar_1.xml", "anlageneegsolar", "anlageneegsolar"),
+        ("AnlagenEegSolar_2.xml", "anlageneegsolar", "anlageneegsolar"),
+        ("AnlagenEegWind_1.xml", "anlageneegwind", "anlageneegwind"),
+        ("AnlagenEegWind_2.xml", "anlageneegwind", "anlageneegwind"),
+        ("AnlagenEegWind_3.xml", "anlageneegwind", "anlageneegwind"),
+        ("Bilanzierungsgebiete.xml", "bilanzierungsgebiete", "bilanzierungsgebiete"),
+    ]
+    assert interleave_files(input_data) == [
+        ("AnlagenEegBiomasse.xml", "anlageneegbiomasse", "anlageneegbiomasse"),
+        ("AnlagenEegSolar_1.xml", "anlageneegsolar", "anlageneegsolar"),
+        ("AnlagenEegWind_1.xml", "anlageneegwind", "anlageneegwind"),
+        ("Bilanzierungsgebiete.xml", "bilanzierungsgebiete", "bilanzierungsgebiete"),
+        ("AnlagenEegSolar_2.xml", "anlageneegsolar", "anlageneegsolar"),
+        ("AnlagenEegWind_2.xml", "anlageneegwind", "anlageneegwind"),
+        ("AnlagenEegWind_3.xml", "anlageneegwind", "anlageneegwind"),
+    ]
