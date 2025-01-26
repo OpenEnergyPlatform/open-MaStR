@@ -26,6 +26,8 @@ def write_mastr_xml_to_database(
     bulk_download_date: str,
 ) -> None:
     """Write the Mastr in xml format into a database defined by the engine parameter."""
+    print("Starting bulk download and data cleansing...")
+
     include_tables = data_to_include_tables(data, mapping="write_xml")
     threads_data = []
 
@@ -39,11 +41,6 @@ def write_mastr_xml_to_database(
                 continue
 
             sql_table_name = extract_sql_table_name(xml_table_name)
-
-            if is_first_file(file_name):
-                print(f"Creating table '{sql_table_name}'...")
-                create_database_table(engine, xml_table_name)
-
             threads_data.append(
                 (
                     file_name,
@@ -60,7 +57,6 @@ def write_mastr_xml_to_database(
     number_of_processes = max(cpu_count() - 1, 1)
 
     with ProcessPoolExecutor(max_workers=number_of_processes) as executor:
-        print("Starting bulk download and data cleansing...")
         futures = [
             executor.submit(process_xml_file, *item) for item in interleaved_files
         ]
@@ -85,6 +81,9 @@ def process_xml_file(
     engine = create_efficient_engine(db_connection_url)
     with ZipFile(zipped_xml_file_path, "r") as f:
         print(f"Processing file '{file_name}'...")
+        if is_first_file(file_name):
+            print(f"Creating table '{sql_table_name}'...")
+            create_database_table(engine, xml_table_name)
         df = read_xml_file(f, file_name)
         df = process_table_before_insertion(
             df, xml_table_name, zipped_xml_file_path, bulk_download_date, bulk_cleansing
