@@ -113,15 +113,22 @@ def create_efficient_engine(connection_url: str) -> sqlalchemy.engine.Engine:
     return create_engine(
         connection_url,
         connect_args={
-            "timeout": 300,
+            # Wait for max 5 minutes before timing out.
+            "connect_timeout": 300,
+            # Allow multiple threads to access the database.
             "check_same_thread": False,
+            # Lock the database only it is necessary to improve concurrency and performance.
             "isolation_level": "DEFERRED",
         },
-        execution_options={"isolation_level": "READ UNCOMMITTED"},
+        # Before returning a connection from the pool, check if the connection is still valid.
         pool_pre_ping=True,
+        # Max number of connections in the pool.
         pool_size=10,
+        # Create up to 20 more connections when the demand for connections is high.
         max_overflow=20,
+        # Recycle inactive connections after 180 seconds to prevent stale connections.
         pool_recycle=180,
+        # Wait for 30 seconds before raising an exception when the pool is full.
         pool_timeout=30,
     )
 
