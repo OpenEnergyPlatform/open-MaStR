@@ -69,8 +69,9 @@ def write_mastr_xml_to_database(
 
 
 def get_number_of_processes():
-    """Get the number of processes to use for the bulk download. If not otherwise preconfigured by the user,
-    we'll use only one process."""
+    """Get the number of processes to use for the bulk download. By default, only one process is used, and we recommend
+    using the number of available CPUs - 1. If the user wants to use more processes, they can set the environment
+    variable."""
     if "NUMBER_OF_PROCESSES" in os.environ:
         number_of_processes = os.environ.get("NUMBER_OF_PROCESSES")
         if number_of_processes >= cpu_count():
@@ -78,6 +79,8 @@ def get_number_of_processes():
                 "Warning: using more processes than available CPUs can lead to overhead of context switching."
             )
         return os.environ.get("NUMBER_OF_PROCESSES")
+    if "USE_RECOMMENDED_NUMBER_OF_PROCESSES" in os.environ:
+        return cpu_count() - 1
     return 1
 
 
