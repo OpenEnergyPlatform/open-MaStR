@@ -20,10 +20,10 @@ from sqlalchemy import create_engine
 # os.environ['OUTPUT_PATH'] = r"/your/custom/output_path"
 
 # optimize bulk downloads and use the recommended number of processes
-# os.environ[USE_RECOMMENDED_NUMBER_OF_PROCESSES] = True
+# os.environ['USE_RECOMMENDED_NUMBER_OF_PROCESSES'] = True
 
 # set up your own number of processes for bulk download
-# os.environ[NUMBER_OF_PROCESSES] = your_number
+# os.environ['NUMBER_OF_PROCESSES'] = your_number
 
 # bulk download
 bulk_date = "today"
