@@ -9,7 +9,7 @@ import lxml
 import numpy as np
 import pandas as pd
 import sqlalchemy
-from sqlalchemy import select, create_engine
+from sqlalchemy import select, create_engine, inspect
 from sqlalchemy.sql import text
 from sqlalchemy.sql.sqltypes import Date, DateTime
 
@@ -449,17 +449,18 @@ def add_missing_columns_to_table(
     missing_columns = set(column_list) - set(column_names_from_database)
 
     for column_name in missing_columns:
-        alter_query = 'ALTER TABLE %s ADD "%s" VARCHAR NULL;' % (
-            table_name,
-            column_name,
-        )
-        with engine.connect().execution_options(autocommit=True) as con:
-            with con.begin():
-                con.execute(text(alter_query).execution_options(autocommit=True))
-        log.info(
-            "From the downloaded xml files following new attribute was "
-            f"introduced: {table_name}.{column_name}"
-        )
+        if not column_exists(engine, table_name, column_name):
+            alter_query = 'ALTER TABLE %s ADD "%s" VARCHAR NULL;' % (
+                table_name,
+                column_name,
+            )
+            with engine.connect().execution_options(autocommit=True) as con:
+                with con.begin():
+                    con.execute(text(alter_query).execution_options(autocommit=True))
+            log.info(
+                "From the downloaded xml files following new attribute was "
+                f"introduced: {table_name}.{column_name}"
+            )
 
 
 def delete_wrong_xml_entry(err: Error, df: pd.DataFrame) -> pd.DataFrame:
@@ -567,3 +568,9 @@ def add_table_to_sqlite_database(
             # If any unexpected error occurs, we'll switch back to the non-SQLite method.
             add_table_to_non_sqlite_database(df, xml_table_name, sql_table_name, engine)
             break
+
+
+def column_exists(engine, table_name, column_name):
+    inspector = inspect(engine)
+    columns = [col["name"] for col in inspector.get_columns(table_name)]
+    return column_name in columns
