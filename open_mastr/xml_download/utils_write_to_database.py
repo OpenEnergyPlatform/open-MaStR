@@ -1,4 +1,7 @@
+import os
+from concurrent.futures import ProcessPoolExecutor, wait
 from io import StringIO
+from multiprocessing import cpu_count
 from shutil import Error
 from zipfile import ZipFile
 
@@ -6,8 +9,6 @@ import lxml
 import numpy as np
 import pandas as pd
 import sqlalchemy
-from concurrent.futures import ProcessPoolExecutor, wait
-from multiprocessing import cpu_count
 from sqlalchemy import select, create_engine
 from sqlalchemy.sql import text
 from sqlalchemy.sql.sqltypes import Date, DateTime
@@ -54,7 +55,7 @@ def write_mastr_xml_to_database(
             )
 
     interleaved_files = interleave_files(threads_data)
-    number_of_processes = max(min(cpu_count() - 1, 3), 1)
+    number_of_processes = get_number_of_processes()
 
     with ProcessPoolExecutor(max_workers=number_of_processes) as executor:
         futures = [
@@ -65,6 +66,19 @@ def write_mastr_xml_to_database(
         wait(futures)
 
     print("Bulk download and data cleansing were successful.")
+
+
+def get_number_of_processes():
+    """Get the number of processes to use for the bulk download. If not otherwise preconfigured by the user,
+    we'll use only one process."""
+    if "NUMBER_OF_PROCESSES" in os.environ:
+        number_of_processes = os.environ.get("NUMBER_OF_PROCESSES")
+        if number_of_processes >= cpu_count():
+            print(
+                "Warning: using more processes than available CPUs can lead to overhead of context switching."
+            )
+        return os.environ.get("NUMBER_OF_PROCESSES")
+    return 1
 
 
 def process_xml_file(
