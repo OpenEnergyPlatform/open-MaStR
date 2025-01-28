@@ -113,16 +113,22 @@ def process_xml_file(
 
 def create_efficient_engine(connection_url: str) -> sqlalchemy.engine.Engine:
     """Create an efficient engine for the SQLite database."""
+    is_sqlite = connection_url.startswith("sqlite://")
+
+    connect_args = {
+        # Wait for max 5 minutes before timing out.
+        "connect_timeout": 300,
+    }
+
+    if is_sqlite:
+        # Lock the database only it is necessary to improve concurrency and performance.
+        connect_args["isolation_level"] = "DEFERRED"
+        # Allow multiple threads to access the database.
+        connect_args["check_same_thread"] = False
+
     return create_engine(
         connection_url,
-        connect_args={
-            # Wait for max 5 minutes before timing out.
-            "connect_timeout": 300,
-            # Allow multiple threads to access the database.
-            "check_same_thread": False,
-            # Lock the database only it is necessary to improve concurrency and performance.
-            "isolation_level": "DEFERRED",
-        },
+        connect_args=connect_args,
         # Before returning a connection from the pool, check if the connection is still valid.
         pool_pre_ping=True,
         # Max number of connections in the pool.
