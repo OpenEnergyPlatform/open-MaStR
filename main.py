@@ -12,7 +12,6 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 from open_mastr import Mastr
 import os
-from sqlalchemy import create_engine
 
 ## specify download parameter
 
