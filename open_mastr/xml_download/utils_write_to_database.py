@@ -454,9 +454,16 @@ def add_missing_columns_to_table(
                 table_name,
                 column_name,
             )
-            with engine.connect().execution_options(autocommit=True) as con:
-                with con.begin():
-                    con.execute(text(alter_query).execution_options(autocommit=True))
+            try:
+                with engine.connect().execution_options(autocommit=True) as con:
+                    with con.begin():
+                        con.execute(
+                            text(alter_query).execution_options(autocommit=True)
+                        )
+            except sqlalchemy.exc.OperationalError as err:
+                # If the column already exists, we can ignore the error.
+                if "duplicate column name" not in str(err):
+                    raise err
             log.info(
                 "From the downloaded xml files following new attribute was "
                 f"introduced: {table_name}.{column_name}"
