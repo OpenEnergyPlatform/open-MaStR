@@ -115,16 +115,18 @@ def create_efficient_engine(connection_url: str) -> sqlalchemy.engine.Engine:
     """Create an efficient engine for the SQLite database."""
     is_sqlite = connection_url.startswith("sqlite://")
 
-    connect_args = {
-        # Wait for max 5 minutes before timing out.
-        "connect_timeout": 300,
-    }
+    connect_args = {}
 
     if is_sqlite:
+        # Wait for max 5 minutes before timing out.
+        connect_args["timeout"] = 300
         # Lock the database only it is necessary to improve concurrency and performance.
         connect_args["isolation_level"] = "DEFERRED"
         # Allow multiple threads to access the database.
         connect_args["check_same_thread"] = False
+    else:
+        # Wait for max 5 minutes before timing out.
+        connect_args["connect_timeout"] = 300
 
     return create_engine(
         connection_url,
