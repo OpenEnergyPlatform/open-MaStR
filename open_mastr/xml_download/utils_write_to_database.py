@@ -48,6 +48,7 @@ def write_mastr_xml_to_database(
                     xml_table_name,
                     sql_table_name,
                     str(engine.url),
+                    engine.url.password,
                     zipped_xml_file_path,
                     bulk_download_date,
                     bulk_cleansing,
@@ -88,14 +89,16 @@ def process_xml_file(
     file_name: str,
     xml_table_name: str,
     sql_table_name: str,
-    db_connection_url: str,
+    connection_url: str,
+    password: str,
     zipped_xml_file_path: str,
-    bulk_cleansing: bool,
     bulk_download_date: str,
+    bulk_cleansing: bool,
 ) -> None:
     """Process a single xml file and write it to the database."""
     # Each process will create its own engine to ensure isolation and efficient resource management.
-    engine = create_efficient_engine(db_connection_url)
+    # The connection url obfuscates the password. We must replace the masked password with the actual password.
+    engine = create_efficient_engine(connection_url.replace("****", password))
     with ZipFile(zipped_xml_file_path, "r") as f:
         print(f"Processing file '{file_name}'...")
         if is_first_file(file_name):
