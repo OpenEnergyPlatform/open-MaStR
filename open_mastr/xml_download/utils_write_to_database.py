@@ -5,6 +5,7 @@ from multiprocessing import cpu_count
 from shutil import Error
 from zipfile import ZipFile
 
+import re
 import lxml
 import numpy as np
 import pandas as pd
@@ -96,9 +97,13 @@ def process_xml_file(
     bulk_cleansing: bool,
 ) -> None:
     """Process a single xml file and write it to the database."""
+    # If set, the connection url obfuscates the password. We must replace the masked password with the actual password.
+    if password:
+        connection_url = re.sub(r"://[^:]+:\*+@", f"://{password}@", connection_url)
+
     # Each process will create its own engine to ensure isolation and efficient resource management.
     # The connection url obfuscates the password. We must replace the masked password with the actual password.
-    engine = create_efficient_engine(connection_url.replace("****", password))
+    engine = create_efficient_engine(connection_url)
     with ZipFile(zipped_xml_file_path, "r") as f:
         print(f"Processing file '{file_name}'...")
         if is_first_file(file_name):
