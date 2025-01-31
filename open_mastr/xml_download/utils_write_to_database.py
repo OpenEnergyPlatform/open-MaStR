@@ -99,7 +99,7 @@ def process_xml_file(
     """Process a single xml file and write it to the database."""
     # If set, the connection url obfuscates the password. We must replace the masked password with the actual password.
     if password:
-        connection_url = re.sub(r"://[^:]+:\*+@", f"://{password}@", connection_url)
+        connection_url = re.sub(r"://([^:]+):\*+@", r"://\1:" + password + "@", connection_url)
 
     # Each process will create its own engine to ensure isolation and efficient resource management.
     # The connection url obfuscates the password. We must replace the masked password with the actual password.
