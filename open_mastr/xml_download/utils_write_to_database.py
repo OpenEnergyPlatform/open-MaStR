@@ -75,12 +75,18 @@ def get_number_of_processes():
     using the number of available CPUs - 1. If the user wants to use more processes, they can set the environment
     variable."""
     if "NUMBER_OF_PROCESSES" in os.environ:
-        number_of_processes = os.environ.get("NUMBER_OF_PROCESSES")
+        try:
+            number_of_processes = int(os.environ.get("NUMBER_OF_PROCESSES"))
+        except ValueError:
+            print(f"Warning: Invalid value for NUMBER_OF_PROCESSES. Fallback to 1.")
+            return 1
         if number_of_processes >= cpu_count():
             print(
-                "Warning: using more processes than available CPUs can lead to overhead of context switching."
+                f"Warning: Your system supports {cpu_count()} CPUs. Using "
+                f"more processes than available CPUs may cause excessive "
+                f"context-switching overhead."
             )
-        return os.environ.get("NUMBER_OF_PROCESSES")
+        return number_of_processes
     if "USE_RECOMMENDED_NUMBER_OF_PROCESSES" in os.environ:
         return cpu_count() - 1
     return 1
@@ -99,7 +105,9 @@ def process_xml_file(
     """Process a single xml file and write it to the database."""
     # If set, the connection url obfuscates the password. We must replace the masked password with the actual password.
     if password:
-        connection_url = re.sub(r"://([^:]+):\*+@", r"://\1:" + password + "@", connection_url)
+        connection_url = re.sub(
+            r"://([^:]+):\*+@", r"://\1:" + password + "@", connection_url
+        )
 
     # Each process will create its own engine to ensure isolation and efficient resource management.
     # The connection url obfuscates the password. We must replace the masked password with the actual password.
