@@ -103,28 +103,37 @@ def process_xml_file(
     bulk_cleansing: bool,
 ) -> None:
     """Process a single xml file and write it to the database."""
-    # If set, the connection url obfuscates the password. We must replace the masked password with the actual password.
-    if password:
-        connection_url = re.sub(
-            r"://([^:]+):\*+@", r"://\1:" + password + "@", connection_url
-        )
+    try:
+        # If set, the connection url obfuscates the password. We must replace the masked password with the actual password.
+        if password:
+            connection_url = re.sub(
+                r"://([^:]+):\*+@", r"://\1:" + password + "@", connection_url
+            )
 
-    # Each process will create its own engine to ensure isolation and efficient resource management.
-    # The connection url obfuscates the password. We must replace the masked password with the actual password.
-    engine = create_efficient_engine(connection_url)
-    with ZipFile(zipped_xml_file_path, "r") as f:
-        print(f"Processing file '{file_name}'...")
-        if is_first_file(file_name):
-            print(f"Creating table '{sql_table_name}'...")
-            create_database_table(engine, xml_table_name)
-        df = read_xml_file(f, file_name)
-        df = process_table_before_insertion(
-            df, xml_table_name, zipped_xml_file_path, bulk_download_date, bulk_cleansing
-        )
-        if engine.dialect.name == "sqlite":
-            add_table_to_sqlite_database(df, xml_table_name, sql_table_name, engine)
-        else:
-            add_table_to_non_sqlite_database(df, xml_table_name, sql_table_name, engine)
+        # Each process will create its own engine to ensure isolation and efficient resource management.
+        # The connection url obfuscates the password. We must replace the masked password with the actual password.
+        engine = create_efficient_engine(connection_url)
+        with ZipFile(zipped_xml_file_path, "r") as f:
+            print(f"Processing file '{file_name}'...")
+            if is_first_file(file_name):
+                print(f"Creating table '{sql_table_name}'...")
+                create_database_table(engine, xml_table_name)
+            df = read_xml_file(f, file_name)
+            df = process_table_before_insertion(
+                df,
+                xml_table_name,
+                zipped_xml_file_path,
+                bulk_download_date,
+                bulk_cleansing,
+            )
+            if engine.dialect.name == "sqlite":
+                add_table_to_sqlite_database(df, xml_table_name, sql_table_name, engine)
+            else:
+                add_table_to_non_sqlite_database(
+                    df, xml_table_name, sql_table_name, engine
+                )
+    except Exception as e:
+        print(f"Error processing file '{file_name}': '{e}'")
 
 
 def create_efficient_engine(connection_url: str) -> sqlalchemy.engine.Engine:
