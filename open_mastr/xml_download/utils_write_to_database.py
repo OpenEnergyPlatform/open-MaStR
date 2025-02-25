@@ -59,21 +59,25 @@ def write_mastr_xml_to_database(
     interleaved_files = interleave_files(threads_data)
     number_of_processes = get_number_of_processes()
 
-    with ProcessPoolExecutor(max_workers=number_of_processes) as executor:
-        futures = [
-            executor.submit(process_xml_file, *item) for item in interleaved_files
-        ]
-        for future in futures:
-            future.result()
-        wait(futures)
+    if number_of_processes > 0:
+        with ProcessPoolExecutor(max_workers=number_of_processes) as executor:
+            futures = [
+                executor.submit(process_xml_file, *item) for item in interleaved_files
+            ]
+            for future in futures:
+                future.result()
+            wait(futures)
+    else:
+        for item in interleaved_files:
+            process_xml_file(*item)
 
     print("Bulk download and data cleansing were successful.")
 
 
 def get_number_of_processes():
-    """Get the number of processes to use for the bulk download. By default, only one process is used, and we recommend
-    using the number of available CPUs - 1. If the user wants to use more processes, they can set the environment
-    variable."""
+    """Get the number of processes to use for the bulk download. Returns -1 if the user has not opted for the
+    parallelized implementation. Otherwise, we recommend using the number of available CPUs - 1. If the user wants to
+    use more processes, they can set the custom environment variable."""
     if "NUMBER_OF_PROCESSES" in os.environ:
         try:
             number_of_processes = int(os.environ.get("NUMBER_OF_PROCESSES"))
@@ -89,7 +93,7 @@ def get_number_of_processes():
         return number_of_processes
     if "USE_RECOMMENDED_NUMBER_OF_PROCESSES" in os.environ:
         return cpu_count() - 1
-    return 1
+    return -1
 
 
 def process_xml_file(
