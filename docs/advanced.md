@@ -99,7 +99,7 @@ There are some environment variables to customize open-MaStR:
 | `USE_RECOMMENDED_NUMBER_OF_PROCESSES` | If set to `True`, the number of processes used for the bulk download is set to the recommended number of processes. If set to `False`, the number of processes is 1 if not otherwise configured via `NUMBER_OF_PROCESSES`. | `True` or `False`                                                                                                          |
 | `NUMBER_OF_PROCESSES`                 | Number of processed to be used for the bulk download processing.                                                                                                                                                           | `4`                                                                                                                        |
 
-**Note**: When using `USE_RECOMMENDED_NUMBER_OF_PROCESSES` or `NUMBER_OF_PROCESSES` on Windows or MacOS, please make sure that you are wrapping the method call under an [if __name__ == "__main__"](https://realpython.com/if-name-main-python/) as shown in the [example](https://github.com/OpenEnergyPlatform/open-MaStR/blob/11fb568879ae8015af74f3d6b386faa5027c2721/main.py#L73).
+**Note**: When using `USE_RECOMMENDED_NUMBER_OF_PROCESSES` or `NUMBER_OF_PROCESSES` on Windows or MacOS, please make sure that you are wrapping the method call under an [if \_\_name\_\_ == "\_\_main\_\_"](https://realpython.com/if-name-main-python/) as shown in the [example](https://github.com/OpenEnergyPlatform/open-MaStR/blob/11fb568879ae8015af74f3d6b386faa5027c2721/main.py#L73).
 
 ## Bulk download
 
