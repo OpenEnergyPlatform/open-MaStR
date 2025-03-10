@@ -82,7 +82,7 @@ def get_number_of_processes():
         try:
             number_of_processes = int(os.environ.get("NUMBER_OF_PROCESSES"))
         except ValueError:
-            print(f"Warning: Invalid value for NUMBER_OF_PROCESSES. Fallback to 1.")
+            print("Warning: Invalid value for NUMBER_OF_PROCESSES. Fallback to 1.")
             return 1
         if number_of_processes >= cpu_count():
             print(
@@ -173,7 +173,7 @@ def create_efficient_engine(connection_url: str) -> sqlalchemy.engine.Engine:
     )
 
 
-def interleave_files(threads_data: []):
+def interleave_files(threads_data: list):
     """
     Multiple threads will process different files at once. If the files target the same table, the risk of a
     "database lock" error (i.e., 2 threads attempting to modify the same table at the same time) is increased.
