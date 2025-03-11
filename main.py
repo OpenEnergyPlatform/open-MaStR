@@ -18,6 +18,12 @@ import os
 # set custom output path for: csv-export, database, xml-export.
 # os.environ['OUTPUT_PATH'] = r"/your/custom/output_path"
 
+# optimize bulk downloads and use the recommended number of processes
+# os.environ['USE_RECOMMENDED_NUMBER_OF_PROCESSES'] = "True"
+
+# set up your own number of processes for bulk download
+# os.environ['NUMBER_OF_PROCESSES'] = "your_number"
+
 # bulk download
 bulk_date = "today"
 bulk_cleansing = True
@@ -67,10 +73,9 @@ api_location_types = [
     "location_gas_consumption",
 ]
 
-# instantiate Mastr class
-db = Mastr()
-
 if __name__ == "__main__":
+    # instantiate Mastr class
+    db = Mastr()
 
     ## download Markstammdatenregister
     # bulk download

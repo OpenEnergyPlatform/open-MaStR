@@ -19,6 +19,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
   [#593](https://github.com/OpenEnergyPlatform/open-MaStR/pull/593)
 - Delete Google Fonts from Documentation Page
   [#599](https://github.com/OpenEnergyPlatform/open-MaStR/pull/599)
+- Use multiprocessing to speed up parsing 
+  [#601](https://github.com/OpenEnergyPlatform/open-MaStR/pull/601)
 ### Removed
 - Moved old code artefacts from `scripts` folder to paper specific 
   [repository](https://github.com/FlorianK13/verify-marktstammdaten) 

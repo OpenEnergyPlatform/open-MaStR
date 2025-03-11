@@ -1,12 +1,16 @@
+import os
+from concurrent.futures import ProcessPoolExecutor, wait
 from io import StringIO
+from multiprocessing import cpu_count
 from shutil import Error
 from zipfile import ZipFile
 
+import re
 import lxml
 import numpy as np
 import pandas as pd
 import sqlalchemy
-from sqlalchemy import inspect, select
+from sqlalchemy import select, create_engine, inspect
 from sqlalchemy.sql import text
 from sqlalchemy.sql.sqltypes import Date, DateTime
 
@@ -24,7 +28,10 @@ def write_mastr_xml_to_database(
     bulk_download_date: str,
 ) -> None:
     """Write the Mastr in xml format into a database defined by the engine parameter."""
+    print("Starting bulk download and data cleansing...")
+
     include_tables = data_to_include_tables(data, mapping="write_xml")
+    threads_data = []
 
     with ZipFile(zipped_xml_file_path, "r") as f:
         files_list = correct_ordering_of_filelist(f.namelist())
@@ -36,15 +43,85 @@ def write_mastr_xml_to_database(
                 continue
 
             sql_table_name = extract_sql_table_name(xml_table_name)
-
-            if is_first_file(file_name):
-                create_database_table(engine, xml_table_name)
-                print(
-                    f"Table '{sql_table_name}' is filled with data '{xml_table_name}' "
-                    "from the bulk download."
+            threads_data.append(
+                (
+                    file_name,
+                    xml_table_name,
+                    sql_table_name,
+                    str(engine.url),
+                    engine.url.password,
+                    zipped_xml_file_path,
+                    bulk_download_date,
+                    bulk_cleansing,
                 )
-            print(f"File '{file_name}' is parsed.")
+            )
 
+    interleaved_files = interleave_files(threads_data)
+    number_of_processes = get_number_of_processes()
+
+    if number_of_processes > 0:
+        with ProcessPoolExecutor(max_workers=number_of_processes) as executor:
+            futures = [
+                executor.submit(process_xml_file, *item) for item in interleaved_files
+            ]
+            for future in futures:
+                future.result()
+            wait(futures)
+    else:
+        for item in interleaved_files:
+            process_xml_file(*item)
+
+    print("Bulk download and data cleansing were successful.")
+
+
+def get_number_of_processes():
+    """Get the number of processes to use for the bulk download. Returns -1 if the user has not opted for the
+    parallelized implementation. Otherwise, we recommend using the number of available CPUs - 1. If the user wants to
+    use more processes, they can set the custom environment variable."""
+    if "NUMBER_OF_PROCESSES" in os.environ:
+        try:
+            number_of_processes = int(os.environ.get("NUMBER_OF_PROCESSES"))
+        except ValueError:
+            print("Warning: Invalid value for NUMBER_OF_PROCESSES. Fallback to 1.")
+            return 1
+        if number_of_processes >= cpu_count():
+            print(
+                f"Warning: Your system supports {cpu_count()} CPUs. Using "
+                f"more processes than available CPUs may cause excessive "
+                f"context-switching overhead."
+            )
+        return number_of_processes
+    if "USE_RECOMMENDED_NUMBER_OF_PROCESSES" in os.environ:
+        return cpu_count() - 1
+    return -1
+
+
+def process_xml_file(
+    file_name: str,
+    xml_table_name: str,
+    sql_table_name: str,
+    connection_url: str,
+    password: str,
+    zipped_xml_file_path: str,
+    bulk_download_date: str,
+    bulk_cleansing: bool,
+) -> None:
+    """Process a single xml file and write it to the database."""
+    try:
+        # If set, the connection url obfuscates the password. We must replace the masked password with the actual password.
+        if password:
+            connection_url = re.sub(
+                r"://([^:]+):\*+@", r"://\1:" + password + "@", connection_url
+            )
+
+        # Each process will create its own engine to ensure isolation and efficient resource management.
+        # The connection url obfuscates the password. We must replace the masked password with the actual password.
+        engine = create_efficient_engine(connection_url)
+        with ZipFile(zipped_xml_file_path, "r") as f:
+            print(f"Processing file '{file_name}'...")
+            if is_first_file(file_name):
+                print(f"Creating table '{sql_table_name}'...")
+                create_database_table(engine, xml_table_name)
             df = read_xml_file(f, file_name)
             df = process_table_before_insertion(
                 df,
@@ -53,15 +130,78 @@ def write_mastr_xml_to_database(
                 bulk_download_date,
                 bulk_cleansing,
             )
-
             if engine.dialect.name == "sqlite":
                 add_table_to_sqlite_database(df, xml_table_name, sql_table_name, engine)
             else:
                 add_table_to_non_sqlite_database(
                     df, xml_table_name, sql_table_name, engine
                 )
+    except Exception as e:
+        print(f"Error processing file '{file_name}': '{e}'")
 
-    print("Bulk download and data cleansing were successful.")
+
+def create_efficient_engine(connection_url: str) -> sqlalchemy.engine.Engine:
+    """Create an efficient engine for the SQLite database."""
+    is_sqlite = connection_url.startswith("sqlite://")
+
+    connect_args = {}
+
+    if is_sqlite:
+        # Wait for max 5 minutes before timing out.
+        connect_args["timeout"] = 300
+        # Lock the database only it is necessary to improve concurrency and performance.
+        connect_args["isolation_level"] = "DEFERRED"
+        # Allow multiple threads to access the database.
+        connect_args["check_same_thread"] = False
+    else:
+        # Wait for max 5 minutes before timing out.
+        connect_args["connect_timeout"] = 300
+
+    return create_engine(
+        connection_url,
+        connect_args=connect_args,
+        # Before returning a connection from the pool, check if the connection is still valid.
+        pool_pre_ping=True,
+        # Max number of connections in the pool.
+        pool_size=10,
+        # Create up to 20 more connections when the demand for connections is high.
+        max_overflow=20,
+        # Recycle inactive connections after 180 seconds to prevent stale connections.
+        pool_recycle=180,
+        # Wait for 30 seconds before raising an exception when the pool is full.
+        pool_timeout=30,
+    )
+
+
+def interleave_files(threads_data: list):
+    """
+    Multiple threads will process different files at once. If the files target the same table, the risk of a
+    "database lock" error (i.e., 2 threads attempting to modify the same table at the same time) is increased.
+    To reduce this probability, we can "interleave" the files based on the table they belong to.
+    Example:
+        Initial order: AnlagenEegSolar_1, AnlagenEegSolar_2, ..., AnlagenEegSpeicher_1, AnlagenEegSpeicher_2, ...
+        Interleaved order: AnlagenEegSolar_1, AnlagenEegSpeicher_1, ..., AnlagenEegSolar_2, AnlagenEegSpeicher_2, ...
+    """
+    files_grouped_by_table = {}
+
+    for item in threads_data:
+        table_name = item[2]
+        if table_name not in files_grouped_by_table:
+            files_grouped_by_table[table_name] = []
+        files_grouped_by_table[table_name].append(item)
+
+    sorted_threads_data = []
+    max_no_files_per_table = max(
+        len(group) for group in files_grouped_by_table.values()
+    )
+
+    for idx in range(max_no_files_per_table):
+        for table_name in files_grouped_by_table.keys():
+            files = files_grouped_by_table[table_name]
+            if idx < len(files):
+                sorted_threads_data.append(files[idx])
+
+    return sorted_threads_data
 
 
 def extract_xml_table_name(file_name: str) -> str:
@@ -346,17 +486,25 @@ def add_missing_columns_to_table(
     missing_columns = set(column_list) - set(column_names_from_database)
 
     for column_name in missing_columns:
-        alter_query = 'ALTER TABLE %s ADD "%s" VARCHAR NULL;' % (
-            table_name,
-            column_name,
-        )
-        with engine.connect().execution_options(autocommit=True) as con:
-            with con.begin():
-                con.execute(text(alter_query).execution_options(autocommit=True))
-        log.info(
-            "From the downloaded xml files following new attribute was "
-            f"introduced: {table_name}.{column_name}"
-        )
+        if not column_exists(engine, table_name, column_name):
+            alter_query = 'ALTER TABLE %s ADD "%s" VARCHAR NULL;' % (
+                table_name,
+                column_name,
+            )
+            try:
+                with engine.connect().execution_options(autocommit=True) as con:
+                    with con.begin():
+                        con.execute(
+                            text(alter_query).execution_options(autocommit=True)
+                        )
+            except sqlalchemy.exc.OperationalError as err:
+                # If the column already exists, we can ignore the error.
+                if "duplicate column name" not in str(err):
+                    raise err
+            log.info(
+                "From the downloaded xml files following new attribute was "
+                f"introduced: {table_name}.{column_name}"
+            )
 
 
 def delete_wrong_xml_entry(err: Error, df: pd.DataFrame) -> pd.DataFrame:
@@ -464,3 +612,9 @@ def add_table_to_sqlite_database(
             # If any unexpected error occurs, we'll switch back to the non-SQLite method.
             add_table_to_non_sqlite_database(df, xml_table_name, sql_table_name, engine)
             break
+
+
+def column_exists(engine, table_name, column_name):
+    inspector = inspect(engine)
+    columns = [col["name"] for col in inspector.get_columns(table_name)]
+    return column_name in columns
