@@ -102,15 +102,17 @@ Install the package with
 
 Examples of Usage
 ==================
-If you want to see your project in this list, write an  
-`Issue <https://github.com/OpenEnergyPlatform/open-MaStR/issues>`_ or add
-changes in a `Pull Request <https://github.com/OpenEnergyPlatform/open-MaStR/pulls>`_.
+These projects already use open-mastr:
 
 - `PV- und Windflächenrechner <https://www.agora-energiewende.de/service/pv-und-windflaechenrechner/>`_
 - `Wasserstoffatlas <https://wasserstoffatlas.de/>`_
 - `EE-Status App <https://ee-status.de/>`_
 - `Digiplan Anhalt <https://digiplan.rl-institut.de/>`_
 - `Data Quality Assessment of the MaStR <https://marktstammdaten.kotthoff.dev/>`_
+
+If you want to see your project in this list, write an  
+`Issue <https://github.com/OpenEnergyPlatform/open-MaStR/issues>`_ or add
+changes in a `Pull Request <https://github.com/OpenEnergyPlatform/open-MaStR/pulls>`_.
 
 External Resources
 ===================
