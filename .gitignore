@@ -1,6 +1,9 @@
 # own testing files
 tmptest.py
 
+# uv and rye
+uv.lock
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
