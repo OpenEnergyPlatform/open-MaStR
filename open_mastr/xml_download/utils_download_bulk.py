@@ -166,6 +166,19 @@ def download_xml_Mastr(
         url = gen_url(now)
         r = requests.get(url, stream=True, headers={"User-Agent": USER_AGENT})
     if r.status_code == 404:
+        url = gen_url(now, use_version="before")  # Use lower MaStR Version
+        log.warning(
+            f"Download file was not found. Assuming that the version of MaStR has changed and retrying with download link: {url}"
+        )
+        r = requests.get(url, stream=True, headers={"User-Agent": USER_AGENT})
+    if r.status_code == 404:
+        url = gen_url(now, use_version="after")  # Use higher MaStR Version
+        log.warning(
+            f"Download file was not found. Assuming that the version of MaStR has changed and retrying with download link: {url}"
+        )
+        r = requests.get(url, stream=True, headers={"User-Agent": USER_AGENT})
+
+    if r.status_code == 404:
         log.error("Could not download file: download URL not found")
         return
 
