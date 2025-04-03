@@ -20,7 +20,9 @@ except PackageNotFoundError:
 log = setup_logger()
 
 
-def gen_version(when: time.struct_time = time.localtime()) -> str:
+def gen_version(
+    when: time.struct_time = time.localtime(), use_version: str = "current"
+) -> str:
     """
     Generates the current version.
 
@@ -57,15 +59,30 @@ def gen_version(when: time.struct_time = time.localtime()) -> str:
     elif when.tm_mon > 10 or (when.tm_mon == 10 and when.tm_mday > 1):
         release = 2
 
+    # Change to MaStR version number that was used before
+    # For example: 24.1 -> 23.2
+    if use_version == "before":
+        if release == 1:
+            year = year - 1
+            release = 2
+        else:
+            release = 1
+    # Change to MaStR version number that was used afterwards
+    # For example: 24.1 -> 24.2
+    if use_version == "after":
+        if release == 2:
+            year = year + 1
+            release = 1
+        else:
+            release = 2
+
     # only the last two digits of the year are used
     year = str(year)[-2:]
-
     return f"{year}.{release}"
 
 
-def gen_url(when: time.struct_time = time.localtime()) -> str:
-    """
-    Generates the download URL for the specified date.
+def gen_url(when: time.struct_time = time.localtime(), use_version="current") -> str:
+    """Generates the download URL for the specified date.
 
     Note that not all dates are archived on the website.
     Normally only today is available, the export is usually made
@@ -75,9 +92,21 @@ def gen_url(when: time.struct_time = time.localtime()) -> str:
     Note also that this function will not be able to generate URLs for dates
     before 2024 because a different URL scheme was used then which had some random
     data embedded in the name to make it harder to automate downloads.
-    """
 
-    version = gen_version(when)
+
+    Args:
+        when (time.struct_time, optional): Time object used to generate url. Defaults to time.localtime().
+        use_version (str, optional): One of "current", "before", "after". "current" will generate the url
+        for the expected MaStR version. "before" will generate the url for the previous MaStR version.
+        "after" will generate the url for the subsequent MaStR version.
+
+        "current": Gesamtdatenexport_20250403_25.1.zip
+        "before": Gesamtdatenexport_20250403_24.2.zip
+        "after": Gesamtdatenexport_20250403_25.2.zip
+
+        Defaults to "current".
+    """
+    version = gen_version(when, use_version)
     date = time.strftime("%Y%m%d", when)
 
     return f"https://download.marktstammdatenregister.de/Gesamtdatenexport_{date}_{version}.zip"
