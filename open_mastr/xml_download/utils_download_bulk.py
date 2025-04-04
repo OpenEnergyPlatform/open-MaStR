@@ -28,7 +28,7 @@ def gen_version(
 
     The version number is determined according to a fixed release cycle,
     which is by convention in sync with the changes to other german regulatory
-    frameworks of the energysuch as GeLI Gas and GPKE.
+    frameworks of the energy such as GeLI Gas and GPKE.
 
     The release schedule is twice per year on 1st of April and October.
     The version number is determined by the year of release and the running
