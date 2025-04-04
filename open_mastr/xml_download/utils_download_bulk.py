@@ -69,7 +69,7 @@ def gen_version(
             release = 1
     # Change to MaStR version number that was used afterwards
     # For example: 24.1 -> 24.2
-    if use_version == "after":
+    elif use_version == "after":
         if release == 2:
             year = year + 1
             release = 1
