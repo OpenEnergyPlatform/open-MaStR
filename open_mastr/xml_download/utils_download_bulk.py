@@ -3,13 +3,17 @@ import shutil
 import time
 from importlib.metadata import PackageNotFoundError, version
 from zipfile import BadZipfile, ZipFile
+import shutil
+from pathlib import Path
 
 import numpy as np
 import requests
 from tqdm import tqdm
+import unzip_http
 
 # setup logger
 from open_mastr.utils.config import setup_logger
+from open_mastr.utils.constants import BULK_INCLUDE_TABLES_MAP
 
 try:
     USER_AGENT = (
@@ -200,6 +204,96 @@ def download_xml_Mastr(
             else:
                 # remove warning
                 bar.set_postfix_str(s="")
+    time_b = time.perf_counter()
+    print(f"Download is finished. It took {int(np.around(time_b - time_a))} seconds.")
+    print(f"MaStR was successfully downloaded to {xml_folder_path}.")
+
+
+def download_xml_Mastr_partial(
+    save_path: str, bulk_date_string: str, bulk_data_list: list, xml_folder_path: str
+) -> None:
+    """Downloads the zipped MaStR.
+
+    Parameters
+    -----------
+    save_path: str
+        The path where the downloaded MaStR zipped folder will be saved.
+    """
+
+    if os.path.exists(save_path):
+        try:
+            _ = ZipFile(save_path)
+        except BadZipfile:
+            log.info(f"Bad Zip file is deleted: {save_path}")
+            os.remove(save_path)
+        else:
+            print("MaStR already downloaded.")
+            return None
+
+    if bulk_date_string != "today":
+        raise OSError(
+            "There exists no file for given date. MaStR can only be downloaded "
+            "from the website if today's date is given."
+        )
+    shutil.rmtree(xml_folder_path, ignore_errors=True)
+    os.makedirs(xml_folder_path, exist_ok=True)
+
+    print_message = (
+        "Download has started, this can take several minutes."
+        "The download bar is only a rough estimate."
+    )
+    warning_message = (
+        "Warning: The servers from MaStR restrict the download speed."
+        " You may want to download it another time."
+    )
+    print(print_message)
+
+    now = time.localtime()
+    url = gen_url(now)
+
+    time_a = time.perf_counter()
+    r = requests.get(url, stream=True, headers={"User-Agent": USER_AGENT})
+    if r.status_code == 404:
+        log.warning(
+            "Download file was not found. Assuming that the new file was not published yet and retrying with yesterday."
+        )
+        now = time.localtime(
+            time.mktime(now) - (24 * 60 * 60)
+        )  # subtract 1 day from the date
+        url = gen_url(now)
+        r = requests.get(url, stream=True, headers={"User-Agent": USER_AGENT})
+    if r.status_code == 404:
+        url = gen_url(now, use_version="before")  # Use lower MaStR Version
+        log.warning(
+            f"Download file was not found. Assuming that the version of MaStR has changed and retrying with download link: {url}"
+        )
+        r = requests.get(url, stream=True, headers={"User-Agent": USER_AGENT})
+    if r.status_code == 404:
+        url = gen_url(now, use_version="after")  # Use higher MaStR Version
+        log.warning(
+            f"Download file was not found. Assuming that the version of MaStR has changed and retrying with download link: {url}"
+        )
+        r = requests.get(url, stream=True, headers={"User-Agent": USER_AGENT})
+
+    if r.status_code == 404:
+        log.error("Could not download file: download URL not found")
+        return
+
+    remote_zip_file = unzip_http.RemoteZipFile(url)
+    remote_zip_names = [remote_zip_name.lower().split('_')[0].split('.')[0] for remote_zip_name in remote_zip_file.namelist()]
+
+    remote_index_list = []
+    for bulk_data_name in bulk_data_list:
+        for bulk_file_name in BULK_INCLUDE_TABLES_MAP[bulk_data_name]:
+            remote_index_list = [remote_index for remote_index, remote_zip_name in enumerate(remote_zip_names) if remote_zip_name == bulk_file_name]
+            for remote_index in remote_index_list:
+                remote_zip_file.extract(remote_zip_file.namelist()[remote_index],path=Path(save_path[:-4]))
+
+    remote_zip_file.extract('Katalogwerte.xml',path=Path(save_path[:-4]))
+
+    shutil.make_archive(save_path[:-4], 'zip', save_path[:-4])
+    shutil.rmtree(save_path[:-4])
+
     time_b = time.perf_counter()
     print(f"Download is finished. It took {int(np.around(time_b - time_a))} seconds.")
     print(f"MaStR was successfully downloaded to {xml_folder_path}.")

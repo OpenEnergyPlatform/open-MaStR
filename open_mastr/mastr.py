@@ -2,7 +2,10 @@ import os
 from sqlalchemy import inspect, create_engine
 
 # import xml dependencies
-from open_mastr.xml_download.utils_download_bulk import download_xml_Mastr
+from open_mastr.xml_download.utils_download_bulk import (
+    download_xml_Mastr,
+    download_xml_Mastr_partial
+)
 from open_mastr.xml_download.utils_write_to_database import (
     write_mastr_xml_to_database,
 )
@@ -224,7 +227,7 @@ class Mastr:
 
         date = transform_date_parameter(self, method, date, **kwargs)
 
-        if method == "bulk":
+        if method == "bulk" or method == 'partial bulk':
             # Find the name of the zipped xml folder
             bulk_download_date = parse_date_string(date)
             xml_folder_path = os.path.join(self.output_dir, "data", "xml_download")
@@ -233,7 +236,10 @@ class Mastr:
                 xml_folder_path,
                 f"Gesamtdatenexport_{bulk_download_date}.zip",
             )
-            download_xml_Mastr(zipped_xml_file_path, date, xml_folder_path)
+            if method == 'bulk':
+                download_xml_Mastr(zipped_xml_file_path, date, xml_folder_path)
+            else:
+                download_xml_Mastr_partial(zipped_xml_file_path, date, data, xml_folder_path)
 
             print(
                 f"\nWould you like to speed up the bulk download?\n"
@@ -248,7 +254,7 @@ class Mastr:
                 bulk_cleansing=bulk_cleansing,
                 bulk_download_date=bulk_download_date,
             )
-
+            
         if method == "API":
             validate_api_credentials()
 
