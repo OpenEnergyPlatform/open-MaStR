@@ -25,6 +25,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 - Moved old code artefacts from `scripts` folder to paper specific 
   [repository](https://github.com/FlorianK13/verify-marktstammdaten) 
   [#561](https://github.com/OpenEnergyPlatform/open-MaStR/pull/561)
+- Remove old dependencies and broken README links 
+  [#619](https://github.com/OpenEnergyPlatform/open-MaStR/pull/619)
 
 
 ## [v0.14.5] New MaStR data model, battery export, various fixes - 2024-10-11
