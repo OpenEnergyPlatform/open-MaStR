@@ -170,6 +170,10 @@ class WindExtended(Extended, ParentAllTables, Base):
     Buergerenergie = Column(Boolean)
     Nachtkennzeichen = Column(Boolean)
     EegMastrNummer = Column(String)
+    WindAnLandOderAufSee = Column(String)
+    TechnologieFlugwind = Column(String)
+    Flughoehe = Column(Float)
+    Flugradius = Column(Float)
 
 
 class SolarExtended(Extended, ParentAllTables, Base):
@@ -192,7 +196,10 @@ class SolarExtended(Extended, ParentAllTables, Base):
     Buergerenergie = Column(Boolean)
     EegMastrNummer = Column(String)
     ArtDerFlaecheIds = Column(String)
+    ArtDerSolaranlage = Column(String)
     Zaehlernummer = Column(String)
+    InAnspruchGenommeneAckerflaeche = Column(Float)
+    SpeicherAmGleichenOrt = Column(String)
 
 
 class BiomassExtended(Extended, ParentAllTables, Base):
@@ -277,6 +284,7 @@ class StorageExtended(Extended, ParentAllTables, Base):
     EegAnlagentyp = Column(String)
     Technologie = Column(String)
     LeistungsaufnahmeBeimEinspeichern = Column(Float)
+    GemeinsamRegistrierteSolareinheitMastrNummer = Column(String)
 
 
 class Eeg(object):
@@ -405,6 +413,7 @@ class Permit(ParentAllTables, Base):
     Frist_nv = Column(Boolean)
     WasserrechtAblaufdatum_nv = Column(Boolean)
     Netzbetreiberzuordnungen = Column(String)
+    DatumAntragstellung = Column(Date)
 
 
 class LocationBasic(Base):
