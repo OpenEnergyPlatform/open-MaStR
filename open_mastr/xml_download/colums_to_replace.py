@@ -112,4 +112,10 @@ columns_replace_list = [
     "ClusterOstsee",
     # various tables
     "NetzbetreiberpruefungStatus",
+    "WindAnLandOderAufSee",
+    "TechnologieFlugwindenergieanlage",
+    "Flughoehe",
+    "Flugradius",
+    "ArtDerSolaranlage",
+    "SpeicherAmGleichenOrt",
 ]

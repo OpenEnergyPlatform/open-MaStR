@@ -23,6 +23,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
   [#601](https://github.com/OpenEnergyPlatform/open-MaStR/pull/601)
 - Generate multiple download links for different MaStR versions 
   [#613](https://github.com/OpenEnergyPlatform/open-MaStR/pull/613)
+- Add new columns `WindAnLandOderAufSee,TechnologieFlugwindenergieanlage,Flughoehe,Flugradius,ArtDerSolaranlage,SpeicherAmGleichenOrt` to `columns_to_replace.py`
+  [#618](https://github.com/OpenEnergyPlatform/open-MaStR/issues/618)
 ### Removed
 - Moved old code artefacts from `scripts` folder to paper specific 
   [repository](https://github.com/FlorianK13/verify-marktstammdaten) 
