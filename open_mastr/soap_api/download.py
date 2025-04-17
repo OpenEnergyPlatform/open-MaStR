@@ -425,7 +425,7 @@ class MaStRDownload:
     """
     !!! warning
 
-        **This class is deprecated** and will not be maintained from version 0.15.0 onwards.
+        **This class is deprecated** and will not be maintained in the future.
         Instead use [`Mastr.download`][open_mastr.Mastr.download] with parameter
         `method` = "bulk" to get bulk downloads of the dataset.
 
