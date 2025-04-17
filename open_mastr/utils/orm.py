@@ -413,7 +413,7 @@ class Permit(ParentAllTables, Base):
     Frist_nv = Column(Boolean)
     WasserrechtAblaufdatum_nv = Column(Boolean)
     Netzbetreiberzuordnungen = Column(String)
-    DatumAntragstellung = Column(Date)
+    DatumDerAntragstellung = Column(Date)
 
 
 class LocationBasic(Base):
@@ -516,6 +516,7 @@ class GasStorageExtended(ParentAllTables, Base):
     DatumDesBetreiberwechsels = Column(Date)
     DatumRegistrierungDesBetreiberwechsels = Column(Date)
     DatumEndgueltigeStilllegung = Column(Date)
+    ZugeordnenteWirkleistungWechselrichter = Column(Float)
 
 
 class StorageUnits(ParentAllTables, Base):
@@ -777,6 +778,7 @@ class GridConnections(ParentAllTables, Base):
     BilanzierungsgebietNetzanschlusspunktId = Column(Integer)
     Nettoengpassleistung = Column(Float)
     Netzanschlusskapazitaet = Column(Float)
+    RegelzoneNetzanschlusspunkt = Column(String)
 
 
 class DeletedUnits(ParentAllTables, Base):
