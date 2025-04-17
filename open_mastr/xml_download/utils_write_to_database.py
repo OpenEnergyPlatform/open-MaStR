@@ -92,7 +92,7 @@ def get_number_of_processes():
             )
         return number_of_processes
     if "USE_RECOMMENDED_NUMBER_OF_PROCESSES" in os.environ:
-        return cpu_count() - 1
+        return int(min(cpu_count() - 1, 4))
     return -1
 
 

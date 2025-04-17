@@ -19,19 +19,19 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
   [#593](https://github.com/OpenEnergyPlatform/open-MaStR/pull/593)
 - Delete Google Fonts from Documentation Page
   [#599](https://github.com/OpenEnergyPlatform/open-MaStR/pull/599)
-- Use multiprocessing to speed up parsing 
+- Use multiprocessing to speed up parsing
   [#601](https://github.com/OpenEnergyPlatform/open-MaStR/pull/601)
-- Generate multiple download links for different MaStR versions 
+- Generate multiple download links for different MaStR versions
   [#613](https://github.com/OpenEnergyPlatform/open-MaStR/pull/613)
 - Add new columns `WindAnLandOderAufSee,TechnologieFlugwindenergieanlage,Flughoehe,Flugradius,ArtDerSolaranlage,SpeicherAmGleichenOrt` to `columns_to_replace.py`
   [#618](https://github.com/OpenEnergyPlatform/open-MaStR/issues/618)
 - Update orm.py with new columns from new MaStR version
   [#621](https://github.com/OpenEnergyPlatform/open-MaStR/pull/621)
 ### Removed
-- Moved old code artefacts from `scripts` folder to paper specific 
+- Moved old code artefacts from `scripts` folder to paper specific
   [repository](https://github.com/FlorianK13/verify-marktstammdaten) 
   [#561](https://github.com/OpenEnergyPlatform/open-MaStR/pull/561)
-- Remove old dependencies and broken README links 
+- Remove old dependencies and broken README links
   [#619](https://github.com/OpenEnergyPlatform/open-MaStR/pull/619)
 
 
