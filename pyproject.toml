@@ -59,7 +59,6 @@ dev = [
   "mkdocstrings[python]",
   "mkdocs-material",
   "mkdocs-include-markdown-plugin",
-  "mike",
   "black",
 ]
 
