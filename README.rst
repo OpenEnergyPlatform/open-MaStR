@@ -26,7 +26,7 @@ open-mastr
    * - Development
      - |badge_issue_open| |badge_issue_closes| |badge_pr_open| |badge_pr_closes|
    * - Community
-     - |badge_contributing| |badge_contributors| |badge_repo_counts| |PyPI download month| |Total PyPI downloads|
+     - |badge_contributing| |PyPI download month| |Total PyPI downloads|
    
 
 .. contents::
@@ -102,9 +102,7 @@ Install the package with
 
 Examples of Usage
 ==================
-If you want to see your project in this list, write an  
-`Issue <https://github.com/OpenEnergyPlatform/open-MaStR/issues>`_ or add
-changes in a `Pull Request <https://github.com/OpenEnergyPlatform/open-MaStR/pulls>`_.
+These projects already use open-mastr:
 
 - `PV- und Windflächenrechner <https://www.agora-energiewende.de/service/pv-und-windflaechenrechner/>`_
 - `Wasserstoffatlas <https://wasserstoffatlas.de/>`_
@@ -113,6 +111,10 @@ changes in a `Pull Request <https://github.com/OpenEnergyPlatform/open-MaStR/pul
 - `Data Quality Assessment of the MaStR <https://marktstammdaten.kotthoff.dev/>`_
 - `EmPowerPlan <https://epp.rl-institut.de/>`_
 - `Goal100 Monitor <https://goal100.org/monitor>`_
+
+If you want to see your project in this list, write an  
+`Issue <https://github.com/OpenEnergyPlatform/open-MaStR/issues>`_ or add
+changes in a `Pull Request <https://github.com/OpenEnergyPlatform/open-MaStR/pulls>`_.
 
 External Resources
 ===================
@@ -177,12 +179,6 @@ Data
 
 .. |badge_contributing| image:: https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat
     :alt: contributions
-
-.. |badge_contributors| image:: https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square
-    :alt: contributors
-
-.. |badge_repo_counts| image:: https://hits.dwyl.com/OpenEnergyPlatform/open-MaStR.svg
-    :alt: counter
     
 .. |PyPI download month| image:: https://img.shields.io/pypi/dm/open-mastr?label=PyPi%20Downloads
     :target: https://pypistats.org/packages/open-mastr
