@@ -109,6 +109,8 @@ These projects already use open-mastr:
 - `EE-Status App <https://ee-status.de/>`_
 - `Digiplan Anhalt <https://digiplan.rl-institut.de/>`_
 - `Data Quality Assessment of the MaStR <https://marktstammdaten.kotthoff.dev/>`_
+- `EmPowerPlan <https://epp.rl-institut.de/>`_
+- `Goal100 Monitor <https://goal100.org/monitor>`_
 
 If you want to see your project in this list, write an  
 `Issue <https://github.com/OpenEnergyPlatform/open-MaStR/issues>`_ or add

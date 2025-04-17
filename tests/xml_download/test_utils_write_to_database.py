@@ -269,6 +269,9 @@ def test_change_column_names_to_orm_format():
     )
 
 
+@pytest.mark.skipif(
+    not _xml_file_exists, reason="The zipped xml file could not be found."
+)
 def test_process_table_before_insertion(zipped_xml_file_path):
     bulk_download_date = datetime.now().date().strftime("%Y%m%d")
     initial_df = pd.DataFrame(

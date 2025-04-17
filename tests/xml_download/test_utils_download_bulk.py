@@ -50,3 +50,37 @@ def test_gen_url():
         url
         == "https://download.marktstammdatenregister.de/Gesamtdatenexport_20241231_24.2.zip"
     )
+
+    # Tests for use_version parameter
+
+    when = time.strptime("2024-12-31", "%Y-%m-%d")
+    url = gen_url(when, use_version="before")
+    assert type(url) == str
+    assert (
+        url
+        == "https://download.marktstammdatenregister.de/Gesamtdatenexport_20241231_24.1.zip"
+    )
+
+    when = time.strptime("2024-12-31", "%Y-%m-%d")
+    url = gen_url(when, use_version="after")
+    assert type(url) == str
+    assert (
+        url
+        == "https://download.marktstammdatenregister.de/Gesamtdatenexport_20241231_25.1.zip"
+    )
+
+    when = time.strptime("2024-04-02", "%Y-%m-%d")
+    url = gen_url(when, use_version="before")
+    assert type(url) == str
+    assert (
+        url
+        == "https://download.marktstammdatenregister.de/Gesamtdatenexport_20240402_23.2.zip"
+    )
+
+    when = time.strptime("2024-04-02", "%Y-%m-%d")
+    url = gen_url(when, use_version="after")
+    assert type(url) == str
+    assert (
+        url
+        == "https://download.marktstammdatenregister.de/Gesamtdatenexport_20240402_24.2.zip"
+    )
