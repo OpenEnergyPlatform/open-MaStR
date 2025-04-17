@@ -413,7 +413,7 @@ class Permit(ParentAllTables, Base):
     Frist_nv = Column(Boolean)
     WasserrechtAblaufdatum_nv = Column(Boolean)
     Netzbetreiberzuordnungen = Column(String)
-    DatumDerAntragstellung = Column(Date)
+    DatumAntragstellung = Column(Date)
 
 
 class LocationBasic(Base):
@@ -982,7 +982,8 @@ tablename_mapping = {
         "__name__": Permit.__tablename__,
         "__class__": Permit,
         "replace_column_names": {
-            "VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheiten"
+            "VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheiten",
+            "DatumDerAntragstellung": "DatumAntragstellung",
         },
     },
     "einheitenkernkraft": {
