@@ -808,11 +808,15 @@ class ChangedDSOAssignment(ParentAllTables, Base):
     NetzanschlusspunktMastrNummer = Column(String)
     NetzbetreiberMastrNummerNeu = Column(String)
     NetzbetreiberMastrNummerAlt = Column(String)
+    # NetzbetreiberMastrNummerNeu = Column(String, primary_key=True)
+    # NetzbetreiberMastrNummerAlt = Column(String, primary_key=True)
     ArtDerAenderung = Column(String)
     RegistrierungsdatumNetzbetreiberzuordnungsaenderung = Column(
-        DateTime(timezone=True)
+        DateTime(timezone=True),
     )
-    Netzbetreiberzuordnungsaenderungsdatum = Column(DateTime(timezone=True))
+    Netzbetreiberzuordnungsaenderungsdatum = Column(
+        DateTime(timezone=True),
+    )
 
 
 tablename_mapping = {
