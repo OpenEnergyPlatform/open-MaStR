@@ -13,6 +13,7 @@ import sqlalchemy
 from sqlalchemy import select, create_engine, inspect
 from sqlalchemy.sql import text
 from sqlalchemy.sql.sqltypes import Date, DateTime
+from sqlite3 import IntegrityError as SqliteIntegrityError
 
 from open_mastr.utils.config import setup_logger
 from open_mastr.utils.helpers import data_to_include_tables
@@ -377,7 +378,7 @@ def add_table_to_non_sqlite_database(
         except sqlalchemy.exc.DataError as err:
             delete_wrong_xml_entry(err, df)
 
-        except sqlalchemy.exc.IntegrityError:
+        except sqlalchemy.exc.IntegrityError as err:
             # error resulting from Unique constraint failed
             df = write_single_entries_until_not_unique_comes_up(
                 df, xml_table_name, engine
@@ -434,21 +435,26 @@ def write_single_entries_until_not_unique_comes_up(
 
     table = tablename_mapping[xml_table_name]["__class__"].__table__
     primary_key = next(c for c in table.columns if c.primary_key)
+    # primary_key2 = [c for c in table.columns if c.primary_key]
 
     with engine.connect() as con:
         with con.begin():
             key_list = (
                 pd.read_sql(sql=select(primary_key), con=con).values.squeeze().tolist()
+                # pd.read_sql(sql=select(*primary_key2),con=con).values.squeeze().tolist()
             )
 
     len_df_before = len(df)
     df = df.drop_duplicates(
         subset=[primary_key.name]
+        # subset=[pk.name for pk in primary_key2]
     )  # drop all entries with duplicated primary keys in the dataframe
     df = df.set_index(primary_key.name)
+    # df = df.set_index([pk.name for pk in primary_key2])
 
     df = df.drop(
         labels=key_list, errors="ignore"
+        # labels=[tuple(_) for _ in key_list], errors="ignore"
     )  # drop primary keys that already exist in the table
     df = df.reset_index()
     print(f"{len_df_before - len(df)} entries already existed in the database.")
@@ -594,6 +600,7 @@ def add_table_to_sqlite_database(
 
     # Create SQL statement for bulk insert. ON CONFLICT DO NOTHING prevents duplicates.
     insert_stmt = f"INSERT INTO {sql_table_name} ({','.join(column_list)}) VALUES ({','.join(['?' for _ in column_list])}) ON CONFLICT DO NOTHING"
+    # insert_stmt = f"INSERT INTO {sql_table_name} ({','.join(column_list)}) VALUES ({','.join(['?' for _ in column_list])})"
 
     for _ in range(10000):
         try:
@@ -603,7 +610,10 @@ def add_table_to_sqlite_database(
                     break
         except sqlalchemy.exc.DataError as err:
             delete_wrong_xml_entry(err, df)
-        except sqlalchemy.exc.IntegrityError:
+        # except sqlalchemy.exc.IntegrityError:
+        # SqliteIntegrityError is different from sqlalchemy.exc.IntegrityError.
+        # Without explicitly catching this the general except is raised.
+        except (sqlalchemy.exc.IntegrityError, SqliteIntegrityError) as err:
             # error resulting from Unique constraint failed
             df = write_single_entries_until_not_unique_comes_up(
                 df, xml_table_name, engine
