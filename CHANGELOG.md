@@ -8,6 +8,12 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 
 ## [v0.XX.X] unreleased - 202X-XX-XX
 ### Added
+### Changed
+### Removed
+
+
+## [v0.15.0] Turbo parsing with open-MaStR EasterEggspress - 2025-04-19
+### Added
 - Add an Issue Template for Software Release
   [#589](https://github.com/OpenEnergyPlatform/open-MaStR/pull/589)
 ### Changed
