@@ -14,7 +14,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       with:
-        ref: production
+        ref: release
     - name: Set up Python 3.10
       uses: actions/setup-python@v3
       with:
@@ -38,3 +38,4 @@ jobs:
       with:
         password: ${{ secrets.PYPI_TEST }}
         repository-url: https://test.pypi.org/legacy/
+        verbose: true
