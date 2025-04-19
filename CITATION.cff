@@ -30,10 +30,14 @@ authors:
     alias: "@nesnoj"
     affiliation: "Reiner Lemoine Institut"
     orcid: " https://orcid.org/0000-0002-8563-5261"
+  - family-names: "Imbrisca"
+    given-names: "Alexandra-Andreea"
+    alias: "@AlexandraImbrisca"
+    affiliation: "Technical University of Munich"
 title: "open-MaStR"
 type: software
 license: AGPL-3.0
-version: 0.14.5
+version: 0.15.0
 doi: 
-date-released: 2024-10-11
+date-released: 2025-04-19
 url: "https://github.com/OpenEnergyPlatform/open-MaStR/"

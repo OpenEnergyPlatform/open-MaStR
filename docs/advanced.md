@@ -13,15 +13,20 @@ The possible databases are:
 
 * **sqlite**: By default the database will be stored in `$HOME/.open-MaStR/data/sqlite/open-mastr.db`.
 * **own database**: The Mastr class accepts a sqlalchemy.engine.Engine object as engine which enables the user to
-  use any other desired database.
-  If you do so, you need to insert the connection parameter into the engine variable. It'll look like this:
+  use any other desired database such as PostgreSQL. The tables are created in the default DB schema, in PostgreSQL
+  this is `public`.
+  If you use an own database so, you need to insert the connection parameter into the engine variable. In the
+  example below, the following parameters are used: user `open-mastr`, password `open-mastr-pw`, database
+  `open-mastr-db`. Make sure it exists and the user has sufficient permissions.
 
 ```python
 
   from sqlalchemy import create_engine
 
-  engine_postgres = create_engine("postgresql+psycopg2://open-mastr:open-mastr@localhost:55443/open-mastr")
+  # SQLite DB
   engine_sqlite = create_engine("sqlite:///path/to/sqlite/database.db")
+  # postgreSQL DB
+  engine_postgres = create_engine("postgresql+psycopg2://open-mastr:open-mastr-pw@localhost:55443/open-mastr-db")
   db = Mastr(engine=engine_sqlite)
 ```
 
@@ -92,10 +97,14 @@ For more information regarding the database see [Database settings](#database-se
 
 There are some environment variables to customize open-MaStR:
 
-| Variable               | Description                                                                                                                                                              | Example                                                                                                                    |
-|------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------|
-| `SQLITE_DATABASE_PATH` | Path to the SQLite file. This allows to use to use multiple instances of the MaStR database. The database instances exist in parallel and are independent of each other. | `/home/mastr-rabbit/.open-MaStR/data/sqlite/your_custom_instance_name.db`                                                  |
-| `OUTPUT_PATH`          | Path to user-defined output directory for CSV data, XML file and database. If not specified, output directory defaults to `$HOME/.open-MaStR/`                           | Linux: `/home/mastr-rabbit/open-mastr-user-defined-output-path`, Windows: `C:\\Users\\open-mastr-user-defined-output-path` |
+| Variable                              | Description                                                                                                                                                                                                                | Example                                                                                                                    |
+|---------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------|
+| `SQLITE_DATABASE_PATH`                | Path to the SQLite file. This allows to use to use multiple instances of the MaStR database. The database instances exist in parallel and are independent of each other.                                                   | `/home/mastr-rabbit/.open-MaStR/data/sqlite/your_custom_instance_name.db`                                                  |
+| `OUTPUT_PATH`                         | Path to user-defined output directory for CSV data, XML file and database. If not specified, output directory defaults to `$HOME/.open-MaStR/`                                                                             | Linux: `/home/mastr-rabbit/open-mastr-user-defined-output-path`, Windows: `C:\\Users\\open-mastr-user-defined-output-path` |
+| `USE_RECOMMENDED_NUMBER_OF_PROCESSES` | If set to `True`, the number of processes used for the bulk download is set to the recommended number of processes. The recommended number is min(the number of available CPUs - 1, 4). If set to `False`, the number of processes is 1 if not otherwise configured via `NUMBER_OF_PROCESSES`. | `True` or `False`                                                                                                          |
+| `NUMBER_OF_PROCESSES`                 | Number of processed to be used for the bulk download processing.                                                                                                                                                           | `4`                                                                                                                        |
+
+**Note**: When using `USE_RECOMMENDED_NUMBER_OF_PROCESSES` or `NUMBER_OF_PROCESSES` on Windows or MacOS, please make sure that you are wrapping the method call under an [if \_\_name\_\_ == "\_\_main\_\_"](https://realpython.com/if-name-main-python/) as shown in the [example](https://github.com/OpenEnergyPlatform/open-MaStR/blob/11fb568879ae8015af74f3d6b386faa5027c2721/main.py#L73).
 
 ## Bulk download
 

@@ -6,6 +6,41 @@ For each version important additions, changes and removals are listed here.
 The format is inspired from [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [v0.XX.X] unreleased - 202X-XX-XX
+### Added
+### Changed
+### Removed
+
+
+## [v0.15.0] Turbo parsing with open-MaStR EasterEggspress - 2025-04-19
+### Added
+- Add an Issue Template for Software Release
+  [#589](https://github.com/OpenEnergyPlatform/open-MaStR/pull/589)
+### Changed
+- Repair Header image in Readme
+  [#587](https://github.com/OpenEnergyPlatform/open-MaStR/pull/587)
+- Increase XML parsing speed
+  [#598](https://github.com/OpenEnergyPlatform/open-MaStR/pull/598)
+- Update bug issue templates
+  [#593](https://github.com/OpenEnergyPlatform/open-MaStR/pull/593)
+- Delete Google Fonts from Documentation Page
+  [#599](https://github.com/OpenEnergyPlatform/open-MaStR/pull/599)
+- Use multiprocessing to speed up parsing
+  [#601](https://github.com/OpenEnergyPlatform/open-MaStR/pull/601)
+- Generate multiple download links for different MaStR versions
+  [#613](https://github.com/OpenEnergyPlatform/open-MaStR/pull/613)
+- Add new columns `WindAnLandOderAufSee,TechnologieFlugwindenergieanlage,Flughoehe,Flugradius,ArtDerSolaranlage,SpeicherAmGleichenOrt` to `columns_to_replace.py`
+  [#618](https://github.com/OpenEnergyPlatform/open-MaStR/issues/618)
+- Update orm.py with new columns from new MaStR version
+  [#621](https://github.com/OpenEnergyPlatform/open-MaStR/pull/621)
+### Removed
+- Moved old code artefacts from `scripts` folder to paper specific
+  [repository](https://github.com/FlorianK13/verify-marktstammdaten) 
+  [#561](https://github.com/OpenEnergyPlatform/open-MaStR/pull/561)
+- Remove old dependencies and broken README links
+  [#619](https://github.com/OpenEnergyPlatform/open-MaStR/pull/619)
+
+
 ## [v0.14.5] New MaStR data model, battery export, various fixes - 2024-10-11
 ### Added
 - Replace values in NetzbetreiberpruefungStatus with their entries from
@@ -28,6 +63,7 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
   [#556](https://github.com/OpenEnergyPlatform/open-MaStR/issues/556)
 - Allow CSV export of table `storage_units`
   [#565](https://github.com/OpenEnergyPlatform/open-MaStR/pull/565)
+
 
 ## [v0.14.4] Release for the Journal of Open Source Software JOSS - 2024-06-07
 ### Added

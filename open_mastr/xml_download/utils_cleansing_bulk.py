@@ -8,7 +8,6 @@ from zipfile import ZipFile
 
 
 def cleanse_bulk_data(df: pd.DataFrame, zipped_xml_file_path: str) -> pd.DataFrame:
-    print("Data is cleansed.")
     df = replace_ids_with_names(df, system_catalog)
     # Katalogeintraege: int -> string value
     df = replace_mastr_katalogeintraege(

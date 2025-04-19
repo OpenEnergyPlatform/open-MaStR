@@ -235,6 +235,12 @@ class Mastr:
             )
             download_xml_Mastr(zipped_xml_file_path, date, xml_folder_path)
 
+            print(
+                f"\nWould you like to speed up the bulk download?\n"
+                f"Try our new parallelized processing by setting os.environ['USE_RECOMMENDED_NUMBER_OF_PROCESSES'] = True "
+                f"or configure your own number of processes via os.environ['NUMBER_OF_PROCESSES'] = your_number\n"
+            )
+
             write_mastr_xml_to_database(
                 engine=self.engine,
                 zipped_xml_file_path=zipped_xml_file_path,
@@ -400,7 +406,7 @@ class Mastr:
             db.download(data='biomass')
             db.translate()
 
-            df = pd.read_sql(table='biomass_extended', con=db.engine)
+            df = pd.read_sql(sql='biomass_extended', con=db.engine)
             print(df.head(10))
             ```
 

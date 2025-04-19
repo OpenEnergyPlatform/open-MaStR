@@ -20,13 +20,15 @@ except PackageNotFoundError:
 log = setup_logger()
 
 
-def gen_version(when: time.struct_time = time.localtime()) -> str:
+def gen_version(
+    when: time.struct_time = time.localtime(), use_version: str = "current"
+) -> str:
     """
     Generates the current version.
 
     The version number is determined according to a fixed release cycle,
     which is by convention in sync with the changes to other german regulatory
-    frameworks of the energysuch as GeLI Gas and GPKE.
+    frameworks of the energy such as GeLI Gas and GPKE.
 
     The release schedule is twice per year on 1st of April and October.
     The version number is determined by the year of release and the running
@@ -57,15 +59,30 @@ def gen_version(when: time.struct_time = time.localtime()) -> str:
     elif when.tm_mon > 10 or (when.tm_mon == 10 and when.tm_mday > 1):
         release = 2
 
+    # Change to MaStR version number that was used before
+    # For example: 24.1 -> 23.2
+    if use_version == "before":
+        if release == 1:
+            year = year - 1
+            release = 2
+        else:
+            release = 1
+    # Change to MaStR version number that was used afterwards
+    # For example: 24.1 -> 24.2
+    elif use_version == "after":
+        if release == 2:
+            year = year + 1
+            release = 1
+        else:
+            release = 2
+
     # only the last two digits of the year are used
     year = str(year)[-2:]
-
     return f"{year}.{release}"
 
 
-def gen_url(when: time.struct_time = time.localtime()) -> str:
-    """
-    Generates the download URL for the specified date.
+def gen_url(when: time.struct_time = time.localtime(), use_version="current") -> str:
+    """Generates the download URL for the specified date.
 
     Note that not all dates are archived on the website.
     Normally only today is available, the export is usually made
@@ -75,9 +92,21 @@ def gen_url(when: time.struct_time = time.localtime()) -> str:
     Note also that this function will not be able to generate URLs for dates
     before 2024 because a different URL scheme was used then which had some random
     data embedded in the name to make it harder to automate downloads.
-    """
 
-    version = gen_version(when)
+
+    Args:
+        when (time.struct_time, optional): Time object used to generate url. Defaults to time.localtime().
+        use_version (str, optional): One of "current", "before", "after". "current" will generate the url
+        for the expected MaStR version. "before" will generate the url for the previous MaStR version.
+        "after" will generate the url for the subsequent MaStR version.
+
+        "current": Gesamtdatenexport_20250403_25.1.zip
+        "before": Gesamtdatenexport_20250403_24.2.zip
+        "after": Gesamtdatenexport_20250403_25.2.zip
+
+        Defaults to "current".
+    """
+    version = gen_version(when, use_version)
     date = time.strftime("%Y%m%d", when)
 
     return f"https://download.marktstammdatenregister.de/Gesamtdatenexport_{date}_{version}.zip"
@@ -136,6 +165,19 @@ def download_xml_Mastr(
         )  # subtract 1 day from the date
         url = gen_url(now)
         r = requests.get(url, stream=True, headers={"User-Agent": USER_AGENT})
+    if r.status_code == 404:
+        url = gen_url(now, use_version="before")  # Use lower MaStR Version
+        log.warning(
+            f"Download file was not found. Assuming that the version of MaStR has changed and retrying with download link: {url}"
+        )
+        r = requests.get(url, stream=True, headers={"User-Agent": USER_AGENT})
+    if r.status_code == 404:
+        url = gen_url(now, use_version="after")  # Use higher MaStR Version
+        log.warning(
+            f"Download file was not found. Assuming that the version of MaStR has changed and retrying with download link: {url}"
+        )
+        r = requests.get(url, stream=True, headers={"User-Agent": USER_AGENT})
+
     if r.status_code == 404:
         log.error("Could not download file: download URL not found")
         return

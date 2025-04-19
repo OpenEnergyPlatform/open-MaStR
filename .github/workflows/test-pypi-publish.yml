@@ -12,7 +12,9 @@ jobs:
     runs-on: ubuntu-latest
     environment: pypi-publish
     steps:
-    - uses: actions/checkout@master
+    - uses: actions/checkout@v4
+      with:
+        ref: release
     - name: Set up Python 3.10
       uses: actions/setup-python@v3
       with:
@@ -36,3 +38,4 @@ jobs:
       with:
         password: ${{ secrets.PYPI_TEST }}
         repository-url: https://test.pypi.org/legacy/
+        verbose: true

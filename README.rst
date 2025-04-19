@@ -1,5 +1,5 @@
 
-.. image:: docs/images/README_HeaderThreePartners.svg
+.. image:: https://raw.githubusercontent.com/OpenEnergyPlatform/open-MaStR/refs/heads/production/docs/images/README_HeaderThreePartners.svg
     :align: left
     :target: https://github.com/OpenEnergyPlatform/open-MaStR
     :alt: MaStR logo
@@ -26,7 +26,7 @@ open-mastr
    * - Development
      - |badge_issue_open| |badge_issue_closes| |badge_pr_open| |badge_pr_closes|
    * - Community
-     - |badge_contributing| |badge_contributors| |badge_repo_counts| |PyPI download month| |Total PyPI downloads|
+     - |badge_contributing| |PyPI download month| |Total PyPI downloads|
    
 
 .. contents::
@@ -102,15 +102,19 @@ Install the package with
 
 Examples of Usage
 ==================
-If you want to see your project in this list, write an  
-`Issue <https://github.com/OpenEnergyPlatform/open-MaStR/issues>`_ or add
-changes in a `Pull Request <https://github.com/OpenEnergyPlatform/open-MaStR/pulls>`_.
+These projects already use open-mastr:
 
 - `PV- und Windflächenrechner <https://www.agora-energiewende.de/service/pv-und-windflaechenrechner/>`_
 - `Wasserstoffatlas <https://wasserstoffatlas.de/>`_
 - `EE-Status App <https://ee-status.de/>`_
 - `Digiplan Anhalt <https://digiplan.rl-institut.de/>`_
 - `Data Quality Assessment of the MaStR <https://marktstammdaten.kotthoff.dev/>`_
+- `EmPowerPlan <https://epp.rl-institut.de/>`_
+- `Goal100 Monitor <https://goal100.org/monitor>`_
+
+If you want to see your project in this list, write an  
+`Issue <https://github.com/OpenEnergyPlatform/open-MaStR/issues>`_ or add
+changes in a `Pull Request <https://github.com/OpenEnergyPlatform/open-MaStR/pulls>`_.
 
 External Resources
 ===================
@@ -149,7 +153,7 @@ Data
     :target: https://open-mastr.readthedocs.io/en/latest/
     :alt: Read the Docs
 
-.. |badge_ci| image:: https://github.com/OpenEnergyPlatform/open-MaStR/workflows/CI/badge.svg
+.. |badge_ci| image:: https://github.com/OpenEnergyPlatform/open-MaStR/actions/workflows/ci-production.yml/badge.svg
     :target: https://github.com/OpenEnergyPlatform/open-MaStR/actions?query=workflow%3ACI
     :alt: GitHub Actions
 
@@ -175,12 +179,6 @@ Data
 
 .. |badge_contributing| image:: https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat
     :alt: contributions
-
-.. |badge_contributors| image:: https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square
-    :alt: contributors
-
-.. |badge_repo_counts| image:: https://hits.dwyl.com/OpenEnergyPlatform/open-MaStR.svg
-    :alt: counter
     
 .. |PyPI download month| image:: https://img.shields.io/pypi/dm/open-mastr?label=PyPi%20Downloads
     :target: https://pypistats.org/packages/open-mastr
