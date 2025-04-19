@@ -78,8 +78,5 @@ open_mastr = [
 [tool.setuptools.packages.find]
 include = ["open_mastr", "open_mastr.soap_api", "open_mastr.soap_api.metadata", "open_mastr.utils", "open_mastr.utils.config", "open_mastr.xml_download"] # package names should match these glob patterns (["*"] by default)
 
-[tool.setuptools]
-license-files = []
-
 # from setup.py - not yet included in here
 # download_url="https://github.com/OpenEnergyPlatform/open-MaStR/archive""/refs/tags/v0.15.0.tar.gz",
