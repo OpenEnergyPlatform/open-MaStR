@@ -46,8 +46,8 @@ class Mastr:
     """
     `Mastr` is used to download the MaStR database and keep it up-to-date.
 
-    A SQL database is used to mirror the MaStR database. It can be filled with
-    data either from the MaStR-bulk download or from the MaStR-API.
+    An SQL database is used to mirror the MaStR database. It is filled by
+    downloading and parsing the MaStR via bulk download.
 
     !!! example
 
