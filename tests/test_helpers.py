@@ -1,16 +1,15 @@
 import pytest
 import os
 from os.path import expanduser
-import sys
+
 import random
 from os.path import join
-from datetime import datetime
+
 import pandas as pd
 from open_mastr import Mastr
 
 from open_mastr.utils import orm
 from open_mastr.utils.constants import (
-    API_LOCATION_TYPES,
     TECHNOLOGIES,
     ADDITIONAL_TABLES,
 )
@@ -18,7 +17,6 @@ from open_mastr.utils.config import get_data_version_dir, create_data_dir
 from open_mastr.utils.helpers import (
     validate_parameter_format_for_download_method,
     validate_parameter_format_for_mastr_init,
-    validate_api_credentials,
     transform_data_parameter,
     data_to_include_tables,
     session_scope,
@@ -47,7 +45,7 @@ def db():
 
 @pytest.fixture
 def parameter_dict_working_list():
-    parameter_dict_bulk = {
+    return {
         "method": ["bulk"],
         "data": [
             "wind",
@@ -73,53 +71,7 @@ def parameter_dict_working_list():
         ],
         "date": ["today", "20200108", "existing"],
         "bulk_cleansing": [True, False],
-        "api_processes": [None],
-        "api_limit": [50],
-        "api_chunksize": [1000],
-        "api_data_types": [None],
-        "api_location_types": [None],
     }
-
-    parameter_dict_API = {
-        "method": ["API"],
-        "data": [
-            "wind",
-            "solar",
-            "biomass",
-            "hydro",
-            "gsgk",
-            "combustion",
-            "nuclear",
-            "storage",
-            "location",
-            "permit",
-            None,
-            ["wind", "solar"],
-        ],
-        "date": [None, datetime(2022, 2, 2), "latest"],
-        "bulk_cleansing": [True],
-        "api_processes": [None]
-        if sys.platform not in ["linux2", "linux"]
-        else [2, 20, None, "max"],
-        "api_limit": [15, None],
-        "api_chunksize": [20],
-        "api_data_types": [
-            ["unit_data", "eeg_data", "kwk_data", "permit_data"],
-            ["unit_data"],
-            None,
-        ],
-        "api_location_types": [
-            ["location_elec_generation", "location_elec_consumption"],
-            [
-                "location_elec_generation",
-                "location_elec_consumption",
-                "location_gas_generation",
-                "location_gas_consumption",
-            ],
-            None,
-        ],
-    }
-    return [parameter_dict_bulk, parameter_dict_API]
 
 
 @pytest.fixture
@@ -129,11 +81,6 @@ def parameter_dict_not_working():
         "data": ["wint", "Solar", "biomasse", 5, []],
         "date": [124, "heute", 123],
         "bulk_cleansing": ["cleansing", 4, None],
-        "api_processes": ["20", "None"],
-        "api_limit": ["15", "None"],
-        "api_chunksize": ["20"],
-        "api_data_types": ["unite_data", 5, []],
-        "api_location_types": ["locatione_elec_generation", 5, []],
     }
     return parameter_dict
 
@@ -148,17 +95,11 @@ def test_Mastr_validate_working_parameter(parameter_dict_working_list):
         for key in list(parameter_dict_working.keys()):
             for value in parameter_dict_working[key]:
                 parameter_dict[key] = value
-                (
-                    method,
-                    data,
-                    date,
-                    bulk_cleansing,
-                    api_processes,
-                    api_limit,
-                    api_chunksize,
-                    api_data_types,
-                    api_location_types,
-                ) = get_parameters_from_parameter_dict(parameter_dict)
+
+                method = parameter_dict["method"]
+                data = parameter_dict["data"]
+                date = parameter_dict["date"]
+                bulk_cleansing = parameter_dict["bulk_cleansing"]
 
                 assert (
                     validate_parameter_format_for_download_method(
@@ -166,11 +107,6 @@ def test_Mastr_validate_working_parameter(parameter_dict_working_list):
                         data,
                         date,
                         bulk_cleansing,
-                        api_processes,
-                        api_limit,
-                        api_chunksize,
-                        api_data_types,
-                        api_location_types,
                     )
                     is None
                 )
@@ -195,11 +131,6 @@ def test_Mastr_validate_not_working_parameter(
                     data,
                     date,
                     bulk_cleansing,
-                    api_processes,
-                    api_limit,
-                    api_chunksize,
-                    api_data_types,
-                    api_location_types,
                 ) = get_parameters_from_parameter_dict(parameter_dict)
                 with pytest.raises(ValueError):
                     validate_parameter_format_for_download_method(
@@ -207,11 +138,6 @@ def test_Mastr_validate_not_working_parameter(
                         data,
                         date,
                         bulk_cleansing,
-                        api_processes,
-                        api_limit,
-                        api_chunksize,
-                        api_data_types,
-                        api_location_types,
                     )
 
 
@@ -220,21 +146,11 @@ def get_parameters_from_parameter_dict(parameter_dict):
     data = parameter_dict["data"]
     date = parameter_dict["date"]
     bulk_cleansing = parameter_dict["bulk_cleansing"]
-    api_processes = parameter_dict["api_processes"]
-    api_limit = parameter_dict["api_limit"]
-    api_chunksize = parameter_dict["api_chunksize"]
-    api_data_types = parameter_dict["api_data_types"]
-    api_location_types = parameter_dict["api_location_types"]
     return (
         method,
         data,
         date,
         bulk_cleansing,
-        api_processes,
-        api_limit,
-        api_chunksize,
-        api_data_types,
-        api_location_types,
     )
 
 
@@ -251,21 +167,12 @@ def test_validate_parameter_format_for_mastr_init(db):
 
 
 def test_transform_data_parameter():
-    (data, api_data_types, api_location_types, harm_log,) = transform_data_parameter(
-        method="API",
+    (data,) = transform_data_parameter(
+        method="bulk",
         data=["wind", "location"],
-        api_data_types=["eeg_data"],
-        api_location_types=None,
     )
 
     assert data == ["wind"]
-    assert api_data_types == ["eeg_data"]
-    assert api_location_types == API_LOCATION_TYPES
-    assert harm_log == ["location"]
-
-
-def test_validate_api_credentials():
-    validate_api_credentials()
 
 
 def test_data_to_include_tables():
@@ -396,8 +303,3 @@ def test_db_query_to_csv(tmpdir, engine):
     # FIXME: delete when tmpdir is implemented
     # delete empty data dir
     os.rmdir(get_data_version_dir())
-
-
-def test_save_metadata():
-    # FIXME: implement in #386
-    pass
