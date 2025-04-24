@@ -7,12 +7,7 @@ from open_mastr.xml_download.utils_write_to_database import (
     write_mastr_xml_to_database,
 )
 
-# import soap_API dependencies
-from open_mastr.soap_api.mirror import MaStRMirror
-
 from open_mastr.utils.helpers import (
-    print_api_settings,
-    validate_api_credentials,
     validate_parameter_format_for_download_method,
     validate_parameter_format_for_mastr_init,
     validate_parameter_data,
@@ -107,11 +102,6 @@ class Mastr:
         data=None,
         date=None,
         bulk_cleansing=True,
-        api_processes=None,
-        api_limit=50,
-        api_chunksize=1000,
-        api_data_types=None,
-        api_location_types=None,
         **kwargs,
     ) -> None:
         """
@@ -120,47 +110,43 @@ class Mastr:
 
         Parameters
         ----------
-        method : 'API' or 'bulk', optional
-            Either "API" or "bulk". Determines whether the data is downloaded via the
-            zipped bulk download or via the MaStR API. The latter requires an account
-            from marktstammdatenregister.de,
-            (see :ref:`Configuration <Configuration>`). Default to 'bulk'.
+        method : 'bulk', optional
+            Only "bulk" is a valid value. The download via the MaStR SOAP API is deprecated.
+            Default to 'bulk'.
         data : str or list or None, optional
             Determines which types of data are written to the database. If None, all data is
-            used. If it is a list, possible entries are listed below with respect to the download method. Missing categories are
-            being developed. If only one data is of interest, this can be given as a string. Default to None, where all data is included.
+            used. If it is a list, possible entries are listed below. If only one data is of
+            interest, this can be given as a string. Default to None, where all data is included.
 
-            | Data                  | Bulk | API  |
-            |-----------------------|------|------|
-            | "wind"                | Yes  | Yes  |
-            | "solar"               | Yes  | Yes  |
-            | "biomass"             | Yes  | Yes  |
-            | "hydro"               | Yes  | Yes  |
-            | "gsgk"                | Yes  | Yes  |
-            | "combustion"          | Yes  | Yes  |
-            | "nuclear"             | Yes  | Yes  |
-            | "gas"                 | Yes  | Yes  |
-            | "storage"             | Yes  | Yes  |
-            | "storage_units"       | Yes  | Yes  |
-            | "electricity_consumer"| Yes  | No   |
-            | "location"            | Yes  | Yes  |
-            | "market"              | Yes  | No   |
-            | "grid"                | Yes  | No   |
-            | "balancing_area"      | Yes  | No   |
-            | "permit"              | Yes  | Yes  |
-            | "deleted_units"       | Yes  | No   |
-            | "deleted_market_actors"| Yes | No   |
-            | "retrofit_units"      | Yes  | No   |
+            | Data                  | Bulk |
+            |-----------------------|------|
+            | "wind"                | Yes  |
+            | "solar"               | Yes  |
+            | "biomass"             | Yes  |
+            | "hydro"               | Yes  |
+            | "gsgk"                | Yes  |
+            | "combustion"          | Yes  |
+            | "nuclear"             | Yes  |
+            | "gas"                 | Yes  |
+            | "storage"             | Yes  |
+            | "storage_units"       | Yes  |
+            | "electricity_consumer"| Yes  |
+            | "location"            | Yes  |
+            | "market"              | Yes  |
+            | "grid"                | Yes  |
+            | "balancing_area"      | Yes  |
+            | "permit"              | Yes  |
+            | "deleted_units"       | Yes  |
+            | "deleted_market_actors"| Yes |
+            | "retrofit_units"      | Yes  |
         date : None or `datetime.datetime` or str, optional
 
-            | date                  | Bulk | API  |
-            |-----------------------|------|------|
-            | "today"                | latest files are downloaded from marktstammdatenregister.de  | -  |
-            | "20230101"      | If file from this date exists locally, it is used. Otherwise it throws an error (You can only receive todays data from the server)  | -   |
-            | "existing"               | Use latest downloaded zipped xml files, throws an error if the bulk download folder is empty  | -  |
-            | "latest"               | -  | Retrieve data that is newer than the newest data already in the table  |
-            | datetime.datetime(2020, 11, 27)      | -  | Retrieve data that is newer than this time stamp   |
-            | None      | set date="today"  | set date="latest"   |
+            | date                  | description |
+            |-----------------------|------|
+            | "today"                | latest files are downloaded from marktstammdatenregister.de  |
+            | "20230101"      | If file from this date exists locally, it is used. Otherwise it throws an error (You can only receive todays data from the server)  |
+            | "existing"               | Use latest downloaded zipped xml files, throws an error if the bulk download folder is empty  |
+            | None      | set date="today"  |
 
             Default to `None`.
         bulk_cleansing : bool, optional
@@ -168,31 +154,6 @@ class Mastr:
             In its original format, many entries in the MaStR are encoded with IDs. Columns like
             `state` or `fueltype` do not contain entries such as "Hessen" or "Braunkohle", but instead
             only contain IDs. Cleansing replaces these IDs with their corresponding original entries.
-        api_processes : int or None or "max", optional
-            Number of parallel processes used to download additional data.
-            Defaults to `None`. If set to "max", the maximum number of possible processes
-            is used.
-
-            !!! warning
-
-                The implementation of parallel processes is currently under construction.
-                Please let the argument `api_processes` at the default value `None`.
-        api_limit : int or None, optional
-            Limit the number of units that data is downloaded for. Defaults to `None` which refers
-            to query data for existing data requests, for example created by
-            [`create_additional_data_requests`][open_mastr.soap_api.mirror.MaStRMirror.create_additional_data_requests]. Note: There is a limited number of
-            requests you are allowed to have per day, so setting api_limit to a value is
-            recommended.
-        api_chunksize : int or None, optional
-            Data is downloaded and inserted into the database in chunks of `chunksize`.
-            Defaults to 1000.
-        api_data_types : list or None, optional
-            Select the type of additional data that should be retrieved. Choose from
-            "unit_data", "eeg_data", "kwk_data", "permit_data". Defaults to all.
-        api_location_types : list or None, optional
-            Select the type of location that should be retrieved. Choose from
-            "location_elec_generation", "location_elec_consumption", "location_gas_generation",
-            "location_gas_consumption". Defaults to all.
         """
 
         if self.is_translated:
@@ -201,102 +162,49 @@ class Mastr:
                 "A translated database cannot be further processed."
             )
 
+        if method == "API":
+            log.warning(
+                "Downloading the whole registry via the MaStR SOAP-API is deprecated. "
+                "You can still use the open_mastr.soap_api.download.MaStRAPI class "
+                "to construct single calls."
+            )
+            log.warning("Attention: method='API' changed to method='bulk'.")
+            method = "bulk"
+
         validate_parameter_format_for_download_method(
             method=method,
             data=data,
             date=date,
             bulk_cleansing=bulk_cleansing,
-            api_processes=api_processes,
-            api_limit=api_limit,
-            api_chunksize=api_chunksize,
-            api_data_types=api_data_types,
-            api_location_types=api_location_types,
             **kwargs,
         )
-        (
-            data,
-            api_data_types,
-            api_location_types,
-            harm_log,
-        ) = transform_data_parameter(
-            method, data, api_data_types, api_location_types, **kwargs
+        data = transform_data_parameter(data, **kwargs)
+
+        date = transform_date_parameter(self, date, **kwargs)
+
+        # Find the name of the zipped xml folder
+        bulk_download_date = parse_date_string(date)
+        xml_folder_path = os.path.join(self.output_dir, "data", "xml_download")
+        os.makedirs(xml_folder_path, exist_ok=True)
+        zipped_xml_file_path = os.path.join(
+            xml_folder_path,
+            f"Gesamtdatenexport_{bulk_download_date}.zip",
+        )
+        download_xml_Mastr(zipped_xml_file_path, date, xml_folder_path)
+
+        print(
+            f"\nWould you like to speed up the bulk download?\n"
+            f"Try our new parallelized processing by setting os.environ['USE_RECOMMENDED_NUMBER_OF_PROCESSES'] = True "
+            f"or configure your own number of processes via os.environ['NUMBER_OF_PROCESSES'] = your_number\n"
         )
 
-        date = transform_date_parameter(self, method, date, **kwargs)
-
-        if method == "bulk":
-            # Find the name of the zipped xml folder
-            bulk_download_date = parse_date_string(date)
-            xml_folder_path = os.path.join(self.output_dir, "data", "xml_download")
-            os.makedirs(xml_folder_path, exist_ok=True)
-            zipped_xml_file_path = os.path.join(
-                xml_folder_path,
-                f"Gesamtdatenexport_{bulk_download_date}.zip",
-            )
-            download_xml_Mastr(zipped_xml_file_path, date, xml_folder_path)
-
-            print(
-                f"\nWould you like to speed up the bulk download?\n"
-                f"Try our new parallelized processing by setting os.environ['USE_RECOMMENDED_NUMBER_OF_PROCESSES'] = True "
-                f"or configure your own number of processes via os.environ['NUMBER_OF_PROCESSES'] = your_number\n"
-            )
-
-            write_mastr_xml_to_database(
-                engine=self.engine,
-                zipped_xml_file_path=zipped_xml_file_path,
-                data=data,
-                bulk_cleansing=bulk_cleansing,
-                bulk_download_date=bulk_download_date,
-            )
-
-        if method == "API":
-            validate_api_credentials()
-
-            # Set api_processes to None in order to avoid the malfunctioning usage
-            if api_processes:
-                api_processes = None
-                print(
-                    "Warning: The implementation of parallel processes "
-                    "is currently under construction. Please let "
-                    "the argument api_processes at the default value None."
-                )
-
-            print_api_settings(
-                harmonisation_log=harm_log,
-                data=data,
-                date=date,
-                api_data_types=api_data_types,
-                api_chunksize=api_chunksize,
-                api_limit=api_limit,
-                api_processes=api_processes,
-                api_location_types=api_location_types,
-            )
-
-            mastr_mirror = MaStRMirror(
-                engine=self.engine,
-                parallel_processes=api_processes,
-                restore_dump=None,
-            )
-            # Download basic unit data
-            mastr_mirror.backfill_basic(data, limit=api_limit, date=date)
-
-            # Download additional unit data
-            for tech in data:
-                # mastr_mirror.create_additional_data_requests(data)
-                for data_type in api_data_types:
-                    mastr_mirror.retrieve_additional_data(
-                        tech, data_type, chunksize=api_chunksize, limit=api_limit
-                    )
-
-            # Download basic location data
-            mastr_mirror.backfill_locations_basic(limit=api_limit, date="latest")
-
-            # Download extended location data
-            if api_location_types:
-                for location_type in api_location_types:
-                    mastr_mirror.retrieve_additional_location_data(
-                        location_type, limit=api_limit
-                    )
+        write_mastr_xml_to_database(
+            engine=self.engine,
+            zipped_xml_file_path=zipped_xml_file_path,
+            data=data,
+            bulk_cleansing=bulk_cleansing,
+            bulk_download_date=bulk_download_date,
+        )
 
     def to_csv(
         self, tables: list = None, chunksize: int = 500000, limit: int = None
