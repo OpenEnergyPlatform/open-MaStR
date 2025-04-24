@@ -1,6 +1,7 @@
 import pytest
 import os
 from os.path import expanduser
+import itertools
 
 import random
 from os.path import join
@@ -41,8 +42,18 @@ def db():
 
 
 @pytest.fixture
-def parameter_dict_working_list():
-    return {
+def parameter_dict_not_working():
+    parameter_dict = {
+        "method": [5, "BULK", "api"],
+        "data": ["wint", "Solar", "biomasse", 5, []],
+        "date": [124, "heute", 123],
+        "bulk_cleansing": ["cleansing", 4, None],
+    }
+    return parameter_dict
+
+
+def test_Mastr_validate_working_parameter():
+    valid_params = {
         "method": ["bulk"],
         "data": [
             "wind",
@@ -69,44 +80,25 @@ def parameter_dict_working_list():
         "date": ["today", "20200108", "existing"],
         "bulk_cleansing": [True, False],
     }
+    method_vals = valid_params["method"]
+    data_vals = valid_params["data"]
+    date_vals = valid_params["date"]
+    bulk_cleansing_vals = valid_params["bulk_cleansing"]
+    combinations = list(
+        itertools.product(method_vals, data_vals, date_vals, bulk_cleansing_vals)
+    )
 
-
-@pytest.fixture
-def parameter_dict_not_working():
-    parameter_dict = {
-        "method": [5, "BULK", "api"],
-        "data": ["wint", "Solar", "biomasse", 5, []],
-        "date": [124, "heute", 123],
-        "bulk_cleansing": ["cleansing", 4, None],
-    }
-    return parameter_dict
-
-
-def test_Mastr_validate_working_parameter(parameter_dict_working_list):
-    for parameter_dict_working in parameter_dict_working_list:
-        parameter_dict = {
-            key: parameter_dict_working[key][0] for key in parameter_dict_working
-        }
-
-        # working parameters
-        for key in list(parameter_dict_working.keys()):
-            for value in parameter_dict_working[key]:
-                parameter_dict[key] = value
-
-                method = parameter_dict["method"]
-                data = parameter_dict["data"]
-                date = parameter_dict["date"]
-                bulk_cleansing = parameter_dict["bulk_cleansing"]
-
-                assert (
-                    validate_parameter_format_for_download_method(
-                        method,
-                        data,
-                        date,
-                        bulk_cleansing,
-                    )
-                    is None
-                )
+    # working parameters
+    for method, data, date, bulk_cleansing in combinations:
+        assert (
+            validate_parameter_format_for_download_method(
+                method,
+                data,
+                date,
+                bulk_cleansing,
+            )
+            is None
+        )
 
 
 def test_Mastr_validate_not_working_parameter(
