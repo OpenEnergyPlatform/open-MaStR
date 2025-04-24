@@ -9,10 +9,7 @@ import pandas as pd
 from open_mastr import Mastr
 
 from open_mastr.utils import orm
-from open_mastr.utils.constants import (
-    TECHNOLOGIES,
-    ADDITIONAL_TABLES,
-)
+from open_mastr.utils.constants import TECHNOLOGIES, ADDITIONAL_TABLES, BULK_DATA
 from open_mastr.utils.config import get_data_version_dir, create_data_dir
 from open_mastr.utils.helpers import (
     validate_parameter_format_for_download_method,
@@ -167,12 +164,15 @@ def test_validate_parameter_format_for_mastr_init(db):
 
 
 def test_transform_data_parameter():
-    (data,) = transform_data_parameter(
-        method="bulk",
-        data=["wind", "location"],
+    data_first = transform_data_parameter(
+        data="wind",
     )
+    assert data_first == ["wind"]
 
-    assert data == ["wind"]
+    data_second = transform_data_parameter(
+        data=None,
+    )
+    assert data_second == BULK_DATA
 
 
 def test_data_to_include_tables():
