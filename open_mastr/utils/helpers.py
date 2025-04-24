@@ -144,7 +144,10 @@ def transform_data_parameter(data, **kwargs):
     Parse input parameters related to data as lists. Harmonize variables for later use.
     Data output depends on the possible data types of chosen method.
     """
+
+    # data was named technology in an early version of open-mastr
     data = kwargs.get("technology", data)
+
     # parse parameters as list
     if isinstance(data, str):
         data = [data]
