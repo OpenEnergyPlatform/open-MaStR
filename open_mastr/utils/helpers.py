@@ -13,7 +13,6 @@ from sqlalchemy.orm import Query, sessionmaker
 
 import pandas as pd
 from tqdm import tqdm
-from open_mastr.soap_api.metadata.create import create_datapackage_meta_json
 from open_mastr.utils import orm
 from open_mastr.utils.config import (
     get_filenames,
@@ -373,42 +372,45 @@ def create_db_query(
             return query_additional_tables
 
 
-def save_metadata(data: list = None, engine=None) -> None:
-    """
-    Save metadata during csv export.
+# At the time of commenting this, the call of this function in mastr.py was already
+# commented out for more than a year
 
-    Parameters
-    ----------
-    data: list
-        List of exported technologies for which metadata is needed.
-    engine: <class 'sqlalchemy.engine.base.Engine'>
-        User-defined database engine.
-
-    Returns
-    -------
-
-    """
-    data_path = get_data_version_dir()
-    filenames = get_filenames()
-    metadata_file = os.path.join(data_path, filenames["metadata"])
-    unit_type_map_reversed = reverse_unit_type_map()
-
-    with session_scope(engine=engine) as session:
-        # check for latest db entry for exported technologies
-        mastr_technologies = [unit_type_map_reversed[tech] for tech in data]
-        newest_date = (
-            session.query(orm.BasicUnit.DatumLetzteAktualisierung)
-            .filter(orm.BasicUnit.Einheittyp.in_(mastr_technologies))
-            .order_by(orm.BasicUnit.DatumLetzteAktualisierung.desc())
-            .first()[0]
-        )
-
-    metadata = create_datapackage_meta_json(newest_date, data, json_serialize=False)
-
-    with open(metadata_file, "w", encoding="utf-8") as f:
-        json.dump(metadata, f, ensure_ascii=False, indent=4)
-
-    log.info("Saved metadata")
+# def save_metadata(data: list = None, engine=None) -> None:
+#     """
+#     Save metadata during csv export.
+#
+#     Parameters
+#     ----------
+#     data: list
+#         List of exported technologies for which metadata is needed.
+#     engine: <class 'sqlalchemy.engine.base.Engine'>
+#         User-defined database engine.
+#
+#     Returns
+#     -------
+#
+#     """
+#     data_path = get_data_version_dir()
+#     filenames = get_filenames()
+#     metadata_file = os.path.join(data_path, filenames["metadata"])
+#     unit_type_map_reversed = reverse_unit_type_map()
+#
+#     with session_scope(engine=engine) as session:
+#         # check for latest db entry for exported technologies
+#         mastr_technologies = [unit_type_map_reversed[tech] for tech in data]
+#         newest_date = (
+#             session.query(orm.BasicUnit.DatumLetzteAktualisierung)
+#             .filter(orm.BasicUnit.Einheittyp.in_(mastr_technologies))
+#             .order_by(orm.BasicUnit.DatumLetzteAktualisierung.desc())
+#             .first()[0]
+#         )
+#
+#     metadata = create_datapackage_meta_json(newest_date, data, json_serialize=False)
+#
+#     with open(metadata_file, "w", encoding="utf-8") as f:
+#         json.dump(metadata, f, ensure_ascii=False, indent=4)
+#
+#     log.info("Saved metadata")
 
 
 def reverse_fill_basic_units(technology=None, engine=None):
