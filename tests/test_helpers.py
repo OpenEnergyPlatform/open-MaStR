@@ -41,17 +41,6 @@ def db():
     return Mastr()
 
 
-@pytest.fixture
-def parameter_dict_not_working():
-    parameter_dict = {
-        "method": [5, "BULK", "api"],
-        "data": ["wint", "Solar", "biomasse", 5, []],
-        "date": [124, "heute", 123],
-        "bulk_cleansing": ["cleansing", 4, None],
-    }
-    return parameter_dict
-
-
 def test_Mastr_validate_working_parameter():
     valid_params = {
         "method": ["bulk"],
@@ -101,33 +90,31 @@ def test_Mastr_validate_working_parameter():
         )
 
 
-def test_Mastr_validate_not_working_parameter(
-    parameter_dict_working_list, parameter_dict_not_working
-):
-    for parameter_dict_working in parameter_dict_working_list:
-        parameter_dict_initial = {
-            key: parameter_dict_working[key][0] for key in parameter_dict_working
-        }
+def test_Mastr_validate_not_working_parameter():
+    invalid_params = {
+        "method": [5, "BULK", "api"],
+        "data": ["wint", "Solar", "biomasse", 5, []],
+        "date": [124, "heute", 123],
+        "bulk_cleansing": ["cleansing", 4, None],
+    }
 
-        # not working parameters
-        for key in list(parameter_dict_not_working.keys()):
-            for value in parameter_dict_not_working[key]:
-                # reset parameter_dict so that all parameters are working except one
-                parameter_dict = parameter_dict_initial.copy()
-                parameter_dict[key] = value
-                (
-                    method,
-                    data,
-                    date,
-                    bulk_cleansing,
-                ) = get_parameters_from_parameter_dict(parameter_dict)
-                with pytest.raises(ValueError):
-                    validate_parameter_format_for_download_method(
-                        method,
-                        data,
-                        date,
-                        bulk_cleansing,
-                    )
+    for key, invalid_values in invalid_params.items():
+        for invalid_value in invalid_values:
+            params = {
+                "method": "bulk",
+                "data": "wind",
+                "date": "today",
+                "bulk_cleansing": True,
+            }
+            params[key] = invalid_value
+
+            with pytest.raises(ValueError):
+                validate_parameter_format_for_download_method(
+                    params["method"],
+                    params["data"],
+                    params["date"],
+                    params["bulk_cleansing"],
+                )
 
 
 def get_parameters_from_parameter_dict(parameter_dict):
