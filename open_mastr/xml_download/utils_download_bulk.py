@@ -208,6 +208,21 @@ def download_xml_Mastr(
     print(f"Download is finished. It took {int(np.around(time_b - time_a))} seconds.")
     print(f"MaStR was successfully downloaded to {xml_folder_path}.")
 
+def check_download_completeness(
+    save_path: str,bulk_data_list: list
+) -> list:
+    """Checks if an existing download contains the xml-files corresponding to the bulk_data_list.
+    """
+    with ZipFile(save_path, 'r') as zip_ref:
+        existing_files = [zip_name.lower().split('_')[0].split('.')[0] for zip_name in zip_ref.namelist()]
+
+    missing_data_set = set()
+    for bulk_data_name in bulk_data_list:
+            for bulk_file_name in BULK_INCLUDE_TABLES_MAP[bulk_data_name]:    
+                if bulk_file_name not in existing_files:
+                    missing_data_set.add(bulk_data_name)
+    return list(missing_data_set)
+
 
 def download_xml_Mastr_partial(
     save_path: str, bulk_date_string: str, bulk_data_list: list, xml_folder_path: str
@@ -227,8 +242,12 @@ def download_xml_Mastr_partial(
             log.info(f"Bad Zip file is deleted: {save_path}")
             os.remove(save_path)
         else:
-            print("MaStR already downloaded.")
-            return None
+            bulk_data_list = check_download_completeness(save_path,bulk_data_list)
+            if bool(bulk_data_list):
+                print(f"MaStR is missing the following data: {bulk_data_list}")
+            else:
+                print("MaStR already downloaded.")
+                return None
 
     if bulk_date_string != "today":
         raise OSError(
