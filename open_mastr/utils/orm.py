@@ -170,6 +170,10 @@ class WindExtended(Extended, ParentAllTables, Base):
     Buergerenergie = Column(Boolean)
     Nachtkennzeichen = Column(Boolean)
     EegMastrNummer = Column(String)
+    WindAnLandOderAufSee = Column(String)
+    TechnologieFlugwind = Column(String)
+    Flughoehe = Column(Float)
+    Flugradius = Column(Float)
 
 
 class SolarExtended(Extended, ParentAllTables, Base):
@@ -192,7 +196,10 @@ class SolarExtended(Extended, ParentAllTables, Base):
     Buergerenergie = Column(Boolean)
     EegMastrNummer = Column(String)
     ArtDerFlaecheIds = Column(String)
+    ArtDerSolaranlage = Column(String)
     Zaehlernummer = Column(String)
+    InAnspruchGenommeneAckerflaeche = Column(Float)
+    SpeicherAmGleichenOrt = Column(String)
 
 
 class BiomassExtended(Extended, ParentAllTables, Base):
@@ -277,6 +284,7 @@ class StorageExtended(Extended, ParentAllTables, Base):
     EegAnlagentyp = Column(String)
     Technologie = Column(String)
     LeistungsaufnahmeBeimEinspeichern = Column(Float)
+    GemeinsamRegistrierteSolareinheitMastrNummer = Column(String)
 
 
 class Eeg(object):
@@ -405,6 +413,7 @@ class Permit(ParentAllTables, Base):
     Frist_nv = Column(Boolean)
     WasserrechtAblaufdatum_nv = Column(Boolean)
     Netzbetreiberzuordnungen = Column(String)
+    DatumAntragstellung = Column(Date)
 
 
 class LocationBasic(Base):
@@ -507,6 +516,7 @@ class GasStorageExtended(ParentAllTables, Base):
     DatumDesBetreiberwechsels = Column(Date)
     DatumRegistrierungDesBetreiberwechsels = Column(Date)
     DatumEndgueltigeStilllegung = Column(Date)
+    ZugeordnenteWirkleistungWechselrichter = Column(Float)
 
 
 class StorageUnits(ParentAllTables, Base):
@@ -768,6 +778,7 @@ class GridConnections(ParentAllTables, Base):
     BilanzierungsgebietNetzanschlusspunktId = Column(Integer)
     Nettoengpassleistung = Column(Float)
     Netzanschlusskapazitaet = Column(Float)
+    RegelzoneNetzanschlusspunkt = Column(String)
 
 
 class DeletedUnits(ParentAllTables, Base):
@@ -971,7 +982,8 @@ tablename_mapping = {
         "__name__": Permit.__tablename__,
         "__class__": Permit,
         "replace_column_names": {
-            "VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheiten"
+            "VerknuepfteEinheitenMaStRNummern": "VerknuepfteEinheiten",
+            "DatumDerAntragstellung": "DatumAntragstellung",
         },
     },
     "einheitenkernkraft": {

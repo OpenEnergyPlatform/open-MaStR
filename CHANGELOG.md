@@ -8,6 +8,12 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 
 ## [v0.XX.X] unreleased - 202X-XX-XX
 ### Added
+### Changed
+### Removed
+
+
+## [v0.15.0] Turbo parsing with open-MaStR EasterEggspress - 2025-04-19
+### Added
 - Add an Issue Template for Software Release
   [#589](https://github.com/OpenEnergyPlatform/open-MaStR/pull/589)
 ### Changed
@@ -19,14 +25,20 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
   [#593](https://github.com/OpenEnergyPlatform/open-MaStR/pull/593)
 - Delete Google Fonts from Documentation Page
   [#599](https://github.com/OpenEnergyPlatform/open-MaStR/pull/599)
-- Use multiprocessing to speed up parsing 
+- Use multiprocessing to speed up parsing
   [#601](https://github.com/OpenEnergyPlatform/open-MaStR/pull/601)
-- Generate multiple download links for different MaStR versions 
+- Generate multiple download links for different MaStR versions
   [#613](https://github.com/OpenEnergyPlatform/open-MaStR/pull/613)
+- Add new columns `WindAnLandOderAufSee,TechnologieFlugwindenergieanlage,Flughoehe,Flugradius,ArtDerSolaranlage,SpeicherAmGleichenOrt` to `columns_to_replace.py`
+  [#618](https://github.com/OpenEnergyPlatform/open-MaStR/issues/618)
+- Update orm.py with new columns from new MaStR version
+  [#621](https://github.com/OpenEnergyPlatform/open-MaStR/pull/621)
 ### Removed
-- Moved old code artefacts from `scripts` folder to paper specific 
+- Moved old code artefacts from `scripts` folder to paper specific
   [repository](https://github.com/FlorianK13/verify-marktstammdaten) 
   [#561](https://github.com/OpenEnergyPlatform/open-MaStR/pull/561)
+- Remove old dependencies and broken README links
+  [#619](https://github.com/OpenEnergyPlatform/open-MaStR/pull/619)
 
 
 ## [v0.14.5] New MaStR data model, battery export, various fixes - 2024-10-11

@@ -2,8 +2,16 @@ from open_mastr.mastr import Mastr
 import os
 import sqlalchemy
 import pytest
+from os.path import expanduser
 import pandas as pd
 from open_mastr.utils.constants import TRANSLATIONS
+
+_xml_file_exists = False
+_xml_folder_path = os.path.join(expanduser("~"), ".open-MaStR", "data", "xml_download")
+if os.path.isdir(_xml_folder_path):
+    for entry in os.scandir(path=_xml_folder_path):
+        if "Gesamtdatenexport" in entry.name:
+            _xml_file_exists = True
 
 
 @pytest.fixture
@@ -23,7 +31,7 @@ def db_translated(db_path):
     engine = sqlalchemy.create_engine(f"sqlite:///{db_path}")
     db_api = Mastr(engine=engine)
 
-    db_api.download(method="API", api_limit=10)
+    db_api.download(date="existing", data=["wind", "hydro", "biomass", "combustion"])
     db_api.translate()
 
     return db_api
@@ -38,6 +46,9 @@ def test_Mastr_init(db):
     assert type(db.engine) == sqlalchemy.engine.Engine
 
 
+@pytest.mark.skipif(
+    not _xml_file_exists, reason="The zipped xml file could not be found."
+)
 def test_Mastr_translate(db_translated, db_path):
     # test if database was renamed correctly
     transl_path = db_path[:-3] + "-translated.db"
