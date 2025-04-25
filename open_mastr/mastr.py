@@ -227,7 +227,7 @@ class Mastr:
 
         date = transform_date_parameter(self, method, date, **kwargs)
 
-        if method == "bulk" or method == 'partial bulk':
+        if method == "bulk":
             # Find the name of the zipped xml folder
             bulk_download_date = parse_date_string(date)
             xml_folder_path = os.path.join(self.output_dir, "data", "xml_download")
@@ -236,7 +236,7 @@ class Mastr:
                 xml_folder_path,
                 f"Gesamtdatenexport_{bulk_download_date}.zip",
             )
-            if method == 'bulk':
+            if data is None:
                 download_xml_Mastr(zipped_xml_file_path, date, xml_folder_path)
             else:
                 download_xml_Mastr_partial(zipped_xml_file_path, date, data, xml_folder_path)
