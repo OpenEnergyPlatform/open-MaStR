@@ -122,8 +122,8 @@ def validate_parameter_format_for_download_method(
 
 
 def validate_parameter_method(method) -> None:
-    if method not in ["bulk", "partial bulk", "API"]:
-        raise ValueError("parameter method has to be either 'bulk', 'partial bulk' or 'API'.")
+    if method not in ["bulk", "API"]:
+        raise ValueError("parameter method has to be either 'bulk', or 'API'.")
 
 
 def validate_parameter_api_location_types(api_location_types) -> None:
@@ -172,7 +172,7 @@ def validate_parameter_api_limit(api_limit) -> None:
 def validate_parameter_date(method, date) -> None:
     if date is None:  # default
         return
-    if method == "bulk" or method == "partial bulk":
+    if method == "bulk":
         if date not in ["today", "existing"]:
             try:
                 _ = parse(date)
@@ -213,10 +213,6 @@ def validate_parameter_data(method, data) -> None:
             raise ValueError("parameter data cannot be an empty list!")
         for value in data:
             if method == "bulk" and value not in BULK_DATA:
-                raise ValueError(
-                    f"Allowed values for parameter data with bulk method are {BULK_DATA}"
-                )
-            if method == "partial bulk" and value not in BULK_DATA:
                 raise ValueError(
                     f"Allowed values for parameter data with bulk method are {BULK_DATA}"
                 )
@@ -302,7 +298,7 @@ def transform_data_parameter(
 
 
 def transform_date_parameter(self, method, date, **kwargs):
-    if method == "bulk" or method == "partial bulk":
+    if method == "bulk":
         date = kwargs.get("bulk_date", date)
         date = "today" if date is None else date
         if date == "existing":
