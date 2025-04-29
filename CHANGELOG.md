@@ -10,6 +10,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 ### Added
 ### Changed
 ### Removed
+- Deprecate and remove Soap API Download and Mirror code
+  [#635](https://github.com/OpenEnergyPlatform/open-MaStR/pull/635)
 
 
 ## [v0.15.0] Turbo parsing with open-MaStR EasterEggspress - 2025-04-19
