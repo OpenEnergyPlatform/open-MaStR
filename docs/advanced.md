@@ -142,15 +142,6 @@ Moreover, the datatypes of different entries are set in the data cleansing proce
 
 If needed, the tables in the database can be obtained as csv files. Those files are created by first merging corresponding tables (e.g all tables that contain information about solar) and then dumping those tables to `.csv` files with the [`to_csv`][open_mastr.Mastr.to_csv] method.
 
-=== "Advantages"
-    * No registration for an API key is needed
-    * Download of the whole dataset is possible
-
-=== "Disadvantages"
-    * No single tables or entries can be downloaded
-    * Download takes long time
-
-
 ## SOAP API download
 
 ### MaStR account and credentials

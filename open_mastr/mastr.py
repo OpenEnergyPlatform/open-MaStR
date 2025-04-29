@@ -105,8 +105,7 @@ class Mastr:
         **kwargs,
     ) -> None:
         """
-        Download the MaStR either via the bulk download or via the MaStR API and write it to a
-        SQLite database.
+        Downloads the MaStR registry and writes it to a local database.
 
         Parameters
         ----------
@@ -118,27 +117,10 @@ class Mastr:
             used. If it is a list, possible entries are listed below. If only one data is of
             interest, this can be given as a string. Default to None, where all data is included.
 
-            | Data                  | Bulk |
-            |-----------------------|------|
-            | "wind"                | Yes  |
-            | "solar"               | Yes  |
-            | "biomass"             | Yes  |
-            | "hydro"               | Yes  |
-            | "gsgk"                | Yes  |
-            | "combustion"          | Yes  |
-            | "nuclear"             | Yes  |
-            | "gas"                 | Yes  |
-            | "storage"             | Yes  |
-            | "storage_units"       | Yes  |
-            | "electricity_consumer"| Yes  |
-            | "location"            | Yes  |
-            | "market"              | Yes  |
-            | "grid"                | Yes  |
-            | "balancing_area"      | Yes  |
-            | "permit"              | Yes  |
-            | "deleted_units"       | Yes  |
-            | "deleted_market_actors"| Yes |
-            | "retrofit_units"      | Yes  |
+            Possible values are: "wind", "solar", "biomass", "hydro", "gsgk", "combustion",
+            "nuclear", "gas", "storage", "storage_units", "electricity_consumer", "location",
+            "market", "grid", "balancing_area", "permit", "deleted_units", "deleted_market_actors",
+            "retrofit_units"
         date : None or `datetime.datetime` or str, optional
 
             | date                  | description |
