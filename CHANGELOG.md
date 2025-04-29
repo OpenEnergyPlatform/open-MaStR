@@ -9,6 +9,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 ## [v0.XX.X] unreleased - 202X-XX-XX
 ### Added
 ### Changed
+- Fix package publication workflow
+  [#636](https://github.com/OpenEnergyPlatform/open-MaStR/pull/636)
 ### Removed
 
 
