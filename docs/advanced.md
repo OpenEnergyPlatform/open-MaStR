@@ -163,12 +163,8 @@ via its API a [registration](https://www.marktstammdatenregister.de/MaStRHilfe/f
 To download data from the MaStR API using the `open-MaStR`, the credentials (MaStR user and token) need to be provided in a certain way. Three options exist:
 
 1. **Credentials file:** 
-    Both, user and token, are stored in plain text in the credentials file.
-    For storing the credentials in the credentials file (plus optionally using keyring for the token) simply instantiate
-    [`MaStRDownload`][open_mastr.soap_api.download.MaStRDownload] once and you get asked for a user name and a token. The
-    information you insert will be used to create the credentials file.
-
-    It is also possible to create the credentials file by hand, using this format:
+    Both, user and token, are stored in plain text in the credentials file. The file is located at 
+    '~/.open-MaStR/config/credentials.cfg'. Fill in your user and token like this:
 
     ```
         [MaStR]
@@ -177,8 +173,6 @@ To download data from the MaStR API using the `open-MaStR`, the credentials (MaS
     ```
 
     The `token` should be written in one line, without line breaks.
-
-    The credentials file needs to be stored at: `$HOME/.open-MaStR/config/credentials.cfg`
 
 2. **Credentials file + keyring:** 
     The user is stored in the credentials file, while the token is stored encrypted in the [keyring](https://pypi.org/project/keyring/).
@@ -403,33 +397,19 @@ For API calls, models and optional parameters refer to the
     identifier (`EinheitMastrNummer`) and their power plant type (`Einheitentyp`). You can then sort them by power 
     plant type and use the power plant type specific API query to retrieve information about it. <br>
 
-    Cumbersome? <br>
-    Luckily, `open-MaStR` has you covered and provides methods to just query for all units of a power 
-    plant type.    
-
 
 
 
 ### MaStRDownload
 
-The class `MaStRDownload` builds upon methods provided in the class `MaStRAPI`. <br> 
-
-It provides methods to download power plant unit types and additional information 
-for each unit type, such as extended unit data, permit data, chp-specific data, location data 
-or eeg-specific data. <br>
-
-The class handles the querying logic and knows which additional data for each unit type is available 
-and which SOAP service has to be used to query it. 
+!!! warning "MaStRDownload is deprecated"
+    Since `v0.16.0` the `MaStRDownload` class is deprecated and cannot be used anymore.
 
 
 ### MaStRMirror
 
-The class `MaStRMirror` builds upon methods provided in the class `MaStRDownload`. <br>
-
-The aim of the class has been to mirror the Marktstammdatenregister database and keep it up-to-date.
-Historically, `open-mastr` has been developed before the owner of the dataset, BNetzA, offered the `bulk` download.
-The class can still be used for use-cases where only the most recent changes to a local database are of interest. 
-For downloading the entire MaStR database we recommend the bulk download functionalities by specifying `donwload(method="bulk")`.
+!!! warning "MaStRMirror is deprecated"
+    Since `v0.16.0` the `MaStRMirror` class is deprecated and cannot be used anymore.
 
 
 

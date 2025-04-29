@@ -6,7 +6,7 @@ Most unit information is openly accessible and is published under an open data l
 
 For units with a net capacity of less than 30 kW, some location information is restricted from publication. This includes street names, house numbers, parcel designations, and exact coordinates of units. The most detailed location information accessible for all units is the postal code or the municipality.
 
-In our paper titled [Analyzing Data Reliability in Germany's Energy System: A Validation of Unit Locations of the Marktstammdatenregister](https://arxiv.org/abs/2304.10581), we provide further insights into the content and quality of the dataset.
+In our paper titled [Monitoring Germany's Core Energy System Dataset: A Data Quality Analysis of the Marktstammdatenregister](https://doi.org/10.1145/3717413.3717421), we provide further insights into the content and quality of the dataset.
 
 ## Content
 
@@ -17,7 +17,7 @@ The German Federal Network Agency regularly updates the dataset and adds new tab
 
 ## Difference between `bulk` and `API` dataset
 
-As you may have noticed, we distinguish between `bulk` and `API` datasets. The `bulk` dataset refers to the data obtained from the zipped XML files downloaded from [here](https://www.marktstammdatenregister.de/MaStR/Datendownload) using the [`Mastr.download`][open_mastr.Mastr.download] function. The `API` data is obtained by requesting information via the SOAP-API and the [`soap_api.download.MaStRDownload`][open_mastr.soap_api.download.MaStRDownload] module.
+As you may have noticed, we distinguish between `bulk` and `API` datasets. The `bulk` dataset refers to the data obtained from the zipped XML files downloaded from [here](https://www.marktstammdatenregister.de/MaStR/Datendownload) using the [`Mastr.download`][open_mastr.Mastr.download] function. The `API` data is obtained by requesting information via the SOAP-API and the [`soap_api.download.MaStRAPI`][open_mastr.soap_api.download.MaStRAPI] module.
 
 ??? question "Why is the table structure in the open-mastr database as it is?"
 
@@ -86,7 +86,7 @@ After downloading the MaStR, you will find a database with a large number of tab
 
 
 ### MaStR data model
-A useful overview of the MaStR data model can be found [here (in german)](https://www.marktstammdatenregister.de/MaStRHilfe/files/webdienst/Objektmodell%20-%20Fachliche%20Ansicht%20V1.2.0.pdf). A translated version using the names from the tables you can find in your local database is presented here: 
+A useful overview of the MaStR data model can be found at the MaStR [help page](https://www.marktstammdatenregister.de/MaStRHilfe/subpages/faq.html). A translated version using the names from the tables you can find in your local database is presented here: 
 
 === "translated image (english)"
     ![Data model of the MaStR](images/DetailAnlagen_english.PNG)
