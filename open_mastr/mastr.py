@@ -243,12 +243,7 @@ class Mastr:
 
         # Validate and parse tables parameter
         validate_parameter_data(method="csv_export", data=tables)
-        (
-            data,
-            api_data_types,
-            api_location_types,
-            harm_log,
-        ) = transform_data_parameter(
+        data = transform_data_parameter(
             method="bulk", data=tables, api_data_types=None, api_location_types=None
         )
 
