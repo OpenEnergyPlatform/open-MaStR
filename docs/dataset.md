@@ -22,7 +22,7 @@ As you may have noticed, we distinguish between `bulk` and `API` datasets. The `
 ??? question "Why is the table structure in the open-mastr database as it is?"
 
     The structure of the database is historically determined by the data retrieved via API. (open-mastr existed before the XML-dump was provided).
-    <br> See [MaStR data model](#Mastr-data-model)
+    <br> See [MaStR data model](#mastr-data-model)
 
 
 ## Tables in the database
