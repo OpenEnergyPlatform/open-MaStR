@@ -13,8 +13,6 @@ jobs:
     environment: pypi-publish
     steps:
     - uses: actions/checkout@v4
-      with:
-        ref: release
     - name: Set up Python 3.10
       uses: actions/setup-python@v3
       with:
