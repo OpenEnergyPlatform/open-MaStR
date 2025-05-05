@@ -239,7 +239,7 @@ class Mastr:
             if data is None:
                 download_xml_Mastr(zipped_xml_file_path, date, xml_folder_path)
             else:
-                download_xml_Mastr_partial(zipped_xml_file_path, date, data, xml_folder_path)
+                data = download_xml_Mastr_partial(zipped_xml_file_path, date, data, xml_folder_path)
 
             print(
                 f"\nWould you like to speed up the bulk download?\n"

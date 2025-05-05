@@ -3,17 +3,16 @@ import shutil
 import time
 from importlib.metadata import PackageNotFoundError, version
 from zipfile import BadZipfile, ZipFile
-import shutil
 from pathlib import Path
 
 import numpy as np
 import requests
 from tqdm import tqdm
-import unzip_http
 
 # setup logger
 from open_mastr.utils.config import setup_logger
 from open_mastr.utils.constants import BULK_INCLUDE_TABLES_MAP
+from open_mastr.utils import unzip_http
 
 try:
     USER_AGENT = (
@@ -208,9 +207,10 @@ def download_xml_Mastr(
     print(f"Download is finished. It took {int(np.around(time_b - time_a))} seconds.")
     print(f"MaStR was successfully downloaded to {xml_folder_path}.")
 
+
 def check_download_completeness(
     save_path: str,bulk_data_list: list
-) -> list:
+) -> (list, bool):
     """Checks if an existing download contains the xml-files corresponding to the bulk_data_list.
     """
     with ZipFile(save_path, 'r') as zip_ref:
@@ -221,12 +221,16 @@ def check_download_completeness(
             for bulk_file_name in BULK_INCLUDE_TABLES_MAP[bulk_data_name]:    
                 if bulk_file_name not in existing_files:
                     missing_data_set.add(bulk_data_name)
-    return list(missing_data_set)
+
+    katalogwerte_bool = 0
+    if 'katalogwerte' in existing_files:
+        katalogwerte_bool = True
+    return list(missing_data_set), katalogwerte_bool
 
 
 def download_xml_Mastr_partial(
     save_path: str, bulk_date_string: str, bulk_data_list: list, xml_folder_path: str
-) -> None:
+) -> list:
     """Downloads the zipped MaStR.
 
     Parameters
@@ -235,6 +239,7 @@ def download_xml_Mastr_partial(
         The path where the downloaded MaStR zipped folder will be saved.
     """
 
+    katalogwerte_bool = False
     if os.path.exists(save_path):
         try:
             _ = ZipFile(save_path)
@@ -242,7 +247,7 @@ def download_xml_Mastr_partial(
             log.info(f"Bad Zip file is deleted: {save_path}")
             os.remove(save_path)
         else:
-            bulk_data_list = check_download_completeness(save_path,bulk_data_list)
+            bulk_data_list, katalogwerte_bool = check_download_completeness(save_path,bulk_data_list)
             if bool(bulk_data_list):
                 print(f"MaStR is missing the following data: {bulk_data_list}")
             else:
@@ -306,13 +311,12 @@ def download_xml_Mastr_partial(
         for bulk_file_name in BULK_INCLUDE_TABLES_MAP[bulk_data_name]:
             remote_index_list = [remote_index for remote_index, remote_zip_name in enumerate(remote_zip_names) if remote_zip_name == bulk_file_name]
             for remote_index in remote_index_list:
-                remote_zip_file.extract(remote_zip_file.namelist()[remote_index],path=Path(save_path[:-4]))
+                remote_zip_file.extractzip(remote_zip_file.namelist()[remote_index],path=Path(save_path))
 
-    remote_zip_file.extract('Katalogwerte.xml',path=Path(save_path[:-4]))
-
-    shutil.make_archive(save_path[:-4], 'zip', save_path[:-4])
-    shutil.rmtree(save_path[:-4])
+    if not katalogwerte_bool:
+        remote_zip_file.extractzip('Katalogwerte.xml',path=Path(save_path))
 
     time_b = time.perf_counter()
     print(f"Download is finished. It took {int(np.around(time_b - time_a))} seconds.")
     print(f"MaStR was successfully downloaded to {xml_folder_path}.")
+    return bulk_data_list
