@@ -63,6 +63,201 @@ def datapackag_base(reference_date, publication_date=None, statistik_flag=None):
         "https://www.marktstammdatenregister.de/MaStRHilfe/subpages/statistik.html"
     )
 
+    oem_dataset = {
+        "@context": "https://raw.githubusercontent.com/OpenEnergyPlatform/oemetadata/production/oemetadata/latest/context.json",
+        "name": "Bundesnetzagentur - Marktstammdatenregister (MaStR) - open_MaStR",
+        "title": "bnetza-marktstammdatenregister-openmastr",
+        "description": "The Marktstammdatenregister (MaStR) is a German register provided by the German Federal Network Agency (Bundesnetzagentur / BNetza) that keeps track of all power and gas units located in Germany.",
+        "@id": "",
+        "resources": []
+    }
+
+    oem_general = {
+        "@id": "",
+        "name": "",
+        "topics": [
+            ""
+        ],
+        "title": "",
+        "path": "",
+        "description": "",
+        "languages": [
+            "en-GB",
+            "de-DE"
+        ],
+        "subject": [
+            {
+                "name": "data set",
+                "@id": "http://purl.obolibrary.org/obo/IAO_0000100"
+            },
+            {
+                "name": "power plant",
+                "@id": "http://openenergyplatform.org/ontology/oeo/OEO_00000031"
+            }
+        ],
+        "keywords": [
+            "powerplant",
+            "markstammdatenregister",
+            "mastr"
+        ],
+        "publicationDate": "",
+        "embargoPeriod": {
+            "start": null,
+            "end": null,
+            "isActive": false
+        }
+    }
+
+    oem_context = {
+        "context": {
+            "title": "Marktstammdatenregister",
+            "homepage": "https://www.marktstammdatenregister.de/MaStR/",
+            "documentation": "https://www.marktstammdatenregister.de/MaStRHilfe/index.html",
+            "sourceCode": "https://github.com/OpenEnergyPlatform/open-MaStR/",
+            "publisher": "Bundesnetzagentur für Elektrizität, Gas, Telekommunikation, Post und Eisenbahnen",
+            "publisherLogo": "https://www.bundesnetzagentur.de/SiteGlobals/StyleBundles2/Bilder/auto/logo.svg?__blob=normal&v=2",
+            "contact": "https://www.marktstammdatenregister.de/MaStR/Startseite/Kontakt",
+            "fundingAgency": null,
+            "fundingAgencyLogo": null,
+            "grantNo": null
+        }
+    }
+
+    oem_spatial = {
+        "spatial": {
+                "location": {
+                "address": null,
+                "@id": null,
+                "latitude": null,
+                "longitude": null
+            },
+            "extent": {
+                "name": "Germany",
+                "@id": "https://www.wikidata.org/wiki/Q183",
+                "resolutionValue": null,
+                "resolutionUnit": null,
+                "boundingBox": [
+                    5.8663153,
+                    47.2701114,
+                    15.0419319,
+                    55.058347
+                ],
+                "crs": "EPSG:4326"
+            }
+        }
+    }
+
+    oem_temporal = {
+        "temporal": {
+            "referenceDate": "",
+            "timeseries": [
+                {
+                    "start": null,
+                    "end": null,
+                    "resolutionValue": null,
+                    "resolutionUnit": null,
+                    "alignment": null,
+                    "aggregationType": null
+                }
+            ]
+        }
+    }
+
+    oem_sources = {
+        "sources": [
+            {
+                "title": "Bundesnetzagentur - Marktstammdatenregister",
+                "authors": [
+                    ""
+                ],
+                "description": "Das Marktstammdatenregister ist das Register für den deutschen Strom- und Gasmarkt. Es wird MaStR abgekürzt. Im MaStR sind vor allem die Stammdaten zu Strom- und Gaserzeugungsanlagen zu registrieren. Außerdem sind die Stammdaten von Marktakteuren wie Anlagenbetreibern, Netzbetreibern und Energielieferanten zu registrieren. Das MaStR wird von der Bundesnetzagentur geführt.",
+                "publicationYear": "",
+                "path": "https://www.marktstammdatenregister.de/MaStR/",
+                "sourceLicenses": [
+                    {
+                        "name": "DL-DE-BY-2.0",
+                        "title": "Datenlizenz Deutschland – Namensnennung – Version 2.0",
+                        "path": "https://www.govdata.de/dl-de/by-2-0",
+                        "instruction": "You are free to share and change, but you must attribute.",
+                        "attribution": "Marktstammdatenregister © Bundesnetzagentur | DL-DE-BY-2.0",
+                        "copyrightStatement": "https://www.marktstammdatenregister.de/MaStR/Startseite/Impressum"
+                    }
+                ]
+            },
+            {
+                "title": "open-MaStR",
+                "authors": [
+                    "Hülk, L.",
+                    "Pleßmann, G.",
+                    "Muschner, C.",
+                    "Kotthoff, F.",
+                    "Tepe, D.",
+                    "Amme, J.,"
+                    "Imbrisca, A."
+                ],
+                "description": "A collaborative software to download the energy database Marktstammdatenregister (MaStR).",
+                "publicationYear": "",
+                "path": "https://github.com/OpenEnergyPlatform/open-MaStR",
+                "sourceLicenses": [
+                    {
+                        "name": "AGPL-3.0-or-later",
+                        "title": "GNU AFFERO GENERAL PUBLIC LICENSE",
+                        "path": "https://www.gnu.org/licenses/agpl-3.0.txt",
+                        "instruction": "You are free to share and change, but you must attribute, and share derivations under the same license. See https://www.tldrlegal.com/license/gnu-affero-general-public-license-v3-agpl-3-0 for further information.",
+                        "attribution": "open-MaStR © Reiner Lemoine Institut © fortiss © OFFIS | AGPL-3.0-or-later",
+                        "copyrightStatement": "https://github.com/OpenEnergyPlatform/open-MaStR/blob/develop/LICENSE.md"
+                    }
+                ]
+            }
+        ],
+    }
+
+    oem_licenses = {
+        "licenses": [
+            {
+                "name": "DL-DE-BY-2.0",
+                "title": "Datenlizenz Deutschland – Namensnennung – Version 2.0",
+                "path": "https://www.govdata.de/dl-de/by-2-0",
+                "instruction": "You are free to share and change, but you must attribute.",
+                "attribution": "Marktstammdatenregister © Bundesnetzagentur | DL-DE-BY-2.0",
+                "copyrightStatement": "https://www.marktstammdatenregister.de/MaStR/Startseite/Impressum"
+            }
+        ],
+    }
+
+    oem_provenance = {
+        "contributors": [
+            {
+                "title": "Ludwig Hülk",
+                "path": "https://github.com/Ludee",
+                "organization": "Reiner Lemoine Institut",
+                "roles": [
+                    "DataCurator"
+                ],
+                "date": "2025-05-12",
+                "object": "metadata",
+                "comment": "Date of metadata creation"
+            }
+        ]
+    }
+
+    oem_type = {
+        "type": "table",
+        "format": "CSV",
+        "encoding": "UTF-8"
+    }
+
+    oem_metameta = {
+        "metaMetadata": {
+            "metadataVersion": "OEMetadata-2.0.4",
+            "metadataLicense": {
+                "name": "CC0-1.0",
+                "title": "Creative Commons Zero v1.0 Universal",
+                "path": "https://creativecommons.org/publicdomain/zero/1.0"
+            }
+        }
+    }
+
     datapackage_meta = {
         "name": "open-mastr_raw",
         "title": "open-MaStR power unit registry",
