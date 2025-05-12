@@ -55,7 +55,6 @@ import time
 import zlib
 import struct
 import fnmatch
-import argparse
 import pathlib
 import urllib.parse
 import zipfile
@@ -378,31 +377,3 @@ def download_file(f, rzf, args):
         with open(str(path), 'wb') as of:
             extract_one(of, rzf, f, str(path))
 
-
-def main():
-    parser = argparse.ArgumentParser(prog='unzip-http', \
-        description="Extract individual files from .zip files over http without downloading the entire archive. HTTP server must send `Accept-Ranges: bytes` and `Content-Length` in headers.")
-
-    parser.add_argument('-l', '--list', action='store_true', default=False,
-                        help="List files in the remote zip file")
-    parser.add_argument('-f', '--full-filepaths', action='store_true', default=False,
-                        help="Recreate folder structure from zip file when extracting (instead of extracting the files to the current directory)")
-    parser.add_argument('-o', '--stdout', action='store_true', default=False,
-                        help="Write files to stdout (if multiple files: concatenate them to stdout, in zipfile order)")
-
-    parser.add_argument("url", nargs=1, help="URL of the remote zip file")
-    parser.add_argument("files", nargs='*', help="Files to extract. If no filenames given, displays .zip contents (filenames and sizes). Each filename can be a wildcard glob.")
-
-    args = parser.parse_args()
-
-    rzf = RemoteZipFile(args.url[0])
-    if args.list or len(args.files) == 0:
-        list_files(rzf)
-    else:
-        for f in rzf.infolist():
-            download_file(f, rzf, args)
-
-
-
-if __name__ == '__main__':
-    main()
