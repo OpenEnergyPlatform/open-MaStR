@@ -63,10 +63,11 @@ def datapackag_base(reference_date, publication_date=None, statistik_flag=None):
         "https://www.marktstammdatenregister.de/MaStRHilfe/subpages/statistik.html"
     )
 
+
     oem_dataset = {
         "@context": "https://raw.githubusercontent.com/OpenEnergyPlatform/oemetadata/production/oemetadata/latest/context.json",
-        "name": "Bundesnetzagentur - Marktstammdatenregister (MaStR) - open_MaStR",
-        "title": "bnetza-marktstammdatenregister-openmastr",
+        "name": "Bundesnetzagentur - Marktstammdatenregister (MaStR)",
+        "title": "bnetza-marktstammdatenregister",
         "description": "The Marktstammdatenregister (MaStR) is a German register provided by the German Federal Network Agency (Bundesnetzagentur / BNetza) that keeps track of all power and gas units located in Germany.",
         "@id": "",
         "resources": []
@@ -244,7 +245,61 @@ def datapackag_base(reference_date, publication_date=None, statistik_flag=None):
     oem_type = {
         "type": "table",
         "format": "CSV",
-        "encoding": "UTF-8"
+        "encoding": "UTF-8",
+        "dialect": {
+            "delimiter": ",",
+            "decimalSeparator": "."
+        },
+    }
+
+    oem_schema = {
+        "schema": {
+            "fields": [
+                {
+                    "name": "",
+                    "description": "",
+                    "type": "",
+                    "nullable": false,
+                    "unit": "",
+                    "isAbout": [
+                        {
+                            "name": "",
+                            "@id": ""
+                        }
+                    ],
+                    "valueReference": [
+                        {
+                            "value": "",
+                            "name": "",
+                            "@id": ""
+                        }
+                    ]
+                }
+            ],
+            "primaryKey": [
+                ""
+            ],
+            "foreignKeys": [
+                {
+                    "fields": [
+                        ""
+                    ],
+                    "reference": {
+                        "resource": "",
+                        "fields": [
+                            ""
+                        ]
+                    }
+                }
+            ]
+        },
+    }
+
+    oem_review = {
+        "review": {
+            "path": "",
+            "badge": ""
+        }
     }
 
     oem_metameta = {
