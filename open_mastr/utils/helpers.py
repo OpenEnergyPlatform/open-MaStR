@@ -4,6 +4,7 @@ import sys
 from contextlib import contextmanager
 from datetime import date, datetime
 from warnings import warn
+import csv
 
 import dateutil
 import sqlalchemy
@@ -320,6 +321,19 @@ def transform_date_parameter(self, method, date, **kwargs):
         date = kwargs.get("api_date", date)
 
     return date
+
+
+# def create_metadata_file(self, date, data):
+#     log_file = os.path.join(self.output_dir, "data", "metadata_log_file.csv")
+#     if not os.path.isfile(log_file):
+#         with open(log_file, "w", newline="") as file:
+#             writer = csv.writer(file)
+#             writer.writerow(["date", "date_input", "data_tables"])
+#     if date == "today":
+#         actual_date = datetime.today().strftime("%Y%m%d")
+#     with open(log_file, "a", newline="") as file:
+#         writer = csv.writer(file)
+#         writer.writerow([actual_date, date, data])
 
 
 @contextmanager

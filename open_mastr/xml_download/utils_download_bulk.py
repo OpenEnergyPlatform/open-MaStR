@@ -313,8 +313,7 @@ def download_xml_Mastr_partial(
             for remote_index in remote_index_list:
                 remote_zip_file.extractzip(remote_zip_file.namelist()[remote_index],path=Path(save_path))
 
-    if not katalogwerte_bool:
-        remote_zip_file.extractzip('Katalogwerte.xml',path=Path(save_path))
+    remote_zip_file.extractzip('Katalogwerte.xml',path=Path(save_path))
 
     time_b = time.perf_counter()
     print(f"Download is finished. It took {int(np.around(time_b - time_a))} seconds.")

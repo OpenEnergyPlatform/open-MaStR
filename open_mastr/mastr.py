@@ -26,6 +26,7 @@ from open_mastr.utils.helpers import (
     create_db_query,
     db_query_to_csv,
     reverse_fill_basic_units,
+    create_metadata_file
 )
 from open_mastr.utils.config import (
     create_data_dir,
@@ -254,6 +255,7 @@ class Mastr:
                 bulk_cleansing=bulk_cleansing,
                 bulk_download_date=bulk_download_date,
             )
+            create_metadata_file(self, date, data)
             
         if method == "API":
             validate_api_credentials()
