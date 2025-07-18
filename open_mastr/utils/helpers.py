@@ -4,7 +4,7 @@ import sys
 from contextlib import contextmanager
 from datetime import date, datetime
 from warnings import warn
-import csv
+from zipfile import BadZipfile, ZipFile
 
 import dateutil
 import sqlalchemy
@@ -824,3 +824,17 @@ def create_translated_database_engine(engine, folder_path) -> sqlalchemy.engine.
         )
 
     return create_engine(f"sqlite:///{db_path}")
+
+
+def delete_zip_file_if_corrupted(save_path: str):
+    """
+    Check if existing zip file is corrupted and if yes, delete it, if no, zipfile exists.
+    """
+    if os.path.exists(save_path):
+        try:
+            with ZipFile(save_path) as _:
+                pass
+        except BadZipfile:
+            log.info(f"Bad Zip file is deleted: {save_path}")
+            os.remove(save_path)            
+    

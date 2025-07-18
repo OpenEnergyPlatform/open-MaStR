@@ -2,7 +2,7 @@ import os
 import shutil
 import time
 from importlib.metadata import PackageNotFoundError, version
-from zipfile import BadZipfile, ZipFile
+from zipfile import ZipFile
 from pathlib import Path
 
 import numpy as np
@@ -125,24 +125,7 @@ def download_xml_Mastr(
     save_path: str
         The path where the downloaded MaStR zipped folder will be saved.
     """
-
-    if os.path.exists(save_path):
-        try:
-            _ = ZipFile(save_path)
-        except BadZipfile:
-            log.info(f"Bad Zip file is deleted: {save_path}")
-            os.remove(save_path)
-        else:
-            print("MaStR already downloaded.")
-            return None
-
-    if bulk_date_string != "today":
-        raise OSError(
-            "There exists no file for given date. MaStR can only be downloaded "
-            "from the website if today's date is given."
-        )
-    shutil.rmtree(xml_folder_path, ignore_errors=True)
-    os.makedirs(xml_folder_path, exist_ok=True)
+    
 
     print_message = (
         "Download has started, this can take several minutes."
@@ -210,7 +193,7 @@ def download_xml_Mastr(
 
 def check_download_completeness(
     save_path: str,bulk_data_list: list
-) -> (list, bool):
+) -> tuple[list, bool]:
     """Checks if an existing download contains the xml-files corresponding to the bulk_data_list.
     """
     with ZipFile(save_path, 'r') as zip_ref:
@@ -222,10 +205,10 @@ def check_download_completeness(
                 if bulk_file_name not in existing_files:
                     missing_data_set.add(bulk_data_name)
 
-    katalogwerte_bool = 0
+    is_katalogwerte_existing = False
     if 'katalogwerte' in existing_files:
-        katalogwerte_bool = True
-    return list(missing_data_set), katalogwerte_bool
+        is_katalogwerte_existing = True
+    return list(missing_data_set), is_katalogwerte_existing
 
 
 def download_xml_Mastr_partial(
@@ -239,28 +222,14 @@ def download_xml_Mastr_partial(
         The path where the downloaded MaStR zipped folder will be saved.
     """
 
-    katalogwerte_bool = False
+    is_katalogwerte_existing = False
     if os.path.exists(save_path):
-        try:
-            _ = ZipFile(save_path)
-        except BadZipfile:
-            log.info(f"Bad Zip file is deleted: {save_path}")
-            os.remove(save_path)
+        bulk_data_list, is_katalogwerte_existing = check_download_completeness(save_path,bulk_data_list)
+        if bool(bulk_data_list):
+            print(f"MaStR is missing the following data: {bulk_data_list}")
         else:
-            bulk_data_list, katalogwerte_bool = check_download_completeness(save_path,bulk_data_list)
-            if bool(bulk_data_list):
-                print(f"MaStR is missing the following data: {bulk_data_list}")
-            else:
-                print("MaStR already downloaded.")
-                return None
-
-    if bulk_date_string != "today":
-        raise OSError(
-            "There exists no file for given date. MaStR can only be downloaded "
-            "from the website if today's date is given."
-        )
-    shutil.rmtree(xml_folder_path, ignore_errors=True)
-    os.makedirs(xml_folder_path, exist_ok=True)
+            print("MaStR already downloaded.")
+            return None
 
     print_message = (
         "Download has started, this can take several minutes."
@@ -308,14 +277,32 @@ def download_xml_Mastr_partial(
 
     remote_index_list = []
     for bulk_data_name in bulk_data_list:
+        # Example: ['wind','solar']
         for bulk_file_name in BULK_INCLUDE_TABLES_MAP[bulk_data_name]:
+            # Example: From "wind" we get ["anlageneegwind", "einheitenwind"], and  from "solar" we get ["anlageneegsolar", "einheitensolar"]
+            # and we have to find the corresponding index in the remote_zip_file list in order to fetch the correct file
             remote_index_list = [remote_index for remote_index, remote_zip_name in enumerate(remote_zip_names) if remote_zip_name == bulk_file_name]
+            # for remote_index in tqdm(remote_index_list):
             for remote_index in remote_index_list:
+                # Example: remote_zip_file.namelist()[remote_index] corresponds to e.g. 'AnlagenEegSolar_1.xml'
                 remote_zip_file.extractzip(remote_zip_file.namelist()[remote_index],path=Path(save_path))
 
-    remote_zip_file.extractzip('Katalogwerte.xml',path=Path(save_path))
+    if not is_katalogwerte_existing:
+        remote_zip_file.extractzip('Katalogwerte.xml',path=Path(save_path))
 
     time_b = time.perf_counter()
     print(f"Download is finished. It took {int(np.around(time_b - time_a))} seconds.")
     print(f"MaStR was successfully downloaded to {xml_folder_path}.")
     return bulk_data_list
+
+
+def delete_xml_files_not_from_given_date(save_path: str, xml_folder_path: str):
+    """
+    Delete xml files that are not corresponding to the given date.
+    Assumes that the xml folder only contains one zipfile.
+    """
+    if os.path.exists(save_path):
+        return
+    else:
+        shutil.rmtree(xml_folder_path)
+        os.makedirs(xml_folder_path)

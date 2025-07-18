@@ -4,7 +4,8 @@ from sqlalchemy import inspect, create_engine
 # import xml dependencies
 from open_mastr.xml_download.utils_download_bulk import (
     download_xml_Mastr,
-    download_xml_Mastr_partial
+    download_xml_Mastr_partial,
+    delete_xml_files_not_from_given_date
 )
 from open_mastr.xml_download.utils_write_to_database import (
     write_mastr_xml_to_database,
@@ -26,7 +27,10 @@ from open_mastr.utils.helpers import (
     create_db_query,
     db_query_to_csv,
     reverse_fill_basic_units,
-    create_metadata_file
+    delete_zip_file_if_corrupted,
+    create_database_engine,
+    rename_table,
+    create_translated_database_engine,
 )
 from open_mastr.utils.config import (
     create_data_dir,
@@ -36,13 +40,6 @@ from open_mastr.utils.config import (
     setup_logger,
 )
 import open_mastr.utils.orm as orm
-
-# import initialize_database dependencies
-from open_mastr.utils.helpers import (
-    create_database_engine,
-    rename_table,
-    create_translated_database_engine,
-)
 
 # constants
 from open_mastr.utils.constants import TECHNOLOGIES, ADDITIONAL_TABLES
@@ -237,6 +234,10 @@ class Mastr:
                 xml_folder_path,
                 f"Gesamtdatenexport_{bulk_download_date}.zip",
             )
+
+            delete_zip_file_if_corrupted(zipped_xml_file_path)
+            delete_xml_files_not_from_given_date(zipped_xml_file_path, xml_folder_path)
+            
             if data is None:
                 download_xml_Mastr(zipped_xml_file_path, date, xml_folder_path)
             else:
@@ -255,7 +256,6 @@ class Mastr:
                 bulk_cleansing=bulk_cleansing,
                 bulk_download_date=bulk_download_date,
             )
-            create_metadata_file(self, date, data)
             
         if method == "API":
             validate_api_credentials()
