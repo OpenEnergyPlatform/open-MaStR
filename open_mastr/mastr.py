@@ -4,8 +4,7 @@ from sqlalchemy import inspect, create_engine
 # import xml dependencies
 from open_mastr.xml_download.utils_download_bulk import (
     download_xml_Mastr,
-    download_xml_Mastr_partial,
-    delete_xml_files_not_from_given_date
+    delete_xml_files_not_from_given_date,
 )
 from open_mastr.xml_download.utils_write_to_database import (
     write_mastr_xml_to_database,
@@ -158,7 +157,7 @@ class Mastr:
             |-----------------------|------|------|
             | "today"                | latest files are downloaded from marktstammdatenregister.de  | -  |
             | "20230101"      | If file from this date exists locally, it is used. Otherwise it throws an error (You can only receive todays data from the server)  | -   |
-            | "existing"               | Use latest downloaded zipped xml files, throws an error if the bulk download folder is empty  | -  |
+            | "existing"               | Deprecated since 0.16, see [#616](https://github.com/OpenEnergyPlatform/open-MaStR/issues/616#issuecomment-3089377062)mkdo  | -  |
             | "latest"               | -  | Retrieve data that is newer than the newest data already in the table  |
             | datetime.datetime(2020, 11, 27)      | -  | Retrieve data that is newer than this time stamp   |
             | None      | set date="today"  | set date="latest"   |
@@ -237,11 +236,8 @@ class Mastr:
 
             delete_zip_file_if_corrupted(zipped_xml_file_path)
             delete_xml_files_not_from_given_date(zipped_xml_file_path, xml_folder_path)
-            
-            if data is None:
-                download_xml_Mastr(zipped_xml_file_path, date, xml_folder_path)
-            else:
-                data = download_xml_Mastr_partial(zipped_xml_file_path, date, data, xml_folder_path)
+
+            download_xml_Mastr(zipped_xml_file_path, date, data, xml_folder_path)
 
             print(
                 f"\nWould you like to speed up the bulk download?\n"
@@ -256,7 +252,7 @@ class Mastr:
                 bulk_cleansing=bulk_cleansing,
                 bulk_download_date=bulk_download_date,
             )
-            
+
         if method == "API":
             validate_api_credentials()
 

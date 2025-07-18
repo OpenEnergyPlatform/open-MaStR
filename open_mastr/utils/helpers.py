@@ -245,18 +245,16 @@ def raise_warning_for_invalid_parameter_combinations(
         )
 
     if method == "bulk" and (
-        (
-            any(
-                parameter is not None
-                for parameter in [
-                    api_processes,
-                    api_data_types,
-                    api_location_types,
-                ]
-            )
-            or api_limit != 50
-            or api_chunksize != 1000
+        any(
+            parameter is not None
+            for parameter in [
+                api_processes,
+                api_data_types,
+                api_location_types,
+            ]
         )
+        or api_limit != 50
+        or api_chunksize != 1000
     ):
         warn(
             "For method = 'bulk', API related parameters (with prefix api_) are ignored."
@@ -303,37 +301,21 @@ def transform_date_parameter(self, method, date, **kwargs):
         date = kwargs.get("bulk_date", date)
         date = "today" if date is None else date
         if date == "existing":
-            existing_files_list = os.listdir(
-                os.path.join(self.output_dir, "data", "xml_download")
+            log.warning(
+                """
+            The date parameter 'existing' is deprecated and will be removed in the future. 
+            The date parameter is set to `today`.
+
+            If this change causes problems for you, please comment in this issue on github:
+            https://github.com/OpenEnergyPlatform/open-MaStR/issues/616#issuecomment-3089377062
+
+            """
             )
-            if not existing_files_list:
-                date = "today"
-                print(
-                    "By choosing `date`='existing' you want to use an existing "
-                    "xml download."
-                    "However no xml_files were downloaded yet. The parameter `date` is"
-                    "therefore set to 'today'."
-                )
-            # we assume that there is only one file in the folder which is the
-            # zipped xml folder
-            date = existing_files_list[0].split("_")[1].split(".")[0]
+            date = "today"
     elif method == "API":
         date = kwargs.get("api_date", date)
 
     return date
-
-
-# def create_metadata_file(self, date, data):
-#     log_file = os.path.join(self.output_dir, "data", "metadata_log_file.csv")
-#     if not os.path.isfile(log_file):
-#         with open(log_file, "w", newline="") as file:
-#             writer = csv.writer(file)
-#             writer.writerow(["date", "date_input", "data_tables"])
-#     if date == "today":
-#         actual_date = datetime.today().strftime("%Y%m%d")
-#     with open(log_file, "a", newline="") as file:
-#         writer = csv.writer(file)
-#         writer.writerow([actual_date, date, data])
 
 
 @contextmanager
@@ -369,7 +351,7 @@ def print_api_settings(
     )
     if "permit" in harmonisation_log:
         print(
-            f"data_types: {api_data_types}" "\033[31m",
+            f"data_types: {api_data_types}\033[31m",
             "Attention, 'permit_data' was automatically set in api_data_types, "
             "as you defined 'permit' in parameter data_api.",
             "\033[m",
@@ -494,9 +476,7 @@ def create_db_query(
     unit_type_map_reversed = reverse_unit_type_map()
 
     with session_scope(engine=engine) as session:
-
         if tech:
-
             # Select orm tables for specified additional_data.
             orm_tables = {
                 f"{dat}": getattr(orm, ORM_MAP[tech].get(dat, "KeyNotAvailable"), None)
@@ -567,7 +547,6 @@ def create_db_query(
             return query_tech
 
         if additional_table:
-
             orm_table = getattr(orm, ORM_MAP[additional_table], None)
 
             query_additional_tables = Query(orm_table, session=session)
@@ -755,7 +734,6 @@ def db_query_to_csv(db_query, data_table: str, chunksize: int) -> None:
                         chunk_df[col] = chunk_df[col].str.replace("\r", "")
 
                 if not chunk_df.empty:
-
                     if chunk_number == 0:
                         chunk_df.to_csv(
                             csv_file,
@@ -836,5 +814,4 @@ def delete_zip_file_if_corrupted(save_path: str):
                 pass
         except BadZipfile:
             log.info(f"Bad Zip file is deleted: {save_path}")
-            os.remove(save_path)            
-    
+            os.remove(save_path)
