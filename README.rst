@@ -37,19 +37,42 @@ open-mastr
 Introduction
 ============
 
-The `Marktstammdatenregister (MaStR) <https://www.marktstammdatenregister.de/MaStR>`_ is a German register 
-provided by the German Federal Network Agency (Bundesnetzagentur / BNetza) that keeps track of all power and gas units located in Germany.
+The python package ``open-mastr`` provides an interface for accessing the `Marktstammdatenregister (MaStR) <https://www.marktstammdatenregister.de/MaStR>`_ data. The MaStR is a German register provided by the German Federal Network Agency (Bundesnetzagentur / BNetza) that keeps track of all power and gas units located in Germany. It is a daily growing dataset with more than 8.2 million data points covering electricity and gas production units, electricity and gas consumers, storages, grids, and energy market participants (as of spring 2024).
 
-The MaStR data can be
- 
-#. browsed and filtered `online <https://www.marktstammdatenregister.de/MaStR>`_
-#. taken from `daily provided dumps <https://www.marktstammdatenregister.de/MaStR/Datendownload>`_
-#. be accessed via the `web service <https://www.marktstammdatenregister.de/MaStRHilfe/subpages/webdienst.html>`_
+Independent of ``open-mastr``, the MaStR data can generally be accessed via three main options:
 
-| The python package ``open-mastr`` provides an interface for accessing the data. 
-| It contains methods to download and parse the xml files (bulk) and the SOAP web service (API).
-| In this repository we are developing methods to analyze, validate and enrich the data.
-| We want to collect and compile post processing scripts to improve data quality.
+#. browse, filter and download `in the browser <https://www.marktstammdatenregister.de/MaStR>`_
+#. download `daily provided dumps <https://www.marktstammdatenregister.de/MaStR/Datendownload>`_
+#. access via the `web service <https://www.marktstammdatenregister.de/MaStRHilfe/subpages/webdienst.html>`_
+
+These access options, however, are not exactly frictionless. ``open-mastr`` thus provides an interface for and improved developer experience of accessing the data. This project is intended for individuals who wish to "just work" with the MaStR data and who do not want to deal with the idiosyncrasies of the three access options above.
+
+In particular, ``open-mastr`` facilitates access to the daily provided MaStR dumps with download methods (bulk) and by parsing the XML files to a relational database. Furthermore, the software provides a Python wrapper to access the MaStR SOAP web service (API).
+
+.. note::
+   **Does ``open-mastr`` edit or change the MaStR data?**
+   
+   No. ``open-mastr`` is a wrapper around the MaStR data and does not edit or change the data. It is intended to be used as a tool for working with the MaStR data.
+
+Benefits provided by ``open-mastr``
+==================================
+
++----------------------+----------------------------------------------------------------------------------+
+| Benefit              | Description                                                                      |
++======================+==================================================================================+
+| Data download and    | Download, decode, and write data to a local database                           |
+| parsing              |                                                                                  |
++----------------------+----------------------------------------------------------------------------------+
+| Translation to       | Translate table names and columns from German to English as well as an English  |
+| English              | documentation page of the dataset                                               |
++----------------------+----------------------------------------------------------------------------------+
+| Data processing      | Merge relevant information about different technologies to single csv files     |
++----------------------+----------------------------------------------------------------------------------+
+
+.. note::
+   **Just here for the data?**
+   
+   We regularly run the whole download and cleansing pipeline and upload the dataset as csv files at `zenodo <https://doi.org/10.5281/zenodo.6807425>`_!
 
 
 Documentation
@@ -140,7 +163,7 @@ Software
 
 Data
 ----
-| The data has the license **Datenlizenz Deutschland – Namensnennung – Version 2.0** (DL-DE-BY-2.0)
+| The original dataset is licensed under the **Datenlizenz Deutschland – Namensnennung – Version 2.0** (DL-DE-BY-2.0)
 | Copyright: `Marktstammdatenregister <https://www.marktstammdatenregister.de/MaStR>`_ - © Bundesnetzagentur für Elektrizität, Gas, Telekommunikation, Post und Eisenbahnen | `DL-DE-BY-2.0 <https://www.govdata.de/dl-de/by-2-0>`_
 
 
