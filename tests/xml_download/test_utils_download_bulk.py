@@ -1,5 +1,10 @@
 import time
-from open_mastr.xml_download.utils_download_bulk import gen_url
+from open_mastr.xml_download.utils_download_bulk import (
+    gen_url,
+    delete_xml_files_not_from_given_date,
+)
+import os
+import shutil
 
 
 def test_gen_url():
@@ -84,3 +89,27 @@ def test_gen_url():
         url
         == "https://download.marktstammdatenregister.de/Gesamtdatenexport_20240402_24.2.zip"
     )
+
+
+def test_delete_xml_files_not_from_given_date():
+    xml_folder_path = os.path.join("tests", "test_utils_download")
+    expected_file = os.path.join(xml_folder_path, "20250102.txt")
+    os.makedirs(xml_folder_path)
+
+    # Case where expected file exists
+    open(expected_file, "w").close()
+    delete_xml_files_not_from_given_date(
+        save_path=expected_file, xml_folder_path=xml_folder_path
+    )
+    assert os.path.exists(expected_file)
+    os.remove(expected_file)
+
+    # Case where old date is deleted
+    path_old_file = os.path.join(xml_folder_path, "20250101.txt")
+    open(path_old_file, "w").close()
+    delete_xml_files_not_from_given_date(
+        save_path=expected_file, xml_folder_path=xml_folder_path
+    )
+    assert not os.path.exists(path_old_file)
+    # clean up test folder
+    shutil.rmtree(xml_folder_path)
