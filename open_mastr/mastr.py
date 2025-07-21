@@ -240,9 +240,9 @@ class Mastr:
             download_xml_Mastr(zipped_xml_file_path, date, data, xml_folder_path)
 
             print(
-                f"\nWould you like to speed up the bulk download?\n"
-                f"Try our new parallelized processing by setting os.environ['USE_RECOMMENDED_NUMBER_OF_PROCESSES'] = True "
-                f"or configure your own number of processes via os.environ['NUMBER_OF_PROCESSES'] = your_number\n"
+                "\nWould you like to speed up the creation of your MaStR database?\n"
+                "Try our new parallelized processing by setting os.environ['USE_RECOMMENDED_NUMBER_OF_PROCESSES'] = True "
+                "or configure your own number of processes via os.environ['NUMBER_OF_PROCESSES'] = your_number\n"
             )
 
             write_mastr_xml_to_database(

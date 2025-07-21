@@ -126,10 +126,7 @@ def download_xml_Mastr(
         The path where the downloaded MaStR zipped folder will be saved.
     """
 
-    print_message = (
-        "Download has started, this can take several minutes."
-        "The download bar is only a rough estimate."
-    )
+    print_message = "Starting the Download from marktstammdatenregister.de."
     warning_message = (
         "Warning: The servers from MaStR restrict the download speed."
         " You may want to download it another time."
