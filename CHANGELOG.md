@@ -11,6 +11,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 ### Changed
 - Fix package publication workflow
   [#636](https://github.com/OpenEnergyPlatform/open-MaStR/pull/636)
+- Change print statement about data cleansing
+  [#650](https://github.com/OpenEnergyPlatform/open-MaStR/pull/650)
 ### Removed
 
 
