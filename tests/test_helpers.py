@@ -7,6 +7,7 @@ from os.path import join
 from datetime import datetime
 import pandas as pd
 from open_mastr import Mastr
+from zipfile import ZipFile
 
 from open_mastr.utils import orm
 from open_mastr.utils.constants import (
@@ -25,6 +26,7 @@ from open_mastr.utils.helpers import (
     create_db_query,
     db_query_to_csv,
     reverse_unit_type_map,
+    delete_zip_file_if_corrupted,
 )
 
 
@@ -396,6 +398,18 @@ def test_db_query_to_csv(tmpdir, engine):
     # FIXME: delete when tmpdir is implemented
     # delete empty data dir
     os.rmdir(get_data_version_dir())
+
+
+def test_delete_zip_file_if_corrupted():
+    test_zip_path = os.path.join("tests", "test.zip")
+    with ZipFile(test_zip_path, "w") as zf:
+        zf.writestr(os.path.join("tests", "file.txt"), "Hello, world!")
+    with open(test_zip_path, "wb+") as f:
+        f.seek(10)
+        f.write(b"\xff\xff\xff\xff")
+
+    delete_zip_file_if_corrupted(test_zip_path)
+    assert not os.path.exists(test_zip_path)
 
 
 def test_save_metadata():
