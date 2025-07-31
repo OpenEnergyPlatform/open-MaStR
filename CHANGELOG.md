@@ -9,6 +9,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 ## [v0.XX.X] unreleased - 202X-XX-XX
 ### Added
 ### Changed
+- Updates the system_catalog dict with missing Einheittyp values
+  [#653](https://github.com/OpenEnergyPlatform/open-MaStR/pull/653)
 - Fix package publication workflow
   [#636](https://github.com/OpenEnergyPlatform/open-MaStR/pull/636)
 ### Removed
