@@ -126,8 +126,8 @@ class Mastr:
             from marktstammdatenregister.de,
             (see :ref:`Configuration <Configuration>`). Default to 'bulk'.
         data : str or list or None, optional
-            Determines which types of data are written to the database. If None, all data is
-            used. If it is a list, possible entries are listed below with respect to the download method. Missing categories are
+            Determines which data is partially downloaded from the bulk download and written to the database. If None, all data is downloaded and written to the database.
+            If it is a list, possible entries are listed below with respect to the download method. Missing categories are
             being developed. If only one data is of interest, this can be given as a string. Default to None, where all data is included.
 
             | Data                  | Bulk | API  |
@@ -157,7 +157,7 @@ class Mastr:
             |-----------------------|------|------|
             | "today"                | latest files are downloaded from marktstammdatenregister.de  | -  |
             | "20230101"      | If file from this date exists locally, it is used. Otherwise it throws an error (You can only receive todays data from the server)  | -   |
-            | "existing"               | Deprecated since 0.16, see [#616](https://github.com/OpenEnergyPlatform/open-MaStR/issues/616#issuecomment-3089377062)mkdo  | -  |
+            | "existing"               | Deprecated since 0.16, see [#616](https://github.com/OpenEnergyPlatform/open-MaStR/issues/616#issuecomment-3089377062)  | -  |
             | "latest"               | -  | Retrieve data that is newer than the newest data already in the table  |
             | datetime.datetime(2020, 11, 27)      | -  | Retrieve data that is newer than this time stamp   |
             | None      | set date="today"  | set date="latest"   |
