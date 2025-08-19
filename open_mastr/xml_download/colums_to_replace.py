@@ -23,6 +23,20 @@ system_catalog = {
         3: "Gaserzeugungslokation",
         4: "Gasverbrauchslokation",
     },
+    "Einheittyp": {
+        1: "Solareinheit",
+        2: "Windeinheit",
+        3: "Biomasse",
+        4: "Wasser",
+        5: "Geothermie",
+        6: "Verbrennung",
+        7: "Kernenergie",
+        8: "Stromspeichereinheit",
+        9: "Stromverbrauchseinheit",
+        10: "Gasverbrauchseinheit",
+        11: "Gaserzeugungseinheit",
+        12: "Gasspeichereinheit",
+    },
 }
 
 # columns to replace lists all columns where the entries have

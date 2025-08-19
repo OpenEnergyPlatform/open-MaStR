@@ -2,7 +2,10 @@ import os
 from sqlalchemy import inspect, create_engine
 
 # import xml dependencies
-from open_mastr.xml_download.utils_download_bulk import download_xml_Mastr
+from open_mastr.xml_download.utils_download_bulk import (
+    download_xml_Mastr,
+    delete_xml_files_not_from_given_date,
+)
 from open_mastr.xml_download.utils_write_to_database import (
     write_mastr_xml_to_database,
 )
@@ -18,6 +21,10 @@ from open_mastr.utils.helpers import (
     create_db_query,
     db_query_to_csv,
     reverse_fill_basic_units,
+    delete_zip_file_if_corrupted,
+    create_database_engine,
+    rename_table,
+    create_translated_database_engine,
 )
 from open_mastr.utils.config import (
     create_data_dir,
@@ -27,13 +34,6 @@ from open_mastr.utils.config import (
     setup_logger,
 )
 import open_mastr.utils.orm as orm
-
-# import initialize_database dependencies
-from open_mastr.utils.helpers import (
-    create_database_engine,
-    rename_table,
-    create_translated_database_engine,
-)
 
 # constants
 from open_mastr.utils.constants import TECHNOLOGIES, ADDITIONAL_TABLES
@@ -113,21 +113,40 @@ class Mastr:
             Only "bulk" is a valid value. The download via the MaStR SOAP API is deprecated.
             Default to 'bulk'.
         data : str or list or None, optional
-            Determines which types of data are written to the database. If None, all data is
-            used. If it is a list, possible entries are listed below. If only one data is of
-            interest, this can be given as a string. Default to None, where all data is included.
+            Specifies which tables to download.
 
-            Possible values are: "wind", "solar", "biomass", "hydro", "gsgk", "combustion",
-            "nuclear", "gas", "storage", "storage_units", "electricity_consumer", "location",
-            "market", "grid", "balancing_area", "permit", "deleted_units", "deleted_market_actors",
-            "retrofit_units"
+            **Possible values:**
+            - "wind"
+            - "solar"
+            - "biomass"
+            - "hydro"
+            - "gsgk"
+            - "combustion"
+            - "nuclear"
+            - "gas"
+            - "storage"
+            - "storage_units"
+            - "electricity_consumer"
+            - "location"
+            - "market"
+            - "grid"
+            - "balancing_area"
+            - "permit"
+            - "deleted_units"
+            - "deleted_market_actors"
+            - "retrofit_units"
+
+            **Usage:**
+            - If `None`, all data is downloaded.
+            - If a string, only the specified table is downloaded (e.g., `"wind"`).
+            - If a list, multiple tables are downloaded (e.g., `["wind", "solar"]`).
         date : None or `datetime.datetime` or str, optional
 
             | date                  | description |
             |-----------------------|------|
             | "today"                | latest files are downloaded from marktstammdatenregister.de  |
             | "20230101"      | If file from this date exists locally, it is used. Otherwise it throws an error (You can only receive todays data from the server)  |
-            | "existing"               | Use latest downloaded zipped xml files, throws an error if the bulk download folder is empty  |
+            | "existing"               | Deprecated since 0.16, see [#616](https://github.com/OpenEnergyPlatform/open-MaStR/issues/616#issuecomment-3089377062) |
             | None      | set date="today"  |
 
             Default to `None`.
@@ -172,12 +191,16 @@ class Mastr:
             xml_folder_path,
             f"Gesamtdatenexport_{bulk_download_date}.zip",
         )
-        download_xml_Mastr(zipped_xml_file_path, date, xml_folder_path)
+
+        delete_zip_file_if_corrupted(zipped_xml_file_path)
+        delete_xml_files_not_from_given_date(zipped_xml_file_path, xml_folder_path)
+
+        download_xml_Mastr(zipped_xml_file_path, date, data, xml_folder_path)
 
         print(
-            f"\nWould you like to speed up the bulk download?\n"
-            f"Try our new parallelized processing by setting os.environ['USE_RECOMMENDED_NUMBER_OF_PROCESSES'] = True "
-            f"or configure your own number of processes via os.environ['NUMBER_OF_PROCESSES'] = your_number\n"
+            "\nWould you like to speed up the creation of your MaStR database?\n"
+            "Try our new parallelized processing by setting os.environ['USE_RECOMMENDED_NUMBER_OF_PROCESSES'] = True "
+            "or configure your own number of processes via os.environ['NUMBER_OF_PROCESSES'] = your_number\n"
         )
 
         write_mastr_xml_to_database(
