@@ -116,6 +116,7 @@ class Mastr:
             Specifies which tables to download.
 
             **Possible values:**
+
             - "wind"
             - "solar"
             - "biomass"
@@ -137,9 +138,11 @@ class Mastr:
             - "retrofit_units"
 
             **Usage:**
+
             - If `None`, all data is downloaded.
             - If a string, only the specified table is downloaded (e.g., `"wind"`).
             - If a list, multiple tables are downloaded (e.g., `["wind", "solar"]`).
+
         date : None or `datetime.datetime` or str, optional
 
             | date                  | description |
