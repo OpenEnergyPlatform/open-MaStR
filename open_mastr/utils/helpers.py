@@ -158,7 +158,7 @@ def transform_data_parameter(data, **kwargs):
     return data
 
 
-def transform_date_parameter(self, method, date, **kwargs):
+def transform_date_parameter(self, date, **kwargs):
     date = kwargs.get("bulk_date", date)
     date = "today" if date is None else date
     if date == "existing":
