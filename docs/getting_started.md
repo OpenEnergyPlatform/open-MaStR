@@ -35,7 +35,16 @@ db = Mastr()
 db.download()
 ```
 
-When a `Mastr` object is initialized, a sqlite database is created in `$HOME/.open-MaStR/data/sqlite`. With the function `Mastr.download()`, the **whole MaStR is downloaded** in the zipped xml file format. It is then read into the sqlite database and simple data cleansing functions are started.
+When a `Mastr` object is initialized, a sqlite database is created in `$HOME/.open-MaStR/data/sqlite`. With the function [`Mastr.download()`][open_mastr.Mastr.download], the **whole MaStR is downloaded** in the zipped xml file format. It is then read into the sqlite database and simple data cleansing functions are started.
+
+If you are interested in a specific part of the dataset, you can specify this by using the `data` parameter:
+
+```python
+from open_mastr import Mastr
+
+db = Mastr()
+db.download(data=["wind","hydro"])
+```
 
 More detailed information can be found in the section [bulk download](advanced.md#bulk-download).
 

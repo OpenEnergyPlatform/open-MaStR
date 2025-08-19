@@ -2,7 +2,10 @@ import os
 from sqlalchemy import inspect, create_engine
 
 # import xml dependencies
-from open_mastr.xml_download.utils_download_bulk import download_xml_Mastr
+from open_mastr.xml_download.utils_download_bulk import (
+    download_xml_Mastr,
+    delete_xml_files_not_from_given_date,
+)
 from open_mastr.xml_download.utils_write_to_database import (
     write_mastr_xml_to_database,
 )
@@ -23,6 +26,10 @@ from open_mastr.utils.helpers import (
     create_db_query,
     db_query_to_csv,
     reverse_fill_basic_units,
+    delete_zip_file_if_corrupted,
+    create_database_engine,
+    rename_table,
+    create_translated_database_engine,
 )
 from open_mastr.utils.config import (
     create_data_dir,
@@ -32,13 +39,6 @@ from open_mastr.utils.config import (
     setup_logger,
 )
 import open_mastr.utils.orm as orm
-
-# import initialize_database dependencies
-from open_mastr.utils.helpers import (
-    create_database_engine,
-    rename_table,
-    create_translated_database_engine,
-)
 
 # constants
 from open_mastr.utils.constants import TECHNOLOGIES, ADDITIONAL_TABLES
@@ -126,8 +126,8 @@ class Mastr:
             from marktstammdatenregister.de,
             (see :ref:`Configuration <Configuration>`). Default to 'bulk'.
         data : str or list or None, optional
-            Determines which types of data are written to the database. If None, all data is
-            used. If it is a list, possible entries are listed below with respect to the download method. Missing categories are
+            Determines which data is partially downloaded from the bulk download and written to the database. If None, all data is downloaded and written to the database.
+            If it is a list, possible entries are listed below with respect to the download method. Missing categories are
             being developed. If only one data is of interest, this can be given as a string. Default to None, where all data is included.
 
             | Data                  | Bulk | API  |
@@ -157,7 +157,7 @@ class Mastr:
             |-----------------------|------|------|
             | "today"                | latest files are downloaded from marktstammdatenregister.de  | -  |
             | "20230101"      | If file from this date exists locally, it is used. Otherwise it throws an error (You can only receive todays data from the server)  | -   |
-            | "existing"               | Use latest downloaded zipped xml files, throws an error if the bulk download folder is empty  | -  |
+            | "existing"               | Deprecated since 0.16, see [#616](https://github.com/OpenEnergyPlatform/open-MaStR/issues/616#issuecomment-3089377062)  | -  |
             | "latest"               | -  | Retrieve data that is newer than the newest data already in the table  |
             | datetime.datetime(2020, 11, 27)      | -  | Retrieve data that is newer than this time stamp   |
             | None      | set date="today"  | set date="latest"   |
@@ -233,12 +233,16 @@ class Mastr:
                 xml_folder_path,
                 f"Gesamtdatenexport_{bulk_download_date}.zip",
             )
-            download_xml_Mastr(zipped_xml_file_path, date, xml_folder_path)
+
+            delete_zip_file_if_corrupted(zipped_xml_file_path)
+            delete_xml_files_not_from_given_date(zipped_xml_file_path, xml_folder_path)
+
+            download_xml_Mastr(zipped_xml_file_path, date, data, xml_folder_path)
 
             print(
-                f"\nWould you like to speed up the bulk download?\n"
-                f"Try our new parallelized processing by setting os.environ['USE_RECOMMENDED_NUMBER_OF_PROCESSES'] = True "
-                f"or configure your own number of processes via os.environ['NUMBER_OF_PROCESSES'] = your_number\n"
+                "\nWould you like to speed up the creation of your MaStR database?\n"
+                "Try our new parallelized processing by setting os.environ['USE_RECOMMENDED_NUMBER_OF_PROCESSES'] = True "
+                "or configure your own number of processes via os.environ['NUMBER_OF_PROCESSES'] = your_number\n"
             )
 
             write_mastr_xml_to_database(
