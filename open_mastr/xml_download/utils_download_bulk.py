@@ -127,12 +127,9 @@ def download_xml_Mastr(
     """
 
     print_message = "Starting the Download from marktstammdatenregister.de."
-    warning_message = (
-        "Warning: The servers from MaStR restrict the download speed."
-        " You may want to download it another time."
-    )
     print(print_message)
 
+    # TODO this should take bulk_date_string
     now = time.localtime()
     url = gen_url(now)
 
