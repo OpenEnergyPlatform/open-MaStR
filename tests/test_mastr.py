@@ -2,16 +2,11 @@ from open_mastr.mastr import Mastr
 import os
 import sqlalchemy
 import pytest
-from os.path import expanduser
+import requests
 import pandas as pd
 from open_mastr.utils.constants import TRANSLATIONS
-
-_xml_file_exists = False
-_xml_folder_path = os.path.join(expanduser("~"), ".open-MaStR", "data", "xml_download")
-if os.path.isdir(_xml_folder_path):
-    for entry in os.scandir(path=_xml_folder_path):
-        if "Gesamtdatenexport" in entry.name:
-            _xml_file_exists = True
+import random
+import time
 
 
 @pytest.fixture
@@ -22,19 +17,33 @@ def db_path():
 
 
 @pytest.fixture
-def db(db_path):
-    return Mastr(engine=sqlalchemy.create_engine(f"sqlite:///{db_path}"))
+def db():
+    path = os.path.join(
+        os.path.expanduser("~"), ".open-MaStR", "data", "sqlite", "mastr-test.db"
+    )
+    db = Mastr(engine=sqlalchemy.create_engine(f"sqlite:///{path}"))
+
+    NUMBER_DOWNLOAD_TRIES_FROM_MASTR = 10
+    for i in range(NUMBER_DOWNLOAD_TRIES_FROM_MASTR):
+        # marktstammdatenregister seems to break the connection if too many download requests are send
+        # from the same IP. Within github CLI we generate 9 parallel requests, hence the random sleep
+        # between each try.
+        sleep_time = random.uniform(0, 8)
+        time.sleep(sleep_time)
+
+        try:
+            db.download(data="electricity_consumer")
+            print("MaStR Downloaded!")
+            break
+        except requests.exceptions.ConnectionError:
+            continue
+    return db
 
 
 @pytest.fixture
-def db_translated(db_path):
-    engine = sqlalchemy.create_engine(f"sqlite:///{db_path}")
-    db_api = Mastr(engine=engine)
-
-    db_api.download(date="existing", data=["wind", "hydro", "biomass", "combustion"])
-    db_api.translate()
-
-    return db_api
+def db_translated(db):
+    db.translate()
+    return db
 
 
 def test_Mastr_init(db):
@@ -46,9 +55,6 @@ def test_Mastr_init(db):
     assert type(db.engine) == sqlalchemy.engine.Engine
 
 
-@pytest.mark.skipif(
-    not _xml_file_exists, reason="The zipped xml file could not be found."
-)
 def test_Mastr_translate(db_translated, db_path):
     # test if database was renamed correctly
     transl_path = db_path[:-3] + "-translated.db"
@@ -74,11 +80,5 @@ def test_Mastr_translate(db_translated, db_path):
 
 
 def test_mastr_download(db):
-    db.download(data="wind")
-    df_wind = pd.read_sql("wind_extended", con=db.engine)
-    assert len(df_wind) > 10000
-
-    db.download(data="biomass")
-    df_biomass = pd.read_sql("biomass_extended", con=db.engine)
-    assert len(df_wind) > 10000
-    assert len(df_biomass) > 10000
+    df_consumer = pd.read_sql("electricity_consumer", con=db.engine)
+    assert len(df_consumer) > 500

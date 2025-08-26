@@ -12,7 +12,7 @@ from sqlalchemy import create_engine, inspect
 from sqlalchemy.sql import text
 
 from open_mastr.utils import orm
-from open_mastr.utils.orm import RetrofitUnits, NuclearExtended, tablename_mapping
+from open_mastr.utils.orm import RetrofitUnits, ElectricityConsumer, tablename_mapping
 from open_mastr.xml_download.utils_write_to_database import (
     add_missing_columns_to_table,
     add_zero_as_first_character_for_too_short_string,
@@ -220,19 +220,20 @@ def test_correct_ordering_of_filelist():
     not _xml_file_exists, reason="The zipped xml file could not be found."
 )
 def test_read_xml_file(zipped_xml_file_path):
+    file_name = "EinheitenStromVerbraucher"
     with ZipFile(zipped_xml_file_path, "r") as f:
-        df = read_xml_file(f, "EinheitenKernkraft.xml")
+        df = read_xml_file(f, f"{file_name}.xml")
 
     assert df.shape[0] > 0
 
     # Since the file is from the latest download, its content can vary over time. To make sure that the table is
     # correctly created, we check that all of its columns are associated are included in our mapping.
     for column in df.columns:
-        if column in tablename_mapping["einheitenkernkraft"]["replace_column_names"]:
-            column = tablename_mapping["einheitenkernkraft"]["replace_column_names"][
+        if column in tablename_mapping[file_name.lower()]["replace_column_names"]:
+            column = tablename_mapping[file_name.lower()]["replace_column_names"][
                 column
             ]
-        assert column in NuclearExtended.__table__.columns.keys()
+        assert column in ElectricityConsumer.__table__.columns.keys()
 
 
 def test_add_zero_as_first_character_for_too_short_string():
