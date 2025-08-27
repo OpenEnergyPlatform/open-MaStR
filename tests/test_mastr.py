@@ -42,13 +42,6 @@ def db():
     return db
 
 
-@pytest.fixture
-def db_translated(db):
-    db.translate()
-    db.engine.dispose()
-    return db
-
-
 def test_Mastr_init(db):
     # test if folder structure exists
     assert os.path.exists(db.home_directory)
@@ -58,13 +51,14 @@ def test_Mastr_init(db):
     assert type(db.engine) == sqlalchemy.engine.Engine
 
 
-def test_Mastr_translate(db_translated, db_path):
+def test_Mastr_translate(db, db_path):
+    db.translate()
     # test if database was renamed correctly
     transl_path = db_path[:-3] + "-translated.db"
     assert os.path.exists(transl_path)
 
     # test if columns got translated
-    inspector = sqlalchemy.inspect(db_translated.engine)
+    inspector = sqlalchemy.inspect(db.engine)
     table_names = inspector.get_table_names()
 
     for table in table_names:
