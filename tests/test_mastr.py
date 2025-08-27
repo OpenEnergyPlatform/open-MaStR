@@ -21,7 +21,8 @@ def db():
     path = os.path.join(
         os.path.expanduser("~"), ".open-MaStR", "data", "sqlite", "mastr-test.db"
     )
-    db = Mastr(engine=sqlalchemy.create_engine(f"sqlite:///{path}"))
+    engine = sqlalchemy.create_engine(f"sqlite:///{path}")
+    db = Mastr(engine=engine)
 
     NUMBER_DOWNLOAD_TRIES_FROM_MASTR = 10
     for i in range(NUMBER_DOWNLOAD_TRIES_FROM_MASTR):
@@ -37,12 +38,14 @@ def db():
             break
         except requests.exceptions.ConnectionError:
             continue
+    engine.dispose()
     return db
 
 
 @pytest.fixture
 def db_translated(db):
     db.translate()
+    db.engine.dispose()
     return db
 
 
