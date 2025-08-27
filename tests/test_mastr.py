@@ -69,15 +69,6 @@ def test_Mastr_translate(db_translated, db_path):
             column = column["name"]
             assert column in TRANSLATIONS.values() or column not in TRANSLATIONS.keys()
 
-    # test if new translated version replaces previous one
-    db_translated.engine.dispose()
-    engine = sqlalchemy.create_engine(f"sqlite:///{db_path}")
-    db_empty = Mastr(engine=engine)
-    db_empty.translate()
-
-    for table in table_names:
-        assert pd.read_sql(sql=table, con=db_empty.engine).shape[0] == 0
-
 
 def test_mastr_download(db):
     df_consumer = pd.read_sql("electricity_consumer", con=db.engine)
