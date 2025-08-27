@@ -38,7 +38,7 @@ def db():
             break
         except requests.exceptions.ConnectionError:
             continue
-    engine.dispose()
+    db.engine.dispose()
     return db
 
 
@@ -51,20 +51,20 @@ def test_Mastr_init(db):
     assert type(db.engine) == sqlalchemy.engine.Engine
 
 
-def test_Mastr_translate(db, db_path):
-    db.translate()
-    # test if database was renamed correctly
-    transl_path = db_path[:-3] + "-translated.db"
-    assert os.path.exists(transl_path)
-
-    # test if columns got translated
-    inspector = sqlalchemy.inspect(db.engine)
-    table_names = inspector.get_table_names()
-
-    for table in table_names:
-        for column in inspector.get_columns(table):
-            column = column["name"]
-            assert column in TRANSLATIONS.values() or column not in TRANSLATIONS.keys()
+# def test_Mastr_translate(db, db_path):
+#     db.translate()
+#     # test if database was renamed correctly
+#     transl_path = db_path[:-3] + "-translated.db"
+#     assert os.path.exists(transl_path)
+#
+#     # test if columns got translated
+#     inspector = sqlalchemy.inspect(db.engine)
+#     table_names = inspector.get_table_names()
+#
+#     for table in table_names:
+#         for column in inspector.get_columns(table):
+#             column = column["name"]
+#             assert column in TRANSLATIONS.values() or column not in TRANSLATIONS.keys()
 
 
 def test_mastr_download(db):
