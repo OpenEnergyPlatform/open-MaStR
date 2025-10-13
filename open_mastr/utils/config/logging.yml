@@ -17,9 +17,6 @@ handlers:
     formatter: "standard"
     mode: "a"
 
-root:
-    level: "DEBUG"
-
 loggers:
   open-MaStR:
     handlers: ["console", "file"]

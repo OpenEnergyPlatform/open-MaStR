@@ -83,6 +83,12 @@ The project home directory is structured as follows (files and folders below `da
 For the download via the API, logs are stored in a single file in `/$HOME/<user>/.open-MaStR/logs/open_mastr.log`.
 New logging messages are appended. It is recommended to delete the log file from time to time because of its required disk space.
 
+You can add the following to enable debug logging on all loggers:
+
+```yml
+root:
+    level: "DEBUG"
+```
 
 ### Data
 
