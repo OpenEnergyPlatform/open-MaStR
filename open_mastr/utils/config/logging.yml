@@ -21,6 +21,6 @@ handlers:
 
 loggers:
   open-MaStR:
-    level: "DEBUG"
+    level: "INFO"
     handlers: ["console", "file"]
     propagate: no
