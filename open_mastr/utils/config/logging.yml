@@ -14,14 +14,12 @@ handlers:
     class: "logging.StreamHandler"
     stream: "ext://sys.stdout"
   file:
+    level: "DEBUG"
+    formatter: "debug"
     class: "logging.FileHandler"
-    level: "DEBUG"
-    formatter: "standard"
     mode: "a"
-
-root:
-    level: "DEBUG"
 
 loggers:
   open-MaStR:
+    level: "DEBUG"
     handlers: ["console", "file"]
