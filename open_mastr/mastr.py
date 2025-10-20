@@ -93,6 +93,9 @@ class Mastr:
             self.engine = create_database_engine(engine, self._sqlite_folder_path)
 
         log.info(
+            "\n==================================================\n"
+            "--------->      open-MaStR started      <---------\n"
+            "==================================================\n"
             f"Data will be written to the following database: {self.engine.url}\n"
             "If you run into problems, try to "
             "delete the database and update the package by running "
