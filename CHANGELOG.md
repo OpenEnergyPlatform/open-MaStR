@@ -17,6 +17,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
   [#636](https://github.com/OpenEnergyPlatform/open-MaStR/pull/636)
 - Change print statement about data cleansing
   [#650](https://github.com/OpenEnergyPlatform/open-MaStR/pull/650)
+- Improve logging
+  [#666](https://github.com/OpenEnergyPlatform/open-MaStR/pull/666)
 ### Removed
 
 
