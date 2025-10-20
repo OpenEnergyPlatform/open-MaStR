@@ -22,6 +22,28 @@ class ParentAllTables(object):
     DatumDownload = Column(Date)
 
 
+class BasicUnit(Base):
+    __tablename__ = "basic_units"
+
+    EinheitMastrNummer = Column(String, primary_key=True)
+    DatumLetzteAktualisierung = Column(DateTime(timezone=True))
+    Name = Column(String)
+    Einheitart = Column(String)
+    Einheittyp = Column(String)
+    Standort = Column(String)
+    Bruttoleistung = Column(Float)
+    Erzeugungsleistung = Column(Float)
+    EinheitBetriebsstatus = Column(String)
+    Anlagenbetreiber = Column(String)
+    EegMastrNummer = Column(String)
+    KwkMastrNummer = Column(String)
+    SpeMastrNummer = Column(String)
+    GenMastrNummer = Column(String)
+    BestandsanlageMastrNummer = Column(String)
+    NichtVorhandenInMigriertenEinheiten = Column(String)
+    EinheitSystemstatus = Column(String)
+
+
 class Extended(object):
     NetzbetreiberMastrNummer = Column(String)
     Registrierungsdatum = Column(Date)
