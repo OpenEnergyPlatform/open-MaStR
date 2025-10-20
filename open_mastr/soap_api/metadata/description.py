@@ -1,9 +1,12 @@
 from io import BytesIO
+import logging
 import re
 from urllib.request import urlopen
 from zipfile import ZipFile
 import xmltodict
 from collections import OrderedDict
+
+log = logging.getLogger(__name__)
 
 
 class DataDescription(object):
@@ -150,9 +153,11 @@ class DataDescription(object):
                             fcn["sequence"]["element"]["@type"].split(":")[1]
                         ]["sequence"]["element"]
                 else:
-                    print(type(fcn["sequence"]))
-                    print(fcn["sequence"])
-                    raise ValueError
+                    log.error(f"Unexpected sequence type: {type(fcn['sequence'])}")
+                    log.error(f"Sequence content: {fcn['sequence']}")
+                    raise ValueError(
+                        f"Unexpected sequence structure in function metadata"
+                    )
 
                 # Add data for inherited columns from base types
                 if "@base" in fcn:
