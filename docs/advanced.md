@@ -63,7 +63,7 @@ The project home directory is structured as follows (files and folders below `da
         File names are defined here.
      * `logging.yml` <br>
         Logging configuration. For changing the log level to increase or decrease details of log
-        messages, edit the level of the handlers.
+        messages, edit the level of the handlers. See below for details on logging.
 * **data**
      * `dataversion-<date>` <br>
         Contains exported data as csv files from method [`to_csv`][open_mastr.Mastr.to_csv]
