@@ -14,6 +14,16 @@ if os.path.isdir(_xml_folder_path):
             _xml_file_exists = True
 
 
+@pytest.fixture(scope="module")
+def zipped_xml_file_path():
+    zipped_xml_file_path = None
+    for entry in os.scandir(path=_xml_folder_path):
+        if "Gesamtdatenexport" in entry.name:
+            zipped_xml_file_path = os.path.join(_xml_folder_path, entry.name)
+
+    return zipped_xml_file_path
+
+
 @pytest.fixture
 def db_path():
     return os.path.join(
