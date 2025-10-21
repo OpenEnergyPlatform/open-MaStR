@@ -1,10 +1,14 @@
+import shutil
+
 from open_mastr.mastr import Mastr
 import os
+import re
 import sqlalchemy
 import pytest
 from os.path import expanduser
 import pandas as pd
 from open_mastr.utils.constants import TRANSLATIONS
+from datetime import date, timedelta
 
 _xml_file_exists = False
 _xml_folder_path = os.path.join(expanduser("~"), ".open-MaStR", "data", "xml_download")
@@ -83,6 +87,7 @@ def test_Mastr_translate(db_translated, db_path):
         assert pd.read_sql(sql=table, con=db_empty.engine).shape[0] == 0
 
 
+@pytest.mark.dependency(name="bulk_downloaded")
 def test_mastr_download(db):
     db.download(data="wind")
     df_wind = pd.read_sql("wind_extended", con=db.engine)
@@ -92,3 +97,15 @@ def test_mastr_download(db):
     df_biomass = pd.read_sql("biomass_extended", con=db.engine)
     assert len(df_wind) > 10000
     assert len(df_biomass) > 10000
+
+
+@pytest.mark.dependency(depends=["bulk_downloaded"])
+def test_mastr_download_keep_old_files(db, zipped_xml_file_path):
+    file_today = zipped_xml_file_path
+    yesterday = (date.today() - timedelta(days=1)).strftime("%Y%m%d")
+    file_old = re.sub(r"\d{8}", yesterday, os.path.basename(file_today))
+    file_old = os.path.join(os.path.dirname(zipped_xml_file_path), file_old)
+    shutil.copy(file_today, file_old)
+    db.download(data="gsgk", keep_old_files=True)
+
+    assert os.path.exists(file_old)
