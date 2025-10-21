@@ -230,15 +230,32 @@ def delete_xml_files_not_from_given_date(
 
 
 def partial_download_with_unzip_http(save_path: str, url: str, bulk_data_list: list):
+    """
+
+    Parameters
+    ----------
+    save_path: str
+        Full file path where the downloaded MaStR zip file will be saved.
+    url: str
+        URL path to bulk file.
+    bulk_data_list: list
+        List of tables/technologis to be downloaded.
+
+    Returns
+    -------
+    None
+    """
     is_katalogwerte_existing = False
     if os.path.exists(save_path):
         bulk_data_list, is_katalogwerte_existing = check_download_completeness(
             save_path, bulk_data_list
         )
         if bool(bulk_data_list):
-            print(f"MaStR is missing the following data: {bulk_data_list}")
+            print(
+                f"MaStR file already present but missing the following data: {bulk_data_list}"
+            )
         else:
-            print("MaStR already downloaded.")
+            print(f"MaStR file already present: {save_path}")
             return None
 
     remote_zip_file = unzip_http.RemoteZipFile(url)
