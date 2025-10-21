@@ -126,6 +126,8 @@ def download_xml_Mastr(
         Full file path where the downloaded MaStR zip file will be saved.
     bulk_date_string: str
         Date for which the file should be downloaded.
+    bulk_data_list: list
+        List of tables/technologis to be downloaded.
     xml_folder_path: str
         Path where the downloaded MaStR zip file will be saved.
     """
