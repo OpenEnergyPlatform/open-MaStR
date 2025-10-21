@@ -1,5 +1,5 @@
 # Global excludes - apply to all hooks
-exclude: ^(build/|dist/|.*\.egg-info/|\.tox/|\.pytest_cache/|\.mypy_cache/|__pycache__/|postprocessing/)
+exclude: ^(build/|dist/|.*\.egg-info/|\.tox/|\.pytest_cache/|\.mypy_cache/|__pycache__/|postprocessing/|open_mastr/soap_api/|scripts/)
 
 repos:
   # Base pre-commit hooks for common issues
