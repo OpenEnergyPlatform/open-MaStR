@@ -17,8 +17,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
   [#636](https://github.com/OpenEnergyPlatform/open-MaStR/pull/636)
 - Change print statement about data cleansing
   [#650](https://github.com/OpenEnergyPlatform/open-MaStR/pull/650)
-- Several improvements in XML download: Support retaining old bulk XML files;
-  Prevent XML file deletion on full download; Add technology checks to full
+- Several improvements in bulk download: Support retaining old zip bulk files;
+  Prevent zip file deletion on full download; Add technology checks to full
   bulk download
   [#667](https://github.com/OpenEnergyPlatform/open-MaStR/pull/667)
 ### Removed
