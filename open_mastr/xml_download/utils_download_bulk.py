@@ -123,7 +123,11 @@ def download_xml_Mastr(
     Parameters
     -----------
     save_path: str
-        The path where the downloaded MaStR zipped folder will be saved.
+        Full file path where the downloaded MaStR zip file will be saved.
+    bulk_date_string: str
+        Date for which the file should be downloaded.
+    xml_folder_path: str
+        Path where the downloaded MaStR zip file will be saved.
     """
 
     print_message = "Starting the Download from marktstammdatenregister.de."
@@ -197,16 +201,30 @@ def check_download_completeness(
     return list(missing_data_set), is_katalogwerte_existing
 
 
-def delete_xml_files_not_from_given_date(save_path: str, xml_folder_path: str):
+def delete_xml_files_not_from_given_date(
+    save_path: str,
+    xml_folder_path: str,
+    keep_old_downloads: bool = False,
+) -> None:
     """
     Delete xml files that are not corresponding to the given date.
     Assumes that the xml folder only contains one zipfile.
+
+    Parameters
+    ----------
+    save_path: str
+        Full file path where the downloaded MaStR zip file will be saved.
+    xml_folder_path: str
+        Path where the downloaded MaStR zip file will be saved.
+    keep_old_downloads: bool
+        If set to True, prior downloaded MaStR zip files will be kept.
     """
     if os.path.exists(save_path):
         return
     else:
-        shutil.rmtree(xml_folder_path)
-        os.makedirs(xml_folder_path)
+        if not keep_old_downloads:
+            shutil.rmtree(xml_folder_path)
+            os.makedirs(xml_folder_path)
 
 
 def partial_download_with_unzip_http(save_path: str, url: str, bulk_data_list: list):
