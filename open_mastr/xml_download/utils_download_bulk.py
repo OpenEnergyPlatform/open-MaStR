@@ -168,13 +168,13 @@ def download_xml_Mastr(
         return
 
     if bulk_data_list == BULK_DATA:
-        full_download_without_unzip_http(save_path, r)
+        full_download_without_unzip_http(save_path, r, bulk_data_list)
     else:
         try:
             partial_download_with_unzip_http(save_path, url, bulk_data_list)
         except Exception as e:
             log.warning(f"Partial download failed, fallback to full download: {e}")
-            full_download_without_unzip_http(save_path, r)
+            full_download_without_unzip_http(save_path, r, bulk_data_list)
 
     time_b = time.perf_counter()
     print(f"Download is finished. It took {int(np.around(time_b - time_a))} seconds.")
@@ -271,7 +271,38 @@ def partial_download_with_unzip_http(save_path: str, url: str, bulk_data_list: l
         remote_zip_file.extractzip("Katalogwerte.xml", path=Path(save_path))
 
 
-def full_download_without_unzip_http(save_path: str, r: requests.models.Response):
+def full_download_without_unzip_http(
+    save_path: str,
+    r: requests.models.Response,
+    bulk_data_list: list,
+) -> None:
+    """
+
+    Parameters
+    ----------
+    save_path: str
+        Full file path where the downloaded MaStR zip file will be saved.
+    r: requests.models.Response
+        Response from making a request to MaStR.
+    bulk_data_list: list
+        List of tables/technologis to be downloaded.
+
+    Returns
+    -------
+    None
+    """
+    if os.path.exists(save_path):
+        bulk_data_list, is_katalogwerte_existing = check_download_completeness(
+            save_path, bulk_data_list
+        )
+        if bool(bulk_data_list):
+            print(
+                f"MaStR file already present but missing the following data: {bulk_data_list}"
+            )
+        else:
+            print(f"MaStR file already present: {save_path}")
+            return None
+
     warning_message = (
         "Warning: The servers from MaStR restrict the download speed."
         " You may want to download it another time."
