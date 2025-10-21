@@ -15,15 +15,15 @@ if os.path.isdir(_xml_folder_path):
 
 
 @pytest.fixture
-def db():
-    return Mastr()
-
-
-@pytest.fixture
 def db_path():
     return os.path.join(
         os.path.expanduser("~"), ".open-MaStR", "data", "sqlite", "mastr-test.db"
     )
+
+
+@pytest.fixture
+def db(db_path):
+    return Mastr(engine=sqlalchemy.create_engine(f"sqlite:///{db_path}"))
 
 
 @pytest.fixture
@@ -71,3 +71,14 @@ def test_Mastr_translate(db_translated, db_path):
 
     for table in table_names:
         assert pd.read_sql(sql=table, con=db_empty.engine).shape[0] == 0
+
+
+def test_mastr_download(db):
+    db.download(data="wind")
+    df_wind = pd.read_sql("wind_extended", con=db.engine)
+    assert len(df_wind) > 10000
+
+    db.download(data="biomass")
+    df_biomass = pd.read_sql("biomass_extended", con=db.engine)
+    assert len(df_wind) > 10000
+    assert len(df_biomass) > 10000

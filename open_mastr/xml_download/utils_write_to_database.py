@@ -28,7 +28,7 @@ def write_mastr_xml_to_database(
     bulk_download_date: str,
 ) -> None:
     """Write the Mastr in xml format into a database defined by the engine parameter."""
-    print("Starting bulk download and data cleansing...")
+    print("Starting bulk download...")
 
     include_tables = data_to_include_tables(data, mapping="write_xml")
     threads_data = []
@@ -71,7 +71,7 @@ def write_mastr_xml_to_database(
         for item in interleaved_files:
             process_xml_file(*item)
 
-    print("Bulk download and data cleansing were successful.")
+    print("Bulk download was successful.")
 
 
 def get_number_of_processes():

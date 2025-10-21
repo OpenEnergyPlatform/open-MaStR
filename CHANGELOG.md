@@ -8,7 +8,15 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 
 ## [v0.XX.X] unreleased - 202X-XX-XX
 ### Added
+- Add partial bulk download
+  [#652](https://github.com/OpenEnergyPlatform/open-MaStR/pull/652)
 ### Changed
+- Updates the system_catalog dict with missing Einheittyp values
+  [#653](https://github.com/OpenEnergyPlatform/open-MaStR/pull/653)
+- Fix package publication workflow
+  [#636](https://github.com/OpenEnergyPlatform/open-MaStR/pull/636)
+- Change print statement about data cleansing
+  [#650](https://github.com/OpenEnergyPlatform/open-MaStR/pull/650)
 ### Removed
 
 
@@ -35,7 +43,7 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
   [#621](https://github.com/OpenEnergyPlatform/open-MaStR/pull/621)
 ### Removed
 - Moved old code artefacts from `scripts` folder to paper specific
-  [repository](https://github.com/FlorianK13/verify-marktstammdaten) 
+  [repository](https://github.com/FlorianK13/verify-marktstammdaten)
   [#561](https://github.com/OpenEnergyPlatform/open-MaStR/pull/561)
 - Remove old dependencies and broken README links
   [#619](https://github.com/OpenEnergyPlatform/open-MaStR/pull/619)
