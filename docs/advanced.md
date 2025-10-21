@@ -148,7 +148,7 @@ If needed, the tables in the database can be obtained as csv files. Those files 
 
 === "Disadvantages"
     * No single tables or entries can be downloaded
-    * Download takes long time
+    * Download takes long time (you can use the partial download though, see [Getting Started](getting_started.md#bulk-download))
 
 
 ## SOAP API download
