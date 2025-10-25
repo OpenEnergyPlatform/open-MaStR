@@ -21,6 +21,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
   Prevent zip file deletion on full download; Add technology checks to full
   bulk download
   [#667](https://github.com/OpenEnergyPlatform/open-MaStR/pull/667)
+- Limit number of parallel CI jobs
+  [#669](https://github.com/OpenEnergyPlatform/open-MaStR/pull/669)
 ### Removed
 
 
