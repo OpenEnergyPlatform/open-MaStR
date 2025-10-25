@@ -238,11 +238,11 @@ class Mastr:
             )
 
             delete_zip_file_if_corrupted(zipped_xml_file_path)
-            delete_xml_files_not_from_given_date(
-                zipped_xml_file_path,
-                xml_folder_path,
-                keep_old_downloads,
-            )
+            if not keep_old_downloads:
+                delete_xml_files_not_from_given_date(
+                    zipped_xml_file_path,
+                    xml_folder_path,
+                )
 
             download_xml_Mastr(zipped_xml_file_path, date, data, xml_folder_path)
 

@@ -206,7 +206,6 @@ def check_download_completeness(
 def delete_xml_files_not_from_given_date(
     save_path: str,
     xml_folder_path: str,
-    keep_old_downloads: bool = False,
 ) -> None:
     """
     Delete xml files that are not corresponding to the given date.
@@ -218,15 +217,12 @@ def delete_xml_files_not_from_given_date(
         Full file path where the downloaded MaStR zip file will be saved.
     xml_folder_path: str
         Path where the downloaded MaStR zip file will be saved.
-    keep_old_downloads: bool
-        If set to True, prior downloaded MaStR zip files will be kept.
     """
     if os.path.exists(save_path):
         return
     else:
-        if not keep_old_downloads:
-            shutil.rmtree(xml_folder_path)
-            os.makedirs(xml_folder_path)
+        shutil.rmtree(xml_folder_path)
+        os.makedirs(xml_folder_path)
 
 
 def partial_download_with_unzip_http(save_path: str, url: str, bulk_data_list: list):
