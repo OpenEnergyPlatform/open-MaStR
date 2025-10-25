@@ -132,8 +132,7 @@ def download_xml_Mastr(
         Path where the downloaded MaStR zip file will be saved.
     """
 
-    print_message = "Starting the Download from marktstammdatenregister.de."
-    print(print_message)
+    log.info("Starting the Download from marktstammdatenregister.de.")
 
     # TODO this should take bulk_date_string
     now = time.localtime()
@@ -177,8 +176,10 @@ def download_xml_Mastr(
             full_download_without_unzip_http(save_path, r, bulk_data_list)
 
     time_b = time.perf_counter()
-    print(f"Download is finished. It took {int(np.around(time_b - time_a))} seconds.")
-    print(f"MaStR was successfully downloaded to {xml_folder_path}.")
+    log.info(
+        f"Download is finished. It took {int(np.around(time_b - time_a))} seconds."
+    )
+    log.info(f"MaStR was successfully downloaded to {xml_folder_path}.")
 
 
 def check_download_completeness(
@@ -247,11 +248,11 @@ def partial_download_with_unzip_http(save_path: str, url: str, bulk_data_list: l
             save_path, bulk_data_list
         )
         if bool(bulk_data_list):
-            print(
+            log.info(
                 f"MaStR file already present but missing the following data: {bulk_data_list}"
             )
         else:
-            print(f"MaStR file already present: {save_path}")
+            log.info(f"MaStR file already present: {save_path}")
             return None
 
     remote_zip_file = unzip_http.RemoteZipFile(url)
