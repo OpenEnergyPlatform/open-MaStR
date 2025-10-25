@@ -343,37 +343,32 @@ def print_api_settings(
     api_processes,
     api_location_types,
 ):
-    print(
+    log.info(
         f"Downloading with soap_API.\n\n   -- API settings --  \nunits after date: "
         f"{date}\nunit download limit per data: "
         f"{api_limit}\nparallel_processes: {api_processes}\nchunksize: "
         f"{api_chunksize}\ndata_api: {data}"
     )
     if "permit" in harmonisation_log:
-        print(
-            f"data_types: {api_data_types}\033[31m",
+        log.warning(
+            f"data_types: {api_data_types} - "
             "Attention, 'permit_data' was automatically set in api_data_types, "
-            "as you defined 'permit' in parameter data_api.",
-            "\033[m",
+            "as you defined 'permit' in parameter data_api."
         )
 
     else:
-        print(f"data_types: {api_data_types}")
+        log.info(f"data_types: {api_data_types}")
 
     if "location" in harmonisation_log:
-        print(
-            "location_types:",
-            "\033[31m",
-            "Attention, 'location' is in parameter data. location_types are set to",
-            "\033[m",
-            f"{api_location_types}"
-            "\n                 If you want to change location_types, please remove 'location' "
+        log.warning(
+            f"location_types: {api_location_types} - "
+            "Attention, 'location' is in parameter data. location_types are set accordingly. "
+            "If you want to change location_types, please remove 'location' "
             "from data_api and specify api_location_types."
-            "\n   ------------------  \n",
         )
 
     else:
-        print(
+        log.info(
             f"location_types: {api_location_types}",
             "\n   ------------------  \n",
         )

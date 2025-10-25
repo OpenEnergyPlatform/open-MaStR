@@ -58,32 +58,39 @@ import fnmatch
 import pathlib
 import urllib.parse
 import zipfile
+import logging
 
+log = logging.getLogger(__name__)
 
-__version__ = '0.6'
+__version__ = "0.6"
 
 
 def error(s):
     raise Exception(s)
 
-def warning(s):
-    print(s, file=sys.stderr)
 
-def get_bits(val:int, *args):
-    'Generate bitfields (one for each arg) from LSB to MSB.'
+def warning(s):
+    log.warning(s)
+
+
+def get_bits(val: int, *args):
+    "Generate bitfields (one for each arg) from LSB to MSB."
     for n in args:
-        x = val & (2**n-1)
+        x = val & (2**n - 1)
         val >>= n
         yield x
 
 
 class RemoteZipInfo:
-    def __init__(self, filename:str='',
-                       date_time:int = 0,
-                       header_offset:int = 0,
-                       compress_type:int = 0,
-                       compress_size:int = 0,
-                       file_size:int = 0):
+    def __init__(
+        self,
+        filename: str = "",
+        date_time: int = 0,
+        header_offset: int = 0,
+        compress_type: int = 0,
+        compress_size: int = 0,
+        file_size: int = 0,
+    ):
         self.filename = filename
         self.header_offset = header_offset
         self.compress_type = compress_type
@@ -91,46 +98,51 @@ class RemoteZipInfo:
         self.file_size = file_size
 
         sec, mins, hour, day, mon, year = get_bits(date_time, 5, 6, 5, 5, 4, 7)
-        self.date_time = (year+1980, mon, day, hour, mins, sec)
+        self.date_time = (year + 1980, mon, day, hour, mins, sec)
 
     def is_dir(self):
-        return self.filename.endswith('/')
+        return self.filename.endswith("/")
 
     def parse_extra(self, extra):
         i = 0
         while i < len(extra):
-            fieldid, fieldsz = struct.unpack_from('<HH', extra, i)
+            fieldid, fieldsz = struct.unpack_from("<HH", extra, i)
             i += 4
 
             if fieldid == 0x0001:  # ZIP64
-                if fieldsz == 8: fmt = '<Q'
-                elif fieldsz == 16: fmt = '<QQ'
-                elif fieldsz == 24: fmt = '<QQQ'
-                elif fieldsz == 28: fmt = '<QQQI'
+                if fieldsz == 8:
+                    fmt = "<Q"
+                elif fieldsz == 16:
+                    fmt = "<QQ"
+                elif fieldsz == 24:
+                    fmt = "<QQQ"
+                elif fieldsz == 28:
+                    fmt = "<QQQI"
 
                 vals = list(struct.unpack_from(fmt, extra, i))
-                if self.file_size == 0xffffffff:
+                if self.file_size == 0xFFFFFFFF:
                     self.file_size = vals.pop(0)
 
-                if self.compress_size == 0xffffffff:
+                if self.compress_size == 0xFFFFFFFF:
                     self.compress_size = vals.pop(0)
 
-                if self.header_offset == 0xffffffff:
+                if self.header_offset == 0xFFFFFFFF:
                     self.header_offset = vals.pop(0)
 
             i += fieldsz
 
 
 class RemoteZipFile:
-    fmt_eocd = '<IHHHHIIH'  # end of central directory
-    fmt_eocd64 = '<IQHHIIQQQQ'  # end of central directory ZIP64
-    fmt_cdirentry = '<IHHHHIIIIHHHHHII'  # central directory entry
-    fmt_localhdr = '<IHHHIIIIHH'  # local directory header
-    magic_eocd64 = b'\x50\x4b\x06\x06'
-    magic_eocd = b'\x50\x4b\x05\x06'
+    fmt_eocd = "<IHHHHIIH"  # end of central directory
+    fmt_eocd64 = "<IQHHIIQQQQ"  # end of central directory ZIP64
+    fmt_cdirentry = "<IHHHHIIIIHHHHHII"  # central directory entry
+    fmt_localhdr = "<IHHHIIIIHH"  # local directory header
+    magic_eocd64 = b"\x50\x4b\x06\x06"
+    magic_eocd = b"\x50\x4b\x05\x06"
 
     def __init__(self, url):
         import urllib3
+
         self.url = url
         self.http = urllib3.PoolManager()
         self.zip_size = 0
@@ -143,8 +155,8 @@ class RemoteZipFile:
 
     @property
     def files(self):
-        if not hasattr(self, '_files'):
-            self._files = {r.filename:r for r in self.infoiter()}
+        if not hasattr(self, "_files"):
+            self._files = {r.filename: r for r in self.infoiter()}
         return self._files
 
     def infolist(self):
@@ -154,32 +166,48 @@ class RemoteZipFile:
         return list(r.filename for r in self.infoiter())
 
     def infoiter(self):
-        resp = self.http.request('HEAD', self.url)
-        r = resp.headers.get('Accept-Ranges', '')
-        if r != 'bytes':
+        resp = self.http.request("HEAD", self.url)
+        r = resp.headers.get("Accept-Ranges", "")
+        if r != "bytes":
             hostname = urllib.parse.urlparse(self.url).netloc
-            warning(f"{hostname} Accept-Ranges header ('{r}') is not 'bytes'--trying anyway")
+            warning(
+                f"{hostname} Accept-Ranges header ('{r}') is not 'bytes'--trying anyway"
+            )
 
-        self.zip_size = int(resp.headers['Content-Length'])
-        resp = self.get_range(
-            max(self.zip_size-65536, 0),
-            65536
-        )
+        self.zip_size = int(resp.headers["Content-Length"])
+        resp = self.get_range(max(self.zip_size - 65536, 0), 65536)
 
         cdir_start = -1
         i = resp.data.rfind(self.magic_eocd64)
         if i >= 0:
-            magic, eocd_sz, create_ver, min_ver, disk_num, disk_start, disk_num_records, total_num_records, \
-                cdir_bytes, cdir_start = struct.unpack_from(self.fmt_eocd64, resp.data, offset=i)
+            (
+                magic,
+                eocd_sz,
+                create_ver,
+                min_ver,
+                disk_num,
+                disk_start,
+                disk_num_records,
+                total_num_records,
+                cdir_bytes,
+                cdir_start,
+            ) = struct.unpack_from(self.fmt_eocd64, resp.data, offset=i)
         else:
             i = resp.data.rfind(self.magic_eocd)
             if i >= 0:
-                magic, \
-                    disk_num, disk_start, disk_num_records, total_num_records, \
-                    cdir_bytes, cdir_start, comment_len = struct.unpack_from(self.fmt_eocd, resp.data, offset=i)
+                (
+                    magic,
+                    disk_num,
+                    disk_start,
+                    disk_num_records,
+                    total_num_records,
+                    cdir_bytes,
+                    cdir_start,
+                    comment_len,
+                ) = struct.unpack_from(self.fmt_eocd, resp.data, offset=i)
 
         if cdir_start < 0 or cdir_start >= self.zip_size:
-            error('cannot find central directory')
+            error("cannot find central directory")
 
         if self.zip_size <= 65536:
             filehdr_index = cdir_start
@@ -194,67 +222,91 @@ class RemoteZipFile:
         while filehdr_index < cdir_end:
             sizeof_cdirentry = struct.calcsize(self.fmt_cdirentry)
 
-            magic, ver, ver_needed, flags, method, date_time, crc, \
-                complen, uncomplen, fnlen, extralen, commentlen, \
-                disknum_start, internal_attr, external_attr, local_header_ofs = \
-                    struct.unpack_from(self.fmt_cdirentry, resp.data, offset=filehdr_index)
+            (
+                magic,
+                ver,
+                ver_needed,
+                flags,
+                method,
+                date_time,
+                crc,
+                complen,
+                uncomplen,
+                fnlen,
+                extralen,
+                commentlen,
+                disknum_start,
+                internal_attr,
+                external_attr,
+                local_header_ofs,
+            ) = struct.unpack_from(self.fmt_cdirentry, resp.data, offset=filehdr_index)
 
             filehdr_index += sizeof_cdirentry
 
-            filename = resp.data[filehdr_index:filehdr_index+fnlen]
+            filename = resp.data[filehdr_index : filehdr_index + fnlen]
             filehdr_index += fnlen
 
-            extra = resp.data[filehdr_index:filehdr_index+extralen]
+            extra = resp.data[filehdr_index : filehdr_index + extralen]
             filehdr_index += extralen
 
             # comment = resp.data[filehdr_index:filehdr_index+commentlen]
             filehdr_index += commentlen
 
-            rzi = RemoteZipInfo(filename.decode(), date_time, local_header_ofs, method, complen, uncomplen)
+            rzi = RemoteZipInfo(
+                filename.decode(),
+                date_time,
+                local_header_ofs,
+                method,
+                complen,
+                uncomplen,
+            )
 
             rzi.parse_extra(extra)
             yield rzi
 
     def extract(self, member, path=None, pwd=None):
-            if pwd:
-                raise NotImplementedError('Passwords not supported yet')
+        if pwd:
+            raise NotImplementedError("Passwords not supported yet")
 
-            path = path or pathlib.Path('.')
+        path = path or pathlib.Path(".")
 
-            outpath = path/member
-            os.makedirs(outpath.parent, exist_ok=True)
-            with self.open(member) as fpin:
-                with open(path/member, mode='wb') as fpout:
-                    while True:
-                        r = fpin.read(65536)
-                        if not r:
-                            break
-                        fpout.write(r)
+        outpath = path / member
+        os.makedirs(outpath.parent, exist_ok=True)
+        with self.open(member) as fpin:
+            with open(path / member, mode="wb") as fpout:
+                while True:
+                    r = fpin.read(65536)
+                    if not r:
+                        break
+                    fpout.write(r)
 
-    
     def extractzip(self, member, path=None, pwd=None):
         if pwd:
-            raise NotImplementedError('Passwords not supported yet')
+            raise NotImplementedError("Passwords not supported yet")
 
-        path = path or pathlib.Path('.')
+        path = path or pathlib.Path(".")
         outpath = path
         os.makedirs(outpath.parent, exist_ok=True)
         with self.open(member) as fpin:
-            with zipfile.ZipFile(outpath, 'a', zipfile.ZIP_DEFLATED) as zout:
-                with zout.open(member,'w') as fpout:
+            with zipfile.ZipFile(outpath, "a", zipfile.ZIP_DEFLATED) as zout:
+                with zout.open(member, "w") as fpout:
                     while True:
                         r = fpin.read(65536)
                         if not r:
                             break
                         fpout.write(r)
-
 
     def extractall(self, path=None, members=None, pwd=None):
         for fn in members or self.namelist():
             self.extract(fn, path, pwd=pwd)
 
     def get_range(self, start, n):
-        return self.http.request('GET', self.url, headers={'Range': f'bytes={start}-{start+n-1}'}, preload_content=False)
+        return self.http.request(
+            "GET",
+            self.url,
+            headers={"Range": f"bytes={start}-{start+n-1}"},
+            preload_content=False,
+        )
 
     def matching_files(self, *globs):
         for f in self.files.values():
@@ -265,7 +317,7 @@ class RemoteZipFile:
         if isinstance(fn, str):
             f = list(self.matching_files(fn))
             if not f:
-                error(f'no files matching {fn}')
+                error(f"no files matching {fn}")
             f = f[0]
         else:
             f = fn
@@ -273,14 +325,29 @@ class RemoteZipFile:
         sizeof_localhdr = struct.calcsize(self.fmt_localhdr)
         r = self.get_range(f.header_offset, sizeof_localhdr)
         localhdr = struct.unpack_from(self.fmt_localhdr, r.data)
-        magic, ver, flags, method, dos_datetime, _, _, uncomplen, fnlen, extralen = localhdr
-        if method == 0: # none
-            return self.get_range(f.header_offset + sizeof_localhdr + fnlen + extralen, f.compress_size)
-        elif method == 8: # DEFLATE
-            resp = self.get_range(f.header_offset + sizeof_localhdr + fnlen + extralen, f.compress_size)
+        (
+            magic,
+            ver,
+            flags,
+            method,
+            dos_datetime,
+            _,
+            _,
+            uncomplen,
+            fnlen,
+            extralen,
+        ) = localhdr
+        if method == 0:  # none
+            return self.get_range(
+                f.header_offset + sizeof_localhdr + fnlen + extralen, f.compress_size
+            )
+        elif method == 8:  # DEFLATE
+            resp = self.get_range(
+                f.header_offset + sizeof_localhdr + fnlen + extralen, f.compress_size
+            )
             return io.BufferedReader(RemoteZipStream(resp, f))
         else:
-            error(f'unknown compression method {method}')
+            error(f"unknown compression method {method}")
 
     def open_text(self, fn):
         return io.TextIOWrapper(self.open(fn))
@@ -298,7 +365,7 @@ class RemoteZipStream(io.RawIOBase):
 
     def readinto(self, b):
         r = self.read(len(b))
-        b[:len(r)] = r
+        b[: len(r)] = r
         return len(r)
 
     def read(self, n):
@@ -315,10 +382,11 @@ class RemoteZipStream(io.RawIOBase):
         return ret
 
 
- ### script start
+### script start
+
 
 class StreamProgress:
-    def __init__(self, fp, name='', total=0):
+    def __init__(self, fp, name="", total=0):
         self.name = name
         self.fp = fp
         self.total = total
@@ -334,10 +402,12 @@ class StreamProgress:
             self.last_update = now
 
             elapsed_s = now - self.start_time
-            sys.stderr.write(f'\r{elapsed_s:.0f}s  {self.amtread/10**6:.02f}/{self.total/10**6:.02f}MB  ({self.amtread/10**6/elapsed_s:.02f} MB/s)  {self.name}')
+            sys.stderr.write(
+                f"\r{elapsed_s:.0f}s  {self.amtread/10**6:.02f}/{self.total/10**6:.02f}MB  ({self.amtread/10**6/elapsed_s:.02f} MB/s)  {self.name}"
+            )
 
         if not r:
-            sys.stderr.write('\n')
+            sys.stderr.write("\n")
 
         return r
 
@@ -347,14 +417,14 @@ def list_files(rzf):
         return 1 if x == 0 else math.ceil(math.log10(x))
 
     digits_compr = max(safelog(f.compress_size) for f in rzf.infolist())
-    digits_plain = max(safelog(f.file_size    ) for f in rzf.infolist())
-    fmtstr = f'%{digits_compr}d -> %{digits_plain}d\t%s'
+    digits_plain = max(safelog(f.file_size) for f in rzf.infolist())
+    fmtstr = f"%{digits_compr}d -> %{digits_plain}d\t%s"
     for f in rzf.infolist():
-        print(fmtstr % (f.compress_size, f.file_size, f.filename), file=sys.stderr)
+        log.info(fmtstr % (f.compress_size, f.file_size, f.filename))
 
 
 def extract_one(outfile, rzf, f, ofname):
-    print(f'Extracting {f.filename} to {ofname}...', file=sys.stderr)
+    log.info(f"Extracting {f.filename} to {ofname}...")
 
     fp = StreamProgress(rzf.open(f), name=f.filename, total=f.compress_size)
     while r := fp.read(2**18):
@@ -374,6 +444,5 @@ def download_file(f, rzf, args):
         else:
             path = path.name
 
-        with open(str(path), 'wb') as of:
+        with open(str(path), "wb") as of:
             extract_one(of, rzf, f, str(path))
-

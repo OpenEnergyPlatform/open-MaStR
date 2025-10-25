@@ -4,6 +4,8 @@ disable_existing_loggers: False
 formatters:
   standard:
     format: "%(asctime)s [%(levelname)s] %(message)s"
+  debug:
+    format: "%(asctime)s [%(levelname)s] %(name)s:%(funcName)s:%(lineno)d - %(message)s"
 
 handlers:
   console:
@@ -12,14 +14,13 @@ handlers:
     class: "logging.StreamHandler"
     stream: "ext://sys.stdout"
   file:
+    level: "DEBUG"
+    formatter: "debug"
     class: "logging.FileHandler"
-    level: "DEBUG"
-    formatter: "standard"
     mode: "a"
-
-root:
-    level: "DEBUG"
 
 loggers:
   open-MaStR:
+    level: "INFO"
     handlers: ["console", "file"]
+    propagate: no

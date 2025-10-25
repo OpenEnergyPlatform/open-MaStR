@@ -92,7 +92,10 @@ class Mastr:
         else:
             self.engine = create_database_engine(engine, self._sqlite_folder_path)
 
-        print(
+        log.info(
+            "\n==================================================\n"
+            "--------->      open-MaStR started      <---------\n"
+            "==================================================\n"
             f"Data will be written to the following database: {self.engine.url}\n"
             "If you run into problems, try to "
             "delete the database and update the package by running "
@@ -239,7 +242,7 @@ class Mastr:
 
             download_xml_Mastr(zipped_xml_file_path, date, data, xml_folder_path)
 
-            print(
+            log.info(
                 "\nWould you like to speed up the creation of your MaStR database?\n"
                 "Try our new parallelized processing by setting os.environ['USE_RECOMMENDED_NUMBER_OF_PROCESSES'] = True "
                 "or configure your own number of processes via os.environ['NUMBER_OF_PROCESSES'] = your_number\n"
@@ -259,8 +262,8 @@ class Mastr:
             # Set api_processes to None in order to avoid the malfunctioning usage
             if api_processes:
                 api_processes = None
-                print(
-                    "Warning: The implementation of parallel processes "
+                log.warning(
+                    "The implementation of parallel processes "
                     "is currently under construction. Please let "
                     "the argument api_processes at the default value None."
                 )
@@ -429,9 +432,11 @@ class Mastr:
             try:
                 os.remove(new_path)
             except Exception as e:
-                print(f"An error occurred: {e}")
+                log.error(
+                    f"An error occurred while removing old translated database: {e}"
+                )
 
-            print("Replacing previous version of the translated database...")
+            log.info("Replacing previous version of the translated database...")
 
         for table in inspector.get_table_names():
             rename_table(table, inspector.get_columns(table), self.engine)
@@ -440,9 +445,9 @@ class Mastr:
 
         try:
             os.rename(old_path, new_path)
-            print(f"Database '{old_path}' changed to '{new_path}'")
+            log.info(f"Database '{old_path}' changed to '{new_path}'")
         except Exception as e:
-            print(f"An error occurred: {e}")
+            log.error(f"An error occurred while renaming database: {e}")
 
         self.engine = create_engine(f"sqlite:///{new_path}")
         self.is_translated = True
