@@ -17,6 +17,10 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
   [#636](https://github.com/OpenEnergyPlatform/open-MaStR/pull/636)
 - Change print statement about data cleansing
   [#650](https://github.com/OpenEnergyPlatform/open-MaStR/pull/650)
+- Improve logging
+  [#666](https://github.com/OpenEnergyPlatform/open-MaStR/pull/666)
+- Limit number of parallel CI jobs
+  [#669](https://github.com/OpenEnergyPlatform/open-MaStR/pull/669)
 ### Removed
 - Deprecate and remove Soap API Download and Mirror code
   [#635](https://github.com/OpenEnergyPlatform/open-MaStR/pull/635)

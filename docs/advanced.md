@@ -63,7 +63,7 @@ The project home directory is structured as follows (files and folders below `da
         File names are defined here.
      * `logging.yml` <br>
         Logging configuration. For changing the log level to increase or decrease details of log
-        messages, edit the level of the handlers.
+        messages, edit the level of the handlers. See below for details on logging.
 * **data**
      * `dataversion-<date>` <br>
         Contains exported data as csv files from method [`to_csv`][open_mastr.Mastr.to_csv]
@@ -82,6 +82,19 @@ The project home directory is structured as follows (files and folders below `da
 
 For the download via the API, logs are stored in a single file in `/$HOME/<user>/.open-MaStR/logs/open_mastr.log`.
 New logging messages are appended. It is recommended to delete the log file from time to time because of its required disk space.
+
+By default, the log level is set to `INFO`. You can increase or decrease the verbosity by either changing `logging.yml` (see above)
+or adjusting it manually in your code. E.g. to enable `DEBUG` messages in `open_mastr.log` you can use the following snippet:
+
+```python
+
+  import logging
+  from open_mastr import Mastr
+
+  # Increase to DEBUG to show more details in open_mastr.log
+  # Must be called after importing open_mastr to have the open-MaStR logger imported
+  logging.getLogger("open-MaStR").setLevel(logging.DEBUG)
+```
 
 
 ### Data
