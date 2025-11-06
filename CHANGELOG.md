@@ -8,6 +8,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 
 ## [v0.XX.X] unreleased - 202X-XX-XX
 ### Added
+- Add option to not create database tables
+  [#676](https://github.com/OpenEnergyPlatform/open-MaStR/pull/676)
 - Add partial bulk download
   [#652](https://github.com/OpenEnergyPlatform/open-MaStR/pull/652)
 ### Changed

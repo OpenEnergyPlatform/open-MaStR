@@ -10,7 +10,7 @@ import lxml
 import numpy as np
 import pandas as pd
 import sqlalchemy
-from sqlalchemy import select, create_engine, inspect
+from sqlalchemy import delete, select, create_engine, inspect
 from sqlalchemy.sql import text
 from sqlalchemy.sql.sqltypes import Date, DateTime
 
@@ -28,6 +28,7 @@ def write_mastr_xml_to_database(
     data: list,
     bulk_cleansing: bool,
     bulk_download_date: str,
+    create_and_alter_database_tables: bool,
 ) -> None:
     """Write the Mastr in xml format into a database defined by the engine parameter."""
     log.info("Starting bulk download...")
@@ -55,6 +56,7 @@ def write_mastr_xml_to_database(
                     zipped_xml_file_path,
                     bulk_download_date,
                     bulk_cleansing,
+                    create_and_alter_database_tables,
                 )
             )
 
@@ -107,6 +109,7 @@ def process_xml_file(
     zipped_xml_file_path: str,
     bulk_download_date: str,
     bulk_cleansing: bool,
+    create_and_alter_database_tables: bool,
 ) -> None:
     """Process a single xml file and write it to the database."""
     try:
@@ -122,8 +125,12 @@ def process_xml_file(
         with ZipFile(zipped_xml_file_path, "r") as f:
             log.info(f"Processing file '{file_name}'...")
             if is_first_file(file_name):
-                log.info(f"Creating table '{sql_table_name}'...")
-                create_database_table(engine, xml_table_name)
+                if create_and_alter_database_tables:
+                    log.info(f"Creating table '{sql_table_name}'...")
+                    create_database_table(engine, xml_table_name)
+                else:
+                    log.info(f"Deleting all data from table '{sql_table_name}'...")
+                    delete_data_from_database_table(engine, xml_table_name)
             df = read_xml_file(f, file_name)
             df = process_table_before_insertion(
                 df,
@@ -133,10 +140,20 @@ def process_xml_file(
                 bulk_cleansing,
             )
             if engine.dialect.name == "sqlite":
-                add_table_to_sqlite_database(df, xml_table_name, sql_table_name, engine)
+                add_table_to_sqlite_database(
+                    df,
+                    xml_table_name,
+                    sql_table_name,
+                    engine,
+                    create_and_alter_database_tables,
+                )
             else:
                 add_table_to_non_sqlite_database(
-                    df, xml_table_name, sql_table_name, engine
+                    df,
+                    xml_table_name,
+                    sql_table_name,
+                    engine,
+                    create_and_alter_database_tables,
                 )
     except Exception as e:
         log.error(f"Error processing file '{file_name}': '{e}'")
@@ -245,6 +262,14 @@ def create_database_table(
     orm_class.__table__.create(engine)
 
 
+def delete_data_from_database_table(
+    engine: sqlalchemy.engine.Engine, xml_table_name: str
+) -> None:
+    orm_class = tablename_mapping[xml_table_name]["__class__"]
+    with engine.begin() as conn:
+        conn.execute(delete(orm_class.__table__))
+
+
 def is_first_file(file_name: str) -> bool:
     """check if the file name indicates that it is the first file from the table"""
     return (
@@ -345,6 +370,7 @@ def add_table_to_non_sqlite_database(
     xml_table_name: str,
     sql_table_name: str,
     engine: sqlalchemy.engine.Engine,
+    add_missing_columns: bool,
 ) -> None:
     # get a dictionary for the data types
     table_columns_list = list(
@@ -359,9 +385,10 @@ def add_table_to_non_sqlite_database(
     # Convert date and datetime columns into the datatype datetime.
     df = cast_date_columns_to_datetime(xml_table_name, df)
 
-    add_missing_columns_to_table(
-        engine, xml_table_name, column_list=df.columns.tolist()
-    )
+    if add_missing_columns:
+        add_missing_columns_to_table(
+            engine, xml_table_name, column_list=df.columns.tolist()
+        )
 
     for _ in range(10000):
         try:
@@ -584,9 +611,11 @@ def add_table_to_sqlite_database(
     xml_table_name: str,
     sql_table_name: str,
     engine: sqlalchemy.engine.Engine,
+    add_missing_columns: bool,
 ) -> None:
     column_list = df.columns.tolist()
-    add_missing_columns_to_table(engine, xml_table_name, column_list)
+    if add_missing_columns:
+        add_missing_columns_to_table(engine, xml_table_name, column_list)
 
     # Convert NaNs to None.
     df = df.where(pd.notnull(df), None)

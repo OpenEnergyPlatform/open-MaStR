@@ -5,7 +5,6 @@ or the [SOAP API download](#soap-api-download).
 ## Configuration
 ### Database settings
 
-
 Configure your database with the `engine` parameter of [`Mastr`][open_mastr.Mastr].
 It defines the engine of the database where the MaStR is mirrored to. Default is 'sqlite'.
 
@@ -20,14 +19,27 @@ The possible databases are:
   `open-mastr-db`. Make sure it exists and the user has sufficient permissions.
 
 ```python
+from sqlalchemy import create_engine
+from open_mastr import Mastr
 
-  from sqlalchemy import create_engine
+# SQLite DB
+engine_sqlite = create_engine("sqlite:///path/to/sqlite/database.db")
+# postgreSQL DB
+engine_postgres = create_engine("postgresql+psycopg2://open-mastr:open-mastr-pw@localhost:55443/open-mastr-db")
+db = Mastr(engine=engine_sqlite)
+```
 
-  # SQLite DB
-  engine_sqlite = create_engine("sqlite:///path/to/sqlite/database.db")
-  # postgreSQL DB
-  engine_postgres = create_engine("postgresql+psycopg2://open-mastr:open-mastr-pw@localhost:55443/open-mastr-db")
-  db = Mastr(engine=engine_sqlite)
+By default, the Mastr object will create all database tables necessary for storing MaStR data.
+If you want to prepare the database yourself and don't want Mastr to create or alter your tables, you can configure
+Mastr for that. In this case, you must make sure that your tables are actually suited for storing the MaStR data.
+Otherwise, storing will fail.
+
+```python
+from sqlalchemy import create_engine
+from open_mastr import Mastr
+
+engine_postgres = create_engine("postgresql+psycopg2://open-mastr:open-mastr-pw@localhost:55443/open-mastr-db")
+db = Mastr(engine=engine_postgres, create_and_alter_database_tables=False)
 ```
 
 ### Project directory

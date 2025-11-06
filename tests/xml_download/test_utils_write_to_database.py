@@ -390,7 +390,11 @@ def test_add_table_to_sqlite_database(engine_testdb, add_table_to_database_funct
     )
 
     add_table_to_database_function(
-        df, "anlageneeggeothermiegrubengasdruckentspannung", "gsgk_eeg", engine_testdb
+        df,
+        "anlageneeggeothermiegrubengasdruckentspannung",
+        "gsgk_eeg",
+        engine_testdb,
+        True,
     )
     with engine_testdb.connect() as con:
         with con.begin():

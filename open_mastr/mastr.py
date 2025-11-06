@@ -69,14 +69,20 @@ class Mastr:
         Defines the engine of the database where the MaStR is mirrored to.
         Default is 'sqlite'.
     connect_to_translated_db: boolean, optional
-            Allows connection to an existing translated database. Default is 'False'.
-            Only for 'sqlite'-type engines.
-
-
-
+        Allows connection to an existing translated database. Default is 'False'.
+        Only for 'sqlite'-type engines.
+    create_and_alter_database_tables: boolean, optional
+        Automatically creates the database tables necessary for storing the MaStR data.
+        Default is 'True'. Set this to 'False' if you prepare the database for the download
+        yourself and don't want this class to touch your database definitions.
     """
 
-    def __init__(self, engine="sqlite", connect_to_translated_db=False) -> None:
+    def __init__(
+        self,
+        engine="sqlite",
+        connect_to_translated_db=False,
+        create_and_alter_database_tables=True,
+    ) -> None:
         validate_parameter_format_for_mastr_init(engine)
 
         self.output_dir = get_output_dir()
@@ -102,7 +108,9 @@ class Mastr:
             "'pip install --upgrade open-mastr'\n"
         )
 
-        orm.Base.metadata.create_all(self.engine)
+        self.create_and_alter_database_tables = create_and_alter_database_tables
+        if self.create_and_alter_database_tables:
+            orm.Base.metadata.create_all(self.engine)
 
     def download(
         self,
@@ -254,6 +262,7 @@ class Mastr:
                 data=data,
                 bulk_cleansing=bulk_cleansing,
                 bulk_download_date=bulk_download_date,
+                create_and_alter_database_tables=self.create_and_alter_database_tables,
             )
 
         if method == "API":
@@ -417,7 +426,15 @@ class Mastr:
             print(df.head(10))
             ```
 
+        This method will only work with SQLite databases and if :class:`Mastr`
+        is constructed with :attr:`Mastr.create_and_alter_database_tables` set
+        to False.
         """
+        if not self.create_and_alter_database_tables:
+            raise ValueError(
+                "Translating the database always includes altering tables."
+                " So this is incompatible with the option `create_and_alter_database_tables`."
+            )
 
         if "sqlite" not in self.engine.dialect.name:
             raise ValueError("engine has to be of type 'sqlite'")
