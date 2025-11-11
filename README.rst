@@ -108,7 +108,6 @@ These projects already use open-mastr:
 - `Wasserstoffatlas <https://wasserstoffatlas.de/>`_
 - `EE-Status App <https://ee-status.de/>`_
 - `Digiplan Anhalt <https://digiplan.rl-institut.de/>`_
-- `Data Quality Assessment of the MaStR <https://marktstammdaten.kotthoff.dev/>`_
 - `EmPowerPlan <https://epp.rl-institut.de/>`_
 - `Goal100 Monitor <https://goal100.org/monitor>`_
 
@@ -119,7 +118,6 @@ changes in a `Pull Request <https://github.com/OpenEnergyPlatform/open-MaStR/pul
 External Resources
 ===================
 Besides open-mastr, some other resources exist that ease the process of working with the Marktstammdatenregister:
-- If you are interested in browsing the MaStR online, check out the github organisation `Marktstammdatenregister.dev <https://github.com/marktstammdatenregister-dev>`_.
 - The `bundesAPI/Marktstammdaten-API <https://github.com/bundesAPI/marktstammdaten-api>`_ is another implementation to access data via an official API.
 
 Collaboration
@@ -146,7 +144,7 @@ Data
 
 
 .. |badge_license| image:: https://img.shields.io/github/license/OpenEnergyPlatform/open-MaStR
-    :target: LICENSE.txt
+    :target: LICENSE.md
     :alt: License
 
 .. |badge_rtd| image:: https://readthedocs.org/projects/open-mastr/badge/?style=flat
