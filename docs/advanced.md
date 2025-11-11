@@ -161,8 +161,11 @@ If needed, the tables in the database can be obtained as csv files. Those files 
 
 === "Disadvantages"
     * No single tables or entries can be downloaded
-    * Download takes long time
+    * Download takes long time (you can use the partial download though, see [Getting Started](getting_started.md#bulk-download))
 
+**Note**: By default, existing zip files in `$HOME/.open-MaStR/data/xml_download` are deleted when a new file is
+downloaded. You can change this behavior by setting `keep_old_downloads`=True in
+[`Mastr.download()`][open_mastr.Mastr.download].
 
 ## SOAP API download
 

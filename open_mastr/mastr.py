@@ -110,6 +110,7 @@ class Mastr:
         data=None,
         date=None,
         bulk_cleansing=True,
+        keep_old_downloads: bool = False,
         api_processes=None,
         api_limit=50,
         api_chunksize=1000,
@@ -171,6 +172,8 @@ class Mastr:
             In its original format, many entries in the MaStR are encoded with IDs. Columns like
             `state` or `fueltype` do not contain entries such as "Hessen" or "Braunkohle", but instead
             only contain IDs. Cleansing replaces these IDs with their corresponding original entries.
+        keep_old_downloads: bool
+            If set to True, prior downloaded MaStR zip files will be kept.
         api_processes : int or None or "max", optional
             Number of parallel processes used to download additional data.
             Defaults to `None`. If set to "max", the maximum number of possible processes
@@ -238,7 +241,11 @@ class Mastr:
             )
 
             delete_zip_file_if_corrupted(zipped_xml_file_path)
-            delete_xml_files_not_from_given_date(zipped_xml_file_path, xml_folder_path)
+            if not keep_old_downloads:
+                delete_xml_files_not_from_given_date(
+                    zipped_xml_file_path,
+                    xml_folder_path,
+                )
 
             download_xml_Mastr(zipped_xml_file_path, date, data, xml_folder_path)
 
