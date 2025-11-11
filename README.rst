@@ -118,6 +118,7 @@ changes in a `Pull Request <https://github.com/OpenEnergyPlatform/open-MaStR/pul
 External Resources
 ===================
 Besides open-mastr, some other resources exist that ease the process of working with the Marktstammdatenregister:
+
 - The `bundesAPI/Marktstammdaten-API <https://github.com/bundesAPI/marktstammdaten-api>`_ is another implementation to access data via an official API.
 
 Collaboration
