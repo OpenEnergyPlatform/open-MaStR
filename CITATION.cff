@@ -34,10 +34,14 @@ authors:
     given-names: "Alexandra-Andreea"
     alias: "@AlexandraImbrisca"
     affiliation: "Technical University of Munich"
+  - family-names: 'Krämer'
+    given-names: "Kevin"
+    alias: "pt-kkraemer"
+    affiliation: "ProjectTogether gGmbH"  
 title: "open-MaStR"
 type: software
 license: AGPL-3.0
-version: 0.15.0
+version: 0.16.0
 doi: 
-date-released: 2025-04-19
+date-released: 2025-11-26
 url: "https://github.com/OpenEnergyPlatform/open-MaStR/"
