@@ -155,6 +155,10 @@ Moreover, the datatypes of different entries are set in the data cleansing proce
 
 If needed, the tables in the database can be obtained as csv files. Those files are created by first merging corresponding tables (e.g all tables that contain information about solar) and then dumping those tables to `.csv` files with the [`to_csv`][open_mastr.Mastr.to_csv] method.
 
+**Note**: By default, existing zip files in `$HOME/.open-MaStR/data/xml_download` are deleted when a new file is
+downloaded. You can change this behavior by setting `keep_old_downloads`=True in
+[`Mastr.download()`][open_mastr.Mastr.download].
+
 ## SOAP API download
 
 ### MaStR account and credentials
