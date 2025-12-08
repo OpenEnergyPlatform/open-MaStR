@@ -410,8 +410,8 @@ For API calls, models and optional parameters refer to the
 
 ### MaStRDownload
 
-!!! warning "MaStRDownload is deprecated"
-    Since `v0.16.0` the `MaStRDownload` class is deprecated and cannot be used anymore.
+!!! warning "MaStRDownload has been removed"
+    In versions > `v0.16.0` the `MaStRDownload` class cannot be used anymore.
 
 
 ### MaStRMirror
