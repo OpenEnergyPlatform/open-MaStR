@@ -174,7 +174,7 @@ class Mastr:
 
         if method == "API":
             log.warning(
-                "Downloading the whole registry via the MaStR SOAP-API is deprecated. "
+                "Downloading the whole registry via the MaStR SOAP-API has been removed. "
                 "You can still use the open_mastr.soap_api.download.MaStRAPI class "
                 "to construct single calls."
             )
