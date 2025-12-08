@@ -192,11 +192,6 @@ def session_scope(engine):
         session.close()
 
 
-def validate_api_credentials() -> None:
-    mastr_api = MaStRAPI()
-    assert mastr_api.GetAktuellerStandTageskontingent()["Ergebniscode"] == "OK"
-
-
 def data_to_include_tables(data: list, mapping: str = None) -> list:
     """
     Convert user input 'data' to the list 'include_tables'.
