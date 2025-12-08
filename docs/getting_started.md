@@ -50,8 +50,8 @@ More detailed information can be found in the section [bulk download](advanced.m
 
 API download
 -----------------------------------
-!!! warning "API download is deprecated"
-    Since `v0.16.0` the `download(method="API")` is deprecated and cannot be used anymore. The default behaviour changes `method="API"` to `method="bulk"`. You can still use the basic SOAP API functionalities from the [`MaStRAPI`][open_mastr.soap_api.download.MaStRAPI] class.
+!!! warning "API download has been removed"
+    In versions > `v0.16.0` the `download(method="API")` cannot be used anymore. The default behaviour changes `method="API"` to `method="bulk"`. You can still use the basic SOAP API functionalities from the [`MaStRAPI`][open_mastr.soap_api.download.MaStRAPI] class.
 
 
 ## Accessing the database
