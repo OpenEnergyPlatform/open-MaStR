@@ -416,8 +416,8 @@ For API calls, models and optional parameters refer to the
 
 ### MaStRMirror
 
-!!! warning "MaStRMirror is deprecated"
-    Since `v0.16.0` the `MaStRMirror` class is deprecated and cannot be used anymore.
+!!! warning "MaStRMirror has been removed"
+    In versions > `v0.16.0` the `MaStRMirror` class cannot be used anymore.
 
 
 
