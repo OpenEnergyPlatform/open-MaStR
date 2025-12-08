@@ -192,7 +192,6 @@ class Mastr:
 
         date = transform_date_parameter(self, date, **kwargs)
 
-
         # Find the name of the zipped xml folder
         bulk_download_date = parse_date_string(date)
         xml_folder_path = os.path.join(self.output_dir, "data", "xml_download")
@@ -216,7 +215,6 @@ class Mastr:
 
         delete_zip_file_if_corrupted(zipped_xml_file_path)
         delete_xml_files_not_from_given_date(zipped_xml_file_path, xml_folder_path)
-
 
         print(
             "\nWould you like to speed up the creation of your MaStR database?\n"
