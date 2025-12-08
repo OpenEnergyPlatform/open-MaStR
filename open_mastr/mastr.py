@@ -114,8 +114,8 @@ class Mastr:
         Parameters
         ----------
         method : 'bulk', optional
-            Only "bulk" is a valid value. The download via the MaStR SOAP API is deprecated.
-            Default to 'bulk'.
+            Only "bulk" is a valid value. The download via the MaStR SOAP API has been removed.
+            Defaults to 'bulk'.
         data : str or list or None, optional
             Specifies which tables to download.
 
