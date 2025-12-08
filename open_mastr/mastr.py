@@ -269,9 +269,7 @@ class Mastr:
 
         # Validate and parse tables parameter
         validate_parameter_data(method="csv_export", data=tables)
-        data = transform_data_parameter(
-            method="bulk", data=tables, api_data_types=None, api_location_types=None
-        )
+        data = transform_data_parameter(tables, **kwargs)
 
         # Determine tables to export
         technologies_to_export = []
