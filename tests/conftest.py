@@ -12,36 +12,29 @@ https://docs.pytest.org/en/7.2.x/reference/fixtures.html
 
 import pytest
 from open_mastr import Mastr
-
-from open_mastr.utils.config import get_project_home_dir
-from open_mastr.utils.helpers import create_database_engine
 import os
+import shutil
 
 
-@pytest.fixture(scope="function")
-def make_Mastr_class():
-    """
-    Factory to create different Mastr class objects.
-
-    Parameters
-    ----------
-    engine_type: str
-        Define type of engine, for details see
-        :meth: `~.open_mastr.utils.helpers.create_database_engine`
-
-    Returns
-    -------
-        Mastr class object
-    """
-
-    def _make_Mastr_class(engine_type):
-        return Mastr(engine=engine_type)
-
-    return _make_Mastr_class
+@pytest.fixture()
+def db():
+    """Create a sqlite testing db and remove it after usage."""
+    OUTPUT_PATH = os.path.expanduser("~/.open-mastr-testing")
+    if os.path.exists(OUTPUT_PATH):
+        shutil.rmtree(OUTPUT_PATH)
+    os.environ["OUTPUT_PATH"] = OUTPUT_PATH
+    db = Mastr()
+    db.download(data=["electricity_consumer"])
+    yield db
+    # Run this code after the db is used in a test.
+    # This makes the testing reproducible.
+    # Note: Only works for sqlite based testing.
+    db.engine.dispose()
+    shutil.rmtree(OUTPUT_PATH)
 
 
-@pytest.fixture
-def engine():
-    return create_database_engine(
-        "sqlite", os.path.join(get_project_home_dir(), "data", "sqlite")
-    )
+@pytest.fixture()
+def db_translated(db):
+    db.translate()
+
+    return db
