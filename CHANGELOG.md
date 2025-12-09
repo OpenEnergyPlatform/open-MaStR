@@ -10,7 +10,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 ### Added
 
 ### Changed
-
+- Use trusted publishing on pypi
+  [#685](https://github.com/OpenEnergyPlatform/open-MaStR/pull/685)
 ### Removed
 
 
