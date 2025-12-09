@@ -53,9 +53,10 @@ def test_mastr_download(db):
     assert os.path.exists(file_old), "the old zip files do not exist"
 
 
-def test_Mastr_translate_columns(db_translated):
+def test_Mastr_translate_columns(db):
+    db.translate()
     # test if columns got translated
-    inspector = sqlalchemy.inspect(db_translated.engine)
+    inspector = sqlalchemy.inspect(db.engine)
     table_names = inspector.get_table_names()
 
     for table in table_names:
