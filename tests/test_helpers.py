@@ -26,23 +26,6 @@ from open_mastr.utils.helpers import (
 )
 
 
-# Check if db is empty
-_db_exists = False
-_db_folder_path = os.path.join(
-    expanduser("~"), ".open-MaStR", "data", "sqlite"
-)  # FIXME: use path in tmpdir when implemented
-if os.path.isdir(_db_folder_path):
-    for entry in os.scandir(path=_db_folder_path):
-        _db_path = os.path.join(_db_folder_path, "open-mastr.db")
-        if os.path.getsize(_db_path) > 1000000:  # empty db = 327.7kB < 1 MB
-            _db_exists = True
-
-
-@pytest.fixture
-def db():
-    return Mastr()
-
-
 def test_Mastr_validate_working_parameter():
     valid_params = {
         "method": ["bulk"],
