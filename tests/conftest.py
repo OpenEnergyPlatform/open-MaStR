@@ -24,7 +24,6 @@ def db():
         shutil.rmtree(OUTPUT_PATH)
     os.environ["OUTPUT_PATH"] = OUTPUT_PATH
     db = Mastr()
-    db.download(data=["electricity_consumer"])
     yield db
     # Run this code after the db is used in a test.
     # This makes the testing reproducible.
