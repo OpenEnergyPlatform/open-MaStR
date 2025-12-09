@@ -22,6 +22,8 @@ def test_Mastr_init(db):
 
 def test_mastr_download(db):
     db.download(data=["electricity_consumer"])
+    log_dir = Path(db.output_dir) / "logs"
+    assert log_dir.is_dir(), "logs directory was not created"
     # Test if database table is filled
     df_consumers = pd.read_sql("electricity_consumer", con=db.engine)
     assert len(df_consumers) > 100, "electricity consumer table is not present"
