@@ -16,7 +16,7 @@ __version__ = "v0.10.0"
 
 import os
 import configparser as cp
-from open_mastr.utils.config import get_project_home_dir
+from open_mastr.utils.config import get_output_dir
 import keyring
 
 import logging
@@ -25,8 +25,7 @@ log = logging.getLogger(__name__)
 
 
 def _load_config_file():
-
-    config_file = os.path.join(get_project_home_dir(), "config", "credentials.cfg")
+    config_file = os.path.join(get_output_dir(), "config", "credentials.cfg")
     cfg = cp.ConfigParser()
 
     # if not os.path.isdir(open_mastr_home):
@@ -54,7 +53,7 @@ def get_mastr_user():
     """
     cfg = _load_config_file()
     section = "MaStR"
-    cfg_path = os.path.join(get_project_home_dir(), "config", "credentials.cfg")
+    cfg_path = os.path.join(get_output_dir(), "config", "credentials.cfg")
 
     try:
         user = cfg.get(section, "user")
@@ -82,9 +81,7 @@ def check_and_set_mastr_user():
     user = get_mastr_user()
 
     if not user:
-        credentials_file = os.path.join(
-            get_project_home_dir(), "config", "credentials.cfg"
-        )
+        credentials_file = os.path.join(get_output_dir(), "config", "credentials.cfg")
         cfg = _load_config_file()
 
         user = input(
@@ -122,7 +119,7 @@ def get_mastr_token(user):
     # Retrieving password from keyring does currently fail on headless systems
     # Prevent from breaking program execution with following try/except clause
     section = "MaStR"
-    cfg_path = os.path.join(get_project_home_dir(), "config", "credentials.cfg")
+    cfg_path = os.path.join(get_output_dir(), "config", "credentials.cfg")
     try:
         password = keyring.get_password(section, user)
     except:
@@ -151,9 +148,7 @@ def check_and_set_mastr_token(user):
 
     if not password:
         cfg = _load_config_file()
-        credentials_file = os.path.join(
-            get_project_home_dir(), "config", "credentials.cfg"
-        )
+        credentials_file = os.path.join(get_output_dir(), "config", "credentials.cfg")
 
         # If also no password in credentials file, ask the user to input password
         # Two options: (1) storing in keyring; (2) storing in config file
