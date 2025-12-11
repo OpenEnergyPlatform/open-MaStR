@@ -1,8 +1,8 @@
 # Introduction
 
-The python package `open-mastr` provides an interface for accessing the [Marktstammdatenregister (MaStR)](https://www.marktstammdatenregister.de/MaStR) data. The MaStR is a German register provided by the German Federal Network Agency (Bundesnetzagentur / BNetza) that keeps track of all power and gas units located in Germany. It is a daily growing dataset with more than 8.2 million data points covering electricity and gas production units, electricity and gas consumers, storages, grids, and energy market participants (as of spring 2024).
+The python package `open-mastr` provides an interface for accessing the [Marktstammdatenregister (MaStR)](https://www.marktstammdatenregister.de/MaStR) data. The MaStR is a German register provided by the German Federal Network Agency (Bundesnetzagentur / BNetza) that keeps track of all power and gas units located in Germany. It is a daily growing dataset with millions of data points covering electricity and gas production units, electricity and gas consumers, storages, grids, and energy market participants (as of spring 2024).
 
-Independent of `open-mastr`, the MaStR data can generally be accessed via three main options:
+Generally, and besides the offerings of `open-mastr`, the MaStR data can generally be accessed via three main options:
  
   1. browse, filter and download [in the browser](https://www.marktstammdatenregister.de/MaStR)
   2. download [daily provided dumps](https://www.marktstammdatenregister.de/MaStR/Datendownload)
