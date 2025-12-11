@@ -19,6 +19,8 @@ from open_mastr.utils.helpers import data_to_include_tables
 from open_mastr.utils.orm import tablename_mapping
 from open_mastr.xml_download.utils_cleansing_bulk import cleanse_bulk_data
 
+log = setup_logger()
+
 
 def write_mastr_xml_to_database(
     engine: sqlalchemy.engine.Engine,
@@ -28,7 +30,7 @@ def write_mastr_xml_to_database(
     bulk_download_date: str,
 ) -> None:
     """Write the Mastr in xml format into a database defined by the engine parameter."""
-    print("Starting bulk download and data cleansing...")
+    log.info("Starting bulk download...")
 
     include_tables = data_to_include_tables(data, mapping="write_xml")
     threads_data = []
@@ -71,7 +73,7 @@ def write_mastr_xml_to_database(
         for item in interleaved_files:
             process_xml_file(*item)
 
-    print("Bulk download and data cleansing were successful.")
+    log.info("Bulk download was successful.")
 
 
 def get_number_of_processes():
@@ -82,11 +84,11 @@ def get_number_of_processes():
         try:
             number_of_processes = int(os.environ.get("NUMBER_OF_PROCESSES"))
         except ValueError:
-            print("Warning: Invalid value for NUMBER_OF_PROCESSES. Fallback to 1.")
+            log.warning("Invalid value for NUMBER_OF_PROCESSES. Fallback to 1.")
             return 1
         if number_of_processes >= cpu_count():
-            print(
-                f"Warning: Your system supports {cpu_count()} CPUs. Using "
+            log.warning(
+                f"Your system supports {cpu_count()} CPUs. Using "
                 f"more processes than available CPUs may cause excessive "
                 f"context-switching overhead."
             )
@@ -118,9 +120,9 @@ def process_xml_file(
         # The connection url obfuscates the password. We must replace the masked password with the actual password.
         engine = create_efficient_engine(connection_url)
         with ZipFile(zipped_xml_file_path, "r") as f:
-            print(f"Processing file '{file_name}'...")
+            log.info(f"Processing file '{file_name}'...")
             if is_first_file(file_name):
-                print(f"Creating table '{sql_table_name}'...")
+                log.info(f"Creating table '{sql_table_name}'...")
                 create_database_table(engine, xml_table_name)
             df = read_xml_file(f, file_name)
             df = process_table_before_insertion(
@@ -137,7 +139,7 @@ def process_xml_file(
                     df, xml_table_name, sql_table_name, engine
                 )
     except Exception as e:
-        print(f"Error processing file '{file_name}': '{e}'")
+        log.error(f"Error processing file '{file_name}': '{e}'")
 
 
 def create_efficient_engine(connection_url: str) -> sqlalchemy.engine.Engine:
@@ -224,7 +226,7 @@ def is_table_relevant(xml_table_name: str, include_tables: list) -> bool:
             tablename_mapping[xml_table_name]["__class__"] is not None
         )
     except KeyError:
-        print(
+        log.warning(
             f"Table '{xml_table_name}' is not supported by your open-mastr version and "
             f"will be skipped."
         )
@@ -451,7 +453,7 @@ def write_single_entries_until_not_unique_comes_up(
         labels=key_list, errors="ignore"
     )  # drop primary keys that already exist in the table
     df = df.reset_index()
-    print(f"{len_df_before - len(df)} entries already existed in the database.")
+    log.warning(f"{len_df_before - len(df)} entries already existed in the database.")
 
     return df
 
@@ -509,7 +511,7 @@ def add_missing_columns_to_table(
 
 def delete_wrong_xml_entry(err: Error, df: pd.DataFrame) -> pd.DataFrame:
     delete_entry = str(err).split("«")[0].split("»")[1]
-    print(f"The entry {delete_entry} was deleted due to its false data type.")
+    log.warning(f"The entry {delete_entry} was deleted due to its false data type.")
     return df.replace(delete_entry, np.nan)
 
 
@@ -548,7 +550,7 @@ def handle_xml_syntax_error(data: str, err: Error) -> pd.DataFrame:
             row_with_error[: left_bracket + 1] + row_with_error[right_bracket:]
         )
         try:
-            print("One invalid xml expression was deleted.")
+            log.warning("One invalid xml expression was deleted.")
             df = pd.read_xml(StringIO("\n".join(data)))
             return df
         except lxml.etree.XMLSyntaxError as e:
