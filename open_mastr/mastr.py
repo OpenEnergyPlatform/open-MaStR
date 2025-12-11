@@ -92,7 +92,10 @@ class Mastr:
         else:
             self.engine = create_database_engine(engine, self._sqlite_folder_path)
 
-        print(
+        log.info(
+            "\n==================================================\n"
+            "--------->      open-MaStR started      <---------\n"
+            "==================================================\n"
             f"Data will be written to the following database: {self.engine.url}\n"
             "If you run into problems, try to "
             "delete the database and update the package by running "
@@ -107,6 +110,7 @@ class Mastr:
         data=None,
         date=None,
         bulk_cleansing=True,
+        keep_old_downloads: bool = False,
         api_processes=None,
         api_limit=50,
         api_chunksize=1000,
@@ -168,6 +172,8 @@ class Mastr:
             In its original format, many entries in the MaStR are encoded with IDs. Columns like
             `state` or `fueltype` do not contain entries such as "Hessen" or "Braunkohle", but instead
             only contain IDs. Cleansing replaces these IDs with their corresponding original entries.
+        keep_old_downloads: bool
+            If set to True, prior downloaded MaStR zip files will be kept.
         api_processes : int or None or "max", optional
             Number of parallel processes used to download additional data.
             Defaults to `None`. If set to "max", the maximum number of possible processes
@@ -235,11 +241,15 @@ class Mastr:
             )
 
             delete_zip_file_if_corrupted(zipped_xml_file_path)
-            delete_xml_files_not_from_given_date(zipped_xml_file_path, xml_folder_path)
+            if not keep_old_downloads:
+                delete_xml_files_not_from_given_date(
+                    zipped_xml_file_path,
+                    xml_folder_path,
+                )
 
             download_xml_Mastr(zipped_xml_file_path, date, data, xml_folder_path)
 
-            print(
+            log.info(
                 "\nWould you like to speed up the creation of your MaStR database?\n"
                 "Try our new parallelized processing by setting os.environ['USE_RECOMMENDED_NUMBER_OF_PROCESSES'] = True "
                 "or configure your own number of processes via os.environ['NUMBER_OF_PROCESSES'] = your_number\n"
@@ -259,8 +269,8 @@ class Mastr:
             # Set api_processes to None in order to avoid the malfunctioning usage
             if api_processes:
                 api_processes = None
-                print(
-                    "Warning: The implementation of parallel processes "
+                log.warning(
+                    "The implementation of parallel processes "
                     "is currently under construction. Please let "
                     "the argument api_processes at the default value None."
                 )
@@ -429,9 +439,11 @@ class Mastr:
             try:
                 os.remove(new_path)
             except Exception as e:
-                print(f"An error occurred: {e}")
+                log.error(
+                    f"An error occurred while removing old translated database: {e}"
+                )
 
-            print("Replacing previous version of the translated database...")
+            log.info("Replacing previous version of the translated database...")
 
         for table in inspector.get_table_names():
             rename_table(table, inspector.get_columns(table), self.engine)
@@ -440,9 +452,9 @@ class Mastr:
 
         try:
             os.rename(old_path, new_path)
-            print(f"Database '{old_path}' changed to '{new_path}'")
+            log.info(f"Database '{old_path}' changed to '{new_path}'")
         except Exception as e:
-            print(f"An error occurred: {e}")
+            log.error(f"An error occurred while renaming database: {e}")
 
         self.engine = create_engine(f"sqlite:///{new_path}")
         self.is_translated = True
