@@ -37,9 +37,9 @@ open-mastr
 Introduction
 ============
 
-The python package ``open-mastr`` provides an interface for accessing the `Marktstammdatenregister (MaStR) <https://www.marktstammdatenregister.de/MaStR>`_ data. The MaStR is a German register provided by the German Federal Network Agency (Bundesnetzagentur / BNetza) that keeps track of all power and gas units located in Germany. It is a daily growing dataset with more than 8.2 million data points covering electricity and gas production units, electricity and gas consumers, storages, grids, and energy market participants (as of spring 2024).
+The python package ``open-mastr`` provides an interface for accessing the `Marktstammdatenregister (MaStR) <https://www.marktstammdatenregister.de/MaStR>`_ data. The MaStR is a German register provided by the German Federal Network Agency (Bundesnetzagentur / BNetza) that keeps track of all power and gas units located in Germany. It is a daily growing dataset with millions of data points covering electricity and gas production units, electricity and gas consumers, storages, grids, and energy market participants (as of spring 2024).
 
-Independent of ``open-mastr``, the MaStR data can generally be accessed via three main options:
+Generally, and besides the offerings of ``open-mastr``, the MaStR data can generally be accessed via three main options:
 
 #. browse, filter and download `in the browser <https://www.marktstammdatenregister.de/MaStR>`_
 #. download `daily provided dumps <https://www.marktstammdatenregister.de/MaStR/Datendownload>`_
@@ -50,6 +50,7 @@ These access options, however, are not exactly frictionless. ``open-mastr`` thus
 In particular, ``open-mastr`` facilitates access to the daily provided MaStR dumps with download methods (bulk) and by parsing the XML files to a relational database. Furthermore, the software provides a Python wrapper to access the MaStR SOAP web service (API).
 
 .. note::
+
    **Does ``open-mastr`` edit or change the MaStR data?**
    
    No. ``open-mastr`` is a wrapper around the MaStR data and does not edit or change the data. It is intended to be used as a tool for working with the MaStR data.
@@ -57,19 +58,21 @@ In particular, ``open-mastr`` facilitates access to the daily provided MaStR dum
 Benefits provided by ``open-mastr``
 ==================================
 
-+----------------------+----------------------------------------------------------------------------------+
-| Benefit              | Description                                                                      |
-+======================+==================================================================================+
-| Data download and    | Download, decode, and write data to a local database                           |
-| parsing              |                                                                                  |
-+----------------------+----------------------------------------------------------------------------------+
-| Translation to       | Translate table names and columns from German to English as well as an English  |
-| English              | documentation page of the dataset                                               |
-+----------------------+----------------------------------------------------------------------------------+
-| Data processing      | Merge relevant information about different technologies to single csv files     |
-+----------------------+----------------------------------------------------------------------------------+
+.. list-table::
+   :widths: 30, 70
+   :header-rows: 1
+
+   * - Benefit
+     - Description
+   * - Data download and parsing
+     - Download, decode, and write data to a local database
+   * - Translation to English
+     - Translate table names and columns from German to English as well as an English documentation page of the dataset
+   * - Data processing
+     - Merge relevant information about different technologies to single csv files
 
 .. note::
+
    **Just here for the data?**
    
    We regularly run the whole download and cleansing pipeline and upload the dataset as csv files at `zenodo <https://doi.org/10.5281/zenodo.6807425>`_!
