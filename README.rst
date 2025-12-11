@@ -50,7 +50,7 @@ These access options, however, are not exactly frictionless. ``open-mastr`` thus
 In particular, ``open-mastr`` facilitates access to the daily provided MaStR dumps with download methods (bulk) and by parsing the XML files to a relational database. Furthermore, the software provides a Python wrapper to access the MaStR SOAP web service (API).
 
 
-**Does ``open-mastr`` edit or change the MaStR data?**
+**Does open-mastr edit or change the MaStR data?**
 No. ``open-mastr`` is a wrapper around the MaStR data and does not edit or change the data. It is intended to be used as a tool for working with the MaStR data.
 
 Benefits provided by ``open-mastr``
