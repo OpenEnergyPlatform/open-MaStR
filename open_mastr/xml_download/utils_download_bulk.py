@@ -1,3 +1,5 @@
+import datetime
+import math
 import os
 import shutil
 import time
@@ -24,7 +26,7 @@ log = setup_logger()
 
 
 def gen_version(
-    when: time.struct_time = time.localtime(), use_version: str = "current"
+    when: datetime.date, use_version: str = "current"
 ) -> str:
     """
     Generates the current version.
@@ -53,13 +55,13 @@ def gen_version(
     2024-31-12 = version 24.2
     """
 
-    year = when.tm_year
+    year = when.year
     release = 1
 
-    if when.tm_mon < 4 or (when.tm_mon == 4 and when.tm_mday == 1):
+    if when.month < 4 or (when.month == 4 and when.day == 1):
         year = year - 1
         release = 2
-    elif when.tm_mon > 10 or (when.tm_mon == 10 and when.tm_mday > 1):
+    elif when.month > 10 or (when.month == 10 and when.day > 1):
         release = 2
 
     # Change to MaStR version number that was used before
@@ -84,7 +86,7 @@ def gen_version(
     return f"{year}.{release}"
 
 
-def gen_url(when: time.struct_time = time.localtime(), use_version="current") -> str:
+def gen_url(when: datetime.date, use_version="current") -> str:
     """Generates the download URL for the specified date.
 
     Note that not all dates are archived on the website.
@@ -116,7 +118,7 @@ def gen_url(when: time.struct_time = time.localtime(), use_version="current") ->
 
 
 def download_xml_Mastr(
-    save_path: str, bulk_date_string: str, bulk_data_list: list, xml_folder_path: str
+    save_path: str, bulk_date: datetime.date, bulk_data_list: list, xml_folder_path: str
 ) -> None:
     """Downloads the zipped MaStR.
 
@@ -124,7 +126,7 @@ def download_xml_Mastr(
     -----------
     save_path: str
         Full file path where the downloaded MaStR zip file will be saved.
-    bulk_date_string: str
+    bulk_date_string: datetime.date
         Date for which the file should be downloaded.
     bulk_data_list: list
         List of tables/technologis to be downloaded.
@@ -134,9 +136,7 @@ def download_xml_Mastr(
 
     log.info("Starting the Download from marktstammdatenregister.de.")
 
-    # TODO this should take bulk_date_string
-    now = time.localtime()
-    url = gen_url(now)
+    url = gen_url(bulk_date)
 
     time_a = time.perf_counter()
     r = requests.get(url, stream=True, headers={"User-Agent": USER_AGENT})
@@ -144,19 +144,17 @@ def download_xml_Mastr(
         log.warning(
             "Download file was not found. Assuming that the new file was not published yet and retrying with yesterday."
         )
-        now = time.localtime(
-            time.mktime(now) - (24 * 60 * 60)
-        )  # subtract 1 day from the date
-        url = gen_url(now)
+        bulk_date -= datetime.timedelta(days=1)
+        url = gen_url(bulk_date)
         r = requests.get(url, stream=True, headers={"User-Agent": USER_AGENT})
     if r.status_code == 404:
-        url = gen_url(now, use_version="before")  # Use lower MaStR Version
+        url = gen_url(bulk_date, use_version="before")  # Use lower MaStR Version
         log.warning(
             f"Download file was not found. Assuming that the version of MaStR has changed and retrying with download link: {url}"
         )
         r = requests.get(url, stream=True, headers={"User-Agent": USER_AGENT})
     if r.status_code == 404:
-        url = gen_url(now, use_version="after")  # Use higher MaStR Version
+        url = gen_url(bulk_date, use_version="after")  # Use higher MaStR Version
         log.warning(
             f"Download file was not found. Assuming that the version of MaStR has changed and retrying with download link: {url}"
         )
@@ -321,6 +319,7 @@ def full_download_without_unzip_http(
         "Warning: The servers from MaStR restrict the download speed."
         " You may want to download it another time."
     )
+    # TODO: Explain this number
     total_length = int(23000)
     with (
         open(save_path, "wb") as zfile,
@@ -339,3 +338,44 @@ def full_download_without_unzip_http(
             else:
                 # remove warning
                 bar.set_postfix_str(s="")
+
+
+def download_documentation(
+    save_path: str, xml_folder_path: str
+) -> None:
+    """Downloads the zipped MaStR.
+
+    Parameters
+    -----------
+    save_path: str
+        Full file path where the downloaded MaStR zip file will be saved.
+    xml_folder_path: str
+        Path where the downloaded MaStR zip file will be saved.
+    """
+    log.info("Starting the MaStR documentation download from marktstammdatenregister.de.")
+    url = "https://www.marktstammdatenregister.de/MaStRHilfe/files/gesamtdatenexport/Dokumentation%20MaStR%20Gesamtdatenexport.zip"
+
+    time_a = time.perf_counter()
+    r = requests.get(url, stream=True, headers={"User-Agent": USER_AGENT})
+
+    r.raise_for_status()
+
+    chunk_size = 1024 * 1024
+    content_length = r.headers.get("Content-Length")
+    expected_steps = math.ceil(content_length / chunk_size)
+    with (
+        open(save_path, "wb") as zfile,
+        tqdm(desc=save_path, total=expected_steps) as bar,
+    ):
+        for chunk in r.iter_content(chunk_size=chunk_size):
+            if chunk:
+                zfile.write(chunk)
+                zfile.flush()
+            bar.update()
+
+    time_b = time.perf_counter()
+    log.info(
+        f"MaStR documentation download is finished. It took {round(time_b - time_a)} seconds."
+    )
+    log.info(f"MaStR was successfully downloaded to {xml_folder_path}.")
+

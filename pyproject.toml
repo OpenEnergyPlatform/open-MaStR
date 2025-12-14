@@ -16,6 +16,7 @@ dependencies = [
   "keyring",
   "pyyaml",
   "xmltodict",
+  "xmlschema",
 ]
 
 requires-python = ">=3.9, <4"

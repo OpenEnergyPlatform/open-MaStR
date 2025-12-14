@@ -52,7 +52,7 @@ class MastrColumnType(Enum):
         raise ValueError(f"Could not determine MastrColumnType from XSD type {xsd_type!r}")
 
 
-@dataclass
+@dataclass(frozen=True)
 class MastrColumnDescription:
     name: str
     type: MastrColumnType
@@ -66,7 +66,7 @@ class MastrColumnDescription:
         )
 
 
-@dataclass
+@dataclass(frozen=True)
 class MastrTableDescription:
     table_name: str
     instance_name: str
@@ -97,3 +97,36 @@ class MastrTableDescription:
             instance_name=main_element.name,
             columns=columns,
         )
+
+
+def read_mastr_table_descriptions_from_xsd(
+    zipped_docs_file_path: Union[Path, str], data: Optional[list[str]] = None
+) -> set[MastrTableDescription]:
+    include_tables = set(data_to_include_tables(data, mapping="write_xml"))
+
+    mastr_table_descriptions = set()
+    with ZipFile(zipped_docs_file_path, "r") as docs_z:
+        xsd_zip_entry = _find_xsd_zip_file(docs_z)
+        with ZipFile(docs_z.open(xsd_zip_entry)) as xsd_z:
+            for entry in xsd_z:
+                if entry.is_dir() or not entry.filename.endswith(".xsd"):
+                    continue
+
+                normalized_name = os.path.basename(entry.filename).removesuffix(".xsd").lower()
+                if normalized_name in include_tables:
+                    with xsd_z.open(entry) as xsd_file:
+                        mastr_table_description = MastrTableDescription.from_xml_schema(XMLSchema(xsd_file))
+                        mastr_table_descriptions.add(mastr_table_description)
+
+    return mastr_table_descriptions
+
+
+def _find_xsd_zip_entry(docs_zip_file: ZipFile) -> ZipInfo:
+    desired_filename = "xsd.zip"
+    for entry in docs_zip_file.filelist:
+        if os.path.basename(entry.filename) == desired_filename:
+            return entry
+    raise RuntimeError(
+        f"Did not find XSD files in the form of {desired_filename!r} in the documentation"
+        f" ZIP file {docs_zip_file.filename!r}"
+    )

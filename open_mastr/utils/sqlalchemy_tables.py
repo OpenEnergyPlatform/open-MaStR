@@ -19,6 +19,10 @@ MASTR_COLUMN_TYPE_TO_SQLALCHEMY_TYPE = {
     MastrColumnType.CATALOG_VALUE: Integer,  # TODO: Think about how to deal with mapping catalog values
 }
 
+# Potential hierarchy
+# Id -> MastrNummer -> EinheitMastrNummer
+# -> EegMastrNummer -> KwkMastrNummer -> GenMastrNummer
+# -> MarktakteurMastrNummer -> NetzanschlusspunktMastrNummer
 MASTR_TABLE_NAME_TO_PRIMARY_KEY_COLUMNS = {
     "AnlagenEegBiomasse": {"EegMastrNummer"},
     "AnlagenEegGeothermieGrubengasDruckentspannung": {"EegMastrNummer"},
@@ -61,7 +65,7 @@ MASTR_TABLE_NAME_TO_PRIMARY_KEY_COLUMNS = {
 }
 
 
-class Base(DeclarativeBase):
+class MastrBase(DeclarativeBase):
     pass
 
 
@@ -72,7 +76,7 @@ class ParentAllTables(object):
 
 def make_sqlalchemy_model_from_mastr_table_description(
     table_description: MastrTableDescription,
-    base: DeclarativeBase = Base,
+    base: DeclarativeBase = MastrBase,
     mixins: tuple[type, ...] = (ParentAllTables,),
 ):
     return _make_sqlalchemy_model(
@@ -83,7 +87,7 @@ def make_sqlalchemy_model_from_mastr_table_description(
             for column in table_description.columns
         },
         primary_key_columns=MASTR_TABLE_NAME_TO_PRIMARY_KEY_COLUMNS[table_description.table_name],
-        base=Base,
+        base=MastrBase,
         mixins=(ParentAllTables,)
     )
 
