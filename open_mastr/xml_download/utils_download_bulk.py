@@ -1,3 +1,5 @@
+import datetime
+import math
 import os
 import shutil
 import time
@@ -362,6 +364,7 @@ def full_download_without_unzip_http(
         "Warning: The servers from MaStR restrict the download speed."
         " You may want to download it another time."
     )
+    # TODO: Explain this number
     total_length = int(23000)
     with (
         open(save_path, "wb") as zfile,
@@ -549,3 +552,43 @@ def select_download_date():
 
         else:
             print("Invalid choice. Please enter 1, or 2.")
+
+
+def download_documentation(
+    save_path: str, xml_folder_path: str
+) -> None:
+    """Downloads the zipped MaStR.
+
+    Parameters
+    -----------
+    save_path: str
+        Full file path where the downloaded MaStR zip file will be saved.
+    xml_folder_path: str
+        Path where the downloaded MaStR zip file will be saved.
+    """
+    log.info("Starting the MaStR documentation download from marktstammdatenregister.de.")
+    url = "https://www.marktstammdatenregister.de/MaStRHilfe/files/gesamtdatenexport/Dokumentation%20MaStR%20Gesamtdatenexport.zip"
+
+    time_a = time.perf_counter()
+    r = requests.get(url, stream=True, headers={"User-Agent": USER_AGENT})
+
+    r.raise_for_status()
+
+    chunk_size = 1024 * 1024
+    content_length = r.headers.get("Content-Length")
+    expected_steps = math.ceil(content_length / chunk_size)
+    with (
+        open(save_path, "wb") as zfile,
+        tqdm(desc=save_path, total=expected_steps) as bar,
+    ):
+        for chunk in r.iter_content(chunk_size=chunk_size):
+            if chunk:
+                zfile.write(chunk)
+                zfile.flush()
+            bar.update()
+
+    time_b = time.perf_counter()
+    log.info(
+        f"MaStR documentation download is finished. It took {round(time_b - time_a)} seconds."
+    )
+    log.info(f"MaStR was successfully downloaded to {xml_folder_path}.")
