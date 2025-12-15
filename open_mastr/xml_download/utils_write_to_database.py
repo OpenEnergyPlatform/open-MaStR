@@ -1,16 +1,16 @@
 import os
+import re
 from concurrent.futures import ProcessPoolExecutor, wait
 from io import StringIO
 from multiprocessing import cpu_count
 from shutil import Error
 from zipfile import ZipFile
 
-import re
 import lxml
 import numpy as np
 import pandas as pd
 import sqlalchemy
-from sqlalchemy import select, create_engine, inspect
+from sqlalchemy import create_engine, inspect, select
 from sqlalchemy.sql import text
 from sqlalchemy.sql.sqltypes import Date, DateTime
 
@@ -79,7 +79,8 @@ def write_mastr_xml_to_database(
 def get_number_of_processes():
     """Get the number of processes to use for the bulk download. Returns -1 if the user has not opted for the
     parallelized implementation. Otherwise, we recommend using the number of available CPUs - 1. If the user wants to
-    use more processes, they can set the custom environment variable."""
+    use more processes, they can set the custom environment variable.
+    """
     if "NUMBER_OF_PROCESSES" in os.environ:
         try:
             number_of_processes = int(os.environ.get("NUMBER_OF_PROCESSES"))
@@ -218,7 +219,8 @@ def extract_sql_table_name(xml_table_name: str) -> str:
 
 def is_table_relevant(xml_table_name: str, include_tables: list) -> bool:
     """Checks if the table contains relevant data and if the user wants to
-    have it in the database."""
+    have it in the database.
+    """
     # few tables are only needed for data cleansing of the xml files and contain no
     # information of relevance
     try:
@@ -246,7 +248,7 @@ def create_database_table(
 
 
 def is_first_file(file_name: str) -> bool:
-    """check if the file name indicates that it is the first file from the table"""
+    """Check if the file name indicates that it is the first file from the table"""
     return (
         file_name.split(".")[0].split("_")[-1] == "1"
         or len(file_name.split(".")[0].split("_")) == 1
@@ -296,7 +298,8 @@ def is_date_column(column, df: pd.DataFrame) -> bool:
 
 def correct_ordering_of_filelist(files_list: list) -> list:
     """Files that end with a single digit number get a 0 prefixed to this number
-    to correct the list ordering. Afterwards the 0 is deleted again."""
+    to correct the list ordering. Afterwards the 0 is deleted again.
+    """
     files_list_ordered = []
     count_if_zeros_are_prefixed = 0
     for file_name in files_list:
@@ -390,7 +393,6 @@ def add_zero_as_first_character_for_too_short_string(df: pd.DataFrame) -> pd.Dat
     """Some columns are read as integer even though they are actually strings starting with
     a 0. This function converts those columns back to strings and adds a 0 as first character.
     """
-
     dict_of_columns_and_string_length = {
         "Gemeindeschluessel": 8,
         "Postleitzahl": 5,
@@ -423,6 +425,7 @@ def write_single_entries_until_not_unique_comes_up(
 ) -> pd.DataFrame:
     """
     Remove from dataframe these rows, which are already existing in the database table
+
     Parameters
     ----------
     df
@@ -433,7 +436,6 @@ def write_single_entries_until_not_unique_comes_up(
     -------
     Filtered dataframe
     """
-
     table = tablename_mapping[xml_table_name]["__class__"].__table__
     primary_key = next(c for c in table.columns if c.primary_key)
 
@@ -467,6 +469,7 @@ def add_missing_columns_to_table(
     Some files introduce new columns for existing tables.
     If the pandas dataframe contains columns that do not
     exist in the database, they are added to the database.
+
     Parameters
     ----------
     engine
@@ -519,14 +522,14 @@ def handle_xml_syntax_error(data: str, err: Error) -> pd.DataFrame:
     """Deletes entries that cause an xml syntax error and produces DataFrame.
 
     Parameters
-    -----------
+    ----------
     data : str
         Decoded xml file as one string
     err : ErrorMessage
         Error message that appeared when trying to use pd.read_xml on invalid xml file.
 
     Returns
-    ----------
+    -------
     df : pandas.DataFrame
         DataFrame which is read from the changed xml data.
     """

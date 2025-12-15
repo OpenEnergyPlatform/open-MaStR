@@ -16,10 +16,10 @@ Please, insert your information below - fill out at minimum affiliation :purple_
 
 :pencil2: **Spaces** and the following special characters are allowed: @ ? ! | . , : ; - _ [ / ( ) \ ] § $ % & = + < >
 
-family-names: 
-given-names: 
-alias: 
-affiliation: 
-orcid: 
+family-names:
+given-names:
+alias:
+affiliation:
+orcid:
 
 Thank you!

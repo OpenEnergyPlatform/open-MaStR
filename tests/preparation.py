@@ -1,4 +1,5 @@
 import os
+
 from open_mastr.utils.config import get_project_home_dir
 
 
@@ -13,7 +14,7 @@ def create_credentials_file():
     user = os.getenv("MASTR_USER")
     section_title = "[MaStR]"
 
-    file_content = f"{section_title}\n" f"user = {user}\n" f"token = {token}\n"
+    file_content = f"{section_title}\nuser = {user}\ntoken = {token}\n"
 
     with open(credentials_file, "w") as credentials_fh:
         credentials_fh.write(file_content)

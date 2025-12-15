@@ -2,17 +2,18 @@ import os
 import shutil
 import time
 from importlib.metadata import PackageNotFoundError, version
-from zipfile import ZipFile
 from pathlib import Path
+from zipfile import ZipFile
 
 import numpy as np
 import requests
 from tqdm import tqdm
 
+from open_mastr.utils import unzip_http
+
 # setup logger
 from open_mastr.utils.config import setup_logger
-from open_mastr.utils.constants import BULK_INCLUDE_TABLES_MAP, BULK_DATA
-from open_mastr.utils import unzip_http
+from open_mastr.utils.constants import BULK_DATA, BULK_INCLUDE_TABLES_MAP
 
 try:
     USER_AGENT = (
@@ -43,7 +44,8 @@ def gen_version(
 
     see <https://www.marktstammdatenregister.de/MaStRHilfe/files/webdienst/Release-Termine.pdf>
 
-    Examples:
+    Examples
+    --------
     2024-01-01 = version 23.2
     2024-04-01 = version 23.2
     2024-04-02 = version 24.1
@@ -52,7 +54,6 @@ def gen_version(
     2024-10-02 = version 24.2
     2024-31-12 = version 24.2
     """
-
     year = when.tm_year
     release = 1
 
@@ -121,7 +122,7 @@ def download_xml_Mastr(
     """Downloads the zipped MaStR.
 
     Parameters
-    -----------
+    ----------
     save_path: str
         Full file path where the downloaded MaStR zip file will be saved.
     bulk_date_string: str
@@ -131,7 +132,6 @@ def download_xml_Mastr(
     xml_folder_path: str
         Path where the downloaded MaStR zip file will be saved.
     """
-
     log.info("Starting the Download from marktstammdatenregister.de.")
 
     # TODO this should take bulk_date_string
@@ -321,7 +321,7 @@ def full_download_without_unzip_http(
         "Warning: The servers from MaStR restrict the download speed."
         " You may want to download it another time."
     )
-    total_length = int(23000)
+    total_length = 23000
     with (
         open(save_path, "wb") as zfile,
         tqdm(desc=save_path, total=total_length, unit="") as bar,

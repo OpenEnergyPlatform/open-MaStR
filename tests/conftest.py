@@ -10,12 +10,13 @@ adding on to the ones provided by the conftest.py files in parent directories.
 https://docs.pytest.org/en/7.2.x/reference/fixtures.html
 """
 
-import pytest
-from open_mastr import Mastr
+import os
 
+import pytest
+
+from open_mastr import Mastr
 from open_mastr.utils.config import get_project_home_dir
 from open_mastr.utils.helpers import create_database_engine
-import os
 
 
 @pytest.fixture(scope="function")

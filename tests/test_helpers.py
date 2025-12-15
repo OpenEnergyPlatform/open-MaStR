@@ -1,34 +1,33 @@
-import pytest
 import os
-from os.path import expanduser
-import sys
 import random
-from os.path import join
+import sys
 from datetime import datetime
-import pandas as pd
-from open_mastr import Mastr
+from os.path import expanduser, join
 from zipfile import ZipFile
 
+import pandas as pd
+import pytest
+
+from open_mastr import Mastr
 from open_mastr.utils import orm
+from open_mastr.utils.config import create_data_dir, get_data_version_dir
 from open_mastr.utils.constants import (
+    ADDITIONAL_TABLES,
     API_LOCATION_TYPES,
     TECHNOLOGIES,
-    ADDITIONAL_TABLES,
 )
-from open_mastr.utils.config import get_data_version_dir, create_data_dir
 from open_mastr.utils.helpers import (
+    create_db_query,
+    data_to_include_tables,
+    db_query_to_csv,
+    delete_zip_file_if_corrupted,
+    reverse_unit_type_map,
+    session_scope,
+    transform_data_parameter,
+    validate_api_credentials,
     validate_parameter_format_for_download_method,
     validate_parameter_format_for_mastr_init,
-    validate_api_credentials,
-    transform_data_parameter,
-    data_to_include_tables,
-    session_scope,
-    create_db_query,
-    db_query_to_csv,
-    reverse_unit_type_map,
-    delete_zip_file_if_corrupted,
 )
-
 
 # Check if db is empty
 _db_exists = False
@@ -253,7 +252,12 @@ def test_validate_parameter_format_for_mastr_init(db):
 
 
 def test_transform_data_parameter():
-    (data, api_data_types, api_location_types, harm_log,) = transform_data_parameter(
+    (
+        data,
+        api_data_types,
+        api_location_types,
+        harm_log,
+    ) = transform_data_parameter(
         method="API",
         data=["wind", "location"],
         api_data_types=["eeg_data"],

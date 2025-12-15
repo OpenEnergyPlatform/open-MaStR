@@ -47,18 +47,18 @@ options:
                         them to stdout, in zipfile order)
 """
 
-import sys
-import os
-import io
-import math
-import time
-import zlib
-import struct
 import fnmatch
+import io
+import logging
+import math
+import os
 import pathlib
+import struct
+import sys
+import time
 import urllib.parse
 import zipfile
-import logging
+import zlib
 
 log = logging.getLogger(__name__)
 
@@ -74,7 +74,7 @@ def warning(s):
 
 
 def get_bits(val: int, *args):
-    "Generate bitfields (one for each arg) from LSB to MSB."
+    """Generate bitfields (one for each arg) from LSB to MSB."""
     for n in args:
         x = val & (2**n - 1)
         val >>= n
@@ -304,7 +304,7 @@ class RemoteZipFile:
         return self.http.request(
             "GET",
             self.url,
-            headers={"Range": f"bytes={start}-{start+n-1}"},
+            headers={"Range": f"bytes={start}-{start + n - 1}"},
             preload_content=False,
         )
 
@@ -358,7 +358,7 @@ class RemoteZipStream(io.RawIOBase):
         super().__init__()
         self.raw = fp
         self._decompressor = zlib.decompressobj(-15)
-        self._buffer = bytes()
+        self._buffer = b""
 
     def readable(self):
         return True
@@ -403,7 +403,7 @@ class StreamProgress:
 
             elapsed_s = now - self.start_time
             sys.stderr.write(
-                f"\r{elapsed_s:.0f}s  {self.amtread/10**6:.02f}/{self.total/10**6:.02f}MB  ({self.amtread/10**6/elapsed_s:.02f} MB/s)  {self.name}"
+                f"\r{elapsed_s:.0f}s  {self.amtread / 10**6:.02f}/{self.total / 10**6:.02f}MB  ({self.amtread / 10**6 / elapsed_s:.02f} MB/s)  {self.name}"
             )
 
         if not r:
