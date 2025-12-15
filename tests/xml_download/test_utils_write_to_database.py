@@ -12,9 +12,11 @@ from sqlalchemy import create_engine, inspect
 from sqlalchemy.sql import text
 
 from open_mastr.utils import orm
-from open_mastr.utils.orm import RetrofitUnits, NuclearExtended, tablename_mapping
+from open_mastr.utils.orm import NuclearExtended, RetrofitUnits, tablename_mapping
 from open_mastr.xml_download.utils_write_to_database import (
     add_missing_columns_to_table,
+    add_table_to_non_sqlite_database,
+    add_table_to_sqlite_database,
     add_zero_as_first_character_for_too_short_string,
     cast_date_columns_to_string,
     change_column_names_to_orm_format,
@@ -22,14 +24,12 @@ from open_mastr.xml_download.utils_write_to_database import (
     create_database_table,
     extract_sql_table_name,
     extract_xml_table_name,
+    interleave_files,
     is_date_column,
     is_first_file,
     is_table_relevant,
     process_table_before_insertion,
     read_xml_file,
-    add_table_to_non_sqlite_database,
-    add_table_to_sqlite_database,
-    interleave_files,
 )
 
 # Check if xml file exists

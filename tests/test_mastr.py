@@ -1,14 +1,15 @@
-import shutil
-
-from open_mastr.mastr import Mastr
 import os
 import re
-import sqlalchemy
-import pytest
-from os.path import expanduser
-import pandas as pd
-from open_mastr.utils.constants import TRANSLATIONS
+import shutil
 from datetime import date, timedelta
+from os.path import expanduser
+
+import pandas as pd
+import pytest
+import sqlalchemy
+
+from open_mastr.mastr import Mastr
+from open_mastr.utils.constants import TRANSLATIONS
 
 _xml_file_exists = False
 _xml_folder_path = os.path.join(expanduser("~"), ".open-MaStR", "data", "xml_download")

@@ -1,23 +1,23 @@
-from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy import (
-    Column,
-    Integer,
-    String,
-    Float,
-    Sequence,
-    DateTime,
-    Boolean,
-    func,
-    Date,
     JSON,
+    Boolean,
+    Column,
+    Date,
+    DateTime,
+    Float,
+    Integer,
+    Sequence,
+    String,
+    func,
 )
+from sqlalchemy.orm import DeclarativeBase
 
 
 class Base(DeclarativeBase):
     pass
 
 
-class ParentAllTables(object):
+class ParentAllTables:
     DatenQuelle = Column(String)
     DatumDownload = Column(Date)
 
@@ -72,7 +72,7 @@ class MissedAdditionalData(Base):
     download_date = Column(DateTime(timezone=True), default=func.now())
 
 
-class Extended(object):
+class Extended:
     NetzbetreiberMastrNummer = Column(String)
     Registrierungsdatum = Column(Date)
     EinheitMastrNummer = Column(String, primary_key=True)
@@ -287,7 +287,7 @@ class StorageExtended(Extended, ParentAllTables, Base):
     GemeinsamRegistrierteSolareinheitMastrNummer = Column(String)
 
 
-class Eeg(object):
+class Eeg:
     Registrierungsdatum = Column(Date)
     EegMastrNummer = Column(String, primary_key=True)
     Meldedatum = Column(Date)

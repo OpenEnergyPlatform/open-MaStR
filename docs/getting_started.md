@@ -50,7 +50,7 @@ More detailed information can be found in the section [bulk download](advanced.m
 
 API download
 -----------------------------------
-When using `download(method="API")`, the data is retrieved from the MaStR API. For using the MaStR API, credentials 
+When using `download(method="API")`, the data is retrieved from the MaStR API. For using the MaStR API, credentials
 are needed (see [SOAP API download](advanced.md#soap-api-download)).
 
 ```python
@@ -64,7 +64,7 @@ The default settings will save retrieved data into the sqlite database. The func
 
 ## Accessing the database
 
-For accessing and working with the MaStR database after you have downloaded it, you can use sqlite browsers 
+For accessing and working with the MaStR database after you have downloaded it, you can use sqlite browsers
 such as [DB Browser for SQLite](https://sqlitebrowser.org/) or any python module
 which can process sqlite data. Pandas, for example, comes with the function
 [read_sql](https://pandas.pydata.org/docs/reference/api/pandas.read_sql.html).

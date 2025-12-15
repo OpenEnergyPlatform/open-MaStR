@@ -10,7 +10,7 @@ assignees: ''
 ## Description of the issue
 
 Describe the problem in as much detail as possible.
-Focus on the expected and current behavior. 
+Focus on the expected and current behavior.
 If necessary, create a screenshot and insert below.
 
 ## Steps to Reproduce
@@ -23,9 +23,9 @@ If necessary, create a screenshot and insert below.
 Describe possible ideas for solution and evaluate advantages and disadvantages.
 
 ## Context and Environment
-* Version used: 
-* Operating system: 
-* Environment setup and (python) version: 
+* Version used:
+* Operating system:
+* Environment setup and (python) version:
 
 ## Workflow checklist
 - [ ] I have checked [the documentation](https://open-mastr.readthedocs.io/en/latest/) and confirmed this issue is not already addressed there.

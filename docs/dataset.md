@@ -28,7 +28,7 @@ As you may have noticed, we distinguish between `bulk` and `API` datasets. The `
 ## Tables in the database
 
 !!! question "Confused by all the tables?"
-    :sparkles: We regularly run the whole download and cleansing pipeline and upload the dataset as csv files at [zenodo](https://doi.org/10.5281/zenodo.6807425)! 
+    :sparkles: We regularly run the whole download and cleansing pipeline and upload the dataset as csv files at [zenodo](https://doi.org/10.5281/zenodo.6807425)!
 
 After downloading the MaStR, you will find a database with a large number of tables. Here we give a brief overview of what you can find in those tables:
 
@@ -39,33 +39,33 @@ After downloading the MaStR, you will find a database with a large number of tab
     The main information about the different technologies lies in the `_extended` tables. You can find the capacity, location, and other technology-specific attributes here.
 
     | Table name | Comments |
-    |------|------| 
+    |------|------|
     | biomass_extended  |  |
-    | combustion_extended  | *Conventional powerplants: Gas, Oil, Coal, ...* |  
+    | combustion_extended  | *Conventional powerplants: Gas, Oil, Coal, ...* |
     | gsgk_extended  | *gsgk is short for: Geothermal, Mine gas, and Pressure relaxation* |
     | hydro_extended  |  |
-    | nuclear_extended  |  | 
+    | nuclear_extended  |  |
     | solar_extended  |  |
-    | storage_extended  |  | 
+    | storage_extended  |  |
     | wind_extended  |  |
 
 === "_eeg tables"
     In germany, renewable energies were subsidized by the state - according to a law called 'EEG'. Relevant information like the 'EEG ID' are in the `_eeg` tables.
 
     | Table name | Comments |
-    |------|------| 
+    |------|------|
     | biomass_eeg | |
     | gsgk_eeg  | *gsgk is short for: Geothermal, Mine gas, and Pressure relaxation* |
     | hydro_eeg  |  |
     | solar_eeg  |  |
-    | storage_eeg  |  | 
+    | storage_eeg  |  |
     | wind_eeg  |  |
 
 === "Other tables"
     Other tables contain information about the grid, the energy market, or gas consumers and producers:
 
     | Table name | Comments |
-    |------|------| 
+    |------|------|
     | balancing_area | *Related to the energy market* |
     | changed_dso_assignment  | *Units where the DSO responsibility changed* |
     | electricity_consumer  |  *Only large consumers* |
@@ -86,7 +86,7 @@ After downloading the MaStR, you will find a database with a large number of tab
 
 
 ### MaStR data model
-A useful overview of the MaStR data model can be found [here (in german)](https://www.marktstammdatenregister.de/MaStRHilfe/files/webdienst/Objektmodell%20-%20Fachliche%20Ansicht%20V1.2.0.pdf). A translated version using the names from the tables you can find in your local database is presented here: 
+A useful overview of the MaStR data model can be found [here (in german)](https://www.marktstammdatenregister.de/MaStRHilfe/files/webdienst/Objektmodell%20-%20Fachliche%20Ansicht%20V1.2.0.pdf). A translated version using the names from the tables you can find in your local database is presented here:
 
 === "translated image (english)"
     ![Data model of the MaStR](images/DetailAnlagen_english.PNG)
@@ -98,7 +98,7 @@ A useful overview of the MaStR data model can be found [here (in german)](https:
 ## Tables as CSV
 
 Tables from the database can be exported to csv files. By default, all available power plant unit data will be exported
-to csv files. 
+to csv files.
 
 For exported csv's additional available data is joined on basic unit data. For example: For biomass power plants one csv
-is exported consisting of the join of four database tables (unit data, chp data, permit data, eeg data). We regularly run the whole download and cleansing pipeline and upload the dataset as csv files at [zenodo](https://doi.org/10.5281/zenodo.6807425). 
+is exported consisting of the join of four database tables (unit data, chp data, permit data, eeg data). We regularly run the whole download and cleansing pipeline and upload the dataset as csv files at [zenodo](https://doi.org/10.5281/zenodo.6807425).

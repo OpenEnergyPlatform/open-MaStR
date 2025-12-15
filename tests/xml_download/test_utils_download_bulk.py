@@ -1,10 +1,11 @@
-import time
-from open_mastr.xml_download.utils_download_bulk import (
-    gen_url,
-    delete_xml_files_not_from_given_date,
-)
 import os
 import shutil
+import time
+
+from open_mastr.xml_download.utils_download_bulk import (
+    delete_xml_files_not_from_given_date,
+    gen_url,
+)
 
 
 def test_gen_url():

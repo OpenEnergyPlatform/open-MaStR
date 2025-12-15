@@ -27,7 +27,7 @@ open-mastr
      - |badge_issue_open| |badge_issue_closes| |badge_pr_open| |badge_pr_closes|
    * - Community
      - |badge_contributing| |PyPI download month| |Total PyPI downloads|
-   
+
 
 .. contents::
     :depth: 2
@@ -37,16 +37,16 @@ open-mastr
 Introduction
 ============
 
-The `Marktstammdatenregister (MaStR) <https://www.marktstammdatenregister.de/MaStR>`_ is a German register 
+The `Marktstammdatenregister (MaStR) <https://www.marktstammdatenregister.de/MaStR>`_ is a German register
 provided by the German Federal Network Agency (Bundesnetzagentur / BNetza) that keeps track of all power and gas units located in Germany.
 
 The MaStR data can be
- 
+
 #. browsed and filtered `online <https://www.marktstammdatenregister.de/MaStR>`_
 #. taken from `daily provided dumps <https://www.marktstammdatenregister.de/MaStR/Datendownload>`_
 #. be accessed via the `web service <https://www.marktstammdatenregister.de/MaStRHilfe/subpages/webdienst.html>`_
 
-| The python package ``open-mastr`` provides an interface for accessing the data. 
+| The python package ``open-mastr`` provides an interface for accessing the data.
 | It contains methods to download and parse the xml files (bulk) and the SOAP web service (API).
 | In this repository we are developing methods to analyze, validate and enrich the data.
 | We want to collect and compile post processing scripts to improve data quality.
@@ -111,7 +111,7 @@ These projects already use open-mastr:
 - `EmPowerPlan <https://epp.rl-institut.de/>`_
 - `Goal100 Monitor <https://goal100.org/monitor>`_
 
-If you want to see your project in this list, write an  
+If you want to see your project in this list, write an
 `Issue <https://github.com/OpenEnergyPlatform/open-MaStR/issues>`_ or add
 changes in a `Pull Request <https://github.com/OpenEnergyPlatform/open-MaStR/pulls>`_.
 
@@ -178,7 +178,7 @@ Data
 
 .. |badge_contributing| image:: https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat
     :alt: contributions
-    
+
 .. |PyPI download month| image:: https://img.shields.io/pypi/dm/open-mastr?label=PyPi%20Downloads
     :target: https://pypistats.org/packages/open-mastr
 
@@ -187,5 +187,3 @@ Data
 
 .. |badge_joss| image:: https://joss.theoj.org/papers/dc0d33e7dc74f7233e15a7b6fe0c7a3e/status.svg
     :target: https://joss.theoj.org/papers/dc0d33e7dc74f7233e15a7b6fe0c7a3e
-
-

@@ -1,6 +1,43 @@
+# Global excludes - apply to all hooks
+exclude: ^(build/|dist/|.*\.egg-info/|\.tox/|\.pytest_cache/|\.mypy_cache/|__pycache__/|postprocessing/|open_mastr/soap_api/|scripts/)
+
 repos:
-  - repo: https://github.com/psf/black
-    rev: 22.6.0
+  # Base pre-commit hooks for common issues
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
     hooks:
-      - id: black
-        language_version: python3.11
+      - id: trailing-whitespace
+        exclude: \.ipynb$
+      - id: end-of-file-fixer
+        exclude: \.ipynb$
+      - id: check-yaml
+      - id: check-added-large-files
+        args: ['--maxkb=1000']
+      - id: check-json
+      - id: check-toml
+      - id: check-merge-conflict
+      - id: debug-statements
+      - id: check-case-conflict
+      - id: check-docstring-first
+      - id: mixed-line-ending
+        args: ['--fix=lf']
+
+  # Ruff - fast, comprehensive linter and formatter (replaces flake8, isort, pylint, pyupgrade, black, pydocstyle)
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.14.9
+    hooks:
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+      - id: ruff-format
+
+  # mypy - static type checking
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.19.1
+    hooks:
+      - id: mypy
+        additional_dependencies:
+          - types-requests
+          - types-PyYAML
+          - types-tqdm
+        args: [--ignore-missing-imports, --show-error-codes]
+        exclude: ^(tests/|scripts/|docs/|postprocessing/)

@@ -1,47 +1,48 @@
 import os
-from sqlalchemy import inspect, create_engine
+
+from sqlalchemy import create_engine, inspect
+
+import open_mastr.utils.orm as orm
+
+# import soap_API dependencies
+from open_mastr.soap_api.mirror import MaStRMirror
+from open_mastr.utils.config import (
+    create_data_dir,
+    get_data_version_dir,
+    get_output_dir,
+    get_project_home_dir,
+    setup_logger,
+)
+
+# constants
+from open_mastr.utils.constants import ADDITIONAL_TABLES, TECHNOLOGIES
+from open_mastr.utils.helpers import (
+    create_database_engine,
+    create_db_query,
+    create_translated_database_engine,
+    data_to_include_tables,
+    db_query_to_csv,
+    delete_zip_file_if_corrupted,
+    parse_date_string,
+    print_api_settings,
+    rename_table,
+    reverse_fill_basic_units,
+    transform_data_parameter,
+    transform_date_parameter,
+    validate_api_credentials,
+    validate_parameter_data,
+    validate_parameter_format_for_download_method,
+    validate_parameter_format_for_mastr_init,
+)
 
 # import xml dependencies
 from open_mastr.xml_download.utils_download_bulk import (
-    download_xml_Mastr,
     delete_xml_files_not_from_given_date,
+    download_xml_Mastr,
 )
 from open_mastr.xml_download.utils_write_to_database import (
     write_mastr_xml_to_database,
 )
-
-# import soap_API dependencies
-from open_mastr.soap_api.mirror import MaStRMirror
-
-from open_mastr.utils.helpers import (
-    print_api_settings,
-    validate_api_credentials,
-    validate_parameter_format_for_download_method,
-    validate_parameter_format_for_mastr_init,
-    validate_parameter_data,
-    transform_data_parameter,
-    parse_date_string,
-    transform_date_parameter,
-    data_to_include_tables,
-    create_db_query,
-    db_query_to_csv,
-    reverse_fill_basic_units,
-    delete_zip_file_if_corrupted,
-    create_database_engine,
-    rename_table,
-    create_translated_database_engine,
-)
-from open_mastr.utils.config import (
-    create_data_dir,
-    get_data_version_dir,
-    get_project_home_dir,
-    get_output_dir,
-    setup_logger,
-)
-import open_mastr.utils.orm as orm
-
-# constants
-from open_mastr.utils.constants import TECHNOLOGIES, ADDITIONAL_TABLES
 
 # setup logger
 log = setup_logger()
@@ -200,7 +201,6 @@ class Mastr:
             "location_elec_generation", "location_elec_consumption", "location_gas_generation",
             "location_gas_consumption". Defaults to all.
         """
-
         if self.is_translated:
             raise TypeError(
                 "You are currently connected to a translated database.\n"
@@ -320,7 +320,7 @@ class Mastr:
         If 'tables=None' all possible tables will be exported.
 
         Parameters
-        ------------
+        ----------
         tables: None or list
             For exporting selected tables choose from:
                 ["wind", "solar", "biomass", "hydro", "gsgk", "combustion", "nuclear", "storage",
@@ -334,7 +334,6 @@ class Mastr:
         limit: None or int
             Limits the number of exported data rows.
         """
-
         if self.is_translated:
             raise TypeError(
                 "You are currently connected to a translated database.\n"
@@ -425,14 +424,13 @@ class Mastr:
             ```
 
         """
-
         if "sqlite" not in self.engine.dialect.name:
             raise ValueError("engine has to be of type 'sqlite'")
         if self.is_translated:
             raise TypeError("The currently connected database is already translated.")
 
         inspector = inspect(self.engine)
-        old_path = r"{}".format(self.engine.url.database)
+        old_path = rf"{self.engine.url.database}"
         new_path = old_path[:-3] + "-translated.db"
 
         if os.path.exists(new_path):

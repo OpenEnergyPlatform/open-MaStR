@@ -1,6 +1,8 @@
-from open_mastr.soap_api.download import MaStRAPI, MaStRDownload, flatten_dict
-import pytest
 import datetime
+
+import pytest
+
+from open_mastr.soap_api.download import MaStRAPI, MaStRDownload, flatten_dict
 
 
 @pytest.fixture
@@ -73,7 +75,6 @@ def test_basic_unit_data(mastr_download):
 
 
 def test_additional_data_nuclear(mastr_download):
-
     data_fcns = [
         ("SME963513379837", "extended_unit_data"),
         ("SGE951929415553", "permit_unit_data"),
@@ -88,7 +89,6 @@ def test_additional_data_nuclear(mastr_download):
 
 
 def test_additional_data_biomass(mastr_download):
-
     data_fcns = [
         ("SEE936595511945", "extended_unit_data"),
         ("EEG929630520224", "extended_unit_data"),

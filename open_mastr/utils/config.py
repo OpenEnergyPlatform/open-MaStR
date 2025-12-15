@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 
 """
@@ -17,20 +16,20 @@ __author__ = "Ludee; christian-rli"
 __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.10.0"
 
-import os
-import yaml
-import shutil
-import pathlib
-from datetime import date
-
 import logging
 import logging.config
-from open_mastr.utils.constants import (
-    TECHNOLOGIES,
-    API_LOCATION_TYPES,
-    ADDITIONAL_TABLES,
-)
+import os
+import pathlib
+import shutil
+from datetime import date
 
+import yaml
+
+from open_mastr.utils.constants import (
+    ADDITIONAL_TABLES,
+    API_LOCATION_TYPES,
+    TECHNOLOGIES,
+)
 
 log = logging.getLogger(__name__)
 
@@ -46,7 +45,6 @@ def get_project_home_dir():
     path-like object
         Absolute path to root dir of open-MaStR project home
     """
-
     return os.path.join(os.path.expanduser("~"), ".open-MaStR")
 
 
@@ -58,7 +56,6 @@ def get_output_dir():
     path-like object
         Absolute path to output path
     """
-
     if "OUTPUT_PATH" in os.environ:
         return os.environ.get("OUTPUT_PATH")
 
@@ -110,10 +107,9 @@ def get_data_config():
     str
         dataversion
     """
-
     today = date.today()
 
-    data_config = f'dataversion-{today.strftime("%Y-%m-%d")}'
+    data_config = f"dataversion-{today.strftime('%Y-%m-%d')}"
 
     return data_config
 
@@ -158,13 +154,11 @@ def create_data_dir():
     The directory that is created for this fata version can
     be returned by :func:`~.get_data_version_dir`.
     """
-
     os.makedirs(get_data_version_dir(), exist_ok=True)
 
 
 def _filenames_generator():
     """Write default file names .yml to project home dir"""
-
     filenames_file = os.path.join(get_project_home_dir(), "config", "filenames.yml")
 
     # How files are prefixed
@@ -207,7 +201,6 @@ def _filenames_generator():
     for section, section_filenames in filenames_template.items():
         filenames[section] = {}
         for tech in TECHNOLOGIES:
-
             # Files for all technologies
             files = ["joined", "basic", "extended", "extended_fail"]
 
@@ -264,7 +257,6 @@ def setup_project_home():
     Create PROJECTHOME returned by :func:`~.get_project_home_dir`.
     In addition, default config files are copied to `PROJECTHOME/config/`.
     """
-
     # Create directory structure of project home dir
     create_project_home_dir()
 
@@ -280,7 +272,6 @@ def setup_logger():
     logging.Logger
         Logger with two handlers: console and file.
     """
-
     # Read logging config
     with open(
         os.path.join(get_project_home_dir(), "config", "logging.yml")

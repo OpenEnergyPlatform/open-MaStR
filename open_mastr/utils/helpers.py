@@ -1,5 +1,5 @@
-import os
 import json
+import os
 import sys
 from contextlib import contextmanager
 from datetime import date, datetime
@@ -7,35 +7,34 @@ from warnings import warn
 from zipfile import BadZipfile, ZipFile
 
 import dateutil
+import pandas as pd
 import sqlalchemy
-from sqlalchemy.sql import insert, literal_column, text
 from dateutil.parser import parse
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Query, sessionmaker
-
-import pandas as pd
+from sqlalchemy.sql import insert, literal_column, text
 from tqdm import tqdm
+
+from open_mastr.soap_api.download import MaStRAPI, log
 from open_mastr.soap_api.metadata.create import create_datapackage_meta_json
 from open_mastr.utils import orm
 from open_mastr.utils.config import (
-    get_filenames,
-    get_data_version_dir,
     column_renaming,
+    get_data_version_dir,
+    get_filenames,
 )
-
-from open_mastr.soap_api.download import MaStRAPI, log
 from open_mastr.utils.constants import (
-    BULK_DATA,
-    TECHNOLOGIES,
+    ADDITIONAL_TABLES,
     API_DATA,
     API_DATA_TYPES,
     API_LOCATION_TYPES,
-    BULK_INCLUDE_TABLES_MAP,
     BULK_ADDITIONAL_TABLES_CSV_EXPORT_MAP,
+    BULK_DATA,
+    BULK_INCLUDE_TABLES_MAP,
     ORM_MAP,
-    UNIT_TYPE_MAP,
-    ADDITIONAL_TABLES,
+    TECHNOLOGIES,
     TRANSLATIONS,
+    UNIT_TYPE_MAP,
 )
 
 
@@ -303,7 +302,7 @@ def transform_date_parameter(self, method, date, **kwargs):
         if date == "existing":
             log.warning(
                 """
-            The date parameter 'existing' is deprecated and will be removed in the future. 
+            The date parameter 'existing' is deprecated and will be removed in the future.
             The date parameter is set to `today`.
 
             If this change causes problems for you, please comment in this issue on github:
@@ -384,12 +383,14 @@ def data_to_include_tables(data: list, mapping: str = None) -> list:
     Convert user input 'data' to the list 'include_tables'.
     It contains file names from zipped bulk download, if mapping="write_xml".
     It contains database table names, if mapping="export_db_tables".
+
     Parameters
     ----------
     data: list
         The user input for data selection
     mapping: str
         Specify the mapping dict for the function and thus the list output.
+
     Returns
     -------
     list
@@ -465,7 +466,6 @@ def create_db_query(
     chunksize: int or None
         Defines the chunksize of the tables export. Default to 500.000 which is roughly 2.5 GB.
     """
-
     renaming = column_renaming()
 
     unit_type_map_reversed = reverse_unit_type_map()
@@ -606,7 +606,6 @@ def reverse_fill_basic_units(technology=None, engine=None):
     technology: list of str
         Available technologies are in open_mastr.Mastr.to_csv()
     """
-
     with session_scope(engine=engine) as session:
         # Empty the basic_units table, because it will be filled entirely from extended tables
         session.query(getattr(orm, "BasicUnit", None)).delete()
@@ -779,14 +778,13 @@ def create_translated_database_engine(engine, folder_path) -> sqlalchemy.engine.
     Check if translated version of the database, as defined with engine parameter, exists.
     Return sqlite engine connected with the translated database.
     """
-
     if engine == "sqlite":
         db_path = os.path.join(folder_path, "open-mastr-translated.db")
     else:
         if "sqlite" not in engine.dialect.name:
             raise ValueError("engine has to be of type 'sqlite'")
 
-        prev_path = r"{}".format(engine.url.database)
+        prev_path = rf"{engine.url.database}"
         engine.dispose()
         db_path = prev_path[:-3] + "-translated.db"
 

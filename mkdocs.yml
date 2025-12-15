@@ -1,5 +1,5 @@
 site_name: open-mastr
-theme: 
+theme:
   name: material
   features:
     - navigation.tabs
@@ -21,7 +21,7 @@ theme:
     # Palette toggle for light mode
     - scheme: default
       toggle:
-        icon: material/brightness-7 
+        icon: material/brightness-7
         name: Switch to dark mode
   icon:
     repo: fontawesome/brands/github
@@ -42,7 +42,7 @@ plugins:
             docstring_style: numpy
             docstring_section_style: spacy
   - include-markdown
-  
+
 
 watch:
   - open_mastr
@@ -78,7 +78,7 @@ nav:
   - Reference:
     - Basic Usage: reference/basic.md
     - Advanced Usage of the MaStR SOAP-API: reference/advanced.md
-  - Development: 
+  - Development:
     - Contributing: development/contributing_mirror.md
     - Changelog: development/changelog_mirror.md
 

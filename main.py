@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 """
 open-MaStR - Main file
@@ -11,7 +10,6 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 """
 
 from open_mastr import Mastr
-import os
 
 ## specify download parameter
 
@@ -96,6 +94,6 @@ if __name__ == "__main__":
     ## export to csv
     """
     Technology-related tables are exported as joined, whereas additional tables
-    are duplicated as they are in the database. 
+    are duplicated as they are in the database.
     """
     db.to_csv()

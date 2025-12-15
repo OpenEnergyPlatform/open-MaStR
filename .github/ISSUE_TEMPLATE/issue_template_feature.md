@@ -9,7 +9,7 @@ assignees: ''
 
 ## Description of the issue
 
-Describe the problem in as much detail as possible. 
+Describe the problem in as much detail as possible.
 
 ## Ideas of solution
 

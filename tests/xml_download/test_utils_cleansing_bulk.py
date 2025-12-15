@@ -1,9 +1,9 @@
-import sys
-import sqlite3
-from os.path import expanduser
 import os
+import sqlite3
+import sys
+from os.path import expanduser
+
 import pandas as pd
-import numpy as np
 import pytest
 
 from open_mastr.xml_download.utils_cleansing_bulk import (
@@ -22,6 +22,7 @@ if os.path.isdir(_xml_folder_path):
 _sqlite_folder_path = os.path.join(expanduser("~"), ".open-MaStR", "data", "sqlite")
 _sqlite_file_path = os.path.join(_sqlite_folder_path, "open-mastr.db")
 _sqlite_db_exists = bool(os.path.exists(_sqlite_file_path))
+
 
 # Silence ValueError caused by logger https://github.com/pytest-dev/pytest/issues/5502
 @pytest.fixture(autouse=True)

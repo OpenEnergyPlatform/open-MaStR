@@ -14,18 +14,18 @@ __author__ = "gplssm"
 __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/83"
 __version__ = "v0.10.0"
 
-import os
 import configparser as cp
-from open_mastr.utils.config import get_project_home_dir
+import logging
+import os
+
 import keyring
 
-import logging
+from open_mastr.utils.config import get_project_home_dir
 
 log = logging.getLogger(__name__)
 
 
 def _load_config_file():
-
     config_file = os.path.join(get_project_home_dir(), "config", "credentials.cfg")
     cfg = cp.ConfigParser()
 
@@ -78,7 +78,6 @@ def get_mastr_user():
 
 def check_and_set_mastr_user():
     """Checks if MaStR user is stored, otherwise asks for it."""
-
     user = get_mastr_user()
 
     if not user:
@@ -88,9 +87,8 @@ def check_and_set_mastr_user():
         cfg = _load_config_file()
 
         user = input(
-            "\n\nCannot not find a MaStR user name in {config_file}.\n\n"
+            f"\n\nCannot not find a MaStR user name in {credentials_file}.\n\n"
             "Please enter MaStR-ID (pattern: SOM123456789012): "
-            "".format(config_file=credentials_file)
         )
         cfg["MaStR"] = {"user": user}
 
@@ -116,7 +114,6 @@ def get_mastr_token(user):
     -------
     str : Token (password)
     """
-
     # Try to get password from keyring
     keyring.get_keyring()
     # Retrieving password from keyring does currently fail on headless systems
@@ -146,7 +143,6 @@ def get_mastr_token(user):
 
 def check_and_set_mastr_token(user):
     """Checks if MaStR token is stored, otherwise asks for it."""
-
     password = get_mastr_token(user)
 
     if not password:
@@ -158,13 +154,11 @@ def check_and_set_mastr_token(user):
         # If also no password in credentials file, ask the user to input password
         # Two options: (1) storing in keyring; (2) storing in config file
         password = input(
-            "\n\nCannot not find a MaStR password, neither in keyring nor in {config_file}.\n\n"
+            f"\n\nCannot not find a MaStR password, neither in keyring nor in {credentials_file}.\n\n"
             "Please enter a valid access token of a role (Benutzerrolle) "
-            "associated to the user {user}.\n"
+            f"associated to the user {user}.\n"
             "The token might look like: "
-            "koo5eixeiQuoi'w8deighai8ahsh1Ha3eib3coqu7ceeg%ies...\n".format(
-                config_file=credentials_file, user=user
-            )
+            "koo5eixeiQuoi'w8deighai8ahsh1Ha3eib3coqu7ceeg%ies...\n"
         )
 
         # let the user decide where to store the password
