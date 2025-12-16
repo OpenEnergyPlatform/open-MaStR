@@ -4,6 +4,7 @@ from sqlalchemy import inspect, create_engine
 # import xml dependencies
 from open_mastr.xml_download.utils_download_bulk import (
     download_xml_Mastr,
+    select_download_date,
     delete_xml_files_not_from_given_date,
 )
 from open_mastr.xml_download.utils_write_to_database import (
@@ -116,6 +117,7 @@ class Mastr:
         api_chunksize=1000,
         api_data_types=None,
         api_location_types=None,
+        select_date_interactively: bool = False,
         **kwargs,
     ) -> None:
         """
@@ -167,6 +169,11 @@ class Mastr:
             | None      | set date="today"  | set date="latest"   |
 
             Default to `None`.
+        select_date_interactively : bool, optional
+            If set to True, the user will be presented with a list of available download dates
+            from the MaStR website and can interactively select which date to download.
+            This allows downloading historical data instead of just the latest available data.
+            When True, the `date` parameter is ignored. Defaults to False.
         bulk_cleansing : bool, optional
             If set to True, data cleansing is applied after the download (which is recommended).
             In its original format, many entries in the MaStR are encoded with IDs. Columns like
@@ -231,8 +238,26 @@ class Mastr:
         date = transform_date_parameter(self, method, date, **kwargs)
 
         if method == "bulk":
-            # Find the name of the zipped xml folder
-            bulk_download_date = parse_date_string(date)
+            # Handle interactive date selection if requested
+            if select_date_interactively:
+                log.info(
+                    "Interactive date selection enabled. Fetching available downloads..."
+                )
+                selected_date, selected_url = select_download_date()
+
+                if selected_date is None:
+                    log.info("Download cancelled by user.")
+                    return
+
+                # Update the date and use the selected URL
+                date = selected_date
+                bulk_download_date = selected_date
+                custom_url = selected_url
+            else:
+                # Find the name of the zipped xml folder
+                bulk_download_date = parse_date_string(date)
+                custom_url = None
+
             xml_folder_path = os.path.join(self.output_dir, "data", "xml_download")
             os.makedirs(xml_folder_path, exist_ok=True)
             zipped_xml_file_path = os.path.join(
@@ -247,7 +272,10 @@ class Mastr:
                     xml_folder_path,
                 )
 
-            download_xml_Mastr(zipped_xml_file_path, date, data, xml_folder_path)
+            # Use the download function with optional custom URL
+            download_xml_Mastr(
+                zipped_xml_file_path, date, data, xml_folder_path, custom_url
+            )
 
             log.info(
                 "\nWould you like to speed up the creation of your MaStR database?\n"
@@ -458,3 +486,28 @@ class Mastr:
 
         self.engine = create_engine(f"sqlite:///{new_path}")
         self.is_translated = True
+
+    def browse_available_downloads(self):
+        """
+        Browse available MaStR downloads from the website without starting the download.
+
+        This method fetches and displays all available download dates from the MaStR website,
+        allowing users to see what historical data is available before deciding to download.
+
+        Returns
+        -------
+        list of dict
+            List of available downloads with date, version, and type information.
+
+        Examples
+        --------
+        >>> from open_mastr import Mastr
+        >>> db = Mastr()
+        >>> available_downloads = db.browse_available_downloads()
+        >>> # User can then choose a date and download with:
+        >>> # db.download(select_date_interactively=True)
+        """
+        from open_mastr.xml_download.utils_download_bulk import list_available_downloads
+
+        log.info("Browsing available MaStR downloads...")
+        return list_available_downloads()
