@@ -10,7 +10,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 ### Added
 
 ### Changed
-
+- Adapt introduction text in README and docs
+  [#647](https://github.com/OpenEnergyPlatform/open-MaStR/pull/647)
 ### Removed
 
 
