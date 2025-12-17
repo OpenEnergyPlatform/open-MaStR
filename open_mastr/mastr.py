@@ -247,7 +247,9 @@ class Mastr:
                     xml_folder_path,
                 )
 
-            download_xml_Mastr(zipped_xml_file_path, date, data, xml_folder_path)
+            download_xml_Mastr(
+                zipped_xml_file_path, bulk_download_date, data, xml_folder_path
+            )
 
             log.info(
                 "\nWould you like to speed up the creation of your MaStR database?\n"

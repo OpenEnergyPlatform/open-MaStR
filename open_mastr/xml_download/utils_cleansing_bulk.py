@@ -5,6 +5,7 @@ from open_mastr.xml_download.colums_to_replace import (
     columns_replace_list,
 )
 from zipfile import ZipFile
+import io
 
 
 def cleanse_bulk_data(df: pd.DataFrame, zipped_xml_file_path: str) -> pd.DataFrame:
@@ -59,8 +60,11 @@ def create_katalogwerte_from_bulk_download(zipped_xml_file_path) -> dict:
     """Creates a dictionary from the id -> value mapping defined in the table
     katalogwerte from MaStR."""
     with ZipFile(zipped_xml_file_path, "r") as f:
-        data = f.read("Katalogwerte.xml")
-        df_katalogwerte = pd.read_xml(data, encoding="UTF-16", compression="zip")
+        with f.open("Katalogwerte.xml") as xml_bytes_io:
+            xml_bytes = xml_bytes_io.read()
+        xml_text = xml_bytes.decode("utf-16")
+        xml_io = io.StringIO(xml_text)
+        df_katalogwerte = pd.read_xml(xml_io)
     katalogwerte_array = np.array(df_katalogwerte[["Id", "Wert"]])
     katalogwerte = dict(
         (katalogwerte_array[n][0], katalogwerte_array[n][1])
