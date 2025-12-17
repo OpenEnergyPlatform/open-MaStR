@@ -1,6 +1,7 @@
 name: ⚠️ Build production package and release on pypi
 
 on:
+  workflow_dispatch:
   release:
     types: [published]
 
