@@ -1,6 +1,7 @@
 import os
 import shutil
 import time
+from datetime import datetime as dt
 from importlib.metadata import PackageNotFoundError, version
 from zipfile import ZipFile
 from pathlib import Path
@@ -87,7 +88,9 @@ def gen_version(
     return f"{year}.{release}"
 
 
-def gen_url(when: time.struct_time = time.localtime(), use_version="current") -> str:
+def gen_url(
+    when: time.struct_time = time.localtime(), use_version="current", use_stichtag=False
+) -> str:
     """Generates the download URL for the specified date.
 
     Note that not all dates are archived on the website.
@@ -115,7 +118,11 @@ def gen_url(when: time.struct_time = time.localtime(), use_version="current") ->
     version = gen_version(when, use_version)
     date = time.strftime("%Y%m%d", when)
 
-    return f"https://download.marktstammdatenregister.de/Gesamtdatenexport_{date}_{version}.zip"
+    if use_stichtag:
+        url_str = f"https://download.marktstammdatenregister.de/Stichtag/Gesamtdatenexport_{date}_{version}.zip"
+    else:
+        url_str = f"https://download.marktstammdatenregister.de/Gesamtdatenexport_{date}_{version}.zip"
+    return url_str
 
 
 def download_xml_Mastr(
@@ -156,6 +163,9 @@ def download_xml_Mastr(
             # Fallback to current date if date string is invalid
             now = time.localtime()
             url = gen_url(now)
+    else:
+      url_time = dt.strptime(bulk_date_string, "%Y%m%d").date().timetuple()
+      url = gen_url(url_time)            
 
     time_a = time.perf_counter()
     r = requests.get(url, stream=True, headers={"User-Agent": USER_AGENT})
@@ -164,23 +174,31 @@ def download_xml_Mastr(
             "Download file was not found. Assuming that the new file was not published yet and retrying with yesterday."
         )
         now = time.localtime(
-            time.mktime(now) - (24 * 60 * 60)
+            time.mktime(url_time) - (24 * 60 * 60)
         )  # subtract 1 day from the date
         url = gen_url(now)
         r = requests.get(url, stream=True, headers={"User-Agent": USER_AGENT})
     if r.status_code == 404:
-        url = gen_url(now, use_version="before")  # Use lower MaStR Version
+        url = gen_url(url_time, use_version="before")  # Use lower MaStR Version
         log.warning(
             f"Download file was not found. Assuming that the version of MaStR has changed and retrying with download link: {url}"
         )
         r = requests.get(url, stream=True, headers={"User-Agent": USER_AGENT})
     if r.status_code == 404:
-        url = gen_url(now, use_version="after")  # Use higher MaStR Version
+        url = gen_url(url_time, use_version="after")  # Use higher MaStR Version
         log.warning(
             f"Download file was not found. Assuming that the version of MaStR has changed and retrying with download link: {url}"
         )
         r = requests.get(url, stream=True, headers={"User-Agent": USER_AGENT})
 
+    if r.status_code == 404:
+        url = gen_url(
+            url_time, use_stichtag=True
+        )  # Use different url-structure for older downloads
+        log.warning(
+            f"Download file was not found. Assuming that the link structure of MaStR has changed and retrying with download link: {url}"
+        )
+        r = requests.get(url, stream=True, headers={"User-Agent": USER_AGENT})
     if r.status_code == 404:
         log.error("Could not download file: download URL not found")
         return

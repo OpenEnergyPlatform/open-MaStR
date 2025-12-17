@@ -274,7 +274,7 @@ class Mastr:
 
             # Use the download function with optional custom URL
             download_xml_Mastr(
-                zipped_xml_file_path, date, data, xml_folder_path, custom_url
+                zipped_xml_file_path, bulk_download_date, data, xml_folder_path, custom_url
             )
 
             log.info(

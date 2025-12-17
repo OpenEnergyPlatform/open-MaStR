@@ -14,6 +14,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 ### Changed
 - Adapt introduction text in README and docs
   [#647](https://github.com/OpenEnergyPlatform/open-MaStR/pull/647)
+- Hotfix of date selection and incorporate new url structure
+  [#699](https://github.com/OpenEnergyPlatform/open-MaStR/pull/699)
 ### Removed
 
 
