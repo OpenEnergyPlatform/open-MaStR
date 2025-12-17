@@ -150,22 +150,26 @@ def download_xml_Mastr(
 
     log.info("Starting the Download from marktstammdatenregister.de.")
 
+    # Helper function to convert date string to time.struct_time
+    def _parse_date_string(date_str):
+        """Convert YYYYMMDD string to time.struct_time object."""
+        try:
+            # Use datetime.strptime for robust date parsing
+            parsed_date = dt.strptime(date_str, "%Y%m%d")
+            # Convert to time.struct_time using timetuple()
+            return parsed_date.timetuple()
+        except (ValueError, IndexError) as e:
+            log.warning(f"Invalid date format '{date_str}': {e}. Using current date.")
+            return time.localtime()
+
+    # Parse the date string to time.struct_time (needed for both cases)
+    url_time = _parse_date_string(bulk_date_string)
+
+    # Determine the URL to use
     if url is None:
         # Generate URL from date string if no custom URL provided
-        try:
-            # Convert bulk_date_string to time.struct_time
-            year = int(bulk_date_string[:4])
-            month = int(bulk_date_string[4:6])
-            day = int(bulk_date_string[6:8])
-            now = time.struct_time((year, month, day, 0, 0, 0, 0, 0, 0))
-            url = gen_url(now)
-        except (ValueError, IndexError):
-            # Fallback to current date if date string is invalid
-            now = time.localtime()
-            url = gen_url(now)
-    else:
-      url_time = dt.strptime(bulk_date_string, "%Y%m%d").date().timetuple()
-      url = gen_url(url_time)            
+        url = gen_url(url_time)
+    # else: custom URL is already provided, use it as-is
 
     time_a = time.perf_counter()
     r = requests.get(url, stream=True, headers={"User-Agent": USER_AGENT})
