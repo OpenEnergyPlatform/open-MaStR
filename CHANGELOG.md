@@ -6,15 +6,6 @@ For each version important additions, changes and removals are listed here.
 The format is inspired from [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [v0.XX.X] unreleased - 202X-XX-XX
-### Added
-
-### Changed
-- Use trusted publishing on pypi
-  [#685](https://github.com/OpenEnergyPlatform/open-MaStR/pull/685)
-### Removed
-
-
 ## [v0.16.1] Hotfix - 2025-12-17
 
 ### Changed
@@ -22,6 +13,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
   [#647](https://github.com/OpenEnergyPlatform/open-MaStR/pull/647)
 - Hotfix of date selection and incorporate new url structure
   [#699](https://github.com/OpenEnergyPlatform/open-MaStR/pull/699)
+- Use trusted publishing on pypi
+  [#685](https://github.com/OpenEnergyPlatform/open-MaStR/pull/685)
 
 
 
