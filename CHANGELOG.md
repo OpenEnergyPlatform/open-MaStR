@@ -6,6 +6,14 @@ For each version important additions, changes and removals are listed here.
 The format is inspired from [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [v0.XX.X] unreleased - 202X-XX-XX
+### Added
+
+### Changed
+
+### Removed
+
+
 ## [v0.16.1] Hotfix - 2025-12-17
 
 ### Changed
