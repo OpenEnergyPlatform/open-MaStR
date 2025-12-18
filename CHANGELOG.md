@@ -21,6 +21,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 ### Added
 - Add partial bulk download
   [#652](https://github.com/OpenEnergyPlatform/open-MaStR/pull/652)
+- Modernize linting setup and add pre-commit checks in CI
+  [#671](https://github.com/OpenEnergyPlatform/open-MaStR/pull/671)
 ### Changed
 - Updates the system_catalog dict with missing Einheittyp values
   [#653](https://github.com/OpenEnergyPlatform/open-MaStR/pull/653)
