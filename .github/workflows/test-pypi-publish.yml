@@ -8,15 +8,19 @@ on:
 
 jobs:
   build-n-publish:
-    name: Build and publish Python 🐍 distributions 📦 to TestPyPI
+    name: "[TEST RELEASE] Build and publish Python 🐍 distributions 📦 to TestPyPI"
     runs-on: ubuntu-latest
-    environment: pypi-publish
+    environment:
+      name: pypi
+      url: https://pypi.org/p/open-mastr
+    permissions:
+      id-token: write
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python 3.10
-      uses: actions/setup-python@v3
+    - uses: actions/checkout@v6
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v6
       with:
-        python-version: "3.10"
+        python-version: "3.11"
 
     - name: Install pypa/build
       run: >-
@@ -34,6 +38,5 @@ jobs:
     - name: Publish distribution 📦 to Test PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
-        password: ${{ secrets.PYPI_TEST }}
         repository-url: https://test.pypi.org/legacy/
         verbose: true
