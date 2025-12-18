@@ -13,6 +13,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
   [#647](https://github.com/OpenEnergyPlatform/open-MaStR/pull/647)
 - Hotfix of date selection and incorporate new url structure
   [#699](https://github.com/OpenEnergyPlatform/open-MaStR/pull/699)
+- Use trusted publishing on pypi
+  [#685](https://github.com/OpenEnergyPlatform/open-MaStR/pull/685)
 
 
 
