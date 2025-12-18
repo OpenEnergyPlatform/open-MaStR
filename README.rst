@@ -54,7 +54,7 @@ In particular, ``open-mastr`` facilitates access to the daily provided MaStR dum
 No. ``open-mastr`` is a wrapper around the MaStR data and does not edit or change the data. It is intended to be used as a tool for working with the MaStR data.
 
 Benefits provided by ``open-mastr``
-==================================
+===================================
 
 .. list-table::
    :widths: 30, 70
