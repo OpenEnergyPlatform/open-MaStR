@@ -548,4 +548,4 @@ def select_download_date():
             return None, None
 
         else:
-            print("Invalid choice. Please enter 1, 2, or 3.")
+            print("Invalid choice. Please enter 1, or 2.")
