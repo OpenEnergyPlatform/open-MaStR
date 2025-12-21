@@ -1,23 +1,27 @@
 import pandas as pd
 import numpy as np
-from open_mastr.xml_download.colums_to_replace import (
-    system_catalog,
-    columns_replace_list,
-)
+from collections.abc import Collection
 from zipfile import ZipFile
 
+from open_mastr.xml_download.colums_to_replace import (
+    system_catalog,
+)
 
-def cleanse_bulk_data(df: pd.DataFrame, zipped_xml_file_path: str) -> pd.DataFrame:
-    df = replace_ids_with_names(df, system_catalog)
-    # Katalogeintraege: int -> string value
+
+def cleanse_bulk_data(
+    df: pd.DataFrame,
+    catalog_columns: Collection[str],
+    zipped_xml_file_path: str,
+) -> pd.DataFrame:
+    df = replace_system_catalog_ids(df, system_catalog)
     df = replace_mastr_katalogeintraege(
-        zipped_xml_file_path=zipped_xml_file_path, df=df
+        zipped_xml_file_path=zipped_xml_file_path, df=df, catalog_columns=catalog_columns,
     )
     return df
 
 
-def replace_ids_with_names(df: pd.DataFrame, system_catalog: dict) -> pd.DataFrame:
-    """Replaces ids with names according to the system catalog. This is
+def replace_system_catalog_ids(df: pd.DataFrame, system_catalog: dict[int, str]) -> pd.DataFrame:
+    """Replaces IDs with names according to the system catalog. This is
     necessary since the data from the bulk download encodes columns with
     IDs instead of the actual values."""
     for column_name, name_mapping_dictionary in system_catalog.items():
@@ -29,14 +33,16 @@ def replace_ids_with_names(df: pd.DataFrame, system_catalog: dict) -> pd.DataFra
 def replace_mastr_katalogeintraege(
     zipped_xml_file_path: str,
     df: pd.DataFrame,
+    catalog_columns: Collection[str],
 ) -> pd.DataFrame:
     """Replaces the IDs from the mastr database by its mapped string values from
-    the table katalogwerte"""
+    the table Katalogwerte"""
+    # TODO: Create Katalogwerte dict once for whole download, not once per processed file.
     katalogwerte = create_katalogwerte_from_bulk_download(zipped_xml_file_path)
     for column_name in df.columns:
-        if column_name in columns_replace_list:
+        if column_name in catalog_columns:
             if df[column_name].dtype == "O":
-                # Handle comma seperated strings from catalog values
+                # Handle comma-separated strings from catalog values
                 df[column_name] = (
                     df[column_name]
                     .str.split(",", expand=True)

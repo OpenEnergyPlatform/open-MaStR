@@ -1,6 +1,5 @@
-# system catalog is the mapping for the entries within the two columns
-# Marktfunktionen und Lokationstyp (entry 1 is mapped to Stromnetzbetreiber
-# in the column Marktfunktionen)
+# system catalog is the mapping for the entries within the columns
+# Marktfunktion, Lokationtyp and Einheittyp
 # The values for the system catalog can be found in the pdf of the bulk download
 # documentation: https://www.marktstammdatenregister.de/MaStR/Datendownload
 
