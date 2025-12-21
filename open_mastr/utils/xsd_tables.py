@@ -1,10 +1,14 @@
+import os
 import re
 from enum import auto, Enum
 from dataclasses import dataclass
-from typing import Union
-
+from pathlib import Path
+from typing import Optional, Union
+from zipfile import ZipFile, ZipInfo
 import xmlschema
 from xmlschema.validators.simple_types import XsdAtomicBuiltin, XsdAtomicRestriction
+
+from open_mastr.utils.helpers import data_to_include_tables
 
 _XML_SCHEMA_PREFIX = "{http://www.w3.org/2001/XMLSchema}"
 
@@ -106,16 +110,16 @@ def read_mastr_table_descriptions_from_xsd(
 
     mastr_table_descriptions = set()
     with ZipFile(zipped_docs_file_path, "r") as docs_z:
-        xsd_zip_entry = _find_xsd_zip_file(docs_z)
+        xsd_zip_entry = _find_xsd_zip_entry(docs_z)
         with ZipFile(docs_z.open(xsd_zip_entry)) as xsd_z:
-            for entry in xsd_z:
+            for entry in xsd_z.filelist:
                 if entry.is_dir() or not entry.filename.endswith(".xsd"):
                     continue
 
                 normalized_name = os.path.basename(entry.filename).removesuffix(".xsd").lower()
                 if normalized_name in include_tables:
                     with xsd_z.open(entry) as xsd_file:
-                        mastr_table_description = MastrTableDescription.from_xml_schema(XMLSchema(xsd_file))
+                        mastr_table_description = MastrTableDescription.from_xml_schema(xmlschema.XMLSchema(xsd_file))
                         mastr_table_descriptions.add(mastr_table_description)
 
     return mastr_table_descriptions

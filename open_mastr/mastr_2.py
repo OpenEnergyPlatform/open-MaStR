@@ -1,5 +1,9 @@
 import os
-from sqlalchemy import inspect, create_engine
+from pathlib import Path
+from sqlalchemy import inspect, create_engine, Engine
+from sqlalchemy.orm import DeclarativeBase
+from typing import Literal, Optional, Type, TypeVar, Union
+from collections.abc import Mapping
 
 # import xml dependencies
 from open_mastr.xml_download.utils_download_bulk import (
@@ -10,6 +14,7 @@ from open_mastr.xml_download.utils_download_bulk import (
 from open_mastr.xml_download.utils_write_to_database import (
     write_mastr_xml_to_database,
 )
+from open_mastr.utils.xsd_tables import MastrTableDescription, read_mastr_table_descriptions_from_xsd
 
 from open_mastr.utils.helpers import (
     validate_parameter_format_for_download_method,
@@ -45,6 +50,9 @@ from open_mastr.utils.constants import TECHNOLOGIES, ADDITIONAL_TABLES
 
 # setup logger
 log = setup_logger()
+
+# TODO: Repeating Type[DeclarativeBase_T] in function signatures is strange. There must be a better option.
+DeclarativeBase_T = TypeVar("DeclarativeBase_T", bound=DeclarativeBase)
 
 
 class Mastr:
@@ -105,12 +113,17 @@ class Mastr:
         )
 
     def generate_data_model(
-        self, data: Optional[list[str]] = None
-    ) -> dict[MastrTableDescription, Model]:
+        self,
+        data: Optional[list[str]] = None,
+        catalog_value_as_str: bool = True,
+        base: Type[DeclarativeBase_T] = MastrBase,
+    ) -> dict[str, Type[DeclarativeBase_T]]:
+        data = transform_data_parameter(data)
+
         docs_folder_path = os.path.join(self.output_dir, "data", "docs_download")
         os.makedirs(docs_folder_path, exist_ok=True)
         zipped_docs_file_path = os.path.join(
-            xml_folder_path,
+            docs_folder_path,
             "Dokumentation MaStR Gesamtdatenexport.zip"
         )
         download_documentation(zipped_docs_file_path)
@@ -118,12 +131,16 @@ class Mastr:
         mastr_table_descriptions = read_mastr_table_descriptions_from_xsd(
             zipped_docs_file_path=zipped_docs_file_path, data=data
         )
-        mastr_table_to_db_model: dict[MastrTableDescription, MastrBase] = {}
+        mastr_table_to_db_model: dict[str, DeclarativeBase_T] = {}
         for mastr_table_description in mastr_table_descriptions:
-            sqlalchemy_model = make_sqlalchemy_model_from_mastr_table_description(mastr_table_description)
-            mastr_table_to_db_model[mastr_table_description] = sqlalchemy_model
+            sqlalchemy_model = make_sqlalchemy_model_from_mastr_table_description(
+                table_description=mastr_table_description,
+                catalog_value_as_str=catalog_value_as_str,
+                base=base
+            )
+            mastr_table_to_db_model[mastr_table_description.table_name] = sqlalchemy_model
 
-        return mastr_table_description
+        return mastr_table_to_db_model
 
     def download(
         self,
@@ -132,7 +149,7 @@ class Mastr:
         date=None,
         bulk_cleansing=True,
         keep_old_downloads: bool = False,
-        mastr_table_to_db_model: Optional[Mapping[MastrTableDescription, Model]] = None,
+        mastr_table_to_db_model: Optional[Mapping[str, Type[DeclarativeBase_T]]] = None,
         **kwargs,
     ) -> None:
         """
@@ -202,7 +219,11 @@ class Mastr:
             method = "bulk"
 
         if not mastr_table_to_db_model:
-            mastr_table_to_db_model = generate_data_model()
+            mastr_table_to_db_model = self.generate_data_model(data=data, catalog_value_as_str=bulk_cleansing)
+            log.info("Ensuring database tables for MaStR are present")
+            for db_model in mastr_table_to_db_model:
+                db_model.__table__.drop(self.engine, checkfirst=True)
+                db_model.__table__.create(self.engine)
 
         validate_parameter_format_for_download_method(
             method=method,
@@ -221,14 +242,14 @@ class Mastr:
         os.makedirs(xml_folder_path, exist_ok=True)
         zipped_xml_file_path = os.path.join(
             xml_folder_path,
-            f"Gesamtdatenexport_{bulk_download_date}.zip",
+            f"Gesamtdatenexport_{bulk_download_date.strftime('%Y%m%d')}.zip",
         )
 
         delete_zip_file_if_corrupted(zipped_xml_file_path)
         if not keep_old_downloads:
             delete_xml_files_not_from_given_date(zipped_xml_file_path, xml_folder_path)
 
-        download_xml_Mastr(zipped_xml_file_path, date, data, xml_folder_path)
+        download_xml_Mastr(zipped_xml_file_path, bulk_download_date, data, xml_folder_path)
 
         log.info(
             "\nWould you like to speed up the creation of your MaStR database?\n"
@@ -238,7 +259,6 @@ class Mastr:
 
         delete_zip_file_if_corrupted(zipped_xml_file_path)
         delete_xml_files_not_from_given_date(zipped_xml_file_path, xml_folder_path)
-
 
         print(
             "\nWould you like to speed up the creation of your MaStR database?\n"

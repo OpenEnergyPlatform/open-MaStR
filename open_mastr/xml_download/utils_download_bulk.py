@@ -118,7 +118,7 @@ def gen_url(
         Defaults to "current".
     """
     version = gen_version(when, use_version)
-    date = time.strftime("%Y%m%d", when)
+    date = when.strftime("%Y%m%d")
 
     if use_stichtag:
         url_str = f"https://download.marktstammdatenregister.de/Stichtag/Gesamtdatenexport_{date}_{version}.zip"
@@ -554,9 +554,7 @@ def select_download_date():
             print("Invalid choice. Please enter 1, or 2.")
 
 
-def download_documentation(
-    save_path: str, xml_folder_path: str
-) -> None:
+def download_documentation(save_path: str) -> None:
     """Downloads the zipped MaStR.
 
     Parameters
@@ -570,25 +568,27 @@ def download_documentation(
     url = "https://www.marktstammdatenregister.de/MaStRHilfe/files/gesamtdatenexport/Dokumentation%20MaStR%20Gesamtdatenexport.zip"
 
     time_a = time.perf_counter()
-    r = requests.get(url, stream=True, headers={"User-Agent": USER_AGENT})
+    r = requests.get(url, headers={"User-Agent": USER_AGENT})
 
     r.raise_for_status()
+    with open(save_path, "wb") as zfile:
+        zfile.write(r.content)
 
-    chunk_size = 1024 * 1024
-    content_length = r.headers.get("Content-Length")
-    expected_steps = math.ceil(content_length / chunk_size)
-    with (
-        open(save_path, "wb") as zfile,
-        tqdm(desc=save_path, total=expected_steps) as bar,
-    ):
-        for chunk in r.iter_content(chunk_size=chunk_size):
-            if chunk:
-                zfile.write(chunk)
-                zfile.flush()
-            bar.update()
+    #chunk_size = 1024 * 1024
+    #content_length = r.headers.get("Content-Length")
+    #expected_steps = math.ceil(content_length / chunk_size)
+    #with (
+    #    open(save_path, "wb") as zfile,
+    #    tqdm(desc=save_path, total=expected_steps) as bar,
+    #):
+    #    for chunk in r.iter_content(chunk_size=chunk_size):
+    #        if chunk:
+    #            zfile.write(chunk)
+    #            zfile.flush()
+    #        bar.update()
 
     time_b = time.perf_counter()
     log.info(
         f"MaStR documentation download is finished. It took {round(time_b - time_a)} seconds."
     )
-    log.info(f"MaStR was successfully downloaded to {xml_folder_path}.")
+    log.info(f"MaStR was successfully downloaded to {save_path!r}.")

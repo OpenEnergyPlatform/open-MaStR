@@ -1,9 +1,11 @@
 import os
 import json
 from contextlib import contextmanager
-from datetime import date
+import datetime
 from warnings import warn
+from typing import Literal, Union
 from zipfile import BadZipfile, ZipFile
+from zoneinfo import ZoneInfo
 
 import dateutil
 import sqlalchemy
@@ -33,6 +35,8 @@ from open_mastr.utils.constants import (
     TRANSLATIONS,
 )
 
+MASTR_TIMEZONE = ZoneInfo("Europe/Berlin")
+
 
 def chunks(lst, n):
     """Yield successive n-sized chunks from lst.
@@ -58,11 +62,14 @@ def create_database_engine(engine, sqlite_db_path) -> sqlalchemy.engine.Engine:
         return engine
 
 
-def parse_date_string(bulk_date_string: str) -> str:
+def parse_date_string(bulk_date_string: str) -> datetime.date:
     if bulk_date_string == "today":
-        return date.today().strftime("%Y%m%d")
+        dt = datetime.datetime.now(tz=MASTR_TIMEZONE)
     else:
-        return parse(bulk_date_string).strftime("%Y%m%d")
+        dt = parse(bulk_date_string)
+        if dt.tzinfo:
+            dt = dt.astimezone(MASTR_TIMEZONE)
+    return dt.date()
 
 
 def validate_parameter_format_for_mastr_init(engine) -> None:
@@ -158,7 +165,7 @@ def transform_data_parameter(data, **kwargs):
     return data
 
 
-def transform_date_parameter(self, date, **kwargs):
+def transform_date_parameter(self, date: Union[datetime.date, Literal["today"]], **kwargs) -> Union[datetime.date, Literal["today"]]:
     date = kwargs.get("bulk_date", date)
     date = "today" if date is None else date
     if date == "existing":

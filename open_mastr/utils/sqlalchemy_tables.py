@@ -1,6 +1,6 @@
 import datetime
 from dataclasses import dataclass
-from typing import Any, Union
+from typing import Any, Union, Type, TypeVar
 from sqlalchemy import Column, Integer, String, Float, Boolean, Date, DateTime
 from sqlalchemy.orm import DeclarativeBase, mapped_column, Mapped
 
@@ -8,16 +8,6 @@ import xmlschema
 from xmlschema.validators.simple_types import XsdAtomicBuiltin, XsdAtomicRestriction
 from open_mastr.utils.xsd_tables import MastrColumnType, MastrTableDescription
 
-
-MASTR_COLUMN_TYPE_TO_SQLALCHEMY_TYPE = {
-    MastrColumnType.STRING: String,
-    MastrColumnType.INTEGER: Integer,
-    MastrColumnType.FLOAT: Float,
-    MastrColumnType.DATE: Date,
-    MastrColumnType.DATETIME: DateTime(timezone=True),
-    MastrColumnType.BOOLEAN: Boolean,
-    MastrColumnType.CATALOG_VALUE: Integer,  # TODO: Think about how to deal with mapping catalog values
-}
 
 # Potential hierarchy
 # Id -> MastrNummer -> EinheitMastrNummer
@@ -74,20 +64,27 @@ class ParentAllTables(object):
     DatumDownload: Mapped[datetime.date] = mapped_column(Date)
 
 
+DeclarativeBase_T = TypeVar("DeclarativeBase_T", bound=DeclarativeBase)
+
+
 def make_sqlalchemy_model_from_mastr_table_description(
     table_description: MastrTableDescription,
-    base: DeclarativeBase = MastrBase,
+    catalog_value_as_str: bool,
+    base: Type[DeclarativeBase_T] = MastrBase,
     mixins: tuple[type, ...] = (ParentAllTables,),
-):
+) -> Type[DeclarativeBase_T]:
     return _make_sqlalchemy_model(
         class_name=table_description.instance_name,
         table_name=table_description.table_name,
         column_name_to_column_type={
-            column.name: MASTR_COLUMN_TYPE_TO_SQLALCHEMY_TYPE[column.type]
+            column.name: _get_sqlalchemy_type_for_mastr_column_type(
+                mastr_column_type=column.type,
+                catalog_value_as_str=catalog_value_as_str,
+            )
             for column in table_description.columns
         },
         primary_key_columns=MASTR_TABLE_NAME_TO_PRIMARY_KEY_COLUMNS[table_description.table_name],
-        base=MastrBase,
+        base=base,
         mixins=(ParentAllTables,)
     )
 
@@ -97,9 +94,9 @@ def _make_sqlalchemy_model(
     table_name: str,
     column_name_to_column_type: dict[str, Any],
     primary_key_columns: set[str],
-    base: DeclarativeBase,
+    base: Type[DeclarativeBase_T],
     mixins: tuple[type, ...] = tuple(),
-):
+) -> Type[DeclarativeBase_T]:  # TODO: Is there a way to say that the returned model is a sub-type of DeclarativeBase_T?
     namespace = {
         "__tablename__": table_name,
         "__annotations__": {},
@@ -113,6 +110,36 @@ def _make_sqlalchemy_model(
     return type(class_name, bases, namespace)
 
 
+_MASTR_COLUMN_TYPE_TO_SQLALCHEMY_TYPE = {
+    MastrColumnType.STRING: String,
+    MastrColumnType.INTEGER: Integer,
+    MastrColumnType.FLOAT: Float,
+    MastrColumnType.DATE: Date,
+    MastrColumnType.DATETIME: DateTime(timezone=True),
+    MastrColumnType.BOOLEAN: Boolean,
+}
+
+
+# We're creating special column types for the catalog columns here so that
+# we can identify the catalog columns later when processing the XML files.
+class CatalogInteger(Integer):
+    pass
+
+
+class CatalogString(String):
+    pass
+
+
+def _get_sqlalchemy_type_for_mastr_column_type(
+    mastr_column_type: MastrColumnType, catalog_value_as_str: bool,
+) -> Union[Type[String], Type[Integer], Type[Float], Type[Date], Type[DateTime], Type[Boolean]]:
+    if mastr_column_type is MastrColumnType.CATALOG_VALUE:
+        return CatalogString if catalog_value_as_str else CatalogInteger
+    return _MASTR_COLUMN_TYPE_TO_SQLALCHEMY_TYPE[mastr_column_type]
+
+
+
+# TODO: Remove this or make it useful for outsiders.
 if __name__ == "__main__":
     import os
     import sys
