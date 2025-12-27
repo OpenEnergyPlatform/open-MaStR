@@ -150,6 +150,7 @@ class Mastr:
         bulk_cleansing=True,
         keep_old_downloads: bool = False,
         mastr_table_to_db_model: Optional[Mapping[str, Type[DeclarativeBase_T]]] = None,
+        create_and_alter_database_tables: bool = True,
         **kwargs,
     ) -> None:
         """
@@ -221,7 +222,7 @@ class Mastr:
         if not mastr_table_to_db_model:
             mastr_table_to_db_model = self.generate_data_model(data=data, catalog_value_as_str=bulk_cleansing)
             log.info("Ensuring database tables for MaStR are present")
-            for db_model in mastr_table_to_db_model:
+            for db_model in mastr_table_to_db_model.values():
                 db_model.__table__.drop(self.engine, checkfirst=True)
                 db_model.__table__.create(self.engine)
 
@@ -272,6 +273,7 @@ class Mastr:
             data=data,
             bulk_cleansing=bulk_cleansing,
             bulk_download_date=bulk_download_date,
+            mastr_table_to_db_model=mastr_table_to_db_model,
         )
 
     def to_csv(

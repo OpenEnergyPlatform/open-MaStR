@@ -1,5 +1,5 @@
 import os
-from collections.abc import Mapping
+from collections.abc import Collection, Mapping
 from concurrent.futures import ProcessPoolExecutor, wait
 from io import StringIO
 from multiprocessing import cpu_count
@@ -12,7 +12,7 @@ import lxml
 import numpy as np
 import pandas as pd
 import sqlalchemy
-from sqlalchemy import Column, String, select, create_engine, inspect
+from sqlalchemy import Column, Engine, delete, select, create_engine, inspect
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.sql import text
 from sqlalchemy.sql.sqltypes import Date, DateTime
@@ -20,6 +20,8 @@ from sqlalchemy.sql.sqltypes import Date, DateTime
 from open_mastr.utils.config import setup_logger
 from open_mastr.utils.helpers import data_to_include_tables
 from open_mastr.utils.orm import tablename_mapping
+from open_mastr.utils.xsd_tables import normalize_column_name
+from open_mastr.utils.sqlalchemy_tables import CatalogInteger, CatalogString
 from open_mastr.xml_download.utils_cleansing_bulk import cleanse_bulk_data
 
 log = setup_logger()
@@ -40,6 +42,7 @@ def write_mastr_xml_to_database(
 
     include_tables = data_to_include_tables(data, mapping="write_xml")
     threads_data = []
+    lower_mastr_table_to_db_model = {table_name.lower(): db_model for table_name, db_model in mastr_table_to_db_model.items()}
 
     with ZipFile(zipped_xml_file_path, "r") as f:
         files_list = correct_ordering_of_filelist(f.namelist())
@@ -50,23 +53,20 @@ def write_mastr_xml_to_database(
             if not is_table_relevant(xml_table_name, include_tables):
                 continue
 
-            db_model = mastr_table_to_db_model.get(xml_table_name)
+            db_model = lower_mastr_table_to_db_model.get(xml_table_name)
             if not db_model:
-                # TODO Warning or error?
                 log.warning(f"Skipping MaStR file {file_name!r} because no database table was found for {xml_table_name=}")
                 continue
 
             threads_data.append(
                 (
                     file_name,
-                    xml_table_name,
                     db_model,
                     str(engine.url),
                     engine.url.password,
                     zipped_xml_file_path,
                     bulk_download_date,
                     bulk_cleansing,
-                    mastr_table_to_db_model,
                 )
             )
 
@@ -112,7 +112,6 @@ def get_number_of_processes():
 
 def process_xml_file(
     file_name: str,
-    xml_table_name: str,
     db_model: Type[DeclarativeBase_T],
     connection_url: str,
     password: str,
@@ -134,19 +133,19 @@ def process_xml_file(
         with ZipFile(zipped_xml_file_path, "r") as f:
             log.info(f"Processing file '{file_name}'...")
             if is_first_file(file_name):
-                delete_all_existing_entries(db_model)
+                delete_all_existing_rows(db_model=db_model, engine=engine)
             df = read_xml_file(f, file_name)
-            df = check_for_column_mismatch_and_try_to_solve_it(
-                df=df,
-                db_model=db_model,
-            )
             df = process_table_before_insertion(
                 df=df,
-                xml_table_name=xml_table_name,
                 db_model=db_model,
                 zipped_xml_file_path=zipped_xml_file_path,
                 bulk_download_date=bulk_download_date,
                 bulk_cleansing=bulk_cleansing,
+            )
+            df = check_for_column_mismatch_and_try_to_solve_it(
+                df=df,
+                db_model=db_model,
+                engine=engine,
             )
             if engine.dialect.name == "sqlite":
                 add_table_to_sqlite_database(
@@ -164,20 +163,24 @@ def process_xml_file(
         log.error(f"Error processing file '{file_name}': '{e}'")
 
 
-def delete_all_existing_rows(engine: Engine, db_model: Type[DeclarativeBase_T]) -> None:
+def delete_all_existing_rows(db_model: Type[DeclarativeBase_T], engine: Engine) -> None:
     with engine.begin() as con:
         con.execute(delete(db_model))
 
 
-def check_for_column_mismatch_and_try_to_solve_it(df: pd.DataFrame, db_model: Type[DeclarativeBase_T]) -> pd.DataFrame:
+def check_for_column_mismatch_and_try_to_solve_it(df: pd.DataFrame, db_model: Type[DeclarativeBase_T], engine: Engine) -> pd.DataFrame:
     df_column_names = set(df.columns)
     db_column_names = {column.name for column in db_model.__table__.columns}
+
     if additional_db_column_names := db_column_names - df_column_names:
-        log.warning(
+        # Many columns are optional and it's perfectly normal to have and XML file / a dataframe that doesn't have
+        # a column that is present in the database. So this is only worth a debug message.
+        log.debug(
             f"Database table {db_model.__table__.name} has some columns that weren't found in the XML file."
             f" Proceeding and trying to insert anyway. Additional DB columns:"
             f" {', '.join(additional_db_column_names)}"
         )
+
     if additional_df_column_names := df_column_names - db_column_names:
         # TODO: Check here if the user specified not to issue DDL statements before trying to insert.
         log.warning(
@@ -185,15 +188,17 @@ def check_for_column_mismatch_and_try_to_solve_it(df: pd.DataFrame, db_model: Ty
             f" Trying to add the columns to the table. Additional XML columns:"
             f" {', '.join(additional_df_column_names)}"
         )
+        # TODO: What if we can add some columns and not others? We should then return the columns for which we succeeded.
         try:
             add_missing_columns_to_table(
                 engine=engine,
                 db_model=db_model,
-                missing_columns=missing_columns,
+                missing_columns=additional_df_column_names,
             )
-        except:
+        except Exception:
             log.exception("Could not add at least some columns to the database. Ignoring the columns from the XML file instead.")
             df = df.drop(columns=additional_df_column_names)
+
     return df
 
 
@@ -319,19 +324,19 @@ def cast_date_columns_to_datetime(
 
 
 def cast_date_columns_to_string(db_model: Type[DeclarativeBase_T], df: pd.DataFrame) -> pd.DataFrame:
-    for column in columns:
+    for column in db_model.__table__.columns:
         if not is_date_column_and_in_df(column, df):
             continue
 
-        df[column_name] = pd.to_datetime(df[column_name], errors="coerce")
+        df[column.name] = pd.to_datetime(df[column.name], errors="coerce")
 
         if type(column.type) is Date:
-            df[column_name] = (
-                df[column_name].dt.strftime("%Y-%m-%d").replace("NaT", None)
+            df[column.name] = (
+                df[column.name].dt.strftime("%Y-%m-%d").replace("NaT", None)
             )
         elif type(column.type) is DateTime:
-            df[column_name] = (
-                df[column_name].dt.strftime("%Y-%m-%d %H:%M:%S.%f").replace("NaT", None)
+            df[column.name] = (
+                df[column.name].dt.strftime("%Y-%m-%d %H:%M:%S.%f").replace("NaT", None)
             )
     return df
 
@@ -579,7 +584,6 @@ def handle_xml_syntax_error(data: str, err: Error) -> pd.DataFrame:
 
 def process_table_before_insertion(
     df: pd.DataFrame,
-    xml_table_name: str,
     db_model: Type[DeclarativeBase_T],
     zipped_xml_file_path: str,
     bulk_download_date: str,
@@ -590,6 +594,8 @@ def process_table_before_insertion(
     # Add Column that refers to the source of the data
     df["DatenQuelle"] = "bulk"
     df["DatumDownload"] = bulk_download_date
+
+    df = normalize_column_names_in_df(df)
 
     if bulk_cleansing:
         catalog_columns = {
@@ -602,6 +608,10 @@ def process_table_before_insertion(
             df=df, catalog_columns=catalog_columns, zipped_xml_file_path=zipped_xml_file_path
         )
     return df
+
+
+def normalize_column_names_in_df(df: pd.DataFrame) -> pd.DataFrame:
+    return df.rename(columns={column_name: normalize_column_name(column_name) for column_name in df.columns})
 
 
 def add_table_to_sqlite_database(
@@ -632,9 +642,9 @@ def add_table_to_sqlite_database(
             df = write_single_entries_until_not_unique_comes_up(
                 df, db_model, engine
             )
-        except:
+        except Exception:
             # If any unexpected error occurs, we'll switch back to the non-SQLite method.
-            add_table_to_non_sqlite_database(df, xml_table_name, sql_table_name, engine)
+            add_table_to_non_sqlite_database(df, db_model, engine)
             break
 
 
