@@ -13,8 +13,11 @@ from open_mastr.utils.helpers import data_to_include_tables
 _XML_SCHEMA_PREFIX = "{http://www.w3.org/2001/XMLSchema}"
 
 
+# TODO: Should we really mess with the original column names?
+#  The BNetzA "choice" to sometimes write MaStR and sometimes Mastr is certainly confusing,
+#  but are we the ones who should change that?
 def normalize_column_name(original_mastr_column_name: str) -> str:
-    return original_mastr_column_name.replace("MaStR", "Mastr")
+    return original_mastr_column_name.replace("MaStR", "Mastr").replace("ä", "ae").replace("ö", "oe").replace("ü", "ue").replace("ß", "ss").strip()
 
 
 class MastrColumnType(Enum):
