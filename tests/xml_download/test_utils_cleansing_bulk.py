@@ -7,6 +7,7 @@ import numpy as np
 import pytest
 
 from open_mastr.xml_download.utils_cleansing_bulk import (
+    cleanse_bulk_data,
     create_katalogwerte_from_bulk_download,
     replace_mastr_katalogeintraege,
 )
@@ -16,7 +17,7 @@ _xml_file_exists = False
 _xml_folder_path = os.path.join(expanduser("~"), ".open-MaStR", "data", "xml_download")
 if os.path.isdir(_xml_folder_path):
     for entry in os.scandir(path=_xml_folder_path):
-        if "Gesamtdatenexport" in entry.name:
+        if "Gesamtdatenexport" in entry.name and entry.name.endswith(".zip"):
             _xml_file_exists = True
 
 _sqlite_folder_path = os.path.join(expanduser("~"), ".open-MaStR", "data", "sqlite")
@@ -42,10 +43,38 @@ def con():
 def zipped_xml_file_path():
     zipped_xml_file_path = None
     for entry in os.scandir(path=_xml_folder_path):
-        if "Gesamtdatenexport" in entry.name:
+        if "Gesamtdatenexport" in entry.name and entry.name.endswith(".zip"):
             zipped_xml_file_path = os.path.join(_xml_folder_path, entry.name)
 
     return zipped_xml_file_path
+
+
+
+@pytest.mark.skipif(
+    not _xml_file_exists, reason="The zipped xml file could not be found."
+)
+def test_cleanse_bulk_data(zipped_xml_file_path):
+    df_raw = pd.DataFrame(
+        {
+            "ID": [0, 1, 2],
+            "Bundesland": [335, 335, 336],
+            "Einheittyp": [1, 8, 5],
+        }
+    )
+    df_replaced = pd.DataFrame(
+        {
+            "ID": [0, 1, 2],
+            "Bundesland": ["Bayern", "Bayern", "Bremen"],
+            "Einheittyp": ["Solareinheit", "Stromspeichereinheit", "Geothermie"],
+        }
+    )
+
+    pd.testing.assert_frame_equal(
+        cleanse_bulk_data(
+            df=df_raw, zipped_xml_file_path=zipped_xml_file_path, catalog_columns={"Bundesland", "Einheittyp"},
+        ),
+        df_replaced,
+    )
 
 
 @pytest.mark.skipif(
@@ -57,7 +86,10 @@ def test_replace_mastr_katalogeintraege(zipped_xml_file_path):
         {"ID": [0, 1, 2], "Bundesland": ["Bayern", "Bayern", "Bremen"]}
     )
     pd.testing.assert_frame_equal(
-        df_replaced, replace_mastr_katalogeintraege(zipped_xml_file_path, df_raw)
+        replace_mastr_katalogeintraege(
+            zipped_xml_file_path=zipped_xml_file_path, df=df_raw, catalog_columns={"Bundesland", "Einheittyp"},
+        ),
+        df_replaced,
     )
 
 

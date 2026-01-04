@@ -24,7 +24,7 @@ MASTR_TABLE_NAME_TO_PRIMARY_KEY_COLUMNS = {
     "AnlagenKwk": {"KwkMastrNummer"},
     "AnlagenStromSpeicher": {"MastrNummer"},
     "Bilanzierungsgebiete": {"Id"},
-    "EinheitenAenderungNetzbetreiberzuordnungen": {"EinheitMastrNummer"},  # TODO: Is not a primary key on its own!
+    "EinheitenAenderungNetzbetreiberzuordnungen": {"EinheitMastrNummer"},  # TODO: May not be a primary key on its own. Check this.
     "EinheitenBiomasse": {"EinheitMastrNummer"},
     "EinheitenGasErzeuger": {"EinheitMastrNummer"},
     "EinheitenGasSpeicher": {"EinheitMastrNummer"},

@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-from sqlalchemy import inspect, create_engine, Engine
+from sqlalchemy import inspect, create_engine, Engine, Table
 from sqlalchemy.orm import DeclarativeBase
 from typing import Literal, Optional, Type, TypeVar, Union
 from collections.abc import Mapping
@@ -53,6 +53,7 @@ log = setup_logger()
 
 # TODO: Repeating Type[DeclarativeBase_T] in function signatures is strange. There must be a better option.
 DeclarativeBase_T = TypeVar("DeclarativeBase_T", bound=DeclarativeBase)
+FALLBACK_DOCS_PATH = Path(__file__).parent / "resources" / "Dokumentation-MaStR-Gesamtdatenexport-20251227-Fallback.zip"
 
 
 class Mastr:
@@ -116,6 +117,10 @@ class Mastr:
         self,
         data: Optional[list[str]] = None,
         catalog_value_as_str: bool = True,
+        # TODO: A _repeated_ call to this function with the same base and overlapping data will fail with something like:
+        #     sqlalchemy.exc.InvalidRequestError: Table 'AnlagenEegBiomasse' is already defined for this MetaData instance.
+        #     Specify 'extend_existing=True' to redefine options and columns on an existing Table object.
+        # Is this expected behavior for us? Should we re-raise with a more understandable message?
         base: Type[DeclarativeBase_T] = MastrBase,
     ) -> dict[str, Type[DeclarativeBase_T]]:
         data = transform_data_parameter(data)
@@ -126,21 +131,25 @@ class Mastr:
             docs_folder_path,
             "Dokumentation MaStR Gesamtdatenexport.zip"
         )
-        download_documentation(zipped_docs_file_path)
-
-        mastr_table_descriptions = read_mastr_table_descriptions_from_xsd(
-            zipped_docs_file_path=zipped_docs_file_path, data=data
-        )
-        mastr_table_to_db_model: dict[str, DeclarativeBase_T] = {}
-        for mastr_table_description in mastr_table_descriptions:
-            sqlalchemy_model = make_sqlalchemy_model_from_mastr_table_description(
-                table_description=mastr_table_description,
+        try:
+            download_documentation(zipped_docs_file_path)
+            return _download_docs_and_generate_data_model(
+                zipped_docs_file_path=zipped_docs_file_path,
+                data=data,
+                catalog_value_as_str=catalog_value_as_str,
+                base=base,
+            )
+        except Exception as e:
+            log.exception(
+                f"Encountered {e} when downloading or processing MaStR documentation."
+                f" Falling back to stored docs at {FALLBACK_DOCS_PATH}"
+            )
+            return _download_docs_and_generate_data_model(
+                zipped_docs_file_path=FALLBACK_DOCS_PATH,
+                data=data,
                 catalog_value_as_str=catalog_value_as_str,
                 base=base
             )
-            mastr_table_to_db_model[mastr_table_description.table_name] = sqlalchemy_model
-
-        return mastr_table_to_db_model
 
     def download(
         self,
@@ -149,8 +158,8 @@ class Mastr:
         date=None,
         bulk_cleansing=True,
         keep_old_downloads: bool = False,
-        mastr_table_to_db_model: Optional[Mapping[str, Type[DeclarativeBase_T]]] = None,
-        create_and_alter_database_tables: bool = True,
+        mastr_table_to_db_table: Optional[Mapping[str, Table]] = None,
+        alter_database_tables: bool = True,
         **kwargs,
     ) -> None:
         """
@@ -219,12 +228,22 @@ class Mastr:
             log.warning("Attention: method='API' changed to method='bulk'.")
             method = "bulk"
 
-        if not mastr_table_to_db_model:
-            mastr_table_to_db_model = self.generate_data_model(data=data, catalog_value_as_str=bulk_cleansing)
-            log.info("Ensuring database tables for MaStR are present")
-            for db_model in mastr_table_to_db_model.values():
-                db_model.__table__.drop(self.engine, checkfirst=True)
-                db_model.__table__.create(self.engine)
+        if not mastr_table_to_db_table:
+            class TemporaryBase(DeclarativeBase):
+                pass
+            mastr_table_to_db_model = self.generate_data_model(
+                data=data,
+                catalog_value_as_str=bulk_cleansing,
+                base=TemporaryBase,
+            )
+            mastr_table_to_db_table = {
+                mastr_table: db_model.__table__
+                for mastr_table, db_model in mastr_table_to_db_model.items()
+            }
+            log.info("Ensuring database tables for MaStR are present: Dropping old tables if existing and creating new ones.")
+            for db_table in mastr_table_to_db_table.values():
+                db_table.drop(self.engine, checkfirst=True)
+                db_table.create(self.engine)
 
         validate_parameter_format_for_download_method(
             method=method,
@@ -273,7 +292,8 @@ class Mastr:
             data=data,
             bulk_cleansing=bulk_cleansing,
             bulk_download_date=bulk_download_date,
-            mastr_table_to_db_model=mastr_table_to_db_model,
+            mastr_table_to_db_table=mastr_table_to_db_table,
+            alter_database_tables=alter_database_tables,
         )
 
     def to_csv(
@@ -282,3 +302,23 @@ class Mastr:
         pass
         # TODO: Think about this.
 
+
+def _download_docs_and_generate_data_model(
+    zipped_docs_file_path: Path,
+    data: list[str],
+    catalog_value_as_str: bool = True,
+    base: Type[DeclarativeBase_T] = MastrBase,
+):
+    mastr_table_descriptions = read_mastr_table_descriptions_from_xsd(
+        zipped_docs_file_path=zipped_docs_file_path, data=data
+    )
+    mastr_table_to_db_model: dict[str, DeclarativeBase_T] = {}
+    for mastr_table_description in mastr_table_descriptions:
+        sqlalchemy_model = make_sqlalchemy_model_from_mastr_table_description(
+            table_description=mastr_table_description,
+            catalog_value_as_str=catalog_value_as_str,
+            base=base
+        )
+        mastr_table_to_db_model[mastr_table_description.table_name] = sqlalchemy_model
+
+    return mastr_table_to_db_model

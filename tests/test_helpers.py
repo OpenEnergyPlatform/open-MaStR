@@ -1,6 +1,7 @@
 import pytest
 import os
 from os.path import expanduser
+from pathlib import Path
 import itertools
 
 import random
@@ -26,21 +27,10 @@ from open_mastr.utils.helpers import (
 )
 
 
-# Check if db is empty
-_db_exists = False
-_db_folder_path = os.path.join(
-    expanduser("~"), ".open-MaStR", "data", "sqlite"
-)  # FIXME: use path in tmpdir when implemented
-if os.path.isdir(_db_folder_path):
-    for entry in os.scandir(path=_db_folder_path):
-        _db_path = os.path.join(_db_folder_path, "open-mastr.db")
-        if os.path.getsize(_db_path) > 1000000:  # empty db = 327.7kB < 1 MB
-            _db_exists = True
-
-
 @pytest.fixture
-def db():
-    return Mastr()
+def mastr(tmp_path: Path):
+    output_dir = tmp_path / "output_dir"
+    return Mastr(output_dir=output_dir)
 
 
 def test_Mastr_validate_working_parameter():
@@ -119,8 +109,8 @@ def test_Mastr_validate_not_working_parameter():
                 )
 
 
-def test_validate_parameter_format_for_mastr_init(db):
-    engine_list_working = ["sqlite", db.engine]
+def test_validate_parameter_format_for_mastr_init(mastr):
+    engine_list_working = ["sqlite", mastr.engine]
     engine_list_failing = ["HI", 12]
 
     for engine in engine_list_working:

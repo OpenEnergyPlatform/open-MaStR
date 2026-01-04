@@ -17,6 +17,8 @@ _XML_SCHEMA_PREFIX = "{http://www.w3.org/2001/XMLSchema}"
 #  The BNetzA "choice" to sometimes write MaStR and sometimes Mastr is certainly confusing,
 #  but are we the ones who should change that?
 def normalize_column_name(original_mastr_column_name: str) -> str:
+    # BNethA sometimes has MaStR, other times MaStR. We normalize that.
+    # Also, in case the column names in the XSD contain äöüß, we replace them. This is probably a BNetzA oversight, but has happened at least once.
     return original_mastr_column_name.replace("MaStR", "Mastr").replace("ä", "ae").replace("ö", "oe").replace("ü", "ue").replace("ß", "ss").strip()
 
 
@@ -107,8 +109,9 @@ class MastrTableDescription:
 
 
 def read_mastr_table_descriptions_from_xsd(
-    zipped_docs_file_path: Union[Path, str], data: Optional[list[str]] = None
+    zipped_docs_file_path: Union[Path, str], data: list[str]
 ) -> set[MastrTableDescription]:
+    print(data)
     include_tables = set(data_to_include_tables(data, mapping="write_xml"))
 
     mastr_table_descriptions = set()
