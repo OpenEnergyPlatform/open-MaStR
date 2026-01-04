@@ -560,9 +560,7 @@ def download_documentation(save_path: str) -> None:
     Parameters
     -----------
     save_path: str
-        Full file path where the downloaded MaStR zip file will be saved.
-    xml_folder_path: str
-        Path where the downloaded MaStR zip file will be saved.
+        Full file path where the downloaded MaStR documentation zip file will be saved.
     """
     log.info("Starting the MaStR documentation download from marktstammdatenregister.de.")
     url = "https://www.marktstammdatenregister.de/MaStRHilfe/files/gesamtdatenexport/Dokumentation%20MaStR%20Gesamtdatenexport.zip"
@@ -573,19 +571,6 @@ def download_documentation(save_path: str) -> None:
     r.raise_for_status()
     with open(save_path, "wb") as zfile:
         zfile.write(r.content)
-
-    #chunk_size = 1024 * 1024
-    #content_length = r.headers.get("Content-Length")
-    #expected_steps = math.ceil(content_length / chunk_size)
-    #with (
-    #    open(save_path, "wb") as zfile,
-    #    tqdm(desc=save_path, total=expected_steps) as bar,
-    #):
-    #    for chunk in r.iter_content(chunk_size=chunk_size):
-    #        if chunk:
-    #            zfile.write(chunk)
-    #            zfile.flush()
-    #        bar.update()
 
     time_b = time.perf_counter()
     log.info(

@@ -15,6 +15,7 @@ def cleanse_bulk_data(
     zipped_xml_file_path: str,
 ) -> pd.DataFrame:
     df = replace_system_catalog_ids(df, system_catalog)
+    catalog_columns = set(catalog_columns) - system_catalog.keys()
     df = replace_mastr_katalogeintraege(
         zipped_xml_file_path=zipped_xml_file_path, df=df, catalog_columns=catalog_columns,
     )
@@ -32,9 +33,9 @@ def replace_system_catalog_ids(df: pd.DataFrame, system_catalog: dict[int, str])
 
 
 def replace_mastr_katalogeintraege(
-    zipped_xml_file_path: str,
     df: pd.DataFrame,
     catalog_columns: Collection[str],
+    zipped_xml_file_path: str,
 ) -> pd.DataFrame:
     """Replaces the IDs from the mastr database by its mapped string values from
     the table Katalogwerte"""
