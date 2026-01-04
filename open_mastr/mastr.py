@@ -40,10 +40,7 @@ from open_mastr.utils.config import (
     setup_logger,
 )
 import open_mastr.utils.orm as orm
-from open_mastr.utils.sqlalchemy_tables import (
-    make_sqlalchemy_model_from_mastr_table_description,
-    MastrBase
-)
+from open_mastr.utils.sqlalchemy_tables import make_sqlalchemy_model_from_mastr_table_description
 
 # constants
 from open_mastr.utils.constants import TECHNOLOGIES, ADDITIONAL_TABLES
@@ -117,11 +114,7 @@ class Mastr:
         self,
         data: Optional[list[str]] = None,
         catalog_value_as_str: bool = True,
-        # TODO: A _repeated_ call to this function with the same base and overlapping data will fail with something like:
-        #     sqlalchemy.exc.InvalidRequestError: Table 'AnlagenEegBiomasse' is already defined for this MetaData instance.
-        #     Specify 'extend_existing=True' to redefine options and columns on an existing Table object.
-        # Is this expected behavior for us? Should we re-raise with a more understandable message?
-        base: Type[DeclarativeBase_T] = MastrBase,
+        base: Optional[Type[DeclarativeBase_T]] = None,
     ) -> dict[str, Type[DeclarativeBase_T]]:
         data = transform_data_parameter(data)
 
@@ -229,12 +222,9 @@ class Mastr:
             method = "bulk"
 
         if not mastr_table_to_db_table:
-            class TemporaryBase(DeclarativeBase):
-                pass
             mastr_table_to_db_model = self.generate_data_model(
                 data=data,
                 catalog_value_as_str=bulk_cleansing,
-                base=TemporaryBase,
             )
             mastr_table_to_db_table = {
                 mastr_table: db_model.__table__
@@ -307,8 +297,15 @@ def _download_docs_and_generate_data_model(
     zipped_docs_file_path: Path,
     data: list[str],
     catalog_value_as_str: bool = True,
-    base: Type[DeclarativeBase_T] = MastrBase,
+    base: Optional[Type[DeclarativeBase_T]] = None,
 ):
+    if base is None:
+
+        class MastrBase(DeclarativeBase):
+            pass
+
+        base = MastrBase
+
     mastr_table_descriptions = read_mastr_table_descriptions_from_xsd(
         zipped_docs_file_path=zipped_docs_file_path, data=data
     )

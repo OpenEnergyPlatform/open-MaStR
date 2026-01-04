@@ -55,10 +55,6 @@ MASTR_TABLE_NAME_TO_PRIMARY_KEY_COLUMNS = {
 }
 
 
-class MastrBase(DeclarativeBase):
-    pass
-
-
 class ParentAllTables(object):
     DatenQuelle: Mapped[str] = mapped_column(String)
     DatumDownload: Mapped[datetime.date] = mapped_column(Date)
@@ -70,7 +66,7 @@ DeclarativeBase_T = TypeVar("DeclarativeBase_T", bound=DeclarativeBase)
 def make_sqlalchemy_model_from_mastr_table_description(
     table_description: MastrTableDescription,
     catalog_value_as_str: bool,
-    base: Type[DeclarativeBase_T] = MastrBase,
+    base: Type[DeclarativeBase_T],
     mixins: tuple[type, ...] = (ParentAllTables,),
 ) -> Type[DeclarativeBase_T]:
     return _make_sqlalchemy_model(
