@@ -11,6 +11,7 @@ from open_mastr.xml_download.utils_download_bulk import (
     download_xml_Mastr,
     select_download_date,
     delete_xml_files_not_from_given_date,
+    list_available_downloads,
 )
 from open_mastr.xml_download.utils_write_to_database import (
     write_mastr_xml_to_database,
@@ -41,10 +42,7 @@ from open_mastr.utils.config import (
     setup_logger,
 )
 import open_mastr.utils.orm as orm
-from open_mastr.utils.sqlalchemy_tables import (
-    make_sqlalchemy_model_from_mastr_table_description,
-    MastrBase
-)
+from open_mastr.utils.sqlalchemy_tables import make_sqlalchemy_model_from_mastr_table_description
 
 # constants
 from open_mastr.utils.constants import TECHNOLOGIES, ADDITIONAL_TABLES
@@ -118,11 +116,7 @@ class Mastr:
         self,
         data: Optional[list[str]] = None,
         catalog_value_as_str: bool = True,
-        # TODO: A _repeated_ call to this function with the same base and overlapping data will fail with something like:
-        #     sqlalchemy.exc.InvalidRequestError: Table 'AnlagenEegBiomasse' is already defined for this MetaData instance.
-        #     Specify 'extend_existing=True' to redefine options and columns on an existing Table object.
-        # Is this expected behavior for us? Should we re-raise with a more understandable message?
-        base: Type[DeclarativeBase_T] = MastrBase,
+        base: Optional[Type[DeclarativeBase_T]] = None,
     ) -> dict[str, Type[DeclarativeBase_T]]:
         data = transform_data_parameter(data)
 
@@ -236,12 +230,9 @@ class Mastr:
             method = "bulk"
 
         if not mastr_table_to_db_table:
-            class TemporaryBase(DeclarativeBase):
-                pass
             mastr_table_to_db_model = self.generate_data_model(
                 data=data,
                 catalog_value_as_str=bulk_cleansing,
-                base=TemporaryBase,
             )
             mastr_table_to_db_table = {
                 mastr_table: db_model.__table__
@@ -328,13 +319,40 @@ class Mastr:
         pass
         # TODO: Think about this.
 
+    def browse_available_downloads(self):
+        """
+        Browse available MaStR downloads from the website without starting the download.
+        This method fetches and displays all available download dates from the MaStR website,
+        allowing users to see what historical data is available before deciding to download.
+        Returns
+        -------
+        list of dict
+            List of available downloads with date, version, and type information.
+        Examples
+        --------
+        >>> from open_mastr import Mastr
+        >>> db = Mastr()
+        >>> available_downloads = db.browse_available_downloads()
+        >>> # User can then choose a date and download with:
+        >>> # db.download(select_date_interactively=True)
+        """
+        log.info("Browsing available MaStR downloads...")
+        return list_available_downloads()
+
 
 def _download_docs_and_generate_data_model(
     zipped_docs_file_path: Path,
     data: list[str],
     catalog_value_as_str: bool = True,
-    base: Type[DeclarativeBase_T] = MastrBase,
+    base: Optional[Type[DeclarativeBase_T]] = None,
 ):
+    if base is None:
+
+        class MastrBase(DeclarativeBase):
+            pass
+
+        base = MastrBase
+
     mastr_table_descriptions = read_mastr_table_descriptions_from_xsd(
         zipped_docs_file_path=zipped_docs_file_path, data=data
     )

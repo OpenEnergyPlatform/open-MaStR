@@ -192,7 +192,6 @@ def check_for_column_mismatch_and_try_to_solve_it(
 
     if additional_df_column_names := df_column_names - db_column_names:
         if alter_database_tables:
-            # TODO: Check here if the user specified not to issue DDL statements before trying to insert.
             log.warning(
                 f"XML file has some columns that aren't present in the database table {db_table.name}."
                 f" Trying to add the columns to the table. Additional XML columns:"

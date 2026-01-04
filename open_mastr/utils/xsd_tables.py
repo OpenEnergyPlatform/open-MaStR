@@ -16,6 +16,8 @@ _XML_SCHEMA_PREFIX = "{http://www.w3.org/2001/XMLSchema}"
 # TODO: Should we really mess with the original column names?
 #  The BNetzA "choice" to sometimes write MaStR and sometimes Mastr is certainly confusing,
 #  but are we the ones who should change that?
+# Also TODO: Should we also apply the more opinionated normalization/renaming that is currently stored in orm.py?
+#  E.g. "VerknuepfteEinheitenMaStRNummern" -> "VerknuepfteEinheiten", "NetzanschlusspunkteMaStRNummern" -> "Netzanschlusspunkte", etc.
 def normalize_column_name(original_mastr_column_name: str) -> str:
     # BNethA sometimes has MaStR, other times MaStR. We normalize that.
     # Also, in case the column names in the XSD contain äöüß, we replace them. This is probably a BNetzA oversight, but has happened at least once.
