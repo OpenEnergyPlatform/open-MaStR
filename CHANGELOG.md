@@ -8,7 +8,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 
 ## [v0.XX.X] unreleased - 202X-XX-XX
 ### Added
-
+- Add trusted publishing for test releases
+  [#713](https://github.com/OpenEnergyPlatform/open-MaStR/pull/713)
 ### Changed
 
 ### Removed
