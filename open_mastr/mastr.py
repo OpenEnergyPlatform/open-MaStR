@@ -205,7 +205,9 @@ class Mastr:
         if not keep_old_downloads:
             delete_xml_files_not_from_given_date(zipped_xml_file_path, xml_folder_path)
 
-        download_xml_Mastr(zipped_xml_file_path, date, data, xml_folder_path)
+        download_xml_Mastr(
+            zipped_xml_file_path, bulk_download_date, data, xml_folder_path
+        )
 
         log.info(
             "\nWould you like to speed up the creation of your MaStR database?\n"
