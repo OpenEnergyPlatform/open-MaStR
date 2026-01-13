@@ -21,7 +21,7 @@ from open_mastr.utils.config import (
     column_renaming,
 )
 
-from open_mastr.soap_api.download import MaStRAPI, log
+from open_mastr.soap_api.download import log
 from open_mastr.utils.constants import (
     BULK_DATA,
     TECHNOLOGIES,
