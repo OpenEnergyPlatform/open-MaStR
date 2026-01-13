@@ -8,10 +8,22 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 
 ## [v0.XX.X] unreleased - 202X-XX-XX
 ### Added
-
+- Add trusted publishing for test releases
+  [#713](https://github.com/OpenEnergyPlatform/open-MaStR/pull/713)
 ### Changed
 
 ### Removed
+
+## [v0.16.1] Hotfix - 2025-12-17
+
+### Changed
+- Adapt introduction text in README and docs
+  [#647](https://github.com/OpenEnergyPlatform/open-MaStR/pull/647)
+- Hotfix of date selection and incorporate new url structure
+  [#699](https://github.com/OpenEnergyPlatform/open-MaStR/pull/699)
+- Use trusted publishing on pypi
+  [#685](https://github.com/OpenEnergyPlatform/open-MaStR/pull/685)
+
 
 
 ## [v0.16.0] Partial downloads with open-MaStR PartialPumpkinPull - 2025-11-26
