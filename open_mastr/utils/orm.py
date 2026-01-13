@@ -44,34 +44,6 @@ class BasicUnit(Base):
     EinheitSystemstatus = Column(String)
 
 
-class AdditionalDataRequested(Base):
-    __tablename__ = "additional_data_requested"
-
-    id = Column(
-        Integer,
-        Sequence("additional_data_requested_id_seq"),
-        primary_key=True,
-    )
-    EinheitMastrNummer = Column(String)
-    additional_data_id = Column(String)
-    technology = Column(String)
-    data_type = Column(String)
-    request_date = Column(DateTime(timezone=True), default=func.now())
-
-
-class MissedAdditionalData(Base):
-    __tablename__ = "missed_additional_data"
-
-    id = Column(
-        Integer,
-        Sequence("additional_data_missed_id_seq"),
-        primary_key=True,
-    )
-    additional_data_id = Column(String)
-    reason = Column(String)
-    download_date = Column(DateTime(timezone=True), default=func.now())
-
-
 class Extended(object):
     NetzbetreiberMastrNummer = Column(String)
     Registrierungsdatum = Column(Date)
@@ -434,32 +406,6 @@ class LocationExtended(ParentAllTables, Base):
     VerknuepfteEinheiten = Column(String)
     Netzanschlusspunkte = Column(String)
     Lokationtyp = Column(String)
-
-
-class AdditionalLocationsRequested(Base):
-    __tablename__ = "additional_locations_requested"
-
-    id = Column(
-        Integer,
-        Sequence("additional_locations_requested_id_seq"),
-        primary_key=True,
-    )
-    LokationMastrNummer = Column(String)
-    location_type = Column(String)
-    request_date = Column(DateTime(timezone=True), default=func.now())
-
-
-class MissedExtendedLocation(ParentAllTables, Base):
-    __tablename__ = "missed_extended_location_data"
-
-    id = Column(
-        Integer,
-        Sequence("additional_location_data_missed_id_seq"),
-        primary_key=True,
-    )
-    LokationMastrNummer = Column(String)
-    reason = Column(String)
-    download_date = Column(DateTime(timezone=True), default=func.now())
 
 
 class GasStorage(ParentAllTables, Base):

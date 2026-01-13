@@ -50,17 +50,9 @@ More detailed information can be found in the section [bulk download](advanced.m
 
 API download
 -----------------------------------
-When using `download(method="API")`, the data is retrieved from the MaStR API. For using the MaStR API, credentials 
-are needed (see [SOAP API download](advanced.md#soap-api-download)).
+!!! warning "API download has been removed"
+    In versions > `v0.16.0` the `download(method="API")` cannot be used anymore. The default behaviour changes `method="API"` to `method="bulk"`. You can still use the basic SOAP API functionalities from the [`MaStRAPI`][open_mastr.soap_api.download.MaStRAPI] class.
 
-```python
-from open_mastr import Mastr
-
-db = Mastr()
-db.download(method='API')
-```
-
-The default settings will save retrieved data into the sqlite database. The function can be used to mirror the open-MaStR database using the SOAP API. Note that the data provided by the bulk download and the SOAP API is similar, but not exactly the same.
 
 ## Accessing the database
 
