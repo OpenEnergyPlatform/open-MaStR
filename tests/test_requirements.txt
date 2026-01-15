@@ -1,5 +1,0 @@
-flake8
-pylint
-pytest
-pytest-dependency
-pandas

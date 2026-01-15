@@ -10,13 +10,22 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 ### Added
 - Add interactive download functionality for MaStR date selection
   [#696](https://github.com/OpenEnergyPlatform/open-MaStR/pull/696)
+- Add trusted publishing for test releases
+  [#713](https://github.com/OpenEnergyPlatform/open-MaStR/pull/713)
+### Changed
+
+### Removed
+
+## [v0.16.1] Hotfix - 2025-12-17
 
 ### Changed
 - Adapt introduction text in README and docs
   [#647](https://github.com/OpenEnergyPlatform/open-MaStR/pull/647)
 - Hotfix of date selection and incorporate new url structure
   [#699](https://github.com/OpenEnergyPlatform/open-MaStR/pull/699)
-### Removed
+- Use trusted publishing on pypi
+  [#685](https://github.com/OpenEnergyPlatform/open-MaStR/pull/685)
+
 
 
 ## [v0.16.0] Partial downloads with open-MaStR PartialPumpkinPull - 2025-11-26
@@ -39,6 +48,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 - Limit number of parallel CI jobs
   [#669](https://github.com/OpenEnergyPlatform/open-MaStR/pull/669)
 ### Removed
+- Deprecate and remove Soap API Download and Mirror code
+  [#635](https://github.com/OpenEnergyPlatform/open-MaStR/pull/635)
 
 
 ## [v0.15.0] Turbo parsing with open-MaStR EasterEggspress - 2025-04-19

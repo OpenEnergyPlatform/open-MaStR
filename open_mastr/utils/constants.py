@@ -22,19 +22,6 @@ BULK_DATA = [
     "storage_units",
 ]
 
-# Possible values for parameter 'data' with API download method
-API_DATA = [
-    "wind",
-    "solar",
-    "biomass",
-    "hydro",
-    "gsgk",
-    "combustion",
-    "nuclear",
-    "storage",
-    "location",
-    "permit",
-]
 
 # Technology related values of parameter 'data'
 # Methods like Mastr.to_csv() must separate these from additional tables
@@ -69,9 +56,6 @@ ADDITIONAL_TABLES = [
     "changed_dso_assignment",
     "storage_units",
 ]
-
-# Possible data types for API download
-API_DATA_TYPES = ["unit_data", "eeg_data", "kwk_data", "permit_data"]
 
 # Possible location types for API download
 API_LOCATION_TYPES = [
