@@ -514,5 +514,5 @@ TRANSLATIONS = {
     "WebportalDesNetzbetreibers": "webPortalGridOperator",
     "RegisternummerPraefix": "registerNumberPrefix",
     "TechnologieFlugwind": "technologyAirborne",
-    "WindAnLandOderAufSee": "windOnshoreOrAtSea",
+    "WindAnLandOderAufSee": "windOnshoreOrOffshore",
 }
