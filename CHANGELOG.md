@@ -10,6 +10,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 ### Added
 - Add trusted publishing for test releases
   [#713](https://github.com/OpenEnergyPlatform/open-MaStR/pull/713)
+- Update list for english column translation
+  [#715](https://github.com/OpenEnergyPlatform/open-MaStR/pull/715)
 ### Changed
 
 ### Removed

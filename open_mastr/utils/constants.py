@@ -513,4 +513,6 @@ TRANSLATIONS = {
     "ReserveartNachDemEnWG": "typeOfReserveFromEnWG",
     "WebportalDesNetzbetreibers": "webPortalGridOperator",
     "RegisternummerPraefix": "registerNumberPrefix",
+    "TechnologieFlugwind": "technologyAirborne",
+    "WindAnLandOderAufSee": "windOnshoreOrOffshore",
 }
