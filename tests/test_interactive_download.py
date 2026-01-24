@@ -11,9 +11,14 @@ from open_mastr.mastr import Mastr
 SAMPLE_HTML = """
 <html>
 <body>
-    <a href="https://download.marktstammdatenregister.de/Gesamtdatenexport_20250103_24.2.zip"></a>
-    <a href="https://download.marktstammdatenregister.de/Gesamtdatenexport_20241231_24.2.zip"></a>
-    <a href="https://download.marktstammdatenregister.de/Stichtag/Gesamtdatenexport_20241130_24.1.zip"></a>
+    <a href="https://download.marktstammdatenregister.de/Gesamtdatenexport_20260103_25.2.zip"></a>
+    <a href="/MaStRHilfe/files/gesamtdatenexport/Dokumentation%20MaStR%20Gesamtdatenexport.zip"></a>
+    <a href="https://download.marktstammdatenregister.de/Stichtag/Gesamtdatenexport_20260101_25.2.zip"></a>
+    <a href="https://download.marktstammdatenregister.de/Stichtag/Dokumentation%20MaStR%20Gesamtdatenexport%2001-01-2026.zip"></a>
+    <a href="https://download.marktstammdatenregister.de/Stichtag/Gesamtdatenexport_20251001_25.2.zip"></a>
+    <a href="https://download.marktstammdatenregister.de/Stichtag/Dokumentation%20MaStR%20Gesamtdatenexport%2001-10-2025.zip"></a>
+    <a href="https://download.marktstammdatenregister.de/Stichtag/Gesamtdatenexport_20251001_25.1.zip"></a>
+    <a href="https://download.marktstammdatenregister.de/Stichtag/Dokumentation%20MaStR%20Gesamtdatenexport%2001-10-2025.zip"></a>
 </body>
 </html>
 """
@@ -21,21 +26,31 @@ SAMPLE_HTML = """
 # Sample download links for mocking
 SAMPLE_LINKS = [
     {
-        "url": "https://download.marktstammdatenregister.de/Gesamtdatenexport_20250103_24.2.zip",
-        "date": "20250103",
-        "version": "24.2",
+        "url": "https://download.marktstammdatenregister.de/Gesamtdatenexport_20260103_25.2.zip",
+        "docs_url": "https://www.marktstammdatenregister.de/MaStRHilfe/files/gesamtdatenexport/Dokumentation%20MaStR%20Gesamtdatenexport.zip",
+        "date": "20260103",
+        "version": "25.2",
         "type": "current",
     },
     {
-        "url": "https://download.marktstammdatenregister.de/Gesamtdatenexport_20241231_24.2.zip",
-        "date": "20241231",
-        "version": "24.2",
-        "type": "current",
+        "url": "https://download.marktstammdatenregister.de/Stichtag/Gesamtdatenexport_20260101_25.2.zip",
+        "docs_url": "https://download.marktstammdatenregister.de/Stichtag/Dokumentation%20MaStR%20Gesamtdatenexport%2001-01-2026.zip",
+        "date": "20260101",
+        "version": "25.2",
+        "type": "stichtag",
     },
     {
-        "url": "https://download.marktstammdatenregister.de/Stichtag/Gesamtdatenexport_20241130_24.1.zip",
-        "date": "20241130",
-        "version": "24.1",
+        "url": "https://download.marktstammdatenregister.de/Stichtag/Gesamtdatenexport_20251001_25.2.zip",
+        "docs_url": "https://download.marktstammdatenregister.de/Stichtag/Dokumentation%20MaStR%20Gesamtdatenexport%2001-10-2025.zip",
+        "date": "20251001",
+        "version": "25.2",
+        "type": "stichtag",
+    },
+    {
+        "url": "https://download.marktstammdatenregister.de/Stichtag/Gesamtdatenexport_20251001_25.1.zip",
+        "docs_url": "https://download.marktstammdatenregister.de/Stichtag/Dokumentation%20MaStR%20Gesamtdatenexport%2001-10-2025.zip",
+        "date": "20251001",
+        "version": "25.1",
         "type": "stichtag",
     },
 ]
@@ -50,14 +65,7 @@ def test_get_available_download_links(mock_urlopen):
     mock_urlopen.return_value = mock_response
 
     links = get_available_download_links()
-
-    assert len(links) == 3
-    assert links[0]["date"] == "20250103"
-    assert links[0]["version"] == "24.2"
-    assert links[0]["type"] == "current"
-    assert links[2]["date"] == "20241130"
-    assert links[2]["version"] == "24.1"
-    assert links[2]["type"] == "stichtag"
+    assert links == SAMPLE_LINKS
 
 
 @patch("open_mastr.xml_download.utils_download_bulk.get_available_download_links")
@@ -84,9 +92,8 @@ def test_select_download_date_valid_selection(mock_list_downloads):
 
     # Simulate user choosing option 1, then selecting the 2nd item
     with patch("builtins.input", side_effect=["1", "2"]):
-        date, url = select_download_date()
-        assert date == "20241231"
-        assert url == SAMPLE_LINKS[1]["url"]
+        link = select_download_date()
+        assert link == SAMPLE_LINKS[1]
 
 
 @patch("open_mastr.xml_download.utils_download_bulk.list_available_downloads")
@@ -96,35 +103,46 @@ def test_select_download_date_cancel(mock_list_downloads):
 
     # Simulate user choosing option 2 (Cancel)
     with patch("builtins.input", side_effect=["2"]):
-        date, url = select_download_date()
-        assert date is None
-        assert url is None
+        link = select_download_date()
+        assert link is None
 
 
+@patch("open_mastr.mastr.Mastr.generate_data_model")
 @patch("open_mastr.mastr.write_mastr_xml_to_database")
 @patch("open_mastr.mastr.select_download_date")
 @patch("open_mastr.mastr.download_xml_Mastr")
-def test_mastr_download_interactive(mock_download, mock_select_date, mock_write_db):
+def test_mastr_download_interactive(
+    mock_download,
+    mock_select_date,
+    mock_write_db,
+    mock_generate_data_model,
+):
     """Test the main download method with interactive selection."""
-    mock_select_date.return_value = ("20241231", "http://example.com/file.zip")
+    link = SAMPLE_LINKS[0]
+    mock_select_date.return_value = link
     db = Mastr()
     db.download(select_date_interactively=True)
 
     # Assert that select_download_date was called
     mock_select_date.assert_called_once()
 
+    # Assert that generate_data_model was called with the correct URL
+    mock_generate_data_model.assert_called_once()
+    _, kwargs = mock_generate_data_model.call_args
+    assert kwargs["url"] == link["docs_url"]
+
     # Assert that download_xml_Mastr was called with the correct URL
     mock_download.assert_called_once()
-    args, kwargs = mock_download.call_args
-    assert args[4] == "http://example.com/file.zip"
-    assert args[1] == "20241231"  # date argument
+    args, _ = mock_download.call_args
+    assert args[4] == link["url"]
+    assert args[1] == link["date"]
 
 
 @patch("open_mastr.mastr.select_download_date")
 @patch("open_mastr.mastr.download_xml_Mastr")
 def test_mastr_download_interactive_cancel(mock_download, mock_select_date):
     """Test the main download method when interactive selection is cancelled."""
-    mock_select_date.return_value = (None, None)
+    mock_select_date.return_value = None
     db = Mastr()
     db.download(select_date_interactively=True)
 
@@ -135,7 +153,7 @@ def test_mastr_download_interactive_cancel(mock_download, mock_select_date):
     mock_download.assert_not_called()
 
 
-@patch("open_mastr.xml_download.utils_download_bulk.list_available_downloads")
+@patch("open_mastr.mastr.list_available_downloads")
 def test_mastr_browse_available_downloads(mock_list_downloads):
     """Test the browse_available_downloads method."""
     mock_list_downloads.return_value = SAMPLE_LINKS

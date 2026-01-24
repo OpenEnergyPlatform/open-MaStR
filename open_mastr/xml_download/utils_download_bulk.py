@@ -1,15 +1,15 @@
-import datetime
 import math
 import os
 import shutil
 import time
-from datetime import datetime as dt
+from collections import defaultdict
 from importlib.metadata import PackageNotFoundError, version
 from zipfile import ZipFile
 from pathlib import Path
 import urllib.request
 import re
-from datetime import datetime
+from datetime import date, datetime
+from typing import Optional
 
 import numpy as np
 import requests
@@ -118,7 +118,7 @@ def gen_url(
         Defaults to "current".
     """
     version = gen_version(when, use_version)
-    date = when.strftime("%Y%m%d")
+    date = time.strftime("%Y%m%d", when)
 
     if use_stichtag:
         url_str = f"https://download.marktstammdatenregister.de/Stichtag/Gesamtdatenexport_{date}_{version}.zip"
@@ -157,7 +157,7 @@ def download_xml_Mastr(
         """Convert YYYYMMDD string to time.struct_time object."""
         try:
             # Use datetime.strptime for robust date parsing
-            parsed_date = dt.strptime(date_str, "%Y%m%d")
+            parsed_date = datetime.strptime(date_str, "%Y%m%d")
             # Convert to time.struct_time using timetuple()
             return parsed_date.timetuple()
         except (ValueError, IndexError) as e:
@@ -404,7 +404,8 @@ def get_available_download_links(
     list of dict
         A list of dictionaries containing information about available downloads.
         Each dictionary contains:
-        - 'url': The download URL
+        - 'url': The download URL of the XML containing the MaStR data
+        - 'docs_url': The download URL of the docs describing the MaStR data format
         - 'date': The date of the export (YYYYMMDD format)
         - 'version': The MaStR version (e.g., '24.1', '24.2')
         - 'type': 'current' for current exports, 'stichtag' for historical exports
@@ -430,45 +431,82 @@ def get_available_download_links(
         log.error(f"Failed to fetch download page: {e}")
         return []
 
-    # Pattern for current exports
-    pattern_current = re.compile(
-        r"https://download\.marktstammdatenregister\.de/Gesamtdatenexport_([0-9]{8})_([0-9]{2}\.[0-9])\.zip"
-    )
-    # Pattern for historical exports (Stichtag)
-    pattern_stichtag = re.compile(
-        r"https://download\.marktstammdatenregister\.de/Stichtag/Gesamtdatenexport_([0-9]{8})_([0-9]{2}\.[0-9])\.zip"
-    )
+    # We have in principle two ways of finding the URLs in the HTML of the MaStR Datendownload page:
+    # 1. Depend on some parts of the HTML structure, identify the <a> tags and get the href attributes and somehow the date.
+    # 2. Depend on the URL structure and search for them using regex. Pull the date from the URL.
+    # We guess that the URL structure is more stable than the HTML structure, so we implement approach 2.
 
-    # Find all current export links
-    current_matches = pattern_current.findall(html)
-    current_links = [
-        {
-            "url": f"https://download.marktstammdatenregister.de/Gesamtdatenexport_{date}_{version}.zip",
-            "date": date,
-            "version": version,
-            "type": "current",
-        }
-        for date, version in current_matches
-    ]
-
-    # Find all historical export links
-    stichtag_matches = pattern_stichtag.findall(html)
-    stichtag_links = [
-        {
-            "url": f"https://download.marktstammdatenregister.de/Stichtag/Gesamtdatenexport_{date}_{version}.zip",
-            "date": date,
-            "version": version,
-            "type": "stichtag",
-        }
-        for date, version in stichtag_matches
-    ]
+    current_link = _find_current_download_link(html)
+    stichtag_links = _find_stichtag_download_links(html)
 
     # Combine and sort by date (newest first)
-    all_links = current_links + stichtag_links
-    all_links.sort(key=lambda x: x["date"], reverse=True)
+    all_links = [current_link] + stichtag_links
+    all_links.sort(key=lambda x: (x["date"], x["version"]), reverse=True)
 
     log.info(f"Found {len(all_links)} available download links")
     return all_links
+
+
+def _find_current_download_link(html: str) -> dict[str, Optional[str]]:
+    pattern_current_xml = r"https://download\.marktstammdatenregister\.de/Gesamtdatenexport_(?P<date>[0-9]{8})_(?P<version>[0-9]{2}\.[0-9])\.zip"
+    match_xml = re.search(pattern_current_xml, html)
+    if not match_xml:
+        log.error("Found no link for the current XML download in MaStR download list HTML")
+        return {}
+    link = {
+        "url": match_xml.group(),
+        "docs_url": None,
+        "date": match_xml.group("date"),
+        "version": match_xml.group("version"),
+        "type": "current",
+    }
+
+    mastr_origin = "https://www.marktstammdatenregister.de"
+    # The URL origin is actually omitted in the HTML. We make it work with and without it in case BNetzA adds the origin in the link.
+    pattern_current_docs = rf"(?P<origin>{re.escape(mastr_origin)})?/MaStRHilfe/files/gesamtdatenexport/Dokumentation%20MaStR%20Gesamtdatenexport.zip"
+    if match_docs := re.search(pattern_current_docs, html):
+        matched_string = match_docs.group()
+        link["docs_url"] = matched_string if match_docs.group("origin") else mastr_origin + matched_string
+    else:
+        log.error("Found no link for the current docs download in MaStR download list HTML")
+
+    return link
+
+
+def _find_stichtag_download_links(html: str) -> list[dict[str, Optional[str]]]:
+    pattern_stichtag_xml = r"https://download\.marktstammdatenregister\.de/Stichtag/Gesamtdatenexport_(?P<date>[0-9]{8})_(?P<version>[0-9]{2}\.[0-9])\.zip"
+    date_to_links = defaultdict(list)
+    for match_xml in re.finditer(pattern_stichtag_xml, html):
+        date = match_xml.group("date")
+        link = {
+            "url": match_xml.group(),
+            "docs_url": None,
+            "date": date,
+            "version": match_xml.group("version"),
+            "type": "stichtag",
+        }
+        date_to_links[date].append(link)
+
+    pattern_stichtag_docs = (
+        r"https://download\.marktstammdatenregister\.de/Stichtag/"
+        r"Dokumentation(?:%20| )MaStR(?:%20| )Gesamtdatenexport(?:%20| )"
+        r"(?P<day>[0-9]{2})-(?P<month>[0-9]{2})-(?P<year>[0-9]{4}).zip"
+    )
+    for match_docs in re.finditer(pattern_stichtag_docs, html):
+        # When there are two XML downloads with different versions for the same day,
+        # there is still (strangely) only one docs download. So we assign it to multiple links.
+        date = match_docs.group("year") + match_docs.group("month") + match_docs.group("day")
+        if links := date_to_links.get(date):
+            for link in links:
+                link["docs_url"] = match_docs.group()
+        else:
+            log.error(
+                f"Found a docs download link for {date} in MaStR download list HTML"
+                ", but not a corresponding XML download link"
+            )
+
+    links = [link for links in date_to_links.values() for link in links]
+    return links
 
 
 def list_available_downloads():
@@ -486,17 +524,20 @@ def list_available_downloads():
         print("No download links found. Please check your internet connection.")
         return []
 
+    url_pad = max(len(link["url"]) for link in links) + 2
+
     print("\n" + "=" * 80)
     print("AVAILABLE MAStR DOWNLOADS")
     print("=" * 80)
-    print(f"{'#':<4} {'Date':<12} {'Version':<10} {'Type':<12} {'URL'}")
+    print(f"{'#':<4} {'Date':<12} {'Version':<10} {'Type':<12} {'XML URL':<{url_pad}} Docs URL")
     print("-" * 80)
 
     for i, link in enumerate(links, 1):
         # Format date for better readability
         date_formatted = f"{link['date'][:4]}-{link['date'][4:6]}-{link['date'][6:]}"
         print(
-            f"{i:<4} {date_formatted:<12} {link['version']:<10} {link['type']:<12} {link['url']}"
+            f"{i:<4} {date_formatted:<12} {link['version']:<10}"
+            f" {link['type']:<12} {link['url']:<{url_pad}} {link['docs_url']}"
         )
 
     print("=" * 80)
@@ -506,7 +547,7 @@ def list_available_downloads():
     return links
 
 
-def select_download_date():
+def select_download_date() -> Optional[dict[str, Optional[str]]]:
     """
     Interactive function to let the user select a download date.
 
@@ -514,14 +555,13 @@ def select_download_date():
 
     Returns
     -------
-    tuple
-        (date_string, url) where date_string is in YYYYMMDD format and url is the download URL
-        Returns (None, None) if user cancels or no valid selection is made
+    list of dict
+        List of available downloads with formatted dates and versions.
     """
     links = list_available_downloads()
 
     if not links:
-        return None, None
+        return None
 
     print("\nOptions:")
     print("1. Select from the list above (enter the number)")
@@ -540,7 +580,7 @@ def select_download_date():
                         print(
                             f"\nSelected: {selected['date']} (Version {selected['version']}, Type: {selected['type']})"
                         )
-                        return selected["date"], selected["url"]
+                        return selected
                     else:
                         print(f"Please enter a number between 1 and {len(links)}")
                 except ValueError:
@@ -548,13 +588,23 @@ def select_download_date():
 
         elif choice == "2":
             print("Download selection cancelled.")
-            return None, None
+            return None
 
         else:
             print("Invalid choice. Please enter 1, or 2.")
 
 
-def download_documentation(save_path: str) -> None:
+def get_date_from_docs_url(url: str) -> Optional[str]:
+    if m := re.search(r"(?P<day>[0-9]{2})-(?P<month>[0-9]{2})-(?P<year>[0-9]{4})", url):
+        return f"{m.group('year')}{m.group('month')}{m.group('day')}"
+    return None
+
+
+def download_documentation(
+    save_path: str,
+    bulk_date_string: Optional[str] = None,
+    url: Optional[str] = None,
+) -> None:
     """Downloads the zipped MaStR.
 
     Parameters
@@ -563,7 +613,16 @@ def download_documentation(save_path: str) -> None:
         Full file path where the downloaded MaStR documentation zip file will be saved.
     """
     log.info("Starting the MaStR documentation download from marktstammdatenregister.de.")
-    url = "https://www.marktstammdatenregister.de/MaStRHilfe/files/gesamtdatenexport/Dokumentation%20MaStR%20Gesamtdatenexport.zip"
+    if not url:
+        if bulk_date_string:
+            dt = datetime.strptime(bulk_date_string, "%Y%m%d")
+            url = (
+                "https://download.markstammdatenregister.de/Stichtag/"
+                "Dokumentation%20MaStR%20Gesamdatenexport%20"
+                f"{dt.day:0>2}-{dt.month:0>2}-{dt.year:0>4}.zip"
+            )
+        else:
+            url = "https://www.marktstammdatenregister.de/MaStRHilfe/files/gesamtdatenexport/Dokumentation%20MaStR%20Gesamtdatenexport.zip"
 
     time_a = time.perf_counter()
     r = requests.get(url, headers={"User-Agent": USER_AGENT})

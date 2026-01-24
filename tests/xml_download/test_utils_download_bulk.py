@@ -9,7 +9,7 @@ import shutil
 
 
 def test_gen_url():
-    when = date(2024, 1, 1)
+    when = time.strptime("2024-01-01", "%Y-%m-%d")
     url = gen_url(when)
     assert type(url) == str
     assert (
@@ -17,7 +17,7 @@ def test_gen_url():
         == "https://download.marktstammdatenregister.de/Gesamtdatenexport_20240101_23.2.zip"
     )
 
-    when = date(2024, 4, 1)
+    when = time.strptime("2024-04-01", "%Y-%m-%d")
     url = gen_url(when)
     assert type(url) == str
     assert (
@@ -25,7 +25,7 @@ def test_gen_url():
         == "https://download.marktstammdatenregister.de/Gesamtdatenexport_20240401_23.2.zip"
     )
 
-    when = date(2024, 4, 2)
+    when = time.strptime("2024-04-02", "%Y-%m-%d")
     url = gen_url(when)
     assert type(url) == str
     assert (
@@ -33,7 +33,7 @@ def test_gen_url():
         == "https://download.marktstammdatenregister.de/Gesamtdatenexport_20240402_24.1.zip"
     )
 
-    when = date(2024, 10, 1)
+    when = time.strptime("2024-10-01", "%Y-%m-%d")
     url = gen_url(when)
     assert type(url) == str
     assert (
@@ -41,7 +41,7 @@ def test_gen_url():
         == "https://download.marktstammdatenregister.de/Gesamtdatenexport_20241001_24.1.zip"
     )
 
-    when = date(2024, 10, 2)
+    when = time.strptime("2024-10-02", "%Y-%m-%d")
     url = gen_url(when)
     assert type(url) == str
     assert (
@@ -49,7 +49,7 @@ def test_gen_url():
         == "https://download.marktstammdatenregister.de/Gesamtdatenexport_20241002_24.2.zip"
     )
 
-    when = date(2024, 12, 31)
+    when = time.strptime("2024-12-31", "%Y-%m-%d")
     url = gen_url(when)
     assert type(url) == str
     assert (
@@ -59,7 +59,7 @@ def test_gen_url():
 
     # Tests for use_version parameter
 
-    when = date(2024, 12, 31)
+    when = time.strptime("2024-12-31", "%Y-%m-%d")
     url = gen_url(when, use_version="before")
     assert type(url) == str
     assert (
@@ -67,7 +67,7 @@ def test_gen_url():
         == "https://download.marktstammdatenregister.de/Gesamtdatenexport_20241231_24.1.zip"
     )
 
-    when = date(2024, 12, 31)
+    when = time.strptime("2024-12-31", "%Y-%m-%d")
     url = gen_url(when, use_version="after")
     assert type(url) == str
     assert (
@@ -75,7 +75,7 @@ def test_gen_url():
         == "https://download.marktstammdatenregister.de/Gesamtdatenexport_20241231_25.1.zip"
     )
 
-    when = date(2024, 4, 2)
+    when = time.strptime("2024-04-02", "%Y-%m-%d")
     url = gen_url(when, use_version="before")
     assert type(url) == str
     assert (
@@ -83,7 +83,7 @@ def test_gen_url():
         == "https://download.marktstammdatenregister.de/Gesamtdatenexport_20240402_23.2.zip"
     )
 
-    when = date(2024, 4, 2)
+    when = time.strptime("2024-04-02", "%Y-%m-%d")
     url = gen_url(when, use_version="after")
     assert type(url) == str
     assert (

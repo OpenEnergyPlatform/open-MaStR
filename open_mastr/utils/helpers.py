@@ -3,7 +3,7 @@ import json
 from contextlib import contextmanager
 import datetime
 from warnings import warn
-from typing import Literal, Union
+from typing import Literal, Optional, Union
 from zipfile import BadZipfile, ZipFile
 from zoneinfo import ZoneInfo
 
@@ -62,14 +62,11 @@ def create_database_engine(engine, sqlite_db_path) -> sqlalchemy.engine.Engine:
         return engine
 
 
-def parse_date_string(bulk_date_string: str) -> datetime.date:
+def parse_date_string(bulk_date_string: str) -> str:
     if bulk_date_string == "today":
-        dt = datetime.datetime.now(tz=MASTR_TIMEZONE)
+        return datetime.datetime.now(tz=MASTR_TIMEZONE).strftime("%Y%m%d")
     else:
-        dt = parse(bulk_date_string)
-        if dt.tzinfo:
-            dt = dt.astimezone(MASTR_TIMEZONE)
-    return dt.date()
+        return parse(bulk_date_string).strftime("%Y%m%d")
 
 
 def validate_parameter_format_for_mastr_init(engine) -> None:
@@ -165,13 +162,13 @@ def transform_data_parameter(data, **kwargs):
     return data
 
 
-def transform_date_parameter(self, date: Union[datetime.date, Literal["today"]], **kwargs) -> Union[datetime.date, Literal["today"]]:
+def transform_date_parameter(date: Union[datetime.date, Literal["today"]], **kwargs: Optional[str]) -> str:
     date = kwargs.get("bulk_date", date)
     date = "today" if date is None else date
     if date == "existing":
         log.warning(
             """
-        The date parameter 'existing' is deprecated and will be removed in the future. 
+        The date parameter 'existing' is deprecated and will be removed in the future.
         The date parameter is set to `today`.
 
         If this change causes problems for you, please comment in this issue on github:

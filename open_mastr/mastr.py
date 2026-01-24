@@ -12,6 +12,7 @@ from open_mastr.xml_download.utils_download_bulk import (
     select_download_date,
     delete_xml_files_not_from_given_date,
     list_available_downloads,
+    get_date_from_docs_url,
 )
 from open_mastr.xml_download.utils_write_to_database import (
     write_mastr_xml_to_database,
@@ -115,20 +116,29 @@ class Mastr:
     def generate_data_model(
         self,
         data: Optional[list[str]] = None,
+        date: Optional[str] = None,
         catalog_value_as_str: bool = True,
+        url: Optional[str] = None,
         base: Optional[Type[DeclarativeBase_T]] = None,
     ) -> dict[str, Type[DeclarativeBase_T]]:
         data = transform_data_parameter(data)
+        date = parse_date_string(transform_date_parameter(date))
+        if url:
+            # This is awkward. We want to give the option to call this function with just a URL.
+            # But in our download file path, we want to have the date. So we need to get the date
+            # from the URL now.
+            if parsed_date := get_date_from_docs_url(url):
+                date = parsed_date
 
         docs_folder_path = os.path.join(self.output_dir, "data", "docs_download")
         os.makedirs(docs_folder_path, exist_ok=True)
         zipped_docs_file_path = os.path.join(
             docs_folder_path,
-            "Dokumentation MaStR Gesamtdatenexport.zip"
+            f"Dokumentation MaStR Gesamtdatenexport_{date}.zip"
         )
         try:
-            download_documentation(zipped_docs_file_path)
-            return _download_docs_and_generate_data_model(
+            download_documentation(zipped_docs_file_path, bulk_date_string=date, url=url)
+            return _generate_data_model_from_downloaded_docs(
                 zipped_docs_file_path=zipped_docs_file_path,
                 data=data,
                 catalog_value_as_str=catalog_value_as_str,
@@ -139,7 +149,7 @@ class Mastr:
                 f"Encountered {e} when downloading or processing MaStR documentation."
                 f" Falling back to stored docs at {FALLBACK_DOCS_PATH}"
             )
-            return _download_docs_and_generate_data_model(
+            return _generate_data_model_from_downloaded_docs(
                 zipped_docs_file_path=FALLBACK_DOCS_PATH,
                 data=data,
                 catalog_value_as_str=catalog_value_as_str,
@@ -229,10 +239,43 @@ class Mastr:
             log.warning("Attention: method='API' changed to method='bulk'.")
             method = "bulk"
 
+        validate_parameter_format_for_download_method(
+            method=method,
+            data=data,
+            date=date,
+            bulk_cleansing=bulk_cleansing,
+            **kwargs,
+        )
+
+        date = transform_date_parameter(date, **kwargs)
+
+        # Handle interactive date selection if requested
+        if select_date_interactively:
+            log.info(
+                "Interactive date selection enabled. Fetching available downloads..."
+            )
+            selected_link = select_download_date()
+
+            if selected_link is None:
+                log.info("Download cancelled by user or no download links found.")
+                return
+
+            # Update the date and use the selected URL
+            bulk_download_date = selected_link["date"]
+            custom_xml_url = selected_link["url"]
+            custom_docs_url = selected_link["docs_url"]
+        else:
+            # Find the name of the zipped xml folder
+            bulk_download_date = parse_date_string(date)
+            custom_xml_url = None
+            custom_docs_url = None
+
         if not mastr_table_to_db_table:
             mastr_table_to_db_model = self.generate_data_model(
                 data=data,
+                date=bulk_download_date,
                 catalog_value_as_str=bulk_cleansing,
+                url=custom_docs_url,
             )
             mastr_table_to_db_table = {
                 mastr_table: db_model.__table__
@@ -243,36 +286,7 @@ class Mastr:
                 db_table.drop(self.engine, checkfirst=True)
                 db_table.create(self.engine)
 
-        validate_parameter_format_for_download_method(
-            method=method,
-            data=data,
-            date=date,
-            bulk_cleansing=bulk_cleansing,
-            **kwargs,
-        )
         data = transform_data_parameter(data, **kwargs)
-
-        date = transform_date_parameter(self, date, **kwargs)
-
-        # Handle interactive date selection if requested
-        if select_date_interactively:
-            log.info(
-                "Interactive date selection enabled. Fetching available downloads..."
-            )
-            selected_date, selected_url = select_download_date()
-
-            if selected_date is None:
-                log.info("Download cancelled by user.")
-                return
-
-            # Update the date and use the selected URL
-            date = selected_date
-            bulk_download_date = selected_date
-            custom_url = selected_url
-        else:
-            # Find the name of the zipped xml folder
-            bulk_download_date = parse_date_string(date)
-            custom_url = None
 
         xml_folder_path = os.path.join(self.output_dir, "data", "xml_download")
         os.makedirs(xml_folder_path, exist_ok=True)
@@ -286,7 +300,7 @@ class Mastr:
             delete_xml_files_not_from_given_date(zipped_xml_file_path, xml_folder_path)
 
         download_xml_Mastr(
-            zipped_xml_file_path, bulk_download_date, data, xml_folder_path, custom_url
+            zipped_xml_file_path, bulk_download_date, data, xml_folder_path, custom_xml_url
         )
         log.info(
             "\nWould you like to speed up the creation of your MaStR database?\n"
@@ -340,7 +354,7 @@ class Mastr:
         return list_available_downloads()
 
 
-def _download_docs_and_generate_data_model(
+def _generate_data_model_from_downloaded_docs(
     zipped_docs_file_path: Path,
     data: list[str],
     catalog_value_as_str: bool = True,
