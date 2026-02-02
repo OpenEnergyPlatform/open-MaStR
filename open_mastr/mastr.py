@@ -146,7 +146,7 @@ class Mastr:
             )
         except Exception as e:
             log.exception(
-                f"Encountered {e} when downloading or processing MaStR documentation."
+                f"Encountered {e!r} when downloading or processing MaStR documentation."
                 f" Falling back to stored docs at {FALLBACK_DOCS_PATH}"
             )
             return _generate_data_model_from_downloaded_docs(

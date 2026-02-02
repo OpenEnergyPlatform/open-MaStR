@@ -7,6 +7,7 @@ from typing import Optional, Union
 from zipfile import ZipFile, ZipInfo
 import xmlschema
 from xmlschema.validators.simple_types import XsdAtomicBuiltin, XsdAtomicRestriction
+from xmlschema.validators.exceptions import XMLSchemaModelError
 
 from open_mastr.utils.helpers import data_to_include_tables
 
@@ -110,6 +111,10 @@ class MastrTableDescription:
         )
 
 
+class InvalidXmlSchemaError(Exception):
+    pass
+
+
 def read_mastr_table_descriptions_from_xsd(
     zipped_docs_file_path: Union[Path, str], data: list[str]
 ) -> set[MastrTableDescription]:
@@ -127,7 +132,13 @@ def read_mastr_table_descriptions_from_xsd(
                 normalized_name = os.path.basename(entry.filename).removesuffix(".xsd").lower()
                 if normalized_name in include_tables:
                     with xsd_z.open(entry) as xsd_file:
-                        mastr_table_description = MastrTableDescription.from_xml_schema(xmlschema.XMLSchema(xsd_file))
+                        try:
+                            schema = xmlschema.XMLSchema(xsd_file)
+                        except XMLSchemaModelError as e:
+                            raise InvalidXmlSchemaError(
+                                f"Invalid XML Schema in {os.path.basename(entry.filename)}"
+                            ) from e
+                        mastr_table_description = MastrTableDescription.from_xml_schema(schema)
                         mastr_table_descriptions.add(mastr_table_description)
 
     return mastr_table_descriptions
