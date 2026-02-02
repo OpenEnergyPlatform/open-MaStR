@@ -1,4 +1,5 @@
 import datetime
+import logging
 from dataclasses import dataclass
 from typing import Any, Union, Type, TypeVar
 from sqlalchemy import Column, Integer, String, Float, Boolean, Date, DateTime
@@ -8,11 +9,13 @@ import xmlschema
 from xmlschema.validators.simple_types import XsdAtomicBuiltin, XsdAtomicRestriction
 from open_mastr.utils.xsd_tables import MastrColumnType, MastrTableDescription
 
+log = logging.getLogger("open-MaStR")
 
 # Potential hierarchy
 # Id -> MastrNummer -> EinheitMastrNummer
 # -> EegMastrNummer -> KwkMastrNummer -> GenMastrNummer
 # -> MarktakteurMastrNummer -> NetzanschlusspunktMastrNummer
+# in case we want to auto-detect the primary key.
 MASTR_TABLE_NAME_TO_PRIMARY_KEY_COLUMNS = {
     "AnlagenEegBiomasse": {"EegMastrNummer"},
     "AnlagenEegGeothermieGrubengasDruckentspannung": {"EegMastrNummer"},
@@ -24,8 +27,15 @@ MASTR_TABLE_NAME_TO_PRIMARY_KEY_COLUMNS = {
     "AnlagenKwk": {"KwkMastrNummer"},
     "AnlagenStromSpeicher": {"MastrNummer"},
     "Bilanzierungsgebiete": {"Id"},
-    "EinheitenAenderungNetzbetreiberzuordnungen": {"EinheitMastrNummer"},  # TODO: May not be a primary key on its own. Check this.
-    "EinheitenBiomasse": {"EinheitMastrNummer"},
+
+    # There is no unique key for this table. So we will have to insert one.
+    # Check for example the entries for SEE990510388975. We could use
+    # EinheitMastrNummer + RegistrierungsdatumNetzbetreiberzuordnungsaenderung,
+    # but the MaStR docs say that RegistrierungsdatumNetzbetreiberzuordnungsaenderung
+    # can be NULL.
+    "EinheitenAenderungNetzbetreiberzuordnungen": None,
+
+    "EnheitenBiomasse": {"EinheitMastrNummer"},
     "EinheitenGasErzeuger": {"EinheitMastrNummer"},
     "EinheitenGasSpeicher": {"EinheitMastrNummer"},
     "EinheitenGasverbraucher": {"EinheitMastrNummer"},
@@ -69,17 +79,31 @@ def make_sqlalchemy_model_from_mastr_table_description(
     base: Type[DeclarativeBase_T],
     mixins: tuple[type, ...] = (ParentAllTables,),
 ) -> Type[DeclarativeBase_T]:
+    column_name_to_column_type = {
+        column.name: _get_sqlalchemy_type_for_mastr_column_type(
+            mastr_column_type=column.type,
+            catalog_value_as_str=catalog_value_as_str,
+        )
+        for column in table_description.columns
+    }
+    primary_key_columns = MASTR_TABLE_NAME_TO_PRIMARY_KEY_COLUMNS.get(table_description.table_name)
+    if not primary_key_columns or any(
+        column not in column_name_to_column_type
+        for column in primary_key_columns
+    ):
+        id_col_name = "OpenMastrId"
+        log.info(
+            f"Found no primary key column for table {table_description.table_name}."
+            f" Inserting custom ID column {id_col_name!r}"
+        )
+        column_name_to_column_type[id_col_name] = Integer(autoincrement=True)
+        primary_key_columns = {id_col_name}
+
     return _make_sqlalchemy_model(
         class_name=table_description.instance_name,
         table_name=table_description.table_name,
-        column_name_to_column_type={
-            column.name: _get_sqlalchemy_type_for_mastr_column_type(
-                mastr_column_type=column.type,
-                catalog_value_as_str=catalog_value_as_str,
-            )
-            for column in table_description.columns
-        },
-        primary_key_columns=MASTR_TABLE_NAME_TO_PRIMARY_KEY_COLUMNS[table_description.table_name],
+        column_name_to_column_type=column_name_to_column_type,
+        primary_key_columns=primary_key_columns,
         base=base,
         mixins=(ParentAllTables,)
     )
@@ -133,32 +157,3 @@ def _get_sqlalchemy_type_for_mastr_column_type(
         return CatalogString if catalog_value_as_str else CatalogInteger
     return _MASTR_COLUMN_TYPE_TO_SQLALCHEMY_TYPE[mastr_column_type]
 
-
-
-# TODO: Remove this or make it useful for outsiders.
-if __name__ == "__main__":
-    import os
-    import sys
-    from sqlalchemy import create_engine
-    import traceback
-    import xmlschema
-
-    print("Parsing XSD files")
-    xsd_path = sys.argv[1]
-    for xsd_path in sys.argv[1:]:
-        schema = xmlschema.XMLSchema(xsd_path)
-        try:
-            table_description = MastrTableDescription.from_xml_schema(schema)
-        except ValueError:
-            traceback.print_exc()
-            print("Failed for ", xsd_path)
-            sys.exit(1)
-
-        model = make_sqlalchemy_model_from_mastr_table_description(
-            table_description=table_description,
-        )
-
-    db_path = os.path.join(os.getcwd(), "test.db")
-    print(f"Creating SQLite database at {db_path}")
-    engine = create_engine(f"sqlite:///{db_path}")
-    Base.metadata.create_all(engine)
