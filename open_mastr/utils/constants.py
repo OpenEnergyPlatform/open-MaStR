@@ -87,7 +87,7 @@ BULK_INCLUDE_TABLES_MAP = {
     ],
     "electricity_consumer": ["einheitenstromverbraucher"],
     "location": ["lokationen"],
-    "market": ["marktakteure", "marktrollen"],
+    "market": ["marktakteure", "marktrollen", "marktakteureundrollen", "marktfunktionen"],
     "grid": ["netzanschlusspunkte", "netze"],
     "balancing_area": ["bilanzierungsgebiete"],
     "permit": ["einheitengenehmigung"],

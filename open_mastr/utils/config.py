@@ -151,17 +151,6 @@ def create_project_home_dir():
             )
 
 
-def create_data_dir():
-    """
-    Create direct for current data version
-
-    The directory that is created for this fata version can
-    be returned by :func:`~.get_data_version_dir`.
-    """
-
-    os.makedirs(get_data_version_dir(), exist_ok=True)
-
-
 def _filenames_generator():
     """Write default file names .yml to project home dir"""
 

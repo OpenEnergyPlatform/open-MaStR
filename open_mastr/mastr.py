@@ -3,7 +3,9 @@ from pathlib import Path
 from sqlalchemy import inspect, create_engine, Engine, Table
 from sqlalchemy.orm import DeclarativeBase
 from typing import Literal, Optional, Type, TypeVar, Union
-from collections.abc import Mapping
+from collections.abc import Iterable, Mapping
+
+import pandas as pd
 
 # import xml dependencies
 from open_mastr.xml_download.utils_download_bulk import (
@@ -36,7 +38,6 @@ from open_mastr.utils.helpers import (
     create_translated_database_engine,
 )
 from open_mastr.utils.config import (
-    create_data_dir,
     get_data_version_dir,
     get_project_home_dir,
     get_output_dir,
@@ -328,10 +329,34 @@ class Mastr:
         )
 
     def to_csv(
-        self, tables: list = None, chunksize: int = 500000, limit: int = None
+        self,
+        db_table_names: Iterable[str] = None,
+        chunksize: int = 500000,
+        limit: int = None,
     ) -> None:
-        pass
-        # TODO: Think about this.
+        log.info(f"Exporting the following database tables to CSV: {', '.join(db_table_names)}")
+        data_path = get_data_version_dir()
+        os.makedirs(data_path, exist_ok=True)
+
+        inspector = inspect(self.engine)
+        existing_table_names = set(inspector.get_table_names())
+        if db_table_names is None:
+            db_table_names = existing_table_names
+
+        with self.engine.connect() as conn:
+            for requested_table_name in db_table_names:
+                if requested_table_name not in existing_table_names:
+                    log.warning(f"Table {requested_table_name} does not exist. Skipping.")
+                    continue
+                csv_path = os.path.join(data_path, f"{requested_table_name}.csv")
+                if os.path.exists(csv_path):
+                    log.info(f"Deleting existing file {csv_path}")
+                    os.unlink(csv_path)
+                for i, chunk in enumerate(
+                    pd.read_sql_table(requested_table_name, conn, chunksize=chunksize)
+                ):
+                    chunk.to_csv(csv_path, mode="a", index=False, header=i == 0)
+
 
     def browse_available_downloads(self):
         """
@@ -356,8 +381,7 @@ class Mastr:
 
 def _generate_data_model_from_downloaded_docs(
     zipped_docs_file_path: Path,
-    data: list[str],
-    catalog_value_as_str: bool = True,
+    data: list[str], catalog_value_as_str: bool = True,
     base: Optional[Type[DeclarativeBase_T]] = None,
 ):
     if base is None:

@@ -51,7 +51,7 @@ def write_mastr_xml_to_database(
         for file_name in files_list:
             xml_table_name = extract_xml_table_name(file_name)
 
-            if not is_table_relevant(xml_table_name, include_tables):
+            if xml_table_name not in include_tables:
                 continue
 
             db_table = lower_mastr_table_to_db_table.get(xml_table_name)
@@ -290,27 +290,6 @@ def extract_xml_table_name(file_name: str) -> str:
 def extract_sql_table_name(xml_table_name: str) -> str:
     """Extract the SQL table name from the xml table name."""
     return tablename_mapping[xml_table_name]["__name__"]
-
-
-def is_table_relevant(xml_table_name: str, include_tables: list) -> bool:
-    """Checks if the table contains relevant data and if the user wants to
-    have it in the database."""
-    # few tables are only needed for data cleansing of the xml files and contain no
-    # information of relevance
-    try:
-        boolean_write_table_to_sql_database = (
-            tablename_mapping[xml_table_name]["__class__"] is not None
-        )
-    except KeyError:
-        log.warning(
-            f"Table '{xml_table_name}' is not supported by your open-mastr version and "
-            f"will be skipped."
-        )
-        return False
-    # check if the table should be written to sql database (depends on user input)
-    include_count = include_tables.count(xml_table_name)
-
-    return include_count == 1 and boolean_write_table_to_sql_database
 
 
 def create_database_table(

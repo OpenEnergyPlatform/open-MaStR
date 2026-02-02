@@ -56,7 +56,7 @@ MASTR_TABLE_NAME_TO_PRIMARY_KEY_COLUMNS = {
     "Katalogwerte": {"Id"},
     "Lokationen": {"MastrNummer"},
     "Lokationstypen": {"Id"},
-    "MarktakteureUndRollen": {"MarktakteurMastrNummer"},
+    "MarktakteureUndRollen": {"MastrNummer"},
     "Marktakteure": {"MastrNummer"},
     "Marktfunktionen": {"Id"},
     "Marktrollen": {"Id"},
@@ -96,7 +96,8 @@ def make_sqlalchemy_model_from_mastr_table_description(
             f"Found no primary key column for table {table_description.table_name}."
             f" Inserting custom ID column {id_col_name!r}"
         )
-        column_name_to_column_type[id_col_name] = Integer(autoincrement=True)
+        # The integer column will be autoincrement by default since we make it a primary key.
+        column_name_to_column_type[id_col_name] = Integer
         primary_key_columns = {id_col_name}
 
     return _make_sqlalchemy_model(

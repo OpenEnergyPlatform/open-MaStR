@@ -196,7 +196,7 @@ def session_scope(engine):
         session.close()
 
 
-def data_to_include_tables(data: list, mapping: str = None) -> list:
+def data_to_include_tables(data: list, mapping: str = None) -> set[str]:
     """
     Convert user input 'data' to the list 'include_tables'.
     It contains file names from zipped bulk download, if mapping="write_xml".
@@ -209,25 +209,25 @@ def data_to_include_tables(data: list, mapping: str = None) -> list:
         Specify the mapping dict for the function and thus the list output.
     Returns
     -------
-    list
-        List of file names | List of database table names
+    set
+        Set of file names | Set of database table names
     -------
 
     """
     if mapping == "write_xml":
         # Map data selection to include tables in xml
-        include_tables = [
+        include_tables = {
             table for tech in data for table in BULK_INCLUDE_TABLES_MAP[tech]
-        ]
+        }
         return include_tables
 
     if mapping == "export_db_tables":
         # Map data selection to include tables for csv export
-        include_tables = [
+        include_tables = {
             table
             for possible_data_bulk in data
             for table in BULK_ADDITIONAL_TABLES_CSV_EXPORT_MAP[possible_data_bulk]
-        ]
+        }
         return include_tables
 
     raise NotImplementedError(
