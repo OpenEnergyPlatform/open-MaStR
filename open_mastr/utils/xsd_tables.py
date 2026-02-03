@@ -1,3 +1,4 @@
+import logging
 import os
 import re
 from enum import auto, Enum
@@ -10,19 +11,35 @@ from xmlschema.validators.simple_types import XsdAtomicBuiltin, XsdAtomicRestric
 from xmlschema.validators.exceptions import XMLSchemaModelError
 
 from open_mastr.utils.helpers import data_to_include_tables
+from open_mastr.utils.constants import COLUMN_TRANSLATIONS, TABLE_TRANSLATIONS
 
 _XML_SCHEMA_PREFIX = "{http://www.w3.org/2001/XMLSchema}"
 
+log = logging.getLogger("open-MaStR")
 
 # TODO: Should we really mess with the original column names?
 #  The BNetzA "choice" to sometimes write MaStR and sometimes Mastr is certainly confusing,
 #  but are we the ones who should change that?
 # Also TODO: Should we also apply the more opinionated normalization/renaming that is currently stored in orm.py?
 #  E.g. "VerknuepfteEinheitenMaStRNummern" -> "VerknuepfteEinheiten", "NetzanschlusspunkteMaStRNummern" -> "Netzanschlusspunkte", etc.
-def normalize_column_name(original_mastr_column_name: str) -> str:
+def normalize_mastr_name(original_mastr_name: str) -> str:
     # BNethA sometimes has MaStR, other times MaStR. We normalize that.
     # Also, in case the column names in the XSD contain äöüß, we replace them. This is probably a BNetzA oversight, but has happened at least once.
-    return original_mastr_column_name.replace("MaStR", "Mastr").replace("ä", "ae").replace("ö", "oe").replace("ü", "ue").replace("ß", "ss").strip()
+    return original_mastr_name.replace("MaStR", "Mastr").replace("ä", "ae").replace("ö", "oe").replace("ü", "ue").replace("ß", "ss").strip()
+
+
+def translate_mastr_column_name(normalized_mastr_column_name: str) -> Optional[str]:
+    translated = COLUMN_TRANSLATIONS.get(normalized_mastr_column_name)
+    if not translated:
+        log.warning(f"No translation available for column {normalized_mastr_column_name!r}")
+    return translated
+
+
+def translate_mastr_table_name(normalized_mastr_table_name: str) -> Optional[str]:
+    translated = TABLE_TRANSLATIONS.get(normalized_mastr_table_name)
+    if not translated:
+        log.warning(f"No translation available for column {normalized_mastr_table_name!r}")
+    return translated
 
 
 class MastrColumnType(Enum):
@@ -66,21 +83,26 @@ class MastrColumnType(Enum):
 
 @dataclass(frozen=True)
 class MastrColumnDescription:
-    name: str
+    original_name: str
+    normalized_name: str
+    english_name: Optional[str]
     type: MastrColumnType
 
     @classmethod
     def from_xsd_element(cls, xsd_element: xmlschema.XsdElement) -> "MastrColumnDescription":
-        name = normalize_column_name(xsd_element.name)
+        normalized_name = normalize_mastr_name(xsd_element.name)
         return cls(
-            name=name,
+            original_name=xsd_element.name,
+            normalized_name=normalized_name,
+            english_name=translate_mastr_column_name(normalized_name),
             type=MastrColumnType.from_xsd_type(xsd_element.type)
         )
 
 
 @dataclass(frozen=True)
 class MastrTableDescription:
-    table_name: str
+    original_table_name: str
+    english_table_name: Optional[str]
     instance_name: str
     columns: tuple[MastrColumnDescription]
 
@@ -104,8 +126,15 @@ class MastrTableDescription:
             for element in column_elements
         )
 
+        # We don't normalize the table name because
+        # - it would introduce too much complexity to have two German table names
+        # - the normalization would leave the table name as is (at least as of Feb 2026)
+        original_table_name = root.name
+        english_table_name = translate_mastr_table_name(original_table_name)
+
         return cls(
-            table_name=root.name,
+            original_table_name=original_table_name,
+            english_table_name=english_table_name,
             instance_name=main_element.name,
             columns=columns,
         )

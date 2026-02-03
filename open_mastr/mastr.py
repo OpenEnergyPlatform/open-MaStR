@@ -34,8 +34,6 @@ from open_mastr.utils.helpers import (
     reverse_fill_basic_units,
     delete_zip_file_if_corrupted,
     create_database_engine,
-    rename_table,
-    create_translated_database_engine,
 )
 from open_mastr.utils.config import (
     get_data_version_dir,
@@ -89,7 +87,6 @@ class Mastr:
     def __init__(
         self,
         engine: Union[Engine, Literal["sqlite"]] = "sqlite",
-        mastr_table_to_db_table_name: Optional[dict[str, str]] = None,
         output_dir: Optional[Union[str, Path]] = None,
         home_dir: Optional[Union[str, Path]] = None,
     ) -> None:
@@ -121,6 +118,7 @@ class Mastr:
         catalog_value_as_str: bool = True,
         url: Optional[str] = None,
         base: Optional[Type[DeclarativeBase_T]] = None,
+        english: bool = False,
     ) -> dict[str, Type[DeclarativeBase_T]]:
         data = transform_data_parameter(data)
         date = parse_date_string(transform_date_parameter(date))
@@ -144,6 +142,7 @@ class Mastr:
                 data=data,
                 catalog_value_as_str=catalog_value_as_str,
                 base=base,
+                english=english,
             )
         except Exception as e:
             log.exception(
@@ -154,7 +153,8 @@ class Mastr:
                 zipped_docs_file_path=FALLBACK_DOCS_PATH,
                 data=data,
                 catalog_value_as_str=catalog_value_as_str,
-                base=base
+                base=base,
+                english=english,
             )
 
     def download(
@@ -167,6 +167,7 @@ class Mastr:
         select_date_interactively: bool = False,
         mastr_table_to_db_table: Optional[Mapping[str, Table]] = None,
         alter_database_tables: bool = True,
+        english: bool = False,
         **kwargs,
     ) -> None:
         """
@@ -277,12 +278,16 @@ class Mastr:
                 date=bulk_download_date,
                 catalog_value_as_str=bulk_cleansing,
                 url=custom_docs_url,
+                english=english,
             )
             mastr_table_to_db_table = {
                 mastr_table: db_model.__table__
                 for mastr_table, db_model in mastr_table_to_db_model.items()
             }
-            log.info("Ensuring database tables for MaStR are present: Dropping old tables if existing and creating new ones.")
+            log.info(
+                "Ensuring database tables for MaStR are present:"
+                " Dropping old tables if existing and creating new ones."
+            )
             for db_table in mastr_table_to_db_table.values():
                 db_table.drop(self.engine, checkfirst=True)
                 db_table.create(self.engine)
@@ -383,6 +388,7 @@ def _generate_data_model_from_downloaded_docs(
     zipped_docs_file_path: Path,
     data: list[str], catalog_value_as_str: bool = True,
     base: Optional[Type[DeclarativeBase_T]] = None,
+    english: bool = False,
 ):
     if base is None:
 
@@ -399,8 +405,9 @@ def _generate_data_model_from_downloaded_docs(
         sqlalchemy_model = make_sqlalchemy_model_from_mastr_table_description(
             table_description=mastr_table_description,
             catalog_value_as_str=catalog_value_as_str,
-            base=base
+            base=base,
+            english=english,
         )
-        mastr_table_to_db_model[mastr_table_description.table_name] = sqlalchemy_model
+        mastr_table_to_db_model[mastr_table_description.original_table_name] = sqlalchemy_model
 
     return mastr_table_to_db_model

@@ -20,7 +20,7 @@ from sqlalchemy.sql.sqltypes import Date, DateTime
 from open_mastr.utils.config import setup_logger
 from open_mastr.utils.helpers import data_to_include_tables
 from open_mastr.utils.orm import tablename_mapping
-from open_mastr.utils.xsd_tables import normalize_column_name
+from open_mastr.utils.xsd_tables import normalize_mastr_name, translate_mastr_column_name
 from open_mastr.utils.sqlalchemy_tables import CatalogInteger, CatalogString
 from open_mastr.xml_download.utils_cleansing_bulk import cleanse_bulk_data
 
@@ -43,7 +43,11 @@ def write_mastr_xml_to_database(
 
     include_tables = data_to_include_tables(data, mapping="write_xml")
     threads_data = []
-    lower_mastr_table_to_db_table = {table_name.lower(): db_table for table_name, db_table in mastr_table_to_db_table.items()}
+    lower_mastr_table_to_db_table = {
+        db_table.info.get("original_name", mastr_table_name).lower(): db_table
+        for mastr_table_name, db_table
+        in mastr_table_to_db_table.items()
+    }
 
     with ZipFile(zipped_xml_file_path, "r") as f:
         files_list = correct_ordering_of_filelist(f.namelist())
@@ -590,13 +594,12 @@ def process_table_before_insertion(
     df["DatenQuelle"] = "bulk"
     df["DatumDownload"] = bulk_download_date
 
-    df = normalize_column_names_in_df(df)
+    df = align_df_column_names_to_db_column_names(df=df, db_table=db_table)
 
     if bulk_cleansing:
         catalog_columns = {
             column.name
             for column in db_table.columns
-            # TODO: Is it okay to rely so heavily on the SQLALchemy model to decide how to process the table?
             if isinstance(column.type, (CatalogInteger, CatalogString))
         }
         df = cleanse_bulk_data(
@@ -605,8 +608,24 @@ def process_table_before_insertion(
     return df
 
 
-def normalize_column_names_in_df(df: pd.DataFrame) -> pd.DataFrame:
-    return df.rename(columns={column_name: normalize_column_name(column_name) for column_name in df.columns})
+def align_df_column_names_to_db_column_names(
+    df: pd.DataFrame,
+    db_table: Table,
+) -> pd.DataFrame:
+    old_column_name_to_new_column_name = {
+        column_name: normalize_mastr_name(column_name)
+        for column_name in df.columns
+    }
+    if db_table.name == db_table.info.get("english_name"):
+        # Database is in English. We must translate the df columns
+        english_updates = {}
+        for old_column_name, normalized_column_name in old_column_name_to_new_column_name.items():
+            if english_column_name := translate_mastr_column_name(normalized_column_name):
+                english_updates[old_column_name] = english_column_name
+        old_column_name_to_new_column_name.update(english_updates)
+
+    renamed_df = df.rename(columns=old_column_name_to_new_column_name)
+    return renamed_df
 
 
 def add_table_to_sqlite_database(

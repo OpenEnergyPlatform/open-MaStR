@@ -195,7 +195,52 @@ UNIT_TYPE_MAP = {
     "Gasverbrauchslokation": "location_gas_consumption",
 }
 
-TRANSLATIONS = {
+# TODO: Should we keep the names like they were? Some choices are hard to understand:
+# - gas_storage (Anlage) & gas_storage_extended(Einheit)
+# - storage_units (Anlage) & storage_extended (Einheit)
+# - Inconsistent singular vs plural, e.g. storage_units, but balancing_area
+TABLE_TRANSLATIONS = {
+    "AnlagenEegBiomasse": "biomass_eeg",
+    "AnlagenEegGeothermieGrubengasDruckentspannung": "gsgk_eeg",
+    "AnlagenEegSolar": "solar_eeg",
+    "AnlagenEegSpeicher": "storage_eeg",
+    "AnlagenEegWasser": "hydro_eeg",
+    "AnlagenEegWind": "wind_eeg",
+    "AnlagenGasSpeicher": "gas_storage",
+    "AnlagenKwk": "kwk",
+    "AnlagenStromSpeicher": "storage_units",
+    "Bilanzierungsgebiete": "balancing_area",
+    "EinheitenAenderungNetzbetreiberzuordnungen": "changed_dso_assignment",
+    "EinheitenBiomasse": "biomass_extended",
+    "EinheitenGasErzeuger": "gas_producer",
+    "EinheitenGasSpeicher": "gas_storage_extended",
+    "EinheitenGasverbraucher": "gas_consumer",
+    "EinheitenGenehmigung": "permit",
+    "EinheitenGeothermieGrubengasDruckentspannung": "gsgk_extended",
+    "EinheitenKernkraft": "nuclear_extended",
+    "EinheitenSolar": "solar_extended",
+    "EinheitenStromSpeicher": "storage_extended",
+    "EinheitenStromVerbraucher": "electricity_consumer",
+    "Einheitentypen": "unit_types",
+    "EinheitenVerbrennung": "combustion_extended",
+    "EinheitenWasser": "hydro_extended",
+    "EinheitenWind": "wind_extended",
+    "Ertuechtigungen": "retrofit_units",
+    "GeloeschteUndDeaktivierteEinheiten": "deleted_units",
+    "GeloeschteUndDeaktivierteMarktakteure": "deleted_market_actors",
+    "Katalogkategorien": "catalog_categories",
+    "Katalogwerte": "catalog_values",
+    "Lokationen": "locations",
+    "Lokationstypen": "location_types",
+    "Marktakteure": "market_actors",
+    "MarktakteureUndRollen": "market_actors_and_roles",
+    "Marktfunktionen": "market_functions",
+    "Marktrollen": "market_roles",
+    "Netzanschlusspunkte": "grid_connections",
+    "Netze": "grids",
+}
+
+COLUMN_TRANSLATIONS = {
     "RegisternummerAusland": "foreignRegisterNumber",
     "PumpbetriebKontinuierlichRegelbar": "continuousControlOfPumpOperation",
     "AuflagenAbschaltungSonstige": "requirementShutdownOther",

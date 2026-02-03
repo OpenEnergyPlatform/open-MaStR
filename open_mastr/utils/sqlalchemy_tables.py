@@ -1,13 +1,13 @@
 import datetime
 import logging
 from dataclasses import dataclass
-from typing import Any, Union, Type, TypeVar
+from typing import Any, Optional, Type, TypeVar, Union
 from sqlalchemy import Column, Integer, String, Float, Boolean, Date, DateTime
 from sqlalchemy.orm import DeclarativeBase, mapped_column, Mapped
 
 import xmlschema
 from xmlschema.validators.simple_types import XsdAtomicBuiltin, XsdAtomicRestriction
-from open_mastr.utils.xsd_tables import MastrColumnType, MastrTableDescription
+from open_mastr.utils.xsd_tables import MastrColumnType, MastrTableDescription, translate_mastr_column_name
 
 log = logging.getLogger("open-MaStR")
 
@@ -65,11 +65,6 @@ MASTR_TABLE_NAME_TO_PRIMARY_KEY_COLUMNS = {
 }
 
 
-class ParentAllTables(object):
-    DatenQuelle: Mapped[str] = mapped_column(String)
-    DatumDownload: Mapped[datetime.date] = mapped_column(Date)
-
-
 DeclarativeBase_T = TypeVar("DeclarativeBase_T", bound=DeclarativeBase)
 
 
@@ -77,36 +72,97 @@ def make_sqlalchemy_model_from_mastr_table_description(
     table_description: MastrTableDescription,
     catalog_value_as_str: bool,
     base: Type[DeclarativeBase_T],
-    mixins: tuple[type, ...] = (ParentAllTables,),
+    english: bool = False,
+    mixins: tuple[type, ...] = tuple(),
+    include_download_metadata: bool = True,
 ) -> Type[DeclarativeBase_T]:
+    if english:
+        if table_description.english_table_name:
+            table_name = table_description.english_table_name
+        else:
+            table_name = table_description.original_table_name
+            english = False
+            log.warning(
+                f"English table name not available for {table_name}."
+                " Using German for the whole table."
+            )
+    else:
+        table_name = table_description.original_table_name
+
     column_name_to_column_type = {
-        column.name: _get_sqlalchemy_type_for_mastr_column_type(
+        (
+            column.english_name or column.normalized_name
+            if english
+            else column.normalized_name
+        ): _get_sqlalchemy_type_for_mastr_column_type(
             mastr_column_type=column.type,
             catalog_value_as_str=catalog_value_as_str,
         )
         for column in table_description.columns
     }
-    primary_key_columns = MASTR_TABLE_NAME_TO_PRIMARY_KEY_COLUMNS.get(table_description.table_name)
+    column_kwargs = {
+        (
+            column.english_name or column.normalized_name
+            if english
+            else column.normalized_name
+        ): {
+            "info": {
+                "original_name": column.original_name,
+                "normalized_name": column.normalized_name,
+                "english_name": column.english_name,
+            }
+        }
+        for column in table_description.columns
+    }
+
+    primary_key_columns = MASTR_TABLE_NAME_TO_PRIMARY_KEY_COLUMNS.get(
+        table_description.original_table_name
+    )
+    if primary_key_columns and english:
+        primary_key_columns = [translate_mastr_column_name(column) for column in primary_key_columns]
     if not primary_key_columns or any(
         column not in column_name_to_column_type
         for column in primary_key_columns
     ):
         id_col_name = "OpenMastrId"
         log.info(
-            f"Found no primary key column for table {table_description.table_name}."
+            f"Found no primary key column for table {table_description.original_table_name}."
             f" Inserting custom ID column {id_col_name!r}"
         )
         # The integer column will be autoincrement by default since we make it a primary key.
         column_name_to_column_type[id_col_name] = Integer
         primary_key_columns = {id_col_name}
 
+    if include_download_metadata:
+        data_source_col_info = {
+            "normalized_name": "DatenQuelle",
+            "english_name": "dataSource",
+        }
+        data_source_col_name = data_source_col_info["english_name" if english else "normalized_name"]
+        column_kwargs[data_source_col_name] = {"info": data_source_col_info}
+        column_name_to_column_type[data_source_col_name] = String
+        download_date_col_info = {
+            "normalized_name": "DatumDownload",
+            "english_name": "downloadDate",
+        }
+        download_date_col_name = download_date_col_info["english_name" if english else "normalized_name"]
+        column_kwargs[download_date_col_name] = {"info": download_date_col_info}
+        column_name_to_column_type[download_date_col_name] = String
+
     return _make_sqlalchemy_model(
         class_name=table_description.instance_name,
-        table_name=table_description.table_name,
+        table_name=table_name,
         column_name_to_column_type=column_name_to_column_type,
         primary_key_columns=primary_key_columns,
         base=base,
-        mixins=(ParentAllTables,)
+        mixins=mixins,
+        table_kwargs={
+            "info": {
+                "original_name": table_description.original_table_name,
+                "english_name": table_description.english_table_name,
+            }
+        },
+        column_kwargs=column_kwargs,
     )
 
 
@@ -117,14 +173,22 @@ def _make_sqlalchemy_model(
     primary_key_columns: set[str],
     base: Type[DeclarativeBase_T],
     mixins: tuple[type, ...] = tuple(),
+    table_kwargs: Optional[dict[str, Any]] = None,
+    column_kwargs: Optional[dict[str, dict[str, Any]]] = None,
 ) -> Type[DeclarativeBase_T]:  # TODO: Is there a way to say that the returned model is a sub-type of DeclarativeBase_T?
     namespace = {
         "__tablename__": table_name,
         "__annotations__": {},
     }
+    if table_kwargs:
+        namespace["__table_args__"] = table_kwargs
 
     for column_name, column_type in column_name_to_column_type.items():
-        kwargs = {"primary_key": True} if column_name in primary_key_columns else {"nullable": True}
+        kwargs = column_kwargs.get(column_name, {}) if column_kwargs else {}
+        if column_name in primary_key_columns:
+            kwargs.setdefault("primary_key", True)
+        else:
+            kwargs.setdefault("nullable", True)
         namespace[column_name] = mapped_column(column_type, **kwargs)
 
     bases = (base,) + mixins

@@ -32,7 +32,6 @@ from open_mastr.utils.constants import (
     ORM_MAP,
     UNIT_TYPE_MAP,
     ADDITIONAL_TABLES,
-    TRANSLATIONS,
 )
 
 MASTR_TIMEZONE = ZoneInfo("Europe/Berlin")
@@ -569,54 +568,6 @@ def db_query_to_csv(db_query, data_table: str, chunksize: int) -> None:
                         log.info(
                             f"Appended {len(chunk_df)} rows to: {csv_file.split('/')[-1:]}"
                         )
-
-
-def rename_table(table, columns, engine) -> None:
-    """
-    Rename table based on translation dictionary.
-    """
-    alter_statements = []
-
-    for column in columns:
-        column = column["name"]
-
-        if column in TRANSLATIONS:
-            alter_statement = text(
-                f"ALTER TABLE {table} RENAME COLUMN {column} TO {TRANSLATIONS[column]}"
-            )
-            alter_statements.append(alter_statement)
-
-    with engine.connect() as connection:
-        for statement in alter_statements:
-            try:
-                connection.execute(statement)
-            except sqlalchemy.exc.OperationalError:
-                continue
-
-
-def create_translated_database_engine(engine, folder_path) -> sqlalchemy.engine.Engine:
-    """
-    Check if translated version of the database, as defined with engine parameter, exists.
-    Return sqlite engine connected with the translated database.
-    """
-
-    if engine == "sqlite":
-        db_path = os.path.join(folder_path, "open-mastr-translated.db")
-    else:
-        if "sqlite" not in engine.dialect.name:
-            raise ValueError("engine has to be of type 'sqlite'")
-
-        prev_path = r"{}".format(engine.url.database)
-        engine.dispose()
-        db_path = prev_path[:-3] + "-translated.db"
-
-    if not os.path.exists(db_path):
-        raise FileNotFoundError(
-            f"no database at {db_path} found.\n"
-            "make sure the database has been translated before with translate()"
-        )
-
-    return create_engine(f"sqlite:///{db_path}")
 
 
 def delete_zip_file_if_corrupted(save_path: str):
