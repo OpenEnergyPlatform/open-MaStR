@@ -81,8 +81,10 @@ def test_list_available_downloads(mock_print, mock_get_links):
     mock_print.assert_any_call("=" * 80)
     mock_print.assert_any_call("AVAILABLE MAStR DOWNLOADS")
     mock_print.assert_any_call(
-        f"{'#':<4} {'Date':<12} {'Version':<10} {'Type':<12} {'URL'}"
+        "#    Date         Version    Type         XML URL"
+        "                                                                                    Docs URL"
     )
+    mock_print.assert_any_call("Total: 4 downloads available")
 
 
 @patch("open_mastr.xml_download.utils_download_bulk.list_available_downloads")

@@ -36,7 +36,6 @@ from open_mastr.xml_download.utils_write_to_database import (
     extract_xml_table_name,
     is_date_column,
     is_first_file,
-    is_table_relevant,
     process_table_before_insertion,
     read_xml_file,
     add_table_to_non_sqlite_database,
@@ -103,12 +102,6 @@ def test_extract_xml_table_name():
 def text_extract_sql_table_name():
     xml_table_name = "netzanschlusspunkte"
     assert extract_sql_table_name(xml_table_name) == "network_connection_points"
-
-
-def test_is_table_relevant():
-    include_tables = ["anlagengasspeicher", "marktakteure"]
-    assert is_table_relevant("anlagengasspeicher", include_tables) is True
-    assert is_table_relevant("netzanschlusspunkte", include_tables) is False
 
 
 def test_is_first_file():
