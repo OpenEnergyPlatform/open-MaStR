@@ -1,11 +1,10 @@
 import os
 from pathlib import Path
-from sqlalchemy import inspect, create_engine, Engine, Table
-from sqlalchemy.orm import DeclarativeBase
 from typing import Literal, Optional, Type, TypeVar, Union
 from collections.abc import Iterable, Mapping
 
 import pandas as pd
+from sqlalchemy import inspect, create_engine, Engine, Table, MetaData
 
 # import xml dependencies
 from open_mastr.xml_download.utils_download_bulk import (
@@ -42,7 +41,7 @@ from open_mastr.utils.config import (
     setup_logger,
 )
 import open_mastr.utils.orm as orm
-from open_mastr.utils.sqlalchemy_tables import make_sqlalchemy_model_from_mastr_table_description
+from open_mastr.utils.sqlalchemy_tables import make_sqlalchemy_table_from_mastr_table_description
 
 # constants
 from open_mastr.utils.constants import TECHNOLOGIES, ADDITIONAL_TABLES
@@ -50,8 +49,6 @@ from open_mastr.utils.constants import TECHNOLOGIES, ADDITIONAL_TABLES
 # setup logger
 log = setup_logger()
 
-# TODO: Repeating Type[DeclarativeBase_T] in function signatures is strange. There must be a better option.
-DeclarativeBase_T = TypeVar("DeclarativeBase_T", bound=DeclarativeBase)
 FALLBACK_DOCS_PATH = Path(__file__).parent / "resources" / "Dokumentation-MaStR-Gesamtdatenexport-20251227-Fallback.zip"
 
 
@@ -117,9 +114,9 @@ class Mastr:
         date: Optional[str] = None,
         catalog_value_as_str: bool = True,
         url: Optional[str] = None,
-        base: Optional[Type[DeclarativeBase_T]] = None,
+        metadata: Optional[MetaData] = None,
         english: bool = False,
-    ) -> dict[str, Type[DeclarativeBase_T]]:
+    ) -> dict[str, Table]:
         data = transform_data_parameter(data)
         date = parse_date_string(transform_date_parameter(date))
         if url:
@@ -141,7 +138,7 @@ class Mastr:
                 zipped_docs_file_path=zipped_docs_file_path,
                 data=data,
                 catalog_value_as_str=catalog_value_as_str,
-                base=base,
+                metadata=metadata,
                 english=english,
             )
         except Exception as e:
@@ -153,7 +150,7 @@ class Mastr:
                 zipped_docs_file_path=FALLBACK_DOCS_PATH,
                 data=data,
                 catalog_value_as_str=catalog_value_as_str,
-                base=base,
+                metadata=metadata,
                 english=english,
             )
 
@@ -273,17 +270,13 @@ class Mastr:
             custom_docs_url = None
 
         if not mastr_table_to_db_table:
-            mastr_table_to_db_model = self.generate_data_model(
+            mastr_table_to_db_table = self.generate_data_model(
                 data=data,
                 date=bulk_download_date,
                 catalog_value_as_str=bulk_cleansing,
                 url=custom_docs_url,
                 english=english,
             )
-            mastr_table_to_db_table = {
-                mastr_table: db_model.__table__
-                for mastr_table, db_model in mastr_table_to_db_model.items()
-            }
             log.info(
                 "Ensuring database tables for MaStR are present:"
                 " Dropping old tables if existing and creating new ones."
@@ -387,27 +380,23 @@ class Mastr:
 def _generate_data_model_from_downloaded_docs(
     zipped_docs_file_path: Path,
     data: list[str], catalog_value_as_str: bool = True,
-    base: Optional[Type[DeclarativeBase_T]] = None,
+    metadata: Optional[MetaData] = None,
     english: bool = False,
-):
-    if base is None:
-
-        class MastrBase(DeclarativeBase):
-            pass
-
-        base = MastrBase
+) -> dict[str, Table]:
+    if metadata is None:
+        metadata = MetaData()
 
     mastr_table_descriptions = read_mastr_table_descriptions_from_xsd(
         zipped_docs_file_path=zipped_docs_file_path, data=data
     )
-    mastr_table_to_db_model: dict[str, DeclarativeBase_T] = {}
+    mastr_table_to_db_table = {}
     for mastr_table_description in mastr_table_descriptions:
-        sqlalchemy_model = make_sqlalchemy_model_from_mastr_table_description(
+        sqlalchemy_model = make_sqlalchemy_table_from_mastr_table_description(
             table_description=mastr_table_description,
             catalog_value_as_str=catalog_value_as_str,
-            base=base,
+            metadata=metadata,
             english=english,
         )
-        mastr_table_to_db_model[mastr_table_description.original_table_name] = sqlalchemy_model
+        mastr_table_to_db_table[mastr_table_description.original_table_name] = sqlalchemy_model
 
-    return mastr_table_to_db_model
+    return mastr_table_to_db_table
