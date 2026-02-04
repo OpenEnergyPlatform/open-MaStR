@@ -220,3 +220,63 @@ def _get_sqlalchemy_type_for_mastr_column_type(
         return CatalogString if catalog_value_as_str else CatalogInteger
     return _MASTR_COLUMN_TYPE_TO_SQLALCHEMY_TYPE[mastr_column_type]
 
+
+def format_sqlalchemy_column(column: Column) -> str:
+    """Format SQLAlchemy column
+
+    This is an almost exact copy of sqlalchemy.Column.__repr__ with the difference
+    that "info" is also formatted.
+    """
+    kwarg = []
+    if column.key != column.name:
+        kwarg.append("key")
+    if column.primary_key:
+        kwarg.append("primary_key")
+    if not column.nullable:
+        kwarg.append("nullable")
+    if column.onupdate:
+        kwarg.append("onupdate")
+    if column.default:
+        kwarg.append("default")
+    if column.server_default:
+        kwarg.append("server_default")
+    if column.comment:
+        kwarg.append("comment")
+    if column.info:
+        kwarg.append("info")
+    return "Column(%s)" % ", ".join(
+        [repr(column.name)]
+        + [repr(column.type)]
+        + [repr(x) for x in column.foreign_keys if x is not None]
+        + [repr(x) for x in column.constraints]
+        + [
+            (
+                column.table is not None
+                and "table=<%s>" % column.table.description
+                or "table=None"
+            )
+        ]
+        + ["%s=%s" % (k, repr(getattr(column, k))) for k in kwarg]
+    )
+
+
+def format_sqlalchemy_table(table: Table) -> str:
+    """Format SQLAlchemy column
+
+    This is an almost exact copy of sqlalchemy.Table.__repr__ with two differences:
+    - "info" is also formatted
+    - more whitespace (especially linebreaks) to make it more easily readable
+    """
+    return "Table(\n    %s\n)" % ",\n    ".join(
+        [repr(table.name)]
+        + [repr(table.metadata)]
+        + [format_sqlalchemy_column(x) for x in table.columns]
+        + ["%s=%s" % (k, repr(getattr(table, k))) for k in ["info", "schema"]]
+    )
+
+
+def format_mastr_table_to_db_table(mastr_table_to_db_table: dict[str, Table]) -> str:
+    parts = []
+    for mastr_table, db_table in mastr_table_to_db_table.items():
+        parts.append(f"{mastr_table}: {format_sqlalchemy_table(db_table)}")
+    return "\n\n".join(parts)
