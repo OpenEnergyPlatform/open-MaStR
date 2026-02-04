@@ -90,7 +90,7 @@ def gen_version(
     return f"{year}.{release}"
 
 
-def gen_url(
+def gen_xml_download_url(
     when: time.struct_time = time.localtime(), use_version="current", use_stichtag=False
 ) -> str:
     """Generates the download URL for the specified date.
@@ -170,7 +170,7 @@ def download_xml_Mastr(
     # Determine the URL to use
     if url is None:
         # Generate URL from date string if no custom URL provided
-        url = gen_url(url_time)
+        url = gen_xml_download_url(url_time)
     # else: custom URL is already provided, use it as-is
 
     time_a = time.perf_counter()
@@ -182,23 +182,23 @@ def download_xml_Mastr(
         now = time.localtime(
             time.mktime(url_time) - (24 * 60 * 60)
         )  # subtract 1 day from the date
-        url = gen_url(now)
+        url = gen_xml_download_url(now)
         r = requests.get(url, stream=True, headers={"User-Agent": USER_AGENT})
     if r.status_code == 404:
-        url = gen_url(url_time, use_version="before")  # Use lower MaStR Version
+        url = gen_xml_download_url(url_time, use_version="before")  # Use lower MaStR Version
         log.warning(
             f"Download file was not found. Assuming that the version of MaStR has changed and retrying with download link: {url}"
         )
         r = requests.get(url, stream=True, headers={"User-Agent": USER_AGENT})
     if r.status_code == 404:
-        url = gen_url(url_time, use_version="after")  # Use higher MaStR Version
+        url = gen_xml_download_url(url_time, use_version="after")  # Use higher MaStR Version
         log.warning(
             f"Download file was not found. Assuming that the version of MaStR has changed and retrying with download link: {url}"
         )
         r = requests.get(url, stream=True, headers={"User-Agent": USER_AGENT})
 
     if r.status_code == 404:
-        url = gen_url(
+        url = gen_xml_download_url(
             url_time, use_stichtag=True
         )  # Use different url-structure for older downloads
         log.warning(
@@ -600,6 +600,35 @@ def get_date_from_docs_url(url: str) -> Optional[str]:
     return None
 
 
+def gen_docs_download_urls(
+    bulk_date_string: Optional[str] = None,
+    url: Optional[str] = None
+) -> tuple[str, Optional[str]]:
+    newest_url = "https://www.marktstammdatenregister.de/MaStRHilfe/files/gesamtdatenexport/Dokumentation%20MaStR%20Gesamtdatenexport.zip"
+    if url:
+        preferred_url = url
+        fallback_url = None
+    else:
+        if bulk_date_string:
+            dt = datetime.strptime(bulk_date_string, "%Y%m%d")
+            stichtag_url = (
+                "https://download.marktstammdatenregister.de/Stichtag/"
+                "Dokumentation%20MaStR%20Gesamdatenexport%20"
+                f"{dt.day:0>2}-{dt.month:0>2}-{dt.year:0>4}.zip"
+            )
+            if dt.date() == date.today():
+                preferred_url = newest_url
+                fallback_url = stichtag_url
+            else:
+                preferred_url = stichtag_url
+                fallback_url = newest_url
+        else:
+            preferred_url = newest_url
+            fallback_url = None
+
+    return preferred_url, fallback_url
+
+
 def download_documentation(
     save_path: str,
     bulk_date_string: Optional[str] = None,
@@ -612,20 +641,18 @@ def download_documentation(
     save_path: str
         Full file path where the downloaded MaStR documentation zip file will be saved.
     """
-    log.info("Starting the MaStR documentation download from marktstammdatenregister.de.")
-    if not url:
-        if bulk_date_string:
-            dt = datetime.strptime(bulk_date_string, "%Y%m%d")
-            url = (
-                "https://download.markstammdatenregister.de/Stichtag/"
-                "Dokumentation%20MaStR%20Gesamdatenexport%20"
-                f"{dt.day:0>2}-{dt.month:0>2}-{dt.year:0>4}.zip"
-            )
-        else:
-            url = "https://www.marktstammdatenregister.de/MaStRHilfe/files/gesamtdatenexport/Dokumentation%20MaStR%20Gesamtdatenexport.zip"
+    log.info("Starting MaStR documentation download from marktstammdatenregister.de.")
+    preferred_url, fallback_url = gen_docs_download_urls(bulk_date_string, url)
 
     time_a = time.perf_counter()
-    r = requests.get(url, headers={"User-Agent": USER_AGENT})
+    log.info(f"Downloading MaStR documentation from {preferred_url}")
+    r = requests.get(preferred_url, headers={"User-Agent": USER_AGENT})
+    if r.status_code == 404:
+        log.warning(
+            "MaStR documentation download file was not found."
+            f" Trying to download from {fallback_url}"
+        )
+        r = requests.get(fallback_url, headers={"User-Agent": USER_AGENT})
 
     r.raise_for_status()
     with open(save_path, "wb") as zfile:
@@ -633,6 +660,6 @@ def download_documentation(
 
     time_b = time.perf_counter()
     log.info(
-        f"MaStR documentation download is finished. It took {round(time_b - time_a)} seconds."
+        f"MaStR documentation was successfully downloaded to {save_path!r}."
+        f" It took {round(time_b - time_a)} seconds."
     )
-    log.info(f"MaStR was successfully downloaded to {save_path!r}.")
