@@ -1,10 +1,10 @@
 import os
 from pathlib import Path
-from typing import Any, Literal, Optional, Type, TypeVar, Union
+from typing import Any, Literal, Optional, Union
 from collections.abc import Iterable, Mapping
 
 import pandas as pd
-from sqlalchemy import inspect, create_engine, Engine, Table, MetaData
+from sqlalchemy import inspect, Engine, Table, MetaData
 
 # import xml dependencies
 from open_mastr.xml_download.utils_download_bulk import (
@@ -19,14 +19,12 @@ from open_mastr.xml_download.utils_write_to_database import (
     write_mastr_xml_to_database,
 )
 from open_mastr.utils.xsd_tables import (
-    MastrTableDescription,
     read_mastr_table_descriptions_from_xsd,
 )
 
 from open_mastr.utils.helpers import (
     validate_parameter_format_for_download_method,
     validate_parameter_format_for_mastr_init,
-    validate_parameter_data,
     transform_data_parameter,
     parse_date_string,
     transform_date_parameter,
@@ -38,11 +36,9 @@ from open_mastr.utils.config import (
     get_output_dir,
     setup_logger,
 )
-import open_mastr.utils.orm as orm
 from open_mastr.utils.sqlalchemy_tables import make_sqlalchemy_table_from_mastr_table_description
 
 # constants
-from open_mastr.utils.constants import TECHNOLOGIES, ADDITIONAL_TABLES
 
 # setup logger
 log = setup_logger()

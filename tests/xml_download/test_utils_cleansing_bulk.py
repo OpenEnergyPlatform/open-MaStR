@@ -3,7 +3,6 @@ import sqlite3
 from os.path import expanduser
 import os
 import pandas as pd
-import numpy as np
 import pytest
 
 from open_mastr.xml_download.utils_cleansing_bulk import (

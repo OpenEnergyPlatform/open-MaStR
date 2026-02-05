@@ -1,4 +1,3 @@
-from datetime import date
 import time
 from open_mastr.xml_download.utils_download_bulk import (
     gen_xml_download_url,

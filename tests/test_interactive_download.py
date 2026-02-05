@@ -1,4 +1,3 @@
-import pytest
 from unittest.mock import patch, MagicMock
 from open_mastr.xml_download.utils_download_bulk import (
     get_available_download_links,

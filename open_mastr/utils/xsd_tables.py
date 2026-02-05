@@ -1,6 +1,5 @@
 import logging
 import os
-import re
 from enum import auto, Enum
 from dataclasses import dataclass
 from pathlib import Path
@@ -65,10 +64,9 @@ class MastrColumnType(Enum):
         }
         if xsd_type.is_restriction():
             if enumeration := xsd_type.enumeration:
-                if set(xsd_type.enumeration) == {0, 1}:
+                if set(enumeration) == {0, 1}:
                     return cls.BOOLEAN
-                else:
-                    return cls.CATALOG_VALUE
+                return cls.CATALOG_VALUE
             # Ertuechtigungen.xsd has some normal types defined as restrictions for some reason.
             # We cope with that by extracting the primitive type it's restricted to.
             inner_xsd_type = xsd_type.primitive_type

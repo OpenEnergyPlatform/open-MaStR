@@ -1,5 +1,4 @@
 import os
-import json
 from contextlib import contextmanager
 import datetime
 from warnings import warn
@@ -9,45 +8,40 @@ from zoneinfo import ZoneInfo
 
 import dateutil
 import sqlalchemy
-from sqlalchemy.sql import insert, literal_column, text
 from dateutil.parser import parse
 from sqlalchemy import create_engine
-from sqlalchemy.orm import Query, sessionmaker
+from sqlalchemy.orm import sessionmaker
 
-import pandas as pd
-from tqdm import tqdm
-from open_mastr.utils import orm
-from open_mastr.utils.config import (
-    get_filenames,
-    get_data_version_dir,
-    column_renaming,
-)
 
 from open_mastr.soap_api.download import log
 from open_mastr.utils.constants import (
     BULK_DATA,
     TECHNOLOGIES,
     BULK_INCLUDE_TABLES_MAP,
-    BULK_ADDITIONAL_TABLES_CSV_EXPORT_MAP,
-    ORM_MAP,
-    UNIT_TYPE_MAP,
     ADDITIONAL_TABLES,
 )
 
 MASTR_TIMEZONE = ZoneInfo("Europe/Berlin")
 
 
-def create_database_engine(engine, sqlite_db_path) -> sqlalchemy.engine.Engine:
-    if engine == "sqlite":
-        sqlite_database_path = os.environ.get(
-            "SQLITE_DATABASE_PATH",
-            os.path.join(sqlite_db_path, "open-mastr.db"),
-        )
-        db_url = f"sqlite:///{sqlite_database_path}"
-        return create_engine(db_url)
-
-    if type(engine) == sqlalchemy.engine.Engine:
+def create_database_engine(
+    engine: Union[Literal["sqlite"] | sqlalchemy.engine.Engine],
+    sqlite_db_path: Optional[str],
+) -> sqlalchemy.engine.Engine:
+    if isinstance(engine, sqlalchemy.engine.Engine):
         return engine
+    if engine != "sqlite":
+        log.warning(
+            "engine parameter is neither 'sqlite' nor an SQLALchemy engine."
+            " Creating SQLite engine."
+        )
+
+    sqlite_database_path = os.environ.get(
+        "SQLITE_DATABASE_PATH",
+        os.path.join(sqlite_db_path, "open-mastr.db"),
+    )
+    db_url = f"sqlite:///{sqlite_database_path}"
+    return create_engine(db_url)
 
 
 def parse_date_string(bulk_date_string: str) -> str:

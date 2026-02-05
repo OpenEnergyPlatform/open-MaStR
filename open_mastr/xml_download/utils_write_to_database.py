@@ -4,7 +4,6 @@ from concurrent.futures import ProcessPoolExecutor, wait
 from io import StringIO
 from multiprocessing import cpu_count
 from shutil import Error
-from typing import Type, TypeVar
 from zipfile import ZipFile
 
 import re
@@ -12,7 +11,7 @@ import lxml
 import numpy as np
 import pandas as pd
 import sqlalchemy
-from sqlalchemy import Column, Engine, Table, delete, select, create_engine, inspect
+from sqlalchemy import Column, Engine, Table, delete, select, create_engine
 from sqlalchemy.sql import text
 from sqlalchemy.sql.sqltypes import Date, DateTime
 

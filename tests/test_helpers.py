@@ -1,13 +1,9 @@
 import pytest
 import os
-from os.path import expanduser
 from pathlib import Path
 import itertools
 
-import random
-from os.path import join
 
-import pandas as pd
 from open_mastr import Mastr
 from zipfile import ZipFile
 

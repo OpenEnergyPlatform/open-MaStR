@@ -1,11 +1,7 @@
-import datetime
 import logging
-from dataclasses import dataclass
-from typing import Any, Optional, Type, TypeVar, Union
+from typing import Any, Type, Union
 from sqlalchemy import Column, Integer, String, Float, Boolean, Date, DateTime, Table, MetaData
 
-import xmlschema
-from xmlschema.validators.simple_types import XsdAtomicBuiltin, XsdAtomicRestriction
 from open_mastr.utils.xsd_tables import (
     MastrColumnType,
     MastrTableDescription,
