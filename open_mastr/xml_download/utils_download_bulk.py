@@ -5,6 +5,9 @@ from datetime import datetime as dt
 from importlib.metadata import PackageNotFoundError, version
 from zipfile import ZipFile
 from pathlib import Path
+import urllib.request
+import re
+from datetime import datetime
 
 import numpy as np
 import requests
@@ -123,7 +126,11 @@ def gen_url(
 
 
 def download_xml_Mastr(
-    save_path: str, bulk_date_string: str, bulk_data_list: list, xml_folder_path: str
+    save_path: str,
+    bulk_date_string: str,
+    bulk_data_list: list,
+    xml_folder_path: str,
+    url: str = None,
 ) -> None:
     """Downloads the zipped MaStR.
 
@@ -137,12 +144,32 @@ def download_xml_Mastr(
         List of tables/technologis to be downloaded.
     xml_folder_path: str
         Path where the downloaded MaStR zip file will be saved.
+    url: str, optional
+        Custom download URL. If None, generates URL based on bulk_date_string.
     """
 
     log.info("Starting the Download from marktstammdatenregister.de.")
 
-    url_time = dt.strptime(bulk_date_string, "%Y%m%d").date().timetuple()
-    url = gen_url(url_time)
+    # Helper function to convert date string to time.struct_time
+    def _parse_date_string(date_str):
+        """Convert YYYYMMDD string to time.struct_time object."""
+        try:
+            # Use datetime.strptime for robust date parsing
+            parsed_date = dt.strptime(date_str, "%Y%m%d")
+            # Convert to time.struct_time using timetuple()
+            return parsed_date.timetuple()
+        except (ValueError, IndexError) as e:
+            log.warning(f"Invalid date format '{date_str}': {e}. Using current date.")
+            return time.localtime()
+
+    # Parse the date string to time.struct_time (needed for both cases)
+    url_time = _parse_date_string(bulk_date_string)
+
+    # Determine the URL to use
+    if url is None:
+        # Generate URL from date string if no custom URL provided
+        url = gen_url(url_time)
+    # else: custom URL is already provided, use it as-is
 
     time_a = time.perf_counter()
     r = requests.get(url, stream=True, headers={"User-Agent": USER_AGENT})
@@ -353,3 +380,172 @@ def full_download_without_unzip_http(
             else:
                 # remove warning
                 bar.set_postfix_str(s="")
+
+
+def get_available_download_links(
+    url="https://www.marktstammdatenregister.de/MaStR/Datendownload",
+):
+    """
+    Fetch all available download links from the MaStR website.
+
+    This function retrieves all available Gesamtdatenexport files from the MaStR
+    download page, including both current and historical exports.
+
+    Parameters
+    ----------
+    url : str, optional
+        The URL of the MaStR download page. Defaults to the official download page.
+
+    Returns
+    -------
+    list of dict
+        A list of dictionaries containing information about available downloads.
+        Each dictionary contains:
+        - 'url': The download URL
+        - 'date': The date of the export (YYYYMMDD format)
+        - 'version': The MaStR version (e.g., '24.1', '24.2')
+        - 'type': 'current' for current exports, 'stichtag' for historical exports
+
+    Examples
+    --------
+    >>> links = get_available_download_links()
+    >>> for link in links[:3]:
+    ...     print(f"Date: {link['date']}, Version: {link['version']}, Type: {link['type']}")
+    Date: 20250103, Version: 24.2, Type: current
+    Date: 20241231, Version: 24.2, Type: current
+    Date: 20241230, Version: 24.2, Type: current
+    """
+    log.info("Fetching available download links from MaStR website...")
+
+    headers = {"User-Agent": USER_AGENT}
+    req = urllib.request.Request(url, headers=headers)
+
+    try:
+        with urllib.request.urlopen(req) as response:
+            html = response.read().decode("utf-8")
+    except Exception as e:
+        log.error(f"Failed to fetch download page: {e}")
+        return []
+
+    # Pattern for current exports
+    pattern_current = re.compile(
+        r"https://download\.marktstammdatenregister\.de/Gesamtdatenexport_([0-9]{8})_([0-9]{2}\.[0-9])\.zip"
+    )
+    # Pattern for historical exports (Stichtag)
+    pattern_stichtag = re.compile(
+        r"https://download\.marktstammdatenregister\.de/Stichtag/Gesamtdatenexport_([0-9]{8})_([0-9]{2}\.[0-9])\.zip"
+    )
+
+    # Find all current export links
+    current_matches = pattern_current.findall(html)
+    current_links = [
+        {
+            "url": f"https://download.marktstammdatenregister.de/Gesamtdatenexport_{date}_{version}.zip",
+            "date": date,
+            "version": version,
+            "type": "current",
+        }
+        for date, version in current_matches
+    ]
+
+    # Find all historical export links
+    stichtag_matches = pattern_stichtag.findall(html)
+    stichtag_links = [
+        {
+            "url": f"https://download.marktstammdatenregister.de/Stichtag/Gesamtdatenexport_{date}_{version}.zip",
+            "date": date,
+            "version": version,
+            "type": "stichtag",
+        }
+        for date, version in stichtag_matches
+    ]
+
+    # Combine and sort by date (newest first)
+    all_links = current_links + stichtag_links
+    all_links.sort(key=lambda x: x["date"], reverse=True)
+
+    log.info(f"Found {len(all_links)} available download links")
+    return all_links
+
+
+def list_available_downloads():
+    """
+    Display available downloads in a user-friendly format.
+
+    Returns
+    -------
+    list of dict
+        List of available downloads with formatted dates and versions.
+    """
+    links = get_available_download_links()
+
+    if not links:
+        print("No download links found. Please check your internet connection.")
+        return []
+
+    print("\n" + "=" * 80)
+    print("AVAILABLE MAStR DOWNLOADS")
+    print("=" * 80)
+    print(f"{'#':<4} {'Date':<12} {'Version':<10} {'Type':<12} {'URL'}")
+    print("-" * 80)
+
+    for i, link in enumerate(links, 1):
+        # Format date for better readability
+        date_formatted = f"{link['date'][:4]}-{link['date'][4:6]}-{link['date'][6:]}"
+        print(
+            f"{i:<4} {date_formatted:<12} {link['version']:<10} {link['type']:<12} {link['url']}"
+        )
+
+    print("=" * 80)
+    print(f"Total: {len(links)} downloads available")
+    print("=" * 80)
+
+    return links
+
+
+def select_download_date():
+    """
+    Interactive function to let the user select a download date.
+
+    Prompts the user to choose from available downloads or enter a custom date.
+
+    Returns
+    -------
+    tuple
+        (date_string, url) where date_string is in YYYYMMDD format and url is the download URL
+        Returns (None, None) if user cancels or no valid selection is made
+    """
+    links = list_available_downloads()
+
+    if not links:
+        return None, None
+
+    print("\nOptions:")
+    print("1. Select from the list above (enter the number)")
+    print("2. Cancel")
+
+    while True:
+        choice = input("\nPlease enter your choice (1-2): ").strip()
+
+        if choice == "1":
+            # Select from list
+            while True:
+                try:
+                    index = int(input(f"Enter a number (1-{len(links)}): ").strip())
+                    if 1 <= index <= len(links):
+                        selected = links[index - 1]
+                        print(
+                            f"\nSelected: {selected['date']} (Version {selected['version']}, Type: {selected['type']})"
+                        )
+                        return selected["date"], selected["url"]
+                    else:
+                        print(f"Please enter a number between 1 and {len(links)}")
+                except ValueError:
+                    print("Please enter a valid number")
+
+        elif choice == "2":
+            print("Download selection cancelled.")
+            return None, None
+
+        else:
+            print("Invalid choice. Please enter 1, or 2.")
