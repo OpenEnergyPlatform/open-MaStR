@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-from typing import Literal, Optional, Type, TypeVar, Union
+from typing import Any, Literal, Optional, Type, TypeVar, Union
 from collections.abc import Iterable, Mapping
 
 import pandas as pd
@@ -53,8 +53,7 @@ FALLBACK_DOCS_PATH = Path(__file__).parent / "resources" / "Dokumentation-MaStR-
 
 
 class Mastr:
-    """
-    `Mastr` is used to download the MaStR database and keep it up-to-date.
+    """`Mastr` is used to download the MaStR database.
 
     An SQL database is used to mirror the MaStR database. It is filled by
     downloading and parsing the MaStR via bulk download.
@@ -73,24 +72,18 @@ class Mastr:
     engine : {'sqlite', sqlalchemy.engine.Engine}, optional
         Defines the engine of the database where the MaStR is mirrored to.
         Default is 'sqlite'.
-    connect_to_translated_db: boolean, optional
-            Allows connection to an existing translated database. Default is 'False'.
-            Only for 'sqlite'-type engines.
-
-
-
+    output_dir : Top-level directory of produced output (downloaded files, created database)
+        Default is the content of env var OUTPUT_PATH, else ~/.open-MaStR
     """
 
     def __init__(
         self,
         engine: Union[Engine, Literal["sqlite"]] = "sqlite",
         output_dir: Optional[Union[str, Path]] = None,
-        home_dir: Optional[Union[str, Path]] = None,
     ) -> None:
         validate_parameter_format_for_mastr_init(engine)
 
         self.output_dir = output_dir or get_output_dir()
-        self.home_directory = home_dir or get_project_home_dir()
 
         self._sqlite_folder_path = os.path.join(self.output_dir, "data", "sqlite")
 
@@ -112,11 +105,55 @@ class Mastr:
         self,
         data: Optional[list[str]] = None,
         date: Optional[str] = None,
-        catalog_value_as_str: bool = True,
         url: Optional[str] = None,
         metadata: Optional[MetaData] = None,
+        catalog_value_as_str: bool = True,
         english: bool = False,
     ) -> dict[str, Table]:
+        """Generate data model from MaStR documentation.
+
+        Download the MaStR documentation, extract the XSD files that describe the format of the
+        MaStR XML files, and generate SQLAlchemy tables from those XSD files. The tables are not
+        created in the database.
+
+        Parameters
+        ----------
+        data : str or list or None, optional
+            Specifies which tables to generate. See the `download` method for details.
+
+        date : None or `datetime.datetime` or str, optional
+            Specifies date for the docs download. See the `download` method for details.
+
+        url : str or None, optional
+            The URL to download the MaStR documentation from. If this is given, the `date` parameter
+            is not used.
+
+        metadata : SQLAlchemy MetaData or None, optional
+            SQLAlchemy MetaData object to use for the tables. If not given, a new MetaData object
+            is created.
+
+        catalog_value_as_str : bool, optional
+            If set to True, columns which contain values from the MaStR catalog (Katalogwerte) are
+            generated as string/VARCHAR columns. If set to False, they are generated as int columns.
+            This should usually be set to True if you want to use the `bulk_cleansing` option of
+            the `download` method to convert the catalog IDs to their values.
+            Defaults to True.
+
+        english: bool, optional
+            If set to True, table and column names are translated from their MaStR name to an
+            English name if open-mastr already has a translation stored for that table/column.
+
+            The English name and original MaStR name are always stored in the table's/column's
+            `info` attribute.
+
+            Defaults to False.
+
+        Returns
+        -------
+        dict from str to SQLAlchemy Table
+            Dict mapping original MaStR table name to SQLAlchemy table
+            Example: {"EinheitenWind": Table(...), "EinheitenSolar": Table(...), ...}
+        """
         data = transform_data_parameter(data)
         date = parse_date_string(transform_date_parameter(date))
         if url:
@@ -156,19 +193,18 @@ class Mastr:
 
     def download(
         self,
-        method="bulk",
+        method: Literal["bulk"] = "bulk",
         data=None,
         date=None,
-        bulk_cleansing=True,
-        keep_old_downloads: bool = False,
         select_date_interactively: bool = False,
+        bulk_cleansing: bool = True,
+        keep_old_downloads: bool = False,
         mastr_table_to_db_table: Optional[Mapping[str, Table]] = None,
         alter_database_tables: bool = True,
         english: bool = False,
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
-        """
-        Downloads the MaStR registry and writes it to a local database.
+        """Download the MaStR registry and write it to a local database.
 
         Parameters
         ----------
@@ -208,26 +244,56 @@ class Mastr:
 
         date : None or `datetime.datetime` or str, optional
 
-            | date                  | description |
-            |-----------------------|------|
-            | "today"                | latest files are downloaded from marktstammdatenregister.de  |
-            | "20230101"      | If file from this date exists locally, it is used. Otherwise it throws an error (You can only receive todays data from the server)  |
-            | "existing"               | Deprecated since 0.16, see [#616](https://github.com/OpenEnergyPlatform/open-MaStR/issues/616#issuecomment-3089377062) |
-            | None      | set date="today"  |
+            | date       | description |
+            |------------|-------------|
+            | "20230101" | If file from this date exists locally, it is used. Otherwise, it tries to get it from markstammdatenregister.de |
+            | "today"    | Shorthand for specify today's date in YYYYMMDD format |
+            | None       | set date="today" |
+            | "existing" | Deprecated since 0.16, see [#616](https://github.com/OpenEnergyPlatform/open-MaStR/issues/616#issuecomment-3089377062) |
 
-            Default to `None`.
+            Defaults to `None`.
+
         select_date_interactively : bool, optional
             If set to True, the user will be presented with a list of available download dates
             from the MaStR website and can interactively select which date to download.
             This allows downloading historical data instead of just the latest available data.
             When True, the `date` parameter is ignored. Defaults to False.
+
         bulk_cleansing : bool, optional
             If set to True, data cleansing is applied after the download (which is recommended).
             In its original format, many entries in the MaStR are encoded with IDs. Columns like
             `state` or `fueltype` do not contain entries such as "Hessen" or "Braunkohle", but instead
             only contain IDs. Cleansing replaces these IDs with their corresponding original entries.
-        keep_old_downloads: bool
-            If set to True, prior downloaded MaStR zip files will be kept.
+            Defaults to True.
+
+        keep_old_downloads : bool, optional
+            If set to True, prior downloaded MaStR zip files will be kept. Defaults to False.
+
+        mastr_table_to_db_table : Mapping from MaStR table name (str) to SQLALchemy Table, or None, optional
+            If given, downloaded data from a MaStR file will be stored in the SQLAlchemy table
+            associated with that file. The tables must exist already; they are not created.
+            Example: {"EinheitenWind": Table(...), "EinheitenSolar": Table(...), ...}
+
+            If None / not given, the mapping will be generated by calling
+            `Mastr.generate_data_model` (and thus downloading the MaStR documentation). In this
+            case, the tables will be created.
+
+            Defaults to None.
+
+        alter_database_tables : bool, optional
+            If set to True, ALTER statememts to add database columns will be issued if there are
+            fields in the downloaded XML that are not yet present in the database tables that have
+            been generated or given. If set to False and such unexpected fields are found, those
+            fields are not imported.
+
+            Defaults to True.
+
+        english : bool = False, optional,
+            If set to True and no `mastr_table_to_db_table` mapping is given, the generated tables
+            will have English names and English columns. (Some untranslated German names may remain
+            if they haven't been added to open-mastr's translation info yet.)
+
+            Defaults to False.
         """
         if method == "API":
             log.warning(
@@ -330,9 +396,19 @@ class Mastr:
         self,
         db_table_names: Iterable[str] = None,
         chunksize: int = 500000,
-        limit: int = None,
     ) -> None:
-        log.info(f"Exporting the following database tables to CSV: {', '.join(db_table_names)}")
+        """Export tables from existing database to CSV.
+
+        Parameters
+        ----------
+        db_table_names : Iterable of str or None, optional
+            The names of the database tables to export. If None, all tables in the database will be
+            exported. Defaults to None.
+
+        chunksize : int, optional
+            Number of rows to retrieve from the database before dumping them to the CSV file.
+            Defaults to 500000.
+        """
         data_path = get_data_version_dir()
         os.makedirs(data_path, exist_ok=True)
 
@@ -341,6 +417,7 @@ class Mastr:
         if db_table_names is None:
             db_table_names = existing_table_names
 
+        log.info(f"Exporting the following database tables to CSV: {', '.join(db_table_names)}")
         with self.engine.connect() as conn:
             for requested_table_name in db_table_names:
                 if requested_table_name not in existing_table_names:
@@ -355,23 +432,22 @@ class Mastr:
                 ):
                     chunk.to_csv(csv_path, mode="a", index=False, header=i == 0)
 
+    def browse_available_downloads(self) -> list[dict[str, Optional[str]]]:
+        """Browse available MaStR downloads from the website without starting the download.
 
-    def browse_available_downloads(self):
-        """
-        Browse available MaStR downloads from the website without starting the download.
         This method fetches and displays all available download dates from the MaStR website,
         allowing users to see what historical data is available before deciding to download.
+
         Returns
         -------
         list of dict
             List of available downloads with date, version, and type information.
+
         Examples
         --------
         >>> from open_mastr import Mastr
         >>> db = Mastr()
         >>> available_downloads = db.browse_available_downloads()
-        >>> # User can then choose a date and download with:
-        >>> # db.download(select_date_interactively=True)
         """
         log.info("Browsing available MaStR downloads...")
         return list_available_downloads()

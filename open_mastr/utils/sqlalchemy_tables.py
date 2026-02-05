@@ -276,6 +276,17 @@ def format_sqlalchemy_table(table: Table) -> str:
 
 
 def format_mastr_table_to_db_table(mastr_table_to_db_table: dict[str, Table]) -> str:
+    """Format mapping from MaStR table to SQLAlchemy table.
+
+    Parameters
+    ----------
+    mastr_table_to_db_table : Mapping from MaStR table name (str) to SQLALchemy Table
+
+    Returns
+    -------
+    str
+        The formatted mapping as a string.
+    """
     parts = []
     for mastr_table, db_table in mastr_table_to_db_table.items():
         parts.append(f"{mastr_table}: {format_sqlalchemy_table(db_table)}")
