@@ -13,20 +13,16 @@ import numpy as np
 import pandas as pd
 import sqlalchemy
 from sqlalchemy import Column, Engine, Table, delete, select, create_engine, inspect
-from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.sql import text
 from sqlalchemy.sql.sqltypes import Date, DateTime
 
 from open_mastr.utils.config import setup_logger
 from open_mastr.utils.helpers import data_to_include_tables
-from open_mastr.utils.orm import tablename_mapping
 from open_mastr.utils.xsd_tables import normalize_mastr_name, translate_mastr_column_name
 from open_mastr.utils.sqlalchemy_tables import CatalogInteger, CatalogString
 from open_mastr.xml_download.utils_cleansing_bulk import cleanse_bulk_data
 
 log = setup_logger()
-
-DeclarativeBase_T = TypeVar("DeclarativeBase_T", bound=DeclarativeBase)
 
 
 def write_mastr_xml_to_database(
@@ -41,7 +37,7 @@ def write_mastr_xml_to_database(
     """Write the Mastr in xml format into a database defined by the engine parameter."""
     log.info("Starting bulk download...")
 
-    include_tables = data_to_include_tables(data, mapping="write_xml")
+    include_tables = data_to_include_tables(data)
     threads_data = []
     lower_mastr_table_to_db_table = {
         db_table.info.get("original_name", mastr_table_name).lower(): db_table
@@ -291,19 +287,6 @@ def extract_xml_table_name(file_name: str) -> str:
     return file_name.split("_")[0].split(".")[0].lower()
 
 
-def extract_sql_table_name(xml_table_name: str) -> str:
-    """Extract the SQL table name from the xml table name."""
-    return tablename_mapping[xml_table_name]["__name__"]
-
-
-def create_database_table(
-    engine: sqlalchemy.engine.Engine, xml_table_name: str
-) -> None:
-    orm_class = tablename_mapping[xml_table_name]["__class__"]
-    orm_class.__table__.drop(engine, checkfirst=True)
-    orm_class.__table__.create(engine)
-
-
 def is_first_file(file_name: str) -> bool:
     """check if the file name indicates that it is the first file from the table"""
     return (
@@ -412,6 +395,8 @@ def add_table_to_non_sqlite_database(
 
         except sqlalchemy.exc.IntegrityError:
             # error resulting from Unique constraint failed
+            # FIXME: This error can also indicate other problems than non-unique.
+            # We should differentiate more and show it to the user for cases we cannot solve.
             df = write_single_entries_until_not_unique_comes_up(
                 df, db_table, engine
             )
@@ -527,7 +512,6 @@ def add_missing_columns_to_table(
         f"Added the following columns to database table {table_name}:"
         f" {', '.join(missing_columns)}"
     )
-
 
 
 def delete_wrong_xml_entry(err: Error, df: pd.DataFrame) -> pd.DataFrame:
@@ -653,6 +637,8 @@ def add_table_to_sqlite_database(
             delete_wrong_xml_entry(err, df)
         except sqlalchemy.exc.IntegrityError:
             # error resulting from Unique constraint failed
+            # FIXME: This error can also indicate other problems than non-unique.
+            # We should differentiate more and show it to the user for cases we cannot solve.
             df = write_single_entries_until_not_unique_comes_up(
                 df, db_table, engine
             )
@@ -661,8 +647,3 @@ def add_table_to_sqlite_database(
             add_table_to_non_sqlite_database(df, db_table, engine)
             break
 
-
-def column_exists(engine, table_name, column_name):
-    inspector = inspect(engine)
-    columns = [col["name"] for col in inspector.get_columns(table_name)]
-    return column_name in columns

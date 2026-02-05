@@ -18,7 +18,10 @@ from open_mastr.xml_download.utils_download_bulk import (
 from open_mastr.xml_download.utils_write_to_database import (
     write_mastr_xml_to_database,
 )
-from open_mastr.utils.xsd_tables import MastrTableDescription, read_mastr_table_descriptions_from_xsd
+from open_mastr.utils.xsd_tables import (
+    MastrTableDescription,
+    read_mastr_table_descriptions_from_xsd,
+)
 
 from open_mastr.utils.helpers import (
     validate_parameter_format_for_download_method,
@@ -27,16 +30,11 @@ from open_mastr.utils.helpers import (
     transform_data_parameter,
     parse_date_string,
     transform_date_parameter,
-    data_to_include_tables,
-    create_db_query,
-    db_query_to_csv,
-    reverse_fill_basic_units,
     delete_zip_file_if_corrupted,
     create_database_engine,
 )
 from open_mastr.utils.config import (
     get_data_version_dir,
-    get_project_home_dir,
     get_output_dir,
     setup_logger,
 )

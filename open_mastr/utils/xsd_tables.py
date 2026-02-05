@@ -148,7 +148,7 @@ def read_mastr_table_descriptions_from_xsd(
     zipped_docs_file_path: Union[Path, str], data: list[str]
 ) -> set[MastrTableDescription]:
     print(data)
-    include_tables = set(data_to_include_tables(data, mapping="write_xml"))
+    include_tables = data_to_include_tables(data)
 
     mastr_table_descriptions = set()
     with ZipFile(zipped_docs_file_path, "r") as docs_z:
