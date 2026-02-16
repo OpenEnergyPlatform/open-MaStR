@@ -34,7 +34,7 @@ MASTR_TABLE_NAME_TO_PRIMARY_KEY_COLUMNS = {
     # can be NULL.
     "EinheitenAenderungNetzbetreiberzuordnungen": None,
 
-    "EnheitenBiomasse": {"EinheitMastrNummer"},
+    "EinheitenBiomasse": {"EinheitMastrNummer"},
     "EinheitenGasErzeuger": {"EinheitMastrNummer"},
     "EinheitenGasSpeicher": {"EinheitMastrNummer"},
     "EinheitenGasverbraucher": {"EinheitMastrNummer"},
@@ -86,8 +86,11 @@ def make_sqlalchemy_table_from_mastr_table_description(
         table_name = table_description.original_table_name
 
     primary_key_columns = MASTR_TABLE_NAME_TO_PRIMARY_KEY_COLUMNS.get(
-        table_description.original_table_name, set()
+        table_description.original_table_name,
     )
+    if not primary_key_columns:
+        primary_key_columns = set()
+
     if primary_key_columns and english:
         primary_key_columns = {translate_mastr_column_name(column) for column in primary_key_columns}
 
