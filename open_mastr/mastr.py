@@ -91,7 +91,7 @@ class Mastr:
             "==================================================\n"
             f"Data will be written to the following database: {self.engine.url}\n"
             "If you run into problems, try to "
-            "delete the database and update the package by running "
+            "delete the open-mastr directory & database and update the package by running "
             "'pip install --upgrade open-mastr'\n"
         )
 
@@ -370,6 +370,7 @@ class Mastr:
         delete_zip_file_if_corrupted(zipped_xml_file_path)
         delete_xml_files_not_from_given_date(zipped_xml_file_path, xml_folder_path)
 
+        # TODO: Why is this duplicated?
         print(
             "\nWould you like to speed up the creation of your MaStR database?\n"
             "Try our new parallelized processing by setting os.environ['USE_RECOMMENDED_NUMBER_OF_PROCESSES'] = True "

@@ -17,12 +17,6 @@ from open_mastr.utils.helpers import (
 )
 
 
-@pytest.fixture
-def mastr(tmp_path: Path):
-    output_dir = tmp_path / "output_dir"
-    return Mastr(output_dir=output_dir)
-
-
 def test_Mastr_validate_working_parameter():
     valid_params = {
         "method": ["bulk"],
@@ -133,32 +127,9 @@ def test_data_to_include_tables():
     }
     include_tables_str = {"einheitenstromverbraucher"}
 
-    map_to_db_table_list = {"market_actors", "market_roles"}
-    map_to_db_table_str = {"locations_extended"}
-
     # Assert
-    assert include_tables_list == data_to_include_tables(
-        data={"wind", "hydro"}, mapping="write_xml"
-    )
-    assert include_tables_str == data_to_include_tables(
-        data={"electricity_consumer"}, mapping="write_xml"
-    )
-    assert map_to_db_table_list == data_to_include_tables(
-        data={"market"}, mapping="export_db_tables"
-    )
-    assert map_to_db_table_str == data_to_include_tables(
-        data={"location"}, mapping="export_db_tables"
-    )
-
-
-def test_data_to_include_tables_error():
-    # test for non-existent 'mapping' parameter input
-    with pytest.raises(
-        NotImplementedError,
-        match="This function is only implemented for 'write_xml' and 'export_db_tables',"
-        " please specify when calling the function.",
-    ):
-        data_to_include_tables(data=["wind", "hydro"], mapping="X32J_22")
+    assert include_tables_list == data_to_include_tables(data={"wind", "hydro"})
+    assert include_tables_str == data_to_include_tables(data={"electricity_consumer"})
 
 
 def test_delete_zip_file_if_corrupted():

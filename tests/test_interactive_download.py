@@ -117,12 +117,12 @@ def test_mastr_download_interactive(
     mock_select_date,
     mock_write_db,
     mock_generate_data_model,
+    mastr: Mastr,
 ):
     """Test the main download method with interactive selection."""
     link = SAMPLE_LINKS[0]
     mock_select_date.return_value = link
-    db = Mastr()
-    db.download(select_date_interactively=True)
+    mastr.download(select_date_interactively=True)
 
     # Assert that select_download_date was called
     mock_select_date.assert_called_once()
@@ -141,11 +141,10 @@ def test_mastr_download_interactive(
 
 @patch("open_mastr.mastr.select_download_date")
 @patch("open_mastr.mastr.download_xml_Mastr")
-def test_mastr_download_interactive_cancel(mock_download, mock_select_date):
+def test_mastr_download_interactive_cancel(mock_download, mock_select_date, mastr: Mastr):
     """Test the main download method when interactive selection is cancelled."""
     mock_select_date.return_value = None
-    db = Mastr()
-    db.download(select_date_interactively=True)
+    mastr.download(select_date_interactively=True)
 
     # Assert that select_download_date was called
     mock_select_date.assert_called_once()
@@ -155,11 +154,10 @@ def test_mastr_download_interactive_cancel(mock_download, mock_select_date):
 
 
 @patch("open_mastr.mastr.list_available_downloads")
-def test_mastr_browse_available_downloads(mock_list_downloads):
+def test_mastr_browse_available_downloads(mock_list_downloads, mastr: Mastr):
     """Test the browse_available_downloads method."""
     mock_list_downloads.return_value = SAMPLE_LINKS
-    db = Mastr()
-    result = db.browse_available_downloads()
+    result = mastr.browse_available_downloads()
 
     mock_list_downloads.assert_called_once()
     assert result == SAMPLE_LINKS

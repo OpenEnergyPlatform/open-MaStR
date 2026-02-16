@@ -148,8 +148,10 @@ def download_xml_Mastr(
     url: str, optional
         Custom download URL. If None, generates URL based on bulk_date_string.
     """
+    if _download_is_complete(save_path, bulk_data_list):
+        return
 
-    log.info("Starting the Download from marktstammdatenregister.de.")
+    log.info("Starting the download from marktstammdatenregister.de.")
 
     # Helper function to convert date string to time.struct_time
     def _parse_date_string(date_str):
@@ -209,13 +211,13 @@ def download_xml_Mastr(
         return
 
     if bulk_data_list == BULK_DATA:
-        full_download_without_unzip_http(save_path, r, bulk_data_list)
+        full_download_without_unzip_http(save_path, r)
     else:
         try:
             partial_download_with_unzip_http(save_path, url, bulk_data_list)
         except Exception as e:
             log.warning(f"Partial download failed, fallback to full download: {e}")
-            full_download_without_unzip_http(save_path, r, bulk_data_list)
+            full_download_without_unzip_http(save_path, r)
 
     time_b = time.perf_counter()
     log.info(
@@ -224,26 +226,40 @@ def download_xml_Mastr(
     log.info(f"MaStR was successfully downloaded to {xml_folder_path}.")
 
 
-def check_download_completeness(
-    save_path: str, bulk_data_list: list
+def _find_missing_files(
+    save_path: str, bulk_data_list: list[str]
 ) -> tuple[list, bool]:
-    """Checks if an existing download contains the xml-files corresponding to the bulk_data_list."""
+    needed_files = {
+        bulk_file_name
+        for bulk_data_name in bulk_data_list
+        for bulk_file_name in BULK_INCLUDE_TABLES_MAP[bulk_data_name]
+    } | {"katalogwerte"}  # We always need Katalogwerte!
+
     with ZipFile(save_path, "r") as zip_ref:
-        existing_files = [
+        existing_files = {
             zip_name.lower().split("_")[0].split(".")[0]
             for zip_name in zip_ref.namelist()
-        ]
+        }
 
-    missing_data_set = set()
-    for bulk_data_name in bulk_data_list:
-        for bulk_file_name in BULK_INCLUDE_TABLES_MAP[bulk_data_name]:
-            if bulk_file_name not in existing_files:
-                missing_data_set.add(bulk_data_name)
+    missing_files = needed_files - existing_files
+    return missing_files
 
-    is_katalogwerte_existing = False
-    if "katalogwerte" in existing_files:
-        is_katalogwerte_existing = True
-    return list(missing_data_set), is_katalogwerte_existing
+
+def _download_is_complete(
+    save_path: str, bulk_data_list: list[str]
+) -> bool:
+    """Checks if an existing download contains the xml-files corresponding to the bulk_data_list."""
+    if os.path.exists(save_path):
+        if not _find_missing_files(save_path, bulk_data_list):
+            log.info(
+                "MaStR XML ZIP file already present and has all info. Not downloading again."
+                f" Existing file: {save_path}"
+            )
+            return True
+        log.info(
+            f"MaStR XML ZIP file already present but missing the following data: {bulk_data_list}"
+        )
+    return False
 
 
 def delete_xml_files_not_from_given_date(
@@ -278,25 +294,12 @@ def partial_download_with_unzip_http(save_path: str, url: str, bulk_data_list: l
     url: str
         URL path to bulk file.
     bulk_data_list: list
-        List of tables/technologis to be downloaded.
+        List of tables/technologies to be downloaded.
 
     Returns
     -------
     None
     """
-    is_katalogwerte_existing = False
-    if os.path.exists(save_path):
-        bulk_data_list, is_katalogwerte_existing = check_download_completeness(
-            save_path, bulk_data_list
-        )
-        if bool(bulk_data_list):
-            log.info(
-                f"MaStR file already present but missing the following data: {bulk_data_list}"
-            )
-        else:
-            log.info(f"MaStR file already present: {save_path}")
-            return None
-
     remote_zip_file = unzip_http.RemoteZipFile(url)
     remote_zip_names = [
         remote_zip_name.lower().split("_")[0].split(".")[0]
@@ -320,17 +323,16 @@ def partial_download_with_unzip_http(save_path: str, url: str, bulk_data_list: l
                 # Example: remote_zip_file.namelist()[remote_index] corresponds to e.g. 'AnlagenEegSolar_1.xml'
                 download_files_list.append(remote_zip_file.namelist()[remote_index])
 
+    # We always need Katalogwerte.
+    download_files_list.append("Katalogwerte.xml")
+
     for zipfile_name in tqdm(download_files_list, unit=" file"):
         remote_zip_file.extractzip(zipfile_name, path=Path(save_path))
-
-    if not is_katalogwerte_existing:
-        remote_zip_file.extractzip("Katalogwerte.xml", path=Path(save_path))
 
 
 def full_download_without_unzip_http(
     save_path: str,
     r: requests.models.Response,
-    bulk_data_list: list,
 ) -> None:
     """
 
@@ -340,25 +342,11 @@ def full_download_without_unzip_http(
         Full file path where the downloaded MaStR zip file will be saved.
     r: requests.models.Response
         Response from making a request to MaStR.
-    bulk_data_list: list
-        List of tables/technologis to be downloaded.
 
     Returns
     -------
     None
     """
-    if os.path.exists(save_path):
-        bulk_data_list, is_katalogwerte_existing = check_download_completeness(
-            save_path, bulk_data_list
-        )
-        if bool(bulk_data_list):
-            print(
-                f"MaStR file already present but missing the following data: {bulk_data_list}"
-            )
-        else:
-            print(f"MaStR file already present: {save_path}")
-            return None
-
     warning_message = (
         "Warning: The servers from MaStR restrict the download speed."
         " You may want to download it another time."
@@ -640,6 +628,13 @@ def download_documentation(
     save_path: str
         Full file path where the downloaded MaStR documentation zip file will be saved.
     """
+    if os.path.exists(save_path):
+        log.info(
+            "MaStR docs file already present and has all info. Not downloading again."
+            f" Existing file: {save_path}"
+        )
+        return
+
     log.info("Starting MaStR documentation download from marktstammdatenregister.de.")
     preferred_url, fallback_url = gen_docs_download_urls(bulk_date_string, url)
 

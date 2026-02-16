@@ -3,6 +3,8 @@ import sqlite3
 import sys
 from datetime import datetime
 from os.path import expanduser
+from pathlib import Path
+from typing import Any, Callable
 from zipfile import ZipFile
 
 import numpy as np
@@ -15,6 +17,7 @@ from sqlalchemy import (
     Date,
     DateTime,
     Double,
+    Engine,
     Integer,
     MetaData,
     String,
@@ -22,12 +25,12 @@ from sqlalchemy import (
 )
 
 
+from open_mastr.utils.sqlalchemy_tables import CatalogString
 from open_mastr.xml_download.utils_write_to_database import (
     add_missing_columns_to_table,
     add_zero_as_first_character_for_too_short_string,
     cast_date_columns_to_string,
     correct_ordering_of_filelist,
-    extract_sql_table_name,
     extract_xml_table_name,
     is_date_column,
     is_first_file,
@@ -38,53 +41,12 @@ from open_mastr.xml_download.utils_write_to_database import (
     interleave_files,
 )
 
-# Check if xml file exists
-_xml_file_exists = False
-_xml_folder_path = os.path.join(expanduser("~"), ".open-MaStR", "data", "xml_download")
-if os.path.isdir(_xml_folder_path):
-    for entry in os.scandir(path=_xml_folder_path):
-        if "Gesamtdatenexport" in entry.name and entry.name.endswith(".zip"):
-            _xml_file_exists = True
+from tests.conftest import EXISTING_XML_ZIP
 
 
-# Silence ValueError caused by logger https://github.com/pytest-dev/pytest/issues/5502
-@pytest.fixture(autouse=True)
-def capture_wrap():
-    sys.stderr.close = lambda *args: None
-    sys.stdout.close = lambda *args: None
-    yield
-
-
-@pytest.fixture(scope="module")
-def zipped_xml_file_path():
-    # TODO: Remove this
-    return "/home/gorgor/.open-MaStR/data/Gesamtdatenexport_20251228.zip"
-    zipped_xml_file_path = None
-    for entry in os.scandir(path=_xml_folder_path):
-        if "Gesamtdatenexport" in entry.name and entry.name.endswith(".zip"):
-            zipped_xml_file_path = os.path.join(_xml_folder_path, entry.name)
-
-    return zipped_xml_file_path
-
-
-@pytest.fixture(scope="module")
-def con_testdb():
-    testdb_file_path = os.path.join(
-        expanduser("~"), ".open-MaStR", "data", "sqlite", "test-open-mastr.db"
-    )
-    # Create testdb
-    con_testdb = sqlite3.connect(testdb_file_path)
-    yield con_testdb
-    con_testdb.close()
-    # Remove testdb
-    os.remove(testdb_file_path)
-
-
-@pytest.fixture(scope="module")
-def engine_testdb():
-    testdb_file_path = os.path.join(
-        expanduser("~"), ".open-MaStR", "data", "sqlite", "test-open-mastr.db"
-    )
+@pytest.fixture
+def engine_testdb(tmp_path: Path) -> Engine:
+    testdb_file_path = tmp_path / "test-open-mastr.db"
     testdb_url = f"sqlite:///{testdb_file_path}"
     yield create_engine(testdb_url)
 
@@ -92,11 +54,6 @@ def engine_testdb():
 def test_extract_xml_table_name():
     file_name = "Netzanschlusspunkte_31.xml"
     assert extract_xml_table_name(file_name) == "netzanschlusspunkte"
-
-
-def text_extract_sql_table_name():
-    xml_table_name = "netzanschlusspunkte"
-    assert extract_sql_table_name(xml_table_name) == "network_connection_points"
 
 
 def test_is_first_file():
@@ -198,17 +155,18 @@ def test_correct_ordering_of_filelist():
 
 
 @pytest.mark.skipif(
-    not _xml_file_exists, reason="The zipped xml file could not be found."
+    not EXISTING_XML_ZIP,
+    reason="The zipped XML could not be found."
 )
-def test_read_xml_file(zipped_xml_file_path):
+def test_read_xml_file(existing_xml_zip_in_output_dir: Path) -> None:
     file_name = "EinheitenStromVerbraucher"
-    with ZipFile(zipped_xml_file_path, "r") as f:
+    with ZipFile(existing_xml_zip_in_output_dir, "r") as f:
         df = read_xml_file(f, f"{file_name}.xml")
 
     assert df.shape[0] > 0
 
 
-def test_add_zero_as_first_character_for_too_short_string():
+def test_add_zero_as_first_character_for_too_short_string() -> None:
     # Prepare
     df_raw = pd.DataFrame(
         {"ID": [0, 1, 2], "Gemeindeschluessel": [9162000, np.nan, 19123456]}
@@ -223,72 +181,58 @@ def test_add_zero_as_first_character_for_too_short_string():
     pd.testing.assert_frame_equal(df_edited, df_correct)
 
 
-# TODO: Do we want to keep this kind of renaming?
-@pytest.mark.skip
-def test_change_column_names_to_orm_format():
-    initial_df = pd.DataFrame(
-        {
-            "VerknuepfteEinheitenMaStRNummern": ["test1", "test2"],
-            "NetzanschlusspunkteMaStRNummern": [1, 2],
-        }
-    )
-    expected_df = pd.DataFrame(
-        {
-            "VerknuepfteEinheiten": ["test1", "test2"],
-            "Netzanschlusspunkte": [1, 2],
-        }
-    )
-
-    pd.testing.assert_frame_equal(
-        expected_df, change_column_names_to_orm_format(initial_df, "lokationen")
-    )
-
-
 @pytest.mark.skipif(
-    not _xml_file_exists, reason="The zipped xml file could not be found."
+    not EXISTING_XML_ZIP,
+    reason="The zipped XML could not be found."
 )
-def test_process_table_before_insertion(zipped_xml_file_path):
+def test_process_table_before_insertion(existing_xml_zip_in_output_dir: Path) -> None:
     bulk_download_date = datetime.now().date().strftime("%Y%m%d")
     initial_df = pd.DataFrame(
         {
             "Gemeindeschluessel": [9162000, 19123456],
             "Postleitzahl": [1234, 54321],
             "NameKraftwerk": ["test1", "test2"],
-            "LokationMaStRNummer": ["test3", "test4"],
+            "NetzbetreiberpruefungStatus": [2954, 2955],
         }
+    )
+    db_table = Table(
+        "einheitenkernkraft",
+        MetaData(),
+        Column("EinheitMastrNummer", String, primary_key=True),
+        Column("DatumLetzteAktualisierung", DateTime),
+        Column("Gemeindeschluessel", String),
+        Column("Postleitzahl", String),
+        Column("NameKraftwerk", String),
+        Column("NetzbetreiberpruefungStatus", CatalogString),
+    )
+    actual_df = process_table_before_insertion(
+        initial_df,
+        db_table,
+        existing_xml_zip_in_output_dir,
+        bulk_download_date,
+        bulk_cleansing=True,
     )
     expected_df = pd.DataFrame(
         {
             "Gemeindeschluessel": ["09162000", "19123456"],
             "Postleitzahl": ["01234", "54321"],
             "NameKraftwerk": ["test1", "test2"],
-            "LokationMastrNummer": ["test3", "test4"],
+            "NetzbetreiberpruefungStatus": ["Geprüft", "In Prüfung"],
             "DatenQuelle": ["bulk", "bulk"],
             "DatumDownload": [bulk_download_date, bulk_download_date],
         }
     )
 
-    pd.testing.assert_frame_equal(
-        expected_df,
-        process_table_before_insertion(
-            initial_df,
-            "einheitenkernkraft",
-            zipped_xml_file_path,
-            bulk_download_date,
-            bulk_cleansing=False,
-        ),
-    )
+    pd.testing.assert_frame_equal(actual_df, expected_df)
 
 
-def test_add_missing_columns_to_table(engine_testdb):
+def test_add_missing_columns_to_table(engine_testdb: Engine) -> None:
     table = Table(
         "einheitengasverbraucher",
         MetaData(),
         Column("EinheitMastrNummer", String, primary_key=True),
         Column("DatumLetzteAktualisierung", DateTime),
     )
-    # We must recreate the table to be sure that the new column is not present.
-    table.drop(engine_testdb, checkfirst=True)
     table.create(engine_testdb)
     with engine_testdb.connect() as con:
         with con.begin():
@@ -324,7 +268,10 @@ def test_add_missing_columns_to_table(engine_testdb):
     "add_table_to_database_function",
     [add_table_to_sqlite_database, add_table_to_non_sqlite_database],
 )
-def test_add_table_to_sqlite_database(engine_testdb, add_table_to_database_function):
+def test_add_table_to_sqlite_database(
+    engine_testdb: Engine,
+    add_table_to_database_function: Callable[[pd.DataFrame, Table, Engine], Any]
+) -> None:
     table = Table(
         "anlageneeggeothermiegrubengasdruckentspannung",
         MetaData(),
