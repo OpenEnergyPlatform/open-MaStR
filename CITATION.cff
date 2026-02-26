@@ -38,6 +38,9 @@ authors:
     given-names: "Kevin"
     alias: "pt-kkraemer"
     affiliation: "ProjectTogether gGmbH"  
+  - family-names: "Will"
+    given-names": "Simon"
+    alias: "@Simon-Will"
 title: "open-MaStR"
 type: software
 license: AGPL-3.0
