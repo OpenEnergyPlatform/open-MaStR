@@ -13,6 +13,11 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 - Add trusted publishing for test releases
   [#713](https://github.com/OpenEnergyPlatform/open-MaStR/pull/713)
 ### Changed
+- Switch to dynamic table generation based on parsing of XSD files;
+  change table names and column names to align more closely with original names;
+  add the option to pass a custom database schema;
+  simplify CSV export by removing table joins
+  [#718](https://github.com/OpenEnergyPlatform/open-MaStR/pull/718)
 
 ### Removed
 
@@ -25,7 +30,6 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
   [#699](https://github.com/OpenEnergyPlatform/open-MaStR/pull/699)
 - Use trusted publishing on pypi
   [#685](https://github.com/OpenEnergyPlatform/open-MaStR/pull/685)
-
 
 
 ## [v0.16.0] Partial downloads with open-MaStR PartialPumpkinPull - 2025-11-26
