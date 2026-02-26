@@ -4,6 +4,7 @@ or the [SOAP API download](#soap-api-download).
 
 ## Configuration
 ### Database settings
+#### Using a custom database
 
 
 Configure your database with the `engine` parameter of [`Mastr`][open_mastr.Mastr].
@@ -12,22 +13,70 @@ It defines the engine of the database where the MaStR is mirrored to. Default is
 The possible databases are:
 
 * **sqlite**: By default the database will be stored in `$HOME/.open-MaStR/data/sqlite/open-mastr.db`.
-* **own database**: The Mastr class accepts a sqlalchemy.engine.Engine object as engine which enables the user to
+* **own database**: The Mastr class accepts a `sqlalchemy.engine.Engine` object as engine which enables the user to
   use any other desired database such as PostgreSQL. The tables are created in the default DB schema, in PostgreSQL
   this is `public`.
   If you use an own database so, you need to insert the connection parameter into the engine variable. In the
   example below, the following parameters are used: user `open-mastr`, password `open-mastr-pw`, database
   `open-mastr-db`. Make sure it exists and the user has sufficient permissions.
 
+!!! warning MySQL needs special table definitions
+    You can pass an engine for a MySQL database, but MySQL demands maximum lengths for its `VARCHAR` fields.
+    Since open-mastr generates its database string fields without maximum length, using MySQL will fail by default.
+    You can make it work by defining your own tables beforehand and [passing your own database schema](#using-a-custom-database-schema).
+
 ```python
+from sqlalchemy import create_engine
 
-  from sqlalchemy import create_engine
+# SQLite DB
+engine_sqlite = create_engine("sqlite:///path/to/sqlite/database.db")
+# PostgreSQL DB
+engine_postgres = create_engine("postgresql+psycopg2://open-mastr:open-mastr-pw@localhost:55443/open-mastr-db")
+mastr = Mastr(engine=engine_sqlite)  # or engine=engine_postgres
+mastr.download()
+```
 
-  # SQLite DB
-  engine_sqlite = create_engine("sqlite:///path/to/sqlite/database.db")
-  # postgreSQL DB
-  engine_postgres = create_engine("postgresql+psycopg2://open-mastr:open-mastr-pw@localhost:55443/open-mastr-db")
-  db = Mastr(engine=engine_sqlite)
+#### Using a custom database schema
+
+By default, `Mastr.download` will download the MaStR documentation, generate a database schema from the contained XSD
+files and create all database tables necessary for storing MaStR data.
+
+If you want to prepare the database yourself, you can pass your own mapping from the original MaStR table name to your
+database table to `Mastr.download` with the `mastr_table_to_db_table` parameter.
+To get started with the default database schema, we recommend generating it from the MaStR docs using
+`Mastr.generate_data_model` and then adjusting it:
+
+```python
+from sqlalchemy import create_engine
+from open_mastr import Mastr, format_mastr_table_to_db_table
+
+engine_postgres = create_engine("postgresql+psycopg2://open-mastr:open-mastr-pw@localhost:55443/open-mastr-db")
+mastr = Mastr(engine=engine_postgres)
+
+# Generate SQLAlchemy table definitions without creating the tables
+mastr_table_to_db_table = mastr.generate_data_model()
+# Print the tables so that you can see what was generated.
+print(format_mastr_table_to_db_table)
+
+# Now you need to go and create the tables in your database and adjust them to your needs.
+# It's best to use the table definitions we generated and adjust them.
+# Finally, you need your custom version of mastr_table_to_db_table.
+mastr_table_to_your_custom_db_table = ...
+
+# Download MaStR data into your custom tables.
+mastr.download(mastr_table_to_db_table=mastr_table_to_your_custom_db_table)
+```
+
+When open-mastr encounters XML files in the MaStR download that have additional columns when compared to the database
+tables, it will issue `ALTER` statements to add the columns to the database on the fly. To avoid this and to instead
+skip the additional columns during import, you can pass the parameter `alter_database_tables=False`:
+
+```python
+# Download MaStR data into your custom tables.
+mastr.download(
+    mastr_table_to_db_table=mastr_table_to_your_custom_db_table,
+    alter_database_tables=False,
+)
 ```
 
 ### Project directory
@@ -37,8 +86,7 @@ You can change this default path, see [environment variables](#environment-varia
 Default config files are copied to this directory which can be modified - but with caution.
 The project home directory is structured as follows (files and folders below `data/` just an example).
 
-```bash
-
+```
     .open-MaStR/
     ├── config
     │   ├── credentials.cfg
@@ -46,14 +94,15 @@ The project home directory is structured as follows (files and folders below `da
     │   ├── logging.yml
     ├── data
     │   ├── dataversion-<date>
+    │   ├── docs_download
+    │   │   └── Dokumentation MaStR Gesamtdatenexport_<date>.zip
     │   ├── sqlite
-    │       └── open-mastr.db
-        └── xml_download
-            └── Gesamtdatenexport_<date>.zip
+    │   │   └── open-mastr.db
+    │   └── xml_download
+    │       └── Gesamtdatenexport_<date>.zip
     └── logs
         └── open_mastr.log
 ```
- 
  
 * **config**
      * `credentials.cfg` <br>
@@ -69,14 +118,14 @@ The project home directory is structured as follows (files and folders below `da
         Contains exported data as csv files from method [`to_csv`][open_mastr.Mastr.to_csv]
      * `sqlite` <br>
         Contains the sqlite database in `open-mastr.db`
+     * `docs_download` <br>
+        Contains the documentation of the MaStR download.
      * `xml_download` <br>
         Contains the bulk download in `Gesamtdatenexport_<date>.zip` <br>
         New bulk download versions overwrite older versions. 
 * **logs**
-     *  `open_mastr.log` <br>
+     * `open_mastr.log` <br>
         The files stores the logging information from executing open-mastr.
-
-
 
 ### Logs
 
@@ -87,7 +136,6 @@ By default, the log level is set to `INFO`. You can increase or decrease the ver
 or adjusting it manually in your code. E.g. to enable `DEBUG` messages in `open_mastr.log` you can use the following snippet:
 
 ```python
-
   import logging
   from open_mastr import Mastr
 
@@ -95,7 +143,6 @@ or adjusting it manually in your code. E.g. to enable `DEBUG` messages in `open_
   # Must be called after importing open_mastr to have the open-MaStR logger imported
   logging.getLogger("open-MaStR").setLevel(logging.DEBUG)
 ```
-
 
 ### Data
 
@@ -122,8 +169,8 @@ There are some environment variables to customize open-MaStR:
 ## Bulk download
 
 On the homepage [MaStR/Datendownload](https://www.marktstammdatenregister.de/MaStR/Datendownload) a zipped folder containing the whole
-MaStR is offered. The data is delivered as xml-files. The official documentation can be found 
-on the same page (in german). This data is updated on a daily base. 
+MaStR is offered. The data is delivered as XML files. The official documentation can be found 
+on the same page (in German). This data is updated on a daily basis. 
 
 ``` mermaid
 flowchart LR
@@ -132,9 +179,8 @@ flowchart LR
   id2 --> id3[("📗 open-mastr database")]
   id3 --> id4("🔧 Decode and cleanse data")
   id4 --> id3
-  id3 --> id5("Merge corresponding tables
-  and save as csv")
-  id5 --> id6>"📜 open-mastr csv files"]
+  id3 --> id5("Export to CSV")
+  id5 --> id6>"📜 open-mastr CSV files"]
   click id1 "https://www.marktstammdatenregister.de/MaStR/Datendownload" _blank
   click id2 "https://github.com/OpenEnergyPlatform/open-MaStR/blob/7b155a9ebdd5204de8ae6ba7a96036775a1f4aec/open_mastr/xml_download/utils_write_to_database.py#L17C6-L17C6" _blank
   click id4 "https://github.com/OpenEnergyPlatform/open-MaStR/blob/7b155a9ebdd5204de8ae6ba7a96036775a1f4aec/open_mastr/xml_download/utils_cleansing_bulk.py#L10" _blank
@@ -143,17 +189,24 @@ flowchart LR
 ```
 
 
-In the following, the process is described that is started when calling the [`Mastr.download`][open_mastr.Mastr.download] function with the parameter `method`="bulk". 
-First, the zipped files are downloaded and saved in `$HOME/.open-MaStR/data/xml_download`. The zipped folder contains many xml files,
-which represent the different tables from the MaStR. Those tables are then parsed to a sqlite database. If only some specific
-tables are of interest, they can be specified with the parameter `data`. Every table that is selected in `data` will be deleted from the local database, if existent, and then filled with data from the xml files.
+In the following, the process is described that is started when calling the [`Mastr.download`][open_mastr.Mastr.download] without parameters. 
+First, the zipped documentation is downloaded and saved in `$HOME/.open-MaStR/data/docs_download`. The zipped documentation contains
+XSD files that describe the MaStR XML files that contain the data. open-mastr reads the XSD files and generates a database schema for
+importing the data. I.e., for each MaStR table, it defines a database table and then creates it in a SQLite database.
+
+Then, the zipped files are downloaded and saved in `$HOME/.open-MaStR/data/xml_download`. The zipped folder contains
+many XML files, which represent the different tables from the MaStR. Those XML files are then read and imported into the
+previously created SQLite database tables.
+
+If only some specific tables are of interest, they can be specified with the parameter `data`. Every table that is
+selected in `data` will be deleted from the local database, if existent, and then filled with data from the xml files.
 
 In the next step, a basic data cleansing is performed. Many entries in the MaStR from the bulk download are replaced by numbers.
-As an example, instead of writing the german states where the unit is registered (Saxony, Brandenburg, Bavaria, ...) the MaStR states 
+As an example, instead of writing the German states where the unit is registered (Saxony, Brandenburg, Bavaria, ...) the MaStR states 
 corresponding digits (7, 2, 9, ...). One major step of cleansing is therefore to replace those digits with their original meaning. 
 Moreover, the datatypes of different entries are set in the data cleansing process and corrupted files are repaired.
 
-If needed, the tables in the database can be obtained as csv files. Those files are created by first merging corresponding tables (e.g all tables that contain information about solar) and then dumping those tables to `.csv` files with the [`to_csv`][open_mastr.Mastr.to_csv] method.
+The tables in the database can be exported to CSV files using the [`to_csv`][open_mastr.Mastr.to_csv] method.
 
 **Note**: By default, existing zip files in `$HOME/.open-MaStR/data/xml_download` are deleted when a new file is
 downloaded. You can change this behavior by setting `keep_old_downloads`=True in

@@ -34,59 +34,70 @@ After downloading the MaStR, you will find a database with a large number of tab
 
 ### Tables in the local database
 
+=== "Units related to electric power"
+    The main information about power plants producing power/gas and other units is in tables prefixed with "Einheiten". You can find the capacity, location, and other technology-specific attributes here.
 
-=== "_extended tables"
-    The main information about the different technologies lies in the `_extended` tables. You can find the capacity, location, and other technology-specific attributes here.
+    | Original German name | English name | Comments |
+    |------|------|------|
+    | EinheitenBiomasse | biomass_extended | Biomass combustion power plants |
+    | EinheitenGeothermieGrubengasDruckentspannung | gsgk_extended | Geothermal, mine gas and pressure relaxation units |
+    | EinheitenKernkraft | nuclear_extended | Nuclear power plants |
+    | EinheitenSolar | solar_extended | Solar power plants |
+    | EinheitenStromSpeicher | storage_extended | Electric power storage units |
+    | EinheitenStromVerbraucher | electricity_consumer | *Large* electric power consumers |
+    | EinheitenVerbrennung | combustion_extended | Conventional combustion power plants: gas, oil, coal, … |
+    | EinheitenWasser | hydro_extended | Hydroelectric power plants |
+    | EinheitenWind | wind_extended | Wind power plants |
 
-    | Table name | Comments |
-    |------|------| 
-    | biomass_extended  |  |
-    | combustion_extended  | *Conventional powerplants: Gas, Oil, Coal, ...* |  
-    | gsgk_extended  | *gsgk is short for: Geothermal, Mine gas, and Pressure relaxation* |
-    | hydro_extended  |  |
-    | nuclear_extended  |  | 
-    | solar_extended  |  |
-    | storage_extended  |  | 
-    | wind_extended  |  |
+=== "Units related to gas"
 
-=== "_eeg tables"
-    In germany, renewable energies were subsidized by the state - according to a law called 'EEG'. Relevant information like the 'EEG ID' are in the `_eeg` tables.
+    | Original German name | English name | Comments |
+    |------|------|------|
+    | EinheitenGasErzeuger | gas_producer | Gas production units (natural gas extraction, biomethane production, …)|
+    | EinheitenGasSpeicher | gas_storage_extended | Gas storage units |
+    | EinheitenGasverbraucher | gas_consumer | *Large* gas consumers |
 
-    | Table name | Comments |
-    |------|------| 
-    | biomass_eeg | |
-    | gsgk_eeg  | *gsgk is short for: Geothermal, Mine gas, and Pressure relaxation* |
-    | hydro_eeg  |  |
-    | solar_eeg  |  |
-    | storage_eeg  |  | 
-    | wind_eeg  |  |
+=== "EEG & KWK subsidy information"
+    In Germany, renewable energies as well as combined heat and power (CHP/KWK) plants are subsidized by the state according to laws called 'EEG' (for renewable energies) and 'KWK' (for CHP plants). These tables contain information about the subsidies such as the 'EEG ID' and contain the MaStR IDs of the subsidized unit(s); you can use these IDs to look up the units in the 'Einheiten*' tables.
+
+    | Original German name | English name | Comments |
+    |------|------|------|
+    | AnlagenEegBiomasse | biomass_eeg |  |
+    | AnlagenEegGeothermieGrubengasDruckentspannung | gsgk_eeg |  |
+    | AnlagenEegSolar | solar_eeg |  |
+    | AnlagenEegSpeicher | storage_eeg |  |
+    | AnlagenEegWasser | hydro_eeg |  |
+    | AnlagenEegWind | wind_eeg |  |
+    | AnlagenGasSpeicher | gas_storage |  |
+    | AnlagenKwk | kwk |  |
+    | AnlagenStromSpeicher | storage_units |  |
 
 === "Other tables"
     Other tables contain information about the grid, the energy market, or gas consumers and producers:
 
-    | Table name | Comments |
-    |------|------| 
-    | balancing_area | *Related to the energy market* |
-    | changed_dso_assignment  | *Units where the DSO responsibility changed* |
-    | electricity_consumer  |  *Only large consumers* |
-    | gas_consumer  |  *Only large consumers* |
-    | gas_producer  |  |
-    | gas_storage  |  |
-    | gas_storage_extended  |  |
-    | grid_connections  | *Does not contain geoinformation* |
-    | grids  | *Does not contain geoinformation* |
-    | locations_extended  | *Connects units with grids - to get coordinates of units use the _extended tables*|
-    | market_actors  |  |
-    | market_roles  |  |
-    | permit  |  |
-    | storage_units  |  |
-    | kwk  | *short for: Combined heat and power (CHP)* |
-    | deleted_units | Units from all technologies that were deleted or deactivated |
-    | deleted_market_actors | Market actors that were deleted or deactivated |
-
+    | Original German name | English name | Comments |
+    |------|------|------|
+    | Bilanzierungsgebiete | balancing_area | Balancing areas |
+    | EinheitenAenderungNetzbetreiberzuordnungen | changed_dso_assignment | Changes of DSO assigment of units |
+    | EinheitenGenehmigung | permit | Unit permits |
+    | Einheitentypen | unit_types | Meta information about unit types. **Not imported by open-mastr** |
+    | Ertuechtigungen | retrofit_units | Retrofits of units |
+    | GeloeschteUndDeaktivierteEinheiten | deleted_units | Deleted & deactived units |
+    | GeloeschteUndDeaktivierteMarktakteure | deleted_market_actors | Deleted & deactived market actors |
+    | Katalogkategorien | catalog_categories | Meta information about MaStR values. **Not imported by open-mastr** |
+    | Katalogwerte | catalog_values | Meta information about MaStR values. **Not imported by open-mastr** |
+    | Lokationen | locations | Connects units with grid connections |
+    | Lokationstypen | location_types | Meta information location types. **Not imported by open-mastr** |
+    | Marktakteure | market_actors | Market actors |
+    | MarktakteureUndRollen | market_actors_and_roles | Roles filled by market actors |
+    | Marktfunktionen | market_functions | Meta information about market functions. **Not imported by open-mastr** |
+    | Marktrollen | market_roles | Meta information about market roles. **Not imported by open-mastr** |
+    | Netzanschlusspunkte | grid_connections | Connects locations with grids |
+    | Netze | grids | Grids |
 
 ### MaStR data model
-A useful overview of the MaStR data model can be found at the MaStR [help page](https://www.marktstammdatenregister.de/MaStRHilfe/subpages/faq.html). A translated version using the names from the tables you can find in your local database is presented here: 
+
+A useful overview of the MaStR data model can be found at the MaStR [help page](https://www.marktstammdatenregister.de/MaStRHilfe/subpages/faq.html). A translated version using the names from the tables you can find in your local database is presented here:
 
 === "translated image (english)"
     ![Data model of the MaStR](images/DetailAnlagen_english.PNG)
@@ -97,8 +108,10 @@ A useful overview of the MaStR data model can be found at the MaStR [help page](
 
 ## Tables as CSV
 
-Tables from the database can be exported to csv files. By default, all available power plant unit data will be exported
-to csv files. 
+Tables from the database can be exported to CSV files. By default, all available power plant unit data will be exported
+to csv files.
 
-For exported csv's additional available data is joined on basic unit data. For example: For biomass power plants one csv
-is exported consisting of the join of four database tables (unit data, chp data, permit data, eeg data). We regularly run the whole download and cleansing pipeline and upload the dataset as csv files at [zenodo](https://doi.org/10.5281/zenodo.6807425). 
+!!! warning "Joining of tables for CSV export has been removed"
+    In versions > `v1.0.0`, the database tables are exported to CSV as they are. Joins between unit, CHP/EEG data and permits are not done anymore.
+
+We occasionally run the whole download and cleansing pipeline and upload the dataset as csv files at [zenodo](https://doi.org/10.5281/zenodo.6807425).
