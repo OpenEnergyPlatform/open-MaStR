@@ -32,6 +32,10 @@ MASTR_TABLE_NAME_TO_PRIMARY_KEY_COLUMNS = {
     # EinheitMastrNummer + RegistrierungsdatumNetzbetreiberzuordnungsaenderung,
     # but the MaStR docs say that RegistrierungsdatumNetzbetreiberzuordnungsaenderung
     # can be NULL.
+    # Plus, SEE904666329300 would additionally need Netzbetreiberzuordnungsaenderungsdatum
+    # to make it unique. But Netzbetreiberzuordnungsaenderungsdatum actually has NULL values for
+    # some rows, so it cannot be used in a composite primary key because it must be nullable.
+    # (Nullable columns in a primary key are OK in SQLite, but not in PostgreSQL & MySQL.)
     "EinheitenAenderungNetzbetreiberzuordnungen": None,
 
     "EinheitenBiomasse": {"EinheitMastrNummer"},
@@ -85,11 +89,17 @@ def make_sqlalchemy_table_from_mastr_table_description(
     else:
         table_name = table_description.original_table_name
 
-    primary_key_columns = MASTR_TABLE_NAME_TO_PRIMARY_KEY_COLUMNS.get(
-        table_description.original_table_name,
-    )
-    if not primary_key_columns:
+    try:
+        primary_key_columns = MASTR_TABLE_NAME_TO_PRIMARY_KEY_COLUMNS[
+            table_description.original_table_name
+        ] or set()
+        artificial_primary_key_name = "OpenMastrId"
+    except KeyError:
+        # This table is not yet known to open-mastr. We insert a temporary
+        # primary key, but make that clear in the name so that users don't
+        # rely on it.
         primary_key_columns = set()
+        artificial_primary_key_name = "TempOpenMastrIdForUnknownTable"
 
     if primary_key_columns and english:
         primary_key_columns = {translate_mastr_column_name(column) for column in primary_key_columns}
@@ -123,10 +133,11 @@ def make_sqlalchemy_table_from_mastr_table_description(
                 **kwargs,
             }
         )
-    db_column_kwargs = _prepend_open_mastr_id_if_missing_primary_key(
+    db_column_kwargs = _prepend_primary_key_if_missing(
         expected_primary_key_columns=primary_key_columns,
         db_column_kwargs=db_column_kwargs,
         table_name=table_description.original_table_name,
+        new_primary_key_name=artificial_primary_key_name,
     )
 
     if include_download_metadata:
@@ -168,10 +179,11 @@ def make_sqlalchemy_table_from_mastr_table_description(
     )
 
 
-def _prepend_open_mastr_id_if_missing_primary_key(
+def _prepend_primary_key_if_missing(
     expected_primary_key_columns: set[str],
     db_column_kwargs: list[dict[str, Any]],
     table_name: str,
+    new_primary_key_name: str,
 ) -> list[dict[str, Any]]:
     realized_primary_key_columns = {
         kwargs["name"]
@@ -186,10 +198,10 @@ def _prepend_open_mastr_id_if_missing_primary_key(
     id_column_name = "OpenMastrId"
     log.info(
         f"Missing primary key column for table {table_name}."
-        f" Inserting custom ID column {id_column_name!r}"
+        f" Inserting custom ID column {new_primary_key_name!r}"
     )
     return [
-        {"name": id_column_name, "type_": Integer, "primary_key": True, "autoincrement": True}
+        {"name": new_primary_key_name, "type_": Integer, "primary_key": True, "autoincrement": True}
     ] + [
         kwargs | {"primary_key": False, "nullable": True}
         for kwargs in db_column_kwargs
