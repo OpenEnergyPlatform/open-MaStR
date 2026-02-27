@@ -626,6 +626,20 @@ class MarketRoles(ParentAllTables, Base):
     DatumLetzteAktualisierung = Column(DateTime(timezone=True))
 
 
+class MarketActorsAndRoles(ParentAllTables, Base):
+    __tablename__ = "market_actors_and_roles"
+
+    MastrNummer = Column(String, primary_key=True)
+    MarktakteurMastrNummer = Column(String)
+    Marktrolle = Column(String)
+    Marktpartneridentifikationsnummer_nv = Column(Boolean)
+    BundesnetzagenturBetriebsnummer = Column(String)
+    BundesnetzagenturBetriebsnummer_nv = Column(Boolean)
+    Marktpartneridentifikationsnummer = Column(String)
+    KontaktdatenMarktrolle = Column(String)
+    DatumLetzteAktualisierung = Column(DateTime(timezone=True))
+
+
 class MarketActors(ParentAllTables, Base):
     __tablename__ = "market_actors"
 
@@ -985,6 +999,11 @@ tablename_mapping = {
     "marktakteure": {
         "__name__": MarketActors.__tablename__,
         "__class__": MarketActors,
+        "replace_column_names": None,
+    },
+    "marktakteureundrollen": {
+        "__name__": MarketActorsAndRoles.__tablename__,
+        "__class__": MarketActorsAndRoles,
         "replace_column_names": None,
     },
     "netze": {
