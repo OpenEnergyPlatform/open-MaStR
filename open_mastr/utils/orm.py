@@ -612,20 +612,6 @@ class ElectricityConsumer(ParentAllTables, Base):
     GeplantesInbetriebnahmedatum = Column(Date)
 
 
-class MarketRoles(ParentAllTables, Base):
-    __tablename__ = "market_roles"
-
-    MastrNummer = Column(String, primary_key=True)
-    MarktakteurMastrNummer = Column(String)
-    Marktrolle = Column(String)
-    Marktpartneridentifikationsnummer_nv = Column(Boolean)
-    BundesnetzagenturBetriebsnummer = Column(String)
-    BundesnetzagenturBetriebsnummer_nv = Column(Boolean)
-    Marktpartneridentifikationsnummer = Column(String)
-    KontaktdatenMarktrolle = Column(String)
-    DatumLetzteAktualisierung = Column(DateTime(timezone=True))
-
-
 class MarketActorsAndRoles(ParentAllTables, Base):
     __tablename__ = "market_actors_and_roles"
 
@@ -989,11 +975,6 @@ tablename_mapping = {
     "geloeschteunddeaktiviertemarktakteure": {
         "__name__": DeletedMarketActors.__tablename__,
         "__class__": DeletedMarketActors,
-        "replace_column_names": None,
-    },
-    "marktrollen": {
-        "__name__": MarketRoles.__tablename__,
-        "__class__": MarketRoles,
         "replace_column_names": None,
     },
     "marktakteure": {
