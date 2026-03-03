@@ -12,7 +12,11 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
   [#696](https://github.com/OpenEnergyPlatform/open-MaStR/pull/696)
 - Add trusted publishing for test releases
   [#713](https://github.com/OpenEnergyPlatform/open-MaStR/pull/713)
+- Update list for english column translation
+  [#715](https://github.com/OpenEnergyPlatform/open-MaStR/pull/715)
 ### Changed
+- Replace Marktrollen with MarktakteureUndRollen
+  [#722](https://github.com/OpenEnergyPlatform/open-MaStR/pull/722)
 - Switch to dynamic table generation based on parsing of XSD files;
   change table names and column names to align more closely with original names;
   add the option to pass a custom database schema;
