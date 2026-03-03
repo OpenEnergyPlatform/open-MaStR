@@ -77,7 +77,7 @@ After downloading the MaStR, you will find a database with a large number of tab
     | grids  | *Does not contain geoinformation* |
     | locations_extended  | *Connects units with grids - to get coordinates of units use the _extended tables*|
     | market_actors  |  |
-    | market_roles  |  |
+    | market_actors_and_roles  |  |
     | permit  |  |
     | storage_units  |  |
     | kwk  | *short for: Combined heat and power (CHP)* |
