@@ -153,7 +153,7 @@ def test_data_to_include_tables():
     ]
     include_tables_str = ["einheitenstromverbraucher"]
 
-    map_to_db_table_list = ["market_actors", "market_roles"]
+    map_to_db_table_list = ["market_actors", "market_actors_and_roles"]
     map_to_db_table_str = ["locations_extended"]
 
     # Assert

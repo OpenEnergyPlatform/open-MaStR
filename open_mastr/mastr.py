@@ -270,7 +270,7 @@ class Mastr:
                 ["wind", "solar", "biomass", "hydro", "gsgk", "combustion", "nuclear", "storage",
                 "balancing_area", "electricity_consumer", "gas_consumer", "gas_producer",
                 "gas_storage", "gas_storage_extended",
-                "grid_connections", "grids", "market_actors", "market_roles",
+                "grid_connections", "grids", "market_actors", "market_actors_and_roles",
                 "locations_extended", "permit", "deleted_units", "storage_units"]
         chunksize: int
             Defines the chunksize of the tables export.
