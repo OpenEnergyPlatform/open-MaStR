@@ -19,12 +19,6 @@ The German Federal Network Agency regularly updates the dataset and adds new tab
 
 As you may have noticed, we distinguish between `bulk` and `API` datasets. The `bulk` dataset refers to the data obtained from the zipped XML files downloaded from [here](https://www.marktstammdatenregister.de/MaStR/Datendownload) using the [`Mastr.download`][open_mastr.Mastr.download] function. The `API` data is obtained by requesting information via the SOAP-API and the [`soap_api.download.MaStRAPI`][open_mastr.soap_api.download.MaStRAPI] module.
 
-??? question "Why is the table structure in the open-mastr database as it is?"
-
-    The structure of the database is historically determined by the data retrieved via API. (open-mastr existed before the XML-dump was provided).
-    <br> See [MaStR data model](#mastr-data-model)
-
-
 ## Tables in the database
 
 !!! question "Confused by all the tables?"
@@ -35,55 +29,62 @@ After downloading the MaStR, you will find a database with a large number of tab
 ### Tables in the local database
 
 === "Units related to electric power"
-    The main information about power plants producing power/gas and other units is in tables prefixed with "Einheiten". You can find the capacity, location, and other technology-specific attributes here.
+    The main information about power plants producing power/gas and other units is in tables prefixed with
+    "Einheiten"/"units". You can find the capacity, location, and other technology-specific attributes here.
 
     | Original German name | English name | Comments |
     |------|------|------|
-    | EinheitenBiomasse | biomass_extended | Biomass combustion power plants |
-    | EinheitenGeothermieGrubengasDruckentspannung | gsgk_extended | Geothermal, mine gas and pressure relaxation units |
-    | EinheitenKernkraft | nuclear_extended | Nuclear power plants |
-    | EinheitenSolar | solar_extended | Solar power plants |
-    | EinheitenStromSpeicher | storage_extended | Electric power storage units |
-    | EinheitenStromVerbraucher | electricity_consumer | *Large* electric power consumers |
-    | EinheitenVerbrennung | combustion_extended | Conventional combustion power plants: gas, oil, coal, … |
-    | EinheitenWasser | hydro_extended | Hydroelectric power plants |
-    | EinheitenWind | wind_extended | Wind power plants |
+    | EinheitenBiomasse | units_biomass | Biomass combustion power plants |
+    | EinheitenGeothermieGrubengasDruckentspannung | units_gsgk | Geothermal, mine gas and pressure relaxation units |
+    | EinheitenKernkraft | units_nuclear | Nuclear power plants |
+    | EinheitenSolar | units_solar | Solar power plants |
+    | EinheitenStromSpeicher | units_electricity_storage | Electric power storage units |
+    | EinheitenStromVerbraucher | units_electricity_consumers | *Large* electric power consumers |
+    | EinheitenVerbrennung | units_combustion | Conventional combustion power plants: gas, oil, coal, … |
+    | EinheitenWasser | units_hydro | Hydroelectric power plants |
+    | EinheitenWind | units_wind | Wind power plants |
 
 === "Units related to gas"
+    The tables prefixed with "EinheitenGas"/"units_gas" refer to units related to gas.
 
     | Original German name | English name | Comments |
     |------|------|------|
-    | EinheitenGasErzeuger | gas_producer | Gas production units (natural gas extraction, biomethane production, …)|
-    | EinheitenGasSpeicher | gas_storage_extended | Gas storage units |
-    | EinheitenGasverbraucher | gas_consumer | *Large* gas consumers |
+    | EinheitenGasErzeuger | units_gas_producers | Gas production units (natural gas extraction, biomethane production, …)|
+    | EinheitenGasSpeicher | units_gas_storage | Gas storage units |
+    | EinheitenGasverbraucher | units_gas_consumers | *Large* gas consumers |
 
-=== "EEG & KWK subsidy information"
-    In Germany, renewable energies as well as combined heat and power (CHP/KWK) plants are subsidized by the state according to laws called 'EEG' (for renewable energies) and 'KWK' (for CHP plants). These tables contain information about the subsidies such as the 'EEG ID' and contain the MaStR IDs of the subsidized unit(s); you can use these IDs to look up the units in the 'Einheiten*' tables.
+=== "Groups of units"
+    Tables prefixed with "Anlagen"/"installations" define groups of units; they have a column called
+    "VerknuepfteEinheitenMastrNummern"/"linkedUnitsMastrNumbers", which you can use to look up the connected units.
+
+    Some of them are special subsidy groups: In Germany, renewable energies as well as combined heat and power (CHP/KWK)
+    plants are subsidized by the state according to laws called 'EEG' (for renewable energies) and 'KWK' (for CHP
+    plants). These tables contain information about the subsidies such as the 'EEG ID'.
 
     | Original German name | English name | Comments |
     |------|------|------|
-    | AnlagenEegBiomasse | biomass_eeg |  |
-    | AnlagenEegGeothermieGrubengasDruckentspannung | gsgk_eeg |  |
-    | AnlagenEegSolar | solar_eeg |  |
-    | AnlagenEegSpeicher | storage_eeg |  |
-    | AnlagenEegWasser | hydro_eeg |  |
-    | AnlagenEegWind | wind_eeg |  |
-    | AnlagenGasSpeicher | gas_storage |  |
-    | AnlagenKwk | kwk |  |
-    | AnlagenStromSpeicher | storage_units |  |
+    | AnlagenEegBiomasse | installations_eeg_biomass |  |
+    | AnlagenEegGeothermieGrubengasDruckentspannung | installations_eeg_gsgk |  |
+    | AnlagenEegSolar | installations_eeg_solar |  |
+    | AnlagenEegSpeicher | installations_eeg_storage |  |
+    | AnlagenEegWasser | installations_eeg_hydro |  |
+    | AnlagenEegWind | installations_eeg_wind |  |
+    | AnlagenGasSpeicher | installations_gas_storage |  |
+    | AnlagenKwk | installations_kwk |  |
+    | AnlagenStromSpeicher | installations_electricity_storage |  |
 
 === "Other tables"
-    Other tables contain information about the grid, the energy market, or gas consumers and producers:
+    Other tables contain information about the grid, the energy market and changes to units and market actors.
 
     | Original German name | English name | Comments |
     |------|------|------|
-    | Bilanzierungsgebiete | balancing_area | Balancing areas |
-    | EinheitenAenderungNetzbetreiberzuordnungen | changed_dso_assignment | Changes of DSO assigment of units |
-    | EinheitenGenehmigung | permit | Unit permits |
+    | Bilanzierungsgebiete | balancing_areas | Balancing areas |
+    | EinheitenAenderungNetzbetreiberzuordnungen | changes_dso_assignment | Changes of DSO assigment of units |
+    | EinheitenGenehmigung | permits | Unit permits |
     | Einheitentypen | unit_types | Meta information about unit types. **Not imported by open-mastr** |
-    | Ertuechtigungen | retrofit_units | Retrofits of units |
-    | GeloeschteUndDeaktivierteEinheiten | deleted_units | Deleted & deactived units |
-    | GeloeschteUndDeaktivierteMarktakteure | deleted_market_actors | Deleted & deactived market actors |
+    | Ertuechtigungen | retrofits | Retrofits of units |
+    | GeloeschteUndDeaktivierteEinheiten | deleted_and_deactivated_units | Deleted & deactived units |
+    | GeloeschteUndDeaktivierteMarktakteure | deleted_and_deactivated_market_actors | Deleted & deactived market actors |
     | Katalogkategorien | catalog_categories | Meta information about MaStR values. **Not imported by open-mastr** |
     | Katalogwerte | catalog_values | Meta information about MaStR values. **Not imported by open-mastr** |
     | Lokationen | locations | Connects units with grid connections |

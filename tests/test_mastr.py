@@ -62,6 +62,16 @@ def test_mastr_download_latest_real_xml(
         rows = result.all()
         assert rows == [("Badbergen", 6800.0, "Windkraft an Land")]
 
+        # Check that the view wind_extended works.
+        query = sqlalchemy.text(
+            "SELECT Gemeinde, Bruttoleistung, WindAnlandOderAufSee"
+            " FROM wind_extended"
+            " WHERE EinheitMastrNummer = 'SEE909443729526'"
+        )
+        result = con.execute(query)
+        rows = result.all()
+        assert rows == [("Badbergen", 6800.0, "Windkraft an Land")]
+
 
 @pytest.mark.skipif(
     not EXISTING_XML_ZIP or not EXISTING_DOCS_ZIP,
@@ -73,10 +83,20 @@ def test_mastr_download_latest_real_xml_english(
     existing_docs_zip_in_output_dir: Path,
 ) -> None:
     mastr.download(data="wind", english=True)
-    df_wind = pd.read_sql("wind_extended", con=mastr.engine)
+    df_wind = pd.read_sql("units_wind", con=mastr.engine)
     assert len(df_wind) > 10000
 
     with mastr.engine.connect() as con:
+        query = sqlalchemy.text(
+            "SELECT municipality, grossCapacity, WindAnlandOderAufSee"
+            " FROM units_wind"
+            " WHERE unitMastrNumber = 'SEE909443729526'"
+        )
+        result = con.execute(query)
+        rows = result.all()
+        assert rows == [("Badbergen", 6800.0, "Windkraft an Land")]
+
+        # Check that the view wind_extended works.
         query = sqlalchemy.text(
             "SELECT municipality, grossCapacity, WindAnlandOderAufSee"
             " FROM wind_extended"
@@ -143,17 +163,19 @@ def test_mastr_generate_data_model(
 ) -> None:
     mastr_table_to_db_table = mastr.generate_data_model()
     expected_keys = set(TABLE_TRANSLATIONS.keys()) - {
-        # A couple of tables we do not create.
+        # A couple of tables with meta information we do not create.
         "Einheitentypen",
         "Katalogkategorien",
         "Katalogwerte",
         "Lokationstypen",
+        "Marktrollen",
+        "Marktfunktionen",
     }
     assert set(mastr_table_to_db_table.keys()) == expected_keys
     # Check some samples
     solar_table = mastr_table_to_db_table["EinheitenSolar"]
     assert solar_table.name == "EinheitenSolar"
-    solar_table.info == {"original_name": "EinheitenSolar", "english_name": "solar_extended"}
+    solar_table.info == {"original_name": "EinheitenSolar", "english_name": "units_solar"}
     # Check a couple of columns
     assert solar_table.c.EinheitMastrNummer.primary_key is True
     assert isinstance(solar_table.c.EinheitMastrNummer.type, sqlalchemy.String)
@@ -176,17 +198,19 @@ def test_mastr_generate_data_model_english(
 ) -> None:
     mastr_table_to_db_table = mastr.generate_data_model(english=True)
     expected_keys = set(TABLE_TRANSLATIONS.keys()) - {
-        # A couple of tables we do not create.
+        # A couple of tables with meta information we do not create.
         "Einheitentypen",
         "Katalogkategorien",
         "Katalogwerte",
         "Lokationstypen",
+        "Marktrollen",
+        "Marktfunktionen",
     }
     assert set(mastr_table_to_db_table.keys()) == expected_keys
     # Check some samples
     solar_table = mastr_table_to_db_table["EinheitenSolar"]
-    assert solar_table.name == "solar_extended"
-    solar_table.info == {"original_name": "EinheitenSolar", "english_name": "solar_extended"}
+    assert solar_table.name == "units_solar"
+    solar_table.info == {"original_name": "EinheitenSolar", "english_name": "units_solar"}
     # Check a couple of columns
     assert solar_table.c.unitMastrNumber.primary_key is True
     assert isinstance(solar_table.c.unitMastrNumber.type, sqlalchemy.String)

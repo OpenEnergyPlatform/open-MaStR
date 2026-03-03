@@ -37,13 +37,13 @@ from open_mastr.utils.config import (
     setup_logger,
 )
 from open_mastr.utils.sqlalchemy_tables import make_sqlalchemy_table_from_mastr_table_description
+from open_mastr.utils.sqlalchemy_views import create_views
 
-# constants
 
 # setup logger
 log = setup_logger()
 
-FALLBACK_DOCS_PATH = Path(__file__).parent / "resources" / "Dokumentation-MaStR-Gesamtdatenexport-20251227-Fallback.zip"
+FALLBACK_DOCS_PATH = Path(__file__).parent / "resources" / "Dokumentation-MaStR-Gesamtdatenexport-20260216-Fallback.zip"
 
 
 class Mastr:
@@ -196,6 +196,7 @@ class Mastr:
         mastr_table_to_db_table: Optional[Mapping[str, Table]] = None,
         alter_database_tables: bool = True,
         english: bool = False,
+        add_views_for_old_table_names: bool = True,
         **kwargs: Any,
     ) -> None:
         """Download the MaStR registry and write it to a local database.
@@ -288,6 +289,13 @@ class Mastr:
             if they haven't been added to open-mastr's translation info yet.)
 
             Defaults to False.
+
+        add_views_for_old_table_names : bool = True, optional,
+            If set to True, database views will be generated for tables renamed in version 1.0 so that
+            the previous table names still work. Only has an effect if mastr_table_to_db_table is not
+            given.
+
+            Defaults to True.
         """
         if method == "API":
             log.warning(
@@ -333,8 +341,8 @@ class Mastr:
             mastr_table_to_db_table = self.generate_data_model(
                 data=data,
                 date=bulk_download_date,
-                catalog_value_as_str=bulk_cleansing,
                 url=custom_docs_url,
+                catalog_value_as_str=bulk_cleansing,
                 english=english,
             )
             log.info(
@@ -344,6 +352,9 @@ class Mastr:
             for db_table in mastr_table_to_db_table.values():
                 db_table.drop(self.engine, checkfirst=True)
                 db_table.create(self.engine)
+
+        if add_views_for_old_table_names:
+            create_views(engine=self.engine, mastr_table_to_db_table=mastr_table_to_db_table)
 
         data = transform_data_parameter(data, **kwargs)
 
