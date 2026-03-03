@@ -15,6 +15,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 - Update list for english column translation
   [#715](https://github.com/OpenEnergyPlatform/open-MaStR/pull/715)
 ### Changed
+- Replace Marktrollen with MarktakteureUndRollen
+  [#722](https://github.com/OpenEnergyPlatform/open-MaStR/pull/722)
 
 ### Removed
 
