@@ -88,7 +88,7 @@ def test_mastr_download_latest_real_xml_english(
 
     with mastr.engine.connect() as con:
         query = sqlalchemy.text(
-            "SELECT municipality, grossCapacity, WindAnlandOderAufSee"
+            "SELECT municipality, grossCapacity, windOnshoreOrOffshore"
             " FROM units_wind"
             " WHERE unitMastrNumber = 'SEE909443729526'"
         )
@@ -98,7 +98,7 @@ def test_mastr_download_latest_real_xml_english(
 
         # Check that the view wind_extended works.
         query = sqlalchemy.text(
-            "SELECT municipality, grossCapacity, WindAnlandOderAufSee"
+            "SELECT municipality, grossCapacity, windOnshoreOrOffshore"
             " FROM wind_extended"
             " WHERE unitMastrNumber = 'SEE909443729526'"
         )
