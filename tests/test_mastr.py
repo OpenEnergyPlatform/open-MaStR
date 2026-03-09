@@ -1,4 +1,6 @@
+import io
 import shutil
+import zipfile
 from pathlib import Path
 from typing import Optional
 
@@ -6,6 +8,7 @@ import os
 import re
 import sqlalchemy
 import pytest
+import responses
 from os.path import expanduser
 import pandas as pd
 from datetime import date, timedelta
@@ -248,3 +251,86 @@ def test_mastr_download_keep_old_downloads(
 
     assert os.path.exists(file_old)
 
+
+def test_mastr_generate_data_model_fallback_to_included_docs(
+    mastr: Mastr,
+    output_dir: Path,
+    responses: responses.RequestsMock,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    caplog.set_level("ERROR")
+
+    invalid_xsd = """<?xml version="1.0" encoding="UTF-8"?>
+    <xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+      <xs:element name="Netze">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Netz" maxOccurs="unbounded" minOccurs="0">
+              <xs:complexType>
+                <xs:sequence>
+                  <!-- Duplicate element produces an error in xmlschema -->
+                  <xs:element type="xs:string" name="MastrNummer"/>
+                  <xs:element type="xs:string" name="MastrNummer"/>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:schema>
+    """
+    # Create inner ZIP file xsd.zip containing Netze.xsd
+    inner_zip_content = io.BytesIO()
+    with zipfile.ZipFile(inner_zip_content, 'w') as inner_zip:
+        inner_zip.writestr('Netze.xsd', invalid_xsd)
+    inner_zip_content.seek(0)
+
+    # Create outer ZIP file containing xsd.zip
+    outer_zip_content = io.BytesIO()
+    with zipfile.ZipFile(outer_zip_content, 'w') as outer_zip:
+        outer_zip.writestr('xsd.zip', inner_zip_content.getvalue())
+    outer_zip_content.seek(0)
+
+    expected_url = (
+        "https://download.marktstammdatenregister.de/Stichtag/"
+        "Dokumentation%20MaStR%20Gesamtdatenexport%2001-03-2026.zip"
+    )
+    # Mock the GET request
+    responses.add(
+        responses.GET,
+        expected_url,
+        body=outer_zip_content.getvalue(),
+        content_type='application/zip'
+    )
+
+    mastr_table_to_db_table = mastr.generate_data_model(
+        date="20260301"
+    )
+    # We expect that reading the invalid XSD Netze.xsd fails, triggering the fallback.
+    assert len(caplog.messages) == 1
+    assert "Falling back to stored docs" in caplog.messages[0]
+
+    expected_keys = set(TABLE_TRANSLATIONS.keys()) - {
+        # A couple of tables with meta information we do not create.
+        "Einheitentypen",
+        "Katalogkategorien",
+        "Katalogwerte",
+        "Lokationstypen",
+        "Marktrollen",
+        "Marktfunktionen",
+    }
+    assert set(mastr_table_to_db_table.keys()) == expected_keys
+    # Check some samples
+    solar_table = mastr_table_to_db_table["EinheitenSolar"]
+    assert solar_table.name == "EinheitenSolar"
+    solar_table.info == {"original_name": "EinheitenSolar", "english_name": "units_solar"}
+    # Check a couple of columns
+    assert solar_table.c.EinheitMastrNummer.primary_key is True
+    assert isinstance(solar_table.c.EinheitMastrNummer.type, sqlalchemy.String)
+    assert isinstance(solar_table.c.Bruttoleistung.type, sqlalchemy.Float)
+    assert isinstance(solar_table.c.Hauptausrichtung.type, CatalogString)
+    assert isinstance(solar_table.c.EinheitlicheAusrichtungUndNeigungswinkel.type, sqlalchemy.Boolean)
+
+    changed_dso_assignment_table = mastr_table_to_db_table["EinheitenAenderungNetzbetreiberzuordnungen"]
+    assert changed_dso_assignment_table.c.OpenMastrId.primary_key is True
+    assert isinstance(changed_dso_assignment_table.c.OpenMastrId.type, sqlalchemy.Integer)

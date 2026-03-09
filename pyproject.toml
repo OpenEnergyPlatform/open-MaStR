@@ -62,6 +62,8 @@ dev = [
   "mkdocs-material",
   "mkdocs-include-markdown-plugin",
   "black",
+  "responses",
+  "pytest-responses",
 ]
 
 [project.urls]
