@@ -110,6 +110,21 @@ class Mastr:
         MaStR XML files, and generate SQLAlchemy tables from those XSD files. The tables are not
         created in the database.
 
+        You can use this method to create a mapping from the MaStR data model to your own data model.
+        This mapping should then be passed to the `Mastr.download` method.
+
+        !!! example
+
+            ```python
+            from open_mastr import Mastr, format_mastr_table_to_db_table
+            db = Mastr()
+            mapping = db.generate_data_model()
+            # Print the tables so that you can see what was generated.
+            print(format_mastr_table_to_db_table(mapping))
+            # edit your mapping here
+            db.download(mastr_table_to_db_table=mapping)
+            ```
+
         Parameters
         ----------
         data : str or list or None, optional
@@ -273,6 +288,8 @@ class Mastr:
             `Mastr.generate_data_model` (and thus downloading the MaStR documentation). In this
             case, the tables will be created.
 
+            You can pass this parameter to use your own mapping.
+
             Defaults to None.
 
         alter_database_tables : bool, optional
@@ -381,13 +398,6 @@ class Mastr:
         delete_zip_file_if_corrupted(zipped_xml_file_path)
         delete_xml_files_not_from_given_date(zipped_xml_file_path, xml_folder_path)
 
-        # TODO: Why is this duplicated?
-        print(
-            "\nWould you like to speed up the creation of your MaStR database?\n"
-            "Try our new parallelized processing by setting os.environ['USE_RECOMMENDED_NUMBER_OF_PROCESSES'] = True "
-            "or configure your own number of processes via os.environ['NUMBER_OF_PROCESSES'] = your_number\n"
-        )
-
         write_mastr_xml_to_database(
             engine=self.engine,
             zipped_xml_file_path=zipped_xml_file_path,
@@ -458,6 +468,15 @@ class Mastr:
         log.info("Browsing available MaStR downloads...")
         return list_available_downloads()
 
+    def translate(self) -> None:
+        """
+        The translate method has been removed. You can use the `english` option
+        in the `Mastr.download` method to get English table and column names.
+        """
+        raise NotImplementedError(
+            "The translate method has been removed. You can use the `english` option"
+            " in the `Mastr.download` method to get English table and column names."
+        )
 
 def _generate_data_model_from_downloaded_docs(
     zipped_docs_file_path: Path,

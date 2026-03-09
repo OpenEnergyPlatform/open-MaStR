@@ -56,7 +56,7 @@ mastr = Mastr(engine=engine_postgres)
 # Generate SQLAlchemy table definitions without creating the tables
 mastr_table_to_db_table = mastr.generate_data_model()
 # Print the tables so that you can see what was generated.
-print(format_mastr_table_to_db_table)
+print(format_mastr_table_to_db_table(mastr_table_to_db_table))
 
 # Now you need to go and create the tables in your database and adjust them to your needs.
 # It's best to use the table definitions we generated and adjust them.

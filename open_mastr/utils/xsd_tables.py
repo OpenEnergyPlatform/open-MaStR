@@ -16,14 +16,14 @@ _XML_SCHEMA_PREFIX = "{http://www.w3.org/2001/XMLSchema}"
 
 log = logging.getLogger("open-MaStR")
 
-# TODO: Should we really mess with the original column names?
-#  The BNetzA "choice" to sometimes write MaStR and sometimes Mastr is certainly confusing,
-#  but are we the ones who should change that?
-# Also TODO: Should we also apply the more opinionated normalization/renaming that is currently stored in orm.py?
-#  E.g. "VerknuepfteEinheitenMaStRNummern" -> "VerknuepfteEinheiten", "NetzanschlusspunkteMaStRNummern" -> "Netzanschlusspunkte", etc.
+
 def normalize_mastr_name(original_mastr_name: str) -> str:
-    # BNethA sometimes has MaStR, other times MaStR. We normalize that.
-    # Also, in case the column names in the XSD contain äöüß, we replace them. This is probably a BNetzA oversight, but has happened at least once.
+    """Normalize original MaStR column name.
+
+    BNetzA sometimes has "MaStR", other times "Mastr". We normalize that.
+    Also, in case the column names in the XSD contain äöüß, we replace them.
+    This is probably a BNetzA oversight, but has happened at least once.
+    """
     return original_mastr_name.replace("MaStR", "Mastr").replace("ä", "ae").replace("ö", "oe").replace("ü", "ue").replace("ß", "ss").strip()
 
 
@@ -37,7 +37,7 @@ def translate_mastr_column_name(normalized_mastr_column_name: str) -> Optional[s
 def translate_mastr_table_name(normalized_mastr_table_name: str) -> Optional[str]:
     translated = TABLE_TRANSLATIONS.get(normalized_mastr_table_name)
     if not translated:
-        log.warning(f"No translation available for column {normalized_mastr_table_name!r}")
+        log.warning(f"No translation available for table {normalized_mastr_table_name!r}")
     return translated
 
 
