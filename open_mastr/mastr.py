@@ -239,15 +239,6 @@ class Mastr:
             "or configure your own number of processes via os.environ['NUMBER_OF_PROCESSES'] = your_number\n"
         )
 
-        delete_zip_file_if_corrupted(zipped_xml_file_path)
-        delete_xml_files_not_from_given_date(zipped_xml_file_path, xml_folder_path)
-
-        print(
-            "\nWould you like to speed up the creation of your MaStR database?\n"
-            "Try our new parallelized processing by setting os.environ['USE_RECOMMENDED_NUMBER_OF_PROCESSES'] = True "
-            "or configure your own number of processes via os.environ['NUMBER_OF_PROCESSES'] = your_number\n"
-        )
-
         write_mastr_xml_to_database(
             engine=self.engine,
             zipped_xml_file_path=zipped_xml_file_path,
