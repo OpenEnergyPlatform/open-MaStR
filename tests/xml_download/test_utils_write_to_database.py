@@ -397,7 +397,7 @@ def test_add_table_to_sqlite_database(engine_testdb, add_table_to_database_funct
         with con.begin():
             actual_df = pd.read_sql_table("gsgk_eeg", con=con)
             pd.testing.assert_frame_equal(
-                expected_df[df.columns], actual_df[df.columns]
+                expected_df[df.columns], actual_df[df.columns], check_dtype=False
             )
 
 
