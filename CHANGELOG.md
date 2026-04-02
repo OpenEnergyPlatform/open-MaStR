@@ -20,6 +20,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 - Zero fill specific date strings [#728](https://github.com/OpenEnergyPlatform/open-MaStR/pull/728)
 
 ### Removed
+- Remove duplicated code in Mastr.download
+  [#727](https://github.com/OpenEnergyPlatform/open-MaStR/pull/727)
 
 ## [v0.16.1] Hotfix - 2025-12-17
 
