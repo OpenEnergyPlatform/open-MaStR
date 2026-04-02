@@ -17,6 +17,7 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 ### Changed
 - Replace Marktrollen with MarktakteureUndRollen
   [#722](https://github.com/OpenEnergyPlatform/open-MaStR/pull/722)
+- Zero fill specific date strings [#728](https://github.com/OpenEnergyPlatform/open-MaStR/pull/728)
 
 ### Removed
 
