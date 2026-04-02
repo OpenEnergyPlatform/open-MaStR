@@ -280,9 +280,11 @@ def cast_date_columns_to_string(xml_table_name: str, df: pd.DataFrame) -> pd.Dat
         df[column_name] = pd.to_datetime(df[column_name], errors="coerce")
 
         if type(column[1].type) is Date:
-            df[column_name] = (
-                df[column_name].dt.strftime("%Y-%m-%d").replace("NaT", None)
-            )
+            mask = df[column_name].notna()
+            df[column_name] = df[column_name].dt.strftime("%Y-%m-%d")
+            df.loc[mask, column_name] = df.loc[mask, column_name].str.zfill(10)
+            df[column_name] = df[column_name].replace("NaT", None)
+
         elif type(column[1].type) is DateTime:
             df[column_name] = (
                 df[column_name].dt.strftime("%Y-%m-%d %H:%M:%S.%f").replace("NaT", None)

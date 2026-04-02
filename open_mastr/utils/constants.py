@@ -22,19 +22,6 @@ BULK_DATA = [
     "storage_units",
 ]
 
-# Possible values for parameter 'data' with API download method
-API_DATA = [
-    "wind",
-    "solar",
-    "biomass",
-    "hydro",
-    "gsgk",
-    "combustion",
-    "nuclear",
-    "storage",
-    "location",
-    "permit",
-]
 
 # Technology related values of parameter 'data'
 # Methods like Mastr.to_csv() must separate these from additional tables
@@ -62,6 +49,7 @@ ADDITIONAL_TABLES = [
     "locations_extended",
     "market_actors",
     "market_roles",
+    "market_actors_and_roles",
     "permit",
     "deleted_units",
     "deleted_market_actors",
@@ -69,9 +57,6 @@ ADDITIONAL_TABLES = [
     "changed_dso_assignment",
     "storage_units",
 ]
-
-# Possible data types for API download
-API_DATA_TYPES = ["unit_data", "eeg_data", "kwk_data", "permit_data"]
 
 # Possible location types for API download
 API_LOCATION_TYPES = [
@@ -103,7 +88,7 @@ BULK_INCLUDE_TABLES_MAP = {
     ],
     "electricity_consumer": ["einheitenstromverbraucher"],
     "location": ["lokationen"],
-    "market": ["marktakteure", "marktrollen"],
+    "market": ["marktakteure", "marktakteureundrollen"],
     "grid": ["netzanschlusspunkte", "netze"],
     "balancing_area": ["bilanzierungsgebiete"],
     "permit": ["einheitengenehmigung"],
@@ -123,7 +108,7 @@ BULK_ADDITIONAL_TABLES_CSV_EXPORT_MAP = {
     ],
     "electricity_consumer": ["electricity_consumer"],
     "location": ["locations_extended"],
-    "market": ["market_actors", "market_roles"],
+    "market": ["market_actors", "market_actors_and_roles"],
     "grid": ["grid_connections", "grids"],
     "balancing_area": ["balancing_area"],
     "permit": ["permit"],
@@ -181,6 +166,7 @@ ORM_MAP = {
     "locations_extended": "LocationExtended",
     "market_actors": "MarketActors",
     "market_roles": "MarketRoles",
+    "market_actors_and_roles": "MarketActorsAndRoles",
     "grid_connections": "GridConnections",
     "grids": "Grids",
     "balancing_area": "BalancingArea",
@@ -529,4 +515,6 @@ TRANSLATIONS = {
     "ReserveartNachDemEnWG": "typeOfReserveFromEnWG",
     "WebportalDesNetzbetreibers": "webPortalGridOperator",
     "RegisternummerPraefix": "registerNumberPrefix",
+    "TechnologieFlugwind": "technologyAirborne",
+    "WindAnLandOderAufSee": "windOnshoreOrOffshore",
 }

@@ -1,8 +1,7 @@
 import os
 import json
-import sys
 from contextlib import contextmanager
-from datetime import date, datetime
+from datetime import date
 from warnings import warn
 from zipfile import BadZipfile, ZipFile
 
@@ -15,7 +14,6 @@ from sqlalchemy.orm import Query, sessionmaker
 
 import pandas as pd
 from tqdm import tqdm
-from open_mastr.soap_api.metadata.create import create_datapackage_meta_json
 from open_mastr.utils import orm
 from open_mastr.utils.config import (
     get_filenames,
@@ -23,13 +21,10 @@ from open_mastr.utils.config import (
     column_renaming,
 )
 
-from open_mastr.soap_api.download import MaStRAPI, log
+from open_mastr.soap_api.download import log
 from open_mastr.utils.constants import (
     BULK_DATA,
     TECHNOLOGIES,
-    API_DATA,
-    API_DATA_TYPES,
-    API_LOCATION_TYPES,
     BULK_INCLUDE_TABLES_MAP,
     BULK_ADDITIONAL_TABLES_CSV_EXPORT_MAP,
     ORM_MAP,
@@ -83,11 +78,6 @@ def validate_parameter_format_for_download_method(
     data,
     date,
     bulk_cleansing,
-    api_processes,
-    api_limit,
-    api_chunksize,
-    api_data_types,
-    api_location_types,
     **kwargs,
 ) -> None:
     if "technology" in kwargs:
@@ -104,70 +94,16 @@ def validate_parameter_format_for_download_method(
     validate_parameter_data(method, data)
     validate_parameter_date(method, date)
     validate_parameter_bulk_cleansing(bulk_cleansing)
-    validate_parameter_api_processes(api_processes)
-    validate_parameter_api_limit(api_limit)
-    validate_parameter_api_chunksize(api_chunksize)
-    validate_parameter_api_data_types(api_data_types)
-    validate_parameter_api_location_types(api_location_types)
-
-    raise_warning_for_invalid_parameter_combinations(
-        method,
-        bulk_cleansing,
-        date,
-        api_processes,
-        api_data_types,
-        api_location_types,
-        api_limit,
-        api_chunksize,
-    )
 
 
 def validate_parameter_method(method) -> None:
-    if method not in ["bulk", "API"]:
-        raise ValueError("parameter method has to be either 'bulk', or 'API'.")
-
-
-def validate_parameter_api_location_types(api_location_types) -> None:
-    if not isinstance(api_location_types, list) and api_location_types is not None:
-        raise ValueError("parameter api_location_types has to be a list or 'None'.")
-
-    if isinstance(api_location_types, list):
-        if not api_location_types:  # api_location_types == []
-            raise ValueError("parameter api_location_types cannot be an empty list!")
-        for value in api_location_types:
-            if value not in API_LOCATION_TYPES:
-                raise ValueError(
-                    f"list entries of api_data_types have to be in {API_LOCATION_TYPES}."
-                )
-
-
-def validate_parameter_api_data_types(api_data_types) -> None:
-    if not isinstance(api_data_types, list) and api_data_types is not None:
-        raise ValueError("parameter api_data_types has to be a list or 'None'.")
-
-    if isinstance(api_data_types, list):
-        if not api_data_types:  # api_data_types == []
-            raise ValueError("parameter api_data_types cannot be an empty list!")
-        for value in api_data_types:
-            if value not in API_DATA_TYPES:
-                raise ValueError(
-                    f"list entries of api_data_types have to be in {API_DATA_TYPES}."
-                )
-
-
-def validate_parameter_api_chunksize(api_chunksize) -> None:
-    if not isinstance(api_chunksize, int) and api_chunksize is not None:
-        raise ValueError("parameter api_chunksize has to be an integer or 'None'.")
+    if method != "bulk":
+        raise ValueError("parameter method has to be 'bulk'.")
 
 
 def validate_parameter_bulk_cleansing(bulk_cleansing) -> None:
     if type(bulk_cleansing) != bool:
         raise ValueError("parameter bulk_cleansing has to be boolean")
-
-
-def validate_parameter_api_limit(api_limit) -> None:
-    if not isinstance(api_limit, int) and api_limit is not None:
-        raise ValueError("parameter api_limit has to be an integer or 'None'.")
 
 
 def validate_parameter_date(method, date) -> None:
@@ -182,26 +118,6 @@ def validate_parameter_date(method, date) -> None:
                     "Parameter date has to be a proper date in the format yyyymmdd"
                     "or 'today' for bulk method."
                 ) from e
-    elif method == "API":
-        if not isinstance(date, datetime) and date != "latest":
-            raise ValueError(
-                "parameter api_date has to be 'latest' or a datetime object or 'None'"
-                " for API method."
-            )
-
-
-def validate_parameter_api_processes(api_processes) -> None:
-    if api_processes not in ["max", None] and not isinstance(api_processes, int):
-        raise ValueError(
-            "parameter api_processes has to be 'max' or an integer or 'None'"
-        )
-    if api_processes == "max" or isinstance(api_processes, int):
-        system = sys.platform
-        if system not in ["linux2", "linux"]:
-            raise ValueError(
-                "The functionality of multiprocessing only works on Linux based systems. "
-                "On your system, the parameter api_processes has to be 'None'."
-            )
 
 
 def validate_parameter_data(method, data) -> None:
@@ -217,10 +133,6 @@ def validate_parameter_data(method, data) -> None:
                 raise ValueError(
                     f"Allowed values for parameter data with bulk method are {BULK_DATA}"
                 )
-            if method == "API" and value not in API_DATA:
-                raise ValueError(
-                    f"Allowed values for parameter data with API method are {API_DATA}"
-                )
             if method == "csv_export" and value not in TECHNOLOGIES + ADDITIONAL_TABLES:
                 raise ValueError(
                     "Allowed values for CSV export are "
@@ -228,92 +140,39 @@ def validate_parameter_data(method, data) -> None:
                 )
 
 
-def raise_warning_for_invalid_parameter_combinations(
-    method,
-    bulk_cleansing,
-    date,
-    api_processes,
-    api_data_types,
-    api_location_types,
-    api_limit,
-    api_chunksize,
-):
-    if method == "API" and bulk_cleansing is not True:
-        warn(
-            "For method = 'API', bulk download related parameters "
-            "(with prefix bulk_) are ignored."
-        )
-
-    if method == "bulk" and (
-        any(
-            parameter is not None
-            for parameter in [
-                api_processes,
-                api_data_types,
-                api_location_types,
-            ]
-        )
-        or api_limit != 50
-        or api_chunksize != 1000
-    ):
-        warn(
-            "For method = 'bulk', API related parameters (with prefix api_) are ignored."
-        )
-
-
-def transform_data_parameter(
-    method, data, api_data_types, api_location_types, **kwargs
-):
+def transform_data_parameter(data, **kwargs):
     """
     Parse input parameters related to data as lists. Harmonize variables for later use.
     Data output depends on the possible data types of chosen method.
     """
+
+    # data was named technology in an early version of open-mastr
     data = kwargs.get("technology", data)
+
     # parse parameters as list
     if isinstance(data, str):
         data = [data]
     elif data is None:
-        data = BULK_DATA if method == "bulk" else API_DATA
-    if api_data_types is None:
-        api_data_types = API_DATA_TYPES
-    if api_location_types is None:
-        api_location_types = API_LOCATION_TYPES
+        data = BULK_DATA
 
-    # data input harmonisation
-    harmonisation_log = []
-    if method == "API" and "permit" in data:
-        data.remove("permit")
-        api_data_types.append(
-            "permit_data"
-        ) if "permit_data" not in api_data_types else api_data_types
-        harmonisation_log.append("permit")
-
-    if method == "API" and "location" in data:
-        data.remove("location")
-        api_location_types = API_LOCATION_TYPES
-        harmonisation_log.append("location")
-
-    return data, api_data_types, api_location_types, harmonisation_log
+    return data
 
 
-def transform_date_parameter(self, method, date, **kwargs):
-    if method == "bulk":
-        date = kwargs.get("bulk_date", date)
-        date = "today" if date is None else date
-        if date == "existing":
-            log.warning(
-                """
-            The date parameter 'existing' is deprecated and will be removed in the future. 
-            The date parameter is set to `today`.
-
-            If this change causes problems for you, please comment in this issue on github:
-            https://github.com/OpenEnergyPlatform/open-MaStR/issues/616#issuecomment-3089377062
-
+def transform_date_parameter(self, date, **kwargs):
+    date = kwargs.get("bulk_date", date)
+    date = "today" if date is None else date
+    if date == "existing":
+        log.warning(
             """
-            )
-            date = "today"
-    elif method == "API":
-        date = kwargs.get("api_date", date)
+        The date parameter 'existing' is deprecated and will be removed in the future. 
+        The date parameter is set to `today`.
+
+        If this change causes problems for you, please comment in this issue on github:
+        https://github.com/OpenEnergyPlatform/open-MaStR/issues/616#issuecomment-3089377062
+
+        """
+        )
+        date = "today"
 
     return date
 
@@ -331,52 +190,6 @@ def session_scope(engine):
         raise
     finally:
         session.close()
-
-
-def print_api_settings(
-    harmonisation_log,
-    data,
-    date,
-    api_data_types,
-    api_chunksize,
-    api_limit,
-    api_processes,
-    api_location_types,
-):
-    log.info(
-        f"Downloading with soap_API.\n\n   -- API settings --  \nunits after date: "
-        f"{date}\nunit download limit per data: "
-        f"{api_limit}\nparallel_processes: {api_processes}\nchunksize: "
-        f"{api_chunksize}\ndata_api: {data}"
-    )
-    if "permit" in harmonisation_log:
-        log.warning(
-            f"data_types: {api_data_types} - "
-            "Attention, 'permit_data' was automatically set in api_data_types, "
-            "as you defined 'permit' in parameter data_api."
-        )
-
-    else:
-        log.info(f"data_types: {api_data_types}")
-
-    if "location" in harmonisation_log:
-        log.warning(
-            f"location_types: {api_location_types} - "
-            "Attention, 'location' is in parameter data. location_types are set accordingly. "
-            "If you want to change location_types, please remove 'location' "
-            "from data_api and specify api_location_types."
-        )
-
-    else:
-        log.info(
-            f"location_types: {api_location_types}",
-            "\n   ------------------  \n",
-        )
-
-
-def validate_api_credentials() -> None:
-    mastr_api = MaStRAPI()
-    assert mastr_api.GetAktuellerStandTageskontingent()["Ergebniscode"] == "OK"
 
 
 def data_to_include_tables(data: list, mapping: str = None) -> list:
@@ -553,42 +366,45 @@ def create_db_query(
             return query_additional_tables
 
 
-def save_metadata(data: list = None, engine=None) -> None:
-    """
-    Save metadata during csv export.
+# At the time of commenting this, the call of this function in mastr.py was already
+# commented out for more than a year
 
-    Parameters
-    ----------
-    data: list
-        List of exported technologies for which metadata is needed.
-    engine: <class 'sqlalchemy.engine.base.Engine'>
-        User-defined database engine.
-
-    Returns
-    -------
-
-    """
-    data_path = get_data_version_dir()
-    filenames = get_filenames()
-    metadata_file = os.path.join(data_path, filenames["metadata"])
-    unit_type_map_reversed = reverse_unit_type_map()
-
-    with session_scope(engine=engine) as session:
-        # check for latest db entry for exported technologies
-        mastr_technologies = [unit_type_map_reversed[tech] for tech in data]
-        newest_date = (
-            session.query(orm.BasicUnit.DatumLetzteAktualisierung)
-            .filter(orm.BasicUnit.Einheittyp.in_(mastr_technologies))
-            .order_by(orm.BasicUnit.DatumLetzteAktualisierung.desc())
-            .first()[0]
-        )
-
-    metadata = create_datapackage_meta_json(newest_date, data, json_serialize=False)
-
-    with open(metadata_file, "w", encoding="utf-8") as f:
-        json.dump(metadata, f, ensure_ascii=False, indent=4)
-
-    log.info("Saved metadata")
+# def save_metadata(data: list = None, engine=None) -> None:
+#     """
+#     Save metadata during csv export.
+#
+#     Parameters
+#     ----------
+#     data: list
+#         List of exported technologies for which metadata is needed.
+#     engine: <class 'sqlalchemy.engine.base.Engine'>
+#         User-defined database engine.
+#
+#     Returns
+#     -------
+#
+#     """
+#     data_path = get_data_version_dir()
+#     filenames = get_filenames()
+#     metadata_file = os.path.join(data_path, filenames["metadata"])
+#     unit_type_map_reversed = reverse_unit_type_map()
+#
+#     with session_scope(engine=engine) as session:
+#         # check for latest db entry for exported technologies
+#         mastr_technologies = [unit_type_map_reversed[tech] for tech in data]
+#         newest_date = (
+#             session.query(orm.BasicUnit.DatumLetzteAktualisierung)
+#             .filter(orm.BasicUnit.Einheittyp.in_(mastr_technologies))
+#             .order_by(orm.BasicUnit.DatumLetzteAktualisierung.desc())
+#             .first()[0]
+#         )
+#
+#     metadata = create_datapackage_meta_json(newest_date, data, json_serialize=False)
+#
+#     with open(metadata_file, "w", encoding="utf-8") as f:
+#         json.dump(metadata, f, ensure_ascii=False, indent=4)
+#
+#     log.info("Saved metadata")
 
 
 def reverse_fill_basic_units(technology=None, engine=None):

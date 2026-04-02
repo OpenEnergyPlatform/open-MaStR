@@ -55,7 +55,6 @@ def test_Mastr_init(db):
     # test if folder structure exists
     assert os.path.exists(db.home_directory)
     assert os.path.exists(db._sqlite_folder_path)
-
     # test if engine and connection were created
     assert type(db.engine) == sqlalchemy.engine.Engine
 

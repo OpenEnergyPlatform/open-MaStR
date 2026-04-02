@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: pypi
-      url: https://pypi.org/p/open-mastr
+      url: https://test.pypi.org/p/open-mastr
     permissions:
       id-token: write
     steps:

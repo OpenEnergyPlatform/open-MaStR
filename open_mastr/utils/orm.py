@@ -44,34 +44,6 @@ class BasicUnit(Base):
     EinheitSystemstatus = Column(String)
 
 
-class AdditionalDataRequested(Base):
-    __tablename__ = "additional_data_requested"
-
-    id = Column(
-        Integer,
-        Sequence("additional_data_requested_id_seq"),
-        primary_key=True,
-    )
-    EinheitMastrNummer = Column(String)
-    additional_data_id = Column(String)
-    technology = Column(String)
-    data_type = Column(String)
-    request_date = Column(DateTime(timezone=True), default=func.now())
-
-
-class MissedAdditionalData(Base):
-    __tablename__ = "missed_additional_data"
-
-    id = Column(
-        Integer,
-        Sequence("additional_data_missed_id_seq"),
-        primary_key=True,
-    )
-    additional_data_id = Column(String)
-    reason = Column(String)
-    download_date = Column(DateTime(timezone=True), default=func.now())
-
-
 class Extended(object):
     NetzbetreiberMastrNummer = Column(String)
     Registrierungsdatum = Column(Date)
@@ -436,32 +408,6 @@ class LocationExtended(ParentAllTables, Base):
     Lokationtyp = Column(String)
 
 
-class AdditionalLocationsRequested(Base):
-    __tablename__ = "additional_locations_requested"
-
-    id = Column(
-        Integer,
-        Sequence("additional_locations_requested_id_seq"),
-        primary_key=True,
-    )
-    LokationMastrNummer = Column(String)
-    location_type = Column(String)
-    request_date = Column(DateTime(timezone=True), default=func.now())
-
-
-class MissedExtendedLocation(ParentAllTables, Base):
-    __tablename__ = "missed_extended_location_data"
-
-    id = Column(
-        Integer,
-        Sequence("additional_location_data_missed_id_seq"),
-        primary_key=True,
-    )
-    LokationMastrNummer = Column(String)
-    reason = Column(String)
-    download_date = Column(DateTime(timezone=True), default=func.now())
-
-
 class GasStorage(ParentAllTables, Base):
     __tablename__ = "gas_storage"
 
@@ -666,8 +612,8 @@ class ElectricityConsumer(ParentAllTables, Base):
     GeplantesInbetriebnahmedatum = Column(Date)
 
 
-class MarketRoles(ParentAllTables, Base):
-    __tablename__ = "market_roles"
+class MarketActorsAndRoles(ParentAllTables, Base):
+    __tablename__ = "market_actors_and_roles"
 
     MastrNummer = Column(String, primary_key=True)
     MarktakteurMastrNummer = Column(String)
@@ -1031,14 +977,14 @@ tablename_mapping = {
         "__class__": DeletedMarketActors,
         "replace_column_names": None,
     },
-    "marktrollen": {
-        "__name__": MarketRoles.__tablename__,
-        "__class__": MarketRoles,
-        "replace_column_names": None,
-    },
     "marktakteure": {
         "__name__": MarketActors.__tablename__,
         "__class__": MarketActors,
+        "replace_column_names": None,
+    },
+    "marktakteureundrollen": {
+        "__name__": MarketActorsAndRoles.__tablename__,
+        "__class__": MarketActorsAndRoles,
         "replace_column_names": None,
     },
     "netze": {
