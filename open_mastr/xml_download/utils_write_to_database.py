@@ -325,10 +325,13 @@ def correct_ordering_of_filelist(files_list: list) -> list:
 def read_xml_file(f: ZipFile, file_name: str) -> pd.DataFrame:
     """Read the xml file from the zip file and return it as a DataFrame."""
     with f.open(file_name) as xml_file:
-        try:
-            return pd.read_xml(xml_file, encoding="UTF-16", parser="etree")
-        except lxml.etree.XMLSyntaxError as error:
-            return handle_xml_syntax_error(xml_file.read().decode("utf-16"), error)
+        raw = xml_file.read()
+    try:
+        root = lxml.etree.fromstring(raw)
+    except lxml.etree.XMLSyntaxError as error:
+        return handle_xml_syntax_error(raw.decode("utf-16"), error)
+    records = [{child.tag: child.text for child in row} for row in root]
+    return pd.DataFrame(records)
 
 
 def change_column_names_to_orm_format(
