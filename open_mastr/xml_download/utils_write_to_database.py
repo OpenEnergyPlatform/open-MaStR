@@ -312,9 +312,10 @@ def cast_date_columns_to_string(db_table: Table, df: pd.DataFrame) -> pd.DataFra
         df[column.name] = pd.to_datetime(df[column.name], errors="coerce")
 
         if type(column.type) is Date:
-            df[column.name] = (
-                df[column.name].dt.strftime("%Y-%m-%d").replace("NaT", None)
-            )
+            mask = df[column.name].notna()
+            df[column.name] = df[column.name].dt.strftime("%Y-%m-%d")
+            df.loc[mask, column.name] = df.loc[mask, column.name].str.zfill(10)
+            df[column.name] = df[column.name].replace("NaT", None)
         elif type(column.type) is DateTime:
             df[column.name] = (
                 df[column.name].dt.strftime("%Y-%m-%d %H:%M:%S.%f").replace("NaT", None)

@@ -395,9 +395,6 @@ class Mastr:
             "or configure your own number of processes via os.environ['NUMBER_OF_PROCESSES'] = your_number\n"
         )
 
-        delete_zip_file_if_corrupted(zipped_xml_file_path)
-        delete_xml_files_not_from_given_date(zipped_xml_file_path, xml_folder_path)
-
         write_mastr_xml_to_database(
             engine=self.engine,
             zipped_xml_file_path=zipped_xml_file_path,

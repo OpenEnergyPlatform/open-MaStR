@@ -6,7 +6,21 @@ For each version important additions, changes and removals are listed here.
 The format is inspired from [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [v0.XX.X] unreleased - 202X-XX-XX
+## [v0.xx.x] Unreleased - 202x-xx-xx
+### Added
+- Add the option to pass a custom database schema
+  [#718](https://github.com/OpenEnergyPlatform/open-MaStR/pull/718)
+
+### Changed
+- Switch to dynamic table generation based on parsing of XSD files;
+  change table names and column names to align more closely with original names;
+  simplify CSV export by removing table joins
+  [#718](https://github.com/OpenEnergyPlatform/open-MaStR/pull/718)
+
+### Removed
+
+
+## [v0.17.0] Full download via SOAP API deprecation and interactive download functionality - 2026-04-02
 ### Added
 - Add interactive download functionality for MaStR date selection
   [#696](https://github.com/OpenEnergyPlatform/open-MaStR/pull/696)
@@ -17,13 +31,15 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 ### Changed
 - Replace Marktrollen with MarktakteureUndRollen
   [#722](https://github.com/OpenEnergyPlatform/open-MaStR/pull/722)
-- Switch to dynamic table generation based on parsing of XSD files;
-  change table names and column names to align more closely with original names;
-  add the option to pass a custom database schema;
-  simplify CSV export by removing table joins
-  [#718](https://github.com/OpenEnergyPlatform/open-MaStR/pull/718)
+- Zero fill specific date strings 
+  [#728](https://github.com/OpenEnergyPlatform/open-MaStR/pull/728)
 
 ### Removed
+- Deprecate and remove Soap API Download and Mirror code
+  [#635](https://github.com/OpenEnergyPlatform/open-MaStR/pull/635)
+- Remove duplicated code in Mastr.download
+  [#727](https://github.com/OpenEnergyPlatform/open-MaStR/pull/727)
+
 
 ## [v0.16.1] Hotfix - 2025-12-17
 
@@ -56,8 +72,6 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 - Limit number of parallel CI jobs
   [#669](https://github.com/OpenEnergyPlatform/open-MaStR/pull/669)
 ### Removed
-- Deprecate and remove Soap API Download and Mirror code
-  [#635](https://github.com/OpenEnergyPlatform/open-MaStR/pull/635)
 
 
 ## [v0.15.0] Turbo parsing with open-MaStR EasterEggspress - 2025-04-19
