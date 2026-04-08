@@ -17,7 +17,10 @@ from sqlalchemy.sql.sqltypes import Date, DateTime
 
 from open_mastr.utils.config import setup_logger
 from open_mastr.utils.helpers import data_to_include_tables
-from open_mastr.utils.xsd_tables import normalize_mastr_name, translate_mastr_column_name
+from open_mastr.utils.xsd_tables import (
+    normalize_mastr_name,
+    translate_mastr_column_name,
+)
 from open_mastr.utils.sqlalchemy_tables import CatalogInteger, CatalogString
 from open_mastr.xml_download.utils_cleansing_bulk import cleanse_bulk_data
 
@@ -40,8 +43,7 @@ def write_mastr_xml_to_database(
     threads_data = []
     lower_mastr_table_to_db_table = {
         db_table.info.get("original_name", mastr_table_name).lower(): db_table
-        for mastr_table_name, db_table
-        in mastr_table_to_db_table.items()
+        for mastr_table_name, db_table in mastr_table_to_db_table.items()
     }
 
     with ZipFile(zipped_xml_file_path, "r") as f:
@@ -55,7 +57,9 @@ def write_mastr_xml_to_database(
 
             db_table = lower_mastr_table_to_db_table.get(xml_table_name)
             if db_table is None:
-                log.warning(f"Skipping MaStR file {file_name!r} because no database table was found for {xml_table_name=}")
+                log.warning(
+                    f"Skipping MaStR file {file_name!r} because no database table was found for {xml_table_name=}"
+                )
                 continue
 
             threads_data.append(
@@ -204,7 +208,9 @@ def check_for_column_mismatch_and_try_to_solve_it(
                     missing_columns=additional_df_column_names,
                 )
             except Exception:
-                log.exception("Could not add at least some columns to the database. Ignoring the columns from the XML file instead.")
+                log.exception(
+                    "Could not add at least some columns to the database. Ignoring the columns from the XML file instead."
+                )
                 df = df.drop(columns=additional_df_column_names)
         else:
             log.warning(
@@ -294,9 +300,7 @@ def is_first_file(file_name: str) -> bool:
     )
 
 
-def cast_date_columns_to_datetime(
-    db_table: Table, df: pd.DataFrame
-) -> pd.DataFrame:
+def cast_date_columns_to_datetime(db_table: Table, df: pd.DataFrame) -> pd.DataFrame:
     for column in db_table.columns:
         if is_date_column(column) and column.name in df.columns:
             # Convert column to datetime64, invalid string -> NaT
@@ -397,9 +401,7 @@ def add_table_to_non_sqlite_database(
             # error resulting from Unique constraint failed
             # FIXME: This error can also indicate other problems than non-unique.
             # We should differentiate more and show it to the user for cases we cannot solve.
-            df = write_single_entries_until_not_unique_comes_up(
-                df, db_table, engine
-            )
+            df = write_single_entries_until_not_unique_comes_up(df, db_table, engine)
 
 
 def add_zero_as_first_character_for_too_short_string(df: pd.DataFrame) -> pd.DataFrame:
@@ -501,9 +503,7 @@ def add_missing_columns_to_table(
         try:
             with engine.connect().execution_options(autocommit=True) as con:
                 with con.begin():
-                    con.execute(
-                        text(alter_query).execution_options(autocommit=True)
-                    )
+                    con.execute(text(alter_query).execution_options(autocommit=True))
         except sqlalchemy.exc.OperationalError as err:
             # If the column already exists, we can ignore the error.
             if "duplicate column name" not in str(err):
@@ -587,7 +587,9 @@ def process_table_before_insertion(
             if isinstance(column.type, (CatalogInteger, CatalogString))
         }
         df = cleanse_bulk_data(
-            df=df, catalog_columns=catalog_columns, zipped_xml_file_path=zipped_xml_file_path
+            df=df,
+            catalog_columns=catalog_columns,
+            zipped_xml_file_path=zipped_xml_file_path,
         )
     return df
 
@@ -597,14 +599,18 @@ def align_df_column_names_to_db_column_names(
     db_table: Table,
 ) -> pd.DataFrame:
     old_column_name_to_new_column_name = {
-        column_name: normalize_mastr_name(column_name)
-        for column_name in df.columns
+        column_name: normalize_mastr_name(column_name) for column_name in df.columns
     }
     if db_table.name == db_table.info.get("english_name"):
         # Database is in English. We must translate the df columns
         english_updates = {}
-        for old_column_name, normalized_column_name in old_column_name_to_new_column_name.items():
-            if english_column_name := translate_mastr_column_name(normalized_column_name):
+        for (
+            old_column_name,
+            normalized_column_name,
+        ) in old_column_name_to_new_column_name.items():
+            if english_column_name := translate_mastr_column_name(
+                normalized_column_name
+            ):
                 english_updates[old_column_name] = english_column_name
         old_column_name_to_new_column_name.update(english_updates)
 
@@ -639,11 +645,8 @@ def add_table_to_sqlite_database(
             # error resulting from Unique constraint failed
             # FIXME: This error can also indicate other problems than non-unique.
             # We should differentiate more and show it to the user for cases we cannot solve.
-            df = write_single_entries_until_not_unique_comes_up(
-                df, db_table, engine
-            )
+            df = write_single_entries_until_not_unique_comes_up(df, db_table, engine)
         except Exception:
             # If any unexpected error occurs, we'll switch back to the non-SQLite method.
             add_table_to_non_sqlite_database(df, db_table, engine)
             break
-

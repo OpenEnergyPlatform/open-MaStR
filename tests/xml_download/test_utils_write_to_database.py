@@ -154,10 +154,7 @@ def test_correct_ordering_of_filelist():
     ]
 
 
-@pytest.mark.skipif(
-    not EXISTING_XML_ZIP,
-    reason="The zipped XML could not be found."
-)
+@pytest.mark.skipif(not EXISTING_XML_ZIP, reason="The zipped XML could not be found.")
 def test_read_xml_file(existing_xml_zip_in_output_dir: Path) -> None:
     file_name = "EinheitenStromVerbraucher"
     with ZipFile(existing_xml_zip_in_output_dir, "r") as f:
@@ -181,10 +178,7 @@ def test_add_zero_as_first_character_for_too_short_string() -> None:
     pd.testing.assert_frame_equal(df_edited, df_correct)
 
 
-@pytest.mark.skipif(
-    not EXISTING_XML_ZIP,
-    reason="The zipped XML could not be found."
-)
+@pytest.mark.skipif(not EXISTING_XML_ZIP, reason="The zipped XML could not be found.")
 def test_process_table_before_insertion(existing_xml_zip_in_output_dir: Path) -> None:
     bulk_download_date = datetime.now().date().strftime("%Y%m%d")
     initial_df = pd.DataFrame(
@@ -246,9 +240,7 @@ def test_add_missing_columns_to_table(engine_testdb: Engine) -> None:
                 table.name, con=con, if_exists="append", index=False
             )
 
-    add_missing_columns_to_table(
-        engine_testdb, table, ["NewColumn"]
-    )
+    add_missing_columns_to_table(engine_testdb, table, ["NewColumn"])
 
     expected_df = pd.DataFrame(
         {
@@ -270,7 +262,7 @@ def test_add_missing_columns_to_table(engine_testdb: Engine) -> None:
 )
 def test_add_table_to_sqlite_database(
     engine_testdb: Engine,
-    add_table_to_database_function: Callable[[pd.DataFrame, Table, Engine], Any]
+    add_table_to_database_function: Callable[[pd.DataFrame, Table, Engine], Any],
 ) -> None:
     table = Table(
         "anlageneeggeothermiegrubengasdruckentspannung",
@@ -331,9 +323,7 @@ def test_add_table_to_sqlite_database(
         }
     )
 
-    add_table_to_database_function(
-        df, table, engine_testdb
-    )
+    add_table_to_database_function(df, table, engine_testdb)
     with engine_testdb.connect() as con:
         with con.begin():
             pd.testing.assert_frame_equal(

@@ -36,14 +36,20 @@ from open_mastr.utils.config import (
     get_output_dir,
     setup_logger,
 )
-from open_mastr.utils.sqlalchemy_tables import make_sqlalchemy_table_from_mastr_table_description
+from open_mastr.utils.sqlalchemy_tables import (
+    make_sqlalchemy_table_from_mastr_table_description,
+)
 from open_mastr.utils.sqlalchemy_views import create_views
 
 
 # setup logger
 log = setup_logger()
 
-FALLBACK_DOCS_PATH = Path(__file__).parent / "resources" / "Dokumentation-MaStR-Gesamtdatenexport-20260216-Fallback.zip"
+FALLBACK_DOCS_PATH = (
+    Path(__file__).parent
+    / "resources"
+    / "Dokumentation-MaStR-Gesamtdatenexport-20260216-Fallback.zip"
+)
 
 
 class Mastr:
@@ -175,11 +181,12 @@ class Mastr:
         docs_folder_path = os.path.join(self.output_dir, "data", "docs_download")
         os.makedirs(docs_folder_path, exist_ok=True)
         zipped_docs_file_path = os.path.join(
-            docs_folder_path,
-            f"Dokumentation MaStR Gesamtdatenexport_{date}.zip"
+            docs_folder_path, f"Dokumentation MaStR Gesamtdatenexport_{date}.zip"
         )
         try:
-            download_documentation(zipped_docs_file_path, bulk_date_string=date, url=url)
+            download_documentation(
+                zipped_docs_file_path, bulk_date_string=date, url=url
+            )
             return _generate_data_model_from_downloaded_docs(
                 zipped_docs_file_path=zipped_docs_file_path,
                 data=data,
@@ -371,7 +378,9 @@ class Mastr:
                 db_table.create(self.engine)
 
         if add_views_for_old_table_names:
-            create_views(engine=self.engine, mastr_table_to_db_table=mastr_table_to_db_table)
+            create_views(
+                engine=self.engine, mastr_table_to_db_table=mastr_table_to_db_table
+            )
 
         data = transform_data_parameter(data, **kwargs)
 
@@ -387,7 +396,11 @@ class Mastr:
             delete_xml_files_not_from_given_date(zipped_xml_file_path, xml_folder_path)
 
         download_xml_Mastr(
-            zipped_xml_file_path, bulk_download_date, data, xml_folder_path, custom_xml_url
+            zipped_xml_file_path,
+            bulk_download_date,
+            data,
+            xml_folder_path,
+            custom_xml_url,
         )
         log.info(
             "\nWould you like to speed up the creation of your MaStR database?\n"
@@ -430,11 +443,15 @@ class Mastr:
         if db_table_names is None:
             db_table_names = existing_table_names
 
-        log.info(f"Exporting the following database tables to CSV: {', '.join(db_table_names)}")
+        log.info(
+            f"Exporting the following database tables to CSV: {', '.join(db_table_names)}"
+        )
         with self.engine.connect() as conn:
             for requested_table_name in db_table_names:
                 if requested_table_name not in existing_table_names:
-                    log.warning(f"Table {requested_table_name} does not exist. Skipping.")
+                    log.warning(
+                        f"Table {requested_table_name} does not exist. Skipping."
+                    )
                     continue
                 csv_path = os.path.join(data_path, f"{requested_table_name}.csv")
                 if os.path.exists(csv_path):
@@ -475,9 +492,11 @@ class Mastr:
             " in the `Mastr.download` method to get English table and column names."
         )
 
+
 def _generate_data_model_from_downloaded_docs(
     zipped_docs_file_path: Path,
-    data: list[str], catalog_value_as_str: bool = True,
+    data: list[str],
+    catalog_value_as_str: bool = True,
     metadata: Optional[MetaData] = None,
     english: bool = False,
 ) -> dict[str, Table]:
@@ -495,6 +514,8 @@ def _generate_data_model_from_downloaded_docs(
             metadata=metadata,
             english=english,
         )
-        mastr_table_to_db_table[mastr_table_description.original_table_name] = sqlalchemy_model
+        mastr_table_to_db_table[
+            mastr_table_description.original_table_name
+        ] = sqlalchemy_model
 
     return mastr_table_to_db_table
