@@ -10,6 +10,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 ### Added
 
 ### Changed
+- Fix broken `Mastr.to_csv` function by removing stray `**kwargs`
+  [#736](https://github.com/OpenEnergyPlatform/open-MaStR/pull/736)
 
 ### Removed
 
