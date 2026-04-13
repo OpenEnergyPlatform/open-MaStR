@@ -6,6 +6,14 @@ For each version important additions, changes and removals are listed here.
 The format is inspired from [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [v0.xx.x] Unreleased - 202x-xx-xx
+### Added
+
+### Changed
+
+### Removed
+
+
 ## [v0.17.1] Hotfix - 2026-04-13
 ### Changed
 - Fix broken `Mastr.to_csv` function by removing stray `**kwargs`
