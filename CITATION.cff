@@ -36,12 +36,16 @@ authors:
     affiliation: "Technical University of Munich"
   - family-names: 'Krämer'
     given-names: "Kevin"
-    alias: "pt-kkraemer"
-    affiliation: "ProjectTogether gGmbH"  
+    alias: "@pt-kkraemer"
+    affiliation: "ProjectTogether gGmbH"
+  - family-names: 'Will'
+    given-names: "Simon"
+    alias: "@Simon-Will"
+    affiliation: ""
 title: "open-MaStR"
 type: software
 license: AGPL-3.0
-version: 0.17.0
+version: 0.17.1
 doi: 
-date-released: 2026-04-02
+date-released: 2026-04-13
 url: "https://github.com/OpenEnergyPlatform/open-MaStR/"
