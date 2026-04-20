@@ -20,6 +20,12 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 ### Removed
 
 
+## [v0.17.1] Hotfix - 2026-04-13
+### Changed
+- Fix broken `Mastr.to_csv` function by removing stray `**kwargs`
+  [#736](https://github.com/OpenEnergyPlatform/open-MaStR/pull/736)
+
+
 ## [v0.17.0] Full download via SOAP API deprecation and interactive download functionality - 2026-04-02
 ### Added
 - Add interactive download functionality for MaStR date selection
