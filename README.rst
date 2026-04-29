@@ -131,6 +131,7 @@ These projects already use open-mastr:
 - `Digiplan Anhalt <https://digiplan.rl-institut.de/>`_
 - `EmPowerPlan <https://epp.rl-institut.de/>`_
 - `Goal100 Monitor <https://goal100.org/monitor>`_
+- `Goal100 Studio <https://goal100.studio/>`_
 
 If you want to see your project in this list, write an  
 `Issue <https://github.com/OpenEnergyPlatform/open-MaStR/issues>`_ or add
