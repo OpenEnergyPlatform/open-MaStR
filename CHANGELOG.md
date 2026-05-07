@@ -6,18 +6,28 @@ For each version important additions, changes and removals are listed here.
 The format is inspired from [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+
 ## [v0.xx.x] Unreleased - 202x-xx-xx
-### Added
-- Add the option to pass a custom database schema
-  [#718](https://github.com/OpenEnergyPlatform/open-MaStR/pull/718)
+  ### Added
+  - Add `Mastr.generate_data_model` method that downloads the current MaStR documentation and generates SQLAlchemy tables from the XSD definitions; supports `english=True` for English column
+  names
+    [#718](https://github.com/OpenEnergyPlatform/open-MaStR/pull/718)
+  - Add `mastr_table_to_db_table` argument to `Mastr.download` to pass a custom database schema
+    [#718](https://github.com/OpenEnergyPlatform/open-MaStR/pull/718)
+  - Add `alter_database_tables` argument to `Mastr.download` to prevent open-mastr from issuing DDL statements
+    [#718](https://github.com/OpenEnergyPlatform/open-MaStR/pull/718)
 
-### Changed
-- Switch to dynamic table generation based on parsing of XSD files;
-  change table names and column names to align more closely with original names;
-  simplify CSV export by removing table joins
-  [#718](https://github.com/OpenEnergyPlatform/open-MaStR/pull/718)
+  ### Changed
+  - Switch to dynamic table generation based on parsing of XSD files from the MaStR documentation; fall back to bundled XSD files if the downloaded documentation is invalid
+    [#718](https://github.com/OpenEnergyPlatform/open-MaStR/pull/718)
+  - Change default table and column names to align more closely with the original MaStR export file names
+    [#718](https://github.com/OpenEnergyPlatform/open-MaStR/pull/718)
+  - Simplify CSV export by removing cross-table joins; tables are exported as-is
+    [#718](https://github.com/OpenEnergyPlatform/open-MaStR/pull/718)
 
-### Removed
+  ### Removed
+  - Remove `Mastr.translate`; English table and column names are now available via the `english=True` parameter in `generate_data_model` and `download`
+    [#718](https://github.com/OpenEnergyPlatform/open-MaStR/pull/718)
 
 
 ## [v0.17.1] Hotfix - 2026-04-13
