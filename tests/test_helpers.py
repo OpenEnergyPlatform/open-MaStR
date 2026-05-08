@@ -1,46 +1,20 @@
 import pytest
 import os
-from os.path import expanduser
+from pathlib import Path
 import itertools
 
-import random
-from os.path import join
 
-import pandas as pd
 from open_mastr import Mastr
 from zipfile import ZipFile
 
-from open_mastr.utils import orm
-from open_mastr.utils.constants import TECHNOLOGIES, ADDITIONAL_TABLES, BULK_DATA
-from open_mastr.utils.config import get_data_version_dir, create_data_dir
+from open_mastr.utils.constants import BULK_DATA
 from open_mastr.utils.helpers import (
     validate_parameter_format_for_download_method,
     validate_parameter_format_for_mastr_init,
     transform_data_parameter,
     data_to_include_tables,
-    session_scope,
-    create_db_query,
-    db_query_to_csv,
-    reverse_unit_type_map,
     delete_zip_file_if_corrupted,
 )
-
-
-# Check if db is empty
-_db_exists = False
-_db_folder_path = os.path.join(
-    expanduser("~"), ".open-MaStR", "data", "sqlite"
-)  # FIXME: use path in tmpdir when implemented
-if os.path.isdir(_db_folder_path):
-    for entry in os.scandir(path=_db_folder_path):
-        _db_path = os.path.join(_db_folder_path, "open-mastr.db")
-        if os.path.getsize(_db_path) > 1000000:  # empty db = 327.7kB < 1 MB
-            _db_exists = True
-
-
-@pytest.fixture
-def db():
-    return Mastr()
 
 
 def test_Mastr_validate_working_parameter():
@@ -119,8 +93,8 @@ def test_Mastr_validate_not_working_parameter():
                 )
 
 
-def test_validate_parameter_format_for_mastr_init(db):
-    engine_list_working = ["sqlite", db.engine]
+def test_validate_parameter_format_for_mastr_init(mastr):
+    engine_list_working = ["sqlite", mastr.engine]
     engine_list_failing = ["HI", 12]
 
     for engine in engine_list_working:
@@ -145,40 +119,17 @@ def test_transform_data_parameter():
 
 def test_data_to_include_tables():
     # Prepare
-    include_tables_list = [
+    include_tables_list = {
         "anlageneegwind",
         "einheitenwind",
         "anlageneegwasser",
         "einheitenwasser",
-    ]
-    include_tables_str = ["einheitenstromverbraucher"]
-
-    map_to_db_table_list = ["market_actors", "market_actors_and_roles"]
-    map_to_db_table_str = ["locations_extended"]
+    }
+    include_tables_str = {"einheitenstromverbraucher"}
 
     # Assert
-    assert include_tables_list == data_to_include_tables(
-        data=["wind", "hydro"], mapping="write_xml"
-    )
-    assert include_tables_str == data_to_include_tables(
-        data=["electricity_consumer"], mapping="write_xml"
-    )
-    assert map_to_db_table_list == data_to_include_tables(
-        data=["market"], mapping="export_db_tables"
-    )
-    assert map_to_db_table_str == data_to_include_tables(
-        data=["location"], mapping="export_db_tables"
-    )
-
-
-def test_data_to_include_tables_error():
-    # test for non-existent 'mapping' parameter input
-    with pytest.raises(
-        NotImplementedError,
-        match="This function is only implemented for 'write_xml' and 'export_db_tables',"
-        " please specify when calling the function.",
-    ):
-        data_to_include_tables(data=["wind", "hydro"], mapping="X32J_22")
+    assert include_tables_list == data_to_include_tables(data={"wind", "hydro"})
+    assert include_tables_str == data_to_include_tables(data={"electricity_consumer"})
 
 
 def test_delete_zip_file_if_corrupted():

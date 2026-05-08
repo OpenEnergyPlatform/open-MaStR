@@ -22,5 +22,9 @@ handlers:
 loggers:
   open-MaStR:
     level: "INFO"
-    handlers: ["console", "file"]
-    propagate: no
+    handlers: []
+    propagate: yes
+
+root:
+  level: "INFO"
+  handlers: ["console", "file"]

@@ -3,28 +3,37 @@ import sqlite3
 import sys
 from datetime import datetime
 from os.path import expanduser
+from pathlib import Path
+from typing import Any, Callable
 from zipfile import ZipFile
 
 import numpy as np
 import pandas as pd
 import pytest
-from sqlalchemy import create_engine, inspect
-from sqlalchemy.sql import text
+from sqlalchemy import (
+    Boolean,
+    Column,
+    create_engine,
+    Date,
+    DateTime,
+    Double,
+    Engine,
+    Integer,
+    MetaData,
+    String,
+    Table,
+)
 
-from open_mastr.utils import orm
-from open_mastr.utils.orm import RetrofitUnits, ElectricityConsumer, tablename_mapping
+
+from open_mastr.utils.sqlalchemy_tables import CatalogString
 from open_mastr.xml_download.utils_write_to_database import (
     add_missing_columns_to_table,
     add_zero_as_first_character_for_too_short_string,
     cast_date_columns_to_string,
-    change_column_names_to_orm_format,
     correct_ordering_of_filelist,
-    create_database_table,
-    extract_sql_table_name,
     extract_xml_table_name,
     is_date_column,
     is_first_file,
-    is_table_relevant,
     process_table_before_insertion,
     read_xml_file,
     add_table_to_non_sqlite_database,
@@ -32,51 +41,12 @@ from open_mastr.xml_download.utils_write_to_database import (
     interleave_files,
 )
 
-# Check if xml file exists
-_xml_file_exists = False
-_xml_folder_path = os.path.join(expanduser("~"), ".open-MaStR", "data", "xml_download")
-if os.path.isdir(_xml_folder_path):
-    for entry in os.scandir(path=_xml_folder_path):
-        if "Gesamtdatenexport" in entry.name:
-            _xml_file_exists = True
+from tests.conftest import EXISTING_XML_ZIP
 
 
-# Silence ValueError caused by logger https://github.com/pytest-dev/pytest/issues/5502
-@pytest.fixture(autouse=True)
-def capture_wrap():
-    sys.stderr.close = lambda *args: None
-    sys.stdout.close = lambda *args: None
-    yield
-
-
-@pytest.fixture(scope="module")
-def zipped_xml_file_path():
-    zipped_xml_file_path = None
-    for entry in os.scandir(path=_xml_folder_path):
-        if "Gesamtdatenexport" in entry.name:
-            zipped_xml_file_path = os.path.join(_xml_folder_path, entry.name)
-
-    return zipped_xml_file_path
-
-
-@pytest.fixture(scope="module")
-def con_testdb():
-    testdb_file_path = os.path.join(
-        expanduser("~"), ".open-MaStR", "data", "sqlite", "test-open-mastr.db"
-    )
-    # Create testdb
-    con_testdb = sqlite3.connect(testdb_file_path)
-    yield con_testdb
-    con_testdb.close()
-    # Remove testdb
-    os.remove(testdb_file_path)
-
-
-@pytest.fixture(scope="module")
-def engine_testdb():
-    testdb_file_path = os.path.join(
-        expanduser("~"), ".open-MaStR", "data", "sqlite", "test-open-mastr.db"
-    )
+@pytest.fixture
+def engine_testdb(tmp_path: Path) -> Engine:
+    testdb_file_path = tmp_path / "test-open-mastr.db"
     testdb_url = f"sqlite:///{testdb_file_path}"
     yield create_engine(testdb_url)
 
@@ -86,27 +56,6 @@ def test_extract_xml_table_name():
     assert extract_xml_table_name(file_name) == "netzanschlusspunkte"
 
 
-def text_extract_sql_table_name():
-    xml_table_name = "netzanschlusspunkte"
-    assert extract_sql_table_name(xml_table_name) == "network_connection_points"
-
-
-def test_is_table_relevant():
-    include_tables = ["anlagengasspeicher", "marktakteure"]
-    assert is_table_relevant("anlagengasspeicher", include_tables) is True
-    assert is_table_relevant("netzanschlusspunkte", include_tables) is False
-
-
-def test_create_database_table(engine_testdb):
-    orm.Base.metadata.create_all(engine_testdb)
-    xml_table_name = "einheitenkernkraft"
-    sql_table_name = "nuclear_extended"
-
-    create_database_table(engine_testdb, xml_table_name)
-
-    assert inspect(engine_testdb).has_table(sql_table_name) is True
-
-
 def test_is_first_file():
     assert is_first_file("EinheitenKernkraft.xml") is True
     assert is_first_file("EinheitenKernkraft_1.xml") is True
@@ -114,9 +63,16 @@ def test_is_first_file():
 
 
 def test_cast_date_columns_to_string():
+    table = Table(
+        "anlageneegwasser",
+        MetaData(),
+        Column("EegMastrNummer", String, primary_key=True),
+        Column("Registrierungsdatum", Date),
+        Column("DatumLetzteAktualisierung", DateTime),
+    )
     initial_df = pd.DataFrame(
         {
-            "EegMastrNummer": [1, 2, 3],
+            "EegMastrNummer": ["1", "2", "3"],
             "Registrierungsdatum": [
                 datetime(2024, 3, 11).date(),
                 datetime(1999, 2, 1).date(),
@@ -131,7 +87,7 @@ def test_cast_date_columns_to_string():
     )
     expected_df = pd.DataFrame(
         {
-            "EegMastrNummer": [1, 2, 3],
+            "EegMastrNummer": ["1", "2", "3"],
             "Registrierungsdatum": ["2024-03-11", "1999-02-01", np.nan],
             "DatumLetzteAktualisierung": [
                 "2022-03-22 00:00:00.000000",
@@ -142,32 +98,14 @@ def test_cast_date_columns_to_string():
     )
 
     pd.testing.assert_frame_equal(
-        expected_df, cast_date_columns_to_string("anlageneegwasser", initial_df)
+        expected_df, cast_date_columns_to_string(table, initial_df)
     )
 
 
 def test_is_date_column():
-    columns = RetrofitUnits.__table__.columns.items()
-    df = pd.DataFrame(
-        {
-            "Id": [1],
-            "DatumLetzteAktualisierung": [datetime(2022, 3, 22)],
-            "WiederinbetriebnahmeDatum": [datetime(2024, 3, 11).date()],
-        }
-    )
-
-    date_column = list(filter(lambda col: col[0] == "Id", columns))[0]
-    assert is_date_column(date_column, df) is False
-
-    datetime_column = list(
-        filter(lambda col: col[0] == "DatumLetzteAktualisierung", columns)
-    )[0]
-    assert is_date_column(datetime_column, df) is True
-
-    date_column = list(
-        filter(lambda col: col[0] == "WiederinbetriebnahmeDatum", columns)
-    )[0]
-    assert is_date_column(date_column, df) is True
+    assert is_date_column(Column("Id", Integer, primary_key=True)) is False
+    assert is_date_column(Column("DatumLetzteAktualisierung", DateTime)) is True
+    assert is_date_column(Column("WiederinbetriebnahmeDatum", Date)) is True
 
 
 def test_correct_ordering_of_filelist():
@@ -216,27 +154,16 @@ def test_correct_ordering_of_filelist():
     ]
 
 
-@pytest.mark.skipif(
-    not _xml_file_exists, reason="The zipped xml file could not be found."
-)
-def test_read_xml_file(zipped_xml_file_path):
+@pytest.mark.skipif(not EXISTING_XML_ZIP, reason="The zipped XML could not be found.")
+def test_read_xml_file(existing_xml_zip_in_output_dir: Path) -> None:
     file_name = "EinheitenStromVerbraucher"
-    with ZipFile(zipped_xml_file_path, "r") as f:
+    with ZipFile(existing_xml_zip_in_output_dir, "r") as f:
         df = read_xml_file(f, f"{file_name}.xml")
 
     assert df.shape[0] > 0
 
-    # Since the file is from the latest download, its content can vary over time. To make sure that the table is
-    # correctly created, we check that all of its columns are associated are included in our mapping.
-    for column in df.columns:
-        if column in tablename_mapping[file_name.lower()]["replace_column_names"]:
-            column = tablename_mapping[file_name.lower()]["replace_column_names"][
-                column
-            ]
-        assert column in ElectricityConsumer.__table__.columns.keys()
 
-
-def test_add_zero_as_first_character_for_too_short_string():
+def test_add_zero_as_first_character_for_too_short_string() -> None:
     # Prepare
     df_raw = pd.DataFrame(
         {"ID": [0, 1, 2], "Gemeindeschluessel": [9162000, np.nan, 19123456]}
@@ -251,68 +178,58 @@ def test_add_zero_as_first_character_for_too_short_string():
     pd.testing.assert_frame_equal(df_edited, df_correct)
 
 
-def test_change_column_names_to_orm_format():
-    initial_df = pd.DataFrame(
-        {
-            "VerknuepfteEinheitenMaStRNummern": ["test1", "test2"],
-            "NetzanschlusspunkteMaStRNummern": [1, 2],
-        }
-    )
-    expected_df = pd.DataFrame(
-        {
-            "VerknuepfteEinheiten": ["test1", "test2"],
-            "Netzanschlusspunkte": [1, 2],
-        }
-    )
-
-    pd.testing.assert_frame_equal(
-        expected_df, change_column_names_to_orm_format(initial_df, "lokationen")
-    )
-
-
-@pytest.mark.skipif(
-    not _xml_file_exists, reason="The zipped xml file could not be found."
-)
-def test_process_table_before_insertion(zipped_xml_file_path):
+@pytest.mark.skipif(not EXISTING_XML_ZIP, reason="The zipped XML could not be found.")
+def test_process_table_before_insertion(existing_xml_zip_in_output_dir: Path) -> None:
     bulk_download_date = datetime.now().date().strftime("%Y%m%d")
     initial_df = pd.DataFrame(
         {
             "Gemeindeschluessel": [9162000, 19123456],
             "Postleitzahl": [1234, 54321],
             "NameKraftwerk": ["test1", "test2"],
-            "LokationMaStRNummer": ["test3", "test4"],
+            "NetzbetreiberpruefungStatus": [2954, 2955],
         }
+    )
+    db_table = Table(
+        "einheitenkernkraft",
+        MetaData(),
+        Column("EinheitMastrNummer", String, primary_key=True),
+        Column("DatumLetzteAktualisierung", DateTime),
+        Column("Gemeindeschluessel", String),
+        Column("Postleitzahl", String),
+        Column("NameKraftwerk", String),
+        Column("NetzbetreiberpruefungStatus", CatalogString),
+    )
+    actual_df = process_table_before_insertion(
+        initial_df,
+        db_table,
+        existing_xml_zip_in_output_dir,
+        bulk_download_date,
+        bulk_cleansing=True,
     )
     expected_df = pd.DataFrame(
         {
             "Gemeindeschluessel": ["09162000", "19123456"],
             "Postleitzahl": ["01234", "54321"],
             "NameKraftwerk": ["test1", "test2"],
-            "LokationMastrNummer": ["test3", "test4"],
+            "NetzbetreiberpruefungStatus": ["Geprüft", "In Prüfung"],
             "DatenQuelle": ["bulk", "bulk"],
             "DatumDownload": [bulk_download_date, bulk_download_date],
         }
     )
 
-    pd.testing.assert_frame_equal(
-        expected_df,
-        process_table_before_insertion(
-            initial_df,
-            "einheitenkernkraft",
-            zipped_xml_file_path,
-            bulk_download_date,
-            bulk_cleansing=False,
-        ),
+    pd.testing.assert_frame_equal(actual_df, expected_df)
+
+
+def test_add_missing_columns_to_table(engine_testdb: Engine) -> None:
+    table = Table(
+        "einheitengasverbraucher",
+        MetaData(),
+        Column("EinheitMastrNummer", String, primary_key=True),
+        Column("DatumLetzteAktualisierung", DateTime),
     )
-
-
-def test_add_missing_columns_to_table(engine_testdb):
+    table.create(engine_testdb)
     with engine_testdb.connect() as con:
         with con.begin():
-            # We must recreate the table to be sure that the new colum is not present.
-            con.execute(text("DROP TABLE IF EXISTS gas_consumer"))
-            create_database_table(engine_testdb, "einheitengasverbraucher")
-
             initial_data_in_db = pd.DataFrame(
                 {
                     "EinheitMastrNummer": ["id1"],
@@ -320,12 +237,10 @@ def test_add_missing_columns_to_table(engine_testdb):
                 }
             )
             initial_data_in_db.to_sql(
-                "gas_consumer", con=con, if_exists="append", index=False
+                table.name, con=con, if_exists="append", index=False
             )
 
-    add_missing_columns_to_table(
-        engine_testdb, "einheitengasverbraucher", ["NewColumn"]
-    )
+    add_missing_columns_to_table(engine_testdb, table, ["NewColumn"])
 
     expected_df = pd.DataFrame(
         {
@@ -336,7 +251,7 @@ def test_add_missing_columns_to_table(engine_testdb):
     )
     with engine_testdb.connect() as con:
         with con.begin():
-            actual_df = pd.read_sql_table("gas_consumer", con=con)
+            actual_df = pd.read_sql_table(table.name, con=con)
             # The actual_df will contain more columns than the expected_df, so we can't use assert_frame_equal.
             assert expected_df.index.isin(actual_df.index).all()
 
@@ -345,14 +260,32 @@ def test_add_missing_columns_to_table(engine_testdb):
     "add_table_to_database_function",
     [add_table_to_sqlite_database, add_table_to_non_sqlite_database],
 )
-def test_add_table_to_sqlite_database(engine_testdb, add_table_to_database_function):
-    with engine_testdb.connect() as con:
-        with con.begin():
-            # We must recreate the table to be sure that no other data is present.
-            con.execute(text("DROP TABLE IF EXISTS gsgk_eeg"))
-            create_database_table(
-                engine_testdb, "anlageneeggeothermiegrubengasdruckentspannung"
-            )
+def test_add_table_to_sqlite_database(
+    engine_testdb: Engine,
+    add_table_to_database_function: Callable[[pd.DataFrame, Table, Engine], Any],
+) -> None:
+    table = Table(
+        "anlageneeggeothermiegrubengasdruckentspannung",
+        MetaData(),
+        Column("EegMastrNummer", String, primary_key=True),
+        Column("InstallierteLeistung", Double),
+        Column("AnlageBetriebsstatus", String),
+        Column("Registrierungsdatum", Date),
+        Column("Meldedatum", DateTime),
+        Column("DatumLetzteAktualisierung", DateTime),
+        Column("EegInbetriebnahmedatum", DateTime),
+        Column("VerknuepfteEinheit", String),
+        Column("AnlagenschluesselEeg", String),
+        Column("AusschreibungZuschlag", Boolean),
+        Column("AnlagenkennzifferAnlagenregister", String),
+        Column("AnlagenkennzifferAnlagenregister_nv", String),
+        Column("Netzbetreiberzuordnungen", String),
+        Column("DatenQuelle", String),
+        Column("DatumDownload", DateTime),
+    )
+    # We must recreate the table to be sure that no other data is present.
+    table.drop(engine_testdb, checkfirst=True)
+    table.create(engine_testdb)
 
     df = pd.DataFrame(
         {
@@ -369,10 +302,10 @@ def test_add_table_to_sqlite_database(engine_testdb, add_table_to_database_funct
     )
     expected_df = pd.DataFrame(
         {
+            "EegMastrNummer": ["id1", "id2"],
             "InstallierteLeistung": [1.0, 100.4],
             "AnlageBetriebsstatus": [None, None],
             "Registrierungsdatum": [datetime(2022, 2, 2), datetime(2024, 3, 20)],
-            "EegMastrNummer": ["id1", "id2"],
             "Meldedatum": [np.datetime64("NaT"), np.datetime64("NaT")],
             "DatumLetzteAktualisierung": [
                 datetime(2022, 12, 2, 10, 10, 10, 300),
@@ -390,14 +323,11 @@ def test_add_table_to_sqlite_database(engine_testdb, add_table_to_database_funct
         }
     )
 
-    add_table_to_database_function(
-        df, "anlageneeggeothermiegrubengasdruckentspannung", "gsgk_eeg", engine_testdb
-    )
+    add_table_to_database_function(df, table, engine_testdb)
     with engine_testdb.connect() as con:
         with con.begin():
-            actual_df = pd.read_sql_table("gsgk_eeg", con=con)
             pd.testing.assert_frame_equal(
-                expected_df[df.columns], actual_df[df.columns], check_dtype=False
+                expected_df, pd.read_sql_table(table.name, con=con)
             )
 
 
