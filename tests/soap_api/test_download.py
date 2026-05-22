@@ -5,7 +5,6 @@ import responses
 
 def _check_real_credentials():
     try:
-        responses.add_passthru("https://www.marktstammdatenregister.de")
         api = MaStRAPI()
         result = api.GetAktuellerStandTageskontingent()
         return result.get("Ergebniscode") == "OK"
