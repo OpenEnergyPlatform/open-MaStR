@@ -1,83 +1,52 @@
-import os
 import shutil
 from datetime import date
 from pathlib import Path
-from typing import Optional
 
 import pytest
 
 from open_mastr import Mastr
-from open_mastr.utils.config import get_project_home_dir
+from open_mastr.mastr import FALLBACK_DOCS_PATH
 
-
-_data_dir = Path(get_project_home_dir()) / "data"
-
-EXISTING_XML_ZIP: Optional[Path] = None
-_xml_data_dir = _data_dir / "xml_download"
-if _xml_data_dir.is_dir():
-    for entry in os.scandir(_xml_data_dir):
-        if "Gesamtdatenexport" in entry.name and entry.name.endswith(".zip"):
-            EXISTING_XML_ZIP = Path(entry.path)
-            # We don't break here in case there are multiple files.
-            # We take the last matching entry in the hope of getting the most recent file.
-
-EXISTING_DOCS_ZIP: Optional[Path] = None
-_docs_data_dir = _data_dir / "docs_download"
-if _docs_data_dir.is_dir():
-    for entry in os.scandir(_docs_data_dir):
-        if "Dokumentation MaStR Gesamtdatenexport" in entry.name and entry.name.endswith(".zip"):
-            EXISTING_DOCS_ZIP = Path(entry.path)
-            # We don't break here in case there are multiple files.
-            # We take the last matching entry in the hope of getting the most recent file.
+MOCKUP_XML_ZIP = Path(__file__).parent / "data" / "Gesamtdatenexport_mockup.zip"
 
 
 @pytest.fixture
-def output_dir(tmp_path: Path) -> Path:
+def output_dir(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+    """Create a temporary output directory and set MASTR_PROJECT_HOME_DIR to it.
+
+    The directory is cleaned up after the test.
+    """
     dir_ = tmp_path / "output"
+    dir_.mkdir()
+    monkeypatch.setenv("MASTR_PROJECT_HOME_DIR", str(dir_))
     yield dir_
-    # Clean up so we don't leave this huge file lying around in some tmp dir.
-    shutil.rmtree(dir_)
+    shutil.rmtree(dir_, ignore_errors=True)
 
 
 @pytest.fixture
 def mastr(output_dir: Path) -> Mastr:
-    return Mastr(output_dir=str(output_dir))
+    """Create a Mastr instance with the project home dir set to output_dir."""
+    return Mastr()
 
 
 @pytest.fixture
-def existing_xml_zip_in_output_dir(output_dir: Path) -> Path:
-    if not EXISTING_XML_ZIP:
-        raise ValueError(
-            "There is no existing XML ZIP file to copy to the output dir."
-            " This indicates faulty test setup. This fixture must only be used"
-            " when EXISTING_XML_ZIP is not None."
-        )
-
+def mockup_xml_zip_in_output_dir(output_dir: Path) -> Path:
+    """Copy the mockup XML zip into the output directory and return its path."""
     xml_dir = output_dir / "data" / "xml_download"
     xml_dir.mkdir(parents=True, exist_ok=True)
-    # We pretend that this file is from "today".
-    dest_path = xml_dir / f"Gesamtdatenexport_{date.today().strftime('%Y%m%d')}.zip"
-
-    # The XML file is pretty large, making this copy operation a bit costly for a unit test.
-    # So, use this fixture sparingly.
-    # Would be nice to have a hard link with copy-on-write semantics. Is there such a thing?
-    shutil.copy(EXISTING_XML_ZIP, dest_path)
-    return dest_path
+    dest = xml_dir / f"Gesamtdatenexport_{date.today().strftime('%Y%m%d')}.zip"
+    shutil.copy(MOCKUP_XML_ZIP, dest)
+    return dest
 
 
 @pytest.fixture
-def existing_docs_zip_in_output_dir(output_dir: Path) -> Path:
-    if not EXISTING_DOCS_ZIP:
-        raise ValueError(
-            "There is no existing docs ZIP file to copy to the output dir."
-            " This indicates faulty test setup. This fixture must only be used"
-            " when EXISTING_DOCS_ZIP is not None."
-        )
-
+def mockup_docs_zip_in_output_dir(output_dir: Path) -> Path:
+    """Copy the mockup docs zip into the output directory and return its path."""
     docs_dir = output_dir / "data" / "docs_download"
     docs_dir.mkdir(parents=True, exist_ok=True)
-    # We pretend that this file is from "today".
-    dest_path = docs_dir / f"Dokumentation MaStR Gesamtdatenexport_{date.today().strftime('%Y%m%d')}.zip"
-
-    shutil.copy(EXISTING_DOCS_ZIP, dest_path)
-    return dest_path
+    dest = (
+        docs_dir
+        / f"Dokumentation MaStR Gesamtdatenexport_{date.today().strftime('%Y%m%d')}.zip"
+    )
+    shutil.copy(FALLBACK_DOCS_PATH, dest)
+    return dest
