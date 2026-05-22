@@ -65,7 +65,8 @@ def test_download_english_table_names(
     mastr.download(data="wind", english=True)
     df = pd.read_sql("units_wind", con=mastr.engine)
     assert 0 < len(df) <= NUMBER_ROWS_IN_MOCK_XML_FILES
-    # TODO: Add assertion of english names in tables / columns
+    assert "unitMastrNumber" in df.columns
+    assert "technology" in df.columns
 
 
 def test_download_create_views_for_old_table_names(
