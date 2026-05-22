@@ -1,6 +1,8 @@
 import io
+import logging
 import zipfile
 from pathlib import Path
+from unittest.mock import patch
 
 import os
 import sqlalchemy
@@ -222,10 +224,7 @@ def test_mastr_generate_data_model_fallback_to_included_docs(
     mastr: Mastr,
     output_dir: Path,
     responses: responses.RequestsMock,
-    caplog: pytest.LogCaptureFixture,
 ) -> None:
-    caplog.set_level("ERROR")
-
     invalid_xsd = """<?xml version="1.0" encoding="UTF-8"?>
     <xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
       <xs:element name="Netze">
@@ -269,10 +268,12 @@ def test_mastr_generate_data_model_fallback_to_included_docs(
         content_type="application/zip",
     )
 
-    mastr_table_to_db_table = mastr.generate_data_model(date="20260301")
-    # We expect that reading the invalid XSD Netze.xsd fails, triggering the fallback.
-    assert len(caplog.messages) == 1
-    assert "Falling back to stored docs" in caplog.messages[0]
+    # Patch the logger to verify the fallback error is logged exactly once.
+    with patch.object(logging.getLogger("open-MaStR"), "exception") as mock_exception:
+        mastr_table_to_db_table = mastr.generate_data_model(date="20260301")
+
+    assert mock_exception.call_count == 1
+    assert "Falling back to stored docs" in mock_exception.call_args[0][0]
 
     expected_keys = set(TABLE_TRANSLATIONS.keys()) - {
         # A couple of tables with meta information we do not create.
