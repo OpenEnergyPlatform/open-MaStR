@@ -22,7 +22,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from open_mastr import Mastr
 from open_mastr.utils.constants import BULK_INCLUDE_TABLES_MAP
 
-MAX_RECORDS = 1000
+MAX_RECORDS = 100
 TECHNOLOGIES = ["wind", "biomass", "hydro"]
 OUTPUT_ZIP = (
     Path(__file__).parent.parent / "tests" / "data" / "Gesamtdatenexport_mockup.zip"

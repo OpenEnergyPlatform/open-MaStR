@@ -8,7 +8,7 @@ from open_mastr import Mastr
 from open_mastr.mastr import FALLBACK_DOCS_PATH
 
 MOCKUP_XML_ZIP = Path(__file__).parent / "data" / "Gesamtdatenexport_mockup.zip"
-NUMBER_ROWS_IN_MOCK_XML_FILES = 1000
+NUMBER_ROWS_IN_MOCK_XML_FILES = 100
 
 
 @pytest.fixture
