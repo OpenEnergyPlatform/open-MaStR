@@ -28,7 +28,6 @@ def mastr_api():
     return MaStRAPI()
 
 
-@requires_real_credentials
 @responses.activate
 @pytest.mark.dependency(name="db_reachable")
 def test_soap_wrapper_connection(mastr_api_fake_credentials):
