@@ -113,7 +113,7 @@ def get_data_config():
 
     today = date.today()
 
-    data_config = f'dataversion-{today.strftime("%Y-%m-%d")}'
+    data_config = f"dataversion-{today.strftime('%Y-%m-%d')}"
 
     return data_config
 
@@ -196,7 +196,6 @@ def _filenames_generator():
     for section, section_filenames in filenames_template.items():
         filenames[section] = {}
         for tech in TECHNOLOGIES:
-
             # Files for all technologies
             files = ["joined", "basic", "extended", "extended_fail"]
 
@@ -283,55 +282,3 @@ def setup_logger():
 
     logging.config.dictConfig(logging_config)
     return logging.getLogger("open-MaStR")
-
-
-def column_renaming():
-    """
-    Column renaming for CSV export of raw data
-
-    Helps to export duplicate columns from different data sources.
-
-    Returns
-    -------
-    dict
-        Suffix and column to be suffixed keyed by data type.
-    """
-    return {
-        "basic_data": {
-            "columns": ["BestandsanlageMastrNummer"],
-            "suffix": "basic",
-        },
-        "unit_data": {
-            "columns": [
-                "EinheitMastrNummer",
-                "EegMastrNummer",
-                "KwkMastrNummer",
-                "GenMastrNummer",
-                "SpeMastrNummer",
-                "EinheitBetriebsstatus",
-                "NichtVorhandenInMigriertenEinheiten",
-                "Bruttoleistung",
-            ],
-            "suffix": "extended",
-        },
-        "eeg_data": {
-            "columns": ["EegMastrNummer", "DatumLetzteAktualisierung", "Meldedatum"],
-            "suffix": "eeg",
-        },
-        "kwk_data": {
-            "columns": [
-                "KwkMastrNummer",
-                "Meldedatum",
-                "Inbetriebnahmedatum",
-                "DatumLetzteAktualisierung",
-                "AnlageBetriebsstatus",
-                "VerknuepfteEinheiten",
-                "AusschreibungZuschlag",
-            ],
-            "suffix": "kwk",
-        },
-        "permit_data": {
-            "columns": ["GenMastrNummer", "DatumLetzteAktualisierung", "Meldedatum"],
-            "suffix": "permit",
-        },
-    }
