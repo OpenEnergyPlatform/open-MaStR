@@ -322,9 +322,12 @@ def test_add_table_to_sqlite_database(
     add_table_to_database_function(df, table, engine_testdb)
     with engine_testdb.connect() as con:
         with con.begin():
-            pd.testing.assert_frame_equal(
-                expected_df, pd.read_sql_table(table.name, con=con)
-            )
+            actual_df = pd.read_sql_table(table.name, con=con)
+            # pandas 3.x returns StringDtype with pd.NA for null strings; normalize to
+            # object/None so that assert_frame_equal treats nulls consistently across versions
+            for col in actual_df.select_dtypes(include="string").columns:
+                actual_df[col] = actual_df[col].to_numpy(dtype=object, na_value=None)
+            pd.testing.assert_frame_equal(expected_df, actual_df, check_dtype=False)
 
 
 def test_interleave_files():

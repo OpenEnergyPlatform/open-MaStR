@@ -32,6 +32,7 @@ def test_cleanse_bulk_data(mockup_xml_zip_in_output_dir: Path) -> None:
             catalog_columns={"Bundesland", "Einheittyp"},
         ),
         df_replaced,
+        check_dtype=False,
     )
 
 
