@@ -41,8 +41,6 @@ from open_mastr.xml_download.utils_write_to_database import (
     interleave_files,
 )
 
-from tests.conftest import EXISTING_XML_ZIP
-
 
 @pytest.fixture
 def engine_testdb(tmp_path: Path) -> Engine:
@@ -154,10 +152,9 @@ def test_correct_ordering_of_filelist():
     ]
 
 
-@pytest.mark.skipif(not EXISTING_XML_ZIP, reason="The zipped XML could not be found.")
-def test_read_xml_file(existing_xml_zip_in_output_dir: Path) -> None:
-    file_name = "EinheitenStromVerbraucher"
-    with ZipFile(existing_xml_zip_in_output_dir, "r") as f:
+def test_read_xml_file(mockup_xml_zip_in_output_dir: Path) -> None:
+    file_name = "EinheitenWind"
+    with ZipFile(mockup_xml_zip_in_output_dir, "r") as f:
         df = read_xml_file(f, f"{file_name}.xml")
 
     assert df.shape[0] > 0
@@ -178,8 +175,7 @@ def test_add_zero_as_first_character_for_too_short_string() -> None:
     pd.testing.assert_frame_equal(df_edited, df_correct)
 
 
-@pytest.mark.skipif(not EXISTING_XML_ZIP, reason="The zipped XML could not be found.")
-def test_process_table_before_insertion(existing_xml_zip_in_output_dir: Path) -> None:
+def test_process_table_before_insertion(mockup_xml_zip_in_output_dir: Path) -> None:
     bulk_download_date = datetime.now().date().strftime("%Y%m%d")
     initial_df = pd.DataFrame(
         {
@@ -202,7 +198,7 @@ def test_process_table_before_insertion(existing_xml_zip_in_output_dir: Path) ->
     actual_df = process_table_before_insertion(
         initial_df,
         db_table,
-        existing_xml_zip_in_output_dir,
+        mockup_xml_zip_in_output_dir,
         bulk_download_date,
         bulk_cleansing=True,
     )
