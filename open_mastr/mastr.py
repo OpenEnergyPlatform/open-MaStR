@@ -32,7 +32,7 @@ from open_mastr.utils.helpers import (
     create_database_engine,
 )
 from open_mastr.utils.config import (
-    get_data_version_dir,
+    get_data_config,
     get_output_dir,
     setup_logger,
 )
@@ -435,7 +435,7 @@ class Mastr:
             Number of rows to retrieve from the database before dumping them to the CSV file.
             Defaults to 500000.
         """
-        data_path = get_data_version_dir()
+        data_path = os.path.join(self.output_dir, "data", get_data_config())
         os.makedirs(data_path, exist_ok=True)
 
         inspector = inspect(self.engine)
