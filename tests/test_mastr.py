@@ -1,6 +1,8 @@
 import io
 import logging
+import shutil
 import zipfile
+from datetime import date, timedelta
 from pathlib import Path
 from unittest.mock import patch
 
@@ -12,7 +14,7 @@ import pandas as pd
 from open_mastr.mastr import Mastr
 from open_mastr.utils.constants import TABLE_TRANSLATIONS
 from open_mastr.utils.sqlalchemy_tables import CatalogString
-from .conftest import NUMBER_ROWS_IN_MOCK_XML_FILES
+from .conftest import MOCKUP_XML_ZIP, NUMBER_ROWS_IN_MOCK_XML_FILES
 
 
 def test_mastr_init(mastr: Mastr) -> None:
@@ -82,14 +84,24 @@ def test_download_no_cleansing(
 
 def test_download_keep_old_downloads(
     mastr: Mastr,
-    mockup_xml_zip_in_output_dir: Path,
     mockup_docs_zip_in_output_dir: Path,
 ) -> None:
-    old_zip = mockup_xml_zip_in_output_dir
-    mastr.download(data="wind", keep_old_downloads=True)
+    # Place ONLY a zip from yesterday — today's zip must be absent so that
+    # delete_xml_files_not_from_given_date actually runs its deletion branch
+    # when keep_old_downloads=False (and is skipped when keep_old_downloads=True).
+    xml_dir = Path(mastr.output_dir) / "data" / "xml_download"
+    xml_dir.mkdir(parents=True, exist_ok=True)
+    yesterday = (date.today() - timedelta(days=1)).strftime("%Y%m%d")
+    old_zip = xml_dir / f"Gesamtdatenexport_{yesterday}.zip"
+    shutil.copy(MOCKUP_XML_ZIP, old_zip)
+
+    def _place_today_zip(save_path, *args, **kwargs):
+        shutil.copy(MOCKUP_XML_ZIP, save_path)
+
+    with patch("open_mastr.mastr.download_xml_Mastr", side_effect=_place_today_zip):
+        mastr.download(data="wind", keep_old_downloads=True)
+
     assert old_zip.exists()
-    # TODO: Check that this really tests the functionality here
-    # not sure if the mockup works to test the keep downloads
 
 
 def test_download_no_alter_tables(
