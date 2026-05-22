@@ -101,7 +101,9 @@ def test_download_no_cleansing(
     mastr.download(data="wind", bulk_cleansing=False)
     df = pd.read_sql("EinheitenWind", con=mastr.engine)
     assert 0 < len(df) <= NUMBER_ROWS_IN_MOCK_XML_FILES
-    # TODO: Add assertion of non cleansed data
+    # Without cleansing, catalog columns retain raw integer IDs rather than human-readable strings.
+    # Bundesland should contain integer IDs (like 1405 for Hessen), not state name strings.
+    assert pd.api.types.is_numeric_dtype(df["Bundesland"])
 
 
 def test_download_keep_old_downloads(
