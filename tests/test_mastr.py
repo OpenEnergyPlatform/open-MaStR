@@ -68,7 +68,29 @@ def test_download_english_table_names(
     # TODO: Add assertion of english names in tables / columns
 
 
-# TODO add a test that checks the VIEW creation
+def test_download_create_views_for_old_table_names(
+    mastr: Mastr,
+    mockup_xml_zip_in_output_dir: Path,
+    mockup_docs_zip_in_output_dir: Path,
+) -> None:
+    mastr.download(data="wind", add_views_for_old_table_names=True)
+    inspector = sqlalchemy.inspect(mastr.engine)
+    view_names = inspector.get_view_names()
+    assert "wind_extended" in view_names
+    with mastr.engine.connect() as conn:
+        result = conn.execute(sqlalchemy.text('SELECT * FROM "wind_extended" LIMIT 1'))
+        assert result.fetchone() is not None
+
+
+def test_download_no_views_when_disabled(
+    mastr: Mastr,
+    mockup_xml_zip_in_output_dir: Path,
+    mockup_docs_zip_in_output_dir: Path,
+) -> None:
+    mastr.download(data="wind", add_views_for_old_table_names=False)
+    inspector = sqlalchemy.inspect(mastr.engine)
+    view_names = inspector.get_view_names()
+    assert "wind_extended" not in view_names
 
 
 def test_download_no_cleansing(
