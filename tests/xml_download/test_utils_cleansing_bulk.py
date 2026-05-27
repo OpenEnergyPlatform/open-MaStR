@@ -58,5 +58,5 @@ def test_create_katalogwerte_from_bulk_download(
         zipped_xml_file_path=mockup_xml_zip_in_output_dir
     )
     assert isinstance(katalogwerte, dict)
-    assert len(katalogwerte) > 0
+    assert len(katalogwerte) > 1000
     assert isinstance(list(katalogwerte.keys())[0], int)
