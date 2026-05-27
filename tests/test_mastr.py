@@ -29,7 +29,18 @@ def test_download_wind(
 ) -> None:
     mastr.download(data="wind")
     df = pd.read_sql("EinheitenWind", con=mastr.engine)
-    assert 0 < len(df) <= NUMBER_ROWS_IN_MOCK_XML_FILES
+    assert len(df) == NUMBER_ROWS_IN_MOCK_XML_FILES
+    assert df.Nettonennleistung.notna().all()
+
+
+def test_download_storage(
+    mastr: Mastr,
+    mockup_xml_zip_in_output_dir: Path,
+    mockup_docs_zip_in_output_dir: Path,
+) -> None:
+    mastr.download(data="storage")
+    df = pd.read_sql("EinheitenStromSpeicher", con=mastr.engine)
+    assert len(df) == NUMBER_ROWS_IN_MOCK_XML_FILES
 
 
 def test_download_multiple_technologies(
@@ -40,8 +51,8 @@ def test_download_multiple_technologies(
     mastr.download(data=["biomass", "hydro"])
     df_biomass = pd.read_sql("EinheitenBiomasse", con=mastr.engine)
     df_hydro = pd.read_sql("EinheitenWasser", con=mastr.engine)
-    assert 0 < len(df_biomass) <= NUMBER_ROWS_IN_MOCK_XML_FILES
-    assert 0 < len(df_hydro) <= NUMBER_ROWS_IN_MOCK_XML_FILES
+    assert len(df_biomass) == NUMBER_ROWS_IN_MOCK_XML_FILES
+    assert len(df_hydro) == NUMBER_ROWS_IN_MOCK_XML_FILES
 
 
 def test_download_accumulates_across_calls(
@@ -53,8 +64,8 @@ def test_download_accumulates_across_calls(
     mastr.download(data="biomass")
     df_wind = pd.read_sql("EinheitenWind", con=mastr.engine)
     df_biomass = pd.read_sql("EinheitenBiomasse", con=mastr.engine)
-    assert 0 < len(df_wind) <= NUMBER_ROWS_IN_MOCK_XML_FILES
-    assert 0 < len(df_biomass) <= NUMBER_ROWS_IN_MOCK_XML_FILES
+    assert len(df_wind) == NUMBER_ROWS_IN_MOCK_XML_FILES
+    assert len(df_biomass) == NUMBER_ROWS_IN_MOCK_XML_FILES
 
 
 def test_download_english_table_names(
