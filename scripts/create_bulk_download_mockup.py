@@ -11,19 +11,21 @@ a MaStR format change:
 """
 
 import io
+import os
 import sys
 import tempfile
 import zipfile
 from pathlib import Path
 
 from lxml import etree
+from multiprocessing import cpu_count
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from open_mastr import Mastr
 from open_mastr.utils.constants import BULK_INCLUDE_TABLES_MAP
 
 MAX_RECORDS = 100
-TECHNOLOGIES = ["wind", "biomass", "hydro"]
+TECHNOLOGIES = ["wind", "biomass", "hydro", "storage"]
 OUTPUT_ZIP = (
     Path(__file__).parent.parent / "tests" / "data" / "Gesamtdatenexport_mockup.zip"
 )
@@ -46,6 +48,14 @@ def trim_xml(content: bytes, max_records: int) -> bytes:
 
 
 def main() -> None:
+    recommended = min(cpu_count() - 1, 4)
+    num_procs = input(
+        f"Number of processes for parallelized XML parsing? "
+        f"(Recommended max: {recommended}; Leave empty for no parallelization or enter number of processes: "
+    )
+    if num_procs.strip():
+        os.environ["NUMBER_OF_PROCESSES"] = num_procs
+
     with tempfile.TemporaryDirectory() as tmpdir:
         print(f"Downloading to {tmpdir} …")
         mastr = Mastr(output_dir=tmpdir)
