@@ -29,14 +29,34 @@ from open_mastr import Mastr
 from open_mastr.utils.constants import BULK_INCLUDE_TABLES_MAP
 
 MAX_RECORDS = 100  # should be dividable by four
-TECHNOLOGIES = ["wind", "hydro", "storage"]
+TECHNOLOGIES = [
+    "wind",
+    "solar",
+    "biomass",
+    "hydro",
+    "gsgk",
+    "combustion",
+    "nuclear",
+    "gas",
+    "storage",
+    "storage_units",
+    "electricity_consumer",
+    "location",
+    "market",
+    "grid",
+    "balancing_area",
+    "permit",
+    "deleted_units",
+    "deleted_market_actors",
+    "retrofit_units",
+]
 OUTPUT_ZIP = (
     Path(__file__).parent.parent / "tests" / "data" / "Gesamtdatenexport_mockup.zip"
 )
 
 # Set to a directory path for debugging (directory is kept after the script finishes).
 # Leave as None to use a temporary directory that is cleaned up by the OS once in a while.
-DEBUG_DIR: str | None = "/tmp/mastr-debug"
+DEBUG_DIR: str | None = "tmp/mastr-debug"
 
 INCLUDED_TABLE_NAMES = {
     table for tech in TECHNOLOGIES for table in BULK_INCLUDE_TABLES_MAP[tech]
@@ -119,6 +139,17 @@ def main() -> None:
         tmpdir = tempfile.mkdtemp()
 
     print(f"Downloading to {tmpdir} …")
+    print("-------IMPORTANT NOTE-------")
+    print(
+        "After the zipped xml files were downloaded, you can abort the writing to the database."
+    )
+    print(
+        "You can then comment out the mastr.download() line in this script and rerun this script."
+    )
+    print(
+        "This works as the script only depends on the xml files being downloaded - it does not use the sqlite database."
+    )
+    print("-------IMPORTANT NOTE-------")
     mastr = Mastr(output_dir=tmpdir)
     mastr.download(data=TECHNOLOGIES, bulk_cleansing=False)
 
