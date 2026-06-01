@@ -33,6 +33,50 @@ def test_download_wind(
     assert df.Nettonennleistung.notna().all()
 
 
+def test_download_solar(
+    mastr: Mastr,
+    mockup_xml_zip_in_output_dir: Path,
+    mockup_docs_zip_in_output_dir: Path,
+) -> None:
+    mastr.download(data="solar")
+    df = pd.read_sql("EinheitenSolar", con=mastr.engine)
+    assert len(df) == NUMBER_ROWS_IN_MOCK_XML_FILES
+    assert df.Nettonennleistung.notna().all()
+
+
+def test_download_biomass(
+    mastr: Mastr,
+    mockup_xml_zip_in_output_dir: Path,
+    mockup_docs_zip_in_output_dir: Path,
+) -> None:
+    mastr.download(data="biomass")
+    df = pd.read_sql("EinheitenBiomasse", con=mastr.engine)
+    assert len(df) == NUMBER_ROWS_IN_MOCK_XML_FILES
+    assert df.Nettonennleistung.notna().all()
+
+
+def test_download_combustion(
+    mastr: Mastr,
+    mockup_xml_zip_in_output_dir: Path,
+    mockup_docs_zip_in_output_dir: Path,
+) -> None:
+    mastr.download(data="combustion")
+    df = pd.read_sql("EinheitenVerbrennung", con=mastr.engine)
+    assert len(df) == NUMBER_ROWS_IN_MOCK_XML_FILES
+    assert df.Nettonennleistung.notna().all()
+
+
+def test_download_electricity_consumer(
+    mastr: Mastr,
+    mockup_xml_zip_in_output_dir: Path,
+    mockup_docs_zip_in_output_dir: Path,
+) -> None:
+    mastr.download(data="electricity_consumer")
+    df = pd.read_sql("EinheitenStromVerbraucher", con=mastr.engine)
+    assert len(df) == NUMBER_ROWS_IN_MOCK_XML_FILES
+    assert df.NameStromverbrauchseinheit.notna().all()
+
+
 def test_download_storage(
     mastr: Mastr,
     mockup_xml_zip_in_output_dir: Path,
@@ -41,6 +85,18 @@ def test_download_storage(
     mastr.download(data="storage")
     df = pd.read_sql("EinheitenStromSpeicher", con=mastr.engine)
     assert len(df) == NUMBER_ROWS_IN_MOCK_XML_FILES
+    assert df.Nettonennleistung.notna().all()
+
+
+def test_download_hydro(
+    mastr: Mastr,
+    mockup_xml_zip_in_output_dir: Path,
+    mockup_docs_zip_in_output_dir: Path,
+) -> None:
+    mastr.download(data="hydro")
+    df = pd.read_sql("EinheitenWasser", con=mastr.engine)
+    assert len(df) == NUMBER_ROWS_IN_MOCK_XML_FILES
+    assert df.Nettonennleistung.notna().all()
 
 
 def test_download_multiple_technologies(
