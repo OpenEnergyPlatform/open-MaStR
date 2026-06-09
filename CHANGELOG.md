@@ -16,6 +16,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
     [#718](https://github.com/OpenEnergyPlatform/open-MaStR/pull/718)
   - Add `alter_database_tables` argument to `Mastr.download` to prevent open-mastr from issuing DDL statements
     [#718](https://github.com/OpenEnergyPlatform/open-MaStR/pull/718)
+  - Add missing english translations
+    [#754](https://github.com/OpenEnergyPlatform/open-MaStR/pull/754)
 
   ### Changed
   - Refactor data path configuration: remove `get_data_version_dir()`, add `MASTR_PROJECT_HOME_DIR` env var support to `get_project_home_dir()`
