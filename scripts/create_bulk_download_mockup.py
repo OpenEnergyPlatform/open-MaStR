@@ -26,30 +26,10 @@ from multiprocessing import cpu_count
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from open_mastr import Mastr
-from open_mastr.utils.constants import BULK_INCLUDE_TABLES_MAP
+from open_mastr.utils.constants import BULK_INCLUDE_TABLES_MAP, BULK_DATA
 
 MAX_RECORDS = 100  # should be dividable by four
-TECHNOLOGIES = [
-    "wind",
-    "solar",
-    "biomass",
-    "hydro",
-    "gsgk",
-    "combustion",
-    "nuclear",
-    "gas",
-    "storage",
-    "storage_units",
-    "electricity_consumer",
-    "location",
-    "market",
-    "grid",
-    "balancing_area",
-    "permit",
-    "deleted_units",
-    "deleted_market_actors",
-    "retrofit_units",
-]
+
 OUTPUT_ZIP = (
     Path(__file__).parent.parent / "tests" / "data" / "Gesamtdatenexport_mockup.zip"
 )
@@ -59,7 +39,7 @@ OUTPUT_ZIP = (
 DEBUG_DIR: str | None = "tmp/mastr-debug"
 
 INCLUDED_TABLE_NAMES = {
-    table for tech in TECHNOLOGIES for table in BULK_INCLUDE_TABLES_MAP[tech]
+    table for tech in BULK_DATA for table in BULK_INCLUDE_TABLES_MAP[tech]
 } | {"katalogwerte"}
 
 
@@ -151,7 +131,7 @@ def main() -> None:
     )
     print("-------IMPORTANT NOTE-------")
     mastr = Mastr(output_dir=tmpdir)
-    mastr.download(data=TECHNOLOGIES, bulk_cleansing=False)
+    mastr.download(data=BULK_DATA, date="20260401", bulk_cleansing=False)
 
     xml_dir = Path(tmpdir) / "data" / "xml_download"
     zips = sorted(xml_dir.glob("Gesamtdatenexport_*.zip"))
