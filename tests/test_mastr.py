@@ -111,6 +111,29 @@ def test_download_multiple_technologies(
     assert len(df_hydro) == NUMBER_ROWS_IN_MOCK_XML_FILES
 
 
+def test_download_data_none(
+    mastr: Mastr,
+    mockup_xml_zip_in_output_dir: Path,
+    mockup_docs_zip_in_output_dir: Path,
+) -> None:
+    mastr.download()
+
+    df_wind = pd.read_sql("EinheitenWind", con=mastr.engine)
+    df_biomass = pd.read_sql("EinheitenBiomasse", con=mastr.engine)
+    df_storage = pd.read_sql("EinheitenStromSpeicher", con=mastr.engine)
+    df_solar = pd.read_sql("EinheitenSolar", con=mastr.engine)
+    df_combustion = pd.read_sql("EinheitenVerbrennung", con=mastr.engine)
+    df_hydro = pd.read_sql("EinheitenWasser", con=mastr.engine)
+    df_elec_consumer = pd.read_sql("EinheitenStromVerbraucher", con=mastr.engine)
+    assert len(df_wind) == NUMBER_ROWS_IN_MOCK_XML_FILES
+    assert len(df_biomass) == NUMBER_ROWS_IN_MOCK_XML_FILES
+    assert len(df_storage) == NUMBER_ROWS_IN_MOCK_XML_FILES
+    assert len(df_solar) == NUMBER_ROWS_IN_MOCK_XML_FILES
+    assert len(df_combustion) == NUMBER_ROWS_IN_MOCK_XML_FILES
+    assert len(df_hydro) == NUMBER_ROWS_IN_MOCK_XML_FILES
+    assert len(df_elec_consumer) == NUMBER_ROWS_IN_MOCK_XML_FILES
+
+
 def test_download_accumulates_across_calls(
     mastr: Mastr,
     mockup_xml_zip_in_output_dir: Path,
