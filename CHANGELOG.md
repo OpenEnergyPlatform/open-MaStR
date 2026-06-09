@@ -9,13 +9,15 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 
 ## [v0.xx.x] Unreleased - 202x-xx-xx
   ### Added
-  - Add `Mastr.generate_data_model` method that downloads the current MaStR documentation and generates SQLAlchemy tables from the XSD definitions; supports `english=True` for English column
-  names
+  - Add `Mastr.generate_data_model` method that downloads the current MaStR documentation and generates SQLAlchemy tables from the XSD definitions; supports `english=True` for English column names
     [#718](https://github.com/OpenEnergyPlatform/open-MaStR/pull/718)
   - Add `mastr_table_to_db_table` argument to `Mastr.download` to pass a custom database schema
     [#718](https://github.com/OpenEnergyPlatform/open-MaStR/pull/718)
   - Add `alter_database_tables` argument to `Mastr.download` to prevent open-mastr from issuing DDL statements
     [#718](https://github.com/OpenEnergyPlatform/open-MaStR/pull/718)
+  - Add more integration tests
+    [#753](https://github.com/OpenEnergyPlatform/open-MaStR/pull/753)
+
 
   ### Changed
   - Refactor data path configuration: remove `get_data_version_dir()`, add `MASTR_PROJECT_HOME_DIR` env var support to `get_project_home_dir()`
@@ -30,6 +32,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
     [#749](https://github.com/OpenEnergyPlatform/open-MaStR/pull/749)
   - Skip credential-dependent SOAP tests when credentials are absent
     [#749](https://github.com/OpenEnergyPlatform/open-MaStR/pull/749)
+    - Change default python version to 3.14
+    [#753](https://github.com/OpenEnergyPlatform/open-MaStR/pull/753)
 
   ### Removed
   - Remove `Mastr.translate`; English table and column names are now available via the `english=True` parameter in `generate_data_model` and `download`
