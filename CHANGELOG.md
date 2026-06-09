@@ -26,6 +26,10 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
     [#718](https://github.com/OpenEnergyPlatform/open-MaStR/pull/718)
   - Simplify CSV export by removing cross-table joins; tables are exported as-is
     [#718](https://github.com/OpenEnergyPlatform/open-MaStR/pull/718)
+  - Refactor test suite to run without a local MaStR bulk download
+    [#749](https://github.com/OpenEnergyPlatform/open-MaStR/pull/749)
+  - Skip credential-dependent SOAP tests when credentials are absent
+    [#749](https://github.com/OpenEnergyPlatform/open-MaStR/pull/749)
 
   ### Removed
   - Remove `Mastr.translate`; English table and column names are now available via the `english=True` parameter in `generate_data_model` and `download`
