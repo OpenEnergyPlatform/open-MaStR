@@ -219,6 +219,93 @@ def test_download_keep_old_downloads(
     assert old_zip.exists()
 
 
+def test_download_different_dates_different_technologies(
+    mastr: Mastr,
+    mockup_docs_zip_in_output_dir: Path,
+) -> None:
+    """When the target zip doesn't exist,
+    delete_xml_files_not_from_given_date deletes ALL xml files before
+    downloading. Data for different technologies is preserved since they
+    are in separate tables."""
+    xml_dir = Path(mastr.output_dir) / "data" / "xml_download"
+    xml_dir.mkdir(parents=True, exist_ok=True)
+    date1 = "20230101"
+    date2 = "20230201"
+
+    def _place_zip(save_path, *args, **kwargs):
+        shutil.copy(MOCKUP_XML_ZIP, save_path)
+
+    with patch("open_mastr.mastr.download_xml_Mastr", side_effect=_place_zip):
+        mastr.download(data="wind", date=date1, keep_old_downloads=False)
+        mastr.download(data="biomass", date=date2, keep_old_downloads=False)
+
+    zip1 = xml_dir / f"Gesamtdatenexport_{date1}.zip"
+    zip2 = xml_dir / f"Gesamtdatenexport_{date2}.zip"
+    assert not zip1.exists()
+    assert zip2.exists()
+
+    df_wind = pd.read_sql("EinheitenWind", con=mastr.engine)
+    df_biomass = pd.read_sql("EinheitenBiomasse", con=mastr.engine)
+    assert len(df_wind) == NUMBER_ROWS_IN_MOCK_XML_FILES
+    assert len(df_biomass) == NUMBER_ROWS_IN_MOCK_XML_FILES
+    assert df_wind["DatumDownload"].iloc[0] == date1
+    assert df_biomass["DatumDownload"].iloc[0] == date2
+
+
+def test_download_different_dates_same_technology(
+    mastr: Mastr,
+    mockup_docs_zip_in_output_dir: Path,
+) -> None:
+    """When downloading same technology with different dates,
+    the first xml downloads are deleted and data is replaced.
+    """
+    xml_dir = Path(mastr.output_dir) / "data" / "xml_download"
+    xml_dir.mkdir(parents=True, exist_ok=True)
+    date1 = "20230101"
+    date2 = "20230201"
+
+    def _place_zip(save_path, *args, **kwargs):
+        shutil.copy(MOCKUP_XML_ZIP, save_path)
+
+    with patch("open_mastr.mastr.download_xml_Mastr", side_effect=_place_zip):
+        mastr.download(data="wind", date=date1, keep_old_downloads=False)
+        mastr.download(data="wind", date=date2, keep_old_downloads=False)
+
+    zip1 = xml_dir / f"Gesamtdatenexport_{date1}.zip"
+    zip2 = xml_dir / f"Gesamtdatenexport_{date2}.zip"
+    assert not zip1.exists()
+    assert zip2.exists()
+
+    df_wind = pd.read_sql("EinheitenWind", con=mastr.engine)
+    assert len(df_wind) == NUMBER_ROWS_IN_MOCK_XML_FILES
+    assert df_wind["DatumDownload"].iloc[0] == date2
+
+
+def test_download_date_zip_already_exists(
+    mastr: Mastr,
+    mockup_docs_zip_in_output_dir: Path,
+) -> None:
+    """When the target zip already exists, no deletion occurs.
+    Data for different technologies accumulates in their respective tables."""
+    xml_dir = Path(mastr.output_dir) / "data" / "xml_download"
+    xml_dir.mkdir(parents=True, exist_ok=True)
+    date1 = "20230101"
+    zip1 = xml_dir / f"Gesamtdatenexport_{date1}.zip"
+    shutil.copy(MOCKUP_XML_ZIP, zip1)
+
+    mastr.download(data="wind", date=date1, keep_old_downloads=False)
+    mastr.download(data="biomass", date=date1, keep_old_downloads=False)
+
+    assert zip1.exists()
+
+    df_wind = pd.read_sql("EinheitenWind", con=mastr.engine)
+    df_biomass = pd.read_sql("EinheitenBiomasse", con=mastr.engine)
+    assert len(df_wind) == NUMBER_ROWS_IN_MOCK_XML_FILES
+    assert len(df_biomass) == NUMBER_ROWS_IN_MOCK_XML_FILES
+    assert df_wind["DatumDownload"].iloc[0] == date1
+    assert df_biomass["DatumDownload"].iloc[0] == date1
+
+
 def test_download_no_alter_tables(
     mastr: Mastr,
     mockup_xml_zip_in_output_dir: Path,
