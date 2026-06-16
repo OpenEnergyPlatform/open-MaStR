@@ -23,6 +23,8 @@ open-mastr
      - |badge_pypi| |badge_joss|
    * - Data Publication
      - |badge_zenodo|
+   * - Software Archive
+     - |badge_software_heritage|
    * - Development
      - |badge_issue_open| |badge_issue_closes| |badge_pr_open| |badge_pr_closes|
    * - Community
@@ -197,5 +199,9 @@ Data
 
 .. |badge_joss| image:: https://joss.theoj.org/papers/dc0d33e7dc74f7233e15a7b6fe0c7a3e/status.svg
     :target: https://joss.theoj.org/papers/dc0d33e7dc74f7233e15a7b6fe0c7a3e
+
+.. |badge_software_heritage| image:: https://archive.softwareheritage.org/badge/swh:1:dir:28252b3ca57b56d22be851bad576b6748af2e171/
+   :target: https://archive.softwareheritage.org/swh:1:dir:28252b3ca57b56d22be851bad576b6748af2e171;origin=https://github.com/OpenEnergyPlatform/open-MaStR;visit=swh:1:snp:8065d0931f826af24c57fae612c6a48e0fcb135b;anchor=swh:1:rev:430223ddf437ba2611fe9a38521e6549ff61e750
+
 
 
