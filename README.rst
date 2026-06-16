@@ -13,12 +13,8 @@ open-mastr
 .. list-table::
    :widths: 10, 50
 
-   * - License
-     - |badge_license|
-   * - Documentation
-     - |badge_rtd|
-   * - Tests
-     - |badge_ci|
+   * - General
+     - |badge_license| |badge_rtd| |badge_ci|
    * - Publication
      - |badge_pypi| |badge_joss|
    * - Data Publication
