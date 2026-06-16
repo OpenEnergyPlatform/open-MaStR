@@ -37,7 +37,7 @@ open-mastr
 Introduction
 ============
 
-The python package ``open-mastr`` provides an interface for accessing the `Marktstammdatenregister (MaStR) <https://www.marktstammdatenregister.de/MaStR>`_ data. The MaStR is a German register provided by the German Federal Network Agency (Bundesnetzagentur / BNetza) that keeps track of all power and gas units located in Germany. It is a daily growing dataset with millions of data points covering electricity and gas production units, electricity and gas consumers, storages, grids, and energy market participants.
+The Python package ``open-mastr`` provides an interface for accessing the `Marktstammdatenregister (MaStR) <https://www.marktstammdatenregister.de/MaStR>`_ data. The MaStR is a German register provided by the German Federal Network Agency (Bundesnetzagentur / BNetza) that keeps track of all power and gas units located in Germany. It is a daily growing dataset with millions of data points covering electricity and gas production units, electricity and gas consumers, storages, grids, and energy market participants.
 
 Generally, and besides the offerings of ``open-mastr``, the MaStR data can be accessed via three main options:
 
@@ -45,7 +45,7 @@ Generally, and besides the offerings of ``open-mastr``, the MaStR data can be ac
 #. download `daily provided dumps <https://www.marktstammdatenregister.de/MaStR/Datendownload>`_
 #. access via the `web service <https://www.marktstammdatenregister.de/MaStRHilfe/subpages/webdienst.html>`_
 
-These access options, however, are not exactly frictionless. ``open-mastr`` thus provides an interface for and improved developer experience of accessing the data. This project is intended for individuals who wish to "just work" with the MaStR data and who do not want to deal with the idiosyncrasies of the three access options above.
+These access options, however, are not exactly frictionless. ``open-mastr`` thus provides an improved developer experience for accessing the data. This project is intended for individuals who wish to "just work" with the MaStR data and who do not want to deal with the idiosyncrasies of the three access options above.
 
 In particular, ``open-mastr`` facilitates access to the daily provided MaStR dumps with download methods (bulk) and by parsing the XML files to a relational database. Furthermore, the software provides a Python wrapper to access the MaStR SOAP web service (API).
 
@@ -64,10 +64,10 @@ Benefits provided by ``open-mastr``
      - Description
    * - Data download and parsing
      - Download, decode, and write data to a local database
+   * - Speed and parallelization
+     - Download and parse tables in seconds, not minutes
    * - Translation to English
      - Translate table names and columns from German to English as well as an English documentation page of the dataset
-   * - Data processing
-     - Merge relevant information about different technologies to single csv files
 
 **Just here for the data?**
 We regularly run the whole download and cleansing pipeline and upload the dataset as csv files at `zenodo <https://doi.org/10.5281/zenodo.6807425>`_!
@@ -86,7 +86,6 @@ Installation
 ============
 
 | It is recommended to use a virtual python environment, for example `conda <https://docs.conda.io/en/latest/miniconda.html>`_ or `virtualenv <https://virtualenv.pypa.io/en/latest/installation.html>`_.
-| The package is intended to be used with ``Python >=3.8``.
 
 
 PyPI
@@ -108,17 +107,11 @@ For development, clone this repository manually.
     git clone git@github.com:OpenEnergyPlatform/open-MaStR.git
     cd open-MaStR
 
-Setup the conda environment with
-
-.. code-block:: python
-
-    conda env create -f environment.yml
-
 Install the package with
 
 .. code-block:: python
 
-    pip install "open_mastr[dev]"
+    pip install -e .[dev]
 
 
 Examples of Usage
@@ -133,15 +126,10 @@ These projects already use open-mastr:
 - `Goal100 Monitor <https://goal100.org/monitor>`_
 - `Goal100 Studio <https://goal100.studio/>`_
 
-If you want to see your project in this list, write an  
+If you want to see your project in this list, write an
 `Issue <https://github.com/OpenEnergyPlatform/open-MaStR/issues>`_ or add
 changes in a `Pull Request <https://github.com/OpenEnergyPlatform/open-MaStR/pulls>`_.
 
-External Resources
-===================
-Besides open-mastr, some other resources exist that ease the process of working with the Marktstammdatenregister:
-
-- The `bundesAPI/Marktstammdaten-API <https://github.com/bundesAPI/marktstammdaten-api>`_ is another implementation to access data via an official API.
 
 Collaboration
 =============
