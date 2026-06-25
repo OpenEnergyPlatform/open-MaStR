@@ -17,6 +17,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
     [#718](https://github.com/OpenEnergyPlatform/open-MaStR/pull/718)
   - Add more integration tests
     [#753](https://github.com/OpenEnergyPlatform/open-MaStR/pull/753)
+  - Add missing english translations
+    [#754](https://github.com/OpenEnergyPlatform/open-MaStR/pull/754)
 
 
   ### Changed
