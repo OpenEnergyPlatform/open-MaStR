@@ -24,20 +24,31 @@ def normalize_mastr_name(original_mastr_name: str) -> str:
     Also, in case the column names in the XSD contain äöüß, we replace them.
     This is probably a BNetzA oversight, but has happened at least once.
     """
-    return original_mastr_name.replace("MaStR", "Mastr").replace("ä", "ae").replace("ö", "oe").replace("ü", "ue").replace("ß", "ss").strip()
+    return (
+        original_mastr_name.replace("MaStR", "Mastr")
+        .replace("ä", "ae")
+        .replace("ö", "oe")
+        .replace("ü", "ue")
+        .replace("ß", "ss")
+        .strip()
+    )
 
 
 def translate_mastr_column_name(normalized_mastr_column_name: str) -> Optional[str]:
     translated = COLUMN_TRANSLATIONS.get(normalized_mastr_column_name)
     if not translated:
-        log.warning(f"No translation available for column {normalized_mastr_column_name!r}")
+        log.warning(
+            f"No translation available for column {normalized_mastr_column_name!r}"
+        )
     return translated
 
 
 def translate_mastr_table_name(normalized_mastr_table_name: str) -> Optional[str]:
     translated = TABLE_TRANSLATIONS.get(normalized_mastr_table_name)
     if not translated:
-        log.warning(f"No translation available for table {normalized_mastr_table_name!r}")
+        log.warning(
+            f"No translation available for table {normalized_mastr_table_name!r}"
+        )
     return translated
 
 
@@ -51,7 +62,9 @@ class MastrColumnType(Enum):
     CATALOG_VALUE = auto()
 
     @classmethod
-    def from_xsd_type(cls, xsd_type: Union[XsdAtomicBuiltin, XsdAtomicRestriction]) -> "MastrColumnDescription":
+    def from_xsd_type(
+        cls, xsd_type: Union[XsdAtomicBuiltin, XsdAtomicRestriction]
+    ) -> "MastrColumnDescription":
         xsd_type_to_mastr_column_type = {
             f"{_XML_SCHEMA_PREFIX}string": cls.STRING,
             f"{_XML_SCHEMA_PREFIX}decimal": cls.INTEGER,
@@ -70,13 +83,17 @@ class MastrColumnType(Enum):
             # Ertuechtigungen.xsd has some normal types defined as restrictions for some reason.
             # We cope with that by extracting the primitive type it's restricted to.
             inner_xsd_type = xsd_type.primitive_type
-            if mastr_column_type := xsd_type_to_mastr_column_type.get(inner_xsd_type.name):
+            if mastr_column_type := xsd_type_to_mastr_column_type.get(
+                inner_xsd_type.name
+            ):
                 return mastr_column_type
 
         if mastr_column_type := xsd_type_to_mastr_column_type.get(xsd_type.name):
             return mastr_column_type
 
-        raise ValueError(f"Could not determine MastrColumnType from XSD type {xsd_type!r}")
+        raise ValueError(
+            f"Could not determine MastrColumnType from XSD type {xsd_type!r}"
+        )
 
 
 @dataclass(frozen=True)
@@ -87,13 +104,15 @@ class MastrColumnDescription:
     type: MastrColumnType
 
     @classmethod
-    def from_xsd_element(cls, xsd_element: xmlschema.XsdElement) -> "MastrColumnDescription":
+    def from_xsd_element(
+        cls, xsd_element: xmlschema.XsdElement
+    ) -> "MastrColumnDescription":
         normalized_name = normalize_mastr_name(xsd_element.name)
         return cls(
             original_name=xsd_element.name,
             normalized_name=normalized_name,
             english_name=translate_mastr_column_name(normalized_name),
-            type=MastrColumnType.from_xsd_type(xsd_element.type)
+            type=MastrColumnType.from_xsd_type(xsd_element.type),
         )
 
 
@@ -155,7 +174,9 @@ def read_mastr_table_descriptions_from_xsd(
                 if entry.is_dir() or not entry.filename.endswith(".xsd"):
                     continue
 
-                normalized_name = os.path.basename(entry.filename).removesuffix(".xsd").lower()
+                normalized_name = (
+                    os.path.basename(entry.filename).removesuffix(".xsd").lower()
+                )
                 if normalized_name in include_tables:
                     with xsd_z.open(entry) as xsd_file:
                         try:
@@ -164,7 +185,9 @@ def read_mastr_table_descriptions_from_xsd(
                             raise InvalidXmlSchemaError(
                                 f"Invalid XML Schema in {os.path.basename(entry.filename)}"
                             ) from e
-                        mastr_table_description = MastrTableDescription.from_xml_schema(schema)
+                        mastr_table_description = MastrTableDescription.from_xml_schema(
+                            schema
+                        )
                         mastr_table_descriptions.add(mastr_table_description)
 
     return mastr_table_descriptions
