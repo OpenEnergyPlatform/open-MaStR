@@ -4,7 +4,7 @@ from enum import auto, Enum
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional, Union
-from zipfile import ZipFile, ZipInfo
+from zipfile import ZipFile
 import xmlschema
 from xmlschema.validators.simple_types import XsdAtomicBuiltin, XsdAtomicRestriction
 from xmlschema.validators.exceptions import XMLSchemaModelError
@@ -161,44 +161,64 @@ class InvalidXmlSchemaError(Exception):
     pass
 
 
+def _iterate_xsd_files(source: Union[Path, str]):
+    """Iterate over .xsd files in either a zip containing xsd or xsd.zip.
+
+    Yields tuples of (name, file_object) where file_object is a context manager.
+    """
+    source_path = Path(source)
+
+    if source_path.is_dir():
+        # Case: source is already an unzipped directory containing .xsd files
+        for xsd_file in source_path.glob("**/*.xsd"):
+            yield xsd_file.name, xsd_file.open("rb")
+        return
+
+    with ZipFile(source_path, "r") as docs_z:
+        xsd_folder_entries = [
+            entry
+            for entry in docs_z.namelist()
+            if entry.endswith(".xsd")
+            and os.path.basename(os.path.dirname(entry)) == "xsd"
+        ]
+        if xsd_folder_entries:
+            # Case: plain xsd/ folder inside the docs zip
+            for entry in xsd_folder_entries:
+                yield os.path.basename(entry), docs_z.open(entry)
+            return
+
+        xsd_zip_name = next(
+            (name for name in docs_z.namelist() if os.path.basename(name) == "xsd.zip"),
+            None,
+        )
+        if xsd_zip_name is None:
+            raise RuntimeError(
+                "Did not find XSD files in the form of an 'xsd' folder or an"
+                f" 'xsd.zip' file in the documentation ZIP file {source_path!r}"
+            )
+
+        # Case: xsd.zip nested inside the docs zip
+        with ZipFile(docs_z.open(xsd_zip_name)) as xsd_z:
+            for entry in xsd_z.namelist():
+                if entry.endswith(".xsd"):
+                    yield os.path.basename(entry), xsd_z.open(entry)
+
+
 def read_mastr_table_descriptions_from_xsd(
     zipped_docs_file_path: Union[Path, str], data: list[str]
 ) -> set[MastrTableDescription]:
     include_tables = data_to_include_tables(data)
 
     mastr_table_descriptions = set()
-    with ZipFile(zipped_docs_file_path, "r") as docs_z:
-        xsd_zip_entry = _find_xsd_zip_entry(docs_z)
-        with ZipFile(docs_z.open(xsd_zip_entry)) as xsd_z:
-            for entry in xsd_z.filelist:
-                if entry.is_dir() or not entry.filename.endswith(".xsd"):
-                    continue
-
-                normalized_name = (
-                    os.path.basename(entry.filename).removesuffix(".xsd").lower()
-                )
-                if normalized_name in include_tables:
-                    with xsd_z.open(entry) as xsd_file:
-                        try:
-                            schema = xmlschema.XMLSchema(xsd_file)
-                        except XMLSchemaModelError as e:
-                            raise InvalidXmlSchemaError(
-                                f"Invalid XML Schema in {os.path.basename(entry.filename)}"
-                            ) from e
-                        mastr_table_description = MastrTableDescription.from_xml_schema(
-                            schema
-                        )
-                        mastr_table_descriptions.add(mastr_table_description)
+    for name, xsd_file in _iterate_xsd_files(zipped_docs_file_path):
+        with xsd_file:
+            normalized_name = name.removesuffix(".xsd").lower()
+            if normalized_name in include_tables:
+                try:
+                    schema = xmlschema.XMLSchema(xsd_file)
+                except XMLSchemaModelError as e:
+                    raise InvalidXmlSchemaError(f"Invalid XML Schema in {name}") from e
+                mastr_table_description = MastrTableDescription.from_xml_schema(schema)
+                mastr_table_descriptions.add(mastr_table_description)
 
     return mastr_table_descriptions
-
-
-def _find_xsd_zip_entry(docs_zip_file: ZipFile) -> ZipInfo:
-    desired_filename = "xsd.zip"
-    for entry in docs_zip_file.filelist:
-        if os.path.basename(entry.filename) == desired_filename:
-            return entry
-    raise RuntimeError(
-        f"Did not find XSD files in the form of {desired_filename!r} in the documentation"
-        f" ZIP file {docs_zip_file.filename!r}"
-    )
