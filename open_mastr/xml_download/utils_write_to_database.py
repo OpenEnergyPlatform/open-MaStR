@@ -75,6 +75,11 @@ def write_mastr_xml_to_database(
                 )
             )
 
+    # Clear each target table exactly once in the parent process
+    db_tables_to_clear = {db_table.name: db_table for _, db_table, *_ in threads_data}
+    for db_table in db_tables_to_clear.values():
+        delete_all_existing_rows(db_table=db_table, engine=engine)
+
     interleaved_files = interleave_files(threads_data)
     number_of_processes = get_number_of_processes()
 
@@ -138,8 +143,6 @@ def process_xml_file(
         engine = create_efficient_engine(connection_url)
         with ZipFile(zipped_xml_file_path, "r") as f:
             log.info(f"Processing file '{file_name}'...")
-            if is_first_file(file_name):
-                delete_all_existing_rows(db_table=db_table, engine=engine)
             df = read_xml_file(f, file_name)
             df = process_table_before_insertion(
                 df=df,
@@ -290,14 +293,6 @@ def interleave_files(threads_data: list):
 def extract_xml_table_name(file_name: str) -> str:
     """Extract the XML table name from the file name."""
     return file_name.split("_")[0].split(".")[0].lower()
-
-
-def is_first_file(file_name: str) -> bool:
-    """check if the file name indicates that it is the first file from the table"""
-    return (
-        file_name.split(".")[0].split("_")[-1] == "1"
-        or len(file_name.split(".")[0].split("_")) == 1
-    )
 
 
 def cast_date_columns_to_datetime(db_table: Table, df: pd.DataFrame) -> pd.DataFrame:
