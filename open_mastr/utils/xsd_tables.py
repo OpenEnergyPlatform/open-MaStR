@@ -161,7 +161,7 @@ class InvalidXmlSchemaError(Exception):
     pass
 
 
-def _iterate_xsd_files(source: Union[Path, str]):
+def _iterate_xsd_files(source: Union[Path, str]) -> Iterator[tuple[str, IO[bytes]]]:
     """Iterate over .xsd files in either a zip containing xsd or xsd.zip.
 
     Yields tuples of (name, file_object) where file_object is a context manager.
