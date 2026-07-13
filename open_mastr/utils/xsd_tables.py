@@ -3,7 +3,7 @@ import os
 from enum import auto, Enum
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional, Union, Iterator
+from typing import Optional, Union, Iterator, IO
 from zipfile import ZipFile
 import xmlschema
 from xmlschema.validators.simple_types import XsdAtomicBuiltin, XsdAtomicRestriction
