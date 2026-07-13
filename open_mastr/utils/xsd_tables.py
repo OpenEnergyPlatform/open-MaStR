@@ -3,7 +3,7 @@ import os
 from enum import auto, Enum
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional, Union
+from typing import Optional, Union, Iterator
 from zipfile import ZipFile
 import xmlschema
 from xmlschema.validators.simple_types import XsdAtomicBuiltin, XsdAtomicRestriction
@@ -163,7 +163,7 @@ class InvalidXmlSchemaError(Exception):
 
 def _iterate_xsd_files(source: Union[Path, str]) -> Iterator[tuple[str, IO[bytes]]]:
     """Iterate over .xsd files in a ZIP file or directory.
-    
+
     Source can either be a directory directly containing `*.xsd` files, or a ZIP file that contains either an `xsd` directory or another ZIP file called `xsd.zip`.
 
     Yields tuples of (name, file_object) where file_object is a context manager.
