@@ -1,11 +1,12 @@
 import shutil
 from datetime import date
 from pathlib import Path
+from zipfile import ZipFile
 
 import pytest
 
 from open_mastr import Mastr
-from open_mastr.mastr import FALLBACK_DOCS_PATH
+from open_mastr.mastr import _get_fallback_xsd
 
 MOCKUP_XML_ZIP = Path(__file__).parent / "data" / "Gesamtdatenexport_mockup.zip"
 NUMBER_ROWS_IN_MOCK_XML_FILES = 100
@@ -42,12 +43,19 @@ def mockup_xml_zip_in_output_dir(output_dir: Path) -> Path:
 
 @pytest.fixture
 def mockup_docs_zip_in_output_dir(output_dir: Path) -> Path:
-    """Copy the mockup docs zip into the output directory and return its path."""
+    """Create a mockup docs zip in the output directory and return its path."""
     docs_dir = output_dir / "data" / "docs_download"
     docs_dir.mkdir(parents=True, exist_ok=True)
-    dest = (
+    mockup_docs_zip_path = (
         docs_dir
         / f"Dokumentation MaStR Gesamtdatenexport_{date.today().strftime('%Y%m%d')}.zip"
     )
-    shutil.copy(FALLBACK_DOCS_PATH, dest)
-    return dest
+
+    fallback_xsd_dir = _get_fallback_xsd()
+    with ZipFile(mockup_docs_zip_path, "w") as mockup_zip:
+        for file in fallback_xsd_dir.glob("*.xsd"):
+            mockup_zip.write(
+                file, f"xsd/{file.relative_to(fallback_xsd_dir).as_posix()}"
+            )
+
+    return mockup_docs_zip_path

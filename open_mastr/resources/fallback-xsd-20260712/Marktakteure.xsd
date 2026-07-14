@@ -1,0 +1,1166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="Marktakteure">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Marktakteur" maxOccurs="unbounded" minOccurs="0">
+          <xs:complexType>
+            <xs:choice maxOccurs="unbounded" minOccurs="0">
+              <xs:element type="xs:string" name="MastrNummer"/>
+              <xs:element type="xs:dateTime" name="DatumLetzeAktualisierung"/>
+              <xs:element name="Personenart">
+                <xs:simpleType>
+                  <xs:restriction base="xs:short">
+                    <xs:enumeration value="518"/>
+                    <xs:enumeration value="517"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="MarktakteurAnrede" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:short">
+                    <xs:enumeration value="280"/>
+                    <xs:enumeration value="2966"/>
+                    <xs:enumeration value="2983"/>
+                    <xs:enumeration value="2984"/>
+                    <xs:enumeration value="3251"/>
+                    <xs:enumeration value="3252"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="MarktakteurTitel" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:short">
+                    <xs:enumeration value="1000"/>
+                    <xs:enumeration value="1001"/>
+                    <xs:enumeration value="1002"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element type="xs:string" name="MarktakteurVorname" minOccurs="0"/>
+              <xs:element type="xs:string" name="MarktakteurNachname" minOccurs="0"/>
+              <xs:element type="xs:string" name="Firmenname" minOccurs="0"/>
+              <xs:element name="Marktfunktion">
+                <xs:simpleType>
+                  <xs:restriction base="xs:short">
+                    <xs:enumeration value="1"/>
+                    <xs:enumeration value="2"/>
+                    <xs:enumeration value="3"/>
+                    <xs:enumeration value="4"/>
+                    <xs:enumeration value="5"/>
+                    <xs:enumeration value="6"/>
+                    <xs:enumeration value="7"/>
+                    <xs:enumeration value="8"/>
+                    <xs:enumeration value="9"/>
+                    <xs:enumeration value="10"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element type="xs:int" name="Rechtsform" minOccurs="0"/>
+              <xs:element type="xs:string" name="SonstigeRechtsform" minOccurs="0"/>
+              <xs:element type="xs:string" name="Marktrollen" minOccurs="0"/>
+              <xs:element name="Land" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:short">
+                      <xs:enumeration value="42"/>
+                      <xs:enumeration value="43"/>
+                      <xs:enumeration value="45"/>
+                      <xs:enumeration value="46"/>
+                      <xs:enumeration value="48"/>
+                      <xs:enumeration value="49"/>
+                      <xs:enumeration value="50"/>
+                      <xs:enumeration value="51"/>
+                      <xs:enumeration value="53"/>
+                      <xs:enumeration value="54"/>
+                      <xs:enumeration value="55"/>
+                      <xs:enumeration value="56"/>
+                      <xs:enumeration value="57"/>
+                      <xs:enumeration value="58"/>
+                      <xs:enumeration value="59"/>
+                      <xs:enumeration value="60"/>
+                      <xs:enumeration value="61"/>
+                      <xs:enumeration value="62"/>
+                      <xs:enumeration value="63"/>
+                      <xs:enumeration value="64"/>
+                      <xs:enumeration value="65"/>
+                      <xs:enumeration value="66"/>
+                      <xs:enumeration value="67"/>
+                      <xs:enumeration value="68"/>
+                      <xs:enumeration value="69"/>
+                      <xs:enumeration value="70"/>
+                      <xs:enumeration value="71"/>
+                      <xs:enumeration value="72"/>
+                      <xs:enumeration value="73"/>
+                      <xs:enumeration value="74"/>
+                      <xs:enumeration value="76"/>
+                      <xs:enumeration value="77"/>
+                      <xs:enumeration value="79"/>
+                      <xs:enumeration value="80"/>
+                      <xs:enumeration value="81"/>
+                      <xs:enumeration value="82"/>
+                      <xs:enumeration value="83"/>
+                      <xs:enumeration value="84"/>
+                      <xs:enumeration value="85"/>
+                      <xs:enumeration value="86"/>
+                      <xs:enumeration value="87"/>
+                      <xs:enumeration value="88"/>
+                      <xs:enumeration value="89"/>
+                      <xs:enumeration value="90"/>
+                      <xs:enumeration value="91"/>
+                      <xs:enumeration value="92"/>
+                      <xs:enumeration value="93"/>
+                      <xs:enumeration value="94"/>
+                      <xs:enumeration value="95"/>
+                      <xs:enumeration value="96"/>
+                      <xs:enumeration value="97"/>
+                      <xs:enumeration value="98"/>
+                      <xs:enumeration value="99"/>
+                      <xs:enumeration value="100"/>
+                      <xs:enumeration value="101"/>
+                      <xs:enumeration value="102"/>
+                      <xs:enumeration value="104"/>
+                      <xs:enumeration value="105"/>
+                      <xs:enumeration value="106"/>
+                      <xs:enumeration value="108"/>
+                      <xs:enumeration value="109"/>
+                      <xs:enumeration value="110"/>
+                      <xs:enumeration value="111"/>
+                      <xs:enumeration value="112"/>
+                      <xs:enumeration value="113"/>
+                      <xs:enumeration value="114"/>
+                      <xs:enumeration value="115"/>
+                      <xs:enumeration value="116"/>
+                      <xs:enumeration value="118"/>
+                      <xs:enumeration value="120"/>
+                      <xs:enumeration value="121"/>
+                      <xs:enumeration value="123"/>
+                      <xs:enumeration value="124"/>
+                      <xs:enumeration value="125"/>
+                      <xs:enumeration value="128"/>
+                      <xs:enumeration value="129"/>
+                      <xs:enumeration value="130"/>
+                      <xs:enumeration value="131"/>
+                      <xs:enumeration value="133"/>
+                      <xs:enumeration value="134"/>
+                      <xs:enumeration value="135"/>
+                      <xs:enumeration value="136"/>
+                      <xs:enumeration value="137"/>
+                      <xs:enumeration value="138"/>
+                      <xs:enumeration value="139"/>
+                      <xs:enumeration value="140"/>
+                      <xs:enumeration value="141"/>
+                      <xs:enumeration value="143"/>
+                      <xs:enumeration value="144"/>
+                      <xs:enumeration value="145"/>
+                      <xs:enumeration value="146"/>
+                      <xs:enumeration value="147"/>
+                      <xs:enumeration value="148"/>
+                      <xs:enumeration value="149"/>
+                      <xs:enumeration value="150"/>
+                      <xs:enumeration value="151"/>
+                      <xs:enumeration value="152"/>
+                      <xs:enumeration value="155"/>
+                      <xs:enumeration value="156"/>
+                      <xs:enumeration value="157"/>
+                      <xs:enumeration value="158"/>
+                      <xs:enumeration value="159"/>
+                      <xs:enumeration value="160"/>
+                      <xs:enumeration value="161"/>
+                      <xs:enumeration value="162"/>
+                      <xs:enumeration value="163"/>
+                      <xs:enumeration value="164"/>
+                      <xs:enumeration value="165"/>
+                      <xs:enumeration value="166"/>
+                      <xs:enumeration value="167"/>
+                      <xs:enumeration value="168"/>
+                      <xs:enumeration value="169"/>
+                      <xs:enumeration value="170"/>
+                      <xs:enumeration value="171"/>
+                      <xs:enumeration value="172"/>
+                      <xs:enumeration value="173"/>
+                      <xs:enumeration value="174"/>
+                      <xs:enumeration value="175"/>
+                      <xs:enumeration value="176"/>
+                      <xs:enumeration value="177"/>
+                      <xs:enumeration value="178"/>
+                      <xs:enumeration value="179"/>
+                      <xs:enumeration value="180"/>
+                      <xs:enumeration value="181"/>
+                      <xs:enumeration value="182"/>
+                      <xs:enumeration value="183"/>
+                      <xs:enumeration value="184"/>
+                      <xs:enumeration value="185"/>
+                      <xs:enumeration value="186"/>
+                      <xs:enumeration value="187"/>
+                      <xs:enumeration value="188"/>
+                      <xs:enumeration value="189"/>
+                      <xs:enumeration value="190"/>
+                      <xs:enumeration value="191"/>
+                      <xs:enumeration value="192"/>
+                      <xs:enumeration value="193"/>
+                      <xs:enumeration value="194"/>
+                      <xs:enumeration value="195"/>
+                      <xs:enumeration value="196"/>
+                      <xs:enumeration value="197"/>
+                      <xs:enumeration value="198"/>
+                      <xs:enumeration value="199"/>
+                      <xs:enumeration value="200"/>
+                      <xs:enumeration value="203"/>
+                      <xs:enumeration value="204"/>
+                      <xs:enumeration value="205"/>
+                      <xs:enumeration value="206"/>
+                      <xs:enumeration value="207"/>
+                      <xs:enumeration value="208"/>
+                      <xs:enumeration value="209"/>
+                      <xs:enumeration value="210"/>
+                      <xs:enumeration value="211"/>
+                      <xs:enumeration value="212"/>
+                      <xs:enumeration value="213"/>
+                      <xs:enumeration value="214"/>
+                      <xs:enumeration value="215"/>
+                      <xs:enumeration value="216"/>
+                      <xs:enumeration value="218"/>
+                      <xs:enumeration value="219"/>
+                      <xs:enumeration value="220"/>
+                      <xs:enumeration value="221"/>
+                      <xs:enumeration value="222"/>
+                      <xs:enumeration value="223"/>
+                      <xs:enumeration value="224"/>
+                      <xs:enumeration value="225"/>
+                      <xs:enumeration value="226"/>
+                      <xs:enumeration value="227"/>
+                      <xs:enumeration value="228"/>
+                      <xs:enumeration value="229"/>
+                      <xs:enumeration value="230"/>
+                      <xs:enumeration value="231"/>
+                      <xs:enumeration value="232"/>
+                      <xs:enumeration value="233"/>
+                      <xs:enumeration value="234"/>
+                      <xs:enumeration value="235"/>
+                      <xs:enumeration value="236"/>
+                      <xs:enumeration value="237"/>
+                      <xs:enumeration value="238"/>
+                      <xs:enumeration value="239"/>
+                      <xs:enumeration value="240"/>
+                      <xs:enumeration value="241"/>
+                      <xs:enumeration value="242"/>
+                      <xs:enumeration value="243"/>
+                      <xs:enumeration value="244"/>
+                      <xs:enumeration value="245"/>
+                      <xs:enumeration value="246"/>
+                      <xs:enumeration value="247"/>
+                      <xs:enumeration value="248"/>
+                      <xs:enumeration value="249"/>
+                      <xs:enumeration value="250"/>
+                      <xs:enumeration value="251"/>
+                      <xs:enumeration value="252"/>
+                      <xs:enumeration value="253"/>
+                      <xs:enumeration value="254"/>
+                      <xs:enumeration value="255"/>
+                      <xs:enumeration value="257"/>
+                      <xs:enumeration value="258"/>
+                      <xs:enumeration value="259"/>
+                      <xs:enumeration value="261"/>
+                      <xs:enumeration value="262"/>
+                      <xs:enumeration value="263"/>
+                      <xs:enumeration value="264"/>
+                      <xs:enumeration value="266"/>
+                      <xs:enumeration value="267"/>
+                      <xs:enumeration value="268"/>
+                      <xs:enumeration value="269"/>
+                      <xs:enumeration value="270"/>
+                      <xs:enumeration value="271"/>
+                      <xs:enumeration value="272"/>
+                      <xs:enumeration value="273"/>
+                      <xs:enumeration value="274"/>
+                      <xs:enumeration value="275"/>
+                      <xs:enumeration value="276"/>
+                      <xs:enumeration value="277"/>
+                      <xs:enumeration value="278"/>
+                      <xs:enumeration value="279"/>
+                      <xs:enumeration value="1273"/>
+                      <xs:enumeration value="1274"/>
+                      <xs:enumeration value="1275"/>
+                      <xs:enumeration value="1276"/>
+                      <xs:enumeration value="1277"/>
+                      <xs:enumeration value="1278"/>
+                      <xs:enumeration value="1279"/>
+                      <xs:enumeration value="1280"/>
+                      <xs:enumeration value="1283"/>
+                      <xs:enumeration value="1284"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element type="xs:string" name="Region" minOccurs="0"/>
+              <xs:element type="xs:string" name="Strasse" minOccurs="0"/>
+              <xs:element type="xs:string" name="Hausnummer" minOccurs="0"/>
+              <xs:element name="Hausnummer_nv">
+                <xs:simpleType>
+                  <xs:restriction base="xs:byte">
+                    <xs:enumeration value="0"/>
+                    <xs:enumeration value="1"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element type="xs:string" name="Adresszusatz" minOccurs="0"/>
+              <xs:element type="xs:string" name="Postleitzahl" minOccurs="0"/>
+              <xs:element type="xs:string" name="Ort" minOccurs="0"/>
+              <xs:element name="Bundesland" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:short">
+                    <xs:enumeration value="334"/>
+                    <xs:enumeration value="335"/>
+                    <xs:enumeration value="333"/>
+                    <xs:enumeration value="332"/>
+                    <xs:enumeration value="336"/>
+                    <xs:enumeration value="338"/>
+                    <xs:enumeration value="337"/>
+                    <xs:enumeration value="339"/>
+                    <xs:enumeration value="340"/>
+                    <xs:enumeration value="341"/>
+                    <xs:enumeration value="342"/>
+                    <xs:enumeration value="344"/>
+                    <xs:enumeration value="345"/>
+                    <xs:enumeration value="346"/>
+                    <xs:enumeration value="343"/>
+                    <xs:enumeration value="347"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element type="xs:string" name="Netz" minOccurs="0"/>
+              <xs:element type="xs:string" name="Nuts2" minOccurs="0"/>
+              <xs:element type="xs:string" name="Email" minOccurs="0"/>
+              <xs:element type="xs:string" name="Telefon" minOccurs="0"/>
+              <xs:element type="xs:string" name="Fax" minOccurs="0"/>
+              <xs:element name="Fax_nv">
+                <xs:simpleType>
+                  <xs:restriction base="xs:byte">
+                    <xs:enumeration value="1"/>
+                    <xs:enumeration value="0"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element type="xs:string" name="Webseite" minOccurs="0"/>
+              <xs:element name="Webseite_nv">
+                <xs:simpleType>
+                  <xs:restriction base="xs:byte">
+                    <xs:enumeration value="1"/>
+                    <xs:enumeration value="0"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element type="xs:int" name="Registergericht" minOccurs="0"/>
+              <xs:element type="xs:string" name="RegistergerichtAusland" minOccurs="0"/>
+			  <xs:element name="RegisternummerPraefix" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:short">
+                    <xs:enumeration value="1003"/>
+                    <xs:enumeration value="1004"/>
+                    <xs:enumeration value="1005"/>
+                    <xs:enumeration value="1006"/>
+                    <xs:enumeration value="1007"/>
+                    <xs:enumeration value="3101"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element type="xs:string" name="Registernummer" minOccurs="0"/>
+              <xs:element type="xs:string" name="RegisternummerAusland" minOccurs="0"/>
+              <xs:element type="xs:date" name="Taetigkeitsbeginn" minOccurs="0"/>
+              <xs:element type="xs:string" name="AcerCode" minOccurs="0"/>
+              <xs:element name="AcerCode_nv">
+                <xs:simpleType>
+                  <xs:restriction base="xs:byte">
+                    <xs:enumeration value="1"/>
+                    <xs:enumeration value="0"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element type="xs:string" name="Umsatzsteueridentifikationsnummer" minOccurs="0"/>
+              <xs:element name="Umsatzsteueridentifikationsnummer_nv">
+                <xs:simpleType>
+                  <xs:restriction base="xs:byte">
+                    <xs:enumeration value="1"/>
+                    <xs:enumeration value="0"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element type="xs:date" name="Taetigkeitsende" minOccurs="0"/>
+              <xs:element type="xs:string" name="BundesnetzagenturBetriebsnummer" minOccurs="0"/>
+              <xs:element type="xs:byte" name="BundesnetzagenturBetriebsnummer_nv"/>
+              <xs:element name="LandAnZustelladresse" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:short">
+                    <xs:enumeration value="42"/>
+                    <xs:enumeration value="43"/>
+                    <xs:enumeration value="44"/>
+                    <xs:enumeration value="45"/>
+                    <xs:enumeration value="46"/>
+                    <xs:enumeration value="47"/>
+                    <xs:enumeration value="48"/>
+                    <xs:enumeration value="49"/>
+                    <xs:enumeration value="50"/>
+                    <xs:enumeration value="51"/>
+                    <xs:enumeration value="52"/>
+                    <xs:enumeration value="53"/>
+                    <xs:enumeration value="54"/>
+                    <xs:enumeration value="55"/>
+                    <xs:enumeration value="56"/>
+                    <xs:enumeration value="57"/>
+                    <xs:enumeration value="58"/>
+                    <xs:enumeration value="59"/>
+                    <xs:enumeration value="60"/>
+                    <xs:enumeration value="61"/>
+                    <xs:enumeration value="62"/>
+                    <xs:enumeration value="63"/>
+                    <xs:enumeration value="64"/>
+                    <xs:enumeration value="65"/>
+                    <xs:enumeration value="66"/>
+                    <xs:enumeration value="67"/>
+                    <xs:enumeration value="68"/>
+                    <xs:enumeration value="69"/>
+                    <xs:enumeration value="70"/>
+                    <xs:enumeration value="71"/>
+                    <xs:enumeration value="72"/>
+                    <xs:enumeration value="73"/>
+                    <xs:enumeration value="74"/>
+                    <xs:enumeration value="75"/>
+                    <xs:enumeration value="76"/>
+                    <xs:enumeration value="77"/>
+                    <xs:enumeration value="78"/>
+                    <xs:enumeration value="79"/>
+                    <xs:enumeration value="80"/>
+                    <xs:enumeration value="81"/>
+                    <xs:enumeration value="82"/>
+                    <xs:enumeration value="83"/>
+                    <xs:enumeration value="84"/>
+                    <xs:enumeration value="85"/>
+                    <xs:enumeration value="86"/>
+                    <xs:enumeration value="87"/>
+                    <xs:enumeration value="88"/>
+                    <xs:enumeration value="89"/>
+                    <xs:enumeration value="90"/>
+                    <xs:enumeration value="91"/>
+                    <xs:enumeration value="92"/>
+                    <xs:enumeration value="93"/>
+                    <xs:enumeration value="94"/>
+                    <xs:enumeration value="95"/>
+                    <xs:enumeration value="96"/>
+                    <xs:enumeration value="97"/>
+                    <xs:enumeration value="98"/>
+                    <xs:enumeration value="99"/>
+                    <xs:enumeration value="100"/>
+                    <xs:enumeration value="101"/>
+                    <xs:enumeration value="102"/>
+                    <xs:enumeration value="103"/>
+                    <xs:enumeration value="104"/>
+                    <xs:enumeration value="105"/>
+                    <xs:enumeration value="106"/>
+                    <xs:enumeration value="107"/>
+                    <xs:enumeration value="108"/>
+                    <xs:enumeration value="109"/>
+                    <xs:enumeration value="110"/>
+                    <xs:enumeration value="111"/>
+                    <xs:enumeration value="112"/>
+                    <xs:enumeration value="113"/>
+                    <xs:enumeration value="114"/>
+                    <xs:enumeration value="115"/>
+                    <xs:enumeration value="116"/>
+                    <xs:enumeration value="117"/>
+                    <xs:enumeration value="118"/>
+                    <xs:enumeration value="119"/>
+                    <xs:enumeration value="120"/>
+                    <xs:enumeration value="121"/>
+                    <xs:enumeration value="122"/>
+                    <xs:enumeration value="123"/>
+                    <xs:enumeration value="124"/>
+                    <xs:enumeration value="125"/>
+                    <xs:enumeration value="126"/>
+                    <xs:enumeration value="127"/>
+                    <xs:enumeration value="128"/>
+                    <xs:enumeration value="129"/>
+                    <xs:enumeration value="130"/>
+                    <xs:enumeration value="131"/>
+                    <xs:enumeration value="132"/>
+                    <xs:enumeration value="133"/>
+                    <xs:enumeration value="134"/>
+                    <xs:enumeration value="135"/>
+                    <xs:enumeration value="136"/>
+                    <xs:enumeration value="137"/>
+                    <xs:enumeration value="138"/>
+                    <xs:enumeration value="139"/>
+                    <xs:enumeration value="140"/>
+                    <xs:enumeration value="141"/>
+                    <xs:enumeration value="142"/>
+                    <xs:enumeration value="143"/>
+                    <xs:enumeration value="144"/>
+                    <xs:enumeration value="145"/>
+                    <xs:enumeration value="146"/>
+                    <xs:enumeration value="147"/>
+                    <xs:enumeration value="148"/>
+                    <xs:enumeration value="149"/>
+                    <xs:enumeration value="150"/>
+                    <xs:enumeration value="151"/>
+                    <xs:enumeration value="152"/>
+                    <xs:enumeration value="153"/>
+                    <xs:enumeration value="154"/>
+                    <xs:enumeration value="155"/>
+                    <xs:enumeration value="156"/>
+                    <xs:enumeration value="157"/>
+                    <xs:enumeration value="158"/>
+                    <xs:enumeration value="159"/>
+                    <xs:enumeration value="160"/>
+                    <xs:enumeration value="161"/>
+                    <xs:enumeration value="162"/>
+                    <xs:enumeration value="163"/>
+                    <xs:enumeration value="164"/>
+                    <xs:enumeration value="165"/>
+                    <xs:enumeration value="166"/>
+                    <xs:enumeration value="167"/>
+                    <xs:enumeration value="168"/>
+                    <xs:enumeration value="169"/>
+                    <xs:enumeration value="170"/>
+                    <xs:enumeration value="171"/>
+                    <xs:enumeration value="172"/>
+                    <xs:enumeration value="173"/>
+                    <xs:enumeration value="174"/>
+                    <xs:enumeration value="175"/>
+                    <xs:enumeration value="176"/>
+                    <xs:enumeration value="177"/>
+                    <xs:enumeration value="178"/>
+                    <xs:enumeration value="179"/>
+                    <xs:enumeration value="180"/>
+                    <xs:enumeration value="181"/>
+                    <xs:enumeration value="182"/>
+                    <xs:enumeration value="183"/>
+                    <xs:enumeration value="184"/>
+                    <xs:enumeration value="185"/>
+                    <xs:enumeration value="186"/>
+                    <xs:enumeration value="187"/>
+                    <xs:enumeration value="188"/>
+                    <xs:enumeration value="189"/>
+                    <xs:enumeration value="190"/>
+                    <xs:enumeration value="191"/>
+                    <xs:enumeration value="192"/>
+                    <xs:enumeration value="193"/>
+                    <xs:enumeration value="194"/>
+                    <xs:enumeration value="195"/>
+                    <xs:enumeration value="196"/>
+                    <xs:enumeration value="197"/>
+                    <xs:enumeration value="198"/>
+                    <xs:enumeration value="199"/>
+                    <xs:enumeration value="200"/>
+                    <xs:enumeration value="201"/>
+                    <xs:enumeration value="202"/>
+                    <xs:enumeration value="203"/>
+                    <xs:enumeration value="204"/>
+                    <xs:enumeration value="205"/>
+                    <xs:enumeration value="206"/>
+                    <xs:enumeration value="207"/>
+                    <xs:enumeration value="208"/>
+                    <xs:enumeration value="209"/>
+                    <xs:enumeration value="210"/>
+                    <xs:enumeration value="211"/>
+                    <xs:enumeration value="212"/>
+                    <xs:enumeration value="213"/>
+                    <xs:enumeration value="214"/>
+                    <xs:enumeration value="215"/>
+                    <xs:enumeration value="216"/>
+                    <xs:enumeration value="217"/>
+                    <xs:enumeration value="218"/>
+                    <xs:enumeration value="219"/>
+                    <xs:enumeration value="220"/>
+                    <xs:enumeration value="221"/>
+                    <xs:enumeration value="222"/>
+                    <xs:enumeration value="223"/>
+                    <xs:enumeration value="224"/>
+                    <xs:enumeration value="225"/>
+                    <xs:enumeration value="226"/>
+                    <xs:enumeration value="227"/>
+                    <xs:enumeration value="228"/>
+                    <xs:enumeration value="229"/>
+                    <xs:enumeration value="230"/>
+                    <xs:enumeration value="231"/>
+                    <xs:enumeration value="232"/>
+                    <xs:enumeration value="233"/>
+                    <xs:enumeration value="234"/>
+                    <xs:enumeration value="235"/>
+                    <xs:enumeration value="236"/>
+                    <xs:enumeration value="237"/>
+                    <xs:enumeration value="238"/>
+                    <xs:enumeration value="239"/>
+                    <xs:enumeration value="240"/>
+                    <xs:enumeration value="241"/>
+                    <xs:enumeration value="242"/>
+                    <xs:enumeration value="243"/>
+                    <xs:enumeration value="244"/>
+                    <xs:enumeration value="245"/>
+                    <xs:enumeration value="246"/>
+                    <xs:enumeration value="247"/>
+                    <xs:enumeration value="248"/>
+                    <xs:enumeration value="249"/>
+                    <xs:enumeration value="250"/>
+                    <xs:enumeration value="251"/>
+                    <xs:enumeration value="252"/>
+                    <xs:enumeration value="253"/>
+                    <xs:enumeration value="254"/>
+                    <xs:enumeration value="255"/>
+                    <xs:enumeration value="256"/>
+                    <xs:enumeration value="257"/>
+                    <xs:enumeration value="258"/>
+                    <xs:enumeration value="259"/>
+                    <xs:enumeration value="260"/>
+                    <xs:enumeration value="261"/>
+                    <xs:enumeration value="262"/>
+                    <xs:enumeration value="263"/>
+                    <xs:enumeration value="264"/>
+                    <xs:enumeration value="265"/>
+                    <xs:enumeration value="266"/>
+                    <xs:enumeration value="267"/>
+                    <xs:enumeration value="268"/>
+                    <xs:enumeration value="269"/>
+                    <xs:enumeration value="270"/>
+                    <xs:enumeration value="271"/>
+                    <xs:enumeration value="272"/>
+                    <xs:enumeration value="273"/>
+                    <xs:enumeration value="274"/>
+                    <xs:enumeration value="275"/>
+                    <xs:enumeration value="276"/>
+                    <xs:enumeration value="277"/>
+                    <xs:enumeration value="278"/>
+                    <xs:enumeration value="279"/>
+                    <xs:enumeration value="1273"/>
+                    <xs:enumeration value="1274"/>
+                    <xs:enumeration value="1275"/>
+                    <xs:enumeration value="1276"/>
+                    <xs:enumeration value="1277"/>
+                    <xs:enumeration value="1278"/>
+                    <xs:enumeration value="1279"/>
+                    <xs:enumeration value="1280"/>
+                    <xs:enumeration value="1281"/>
+                    <xs:enumeration value="1282"/>
+                    <xs:enumeration value="1283"/>
+                    <xs:enumeration value="1284"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element type="xs:string" name="PostleitzahlAnZustelladresse" minOccurs="0"/>
+              <xs:element type="xs:string" name="OrtAnZustelladresse" minOccurs="0"/>
+              <xs:element type="xs:string" name="StrasseAnZustelladresse" minOccurs="0"/>
+              <xs:element type="xs:string" name="HausnummerAnZustelladresse" minOccurs="0"/>
+              <xs:element name="HausnummerAnZustelladresse_nv" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:byte">
+                    <xs:enumeration value="0"/>
+                    <xs:enumeration value="1"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element type="xs:string" name="AdresszusatzAnZustelladresse" minOccurs="0"/>
+              <xs:element name="Kmu" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:byte">
+                    <xs:enumeration value="1"/>
+                    <xs:enumeration value="0"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element type="xs:dateTime" name="RegistrierungsdatumMarktakteur"/>
+              <xs:element name="HauptwirtdschaftszweigAbteilung" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:short">
+                    <xs:enumeration value="1183"/>
+                    <xs:enumeration value="1184"/>
+                    <xs:enumeration value="1185"/>
+                    <xs:enumeration value="1186"/>
+                    <xs:enumeration value="1187"/>
+                    <xs:enumeration value="1188"/>
+                    <xs:enumeration value="1189"/>
+                    <xs:enumeration value="1190"/>
+                    <xs:enumeration value="1191"/>
+                    <xs:enumeration value="1192"/>
+                    <xs:enumeration value="1193"/>
+                    <xs:enumeration value="1194"/>
+                    <xs:enumeration value="1195"/>
+                    <xs:enumeration value="1196"/>
+                    <xs:enumeration value="1197"/>
+                    <xs:enumeration value="1198"/>
+                    <xs:enumeration value="1199"/>
+                    <xs:enumeration value="1200"/>
+                    <xs:enumeration value="1201"/>
+                    <xs:enumeration value="1202"/>
+                    <xs:enumeration value="1203"/>
+                    <xs:enumeration value="1204"/>
+                    <xs:enumeration value="1205"/>
+                    <xs:enumeration value="1206"/>
+                    <xs:enumeration value="1207"/>
+                    <xs:enumeration value="1208"/>
+                    <xs:enumeration value="1209"/>
+                    <xs:enumeration value="1210"/>
+                    <xs:enumeration value="1211"/>
+                    <xs:enumeration value="1212"/>
+                    <xs:enumeration value="1213"/>
+                    <xs:enumeration value="1214"/>
+                    <xs:enumeration value="1215"/>
+                    <xs:enumeration value="1216"/>
+                    <xs:enumeration value="1217"/>
+                    <xs:enumeration value="1218"/>
+                    <xs:enumeration value="1219"/>
+                    <xs:enumeration value="1220"/>
+                    <xs:enumeration value="1221"/>
+                    <xs:enumeration value="1222"/>
+                    <xs:enumeration value="1223"/>
+                    <xs:enumeration value="1224"/>
+                    <xs:enumeration value="1225"/>
+                    <xs:enumeration value="1226"/>
+                    <xs:enumeration value="1227"/>
+                    <xs:enumeration value="1228"/>
+                    <xs:enumeration value="1229"/>
+                    <xs:enumeration value="1230"/>
+                    <xs:enumeration value="1231"/>
+                    <xs:enumeration value="1232"/>
+                    <xs:enumeration value="1233"/>
+                    <xs:enumeration value="1234"/>
+                    <xs:enumeration value="1235"/>
+                    <xs:enumeration value="1236"/>
+                    <xs:enumeration value="1237"/>
+                    <xs:enumeration value="1238"/>
+                    <xs:enumeration value="1239"/>
+                    <xs:enumeration value="1240"/>
+                    <xs:enumeration value="1241"/>
+                    <xs:enumeration value="1242"/>
+                    <xs:enumeration value="1243"/>
+                    <xs:enumeration value="1244"/>
+                    <xs:enumeration value="1245"/>
+                    <xs:enumeration value="1246"/>
+                    <xs:enumeration value="1247"/>
+                    <xs:enumeration value="1248"/>
+                    <xs:enumeration value="1249"/>
+                    <xs:enumeration value="1250"/>
+                    <xs:enumeration value="1251"/>
+                    <xs:enumeration value="1252"/>
+                    <xs:enumeration value="1253"/>
+                    <xs:enumeration value="1254"/>
+                    <xs:enumeration value="1255"/>
+                    <xs:enumeration value="1256"/>
+                    <xs:enumeration value="1257"/>
+                    <xs:enumeration value="1258"/>
+                    <xs:enumeration value="1259"/>
+                    <xs:enumeration value="1260"/>
+                    <xs:enumeration value="1261"/>
+                    <xs:enumeration value="1262"/>
+                    <xs:enumeration value="1263"/>
+                    <xs:enumeration value="1264"/>
+                    <xs:enumeration value="1265"/>
+                    <xs:enumeration value="1266"/>
+                    <xs:enumeration value="1267"/>
+                    <xs:enumeration value="1268"/>
+                    <xs:enumeration value="1269"/>
+                    <xs:enumeration value="1270"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="HauptwirtdschaftszweigGruppe" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:short">
+                    <xs:enumeration value="2568"/>
+                    <xs:enumeration value="2569"/>
+                    <xs:enumeration value="2570"/>
+                    <xs:enumeration value="2571"/>
+                    <xs:enumeration value="2572"/>
+                    <xs:enumeration value="2573"/>
+                    <xs:enumeration value="2574"/>
+                    <xs:enumeration value="2575"/>
+                    <xs:enumeration value="2576"/>
+                    <xs:enumeration value="2577"/>
+                    <xs:enumeration value="2578"/>
+                    <xs:enumeration value="2579"/>
+                    <xs:enumeration value="2580"/>
+                    <xs:enumeration value="2581"/>
+                    <xs:enumeration value="2582"/>
+                    <xs:enumeration value="2583"/>
+                    <xs:enumeration value="2584"/>
+                    <xs:enumeration value="2585"/>
+                    <xs:enumeration value="2586"/>
+                    <xs:enumeration value="2587"/>
+                    <xs:enumeration value="2588"/>
+                    <xs:enumeration value="2589"/>
+                    <xs:enumeration value="2590"/>
+                    <xs:enumeration value="2591"/>
+                    <xs:enumeration value="2592"/>
+                    <xs:enumeration value="2593"/>
+                    <xs:enumeration value="2594"/>
+                    <xs:enumeration value="2595"/>
+                    <xs:enumeration value="2596"/>
+                    <xs:enumeration value="2597"/>
+                    <xs:enumeration value="2598"/>
+                    <xs:enumeration value="2599"/>
+                    <xs:enumeration value="2600"/>
+                    <xs:enumeration value="2601"/>
+                    <xs:enumeration value="2602"/>
+                    <xs:enumeration value="2603"/>
+                    <xs:enumeration value="2604"/>
+                    <xs:enumeration value="2605"/>
+                    <xs:enumeration value="2606"/>
+                    <xs:enumeration value="2607"/>
+                    <xs:enumeration value="2608"/>
+                    <xs:enumeration value="2609"/>
+                    <xs:enumeration value="2610"/>
+                    <xs:enumeration value="2611"/>
+                    <xs:enumeration value="2612"/>
+                    <xs:enumeration value="2613"/>
+                    <xs:enumeration value="2614"/>
+                    <xs:enumeration value="2615"/>
+                    <xs:enumeration value="2616"/>
+                    <xs:enumeration value="2617"/>
+                    <xs:enumeration value="2618"/>
+                    <xs:enumeration value="2619"/>
+                    <xs:enumeration value="2620"/>
+                    <xs:enumeration value="2621"/>
+                    <xs:enumeration value="2622"/>
+                    <xs:enumeration value="2623"/>
+                    <xs:enumeration value="2624"/>
+                    <xs:enumeration value="2625"/>
+                    <xs:enumeration value="2626"/>
+                    <xs:enumeration value="2627"/>
+                    <xs:enumeration value="2628"/>
+                    <xs:enumeration value="2629"/>
+                    <xs:enumeration value="2630"/>
+                    <xs:enumeration value="2631"/>
+                    <xs:enumeration value="2632"/>
+                    <xs:enumeration value="2633"/>
+                    <xs:enumeration value="2634"/>
+                    <xs:enumeration value="2635"/>
+                    <xs:enumeration value="2636"/>
+                    <xs:enumeration value="2637"/>
+                    <xs:enumeration value="2638"/>
+                    <xs:enumeration value="2639"/>
+                    <xs:enumeration value="2640"/>
+                    <xs:enumeration value="2641"/>
+                    <xs:enumeration value="2642"/>
+                    <xs:enumeration value="2643"/>
+                    <xs:enumeration value="2644"/>
+                    <xs:enumeration value="2645"/>
+                    <xs:enumeration value="2646"/>
+                    <xs:enumeration value="2647"/>
+                    <xs:enumeration value="2648"/>
+                    <xs:enumeration value="2649"/>
+                    <xs:enumeration value="2650"/>
+                    <xs:enumeration value="2651"/>
+                    <xs:enumeration value="2652"/>
+                    <xs:enumeration value="2653"/>
+                    <xs:enumeration value="2654"/>
+                    <xs:enumeration value="2655"/>
+                    <xs:enumeration value="2656"/>
+                    <xs:enumeration value="2657"/>
+                    <xs:enumeration value="2658"/>
+                    <xs:enumeration value="2659"/>
+                    <xs:enumeration value="2660"/>
+                    <xs:enumeration value="2661"/>
+                    <xs:enumeration value="2662"/>
+                    <xs:enumeration value="2663"/>
+                    <xs:enumeration value="2664"/>
+                    <xs:enumeration value="2665"/>
+                    <xs:enumeration value="2666"/>
+                    <xs:enumeration value="2667"/>
+                    <xs:enumeration value="2668"/>
+                    <xs:enumeration value="2669"/>
+                    <xs:enumeration value="2670"/>
+                    <xs:enumeration value="2671"/>
+                    <xs:enumeration value="2672"/>
+                    <xs:enumeration value="2673"/>
+                    <xs:enumeration value="2674"/>
+                    <xs:enumeration value="2675"/>
+                    <xs:enumeration value="2676"/>
+                    <xs:enumeration value="2677"/>
+                    <xs:enumeration value="2678"/>
+                    <xs:enumeration value="2679"/>
+                    <xs:enumeration value="2680"/>
+                    <xs:enumeration value="2681"/>
+                    <xs:enumeration value="2682"/>
+                    <xs:enumeration value="2683"/>
+                    <xs:enumeration value="2684"/>
+                    <xs:enumeration value="2685"/>
+                    <xs:enumeration value="2686"/>
+                    <xs:enumeration value="2687"/>
+                    <xs:enumeration value="2688"/>
+                    <xs:enumeration value="2689"/>
+                    <xs:enumeration value="2690"/>
+                    <xs:enumeration value="2691"/>
+                    <xs:enumeration value="2692"/>
+                    <xs:enumeration value="2693"/>
+                    <xs:enumeration value="2694"/>
+                    <xs:enumeration value="2695"/>
+                    <xs:enumeration value="2696"/>
+                    <xs:enumeration value="2697"/>
+                    <xs:enumeration value="2698"/>
+                    <xs:enumeration value="2699"/>
+                    <xs:enumeration value="2700"/>
+                    <xs:enumeration value="2701"/>
+                    <xs:enumeration value="2702"/>
+                    <xs:enumeration value="2703"/>
+                    <xs:enumeration value="2704"/>
+                    <xs:enumeration value="2705"/>
+                    <xs:enumeration value="2706"/>
+                    <xs:enumeration value="2707"/>
+                    <xs:enumeration value="2708"/>
+                    <xs:enumeration value="2709"/>
+                    <xs:enumeration value="2710"/>
+                    <xs:enumeration value="2711"/>
+                    <xs:enumeration value="2712"/>
+                    <xs:enumeration value="2713"/>
+                    <xs:enumeration value="2714"/>
+                    <xs:enumeration value="2715"/>
+                    <xs:enumeration value="2716"/>
+                    <xs:enumeration value="2717"/>
+                    <xs:enumeration value="2718"/>
+                    <xs:enumeration value="2719"/>
+                    <xs:enumeration value="2720"/>
+                    <xs:enumeration value="2721"/>
+                    <xs:enumeration value="2722"/>
+                    <xs:enumeration value="2723"/>
+                    <xs:enumeration value="2724"/>
+                    <xs:enumeration value="2725"/>
+                    <xs:enumeration value="2726"/>
+                    <xs:enumeration value="2727"/>
+                    <xs:enumeration value="2728"/>
+                    <xs:enumeration value="2729"/>
+                    <xs:enumeration value="2730"/>
+                    <xs:enumeration value="2731"/>
+                    <xs:enumeration value="2732"/>
+                    <xs:enumeration value="2733"/>
+                    <xs:enumeration value="2734"/>
+                    <xs:enumeration value="2735"/>
+                    <xs:enumeration value="2736"/>
+                    <xs:enumeration value="2737"/>
+                    <xs:enumeration value="2738"/>
+                    <xs:enumeration value="2739"/>
+                    <xs:enumeration value="2740"/>
+                    <xs:enumeration value="2741"/>
+                    <xs:enumeration value="2742"/>
+                    <xs:enumeration value="2743"/>
+                    <xs:enumeration value="2744"/>
+                    <xs:enumeration value="2745"/>
+                    <xs:enumeration value="2746"/>
+                    <xs:enumeration value="2747"/>
+                    <xs:enumeration value="2748"/>
+                    <xs:enumeration value="2749"/>
+                    <xs:enumeration value="2750"/>
+                    <xs:enumeration value="2751"/>
+                    <xs:enumeration value="2752"/>
+                    <xs:enumeration value="2753"/>
+                    <xs:enumeration value="2754"/>
+                    <xs:enumeration value="2755"/>
+                    <xs:enumeration value="2756"/>
+                    <xs:enumeration value="2757"/>
+                    <xs:enumeration value="2758"/>
+                    <xs:enumeration value="2759"/>
+                    <xs:enumeration value="2760"/>
+                    <xs:enumeration value="2761"/>
+                    <xs:enumeration value="2762"/>
+                    <xs:enumeration value="2763"/>
+                    <xs:enumeration value="2764"/>
+                    <xs:enumeration value="2765"/>
+                    <xs:enumeration value="2766"/>
+                    <xs:enumeration value="2767"/>
+                    <xs:enumeration value="2768"/>
+                    <xs:enumeration value="2769"/>
+                    <xs:enumeration value="2770"/>
+                    <xs:enumeration value="2771"/>
+                    <xs:enumeration value="2772"/>
+                    <xs:enumeration value="2773"/>
+                    <xs:enumeration value="2774"/>
+                    <xs:enumeration value="2775"/>
+                    <xs:enumeration value="2776"/>
+                    <xs:enumeration value="2777"/>
+                    <xs:enumeration value="2778"/>
+                    <xs:enumeration value="2779"/>
+                    <xs:enumeration value="2780"/>
+                    <xs:enumeration value="2781"/>
+                    <xs:enumeration value="2782"/>
+                    <xs:enumeration value="2783"/>
+                    <xs:enumeration value="2784"/>
+                    <xs:enumeration value="2785"/>
+                    <xs:enumeration value="2786"/>
+                    <xs:enumeration value="2787"/>
+                    <xs:enumeration value="2788"/>
+                    <xs:enumeration value="2789"/>
+                    <xs:enumeration value="2790"/>
+                    <xs:enumeration value="2791"/>
+                    <xs:enumeration value="2792"/>
+                    <xs:enumeration value="2793"/>
+                    <xs:enumeration value="2794"/>
+                    <xs:enumeration value="2795"/>
+                    <xs:enumeration value="2796"/>
+                    <xs:enumeration value="2797"/>
+                    <xs:enumeration value="2798"/>
+                    <xs:enumeration value="2799"/>
+                    <xs:enumeration value="2800"/>
+                    <xs:enumeration value="2801"/>
+                    <xs:enumeration value="2802"/>
+                    <xs:enumeration value="2803"/>
+                    <xs:enumeration value="2804"/>
+                    <xs:enumeration value="2805"/>
+                    <xs:enumeration value="2806"/>
+                    <xs:enumeration value="2807"/>
+                    <xs:enumeration value="2808"/>
+                    <xs:enumeration value="2809"/>
+                    <xs:enumeration value="2810"/>
+                    <xs:enumeration value="2811"/>
+                    <xs:enumeration value="2812"/>
+                    <xs:enumeration value="2813"/>
+                    <xs:enumeration value="2814"/>
+                    <xs:enumeration value="2815"/>
+                    <xs:enumeration value="2816"/>
+                    <xs:enumeration value="2817"/>
+                    <xs:enumeration value="2818"/>
+                    <xs:enumeration value="2819"/>
+                    <xs:enumeration value="2820"/>
+                    <xs:enumeration value="2821"/>
+                    <xs:enumeration value="2822"/>
+                    <xs:enumeration value="2823"/>
+                    <xs:enumeration value="2824"/>
+                    <xs:enumeration value="2825"/>
+                    <xs:enumeration value="2826"/>
+                    <xs:enumeration value="2827"/>
+                    <xs:enumeration value="2828"/>
+                    <xs:enumeration value="2829"/>
+                    <xs:enumeration value="2830"/>
+                    <xs:enumeration value="2831"/>
+                    <xs:enumeration value="2832"/>
+                    <xs:enumeration value="2833"/>
+                    <xs:enumeration value="2834"/>
+                    <xs:enumeration value="2835"/>
+                    <xs:enumeration value="2836"/>
+                    <xs:enumeration value="2837"/>
+                    <xs:enumeration value="2838"/>
+                    <xs:enumeration value="2839"/>
+                    <xs:enumeration value="3126"/>
+                    <xs:enumeration value="3127"/>
+                    <xs:enumeration value="3128"/>
+                    <xs:enumeration value="3129"/>
+                    <xs:enumeration value="3130"/>
+                    <xs:enumeration value="3131"/>
+                    <xs:enumeration value="3132"/>
+                    <xs:enumeration value="3133"/>
+                    <xs:enumeration value="3134"/>
+                    <xs:enumeration value="3135"/>
+                    <xs:enumeration value="3136"/>
+                    <xs:enumeration value="3137"/>
+                    <xs:enumeration value="3138"/>
+                    <xs:enumeration value="3139"/>
+                    <xs:enumeration value="3140"/>
+                    <xs:enumeration value="3141"/>
+                    <xs:enumeration value="3142"/>
+                    <xs:enumeration value="3143"/>
+                    <xs:enumeration value="3144"/>
+                    <xs:enumeration value="3145"/>
+                    <xs:enumeration value="3146"/>
+                    <xs:enumeration value="3147"/>
+                    <xs:enumeration value="3148"/>
+                    <xs:enumeration value="3149"/>
+                    <xs:enumeration value="3150"/>
+                    <xs:enumeration value="3151"/>
+                    <xs:enumeration value="3152"/>
+                    <xs:enumeration value="3153"/>
+                    <xs:enumeration value="3154"/>
+                    <xs:enumeration value="3155"/>
+                    <xs:enumeration value="3156"/>
+                    <xs:enumeration value="3157"/>
+                    <xs:enumeration value="3158"/>
+                    <xs:enumeration value="3159"/>
+                    <xs:enumeration value="3160"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="HauptwirtdschaftszweigAbschnitt" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:short">
+                    <xs:enumeration value="1162"/>
+                    <xs:enumeration value="1163"/>
+                    <xs:enumeration value="1164"/>
+                    <xs:enumeration value="1165"/>
+                    <xs:enumeration value="1166"/>
+                    <xs:enumeration value="1167"/>
+                    <xs:enumeration value="1168"/>
+                    <xs:enumeration value="1169"/>
+                    <xs:enumeration value="1170"/>
+                    <xs:enumeration value="1171"/>
+                    <xs:enumeration value="1172"/>
+                    <xs:enumeration value="1173"/>
+                    <xs:enumeration value="1174"/>
+                    <xs:enumeration value="1175"/>
+                    <xs:enumeration value="1176"/>
+                    <xs:enumeration value="1177"/>
+                    <xs:enumeration value="1178"/>
+                    <xs:enumeration value="1179"/>
+                    <xs:enumeration value="1180"/>
+                    <xs:enumeration value="1181"/>
+                    <xs:enumeration value="1182"/>
+                    <xs:enumeration value="3125"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="Direktvermarktungsunternehmen" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:byte">
+                    <xs:enumeration value="1"/>
+                    <xs:enumeration value="0"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="BelieferungVonLetztverbrauchernStrom" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:byte">
+                    <xs:enumeration value="1"/>
+                    <xs:enumeration value="0"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="BelieferungHaushaltskundenStrom" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:byte">
+                    <xs:enumeration value="1"/>
+                    <xs:enumeration value="0"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="Gasgrosshaendler" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:byte">
+                    <xs:enumeration value="1"/>
+                    <xs:enumeration value="0"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="Stromgrosshaendler" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:byte">
+                    <xs:enumeration value="1"/>
+                    <xs:enumeration value="0"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="BelieferungVonLetztverbrauchernGas" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:byte">
+                    <xs:enumeration value="1"/>
+                    <xs:enumeration value="0"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="BelieferungHaushaltskundenGas" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:byte">
+                    <xs:enumeration value="1"/>
+                    <xs:enumeration value="0"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+			  <xs:element type="xs:string" name="WebportalDesNetzbetreibers" minOccurs="0"/>
+            </xs:choice>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>
