@@ -3,8 +3,8 @@ import os
 from enum import auto, Enum
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional, Union
-from zipfile import ZipFile, ZipInfo
+from typing import Optional, Union, Iterator, IO
+from zipfile import ZipFile
 import xmlschema
 from xmlschema.validators.simple_types import XsdAtomicBuiltin, XsdAtomicRestriction
 from xmlschema.validators.exceptions import XMLSchemaModelError
@@ -24,20 +24,31 @@ def normalize_mastr_name(original_mastr_name: str) -> str:
     Also, in case the column names in the XSD contain äöüß, we replace them.
     This is probably a BNetzA oversight, but has happened at least once.
     """
-    return original_mastr_name.replace("MaStR", "Mastr").replace("ä", "ae").replace("ö", "oe").replace("ü", "ue").replace("ß", "ss").strip()
+    return (
+        original_mastr_name.replace("MaStR", "Mastr")
+        .replace("ä", "ae")
+        .replace("ö", "oe")
+        .replace("ü", "ue")
+        .replace("ß", "ss")
+        .strip()
+    )
 
 
 def translate_mastr_column_name(normalized_mastr_column_name: str) -> Optional[str]:
     translated = COLUMN_TRANSLATIONS.get(normalized_mastr_column_name)
     if not translated:
-        log.warning(f"No translation available for column {normalized_mastr_column_name!r}")
+        log.warning(
+            f"No translation available for column {normalized_mastr_column_name!r}"
+        )
     return translated
 
 
 def translate_mastr_table_name(normalized_mastr_table_name: str) -> Optional[str]:
     translated = TABLE_TRANSLATIONS.get(normalized_mastr_table_name)
     if not translated:
-        log.warning(f"No translation available for table {normalized_mastr_table_name!r}")
+        log.warning(
+            f"No translation available for table {normalized_mastr_table_name!r}"
+        )
     return translated
 
 
@@ -51,7 +62,9 @@ class MastrColumnType(Enum):
     CATALOG_VALUE = auto()
 
     @classmethod
-    def from_xsd_type(cls, xsd_type: Union[XsdAtomicBuiltin, XsdAtomicRestriction]) -> "MastrColumnDescription":
+    def from_xsd_type(
+        cls, xsd_type: Union[XsdAtomicBuiltin, XsdAtomicRestriction]
+    ) -> "MastrColumnDescription":
         xsd_type_to_mastr_column_type = {
             f"{_XML_SCHEMA_PREFIX}string": cls.STRING,
             f"{_XML_SCHEMA_PREFIX}decimal": cls.INTEGER,
@@ -70,13 +83,17 @@ class MastrColumnType(Enum):
             # Ertuechtigungen.xsd has some normal types defined as restrictions for some reason.
             # We cope with that by extracting the primitive type it's restricted to.
             inner_xsd_type = xsd_type.primitive_type
-            if mastr_column_type := xsd_type_to_mastr_column_type.get(inner_xsd_type.name):
+            if mastr_column_type := xsd_type_to_mastr_column_type.get(
+                inner_xsd_type.name
+            ):
                 return mastr_column_type
 
         if mastr_column_type := xsd_type_to_mastr_column_type.get(xsd_type.name):
             return mastr_column_type
 
-        raise ValueError(f"Could not determine MastrColumnType from XSD type {xsd_type!r}")
+        raise ValueError(
+            f"Could not determine MastrColumnType from XSD type {xsd_type!r}"
+        )
 
 
 @dataclass(frozen=True)
@@ -87,13 +104,15 @@ class MastrColumnDescription:
     type: MastrColumnType
 
     @classmethod
-    def from_xsd_element(cls, xsd_element: xmlschema.XsdElement) -> "MastrColumnDescription":
+    def from_xsd_element(
+        cls, xsd_element: xmlschema.XsdElement
+    ) -> "MastrColumnDescription":
         normalized_name = normalize_mastr_name(xsd_element.name)
         return cls(
             original_name=xsd_element.name,
             normalized_name=normalized_name,
             english_name=translate_mastr_column_name(normalized_name),
-            type=MastrColumnType.from_xsd_type(xsd_element.type)
+            type=MastrColumnType.from_xsd_type(xsd_element.type),
         )
 
 
@@ -142,40 +161,66 @@ class InvalidXmlSchemaError(Exception):
     pass
 
 
+def _iterate_xsd_files(source: Union[Path, str]) -> Iterator[tuple[str, IO[bytes]]]:
+    """Iterate over .xsd files in a ZIP file or directory.
+
+    Source can either be a directory directly containing `*.xsd` files, or a ZIP file that contains either an `xsd` directory or another ZIP file called `xsd.zip`.
+
+    Yields tuples of (name, file_object) where file_object is a context manager.
+    """
+    source_path = Path(source)
+
+    if source_path.is_dir():
+        # Case: source is already an unzipped directory containing .xsd files
+        for xsd_file in source_path.glob("**/*.xsd"):
+            yield xsd_file.name, xsd_file.open("rb")
+        return
+
+    with ZipFile(source_path, "r") as docs_z:
+        xsd_folder_entries = [
+            entry
+            for entry in docs_z.namelist()
+            if entry.endswith(".xsd")
+            and os.path.basename(os.path.dirname(entry)) == "xsd"
+        ]
+        if xsd_folder_entries:
+            # Case: plain xsd/ folder inside the docs zip
+            for entry in xsd_folder_entries:
+                yield os.path.basename(entry), docs_z.open(entry)
+            return
+
+        xsd_zip_name = next(
+            (name for name in docs_z.namelist() if os.path.basename(name) == "xsd.zip"),
+            None,
+        )
+        if xsd_zip_name is None:
+            raise RuntimeError(
+                "Did not find XSD files in the form of an 'xsd' folder or an"
+                f" 'xsd.zip' file in the documentation ZIP file {source_path!r}"
+            )
+
+        # Case: xsd.zip nested inside the docs zip
+        with ZipFile(docs_z.open(xsd_zip_name)) as xsd_z:
+            for entry in xsd_z.namelist():
+                if entry.endswith(".xsd"):
+                    yield os.path.basename(entry), xsd_z.open(entry)
+
+
 def read_mastr_table_descriptions_from_xsd(
     zipped_docs_file_path: Union[Path, str], data: list[str]
 ) -> set[MastrTableDescription]:
     include_tables = data_to_include_tables(data)
 
     mastr_table_descriptions = set()
-    with ZipFile(zipped_docs_file_path, "r") as docs_z:
-        xsd_zip_entry = _find_xsd_zip_entry(docs_z)
-        with ZipFile(docs_z.open(xsd_zip_entry)) as xsd_z:
-            for entry in xsd_z.filelist:
-                if entry.is_dir() or not entry.filename.endswith(".xsd"):
-                    continue
-
-                normalized_name = os.path.basename(entry.filename).removesuffix(".xsd").lower()
-                if normalized_name in include_tables:
-                    with xsd_z.open(entry) as xsd_file:
-                        try:
-                            schema = xmlschema.XMLSchema(xsd_file)
-                        except XMLSchemaModelError as e:
-                            raise InvalidXmlSchemaError(
-                                f"Invalid XML Schema in {os.path.basename(entry.filename)}"
-                            ) from e
-                        mastr_table_description = MastrTableDescription.from_xml_schema(schema)
-                        mastr_table_descriptions.add(mastr_table_description)
+    for name, xsd_file in _iterate_xsd_files(zipped_docs_file_path):
+        with xsd_file:
+            normalized_name = name.removesuffix(".xsd").lower()
+            if normalized_name in include_tables:
+                try:
+                    schema = xmlschema.XMLSchema(xsd_file)
+                except XMLSchemaModelError as e:
+                    raise InvalidXmlSchemaError(f"Invalid XML Schema in {name}") from e
+                mastr_table_description = MastrTableDescription.from_xml_schema(schema)
+                mastr_table_descriptions.add(mastr_table_description)
 
     return mastr_table_descriptions
-
-
-def _find_xsd_zip_entry(docs_zip_file: ZipFile) -> ZipInfo:
-    desired_filename = "xsd.zip"
-    for entry in docs_zip_file.filelist:
-        if os.path.basename(entry.filename) == desired_filename:
-            return entry
-    raise RuntimeError(
-        f"Did not find XSD files in the form of {desired_filename!r} in the documentation"
-        f" ZIP file {docs_zip_file.filename!r}"
-    )

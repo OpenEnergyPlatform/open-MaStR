@@ -22,6 +22,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 
 
   ### Changed
+  - Add support for reading XSD files from both zipped / unzipped documentation sources
+    [#761](https://github.com/OpenEnergyPlatform/open-MaStR/pull/761)
   - Refactor data path configuration: remove `get_data_version_dir()`, add `MASTR_PROJECT_HOME_DIR` env var support to `get_project_home_dir()`
     [#748](https://github.com/OpenEnergyPlatform/open-MaStR/pull/748)
   - Switch to dynamic table generation based on parsing of XSD files from the MaStR documentation; fall back to bundled XSD files if the downloaded documentation is invalid
