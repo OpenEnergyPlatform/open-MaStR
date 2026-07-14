@@ -1,8 +1,4 @@
-import os
-import sqlite3
-import sys
 from datetime import datetime
-from os.path import expanduser
 from pathlib import Path
 from typing import Any, Callable
 from zipfile import ZipFile
@@ -33,7 +29,6 @@ from open_mastr.xml_download.utils_write_to_database import (
     correct_ordering_of_filelist,
     extract_xml_table_name,
     is_date_column,
-    is_first_file,
     process_table_before_insertion,
     read_xml_file,
     add_table_to_non_sqlite_database,
@@ -52,12 +47,6 @@ def engine_testdb(tmp_path: Path) -> Engine:
 def test_extract_xml_table_name():
     file_name = "Netzanschlusspunkte_31.xml"
     assert extract_xml_table_name(file_name) == "netzanschlusspunkte"
-
-
-def test_is_first_file():
-    assert is_first_file("EinheitenKernkraft.xml") is True
-    assert is_first_file("EinheitenKernkraft_1.xml") is True
-    assert is_first_file("EinheitenKernkraft_2.xml") is False
 
 
 def test_cast_date_columns_to_string():
