@@ -36,7 +36,7 @@ log = logging.getLogger(__name__)
 
 
 def get_project_home_dir():
-    """Get root dir of project data
+    """Get root dir of project data, where credentials and config files are located.
 
     On linux this path equals `$HOME/.open-MaStR/`, respectively `~/.open-MaStR/`
     which is also called `PROJECTHOME`.
@@ -46,6 +46,8 @@ def get_project_home_dir():
     path-like object
         Absolute path to root dir of open-MaStR project home
     """
+    if "MASTR_PROJECT_HOME_DIR" in os.environ:
+        return os.environ.get("MASTR_PROJECT_HOME_DIR")
 
     return os.path.join(os.path.expanduser("~"), ".open-MaStR")
 
@@ -63,25 +65,6 @@ def get_output_dir():
         return os.environ.get("OUTPUT_PATH")
 
     return get_project_home_dir()
-
-
-def get_data_version_dir():
-    """
-    Subdirectory of data/ in PROJECTHOME
-
-    See :ref:`docs <Project directory>` for configuration of data version.
-
-    Returns
-    -------
-    path-like object
-        Absolute path to `PROJECTHOME/data/<data-version>/`
-    """
-    data_version = get_data_config()
-
-    if "OUTPUT_PATH" in os.environ:
-        return os.path.join(os.environ.get("OUTPUT_PATH"), "data", data_version)
-
-    return os.path.join(get_project_home_dir(), "data", data_version)
 
 
 def get_filenames():
@@ -113,7 +96,7 @@ def get_data_config():
 
     today = date.today()
 
-    data_config = f'dataversion-{today.strftime("%Y-%m-%d")}'
+    data_config = f"dataversion-{today.strftime('%Y-%m-%d')}"
 
     return data_config
 
@@ -149,17 +132,6 @@ def create_project_home_dir():
                 os.path.join(internal_config_dir, file),
                 os.path.join(config_path, os.path.basename(file)),
             )
-
-
-def create_data_dir():
-    """
-    Create direct for current data version
-
-    The directory that is created for this fata version can
-    be returned by :func:`~.get_data_version_dir`.
-    """
-
-    os.makedirs(get_data_version_dir(), exist_ok=True)
 
 
 def _filenames_generator():
@@ -207,7 +179,6 @@ def _filenames_generator():
     for section, section_filenames in filenames_template.items():
         filenames[section] = {}
         for tech in TECHNOLOGIES:
-
             # Files for all technologies
             files = ["joined", "basic", "extended", "extended_fail"]
 

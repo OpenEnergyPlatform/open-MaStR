@@ -1,66 +1,52 @@
 import os
-import json
 from contextlib import contextmanager
-from datetime import date
+import datetime
 from warnings import warn
+from typing import Literal, Optional, Union
 from zipfile import BadZipfile, ZipFile
+from zoneinfo import ZoneInfo
 
 import dateutil
 import sqlalchemy
-from sqlalchemy.sql import insert, literal_column, text
 from dateutil.parser import parse
 from sqlalchemy import create_engine
-from sqlalchemy.orm import Query, sessionmaker
+from sqlalchemy.orm import sessionmaker
 
-import pandas as pd
-from tqdm import tqdm
-from open_mastr.utils import orm
-from open_mastr.utils.config import (
-    get_filenames,
-    get_data_version_dir,
-    column_renaming,
-)
 
 from open_mastr.soap_api.download import log
 from open_mastr.utils.constants import (
     BULK_DATA,
     TECHNOLOGIES,
     BULK_INCLUDE_TABLES_MAP,
-    BULK_ADDITIONAL_TABLES_CSV_EXPORT_MAP,
-    ORM_MAP,
-    UNIT_TYPE_MAP,
     ADDITIONAL_TABLES,
-    TRANSLATIONS,
 )
 
-
-def chunks(lst, n):
-    """Yield successive n-sized chunks from lst.
-
-    `Credits
-    <https://stackoverflow.com/questions/312443/how-do-you-split-a-list-into-evenly-sized-chunks>`_
-    """
-    length = lst.count() if isinstance(lst, Query) else len(lst)
-    for i in range(0, length, n):
-        yield lst[i : i + n]
+MASTR_TIMEZONE = ZoneInfo("Europe/Berlin")
 
 
-def create_database_engine(engine, sqlite_db_path) -> sqlalchemy.engine.Engine:
-    if engine == "sqlite":
-        sqlite_database_path = os.environ.get(
-            "SQLITE_DATABASE_PATH",
-            os.path.join(sqlite_db_path, "open-mastr.db"),
-        )
-        db_url = f"sqlite:///{sqlite_database_path}"
-        return create_engine(db_url)
-
-    if type(engine) == sqlalchemy.engine.Engine:
+def create_database_engine(
+    engine: Union[Literal["sqlite"] | sqlalchemy.engine.Engine],
+    sqlite_db_path: Optional[str],
+) -> sqlalchemy.engine.Engine:
+    if isinstance(engine, sqlalchemy.engine.Engine):
         return engine
+    if engine != "sqlite":
+        log.warning(
+            "engine parameter is neither 'sqlite' nor an SQLALchemy engine."
+            " Creating SQLite engine."
+        )
+
+    sqlite_database_path = os.environ.get(
+        "SQLITE_DATABASE_PATH",
+        os.path.join(sqlite_db_path, "open-mastr.db"),
+    )
+    db_url = f"sqlite:///{sqlite_database_path}"
+    return create_engine(db_url)
 
 
 def parse_date_string(bulk_date_string: str) -> str:
     if bulk_date_string == "today":
-        return date.today().strftime("%Y%m%d")
+        return datetime.datetime.now(tz=MASTR_TIMEZONE).strftime("%Y%m%d")
     else:
         return parse(bulk_date_string).strftime("%Y%m%d")
 
@@ -153,18 +139,20 @@ def transform_data_parameter(data, **kwargs):
     if isinstance(data, str):
         data = [data]
     elif data is None:
+        # TODO: This should be adapted so that all tables are downloaded if no data is given.
+        # Right now, it would skip new tables.
         data = BULK_DATA
 
     return data
 
 
-def transform_date_parameter(self, date, **kwargs):
+def transform_date_parameter(date: Union[datetime.date, Literal["today"]], **kwargs: Optional[str]) -> str:
     date = kwargs.get("bulk_date", date)
     date = "today" if date is None else date
     if date == "existing":
         log.warning(
             """
-        The date parameter 'existing' is deprecated and will be removed in the future. 
+        The date parameter 'existing' is deprecated and will be removed in the future.
         The date parameter is set to `today`.
 
         If this change causes problems for you, please comment in this issue on github:
@@ -192,427 +180,24 @@ def session_scope(engine):
         session.close()
 
 
-def data_to_include_tables(data: list, mapping: str = None) -> list:
+def data_to_include_tables(data: list[str]) -> set[str]:
     """
-    Convert user input 'data' to the list 'include_tables'.
-    It contains file names from zipped bulk download, if mapping="write_xml".
-    It contains database table names, if mapping="export_db_tables".
+    Convert user input 'data' to the set 'include_tables'.
+    It contains file names from zipped bulk download.
     Parameters
     ----------
     data: list
         The user input for data selection
-    mapping: str
-        Specify the mapping dict for the function and thus the list output.
     Returns
     -------
-    list
-        List of file names | List of database table names
-    -------
-
+    set
+        Set of file names
     """
-    if mapping == "write_xml":
-        # Map data selection to include tables in xml
-        include_tables = [
-            table for tech in data for table in BULK_INCLUDE_TABLES_MAP[tech]
-        ]
-        return include_tables
-
-    if mapping == "export_db_tables":
-        # Map data selection to include tables for csv export
-        include_tables = [
-            table
-            for possible_data_bulk in data
-            for table in BULK_ADDITIONAL_TABLES_CSV_EXPORT_MAP[possible_data_bulk]
-        ]
-        return include_tables
-
-    raise NotImplementedError(
-        "This function is only implemented for 'write_xml' and 'export_db_tables', "
-        "please specify when calling the function."
-    )
-
-
-def reverse_unit_type_map():
-    return {v: k for k, v in UNIT_TYPE_MAP.items()}
-
-
-# EXPORT RELEVANT FUNCTIONS
-
-
-def create_db_query(
-    tech=None,
-    additional_table=None,
-    additional_data=["unit_data", "eeg_data", "kwk_data", "permit_data"],
-    limit=None,
-    engine=None,
-):
-    """
-    Create a database query to export a snapshot MaStR data from database to CSV.
-
-    For technologies, during the query creation, additional available data is joined on
-    list of basic units. A query for a single technology is created separately because
-    of multiple non-overlapping columns. Duplicate columns for a single technology
-    (a results on data from different sources) are suffixed.
-
-    The data in the database probably has duplicates because
-    of the history how data was collected in the
-    Marktstammdatenregister.
-
-    Along with the data, metadata is saved in the file `datapackage.json`.
-
-    Parameters
-    ----------
-    technology: `list` of `str`
-        See list of available technologies in
-        `open_mastr.utils.constants.TECHNOLOGIES`
-    additional_table: `list` of `str`
-        See list of available technologies or additional tables in
-        `open_mastr.utils.constants.ADDITIONAL_TABLES`
-    engine: <class 'sqlalchemy.engine.base.Engine'>
-        User-defined database engine.
-    limit: int
-        Limit number of rows.
-    additional_data: `list`
-        Defaults to "export all available additional data" which is:
-        `["unit_data", "eeg_data", "kwk_data", "permit_data"]`.
-    chunksize: int or None
-        Defines the chunksize of the tables export. Default to 500.000 which is roughly 2.5 GB.
-    """
-
-    renaming = column_renaming()
-
-    unit_type_map_reversed = reverse_unit_type_map()
-
-    with session_scope(engine=engine) as session:
-        if tech:
-            # Select orm tables for specified additional_data.
-            orm_tables = {
-                f"{dat}": getattr(orm, ORM_MAP[tech].get(dat, "KeyNotAvailable"), None)
-                for dat in additional_data
-            }
-
-            # Filter for possible orm-additional_data combinations (not None)
-            orm_tables = {k: v for k, v in orm_tables.items() if v is not None}
-
-            # Build query based on available tables for tech and user input; always use basic units
-            subtables = partially_suffixed_columns(
-                orm.BasicUnit,
-                renaming["basic_data"]["columns"],
-                renaming["basic_data"]["suffix"],
-            )
-
-            # Extend table with columns from selected additional_data orm
-            for addit_data_type, addit_data_orm in orm_tables.items():
-                subtables.extend(
-                    partially_suffixed_columns(
-                        addit_data_orm,
-                        renaming[addit_data_type]["columns"],
-                        renaming[addit_data_type]["suffix"],
-                    )
-                )
-
-            query_tech = Query(subtables, session=session)
-
-            # Define joins based on available tables for data and user input
-            if "unit_data" in orm_tables:
-                query_tech = query_tech.join(
-                    orm_tables["unit_data"],
-                    orm.BasicUnit.EinheitMastrNummer
-                    == orm_tables["unit_data"].EinheitMastrNummer,
-                    isouter=True,
-                )
-            if "eeg_data" in orm_tables:
-                query_tech = query_tech.join(
-                    orm_tables["eeg_data"],
-                    orm.BasicUnit.EegMastrNummer
-                    == orm_tables["eeg_data"].EegMastrNummer,
-                    isouter=True,
-                )
-            if "kwk_data" in orm_tables:
-                query_tech = query_tech.join(
-                    orm_tables["kwk_data"],
-                    orm.BasicUnit.KwkMastrNummer
-                    == orm_tables["kwk_data"].KwkMastrNummer,
-                    isouter=True,
-                )
-            if "permit_data" in orm_tables:
-                query_tech = query_tech.join(
-                    orm_tables["permit_data"],
-                    orm.BasicUnit.GenMastrNummer
-                    == orm_tables["permit_data"].GenMastrNummer,
-                    isouter=True,
-                )
-
-            # Restricted to technology
-            query_tech = query_tech.filter(
-                orm.BasicUnit.Einheittyp == unit_type_map_reversed[tech]
-            )
-
-            # Limit returned rows of query
-            if limit:
-                query_tech = query_tech.limit(limit)
-
-            return query_tech
-
-        if additional_table:
-            orm_table = getattr(orm, ORM_MAP[additional_table], None)
-
-            query_additional_tables = Query(orm_table, session=session)
-
-            # Limit returned rows of query
-            if limit:
-                query_additional_tables = query_additional_tables.limit(limit)
-
-            return query_additional_tables
-
-
-# At the time of commenting this, the call of this function in mastr.py was already
-# commented out for more than a year
-
-# def save_metadata(data: list = None, engine=None) -> None:
-#     """
-#     Save metadata during csv export.
-#
-#     Parameters
-#     ----------
-#     data: list
-#         List of exported technologies for which metadata is needed.
-#     engine: <class 'sqlalchemy.engine.base.Engine'>
-#         User-defined database engine.
-#
-#     Returns
-#     -------
-#
-#     """
-#     data_path = get_data_version_dir()
-#     filenames = get_filenames()
-#     metadata_file = os.path.join(data_path, filenames["metadata"])
-#     unit_type_map_reversed = reverse_unit_type_map()
-#
-#     with session_scope(engine=engine) as session:
-#         # check for latest db entry for exported technologies
-#         mastr_technologies = [unit_type_map_reversed[tech] for tech in data]
-#         newest_date = (
-#             session.query(orm.BasicUnit.DatumLetzteAktualisierung)
-#             .filter(orm.BasicUnit.Einheittyp.in_(mastr_technologies))
-#             .order_by(orm.BasicUnit.DatumLetzteAktualisierung.desc())
-#             .first()[0]
-#         )
-#
-#     metadata = create_datapackage_meta_json(newest_date, data, json_serialize=False)
-#
-#     with open(metadata_file, "w", encoding="utf-8") as f:
-#         json.dump(metadata, f, ensure_ascii=False, indent=4)
-#
-#     log.info("Saved metadata")
-
-
-def reverse_fill_basic_units(technology=None, engine=None):
-    """
-    The basic_units table is empty after bulk download.
-    To enable csv export, the table is filled from extended
-    tables reversely.
-
-    .. warning::
-    The basic_units table will be dropped and then recreated.
-    Returns -------
-
-    Parameters
-    ----------
-    technology: list of str
-        Available technologies are in open_mastr.Mastr.to_csv()
-    """
-
-    with session_scope(engine=engine) as session:
-        # Empty the basic_units table, because it will be filled entirely from extended tables
-        session.query(getattr(orm, "BasicUnit", None)).delete()
-
-        for tech in tqdm(technology, desc="Performing reverse fill of basic units: "):
-            # Get the class of extended table
-            unit_data_orm = getattr(orm, ORM_MAP[tech]["unit_data"], None)
-            basic_unit_column_names = [
-                column.name
-                for column in getattr(orm, "BasicUnit", None).__mapper__.columns
-            ]
-
-            unit_columns_to_reverse_fill = [
-                column
-                for column in unit_data_orm.__mapper__.columns
-                if column.name in basic_unit_column_names
-            ]
-            unit_column_names_to_reverse_fill = [
-                column.name for column in unit_columns_to_reverse_fill
-            ]
-
-            unit_type_map_reversed = reverse_unit_type_map()
-
-            # Add Einheittyp artificially
-            unit_typ = "'" + unit_type_map_reversed.get(tech, None) + "'"
-            unit_columns_to_reverse_fill.append(
-                literal_column(unit_typ).label("Einheittyp")
-            )
-            unit_column_names_to_reverse_fill.append("Einheittyp")
-
-            # Build query
-            query = Query(unit_columns_to_reverse_fill, session=session)
-            insert_query = insert(orm.BasicUnit).from_select(
-                unit_column_names_to_reverse_fill, query
-            )
-
-            session.execute(insert_query)
-
-
-def partially_suffixed_columns(mapper, column_names, suffix):
-    """
-    Add a suffix to a subset of ORM map tables for a query
-
-    Parameters
-    ----------
-    mapper:
-        SQLAlchemy ORM table mapper
-    column_names: list
-        Names of columns to be suffixed
-    suffix: str
-        Suffix that is append like + "_" + suffix
-
-    Returns
-    -------
-    list
-        List of ORM table mapper instance
-    """
-    columns = list(mapper.__mapper__.columns)
-    return [
-        _.label(f"{_.name}_{suffix}") if _.name in column_names else _ for _ in columns
-    ]
-
-
-def db_query_to_csv(db_query, data_table: str, chunksize: int) -> None:
-    """
-    Export database query to CSV file
-
-    Save CSV files to the respective data version directory, see
-    :meth:`open_mastr.utils.config.get_data_version_dir`.
-
-    Parameters
-    ----------
-    db_query: <class 'sqlalchemy.orm.query.Query'>
-        QueryORM-level SQL construction object that holds tables for export.
-    data_table: str
-        See list of available technologies or additional tables in
-        `open_mastr.utils.constants.TECHNOLOGIES` and
-        `open_mastr.utils.constants.ADDITIONAL_TABLES`
-    chunksize: int
-        Defines the size of the chunks that are saved to csv.
-        Useful when export fails due to memory issues.
-    """
-    data_path = get_data_version_dir()
-    filenames = get_filenames()
-
-    # Set export settings per table type
-    if data_table in TECHNOLOGIES:
-        index = True
-        index_col = "EinheitMastrNummer"
-        index_label = "EinheitMastrNummer"
-        csv_file = os.path.join(data_path, filenames["raw"][data_table]["joined"])
-    if data_table in ADDITIONAL_TABLES:
-        index = False
-        index_col = None
-        index_label = None
-        csv_file = os.path.join(
-            data_path, filenames["raw"]["additional_table"][data_table]
-        )
-
-    with db_query.session.bind.connect() as con:
-        with con.begin():
-            # Read data into pandas.DataFrame in chunks of max. 500000 rows of ~2.5 GB RAM
-            for chunk_number, chunk_df in enumerate(
-                pd.read_sql(
-                    sql=db_query.statement,
-                    con=con,
-                    index_col=index_col,
-                    chunksize=chunksize,
-                )
-            ):
-                # For debugging purposes, check RAM usage of chunk_df
-                # chunk_df.info(memory_usage='deep')
-
-                # Make sure no duplicate column names exist
-                assert not any(chunk_df.columns.duplicated())
-
-                # Remove newline statements from certain strings
-                if data_table in TECHNOLOGIES:
-                    for col in ["Aktenzeichen", "Behoerde"]:
-                        chunk_df[col] = chunk_df[col].str.replace("\r", "")
-
-                if not chunk_df.empty:
-                    if chunk_number == 0:
-                        chunk_df.to_csv(
-                            csv_file,
-                            index=index,
-                            index_label=index_label,
-                            encoding="utf-8",
-                        )
-                        log.info(f"Created csv: {csv_file.split('/')[-1:]} ")
-                    else:
-                        chunk_df.to_csv(
-                            csv_file,
-                            mode="a",
-                            header=False,
-                            index=index,
-                            index_label=index_label,
-                            encoding="utf-8",
-                        )
-                        log.info(
-                            f"Appended {len(chunk_df)} rows to: {csv_file.split('/')[-1:]}"
-                        )
-
-
-def rename_table(table, columns, engine) -> None:
-    """
-    Rename table based on translation dictionary.
-    """
-    alter_statements = []
-
-    for column in columns:
-        column = column["name"]
-
-        if column in TRANSLATIONS:
-            alter_statement = text(
-                f"ALTER TABLE {table} RENAME COLUMN {column} TO {TRANSLATIONS[column]}"
-            )
-            alter_statements.append(alter_statement)
-
-    with engine.connect() as connection:
-        for statement in alter_statements:
-            try:
-                connection.execute(statement)
-            except sqlalchemy.exc.OperationalError:
-                continue
-
-
-def create_translated_database_engine(engine, folder_path) -> sqlalchemy.engine.Engine:
-    """
-    Check if translated version of the database, as defined with engine parameter, exists.
-    Return sqlite engine connected with the translated database.
-    """
-
-    if engine == "sqlite":
-        db_path = os.path.join(folder_path, "open-mastr-translated.db")
-    else:
-        if "sqlite" not in engine.dialect.name:
-            raise ValueError("engine has to be of type 'sqlite'")
-
-        prev_path = r"{}".format(engine.url.database)
-        engine.dispose()
-        db_path = prev_path[:-3] + "-translated.db"
-
-    if not os.path.exists(db_path):
-        raise FileNotFoundError(
-            f"no database at {db_path} found.\n"
-            "make sure the database has been translated before with translate()"
-        )
-
-    return create_engine(f"sqlite:///{db_path}")
+    # Map data selection to include tables in xml
+    include_tables = {
+        table for tech in data for table in BULK_INCLUDE_TABLES_MAP[tech]
+    }
+    return include_tables
 
 
 def delete_zip_file_if_corrupted(save_path: str):

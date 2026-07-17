@@ -1,11 +1,9 @@
 import csv
 import datetime
-import json
 import os
 import uuid
 
-from open_mastr.soap_api.metadata.description import DataDescription
-from open_mastr.utils.config import get_data_config, get_filenames, column_renaming
+from open_mastr.utils.config import get_data_config, get_filenames
 
 
 # TODO: We should not describe the data in both metadata folder and orm.py
