@@ -46,7 +46,7 @@ identifiers:
   - type: swh
     value: 'swh:1:dir:28252b3ca57b56d22be851bad576b6748af2e171'
     description: Software Heritage archive identifier
-title: "open-MaStR"
+title: 'open-MaStR'
 abstract: >-
   The Python Package open-mastr provides an interface for
   accessing and cleaning the German Energy Unit dataset
