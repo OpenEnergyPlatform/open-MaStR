@@ -41,7 +41,6 @@ authors:
   - family-names: 'Will'
     given-names: "Simon"
     alias: "@Simon-Will"
-    affiliation: ""
 identifiers:
   - type: swh
     value: 'swh:1:dir:28252b3ca57b56d22be851bad576b6748af2e171'
@@ -68,6 +67,5 @@ keywords:
 type: software
 license: AGPL-3.0
 version: 0.17.2
-doi: 
 date-released: 2026-07-17
 url: "https://github.com/OpenEnergyPlatform/open-MaStR/"
