@@ -6,6 +6,13 @@ For each version important additions, changes and removals are listed here.
 The format is inspired from [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [v0.17.2] Hotfix - 2026-07-17
+### Changed
+- Fix error where tables where empty by correctly parsing comma seperated int values
+  [#772](https://github.com/OpenEnergyPlatform/open-MaStR/pull/772)
+
+
+
 ## [v0.17.1] Hotfix - 2026-04-13
 ### Changed
 - Fix broken `Mastr.to_csv` function by removing stray `**kwargs`
