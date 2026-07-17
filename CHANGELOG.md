@@ -7,12 +7,6 @@ The format is inspired from [Keep a Changelog](http://keepachangelog.com/en/1.0.
 and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 
-## [v0.17.2] Hotfix - 2026-07-17
-  ### Changed
-  - Fix error where tables where empty by correctly parsing comma seperated int values
-    [#772](https://github.com/OpenEnergyPlatform/open-MaStR/pull/772)
-
-
 ## [v0.xx.x] Unreleased - 202x-xx-xx
   ### Added
   - Add `Mastr.generate_data_model` method that downloads the current MaStR documentation and generates SQLAlchemy tables from the XSD definitions; supports `english=True` for English column names
