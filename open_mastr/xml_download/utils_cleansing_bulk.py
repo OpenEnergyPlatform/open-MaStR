@@ -17,12 +17,16 @@ def cleanse_bulk_data(
     df = replace_system_catalog_ids(df, system_catalog)
     catalog_columns = set(catalog_columns) - system_catalog.keys()
     df = replace_mastr_katalogeintraege(
-        zipped_xml_file_path=zipped_xml_file_path, df=df, catalog_columns=catalog_columns,
+        zipped_xml_file_path=zipped_xml_file_path,
+        df=df,
+        catalog_columns=catalog_columns,
     )
     return df
 
 
-def replace_system_catalog_ids(df: pd.DataFrame, system_catalog: dict[int, str]) -> pd.DataFrame:
+def replace_system_catalog_ids(
+    df: pd.DataFrame, system_catalog: dict[int, str]
+) -> pd.DataFrame:
     """Replaces IDs with names according to the system catalog. This is
     necessary since the data from the bulk download encodes columns with
     IDs instead of the actual values."""
@@ -43,8 +47,8 @@ def replace_mastr_katalogeintraege(
     katalogwerte = create_katalogwerte_from_bulk_download(zipped_xml_file_path)
     for column_name in df.columns:
         if column_name in catalog_columns:
-            if df[column_name].dtype == "O":
-                # Handle comma-separated strings from catalog values
+            if pd.api.types.is_string_dtype(df[column_name]):
+                # Handle comma seperated strings from catalog values
                 df[column_name] = (
                     df[column_name]
                     .str.split(",", expand=True)

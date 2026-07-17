@@ -45,6 +45,10 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
   - Remove `Mastr.translate`; English table and column names are now available via the `english=True` parameter in `generate_data_model` and `download`
     [#718](https://github.com/OpenEnergyPlatform/open-MaStR/pull/718)
 
+## [v0.17.2] Hotfix - 2026-07-17
+  ### Changed
+  - Fix error where tables where empty by correctly parsing comma seperated int values
+    [#772](https://github.com/OpenEnergyPlatform/open-MaStR/pull/772)
 
 ## [v0.17.1] Hotfix - 2026-04-13
 ### Changed
