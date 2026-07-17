@@ -208,4 +208,4 @@ Data
    :target: https://archive.softwareheritage.org/swh:1:dir:28252b3ca57b56d22be851bad576b6748af2e171;origin=https://github.com/OpenEnergyPlatform/open-MaStR;visit=swh:1:snp:8065d0931f826af24c57fae612c6a48e0fcb135b;anchor=swh:1:rev:430223ddf437ba2611fe9a38521e6549ff61e750
 
 .. |badge_zenodo_software_mirror| image:: https://zenodo.org/badge/203598131.svg
-  :target: https://doi.org/10.5281/zenodo.21415387
+   :target: https://doi.org/10.5281/zenodo.21415387
