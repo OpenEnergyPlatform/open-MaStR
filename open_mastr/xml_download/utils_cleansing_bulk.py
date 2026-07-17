@@ -36,7 +36,7 @@ def replace_mastr_katalogeintraege(
     katalogwerte = create_katalogwerte_from_bulk_download(zipped_xml_file_path)
     for column_name in df.columns:
         if column_name in columns_replace_list:
-            if df[column_name].dtype == "O":
+            if pd.api.types.is_string_dtype(df[column_name]):
                 # Handle comma seperated strings from catalog values
                 df[column_name] = (
                     df[column_name]
