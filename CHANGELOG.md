@@ -6,6 +6,12 @@ For each version important additions, changes and removals are listed here.
 The format is inspired from [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [v0.17.4] Hotfix - 2026-07-17
+### Changed
+- Remove trailing white space in CITATION.cff
+  [#779](https://github.com/OpenEnergyPlatform/open-MaStR/pull/779)
+
+
 ## [v0.17.3] Hotfix - 2026-07-17
 ### Changed
 - Fix format of CITATION.cff file
