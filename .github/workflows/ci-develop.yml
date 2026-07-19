@@ -39,3 +39,30 @@ jobs:
     - name: Test with pytest
       run: |
         pytest -vv
+
+  build-pandas-older:
+    # Single run for ubuntu-latest with Python 3.14 and older pandas
+    runs-on: ubuntu-latest
+    if: ${{ !github.event.pull_request.draft }}
+    name: pytest (Python 3.14) (ubuntu-latest) (pandas<3)
+
+    # Configure tests
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python 3.14
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.14'
+    - name: Install dependencies with older pandas
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e .[dev] pandas<3
+    - name: Create credentials file
+      env:
+        MASTR_TOKEN: ${{ secrets.MASTR_TOKEN }}
+        MASTR_USER: ${{ secrets.MASTR_USER }}
+      run: |
+        python -c "from tests import preparation; preparation.create_credentials_file()"
+    - name: Test with pytest
+      run: |
+        pytest -vv
