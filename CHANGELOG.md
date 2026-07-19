@@ -22,6 +22,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 
 
   ### Changed
+  - Pin explicit units on bare `np.datetime64("NaT")` values in unit tests for NumPy 2.5 compatibility
+    [#784](https://github.com/OpenEnergyPlatform/open-MaStR/pull/784)
   - Fix race condition in parallel bulk XML import that resulted in silent data loss
     [#765](https://github.com/OpenEnergyPlatform/open-MaStR/pull/765)
   - Add support for reading XSD files from both zipped / unzipped documentation sources
