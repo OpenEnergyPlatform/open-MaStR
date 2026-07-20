@@ -109,7 +109,11 @@
         "Wind",
         "Energy-data",
         "OEP",
-        "OpenEnergyFamily"
+        "OpenEnergyFamily",
+        "Bundesnetzagentur",
+        "MaStR",
+        "bundesnetzagentur",
+        "mastr"
     ],
     "license": "https://spdx.org/licenses/AGPL-3.0",
     "name": "open-MaStR",
