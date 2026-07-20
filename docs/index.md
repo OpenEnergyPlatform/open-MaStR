@@ -21,7 +21,7 @@ In particular, `open-mastr` facilitates access to the daily provided MaStR dumps
 | ------------------------- | ---------------------------------------------------------------------------------------------------------------- |
 | Data download and parsing | Download, decode, and write data to a local database                                                             |
 | Translation to English    | Translate table names and columns from German to English as well as an English documentation page of the dataset |
-| Data processing           | Merge relevant information about different technologies to single csv files                                      |
+| CSV export                | Export downloaded data as CSV                                                                                    |
 
 !!! question "Just here for the data?"
     :sparkles: We regularly run the whole download and cleansing pipeline and upload the dataset as csv files at [zenodo](https://doi.org/10.5281/zenodo.6807425)! 

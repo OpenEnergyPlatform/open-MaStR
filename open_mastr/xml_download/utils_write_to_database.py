@@ -1,4 +1,5 @@
 import os
+from collections.abc import Collection, Mapping
 from concurrent.futures import ProcessPoolExecutor, wait
 from io import StringIO
 from multiprocessing import cpu_count
@@ -10,13 +11,17 @@ import lxml
 import numpy as np
 import pandas as pd
 import sqlalchemy
-from sqlalchemy import select, create_engine, inspect
+from sqlalchemy import Column, Engine, Table, delete, select, create_engine
 from sqlalchemy.sql import text
 from sqlalchemy.sql.sqltypes import Date, DateTime
 
 from open_mastr.utils.config import setup_logger
 from open_mastr.utils.helpers import data_to_include_tables
-from open_mastr.utils.orm import tablename_mapping
+from open_mastr.utils.xsd_tables import (
+    normalize_mastr_name,
+    translate_mastr_column_name,
+)
+from open_mastr.utils.sqlalchemy_tables import CatalogInteger, CatalogString
 from open_mastr.xml_download.utils_cleansing_bulk import cleanse_bulk_data
 
 log = setup_logger()
@@ -28,12 +33,18 @@ def write_mastr_xml_to_database(
     data: list,
     bulk_cleansing: bool,
     bulk_download_date: str,
+    mastr_table_to_db_table: Mapping[str, Table],
+    alter_database_tables: bool,
 ) -> None:
     """Write the Mastr in xml format into a database defined by the engine parameter."""
     log.info("Starting bulk download...")
 
-    include_tables = data_to_include_tables(data, mapping="write_xml")
+    include_tables = data_to_include_tables(data)
     threads_data = []
+    lower_mastr_table_to_db_table = {
+        db_table.info.get("original_name", mastr_table_name).lower(): db_table
+        for mastr_table_name, db_table in mastr_table_to_db_table.items()
+    }
 
     with ZipFile(zipped_xml_file_path, "r") as f:
         files_list = correct_ordering_of_filelist(f.namelist())
@@ -41,22 +52,33 @@ def write_mastr_xml_to_database(
         for file_name in files_list:
             xml_table_name = extract_xml_table_name(file_name)
 
-            if not is_table_relevant(xml_table_name, include_tables):
+            if xml_table_name not in include_tables:
                 continue
 
-            sql_table_name = extract_sql_table_name(xml_table_name)
+            db_table = lower_mastr_table_to_db_table.get(xml_table_name)
+            if db_table is None:
+                log.warning(
+                    f"Skipping MaStR file {file_name!r} because no database table was found for {xml_table_name=}"
+                )
+                continue
+
             threads_data.append(
                 (
                     file_name,
-                    xml_table_name,
-                    sql_table_name,
+                    db_table,
                     str(engine.url),
                     engine.url.password,
                     zipped_xml_file_path,
                     bulk_download_date,
                     bulk_cleansing,
+                    alter_database_tables,
                 )
             )
+
+    # Clear each target table exactly once in the parent process
+    db_tables_to_clear = {db_table.name: db_table for _, db_table, *_ in threads_data}
+    for db_table in db_tables_to_clear.values():
+        delete_all_existing_rows(db_table=db_table, engine=engine)
 
     interleaved_files = interleave_files(threads_data)
     number_of_processes = get_number_of_processes()
@@ -100,13 +122,13 @@ def get_number_of_processes():
 
 def process_xml_file(
     file_name: str,
-    xml_table_name: str,
-    sql_table_name: str,
+    db_table: Table,
     connection_url: str,
     password: str,
     zipped_xml_file_path: str,
     bulk_download_date: str,
     bulk_cleansing: bool,
+    alter_database_tables: bool,
 ) -> None:
     """Process a single xml file and write it to the database."""
     try:
@@ -121,25 +143,87 @@ def process_xml_file(
         engine = create_efficient_engine(connection_url)
         with ZipFile(zipped_xml_file_path, "r") as f:
             log.info(f"Processing file '{file_name}'...")
-            if is_first_file(file_name):
-                log.info(f"Creating table '{sql_table_name}'...")
-                create_database_table(engine, xml_table_name)
             df = read_xml_file(f, file_name)
             df = process_table_before_insertion(
-                df,
-                xml_table_name,
-                zipped_xml_file_path,
-                bulk_download_date,
-                bulk_cleansing,
+                df=df,
+                db_table=db_table,
+                zipped_xml_file_path=zipped_xml_file_path,
+                bulk_download_date=bulk_download_date,
+                bulk_cleansing=bulk_cleansing,
+            )
+            df = check_for_column_mismatch_and_try_to_solve_it(
+                df=df,
+                db_table=db_table,
+                engine=engine,
+                alter_database_tables=alter_database_tables,
             )
             if engine.dialect.name == "sqlite":
-                add_table_to_sqlite_database(df, xml_table_name, sql_table_name, engine)
+                add_table_to_sqlite_database(
+                    df=df,
+                    db_table=db_table,
+                    engine=engine,
+                )
             else:
                 add_table_to_non_sqlite_database(
-                    df, xml_table_name, sql_table_name, engine
+                    df=df,
+                    db_table=db_table,
+                    engine=engine,
                 )
     except Exception as e:
         log.error(f"Error processing file '{file_name}': '{e}'")
+
+
+def delete_all_existing_rows(db_table: Table, engine: Engine) -> None:
+    with engine.begin() as con:
+        con.execute(delete(db_table))
+
+
+def check_for_column_mismatch_and_try_to_solve_it(
+    df: pd.DataFrame,
+    db_table: Table,
+    engine: Engine,
+    alter_database_tables: bool,
+) -> pd.DataFrame:
+    df_column_names = set(df.columns)
+    db_column_names = {column.name for column in db_table.columns}
+
+    if additional_db_column_names := db_column_names - df_column_names:
+        # Many columns are optional and it's perfectly normal to have and XML file / a dataframe that doesn't have
+        # a column that is present in the database. So this is only worth a debug message.
+        log.debug(
+            f"Database table {db_table.name} has some columns that weren't found in the XML file."
+            f" Proceeding and trying to insert anyway. Additional DB columns:"
+            f" {', '.join(additional_db_column_names)}"
+        )
+
+    if additional_df_column_names := df_column_names - db_column_names:
+        if alter_database_tables:
+            log.warning(
+                f"XML file has some columns that aren't present in the database table {db_table.name}."
+                f" Trying to add the columns to the table. Additional XML columns:"
+                f" {', '.join(additional_df_column_names)}"
+            )
+            # TODO: What if we can add some columns and not others? We should then return the columns for which we succeeded.
+            try:
+                add_missing_columns_to_table(
+                    engine=engine,
+                    db_table=db_table,
+                    missing_columns=additional_df_column_names,
+                )
+            except Exception:
+                log.exception(
+                    "Could not add at least some columns to the database. Ignoring the columns from the XML file instead."
+                )
+                df = df.drop(columns=additional_df_column_names)
+        else:
+            log.warning(
+                f"XML file has some columns that aren't present in the database table {db_table.name}."
+                f" Ignoring those columns since you asked not to alter tables. Additional XML columns:"
+                f" {', '.join(additional_df_column_names)}"
+            )
+            df = df.drop(columns=additional_df_column_names)
+
+    return df
 
 
 def create_efficient_engine(connection_url: str) -> sqlalchemy.engine.Engine:
@@ -211,89 +295,35 @@ def extract_xml_table_name(file_name: str) -> str:
     return file_name.split("_")[0].split(".")[0].lower()
 
 
-def extract_sql_table_name(xml_table_name: str) -> str:
-    """Extract the SQL table name from the xml table name."""
-    return tablename_mapping[xml_table_name]["__name__"]
-
-
-def is_table_relevant(xml_table_name: str, include_tables: list) -> bool:
-    """Checks if the table contains relevant data and if the user wants to
-    have it in the database."""
-    # few tables are only needed for data cleansing of the xml files and contain no
-    # information of relevance
-    try:
-        boolean_write_table_to_sql_database = (
-            tablename_mapping[xml_table_name]["__class__"] is not None
-        )
-    except KeyError:
-        log.warning(
-            f"Table '{xml_table_name}' is not supported by your open-mastr version and "
-            f"will be skipped."
-        )
-        return False
-    # check if the table should be written to sql database (depends on user input)
-    include_count = include_tables.count(xml_table_name)
-
-    return include_count == 1 and boolean_write_table_to_sql_database
-
-
-def create_database_table(
-    engine: sqlalchemy.engine.Engine, xml_table_name: str
-) -> None:
-    orm_class = tablename_mapping[xml_table_name]["__class__"]
-    orm_class.__table__.drop(engine, checkfirst=True)
-    orm_class.__table__.create(engine)
-
-
-def is_first_file(file_name: str) -> bool:
-    """check if the file name indicates that it is the first file from the table"""
-    return (
-        file_name.split(".")[0].split("_")[-1] == "1"
-        or len(file_name.split(".")[0].split("_")) == 1
-    )
-
-
-def cast_date_columns_to_datetime(
-    xml_table_name: str, df: pd.DataFrame
-) -> pd.DataFrame:
-    sqlalchemy_columnlist = tablename_mapping[xml_table_name][
-        "__class__"
-    ].__table__.columns.items()
-    for column in sqlalchemy_columnlist:
-        column_name = column[0]
-        if is_date_column(column, df):
+def cast_date_columns_to_datetime(db_table: Table, df: pd.DataFrame) -> pd.DataFrame:
+    for column in db_table.columns:
+        if is_date_column(column) and column.name in df.columns:
             # Convert column to datetime64, invalid string -> NaT
-            df[column_name] = pd.to_datetime(df[column_name], errors="coerce")
+            df[column.name] = pd.to_datetime(df[column.name], errors="coerce")
     return df
 
 
-def cast_date_columns_to_string(xml_table_name: str, df: pd.DataFrame) -> pd.DataFrame:
-    column_list = tablename_mapping[xml_table_name][
-        "__class__"
-    ].__table__.columns.items()
-    for column in column_list:
-        column_name = column[0]
-
-        if not (column[0] in df.columns and is_date_column(column, df)):
+def cast_date_columns_to_string(db_table: Table, df: pd.DataFrame) -> pd.DataFrame:
+    for column in db_table.columns:
+        if not is_date_column(column) or column.name not in df.columns:
             continue
 
-        df[column_name] = pd.to_datetime(df[column_name], errors="coerce")
+        df[column.name] = pd.to_datetime(df[column.name], errors="coerce")
 
-        if type(column[1].type) is Date:
-            mask = df[column_name].notna()
-            df[column_name] = df[column_name].dt.strftime("%Y-%m-%d")
-            df.loc[mask, column_name] = df.loc[mask, column_name].str.zfill(10)
-            df[column_name] = df[column_name].replace("NaT", None)
-
-        elif type(column[1].type) is DateTime:
-            df[column_name] = (
-                df[column_name].dt.strftime("%Y-%m-%d %H:%M:%S.%f").replace("NaT", None)
+        if type(column.type) is Date:
+            mask = df[column.name].notna()
+            df[column.name] = df[column.name].dt.strftime("%Y-%m-%d")
+            df.loc[mask, column.name] = df.loc[mask, column.name].str.zfill(10)
+            df[column.name] = df[column.name].replace("NaT", None)
+        elif type(column.type) is DateTime:
+            df[column.name] = (
+                df[column.name].dt.strftime("%Y-%m-%d %H:%M:%S.%f").replace("NaT", None)
             )
     return df
 
 
-def is_date_column(column, df: pd.DataFrame) -> bool:
-    return type(column[1].type) in [Date, DateTime] and column[0] in df.columns
+def is_date_column(column: Column) -> bool:
+    return type(column.type) in [Date, DateTime]
 
 
 def correct_ordering_of_filelist(files_list: list) -> list:
@@ -331,46 +361,27 @@ def read_xml_file(f: ZipFile, file_name: str) -> pd.DataFrame:
             return handle_xml_syntax_error(xml_file.read().decode("utf-16"), error)
 
 
-def change_column_names_to_orm_format(
-    df: pd.DataFrame, xml_table_name: str
-) -> pd.DataFrame:
-    if tablename_mapping[xml_table_name]["replace_column_names"]:
-        df.rename(
-            columns=tablename_mapping[xml_table_name]["replace_column_names"],
-            inplace=True,
-        )
-    return df
-
-
 def add_table_to_non_sqlite_database(
     df: pd.DataFrame,
-    xml_table_name: str,
-    sql_table_name: str,
+    db_table: Table,
     engine: sqlalchemy.engine.Engine,
 ) -> None:
     # get a dictionary for the data types
-    table_columns_list = list(
-        tablename_mapping[xml_table_name]["__class__"].__table__.columns
-    )
     dtypes_for_writing_sql = {
         column.name: column.type
-        for column in table_columns_list
+        for column in db_table.columns
         if column.name in df.columns
     }
 
     # Convert date and datetime columns into the datatype datetime.
-    df = cast_date_columns_to_datetime(xml_table_name, df)
-
-    add_missing_columns_to_table(
-        engine, xml_table_name, column_list=df.columns.tolist()
-    )
+    df = cast_date_columns_to_datetime(db_table, df)
 
     for _ in range(10000):
         try:
             with engine.connect() as con:
                 with con.begin():
                     df.to_sql(
-                        sql_table_name,
+                        db_table.name,
                         con=con,
                         index=False,
                         if_exists="append",
@@ -383,9 +394,9 @@ def add_table_to_non_sqlite_database(
 
         except sqlalchemy.exc.IntegrityError:
             # error resulting from Unique constraint failed
-            df = write_single_entries_until_not_unique_comes_up(
-                df, xml_table_name, engine
-            )
+            # FIXME: This error can also indicate other problems than non-unique.
+            # We should differentiate more and show it to the user for cases we cannot solve.
+            df = write_single_entries_until_not_unique_comes_up(df, db_table, engine)
 
 
 def add_zero_as_first_character_for_too_short_string(df: pd.DataFrame) -> pd.DataFrame:
@@ -421,7 +432,7 @@ def add_zero_as_first_character_for_too_short_string(df: pd.DataFrame) -> pd.Dat
 
 
 def write_single_entries_until_not_unique_comes_up(
-    df: pd.DataFrame, xml_table_name: str, engine: sqlalchemy.engine.Engine
+    df: pd.DataFrame, db_table: Table, engine: sqlalchemy.engine.Engine
 ) -> pd.DataFrame:
     """
     Remove from dataframe these rows, which are already existing in the database table
@@ -435,15 +446,14 @@ def write_single_entries_until_not_unique_comes_up(
     -------
     Filtered dataframe
     """
+    # TODO: Check if we need to support composite primary keys for the MaStR changes table.
+    # Because this here assumes single-column primary keys.
+    primary_key = next(c for c in db_table.columns if c.primary_key)
 
-    table = tablename_mapping[xml_table_name]["__class__"].__table__
-    primary_key = next(c for c in table.columns if c.primary_key)
-
-    with engine.connect() as con:
-        with con.begin():
-            key_list = (
-                pd.read_sql(sql=select(primary_key), con=con).values.squeeze().tolist()
-            )
+    with engine.begin() as con:
+        key_list = (
+            pd.read_sql(sql=select(primary_key), con=con).values.squeeze().tolist()
+        )
 
     len_df_before = len(df)
     df = df.drop_duplicates(
@@ -462,8 +472,8 @@ def write_single_entries_until_not_unique_comes_up(
 
 def add_missing_columns_to_table(
     engine: sqlalchemy.engine.Engine,
-    xml_table_name: str,
-    column_list: list,
+    db_table: Table,
+    missing_columns: Collection[str],
 ) -> None:
     """
     Some files introduce new columns for existing tables.
@@ -479,36 +489,24 @@ def add_missing_columns_to_table(
     -------
 
     """
-    log = setup_logger()
-
-    # get the columns name from the existing database
-    inspector = sqlalchemy.inspect(engine)
-    table_name = tablename_mapping[xml_table_name]["__class__"].__table__.name
-    columns = inspector.get_columns(table_name)
-    column_names_from_database = [column["name"] for column in columns]
-
-    missing_columns = set(column_list) - set(column_names_from_database)
-
+    table_name = db_table.name
     for column_name in missing_columns:
-        if not column_exists(engine, table_name, column_name):
-            alter_query = 'ALTER TABLE %s ADD "%s" VARCHAR NULL;' % (
-                table_name,
-                column_name,
-            )
-            try:
-                with engine.connect().execution_options(autocommit=True) as con:
-                    with con.begin():
-                        con.execute(
-                            text(alter_query).execution_options(autocommit=True)
-                        )
-            except sqlalchemy.exc.OperationalError as err:
-                # If the column already exists, we can ignore the error.
-                if "duplicate column name" not in str(err):
-                    raise err
-            log.info(
-                "From the downloaded xml files following new attribute was "
-                f"introduced: {table_name}.{column_name}"
-            )
+        alter_query = 'ALTER TABLE %s ADD "%s" VARCHAR NULL;' % (
+            table_name,
+            column_name,
+        )
+        try:
+            with engine.connect().execution_options(autocommit=True) as con:
+                with con.begin():
+                    con.execute(text(alter_query).execution_options(autocommit=True))
+        except sqlalchemy.exc.OperationalError as err:
+            # If the column already exists, we can ignore the error.
+            if "duplicate column name" not in str(err):
+                raise err
+    log.info(
+        f"Added the following columns to database table {table_name}:"
+        f" {', '.join(missing_columns)}"
+    )
 
 
 def delete_wrong_xml_entry(err: Error, df: pd.DataFrame) -> pd.DataFrame:
@@ -564,61 +562,86 @@ def handle_xml_syntax_error(data: str, err: Error) -> pd.DataFrame:
 
 def process_table_before_insertion(
     df: pd.DataFrame,
-    xml_table_name: str,
+    db_table: Table,
     zipped_xml_file_path: str,
     bulk_download_date: str,
     bulk_cleansing: bool,
 ) -> pd.DataFrame:
     df = add_zero_as_first_character_for_too_short_string(df)
-    df = change_column_names_to_orm_format(df, xml_table_name)
 
     # Add Column that refers to the source of the data
     df["DatenQuelle"] = "bulk"
     df["DatumDownload"] = bulk_download_date
 
+    df = align_df_column_names_to_db_column_names(df=df, db_table=db_table)
+
     if bulk_cleansing:
-        df = cleanse_bulk_data(df, zipped_xml_file_path)
+        catalog_columns = {
+            column.name
+            for column in db_table.columns
+            if isinstance(column.type, (CatalogInteger, CatalogString))
+        }
+        df = cleanse_bulk_data(
+            df=df,
+            catalog_columns=catalog_columns,
+            zipped_xml_file_path=zipped_xml_file_path,
+        )
     return df
+
+
+def align_df_column_names_to_db_column_names(
+    df: pd.DataFrame,
+    db_table: Table,
+) -> pd.DataFrame:
+    old_column_name_to_new_column_name = {
+        column_name: normalize_mastr_name(column_name) for column_name in df.columns
+    }
+    if db_table.name == db_table.info.get("english_name"):
+        # Database is in English. We must translate the df columns
+        english_updates = {}
+        for (
+            old_column_name,
+            normalized_column_name,
+        ) in old_column_name_to_new_column_name.items():
+            if english_column_name := translate_mastr_column_name(
+                normalized_column_name
+            ):
+                english_updates[old_column_name] = english_column_name
+        old_column_name_to_new_column_name.update(english_updates)
+
+    renamed_df = df.rename(columns=old_column_name_to_new_column_name)
+    return renamed_df
 
 
 def add_table_to_sqlite_database(
     df: pd.DataFrame,
-    xml_table_name: str,
-    sql_table_name: str,
+    db_table: Table,
     engine: sqlalchemy.engine.Engine,
 ) -> None:
     column_list = df.columns.tolist()
-    add_missing_columns_to_table(engine, xml_table_name, column_list)
 
     # Convert NaNs to None.
     df = df.where(pd.notnull(df), None)
 
     # Convert date columns to strings. Dates are not supported directly by SQLite.
-    df = cast_date_columns_to_string(xml_table_name, df)
+    df = cast_date_columns_to_string(db_table, df)
 
     # Create SQL statement for bulk insert. ON CONFLICT DO NOTHING prevents duplicates.
-    insert_stmt = f"INSERT INTO {sql_table_name} ({','.join(column_list)}) VALUES ({','.join(['?' for _ in column_list])}) ON CONFLICT DO NOTHING"
+    insert_stmt = f"INSERT INTO {db_table.name} ({','.join(column_list)}) VALUES ({','.join(['?' for _ in column_list])}) ON CONFLICT DO NOTHING"
 
     for _ in range(10000):
         try:
-            with engine.connect() as con:
-                with con.begin():
-                    con.connection.executemany(insert_stmt, df.to_numpy())
-                    break
+            with engine.begin() as con:
+                con.connection.executemany(insert_stmt, df.to_numpy())
+                break
         except sqlalchemy.exc.DataError as err:
             delete_wrong_xml_entry(err, df)
         except sqlalchemy.exc.IntegrityError:
             # error resulting from Unique constraint failed
-            df = write_single_entries_until_not_unique_comes_up(
-                df, xml_table_name, engine
-            )
-        except:
+            # FIXME: This error can also indicate other problems than non-unique.
+            # We should differentiate more and show it to the user for cases we cannot solve.
+            df = write_single_entries_until_not_unique_comes_up(df, db_table, engine)
+        except Exception:
             # If any unexpected error occurs, we'll switch back to the non-SQLite method.
-            add_table_to_non_sqlite_database(df, xml_table_name, sql_table_name, engine)
+            add_table_to_non_sqlite_database(df, db_table, engine)
             break
-
-
-def column_exists(engine, table_name, column_name):
-    inspector = inspect(engine)
-    columns = [col["name"] for col in inspector.get_columns(table_name)]
-    return column_name in columns

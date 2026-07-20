@@ -18,11 +18,7 @@ pip install open-mastr --upgrade
 ## Downloading the MaStR data
 
 
-The MaStR dataset is updated on a daily basis. To download todays MaStR and save it in a sqlite database, you will use the [`Mastr`][open_mastr.Mastr] class and its [`download`][open_mastr.Mastr.download] method. The [`download`][open_mastr.Mastr.download] method offers two different ways to get the data by changing the `method` parameter (if not specified, `method` defaults to "bulk"):
-
-1. `method` = "bulk": Get data via the bulk download from [MaStR/Datendownload](https://www.marktstammdatenregister.de/MaStR/Datendownload). Use this if you want to download the whole dataset (few Gigabite) or if you want to download all units of a given technology (e.g. all wind turbines in Germany).
-2. `method` = "API": Get data via the MaStR SOAP-API. Use this if you want specific information about single units and if you have registerd to get an API token.
-
+The MaStR dataset is updated on a daily basis. To download today's MaStR and save it in a sqlite database, you will use the [`Mastr`][open_mastr.Mastr] class and its [`download`][open_mastr.Mastr.download] method. This will get the bulk download from [MaStR/Datendownload](https://www.marktstammdatenregister.de/MaStR/Datendownload). You can either download the whole dataset (a few GB) or all units of a given technology (e.g. all wind turbines in Germany).
 
 ### Bulk download
 
