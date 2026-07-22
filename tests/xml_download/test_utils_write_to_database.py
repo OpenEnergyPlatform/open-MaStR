@@ -63,12 +63,12 @@ def test_cast_date_columns_to_string():
             "Registrierungsdatum": [
                 datetime(2024, 3, 11).date(),
                 datetime(1999, 2, 1).date(),
-                np.datetime64("nat"),
+                np.datetime64("NaT", "D"),
             ],
             "DatumLetzteAktualisierung": [
                 datetime(2022, 3, 22),
                 datetime(2020, 1, 2, 10, 12, 46),
-                np.datetime64("nat"),
+                np.datetime64("NaT", "s"),
             ],
         }
     )
@@ -291,12 +291,12 @@ def test_add_table_to_sqlite_database(
             "InstallierteLeistung": [1.0, 100.4],
             "AnlageBetriebsstatus": [None, None],
             "Registrierungsdatum": [datetime(2022, 2, 2), datetime(2024, 3, 20)],
-            "Meldedatum": [np.datetime64("NaT"), np.datetime64("NaT")],
+            "Meldedatum": [np.datetime64("NaT", "s"), np.datetime64("NaT", "s")],
             "DatumLetzteAktualisierung": [
                 datetime(2022, 12, 2, 10, 10, 10, 300),
                 datetime(2024, 10, 10),
             ],
-            "EegInbetriebnahmedatum": [np.datetime64("NaT"), np.datetime64("NaT")],
+            "EegInbetriebnahmedatum": [np.datetime64("NaT", "s"), np.datetime64("NaT", "s")],
             "VerknuepfteEinheit": [None, None],
             "AnlagenschluesselEeg": [None, None],
             "AusschreibungZuschlag": [True, False],
@@ -304,7 +304,7 @@ def test_add_table_to_sqlite_database(
             "AnlagenkennzifferAnlagenregister_nv": [None, None],
             "Netzbetreiberzuordnungen": ["test1", "test2"],
             "DatenQuelle": [None, None],
-            "DatumDownload": [np.datetime64("NaT"), np.datetime64("NaT")],
+            "DatumDownload": [np.datetime64("NaT", "s"), np.datetime64("NaT", "s")],
         }
     )
 
