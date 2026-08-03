@@ -19,6 +19,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
   [#753](https://github.com/OpenEnergyPlatform/open-MaStR/pull/753)
 - Add missing english translations
   [#754](https://github.com/OpenEnergyPlatform/open-MaStR/pull/754)
+- Add codemeta.json file
+  [#780](https://github.com/OpenEnergyPlatform/open-MaStR/pull/780)
 
 
 ### Changed

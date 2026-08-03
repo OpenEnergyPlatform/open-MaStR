@@ -1,0 +1,202 @@
+{
+    "@context": "https://w3id.org/codemeta/3.0",
+    "@type": [
+        "SoftwareSourceCode",
+        "SoftwareApplication"
+    ],
+    "author": [
+        {
+            "affiliation": {
+                "name": "Reiner Lemoine Institut",
+                "@type": "Organization"
+            },
+            "familyName": "Ludwig",
+            "givenName": "Hülk",
+            "name": "Hülk Ludwig",
+            "@id": "https://orcid.org/0000-0003-4655-2321",
+            "@type": "Person"
+        },
+        {
+            "affiliation": {
+                "name": "Reiner Lemoine Institut",
+                "@type": "Organization"
+            },
+            "familyName": "Guido",
+            "givenName": "Pleßmann",
+            "name": "Pleßmann Guido",
+            "@id": "_:author_2",
+            "@type": "Person"
+        },
+        {
+            "affiliation": {
+                "name": "Reiner Lemoine Institut",
+                "@type": "Organization"
+            },
+            "familyName": "Christoph",
+            "givenName": "Muschner",
+            "name": "Muschner Christoph",
+            "@id": "https://orcid.org/0000-0001-8144-5260",
+            "@type": "Person"
+        },
+        {
+            "affiliation": {
+                "name": "OFFIS e.V. - Institute for Informatics",
+                "@type": "Organization"
+            },
+            "familyName": "Florian",
+            "givenName": "Kotthoff",
+            "name": "Kotthoff Florian",
+            "@id": "https://orcid.org/0000-0003-3666-6122",
+            "@type": "Person"
+        },
+        {
+            "affiliation": {
+                "name": "fortiss",
+                "@type": "Organization"
+            },
+            "familyName": "Deniz",
+            "givenName": "Tepe",
+            "name": "Tepe Deniz",
+            "@id": "https://orcid.org/0000-0002-7605-0173",
+            "@type": "Person"
+        },
+        {
+            "affiliation": {
+                "name": "Reiner Lemoine Institut",
+                "@type": "Organization"
+            },
+            "familyName": "Jonathan",
+            "givenName": "Amme",
+            "name": "Amme Jonathan",
+            "@id": "https://orcid.org/0000-0002-8563-5261",
+            "@type": "Person"
+        },
+        {
+            "familyName": "Will",
+            "givenName": "Simon",
+            "name": "Simon Will",
+            "@id": "_:author_7",
+            "@type": "Person"
+        },
+        {
+            "name": "Open Energy Family",
+            "@id": "_:author_8",
+            "@type": "Organization"
+        }
+    ],
+    "codeRepository": "https://github.com/OpenEnergyPlatform/open-MaStR",
+    "dateCreated": "2019-08-21",
+    "dateModified": "2026-07-14",
+    "datePublished": "2019-12-05",
+    "description": "A Python Package to Download and Process the German Power Plant and Energy System Registry Marktstammdatenregister (MaStR)",
+    "downloadUrl": "https://github.com/OpenEnergyPlatform/open-MaStR/releases",
+    "identifier": "https://doi.org/10.5281/zenodo.21415387",
+    "keywords": [
+        "bnetza",
+        "dataset",
+        "datasets",
+        "energy",
+        "energy-data",
+        "marktstammdatenregister",
+        "oep",
+        "open-energy-family",
+        "python",
+        "solar",
+        "Markstammdatenregister",
+        "Energy",
+        "Dataset",
+        "Solar",
+        "Wind",
+        "Energy-data",
+        "OEP",
+        "OpenEnergyFamily",
+        "Bundesnetzagentur",
+        "MaStR",
+        "bundesnetzagentur",
+        "mastr"
+    ],
+    "license": "https://spdx.org/licenses/AGPL-3.0",
+    "name": "open-MaStR",
+    "programmingLanguage": "Python",
+    "runtimePlatform": [
+        "Python>=3.9",
+        "<4",
+        "Conda"
+    ],
+    "softwareRequirements": [
+        {
+            "name": "python",
+            "version": "3.14",
+            "@type": "SoftwareApplication"
+        },
+        {
+            "name": "pandas",
+            "version": ">=2.2.2",
+            "@type": "SoftwareApplication"
+        },
+        {
+            "name": "numpy",
+            "@type": "SoftwareApplication"
+        },
+        {
+            "name": "sqlalchemy",
+            "version": ">=2.0",
+            "@type": "SoftwareApplication"
+        },
+        {
+            "name": "psycopg2-binary",
+            "@type": "SoftwareApplication"
+        },
+        {
+            "name": "zeep",
+            "@type": "SoftwareApplication"
+        },
+        {
+            "name": "tqdm",
+            "@type": "SoftwareApplication"
+        },
+        {
+            "name": "requests",
+            "@type": "SoftwareApplication"
+        },
+        {
+            "name": "keyring",
+            "@type": "SoftwareApplication"
+        },
+        {
+            "name": "pyyaml",
+            "@type": "SoftwareApplication"
+        },
+        {
+            "name": "xmltodict",
+            "@type": "SoftwareApplication"
+        },
+        {
+            "name": "xmlschema",
+            "@type": "SoftwareApplication"
+        },
+        {
+            "name": "setuptools",
+            "@type": "SoftwareApplication"
+        },
+        {
+            "name": "setuptools-scm",
+            "@type": "SoftwareApplication"
+        },
+        {
+            "name": "mkdocstrings[python]",
+            "@type": "SoftwareApplication"
+        },
+        {
+            "name": "mkdocs-material",
+            "@type": "SoftwareApplication"
+        },
+        {
+            "name": "mkdocs-include-markdown-plugin",
+            "@type": "SoftwareApplication"
+        }
+    ],
+    "version": "v0.17.4",
+    "continuousIntegration": "https://raw.githubusercontent.com/OpenEnergyPlatform/open-MaStR/develop/.github/workflows/ci-develop.yml",
+    "issueTracker": "https://github.com/OpenEnergyPlatform/open-MaStR/issues"
+}
