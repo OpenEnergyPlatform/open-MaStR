@@ -8,49 +8,53 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 
 
 ## [v0.xx.x] Unreleased - 202x-xx-xx
-  ### Added
-  - Add `Mastr.generate_data_model` method that downloads the current MaStR documentation and generates SQLAlchemy tables from the XSD definitions; supports `english=True` for English column names
-    [#718](https://github.com/OpenEnergyPlatform/open-MaStR/pull/718)
-  - Add `mastr_table_to_db_table` argument to `Mastr.download` to pass a custom database schema
-    [#718](https://github.com/OpenEnergyPlatform/open-MaStR/pull/718)
-  - Add `alter_database_tables` argument to `Mastr.download` to prevent open-mastr from issuing DDL statements
-    [#718](https://github.com/OpenEnergyPlatform/open-MaStR/pull/718)
-  - Add more integration tests
-    [#753](https://github.com/OpenEnergyPlatform/open-MaStR/pull/753)
-  - Add missing english translations
-    [#754](https://github.com/OpenEnergyPlatform/open-MaStR/pull/754)
-  - Add codemeta.json file
-    [#780](https://github.com/OpenEnergyPlatform/open-MaStR/pull/780)
+### Added
+- Add `Mastr.generate_data_model` method that downloads the current MaStR documentation and generates SQLAlchemy tables from the XSD definitions; supports `english=True` for English column names
+  [#718](https://github.com/OpenEnergyPlatform/open-MaStR/pull/718)
+- Add `mastr_table_to_db_table` argument to `Mastr.download` to pass a custom database schema
+  [#718](https://github.com/OpenEnergyPlatform/open-MaStR/pull/718)
+- Add `alter_database_tables` argument to `Mastr.download` to prevent open-mastr from issuing DDL statements
+  [#718](https://github.com/OpenEnergyPlatform/open-MaStR/pull/718)
+- Add more integration tests
+  [#753](https://github.com/OpenEnergyPlatform/open-MaStR/pull/753)
+- Add missing english translations
+  [#754](https://github.com/OpenEnergyPlatform/open-MaStR/pull/754)
+- Add codemeta.json file
+  [#780](https://github.com/OpenEnergyPlatform/open-MaStR/pull/780)
 
 
-  ### Changed
-  - Fix race condition in parallel bulk XML import that resulted in silent data loss
-    [#765](https://github.com/OpenEnergyPlatform/open-MaStR/pull/765)
-  - Add support for reading XSD files from both zipped / unzipped documentation sources
-    [#761](https://github.com/OpenEnergyPlatform/open-MaStR/pull/761)
-  - Refactor data path configuration: remove `get_data_version_dir()`, add `MASTR_PROJECT_HOME_DIR` env var support to `get_project_home_dir()`
-    [#748](https://github.com/OpenEnergyPlatform/open-MaStR/pull/748)
-  - Switch to dynamic table generation based on parsing of XSD files from the MaStR documentation; fall back to bundled XSD files if the downloaded documentation is invalid
-    [#718](https://github.com/OpenEnergyPlatform/open-MaStR/pull/718)
-  - Change default table and column names to align more closely with the original MaStR export file names
-    [#718](https://github.com/OpenEnergyPlatform/open-MaStR/pull/718)
-  - Simplify CSV export by removing cross-table joins; tables are exported as-is
-    [#718](https://github.com/OpenEnergyPlatform/open-MaStR/pull/718)
-  - Refactor test suite to run without a local MaStR bulk download
-    [#749](https://github.com/OpenEnergyPlatform/open-MaStR/pull/749)
-  - Skip credential-dependent SOAP tests when credentials are absent
-    [#749](https://github.com/OpenEnergyPlatform/open-MaStR/pull/749)
-    - Change default python version to 3.14
-    [#753](https://github.com/OpenEnergyPlatform/open-MaStR/pull/753)
+### Changed
+- Fix race condition in parallel bulk XML import that resulted in silent data loss
+  [#765](https://github.com/OpenEnergyPlatform/open-MaStR/pull/765)
+- Add support for reading XSD files from both zipped / unzipped documentation sources
+  [#761](https://github.com/OpenEnergyPlatform/open-MaStR/pull/761)
+- Refactor data path configuration: remove `get_data_version_dir()`, add `MASTR_PROJECT_HOME_DIR` env var support to `get_project_home_dir()`
+  [#748](https://github.com/OpenEnergyPlatform/open-MaStR/pull/748)
+- Switch to dynamic table generation based on parsing of XSD files from the MaStR documentation; fall back to bundled XSD files if the downloaded documentation is invalid
+  [#718](https://github.com/OpenEnergyPlatform/open-MaStR/pull/718)
+- Change default table and column names to align more closely with the original MaStR export file names
+  [#718](https://github.com/OpenEnergyPlatform/open-MaStR/pull/718)
+- Simplify CSV export by removing cross-table joins; tables are exported as-is
+  [#718](https://github.com/OpenEnergyPlatform/open-MaStR/pull/718)
+- Refactor test suite to run without a local MaStR bulk download
+  [#749](https://github.com/OpenEnergyPlatform/open-MaStR/pull/749)
+- Skip credential-dependent SOAP tests when credentials are absent
+  [#749](https://github.com/OpenEnergyPlatform/open-MaStR/pull/749)
+- Change default python version to 3.14
+  [#753](https://github.com/OpenEnergyPlatform/open-MaStR/pull/753)
+### Removed
+- Remove `Mastr.translate`; English table and column names are now available via the `english=True` parameter in `generate_data_model` and `download`
+  [#718](https://github.com/OpenEnergyPlatform/open-MaStR/pull/718)
 
-  ### Removed
-  - Remove `Mastr.translate`; English table and column names are now available via the `english=True` parameter in `generate_data_model` and `download`
-    [#718](https://github.com/OpenEnergyPlatform/open-MaStR/pull/718)
+## [v0.17.3] Hotfix - 2026-07-17
+### Changed
+- Fix format of CITATION.cff file
+  [#775](https://github.com/OpenEnergyPlatform/open-MaStR/pull/775)
 
 ## [v0.17.2] Hotfix - 2026-07-17
-  ### Changed
-  - Fix error where tables where empty by correctly parsing comma seperated int values
-    [#772](https://github.com/OpenEnergyPlatform/open-MaStR/pull/772)
+### Changed
+- Fix error where tables where empty by correctly parsing comma seperated int values
+  [#772](https://github.com/OpenEnergyPlatform/open-MaStR/pull/772)
 
 ## [v0.17.1] Hotfix - 2026-04-13
 ### Changed
