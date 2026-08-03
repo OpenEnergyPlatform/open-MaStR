@@ -1,47 +1,53 @@
-"""
-The conftest.py file serves as a means of providing fixtures for an entire directory.
-Fixtures defined in a conftest.py can be used by any test in that package without
-needing to import them (pytest will automatically discover them).
-
-You can have multiple nested directories/packages containing your tests,
-and each directory can have its own conftest.py with its own fixtures,
-adding on to the ones provided by the conftest.py files in parent directories.
-
-https://docs.pytest.org/en/7.2.x/reference/fixtures.html
-"""
+import shutil
+from datetime import date
+from pathlib import Path
 
 import pytest
+
 from open_mastr import Mastr
+from open_mastr.mastr import FALLBACK_DOCS_PATH
 
-from open_mastr.utils.config import get_project_home_dir
-from open_mastr.utils.helpers import create_database_engine
-import os
-
-
-@pytest.fixture(scope="function")
-def make_Mastr_class():
-    """
-    Factory to create different Mastr class objects.
-
-    Parameters
-    ----------
-    engine_type: str
-        Define type of engine, for details see
-        :meth: `~.open_mastr.utils.helpers.create_database_engine`
-
-    Returns
-    -------
-        Mastr class object
-    """
-
-    def _make_Mastr_class(engine_type):
-        return Mastr(engine=engine_type)
-
-    return _make_Mastr_class
+MOCKUP_XML_ZIP = Path(__file__).parent / "data" / "Gesamtdatenexport_mockup.zip"
+NUMBER_ROWS_IN_MOCK_XML_FILES = 100
 
 
 @pytest.fixture
-def engine():
-    return create_database_engine(
-        "sqlite", os.path.join(get_project_home_dir(), "data", "sqlite")
+def output_dir(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+    """Create a temporary output directory and set MASTR_PROJECT_HOME_DIR to it.
+
+    The directory is cleaned up after the test.
+    """
+    dir_ = tmp_path / "output"
+    dir_.mkdir()
+    monkeypatch.setenv("MASTR_PROJECT_HOME_DIR", str(dir_))
+    yield dir_
+    shutil.rmtree(dir_, ignore_errors=True)
+
+
+@pytest.fixture
+def mastr(output_dir: Path) -> Mastr:
+    """Create a Mastr instance with the project home dir set to output_dir."""
+    return Mastr()
+
+
+@pytest.fixture
+def mockup_xml_zip_in_output_dir(output_dir: Path) -> Path:
+    """Copy the mockup XML zip into the output directory and return its path."""
+    xml_dir = output_dir / "data" / "xml_download"
+    xml_dir.mkdir(parents=True, exist_ok=True)
+    dest = xml_dir / f"Gesamtdatenexport_{date.today().strftime('%Y%m%d')}.zip"
+    shutil.copy(MOCKUP_XML_ZIP, dest)
+    return dest
+
+
+@pytest.fixture
+def mockup_docs_zip_in_output_dir(output_dir: Path) -> Path:
+    """Copy the mockup docs zip into the output directory and return its path."""
+    docs_dir = output_dir / "data" / "docs_download"
+    docs_dir.mkdir(parents=True, exist_ok=True)
+    dest = (
+        docs_dir
+        / f"Dokumentation MaStR Gesamtdatenexport_{date.today().strftime('%Y%m%d')}.zip"
     )
+    shutil.copy(FALLBACK_DOCS_PATH, dest)
+    return dest

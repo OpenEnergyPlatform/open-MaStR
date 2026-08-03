@@ -1,5 +1,5 @@
 # own testing files
-tmptest.py
+tmp/*
 
 # uv and rye
 uv.lock

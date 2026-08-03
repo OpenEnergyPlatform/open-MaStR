@@ -16,7 +16,7 @@ open-mastr
    * - General
      - |badge_license| |badge_rtd| |badge_ci|
    * - Publication
-     - |badge_pypi| |badge_joss|
+     - |badge_pypi| |badge_joss| |badge_zenodo_software_mirror|
    * - Data Publication
      - |badge_zenodo|
    * - Software Archive
@@ -125,6 +125,7 @@ These projects already use open-mastr:
 - `Digiplan Anhalt <https://digiplan.rl-institut.de/>`_
 - `EmPowerPlan <https://epp.rl-institut.de/>`_
 - `Goal100 Monitor <https://goal100.org/monitor>`_
+- `Goal100 Studio <https://goal100.studio/>`_
 
 If you want to see your project in this list, write an  
 `Issue <https://github.com/OpenEnergyPlatform/open-MaStR/issues>`_ or add
@@ -205,3 +206,6 @@ Data
 
 .. |badge_software_heritage| image:: https://archive.softwareheritage.org/badge/swh:1:dir:28252b3ca57b56d22be851bad576b6748af2e171/
    :target: https://archive.softwareheritage.org/swh:1:dir:28252b3ca57b56d22be851bad576b6748af2e171;origin=https://github.com/OpenEnergyPlatform/open-MaStR;visit=swh:1:snp:8065d0931f826af24c57fae612c6a48e0fcb135b;anchor=swh:1:rev:430223ddf437ba2611fe9a38521e6549ff61e750
+
+.. |badge_zenodo_software_mirror| image:: https://zenodo.org/badge/203598131.svg
+   :target: https://doi.org/10.5281/zenodo.21415387
