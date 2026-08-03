@@ -42,9 +42,15 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
   [#749](https://github.com/OpenEnergyPlatform/open-MaStR/pull/749)
 - Change default python version to 3.14
   [#753](https://github.com/OpenEnergyPlatform/open-MaStR/pull/753)
+
 ### Removed
 - Remove `Mastr.translate`; English table and column names are now available via the `english=True` parameter in `generate_data_model` and `download`
   [#718](https://github.com/OpenEnergyPlatform/open-MaStR/pull/718)
+  
+## [v0.17.4] Hotfix - 2026-07-17
+### Changed
+- Remove trailing white space in CITATION.cff
+  [#779](https://github.com/OpenEnergyPlatform/open-MaStR/pull/779)
 
 ## [v0.17.3] Hotfix - 2026-07-17
 ### Changed

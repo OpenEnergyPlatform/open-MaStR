@@ -1,0 +1,58 @@
+{
+  "creators": [
+    {
+      "affiliation": "Reiner Lemoine Institut",
+      "name": "Hülk, Ludwig",
+      "orcid": "0000-0003-4655-2321"
+    },
+    {
+      "affiliation": "Reiner Lemoine Institut",
+      "name": "Pleßmann, Guido"
+    },
+    {
+      "affiliation": "Reiner Lemoine Institut",
+      "name": "Muschner, Christoph",
+      "orcid": "0000-0001-8144-5260"
+    },
+    {
+      "affiliation": "OFFIS e.V. - Institute for Informatics",
+      "name": "Kotthoff, Florian",
+      "orcid": "0000-0003-3666-6122"
+    },
+    {
+      "affiliation": "fortiss",
+      "name": "Tepe, Deniz",
+      "orcid": "0000-0002-7605-0173"
+    },
+    {
+      "affiliation": "Reiner Lemoine Institut",
+      "name": "Amme, Jonathan",
+      "orcid": "0000-0002-8563-5261"
+    },
+    {
+      "affiliation": "Technical University of Munich",
+      "name": "Imbrisca, Alexandra-Andreea"
+    },
+    {
+      "affiliation": "ProjectTogether gGmbH",
+      "name": "Krämer, Kevin"
+    },
+    {
+      "name": "Will, Simon"
+    }
+  ],
+  "description": "The Python Package open-mastr provides an interface for accessing and cleaning the German Energy Unit dataset called Marktstammdatenregister (MaStR). The MaStR is a central registry with detailed information about renewable and conventional power plants in the German energy system. open-mastr enables the creation and updating of a local database of the entire registry, as well as processing the data for further evaluation. Ultimately, the package offers methods to reduce the registry's parsing time and thus enables energy system researchers to start working with the entire dataset right away.",
+  "keywords": [
+    "python",
+    "Marktstammdatenregister",
+    "Energy System",
+    "Energy System Data",
+    "Open Data"
+  ],
+  "license": {
+    "id": "AGPL-3.0"
+  },
+  "publication_date": "2026-07-17",
+  "title": "open-MaStR",
+  "version": "0.17.4"
+}
