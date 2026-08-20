@@ -24,6 +24,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 
 
 ### Changed
+- Fix table name extraction in `interleave_files` to enable parallel worker interleaving and reduce SQLite lock contention
+  [#790](https://github.com/OpenEnergyPlatform/open-MaStR/pull/790)
 - Fix race condition in parallel bulk XML import that resulted in silent data loss
   [#765](https://github.com/OpenEnergyPlatform/open-MaStR/pull/765)
 - Add support for reading XSD files from both zipped / unzipped documentation sources

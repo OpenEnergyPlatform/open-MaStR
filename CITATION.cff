@@ -41,6 +41,9 @@ authors:
   - family-names: "Will"
     given-names: "Simon"
     alias: "@Simon-Will"
+  - family-names: "Rady"
+    given-names: "Hassan"
+    alias: "@hassanrady"
 identifiers:
   - type: swh
     value: 'swh:1:dir:28252b3ca57b56d22be851bad576b6748af2e171'
