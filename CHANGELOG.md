@@ -21,6 +21,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
   [#754](https://github.com/OpenEnergyPlatform/open-MaStR/pull/754)
 - Add codemeta.json file
   [#780](https://github.com/OpenEnergyPlatform/open-MaStR/pull/780)
+- Add `scripts/release_test.py` that downloads the full MaStR and runs hard-coded consistency checks
+  [#793](https://github.com/OpenEnergyPlatform/open-MaStR/issues/793)
 
 
 ### Changed
