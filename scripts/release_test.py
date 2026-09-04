@@ -150,7 +150,7 @@ def main():
     database = Mastr()
 
     # Comment this out to run the checks against a database downloaded before.
-    # database.download(method="bulk", date="today", bulk_cleansing=True)
+    database.download(method="bulk", date="today", bulk_cleansing=True)
 
     # Make the REGEXP operator available in SQLite. Connections opened before
     # now do not have it, so the engine is disposed afterwards.
