@@ -26,6 +26,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 
 
 ### Changed
+- Translate catalog category IDs for fields that are missing XSD restrictions during bulk cleansing
+  [#769](https://github.com/OpenEnergyPlatform/open-MaStR/issues/769)
 - Fix `Mastr.to_csv` iterating over a single table name string character by character instead of exporting the named table
   [#795](https://github.com/OpenEnergyPlatform/open-MaStR/pull/795)
 - Fix table name extraction in `interleave_files` to enable parallel worker interleaving and reduce SQLite lock contention

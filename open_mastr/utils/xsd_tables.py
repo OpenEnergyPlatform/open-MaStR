@@ -14,6 +14,15 @@ from open_mastr.utils.constants import COLUMN_TRANSLATIONS, TABLE_TRANSLATIONS
 
 _XML_SCHEMA_PREFIX = "{http://www.w3.org/2001/XMLSchema}"
 
+# Some catalog category fields are declared as unrestricted primitive types in
+# the MaStR XSDs, so they cannot be detected from the schema restrictions.
+CATALOG_COLUMNS_MISSING_XSD_RESTRICTION = {
+    "Netze": frozenset({"Marktgebiet", "Bundesland", "Sparte"}),
+    "EinheitenWind": frozenset({"Hersteller"}),
+    "EinheitenVerbrennung": frozenset({"WeitereBrennstoffe"}),
+    "Marktakteure": frozenset({"Rechtsform", "Registergericht"}),
+}
+
 log = logging.getLogger("open-MaStR")
 
 
@@ -105,14 +114,21 @@ class MastrColumnDescription:
 
     @classmethod
     def from_xsd_element(
-        cls, xsd_element: xmlschema.XsdElement
+        cls, xsd_element: xmlschema.XsdElement, original_table_name: str
     ) -> "MastrColumnDescription":
         normalized_name = normalize_mastr_name(xsd_element.name)
         return cls(
             original_name=xsd_element.name,
             normalized_name=normalized_name,
             english_name=translate_mastr_column_name(normalized_name),
-            type=MastrColumnType.from_xsd_type(xsd_element.type),
+            type=(
+                MastrColumnType.CATALOG_VALUE
+                if normalized_name
+                in CATALOG_COLUMNS_MISSING_XSD_RESTRICTION.get(
+                    original_table_name, frozenset()
+                )
+                else MastrColumnType.from_xsd_type(xsd_element.type)
+            ),
         )
 
 
@@ -138,16 +154,15 @@ class MastrTableDescription:
         except (AttributeError, IndexError, TypeError) as e:
             raise ValueError(f"Could not find columns in XML schema {schema!r}") from e
 
-        columns = tuple(
-            MastrColumnDescription.from_xsd_element(element)
-            for element in column_elements
-        )
-
         # We don't normalize the table name because
         # - it would introduce too much complexity to have two German table names
         # - the normalization would leave the table name as is (at least as of Feb 2026)
         original_table_name = root.name
         english_table_name = translate_mastr_table_name(original_table_name)
+        columns = tuple(
+            MastrColumnDescription.from_xsd_element(element, original_table_name)
+            for element in column_elements
+        )
 
         return cls(
             original_table_name=original_table_name,
