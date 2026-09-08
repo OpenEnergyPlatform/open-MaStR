@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="Ertuechtigungen">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Ertuechtigung" maxOccurs="unbounded" minOccurs="0">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element type="xs:int" name="Id"/>
+              <xs:element type="xs:dateTime" name="DatumLetzteAktualisierung" minOccurs="0"/>
+              <xs:element name="EegMastrNummer">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="Ertuechtigungsart" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:short">
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="ErtuechtigungIstZulassungspflichtig" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:byte">
+                    <xs:enumeration value="0"/>
+                    <xs:enumeration value="1"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="Leistungserhoehung" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:float">
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="WiederinbetriebnahmeDatum" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:dateTime">
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

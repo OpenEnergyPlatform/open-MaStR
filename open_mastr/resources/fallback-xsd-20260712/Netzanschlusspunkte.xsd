@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="Netzanschlusspunkte">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Netzanschlusspunkt" maxOccurs="unbounded" minOccurs="0">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element type="xs:string" name="NetzanschlusspunktMastrNummer"/>
+              <xs:element type="xs:string" name="NetzanschlusspunktBezeichnung" minOccurs="0"/>
+              <xs:element type="xs:dateTime" name="LetzteAenderung" minOccurs="0"/>
+              <xs:element type="xs:string" name="LokationMaStRNummer"/>
+              <xs:element type="xs:string" name="NameDerTechnischenLokation" minOccurs="0"/>
+              <xs:element name="Lokationtyp">
+                <xs:simpleType>
+                  <xs:restriction base="xs:byte">
+                    <xs:enumeration value="3"/>
+                    <xs:enumeration value="4"/>
+                    <xs:enumeration value="1"/>
+                    <xs:enumeration value="2"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element type="xs:float" name="MaximaleEinspeiseleistung" minOccurs="0"/>
+              <xs:element type="xs:float" name="MaximaleAusspeiseleistung" minOccurs="0"/>
+              <xs:element name="Gasqualitaet" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:short">
+                    <xs:enumeration value="767"/>
+                    <xs:enumeration value="766"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element type="xs:string" name="Messlokation" minOccurs="0"/>
+              <xs:element name="Marktgebiet" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:int">
+                    <xs:enumeration value="1001666"/>
+                    <xs:enumeration value="1001667"/>
+                    <xs:enumeration value="1536"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="Spannungsebene" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:short">
+                    <xs:enumeration value="354"/>
+                    <xs:enumeration value="352"/>
+                    <xs:enumeration value="350"/>
+                    <xs:enumeration value="351"/>
+                    <xs:enumeration value="353"/>
+                    <xs:enumeration value="349"/>
+                    <xs:enumeration value="348"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element type="xs:float" name="Nettoengpassleistung" minOccurs="0"/>
+              <xs:element type="xs:int" name="BilanzierungsgebietNetzanschlusspunktId" minOccurs="0"/>
+              <xs:element type="xs:float" name="Netzanschlusskapazitaet" minOccurs="0"/>
+              <xs:element name="RegelzoneNetzanschlusspunkt" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:int">
+                    <xs:enumeration value="1000001"/>
+                    <xs:enumeration value="1000010"/>
+                    <xs:enumeration value="1001564"/>
+                    <xs:enumeration value="1001572"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element type="xs:string" name="NetzMaStRNummer"/>
+              <xs:element name="NochInPlanung">
+                <xs:simpleType>
+                  <xs:restriction base="xs:byte">
+                    <xs:enumeration value="0"/>
+                    <xs:enumeration value="1"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element type="xs:string" name="NetzbetreiberMaStRNummer"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

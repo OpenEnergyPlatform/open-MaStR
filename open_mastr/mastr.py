@@ -45,12 +45,6 @@ from open_mastr.utils.sqlalchemy_views import create_views
 # setup logger
 log = setup_logger()
 
-FALLBACK_DOCS_PATH = (
-    Path(__file__).parent
-    / "resources"
-    / "Dokumentation-MaStR-Gesamtdatenexport-20260216-Fallback.zip"
-)
-
 
 class Mastr:
     """`Mastr` is used to download the MaStR database.
@@ -195,12 +189,13 @@ class Mastr:
                 english=english,
             )
         except Exception as e:
+            fallback_docs_path = _get_fallback_xsd()
             log.exception(
                 f"Encountered {e!r} when downloading or processing MaStR documentation."
-                f" Falling back to stored docs at {FALLBACK_DOCS_PATH}"
+                f" Falling back to stored docs at {fallback_docs_path}"
             )
             return _generate_data_model_from_downloaded_docs(
-                zipped_docs_file_path=FALLBACK_DOCS_PATH,
+                zipped_docs_file_path=fallback_docs_path,
                 data=data,
                 catalog_value_as_str=catalog_value_as_str,
                 metadata=metadata,
@@ -514,8 +509,18 @@ def _generate_data_model_from_downloaded_docs(
             metadata=metadata,
             english=english,
         )
-        mastr_table_to_db_table[
-            mastr_table_description.original_table_name
-        ] = sqlalchemy_model
+        mastr_table_to_db_table[mastr_table_description.original_table_name] = (
+            sqlalchemy_model
+        )
 
     return mastr_table_to_db_table
+
+
+def _get_fallback_xsd() -> Path:
+    fallback_xsds = list((Path(__file__).parent / "resources").glob("fallback-xsd-*"))
+    if not fallback_xsds:
+        raise RuntimeError("Cannot find any fallback XSD directory")
+    fallback_xsd = sorted(fallback_xsds)[-1]
+    if len(fallback_xsds) > 1:
+        log.warning(f"Found multiple fallback XSD directories. Using {fallback_xsd}")
+    return fallback_xsd

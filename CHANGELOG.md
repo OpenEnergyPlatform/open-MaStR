@@ -9,6 +9,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 
 ## [v0.xx.x] Unreleased - 202x-xx-xx
 ### Added
+- Add script for updating fallback XSD
+  [#766](https://github.com/OpenEnergyPlatform/open-MaStR/pull/766)
 - Add `Mastr.generate_data_model` method that downloads the current MaStR documentation and generates SQLAlchemy tables from the XSD definitions; supports `english=True` for English column names
   [#718](https://github.com/OpenEnergyPlatform/open-MaStR/pull/718)
 - Add `mastr_table_to_db_table` argument to `Mastr.download` to pass a custom database schema
