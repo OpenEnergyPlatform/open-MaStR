@@ -9,7 +9,6 @@ import pytest
 from sqlalchemy import (
     Boolean,
     Column,
-    create_engine,
     Date,
     DateTime,
     Double,
@@ -18,22 +17,22 @@ from sqlalchemy import (
     MetaData,
     String,
     Table,
+    create_engine,
 )
-
 
 from open_mastr.utils.sqlalchemy_tables import CatalogString
 from open_mastr.xml_download.utils_write_to_database import (
     add_missing_columns_to_table,
+    add_table_to_non_sqlite_database,
+    add_table_to_sqlite_database,
     add_zero_as_first_character_for_too_short_string,
     cast_date_columns_to_string,
     correct_ordering_of_filelist,
     extract_xml_table_name,
+    interleave_files,
     is_date_column,
     process_table_before_insertion,
     read_xml_file,
-    add_table_to_non_sqlite_database,
-    add_table_to_sqlite_database,
-    interleave_files,
 )
 
 
@@ -213,17 +212,16 @@ def test_add_missing_columns_to_table(engine_testdb: Engine) -> None:
         Column("DatumLetzteAktualisierung", DateTime),
     )
     table.create(engine_testdb)
-    with engine_testdb.connect() as con:
-        with con.begin():
-            initial_data_in_db = pd.DataFrame(
-                {
-                    "EinheitMastrNummer": ["id1"],
-                    "DatumLetzteAktualisierung": [datetime(2022, 2, 2)],
-                }
-            )
-            initial_data_in_db.to_sql(
-                table.name, con=con, if_exists="append", index=False
-            )
+    with engine_testdb.connect() as con, con.begin():
+        initial_data_in_db = pd.DataFrame(
+            {
+                "EinheitMastrNummer": ["id1"],
+                "DatumLetzteAktualisierung": [datetime(2022, 2, 2)],
+            }
+        )
+        initial_data_in_db.to_sql(
+            table.name, con=con, if_exists="append", index=False
+        )
 
     add_missing_columns_to_table(engine_testdb, table, ["NewColumn"])
 
@@ -320,21 +318,26 @@ def test_add_table_to_sqlite_database(
 
 
 def test_interleave_files():
-    input_data = [
-        ("AnlagenEegBiomasse.xml", "anlageneegbiomasse", "anlageneegbiomasse"),
-        ("AnlagenEegSolar_1.xml", "anlageneegsolar", "anlageneegsolar"),
-        ("AnlagenEegSolar_2.xml", "anlageneegsolar", "anlageneegsolar"),
-        ("AnlagenEegWind_1.xml", "anlageneegwind", "anlageneegwind"),
-        ("AnlagenEegWind_2.xml", "anlageneegwind", "anlageneegwind"),
-        ("AnlagenEegWind_3.xml", "anlageneegwind", "anlageneegwind"),
-        ("Bilanzierungsgebiete.xml", "bilanzierungsgebiete", "bilanzierungsgebiete"),
+    from sqlalchemy import Column, Integer, MetaData, Table
+
+    meta = MetaData()
+    tbl_solar = Table("AnlagenEegSolar", meta, Column("id", Integer, primary_key=True))
+    tbl_wind = Table("AnlagenEegWind", meta, Column("id", Integer, primary_key=True))
+    tbl_bio = Table("AnlagenEegBiomasse", meta, Column("id", Integer, primary_key=True))
+
+    db_url = "sqlite:////home/user/.open-MaStR/data/sqlite/open-mastr.db"
+    prod_like_input = [
+        ("Solar_1.xml", tbl_solar, db_url, None),
+        ("Solar_2.xml", tbl_solar, db_url, None),
+        ("Wind_1.xml", tbl_wind, db_url, None),
+        ("Wind_2.xml", tbl_wind, db_url, None),
+        ("Bio_1.xml", tbl_bio, db_url, None),
     ]
-    assert interleave_files(input_data) == [
-        ("AnlagenEegBiomasse.xml", "anlageneegbiomasse", "anlageneegbiomasse"),
-        ("AnlagenEegSolar_1.xml", "anlageneegsolar", "anlageneegsolar"),
-        ("AnlagenEegWind_1.xml", "anlageneegwind", "anlageneegwind"),
-        ("Bilanzierungsgebiete.xml", "bilanzierungsgebiete", "bilanzierungsgebiete"),
-        ("AnlagenEegSolar_2.xml", "anlageneegsolar", "anlageneegsolar"),
-        ("AnlagenEegWind_2.xml", "anlageneegwind", "anlageneegwind"),
-        ("AnlagenEegWind_3.xml", "anlageneegwind", "anlageneegwind"),
+    interleaved_prod = interleave_files(prod_like_input)
+    assert interleaved_prod == [
+        ("Solar_1.xml", tbl_solar, db_url, None),
+        ("Wind_1.xml", tbl_wind, db_url, None),
+        ("Bio_1.xml", tbl_bio, db_url, None),
+        ("Solar_2.xml", tbl_solar, db_url, None),
+        ("Wind_2.xml", tbl_wind, db_url, None),
     ]

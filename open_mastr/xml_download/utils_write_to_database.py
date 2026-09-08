@@ -271,7 +271,8 @@ def interleave_files(threads_data: list):
     files_grouped_by_table = {}
 
     for item in threads_data:
-        table_name = item[2]
+        db_table = item[1]
+        table_name = db_table.name
         if table_name not in files_grouped_by_table:
             files_grouped_by_table[table_name] = []
         files_grouped_by_table[table_name].append(item)
