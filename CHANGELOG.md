@@ -26,6 +26,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 
 
 ### Changed
+- Fix `Mastr.to_csv` iterating over a single table name string character by character instead of exporting the named table
+  [#795](https://github.com/OpenEnergyPlatform/open-MaStR/pull/795)
 - Fix table name extraction in `interleave_files` to enable parallel worker interleaving and reduce SQLite lock contention
   [#790](https://github.com/OpenEnergyPlatform/open-MaStR/pull/790)
 - Fix race condition in parallel bulk XML import that resulted in silent data loss

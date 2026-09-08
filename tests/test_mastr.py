@@ -12,6 +12,7 @@ import pytest
 import responses
 import pandas as pd
 from open_mastr.mastr import Mastr
+from open_mastr.utils.config import get_data_config
 from open_mastr.utils.constants import TABLE_TRANSLATIONS
 from open_mastr.utils.sqlalchemy_tables import CatalogString
 from .conftest import MOCKUP_XML_ZIP, NUMBER_ROWS_IN_MOCK_XML_FILES
@@ -20,6 +21,35 @@ from .conftest import MOCKUP_XML_ZIP, NUMBER_ROWS_IN_MOCK_XML_FILES
 def test_mastr_init(mastr: Mastr) -> None:
     assert os.path.exists(mastr._sqlite_folder_path)
     assert isinstance(mastr.engine, sqlalchemy.engine.Engine)
+
+
+def test_to_csv_single_table_name_as_string(
+    mastr: Mastr,
+    mockup_xml_zip_in_output_dir: Path,
+    mockup_docs_zip_in_output_dir: Path,
+) -> None:
+    mastr.download(data="wind")
+    mastr.to_csv(db_table_names="EinheitenWind")
+
+    data_path = Path(mastr.output_dir) / "data" / get_data_config()
+    csv_files = list(data_path.glob("*.csv"))
+    assert [f.name for f in csv_files] == ["EinheitenWind.csv"]
+
+    df = pd.read_csv(csv_files[0])
+    assert len(df) == NUMBER_ROWS_IN_MOCK_XML_FILES
+
+
+def test_to_csv_multiple_table_names_as_list(
+    mastr: Mastr,
+    mockup_xml_zip_in_output_dir: Path,
+    mockup_docs_zip_in_output_dir: Path,
+) -> None:
+    mastr.download(data="wind")
+    mastr.to_csv(db_table_names=["EinheitenWind"])
+
+    data_path = Path(mastr.output_dir) / "data" / get_data_config()
+    csv_files = list(data_path.glob("*.csv"))
+    assert [f.name for f in csv_files] == ["EinheitenWind.csv"]
 
 
 def test_download_wind(
