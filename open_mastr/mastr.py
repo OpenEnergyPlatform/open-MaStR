@@ -415,16 +415,16 @@ class Mastr:
 
     def to_csv(
         self,
-        db_table_names: Iterable[str] = None,
+        db_table_names: Union[str, Iterable[str]] = None,
         chunksize: int = 500000,
     ) -> None:
         """Export tables from existing database to CSV.
 
         Parameters
         ----------
-        db_table_names : Iterable of str or None, optional
-            The names of the database tables to export. If None, all tables in the database will be
-            exported. Defaults to None.
+        db_table_names : str, Iterable of str, or None, optional
+            The names of the database tables to export. A single table name can be passed as a
+            plain string. If None, all tables in the database will be exported. Defaults to None.
 
         chunksize : int, optional
             Number of rows to retrieve from the database before dumping them to the CSV file.
@@ -437,6 +437,8 @@ class Mastr:
         existing_table_names = set(inspector.get_table_names())
         if db_table_names is None:
             db_table_names = existing_table_names
+        elif isinstance(db_table_names, str):
+            db_table_names = [db_table_names]
 
         log.info(
             f"Exporting the following database tables to CSV: {', '.join(db_table_names)}"
