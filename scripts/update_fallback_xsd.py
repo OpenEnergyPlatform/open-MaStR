@@ -7,7 +7,6 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Optional
 from zoneinfo import ZoneInfo
-import logging
 import os
 import shutil
 import sys
@@ -23,26 +22,24 @@ def update_fallback_xsd() -> None:
         new_fallback_xsd = _make_new_fallback_xsd(Path(tmpdir))
 
         current_fallback_xsd = _get_fallback_xsd()
-        logging.info(
-            f"Comparing old {current_fallback_xsd} with new {new_fallback_xsd}"
-        )
+        print(f"Comparing old {current_fallback_xsd} with new {new_fallback_xsd}")
         diff = _directory_diff(current_fallback_xsd, new_fallback_xsd)
         if not diff:
-            logging.info("No difference between current and new XSD. Not updating.")
+            print("No difference between current and new XSD. Not updating.")
             sys.exit(1)
 
-        logging.info(
+        print(
             "New fallback XSD is different. Replacing current fallback XSD."
             f"\n    Diff: {diff}"
         )
 
         resources_dir = Path(__file__).parent.parent / "open_mastr/resources/"
         for old_dir in resources_dir.glob("fallback-xsd-*"):
-            logging.info(f"Removing {old_dir}")
+            print(f"Removing {old_dir}")
             shutil.rmtree(old_dir)
 
         new_fallback_xsd_in_resources = resources_dir / new_fallback_xsd.name
-        logging.info(f"Creating {new_fallback_xsd_in_resources}")
+        print(f"Creating {new_fallback_xsd_in_resources}")
         shutil.copytree(new_fallback_xsd, new_fallback_xsd_in_resources)
 
 
@@ -51,13 +48,13 @@ def _make_new_fallback_xsd(top_dir: Path) -> Path:
     today_str = today.strftime("%Y%m%d")
 
     new_fallback_dir = top_dir / f"fallback-xsd-{today_str}"
-    logging.info("Making new fallback XSD in {new_fallback_dir}")
+    print(f"Making new fallback XSD in {new_fallback_dir}")
     new_fallback_dir.mkdir()
 
     zipped_docs_path = top_dir / "docs.zip"
-    logging.info(f"Downloading docs to {zipped_docs_path}")
+    print(f"Downloading docs to {zipped_docs_path}")
     download_documentation(zipped_docs_path, bulk_date_string=today_str)
-    logging.info(f"Copying XSD files to {new_fallback_dir}")
+    print(f"Copying XSD files to {new_fallback_dir}")
     for filename, xsd_file in _iterate_xsd_files(zipped_docs_path):
         with xsd_file:
             with open(new_fallback_dir / filename, "wb") as new_file:

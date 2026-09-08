@@ -509,9 +509,9 @@ def _generate_data_model_from_downloaded_docs(
             metadata=metadata,
             english=english,
         )
-        mastr_table_to_db_table[
-            mastr_table_description.original_table_name
-        ] = sqlalchemy_model
+        mastr_table_to_db_table[mastr_table_description.original_table_name] = (
+            sqlalchemy_model
+        )
 
     return mastr_table_to_db_table
 
@@ -520,7 +520,7 @@ def _get_fallback_xsd() -> Path:
     fallback_xsds = list((Path(__file__).parent / "resources").glob("fallback-xsd-*"))
     if not fallback_xsds:
         raise RuntimeError("Cannot find any fallback XSD directory")
-    fallback_xsd = fallback_xsds[0]
-    if len(fallback_xsds) > 0:
+    fallback_xsd = sorted(fallback_xsds)[-1]
+    if len(fallback_xsds) > 1:
         log.warning(f"Found multiple fallback XSD directories. Using {fallback_xsd}")
     return fallback_xsd
