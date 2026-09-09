@@ -47,10 +47,13 @@ def replace_mastr_katalogeintraege(
     katalogwerte = create_katalogwerte_from_bulk_download(zipped_xml_file_path)
     for column_name in df.columns:
         if column_name in catalog_columns:
-            if pd.api.types.is_string_dtype(df[column_name]):
+            if (
+                pd.api.types.is_string_dtype(df[column_name])
+                or pd.api.types.is_object_dtype(df[column_name])
+            ):
                 # Handle comma seperated strings from catalog values
                 df[column_name] = (
-                    df[column_name]
+                    df[column_name].astype("string")
                     .str.split(",", expand=True)
                     .apply(lambda x: x.str.strip())
                     .replace("", None)

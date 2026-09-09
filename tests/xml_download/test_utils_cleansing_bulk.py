@@ -1,5 +1,4 @@
 import pandas as pd
-import pytest
 from pathlib import Path
 
 from open_mastr.xml_download.utils_cleansing_bulk import (
@@ -46,6 +45,22 @@ def test_replace_mastr_katalogeintraege(mockup_xml_zip_in_output_dir: Path) -> N
             zipped_xml_file_path=str(mockup_xml_zip_in_output_dir),
             df=df_raw,
             catalog_columns={"Bundesland", "Einheittyp"},
+        ),
+        df_replaced,
+    )
+
+
+def test_replace_mastr_katalogeintraege_with_comma_separated_ids(
+    mockup_xml_zip_in_output_dir: Path,
+) -> None:
+    df_raw = pd.DataFrame({"Bundesland": [335, "335, 336"]})
+    df_replaced = pd.DataFrame({"Bundesland": ["Bayern", "Bayern,Bremen"]})
+
+    pd.testing.assert_frame_equal(
+        replace_mastr_katalogeintraege(
+            zipped_xml_file_path=str(mockup_xml_zip_in_output_dir),
+            df=df_raw,
+            catalog_columns={"Bundesland"},
         ),
         df_replaced,
     )
