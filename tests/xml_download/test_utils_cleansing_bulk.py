@@ -1,5 +1,6 @@
-import pandas as pd
 from pathlib import Path
+
+import pandas as pd
 
 from open_mastr.xml_download.utils_cleansing_bulk import (
     cleanse_bulk_data,
@@ -63,6 +64,29 @@ def test_replace_mastr_katalogeintraege_with_comma_separated_ids(
             catalog_columns={"Bundesland"},
         ),
         df_replaced,
+        # Only the values matter here, not whether the string column ends up as
+        # object or as a string dtype.
+        check_dtype=False,
+    )
+
+
+def test_replace_mastr_katalogeintraege_keeps_already_resolved_names(
+    mockup_xml_zip_in_output_dir: Path,
+) -> None:
+    # Values that are already resolved catalog names must pass through unchanged,
+    # while numeric IDs (single or comma-separated) are still replaced.
+    df_raw = pd.DataFrame({"Bundesland": ["Bayern", 335, "335, 336"]})
+    df_replaced = pd.DataFrame({"Bundesland": ["Bayern", "Bayern", "Bayern,Bremen"]})
+
+    df_new = replace_mastr_katalogeintraege(
+        zipped_xml_file_path=str(mockup_xml_zip_in_output_dir),
+        df=df_raw,
+        catalog_columns={"Bundesland"},
+    )
+    pd.testing.assert_frame_equal(
+        df_new,
+        df_replaced,
+        check_dtype=False,
     )
 
 
