@@ -52,10 +52,10 @@ def replace_mastr_katalogeintraege(
             ) or pd.api.types.is_object_dtype(df[column_name]):
                 # Only replace rows that still are numeric catalog IDs;
                 # already-resolved names (e.g. "Bayern") pass through unchanged.
-                is_id = df[column_name].astype("string").str.match(r"^[\d,\s]+$")
+                column_as_string = df[column_name].astype("string")
+                is_id = column_as_string.str.match(r"^[\d,\s]+$")
                 df.loc[is_id, column_name] = (
-                    df.astype("string")
-                    .loc[is_id, column_name]
+                    column_as_string.loc[is_id]
                     .str.split(",", expand=True)
                     .apply(lambda x: x.str.strip())
                     .replace("", None)
