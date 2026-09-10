@@ -28,6 +28,7 @@ assignees: ''
         ```
     * Check and merge the pull request
 - [ ] Run tests locally with `pytest` and apply linting with `pre-commit run -a` 
+- [ ] Run the release tests with `python scripts/release_test.py`
 ## Create a `release` branch
 - [ ] Checkout `develop` and branch with `git checkout -b release-vx.x.x`
 - [ ] Update version for test release with `bump2version --current-version current_version> --new-version <new_version> patch`
