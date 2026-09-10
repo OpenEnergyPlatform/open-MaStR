@@ -421,6 +421,19 @@ def test_mastr_generate_data_model(
     assert isinstance(
         changed_dso_assignment_table.c.OpenMastrId.type, sqlalchemy.Integer
     )
+    grids_table = mastr_table_to_db_table["Netze"]
+    assert isinstance(grids_table.c.Marktgebiet.type, CatalogString)
+    assert isinstance(grids_table.c.Bundesland.type, CatalogString)
+    assert isinstance(grids_table.c.Sparte.type, CatalogString)
+    assert isinstance(
+        mastr_table_to_db_table["EinheitenWind"].c.Hersteller.type, CatalogString
+    )
+    assert isinstance(
+        mastr_table_to_db_table["Marktakteure"].c.Rechtsform.type, CatalogString
+    )
+    assert isinstance(
+        mastr_table_to_db_table["Marktakteure"].c.Registergericht.type, CatalogString
+    )
 
 
 def test_mastr_generate_data_model_english(
@@ -460,6 +473,8 @@ def test_mastr_generate_data_model_english(
     assert isinstance(
         changed_dso_assignment_table.c.OpenMastrId.type, sqlalchemy.Integer
     )
+    grids_table = mastr_table_to_db_table["Netze"]
+    assert isinstance(grids_table.c.marketArea.type, CatalogString)
 
 
 def test_mastr_generate_data_model_fallback_to_included_docs(
