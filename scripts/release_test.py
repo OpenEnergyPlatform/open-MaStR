@@ -108,7 +108,14 @@ COLUMN_CHECKS = {
     "DatumDownload": "{col} REGEXP '^[0-9]{8}$'",
 }
 
-NOT_NULL_COLUMNS = ["DatenQuelle", "DatumDownload", "EinheitMastrNummer"]
+NOT_NULL_COLUMNS = [
+    "DatenQuelle",
+    "DatumDownload",
+    "EinheitMastrNummer",
+    "Id",
+    "MastrNummer",
+    "OpenMastrId",
+]
 
 STORAGE_TYPES = {
     "INTEGER": ["integer"],
