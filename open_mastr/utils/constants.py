@@ -77,7 +77,7 @@ BULK_INCLUDE_TABLES_MAP = {
     ],
     "combustion": ["anlagenkwk", "einheitenverbrennung"],
     "nuclear": ["einheitenkernkraft"],
-    "storage": ["anlageneegspeicher", "einheitenstromspeicher"],
+    "storage": ["anlageneegspeicher", "einheitenstromspeicher", "anlagenstromspeicher"],
     "storage_units": ["anlagenstromspeicher"],
     "gas": [
         "anlagengasspeicher",

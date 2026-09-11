@@ -201,6 +201,33 @@ previously created SQLite database tables.
 If only some specific tables are of interest, they can be specified with the parameter `data`. Every table that is
 selected in `data` will be deleted from the local database, if existent, and then filled with data from the xml files.
 
+### `data` table mapping
+
+The `data` parameter accepts the following values. Each value includes the listed MaStR XML tables in the bulk
+download.
+
+| `data` value | Included MaStR tables |
+|---|---|
+| `wind` | `AnlagenEegWind`, `EinheitenWind` |
+| `solar` | `AnlagenEegSolar`, `EinheitenSolar` |
+| `biomass` | `AnlagenEegBiomasse`, `EinheitenBiomasse` |
+| `hydro` | `AnlagenEegWasser`, `EinheitenWasser` |
+| `gsgk` | `AnlagenEegGeothermieGrubengasDruckentspannung`, `EinheitenGeothermieGrubengasDruckentspannung` |
+| `combustion` | `AnlagenKwk`, `EinheitenVerbrennung` |
+| `nuclear` | `EinheitenKernkraft` |
+| `gas` | `AnlagenGasSpeicher`, `EinheitenGasErzeuger`, `EinheitenGasSpeicher`, `EinheitenGasverbraucher` |
+| `storage` | `AnlagenEegSpeicher`, `EinheitenStromSpeicher`, `AnlagenStromSpeicher` |
+| `electricity_consumer` | `EinheitenStromVerbraucher` |
+| `location` | `Lokationen` |
+| `market` | `Marktakteure`, `MarktakteureUndRollen` |
+| `grid` | `Netzanschlusspunkte`, `Netze` |
+| `balancing_area` | `Bilanzierungsgebiete` |
+| `permit` | `EinheitenGenehmigung` |
+| `deleted_units` | `GeloeschteUndDeaktivierteEinheiten` |
+| `deleted_market_actors` | `GeloeschteUndDeaktivierteMarktakteure` |
+| `retrofit_units` | `Ertuechtigungen` |
+| `changed_dso_assignment` | `EinheitenAenderungNetzbetreiberzuordnungen` |
+
 In the next step, a basic data cleansing is performed. Many entries in the MaStR from the bulk download are replaced by numbers.
 As an example, instead of writing the German states where the unit is registered (Saxony, Brandenburg, Bavaria, ...) the MaStR states 
 corresponding digits (7, 2, 9, ...). One major step of cleansing is therefore to replace those digits with their original meaning. 
@@ -471,6 +498,4 @@ For API calls, models and optional parameters refer to the
 
 !!! warning "MaStRMirror has been removed"
     In versions > `v0.16.0` the `MaStRMirror` class cannot be used anymore.
-
-
 

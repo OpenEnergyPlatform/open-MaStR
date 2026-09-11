@@ -193,6 +193,12 @@ def data_to_include_tables(data: list[str]) -> set[str]:
     set
         Set of file names
     """
+    if "storage_units" in data:
+        log.warning(
+            "The data parameter 'storage_units' is deprecated and will be removed in the future."
+            " Please use 'storage' instead, which now also includes AnlagenStromSpeicher."
+        )
+
     # Map data selection to include tables in xml
     include_tables = {
         table for tech in data for table in BULK_INCLUDE_TABLES_MAP[tech]
