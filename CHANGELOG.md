@@ -28,7 +28,7 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 
 
 ### Changed
-- Include AnlagenStromSpeicher in `storage` and deprecate `storage_units`
+- Include AnlagenStromSpeicher when passing argument "storage" to `Mastr.download` and deprecate "storage_units"
   [#799](https://github.com/OpenEnergyPlatform/open-MaStR/pull/799)
 - Translate catalog category IDs for fields that are missing XSD restrictions during bulk cleansing
   [#796](https://github.com/OpenEnergyPlatform/open-MaStR/pull/796)
