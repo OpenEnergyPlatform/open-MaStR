@@ -116,5 +116,11 @@ ignore = []
 [tool.ruff.lint.pydocstyle]
 convention = "numpy"
 
+[tool.ruff.lint.pycodestyle]
+# The formatter wraps code at `line-length` (88). E501 is deliberately more tolerant, so
+# that it only flags what the formatter cannot split anyway - long strings, URLs and
+# comments.
+max-line-length = 100
+
 [tool.ruff.lint.isort]
 known-first-party = ["open_mastr"]
