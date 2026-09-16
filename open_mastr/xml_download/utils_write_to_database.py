@@ -26,9 +26,6 @@ from open_mastr.xml_download.utils_cleansing_bulk import cleanse_bulk_data
 
 log = setup_logger()
 
-DATE_FORMAT = "%Y-%m-%d"
-DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S.%f"
-
 
 def write_mastr_xml_to_database(
     engine: sqlalchemy.engine.Engine,
@@ -312,19 +309,18 @@ def cast_date_columns_to_string(db_table: Table, df: pd.DataFrame) -> pd.DataFra
         if not is_date_column(column) or column.name not in df.columns:
             continue
 
-        # strftime does not zero-pad a year before 1000 on every platform, so such a
-        # date is written as an invalid ISO string. It is kept as it is, since the year
-        # is a typo in the MaStR that we cannot repair. Mastr.to_csv reports those
-        # values and exports them as empty.
-        dates = pd.to_datetime(df[column.name], errors="coerce")
-        df[column.name] = dates.dt.strftime(date_format_for_column(column)).replace(
-            "NaT", None
-        )
+        df[column.name] = pd.to_datetime(df[column.name], errors="coerce")
+
+        if type(column.type) is Date:
+            mask = df[column.name].notna()
+            df[column.name] = df[column.name].dt.strftime("%Y-%m-%d")
+            df.loc[mask, column.name] = df.loc[mask, column.name].str.zfill(10)
+            df[column.name] = df[column.name].replace("NaT", None)
+        elif type(column.type) is DateTime:
+            df[column.name] = (
+                df[column.name].dt.strftime("%Y-%m-%d %H:%M:%S.%f").replace("NaT", None)
+            )
     return df
-
-
-def date_format_for_column(column: Column) -> str:
-    return DATE_FORMAT if type(column.type) is Date else DATETIME_FORMAT
 
 
 def is_date_column(column: Column) -> bool:
