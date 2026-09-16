@@ -111,7 +111,9 @@ extend-exclude = [
 # UP - pyupgrade (modernize Python code)
 # D - pydocstyle (docstring conventions)
 select = ["E", "F", "I", "N", "W", "UP", "D"]
-ignore = []
+# D1 - undocumented-* (D100-D107). Existing docstrings still have to be well-formed
+# (D2xx/D4xx stay enabled), but a missing docstring is not an error.
+ignore = ["D1"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "numpy"
