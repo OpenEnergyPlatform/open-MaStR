@@ -1,5 +1,7 @@
 # Global excludes - apply to all hooks
-exclude: ^(build/|dist/|.*\.egg-info/|\.tox/|\.pytest_cache/|\.mypy_cache/|__pycache__/|postprocessing/|open_mastr/soap_api/|scripts/)
+# open_mastr/resources/ holds the vendored BNetza fallback XSD files. They are
+# regenerated verbatim by scripts/update_fallback_xsd.py, so no hook may rewrite them.
+exclude: ^(build/|dist/|.*\.egg-info/|\.tox/|\.pytest_cache/|\.mypy_cache/|__pycache__/|postprocessing/|open_mastr/soap_api/|scripts/|open_mastr/resources/)
 
 repos:
   # Base pre-commit hooks for common issues
