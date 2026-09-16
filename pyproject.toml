@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "open_mastr"
-version = "0.16.0"
+version = "0.17.4"
 dependencies = [
   "pandas>=2.2.2",
   "numpy",
@@ -16,6 +16,7 @@ dependencies = [
   "keyring",
   "pyyaml",
   "xmltodict",
+  "xmlschema",
 ]
 
 requires-python = ">=3.9, <4"
@@ -26,6 +27,7 @@ authors = [
   {name = "Kotthoff Florian"},
   {name = "Tepe Deniz"},
   {name = "Amme Jonathan"},
+  {name = "Simon Will"},
   {name = "Open Energy Family"},
 ]
 
@@ -38,7 +40,7 @@ maintainers = [
 description = "A package that provides an interface for downloading and processing the data of the Marktstammdatenregister (MaStR)"
 readme = "README.rst"
 license = {text = "AGPL-3.0-or-later" }
-keywords = ["Markstammdatenregister", "Energy", "Dataset", "Solar", "Wind", "Energy-data", "OEP", "OpenEnergyFamily"]
+keywords = ["Markstammdatenregister", "Energy", "Dataset", "Solar", "Wind", "Energy-data", "OEP", "OpenEnergyFamily", "Bundesnetzagentur", "MaStR"]
 classifiers = [
   "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
   "Development Status :: 4 - Beta",
@@ -57,6 +59,8 @@ dev = [
   "mkdocstrings[python]",
   "mkdocs-material",
   "mkdocs-include-markdown-plugin",
+  "responses",
+  "pytest-responses",
   "ruff",
   "mypy",
 ]
@@ -78,7 +82,7 @@ open_mastr = [
 include = ["open_mastr", "open_mastr.soap_api", "open_mastr.soap_api.metadata", "open_mastr.utils", "open_mastr.utils.config", "open_mastr.xml_download"] # package names should match these glob patterns (["*"] by default)
 
 # from setup.py - not yet included in here
-# download_url="https://github.com/OpenEnergyPlatform/open-MaStR/archive""/refs/tags/v0.16.0.tar.gz",
+# download_url="https://github.com/OpenEnergyPlatform/open-MaStR/archive""/refs/tags/v0.17.4.tar.gz",
 
 [tool.ruff]
 line-length = 88

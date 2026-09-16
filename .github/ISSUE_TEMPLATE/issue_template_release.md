@@ -15,7 +15,20 @@ assignees: ''
 ## Preparation
 - [ ] 🐙 Create a `Draft GitHub Release` with the release version number `vx.x.x` as title
 - [ ] Merge all open Pull Requests to `develop`
+- [ ] Update the fallback XSD directory:
+    * Update the directory and create a pull request. E.g.:
+        ```bash
+        if python3 scripts/update_fallback_xsd.py; then
+            BRANCHNAME="update-fallback-xsd-$(date -Idate)"
+            git switch -c "$BRANCHNAME"
+            git add open_mastr/resources
+            git commit -m 'Update fallback XSD'
+            git push origin "$BRANCHNAME"
+        fi
+        ```
+    * Check and merge the pull request
 - [ ] Run tests locally with `pytest` and apply linting with `pre-commit run -a` 
+- [ ] Run the release tests with `python scripts/release_test.py`
 ## Create a `release` branch
 - [ ] Checkout `develop` and branch with `git checkout -b release-vx.x.x`
 - [ ] Update version for test release with `bump2version --current-version current_version> --new-version <new_version> patch`

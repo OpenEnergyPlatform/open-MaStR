@@ -13,16 +13,14 @@ open-mastr
 .. list-table::
    :widths: 10, 50
 
-   * - License
-     - |badge_license|
-   * - Documentation
-     - |badge_rtd|
-   * - Tests
-     - |badge_ci|
+   * - General
+     - |badge_license| |badge_rtd| |badge_ci|
    * - Publication
-     - |badge_pypi| |badge_joss|
+     - |badge_pypi| |badge_joss| |badge_zenodo_software_mirror|
    * - Data Publication
      - |badge_zenodo|
+   * - Software Archive
+     - |badge_software_heritage|
    * - Development
      - |badge_issue_open| |badge_issue_closes| |badge_pr_open| |badge_pr_closes|
    * - Community
@@ -37,19 +35,42 @@ open-mastr
 Introduction
 ============
 
-The `Marktstammdatenregister (MaStR) <https://www.marktstammdatenregister.de/MaStR>`_ is a German register 
-provided by the German Federal Network Agency (Bundesnetzagentur / BNetza) that keeps track of all power and gas units located in Germany.
+The Python package ``open-mastr`` provides an interface for accessing the `Marktstammdatenregister (MaStR) <https://www.marktstammdatenregister.de/MaStR>`_ data. The MaStR is a German register provided by the German Federal Network Agency (Bundesnetzagentur / BNetza) that keeps track of all power and gas units located in Germany. It is a daily growing dataset with millions of data points covering electricity and gas production units, electricity and gas consumers, storages, grids, and energy market participants.
 
-The MaStR data can be
- 
-#. browsed and filtered `online <https://www.marktstammdatenregister.de/MaStR>`_
-#. taken from `daily provided dumps <https://www.marktstammdatenregister.de/MaStR/Datendownload>`_
-#. be accessed via the `web service <https://www.marktstammdatenregister.de/MaStRHilfe/subpages/webdienst.html>`_
+Generally, and besides the offerings of ``open-mastr``, the MaStR data can be accessed via three main options:
 
-| The python package ``open-mastr`` provides an interface for accessing the data. 
-| It contains methods to download and parse the xml files (bulk) and the SOAP web service (API).
-| In this repository we are developing methods to analyze, validate and enrich the data.
-| We want to collect and compile post processing scripts to improve data quality.
+#. browse, filter and download `in the browser <https://www.marktstammdatenregister.de/MaStR>`_
+#. download `daily provided dumps <https://www.marktstammdatenregister.de/MaStR/Datendownload>`_
+#. access via the `web service <https://www.marktstammdatenregister.de/MaStRHilfe/subpages/webdienst.html>`_
+
+These access options, however, are not exactly frictionless. ``open-mastr`` thus provides an improved developer experience for accessing the data. This project is intended for individuals who wish to "just work" with the MaStR data and who do not want to deal with the idiosyncrasies of the three access options above.
+
+In particular, ``open-mastr`` facilitates access to the daily provided MaStR dumps with download methods (bulk) and by parsing the XML files to a relational database. Furthermore, the software provides a Python wrapper to access the MaStR SOAP web service (API).
+
+
+**Does open-mastr edit or change the MaStR data?**
+No. ``open-mastr`` is a wrapper around the MaStR data and does not edit or change the data. It is intended to be used as a tool for working with the MaStR data.
+
+Benefits provided by ``open-mastr``
+===================================
+
+.. list-table::
+   :widths: 30, 70
+   :header-rows: 1
+
+   * - Benefit
+     - Description
+   * - Data download and parsing
+     - Download, decode, and write data to a local database
+   * - Translation to English
+     - Translate table names and columns from German to English as well as an English documentation page of the dataset
+   * - Speed and parallelization
+     - Download and parse tables in seconds, not minutes
+   * - Data processing
+     - Merge relevant information about different technologies to single csv files
+
+**Just here for the data?**
+We regularly run the whole download and cleansing pipeline and upload the dataset as csv files at `zenodo <https://doi.org/10.5281/zenodo.6807425>`_!
 
 
 Documentation
@@ -65,7 +86,6 @@ Installation
 ============
 
 | It is recommended to use a virtual python environment, for example `conda <https://docs.conda.io/en/latest/miniconda.html>`_ or `virtualenv <https://virtualenv.pypa.io/en/latest/installation.html>`_.
-| The package is intended to be used with ``Python >=3.8``.
 
 
 PyPI
@@ -87,17 +107,12 @@ For development, clone this repository manually.
     git clone git@github.com:OpenEnergyPlatform/open-MaStR.git
     cd open-MaStR
 
-Setup the conda environment with
-
-.. code-block:: python
-
-    conda env create -f environment.yml
 
 Install the package with
 
 .. code-block:: python
 
-    pip install "open_mastr[dev]"
+    pip install -e .[dev]
 
 
 Examples of Usage
@@ -110,6 +125,7 @@ These projects already use open-mastr:
 - `Digiplan Anhalt <https://digiplan.rl-institut.de/>`_
 - `EmPowerPlan <https://epp.rl-institut.de/>`_
 - `Goal100 Monitor <https://goal100.org/monitor>`_
+- `Goal100 Studio <https://goal100.studio/>`_
 
 If you want to see your project in this list, write an  
 `Issue <https://github.com/OpenEnergyPlatform/open-MaStR/issues>`_ or add
@@ -140,7 +156,7 @@ Software
 
 Data
 ----
-| The data has the license **Datenlizenz Deutschland – Namensnennung – Version 2.0** (DL-DE-BY-2.0)
+| The original dataset is licensed under the **Datenlizenz Deutschland – Namensnennung – Version 2.0** (DL-DE-BY-2.0)
 | Copyright: `Marktstammdatenregister <https://www.marktstammdatenregister.de/MaStR>`_ - © Bundesnetzagentur für Elektrizität, Gas, Telekommunikation, Post und Eisenbahnen | `DL-DE-BY-2.0 <https://www.govdata.de/dl-de/by-2-0>`_
 
 
@@ -188,4 +204,8 @@ Data
 .. |badge_joss| image:: https://joss.theoj.org/papers/dc0d33e7dc74f7233e15a7b6fe0c7a3e/status.svg
     :target: https://joss.theoj.org/papers/dc0d33e7dc74f7233e15a7b6fe0c7a3e
 
+.. |badge_software_heritage| image:: https://archive.softwareheritage.org/badge/swh:1:dir:28252b3ca57b56d22be851bad576b6748af2e171/
+   :target: https://archive.softwareheritage.org/swh:1:dir:28252b3ca57b56d22be851bad576b6748af2e171;origin=https://github.com/OpenEnergyPlatform/open-MaStR;visit=swh:1:snp:8065d0931f826af24c57fae612c6a48e0fcb135b;anchor=swh:1:rev:430223ddf437ba2611fe9a38521e6549ff61e750
 
+.. |badge_zenodo_software_mirror| image:: https://zenodo.org/badge/203598131.svg
+   :target: https://doi.org/10.5281/zenodo.21415387

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="AnlagenEegSolar">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="AnlageEegSolar" maxOccurs="unbounded" minOccurs="0">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element type="xs:date" name="Registrierungsdatum" minOccurs="0"/>
+              <xs:element type="xs:dateTime" name="DatumLetzteAktualisierung"/>
+              <xs:element type="xs:date" name="EegInbetriebnahmedatum" minOccurs="0"/>
+              <xs:element type="xs:string" name="EegMaStRNummer"/>
+              <xs:element name="InanspruchnahmeZahlungNachEeg" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:byte">
+                    <xs:enumeration value="1"/>
+                    <xs:enumeration value="0"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element type="xs:string" name="AnlagenschluesselEeg" minOccurs="0"/>
+              <xs:element type="xs:string" name="AnlagenkennzifferAnlagenregister" minOccurs="0"/>
+              <xs:element name="AnlagenkennzifferAnlagenregister_nv">
+                <xs:simpleType>
+                  <xs:restriction base="xs:byte">
+                    <xs:enumeration value="1"/>
+                    <xs:enumeration value="0"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element type="xs:float" name="InstallierteLeistung" minOccurs="0"/>
+              <xs:element type="xs:string" name="RegistrierungsnummerPvMeldeportal" minOccurs="0"/>
+              <xs:element name="RegistrierungsnummerPvMeldeportal_nv">
+                <xs:simpleType>
+                  <xs:restriction base="xs:byte">
+                    <xs:enumeration value="0"/>
+                    <xs:enumeration value="1"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="MieterstromZugeordnet" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:byte">
+                    <xs:enumeration value="0"/>
+                    <xs:enumeration value="1"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element type="xs:date" name="MieterstromMeldedatum" minOccurs="0"/>
+              <xs:element type="xs:date" name="MieterstromErsteZuordnungZuschlag" minOccurs="0"/>
+              <xs:element name="AusschreibungZuschlag" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:byte">
+                    <xs:enumeration value="0"/>
+                    <xs:enumeration value="1"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element type="xs:float" name="ZugeordneteGebotsmenge" minOccurs="0"/>
+              <xs:element type="xs:string" name="Zuschlagsnummer" minOccurs="0"/>
+              <xs:element name="AnlageBetriebsstatus">
+                <xs:simpleType>
+                  <xs:restriction base="xs:byte">
+                    <xs:enumeration value="35"/>
+                    <xs:enumeration value="38"/>
+                    <xs:enumeration value="37"/>
+                    <xs:enumeration value="31"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element type="xs:string" name="VerknuepfteEinheitenMaStRNummern"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>
