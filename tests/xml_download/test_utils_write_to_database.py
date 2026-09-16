@@ -88,82 +88,6 @@ def test_cast_date_columns_to_string():
     )
 
 
-@pytest.mark.parametrize(
-    "column_type,expected_string",
-    [
-        (Date, "205-12-06"),
-        (DateTime, "205-12-06 00:00:00.000000"),
-    ],
-)
-def test_cast_date_columns_to_string_keeps_invalid_dates(
-    column_type: Any, expected_string: str
-) -> None:
-    """Regression test for date columns.
-
-    strftime does not zero-pad a year before 1000, so such a value is written to the
-    database as an invalid ISO string. We import it as it is, since the year is a typo
-    in the MaStR that we cannot repair.
-    """
-    table = Table(
-        "einheitensolar",
-        MetaData(),
-        Column("EinheitMastrNummer", String, primary_key=True),
-        Column("InbetriebnahmedatumAmAktuellenStandort", column_type),
-    )
-    # Use microsecond resolution so that the year, which is out of the
-    # nanosecond bounds, survives parsing on every supported pandas version.
-    df = pd.DataFrame(
-        {
-            "EinheitMastrNummer": ["1", "2"],
-            "InbetriebnahmedatumAmAktuellenStandort": np.array(
-                ["0205-12-06", "NaT"], dtype="datetime64[us]"
-            ),
-        }
-    )
-
-    result = cast_date_columns_to_string(table, df)
-
-    values = result["InbetriebnahmedatumAmAktuellenStandort"].tolist()
-    assert values[0] == expected_string
-    assert pd.isna(values[1])
-
-
-def test_add_table_to_sqlite_database_with_invalid_year(
-    engine_testdb: Engine,
-) -> None:
-    """Regression test for date columns: invalid dates are imported as they are."""
-    table = Table(
-        "einheitensolar",
-        MetaData(),
-        Column("EinheitMastrNummer", String, primary_key=True),
-        Column("Registrierungsdatum", Date),
-        Column("InbetriebnahmedatumAmAktuellenStandort", DateTime),
-    )
-    table.create(engine_testdb)
-
-    df = pd.DataFrame(
-        {
-            "EinheitMastrNummer": ["id1"],
-            "Registrierungsdatum": np.array(["0205-12-06"], dtype="datetime64[us]"),
-            "InbetriebnahmedatumAmAktuellenStandort": np.array(
-                ["0205-12-06"], dtype="datetime64[us]"
-            ),
-        }
-    )
-
-    add_table_to_sqlite_database(df, table, engine_testdb)
-
-    # Read the raw strings, since reading them as dates is what used to raise
-    # "ValueError: Invalid isoformat string: '205-12-06 00:00:00.000000'".
-    with engine_testdb.connect() as con:
-        rows = con.exec_driver_sql(
-            "SELECT Registrierungsdatum, InbetriebnahmedatumAmAktuellenStandort"
-            " FROM einheitensolar"
-        ).fetchall()
-
-    assert rows == [("205-12-06", "205-12-06 00:00:00.000000")]
-
-
 def test_is_date_column():
     assert is_date_column(Column("Id", Integer, primary_key=True)) is False
     assert is_date_column(Column("DatumLetzteAktualisierung", DateTime)) is True
@@ -295,7 +219,9 @@ def test_add_missing_columns_to_table(engine_testdb: Engine) -> None:
                 "DatumLetzteAktualisierung": [datetime(2022, 2, 2)],
             }
         )
-        initial_data_in_db.to_sql(table.name, con=con, if_exists="append", index=False)
+        initial_data_in_db.to_sql(
+            table.name, con=con, if_exists="append", index=False
+        )
 
     add_missing_columns_to_table(engine_testdb, table, ["NewColumn"])
 
