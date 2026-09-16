@@ -23,7 +23,6 @@ from sqlalchemy import (
 
 from open_mastr.utils.sqlalchemy_tables import CatalogString
 from open_mastr.xml_download.utils_write_to_database import (
-    MIN_PLAUSIBLE_YEAR,
     add_missing_columns_to_table,
     add_table_to_non_sqlite_database,
     add_table_to_sqlite_database,
@@ -135,43 +134,8 @@ def test_cast_date_columns_to_string_warns_about_invalid_dates(
     assert repr(expected_string) in caplog.text
     assert "1 date value(s) without a four-digit year" in caplog.text
     assert "Mastr.to_csv will export them as empty values" in caplog.text
-    # The two categories are disjoint, so this is not reported as an early date, too.
-    assert f"from before {MIN_PLAUSIBLE_YEAR}" not in caplog.text
     # Missing values are not invalid and must not be reported.
     assert "2 date value(s)" not in caplog.text
-
-
-def test_cast_date_columns_to_string_warns_about_dates_before_1900(
-    caplog: pytest.LogCaptureFixture,
-) -> None:
-    """A year before 1900 is implausible, but still a valid date that we keep."""
-    table = Table(
-        "einheitensolar",
-        MetaData(),
-        Column("EinheitMastrNummer", String, primary_key=True),
-        Column("Registrierungsdatum", Date),
-    )
-    df = pd.DataFrame(
-        {
-            "EinheitMastrNummer": ["1", "2"],
-            "Registrierungsdatum": np.array(
-                ["1850-12-06", "1900-01-01"], dtype="datetime64[us]"
-            ),
-        }
-    )
-
-    with caplog.at_level(logging.WARNING):
-        result = cast_date_columns_to_string(table, df)
-
-    # The date is imported as it is, only the warning tells the user about it.
-    assert result["Registrierungsdatum"].tolist() == ["1850-12-06", "1900-01-01"]
-    assert f"1 date value(s) from before {MIN_PLAUSIBLE_YEAR}" in caplog.text
-    assert "'1850-12-06'" in caplog.text
-    assert "They are imported as they are." in caplog.text
-    # It is a valid date, so it is not announced as being exported as an empty value.
-    assert "empty values" not in caplog.text
-    # The MaStR data starts at 1900-01-01, which is still plausible.
-    assert "1900-01-01" not in caplog.text
 
 
 def test_cast_date_columns_to_string_does_not_warn_about_valid_dates(
@@ -198,10 +162,10 @@ def test_cast_date_columns_to_string_does_not_warn_about_valid_dates(
     assert caplog.text == ""
 
 
-def test_add_table_to_sqlite_database_with_implausible_year(
+def test_add_table_to_sqlite_database_with_invalid_year(
     engine_testdb: Engine, caplog: pytest.LogCaptureFixture
 ) -> None:
-    """Regression test for date columns: implausible dates are imported as they are."""
+    """Regression test for date columns: invalid dates are imported as they are."""
     table = Table(
         "einheitensolar",
         MetaData(),

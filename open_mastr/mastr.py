@@ -27,8 +27,6 @@ from open_mastr.xml_download.utils_download_bulk import (
     get_date_from_docs_url,
 )
 from open_mastr.xml_download.utils_write_to_database import (
-    MIN_PLAUSIBLE_YEAR,
-    implausible_dates_mask,
     write_mastr_xml_to_database,
 )
 from open_mastr.utils.xsd_tables import (
@@ -510,8 +508,7 @@ def _read_table_in_chunks(
 
     A year before 1000 is stored without a zero-padded year, so it is no valid ISO
     string and reading it as a date would fail. Date columns are therefore read as plain
-    strings and parsed by pandas, which turns those values into NULL. Dates from before
-    the MaStR data starts are valid dates and are exported as they are.
+    strings and parsed by pandas, which turns those values into NULL.
     """
     table = Table(table_name, MetaData(), autoload_with=conn)
     date_column_names = [
@@ -542,15 +539,6 @@ def _read_table_in_chunks(
                     f"Table {table_name!r}, column {column_name!r}: exporting "
                     f"{invalid.sum()} date value(s) without a four-digit year as empty"
                     f" values, e.g. {_format_date_examples(chunk, column_name, invalid)}."
-                )
-
-            implausible = implausible_dates_mask(dates)
-            if implausible.any():
-                log.warning(
-                    f"Table {table_name!r}, column {column_name!r}: exporting "
-                    f"{implausible.sum()} date value(s) from before "
-                    f"{MIN_PLAUSIBLE_YEAR}, when the MaStR data starts, as they are,"
-                    f" e.g. {_format_date_examples(chunk, column_name, implausible)}."
                 )
 
             chunk[column_name] = dates

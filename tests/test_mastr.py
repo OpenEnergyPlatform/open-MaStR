@@ -60,8 +60,7 @@ def test_to_csv_exports_invalid_dates_as_empty(
     A year before 1000 is stored without a zero-padded year, so it is no valid ISO
     string, and reading it as a date used to raise
     "ValueError: Invalid isoformat string: '205-12-06 00:00:00.000000'". Such a value is
-    exported as empty. A date from before 1900, when the MaStR data starts, is valid and
-    is exported as it is, we only warn about it.
+    exported as empty.
     """
     table = sqlalchemy.Table(
         "EinheitenSolar",
@@ -78,9 +77,7 @@ def test_to_csv_exports_invalid_dates_as_empty(
             "INSERT INTO EinheitenSolar VALUES (?, ?, ?)",
             [
                 ("id1", "205-12-06", "205-12-06 00:00:00.000000"),
-                # A valid ISO string, but before the MaStR data starts.
-                ("id2", "1850-12-06", "1850-12-06 10:12:46.000000"),
-                ("id3", "2005-12-06", "2005-12-06 10:12:46.000000"),
+                ("id2", "2005-12-06", "2005-12-06 10:12:46.000000"),
             ],
         )
 
@@ -95,24 +92,15 @@ def test_to_csv_exports_invalid_dates_as_empty(
     # Only the invalid dates are exported as empty values.
     assert df.loc["id1"].isna().all()
     assert pd.to_datetime(df.loc["id2", "Registrierungsdatum"]) == pd.Timestamp(
-        "1850-12-06"
-    )
-    assert pd.to_datetime(
-        df.loc["id2", "InbetriebnahmedatumAmAktuellenStandort"]
-    ) == pd.Timestamp("1850-12-06 10:12:46")
-    assert pd.to_datetime(df.loc["id3", "Registrierungsdatum"]) == pd.Timestamp(
         "2005-12-06"
     )
     assert pd.to_datetime(
-        df.loc["id3", "InbetriebnahmedatumAmAktuellenStandort"]
+        df.loc["id2", "InbetriebnahmedatumAmAktuellenStandort"]
     ) == pd.Timestamp("2005-12-06 10:12:46")
 
     assert "1 date value(s) without a four-digit year as empty values" in caplog.text
     assert "'205-12-06'" in caplog.text
     assert "'205-12-06 00:00:00.000000'" in caplog.text
-    assert "1 date value(s) from before 1900" in caplog.text
-    assert "'1850-12-06'" in caplog.text
-    assert "'1850-12-06 10:12:46.000000'" in caplog.text
 
 
 def test_download_wind(

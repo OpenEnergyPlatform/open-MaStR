@@ -29,11 +29,6 @@ log = setup_logger()
 DATE_FORMAT = "%Y-%m-%d"
 DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S.%f"
 
-# The MaStR data starts at 1900-01-01, so an earlier year is a typo (205 instead of 2005)
-# that we cannot repair. Such dates are imported and exported as they are, we only warn
-# about them.
-MIN_PLAUSIBLE_YEAR = 1900
-
 # A year before 1000 is not zero-padded by strftime on every platform and is then written
 # to the database as e.g. "205-12-06 00:00:00.000000". That is not a valid ISO string
 # anymore and cannot be read back as a date, so `Mastr.to_csv` exports it as empty.
@@ -314,11 +309,6 @@ def cast_date_columns_to_datetime(db_table: Table, df: pd.DataFrame) -> pd.DataF
         if is_date_column(column) and column.name in df.columns:
             # Convert column to datetime64, invalid string -> NaT
             df[column.name] = pd.to_datetime(df[column.name], errors="coerce")
-            # The database stores real dates here, so they can always be read back.
-            date_strings = df[column.name].dt.strftime(date_format_for_column(column))
-            warn_about_implausible_dates(
-                db_table, column, date_strings[implausible_dates_mask(df[column.name])]
-            )
     return df
 
 
@@ -332,10 +322,8 @@ def cast_date_columns_to_string(db_table: Table, df: pd.DataFrame) -> pd.DataFra
             "NaT", None
         )
 
-        invalid = invalid_iso_dates_mask(date_strings)
-        warn_about_invalid_dates(db_table, column, date_strings[invalid])
-        warn_about_implausible_dates(
-            db_table, column, date_strings[implausible_dates_mask(dates) & ~invalid]
+        warn_about_invalid_dates(
+            db_table, column, date_strings[invalid_iso_dates_mask(date_strings)]
         )
 
         df[column.name] = date_strings
@@ -346,32 +334,9 @@ def date_format_for_column(column: Column) -> str:
     return DATE_FORMAT if type(column.type) is Date else DATETIME_FORMAT
 
 
-def implausible_dates_mask(dates: pd.Series) -> pd.Series:
-    """Mark dates from before the MaStR data starts."""
-    return dates.notna() & (dates.dt.year < MIN_PLAUSIBLE_YEAR).fillna(False)
-
-
 def invalid_iso_dates_mask(date_strings: pd.Series) -> pd.Series:
     """Mark date strings whose year is not zero-padded to four digits."""
     return ~date_strings.str.match(ISO_YEAR_PATTERN, na=True)
-
-
-def warn_about_implausible_dates(
-    db_table: Table, column: Column, date_strings: pd.Series
-) -> None:
-    """Warn about dates from before the MaStR data starts.
-
-    They are valid dates, so they are imported and exported as they are. A year such as
-    1850 is most likely a typo, but we cannot know what it was supposed to be.
-    """
-    if date_strings.empty:
-        return
-
-    log.warning(
-        f"Table {db_table.name!r}, column {column.name!r}: {len(date_strings)} date "
-        f"value(s) from before {MIN_PLAUSIBLE_YEAR}, when the MaStR data starts, "
-        f"e.g. {format_date_examples(date_strings)}. They are imported as they are."
-    )
 
 
 def warn_about_invalid_dates(
