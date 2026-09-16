@@ -29,11 +29,6 @@ log = setup_logger()
 DATE_FORMAT = "%Y-%m-%d"
 DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S.%f"
 
-# A year before 1000 is not zero-padded by strftime on every platform and is then written
-# to the database as e.g. "205-12-06 00:00:00.000000". That is not a valid ISO string
-# anymore and cannot be read back as a date, so `Mastr.to_csv` exports it as empty.
-ISO_YEAR_PATTERN = r"\d{4}-"
-
 
 def write_mastr_xml_to_database(
     engine: sqlalchemy.engine.Engine,
@@ -317,49 +312,19 @@ def cast_date_columns_to_string(db_table: Table, df: pd.DataFrame) -> pd.DataFra
         if not is_date_column(column) or column.name not in df.columns:
             continue
 
+        # strftime does not zero-pad a year before 1000 on every platform, so such a
+        # date is written as an invalid ISO string. It is kept as it is, since the year
+        # is a typo in the MaStR that we cannot repair. Mastr.to_csv reports those
+        # values and exports them as empty.
         dates = pd.to_datetime(df[column.name], errors="coerce")
-        date_strings = dates.dt.strftime(date_format_for_column(column)).replace(
+        df[column.name] = dates.dt.strftime(date_format_for_column(column)).replace(
             "NaT", None
         )
-
-        warn_about_invalid_dates(
-            db_table, column, date_strings[invalid_iso_dates_mask(date_strings)]
-        )
-
-        df[column.name] = date_strings
     return df
 
 
 def date_format_for_column(column: Column) -> str:
     return DATE_FORMAT if type(column.type) is Date else DATETIME_FORMAT
-
-
-def invalid_iso_dates_mask(date_strings: pd.Series) -> pd.Series:
-    """Mark date strings whose year is not zero-padded to four digits."""
-    return ~date_strings.str.match(ISO_YEAR_PATTERN, na=True)
-
-
-def warn_about_invalid_dates(
-    db_table: Table, column: Column, date_strings: pd.Series
-) -> None:
-    """Warn about dates that are written to the database as invalid ISO strings.
-
-    They are imported as they are, but cannot be read back as dates, so `Mastr.to_csv`
-    exports them as empty values.
-    """
-    if date_strings.empty:
-        return
-
-    log.warning(
-        f"Table {db_table.name!r}, column {column.name!r}: {len(date_strings)} date "
-        f"value(s) without a four-digit year, e.g. {format_date_examples(date_strings)}."
-        " They are imported as they are, but Mastr.to_csv will export them as empty"
-        " values."
-    )
-
-
-def format_date_examples(date_strings: pd.Series) -> str:
-    return ", ".join(repr(date_string) for date_string in date_strings.head(3))
 
 
 def is_date_column(column: Column) -> bool:

@@ -28,7 +28,7 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 
 
 ### Changed
-- Fix `Mastr.to_csv` failing with "Invalid isoformat string" on date values whose year is not zero-padded to four digits. Those dates are now imported as they are with a warning and exported as empty values.
+- Fix `Mastr.to_csv` failing with "Invalid isoformat string" on date values whose year is not zero-padded to four digits. Those dates are now imported as they are and exported as empty values with a warning.
   [#801](https://github.com/OpenEnergyPlatform/open-MaStR/pull/801)
 - Include AnlagenStromSpeicher when passing argument "storage" to `Mastr.download` and deprecate "storage_units"
   [#799](https://github.com/OpenEnergyPlatform/open-MaStR/pull/799)

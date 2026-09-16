@@ -1,4 +1,3 @@
-import logging
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Callable
@@ -96,14 +95,14 @@ def test_cast_date_columns_to_string():
         (DateTime, "205-12-06 00:00:00.000000"),
     ],
 )
-def test_cast_date_columns_to_string_warns_about_invalid_dates(
-    column_type: Any, expected_string: str, caplog: pytest.LogCaptureFixture
+def test_cast_date_columns_to_string_keeps_invalid_dates(
+    column_type: Any, expected_string: str
 ) -> None:
     """Regression test for date columns.
 
     strftime does not zero-pad a year before 1000, so such a value is written to the
-    database as an invalid ISO string. We import it as it is and warn that Mastr.to_csv
-    cannot export it.
+    database as an invalid ISO string. We import it as it is, since the year is a typo
+    in the MaStR that we cannot repair.
     """
     table = Table(
         "einheitensolar",
@@ -122,48 +121,15 @@ def test_cast_date_columns_to_string_warns_about_invalid_dates(
         }
     )
 
-    with caplog.at_level(logging.WARNING):
-        result = cast_date_columns_to_string(table, df)
+    result = cast_date_columns_to_string(table, df)
 
     values = result["InbetriebnahmedatumAmAktuellenStandort"].tolist()
     assert values[0] == expected_string
     assert pd.isna(values[1])
 
-    assert "einheitensolar" in caplog.text
-    assert "InbetriebnahmedatumAmAktuellenStandort" in caplog.text
-    assert repr(expected_string) in caplog.text
-    assert "1 date value(s) without a four-digit year" in caplog.text
-    assert "Mastr.to_csv will export them as empty values" in caplog.text
-    # Missing values are not invalid and must not be reported.
-    assert "2 date value(s)" not in caplog.text
-
-
-def test_cast_date_columns_to_string_does_not_warn_about_valid_dates(
-    caplog: pytest.LogCaptureFixture,
-) -> None:
-    table = Table(
-        "einheitensolar",
-        MetaData(),
-        Column("EinheitMastrNummer", String, primary_key=True),
-        Column("Registrierungsdatum", Date),
-    )
-    df = pd.DataFrame(
-        {
-            "EinheitMastrNummer": ["1", "2"],
-            "Registrierungsdatum": np.array(
-                ["2024-03-11", "NaT"], dtype="datetime64[us]"
-            ),
-        }
-    )
-
-    with caplog.at_level(logging.WARNING):
-        cast_date_columns_to_string(table, df)
-
-    assert caplog.text == ""
-
 
 def test_add_table_to_sqlite_database_with_invalid_year(
-    engine_testdb: Engine, caplog: pytest.LogCaptureFixture
+    engine_testdb: Engine,
 ) -> None:
     """Regression test for date columns: invalid dates are imported as they are."""
     table = Table(
@@ -185,10 +151,7 @@ def test_add_table_to_sqlite_database_with_invalid_year(
         }
     )
 
-    with caplog.at_level(logging.WARNING):
-        add_table_to_sqlite_database(df, table, engine_testdb)
-
-    assert "205-12-06" in caplog.text
+    add_table_to_sqlite_database(df, table, engine_testdb)
 
     # Read the raw strings, since reading them as dates is what used to raise
     # "ValueError: Invalid isoformat string: '205-12-06 00:00:00.000000'".
