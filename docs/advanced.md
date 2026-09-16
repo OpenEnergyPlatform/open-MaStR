@@ -1,4 +1,4 @@
-For most users, the functionalites described in [Getting Started](getting_started.md) are sufficient.  If you want 
+For most users, the functionalites described in [Getting Started](getting_started.md) are sufficient.  If you want
 to examine how you can configure the package's behavior for your own needs, check out [Configuration](#configuration). Or you can explore the two main functionalities of the package, namely the [Bulk Download](#bulk-download)
 or the [SOAP API download](#soap-api-download).
 
@@ -103,7 +103,7 @@ The project home directory is structured as follows (files and folders below `da
     └── logs
         └── open_mastr.log
 ```
- 
+
 * **config**
      * `credentials.cfg` <br>
         Credentials used to access
@@ -122,7 +122,7 @@ The project home directory is structured as follows (files and folders below `da
         Contains the documentation of the MaStR download.
      * `xml_download` <br>
         Contains the bulk download in `Gesamtdatenexport_<date>.zip` <br>
-        New bulk download versions overwrite older versions. 
+        New bulk download versions overwrite older versions.
 * **logs**
      * `open_mastr.log` <br>
         The files stores the logging information from executing open-mastr.
@@ -146,7 +146,7 @@ or adjusting it manually in your code. E.g. to enable `DEBUG` messages in `open_
 
 ### Data
 
-If the zipped dump of the MaStR is downloaded, it is saved in the folder `$HOME/.open-MaStR/data/xml_download`. 
+If the zipped dump of the MaStR is downloaded, it is saved in the folder `$HOME/.open-MaStR/data/xml_download`.
 
 The data can then be written to any sql database supported by [sqlalchemy](https://docs.sqlalchemy.org/). The type of the sql database is determined by the parameter `engine` in the [Mastr][open_mastr.Mastr] class.
 
@@ -169,8 +169,8 @@ There are some environment variables to customize open-MaStR:
 ## Bulk download
 
 On the homepage [MaStR/Datendownload](https://www.marktstammdatenregister.de/MaStR/Datendownload) a zipped folder containing the whole
-MaStR is offered. The data is delivered as XML files. The official documentation can be found 
-on the same page (in German). This data is updated on a daily basis. 
+MaStR is offered. The data is delivered as XML files. The official documentation can be found
+on the same page (in German). This data is updated on a daily basis.
 
 ``` mermaid
 flowchart LR
@@ -189,7 +189,7 @@ flowchart LR
 ```
 
 
-In the following, the process is described that is started when calling the [`Mastr.download`][open_mastr.Mastr.download] without parameters. 
+In the following, the process is described that is started when calling the [`Mastr.download`][open_mastr.Mastr.download] without parameters.
 First, the zipped documentation is downloaded and saved in `$HOME/.open-MaStR/data/docs_download`. The zipped documentation contains
 XSD files that describe the MaStR XML files that contain the data. open-mastr reads the XSD files and generates a database schema for
 importing the data. I.e., for each MaStR table, it defines a database table and then creates it in a SQLite database.
@@ -229,8 +229,8 @@ download.
 | `changed_dso_assignment` | `EinheitenAenderungNetzbetreiberzuordnungen` |
 
 In the next step, a basic data cleansing is performed. Many entries in the MaStR from the bulk download are replaced by numbers.
-As an example, instead of writing the German states where the unit is registered (Saxony, Brandenburg, Bavaria, ...) the MaStR states 
-corresponding digits (7, 2, 9, ...). One major step of cleansing is therefore to replace those digits with their original meaning. 
+As an example, instead of writing the German states where the unit is registered (Saxony, Brandenburg, Bavaria, ...) the MaStR states
+corresponding digits (7, 2, 9, ...). One major step of cleansing is therefore to replace those digits with their original meaning.
 Moreover, the datatypes of different entries are set in the data cleansing process and corrupted files are repaired.
 
 The tables in the database can be exported to CSV files using the [`to_csv`][open_mastr.Mastr.to_csv] method.
@@ -250,8 +250,8 @@ via its API a [registration](https://www.marktstammdatenregister.de/MaStRHilfe/f
 
 To download data from the MaStR API using the `open-MaStR`, the credentials (MaStR user and token) need to be provided in a certain way. Three options exist:
 
-1. **Credentials file:** 
-    Both, user and token, are stored in plain text in the credentials file. The file is located at 
+1. **Credentials file:**
+    Both, user and token, are stored in plain text in the credentials file. The file is located at
     '~/.open-MaStR/config/credentials.cfg'. Fill in your user and token like this:
 
     ```
@@ -262,13 +262,13 @@ To download data from the MaStR API using the `open-MaStR`, the credentials (MaS
 
     The `token` should be written in one line, without line breaks.
 
-2. **Credentials file + keyring:** 
+2. **Credentials file + keyring:**
     The user is stored in the credentials file, while the token is stored encrypted in the [keyring](https://pypi.org/project/keyring/).
 
     Read in the documentation of the keyring library how to store your token in the
     keyring.
 
-3. **Don't store:** 
+3. **Don't store:**
     Just use the password for one query and forget it
 
     The latter option is only available when using [`MaStRAPI`][open_mastr.soap_api.download.MaStRAPI].
@@ -283,7 +283,7 @@ To download data from the MaStR API using the `open-MaStR`, the credentials (MaS
 
 ### MaStRAPI
 
-You can access the MaStR data via API by using the class `MaStRAPI` directly if you have the API credentials 
+You can access the MaStR data via API by using the class `MaStRAPI` directly if you have the API credentials
 configured correctly. Use the code snippet below for queries.
 
 
@@ -308,8 +308,8 @@ For API calls, models and optional parameters refer to the
 ???+ example "Example queries and their responses (for model 'Anlage')"
 
     === "mastr_api.GetLokaleUhrzeit()"
-        
-        Response: 
+
+        Response:
         ```python
         {
         'Ergebniscode': 'OK',
@@ -323,12 +323,12 @@ For API calls, models and optional parameters refer to the
         API function name: `GetLokaleUhrzeit` <br>
         Example query: `mastr_api.GetLokaleUhrzeit()` <br>
         Parameter: `None`
-        
 
-    
+
+
     === "mastr_api.GetListeAlleEinheiten(limit=1)"
-        
-        Response:  
+
+        Response:
         ```python
         {
         "Ergebniscode": "OkWeitereDatenVorhanden",
@@ -363,7 +363,7 @@ For API calls, models and optional parameters refer to the
 
         API function name: `GetEinheitSolar` <br>
         Example query: `mastr_api.GetListeAlleEinheiten(limit=1)`
-    
+
         | Parameter                 | Description                                                              |
         |------------------------|-----------------------------------------------------------------------------------------------------------|
         | marktakteurMastrNummer | The MaStR number of the requested unit                                                                    |
@@ -371,10 +371,10 @@ For API calls, models and optional parameters refer to the
         | datumAb                | Restrict the amount of data to be retrieved to changed data from the specified date [Default value: NULL] |
         | limit                  | Limit of the maximum data records to be delivered [default/maximum value: maximum of own limit]           |
         | einheitMastrNummern[]  |                                                                                                           |
-    
+
     === "mastr_api.GetEinheitSolar(einheitMastrNummer="SEE984033548619")"
-        
-        Response: 
+
+        Response:
         ```python
         {
         "Ergebniscode": "OK",
@@ -471,18 +471,18 @@ For API calls, models and optional parameters refer to the
         |--------------------------|-------------------------------------------------------------------|
         | `apiKey`                 | The web service key for validation                                |
         | `marktakteurMastrNummer` | The MaStR number of the market actor used by the web service user |
-        | `einheitMastrNummer`     | The MaStR number of the requested unit                            | 
+        | `einheitMastrNummer`     | The MaStR number of the requested unit                            |
 
 
 ??? note "Why can't I just query all information of all units of a specific power plant type?"
 
-    As the example queries above demonstrate, the API is structured so that units of power plants types (e.g. wind 
-    turbine, solar PV systems, gas power plant) have to be queried directly by their unique identifier ( 
-    `EinheitMastrNummer"`) and a distinct API query. To download all unit information of a specific power plant 
+    As the example queries above demonstrate, the API is structured so that units of power plants types (e.g. wind
+    turbine, solar PV systems, gas power plant) have to be queried directly by their unique identifier (
+    `EinheitMastrNummer"`) and a distinct API query. To download all unit information of a specific power plant
     you need to know the "EinheitMastrNummer". <br>
 
-    Firstly, by querying for all units with `mastr_api.GetListeAlleEinheiten()` you'll get all units, their unique 
-    identifier (`EinheitMastrNummer`) and their power plant type (`Einheitentyp`). You can then sort them by power 
+    Firstly, by querying for all units with `mastr_api.GetListeAlleEinheiten()` you'll get all units, their unique
+    identifier (`EinheitMastrNummer`) and their power plant type (`Einheitentyp`). You can then sort them by power
     plant type and use the power plant type specific API query to retrieve information about it. <br>
 
 
@@ -498,4 +498,3 @@ For API calls, models and optional parameters refer to the
 
 !!! warning "MaStRMirror has been removed"
     In versions > `v0.16.0` the `MaStRMirror` class cannot be used anymore.
-

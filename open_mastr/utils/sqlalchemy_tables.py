@@ -1,6 +1,17 @@
 import logging
-from typing import Any, Type, Union
-from sqlalchemy import Column, Integer, String, Float, Boolean, Date, DateTime, Table, MetaData
+from typing import Any, Union
+
+from sqlalchemy import (
+    Boolean,
+    Column,
+    Date,
+    DateTime,
+    Float,
+    Integer,
+    MetaData,
+    String,
+    Table,
+)
 
 from open_mastr.utils.xsd_tables import (
     MastrColumnType,
@@ -26,7 +37,6 @@ MASTR_TABLE_NAME_TO_PRIMARY_KEY_COLUMNS = {
     "AnlagenKwk": {"KwkMastrNummer"},
     "AnlagenStromSpeicher": {"MastrNummer"},
     "Bilanzierungsgebiete": {"Id"},
-
     # There is no unique key for this table. So we will have to insert one.
     # Check for example the entries for SEE990510388975. We could use
     # EinheitMastrNummer + RegistrierungsdatumNetzbetreiberzuordnungsaenderung,
@@ -37,7 +47,6 @@ MASTR_TABLE_NAME_TO_PRIMARY_KEY_COLUMNS = {
     # some rows, so it cannot be used in a composite primary key because it must be nullable.
     # (Nullable columns in a primary key are OK in SQLite, but not in PostgreSQL & MySQL.)
     "EinheitenAenderungNetzbetreiberzuordnungen": None,
-
     "EinheitenBiomasse": {"EinheitMastrNummer"},
     "EinheitenGasErzeuger": {"EinheitMastrNummer"},
     "EinheitenGasSpeicher": {"EinheitMastrNummer"},
@@ -90,9 +99,12 @@ def make_sqlalchemy_table_from_mastr_table_description(
         table_name = table_description.original_table_name
 
     try:
-        primary_key_columns = MASTR_TABLE_NAME_TO_PRIMARY_KEY_COLUMNS[
-            table_description.original_table_name
-        ] or set()
+        primary_key_columns = (
+            MASTR_TABLE_NAME_TO_PRIMARY_KEY_COLUMNS[
+                table_description.original_table_name
+            ]
+            or set()
+        )
         artificial_primary_key_name = "OpenMastrId"
     except KeyError:
         # This table is not yet known to open-mastr. We insert a temporary
@@ -102,7 +114,9 @@ def make_sqlalchemy_table_from_mastr_table_description(
         artificial_primary_key_name = "TempOpenMastrIdForUnknownTable"
 
     if primary_key_columns and english:
-        primary_key_columns = {translate_mastr_column_name(column) for column in primary_key_columns}
+        primary_key_columns = {
+            translate_mastr_column_name(column) for column in primary_key_columns
+        }
 
     db_column_kwargs = []
     for mastr_column in table_description.columns:
@@ -110,7 +124,6 @@ def make_sqlalchemy_table_from_mastr_table_description(
             mastr_column.english_name or mastr_column.normalized_name
             if english
             else mastr_column.normalized_name
-
         )
         column_type = _get_sqlalchemy_type_for_mastr_column_type(
             mastr_column_type=mastr_column.type,
@@ -145,7 +158,9 @@ def make_sqlalchemy_table_from_mastr_table_description(
             "normalized_name": "DatenQuelle",
             "english_name": "dataSource",
         }
-        data_source_col_name = data_source_col_info["english_name" if english else "normalized_name"]
+        data_source_col_name = data_source_col_info[
+            "english_name" if english else "normalized_name"
+        ]
         db_column_kwargs.append(
             {
                 "name": data_source_col_name,
@@ -157,7 +172,9 @@ def make_sqlalchemy_table_from_mastr_table_description(
             "normalized_name": "DatumDownload",
             "english_name": "downloadDate",
         }
-        download_date_col_name = download_date_col_info["english_name" if english else "normalized_name"]
+        download_date_col_name = download_date_col_info[
+            "english_name" if english else "normalized_name"
+        ]
         db_column_kwargs.append(
             {
                 "name": download_date_col_name,
@@ -195,16 +212,19 @@ def _prepend_primary_key_if_missing(
     ):
         return db_column_kwargs.copy()
 
-    id_column_name = "OpenMastrId"
     log.info(
         f"Missing primary key column for table {table_name}."
         f" Inserting custom ID column {new_primary_key_name!r}"
     )
     return [
-        {"name": new_primary_key_name, "type_": Integer, "primary_key": True, "autoincrement": True}
+        {
+            "name": new_primary_key_name,
+            "type_": Integer,
+            "primary_key": True,
+            "autoincrement": True,
+        }
     ] + [
-        kwargs | {"primary_key": False, "nullable": True}
-        for kwargs in db_column_kwargs
+        kwargs | {"primary_key": False, "nullable": True} for kwargs in db_column_kwargs
     ]
 
 
@@ -229,15 +249,18 @@ class CatalogString(String):
 
 
 def _get_sqlalchemy_type_for_mastr_column_type(
-    mastr_column_type: MastrColumnType, catalog_value_as_str: bool,
-) -> Union[Type[String], Type[Integer], Type[Float], Type[Date], Type[DateTime], Type[Boolean]]:
+    mastr_column_type: MastrColumnType,
+    catalog_value_as_str: bool,
+) -> Union[
+    type[String], type[Integer], type[Float], type[Date], type[DateTime], type[Boolean]
+]:
     if mastr_column_type is MastrColumnType.CATALOG_VALUE:
         return CatalogString if catalog_value_as_str else CatalogInteger
     return _MASTR_COLUMN_TYPE_TO_SQLALCHEMY_TYPE[mastr_column_type]
 
 
 def format_sqlalchemy_column(column: Column) -> str:
-    """Format SQLAlchemy column
+    """Format SQLAlchemy column.
 
     This is an almost exact copy of sqlalchemy.Column.__repr__ with the difference
     that "info" is also formatted.
@@ -259,35 +282,38 @@ def format_sqlalchemy_column(column: Column) -> str:
         kwarg.append("comment")
     if column.info:
         kwarg.append("info")
-    return "Column(%s)" % ", ".join(
+    parts = (
         [repr(column.name)]
         + [repr(column.type)]
         + [repr(x) for x in column.foreign_keys if x is not None]
         + [repr(x) for x in column.constraints]
         + [
             (
-                column.table is not None
-                and "table=<%s>" % column.table.description
-                or "table=None"
+                f"table=<{column.table.description}>"
+                if column.table is not None
+                else "table=None"
             )
         ]
-        + ["%s=%s" % (k, repr(getattr(column, k))) for k in kwarg]
+        + [f"{k}={getattr(column, k)!r}" for k in kwarg]
     )
+    return f"Column({', '.join(parts)})"
 
 
 def format_sqlalchemy_table(table: Table) -> str:
-    """Format SQLAlchemy column
+    """Format SQLAlchemy column.
 
     This is an almost exact copy of sqlalchemy.Table.__repr__ with two differences:
     - "info" is also formatted
     - more whitespace (especially linebreaks) to make it more easily readable
     """
-    return "Table(\n    %s\n)" % ",\n    ".join(
+    parts = (
         [repr(table.name)]
         + [repr(table.metadata)]
         + [format_sqlalchemy_column(x) for x in table.columns]
-        + ["%s=%s" % (k, repr(getattr(table, k))) for k in ["info", "schema"]]
+        + [f"{k}={getattr(table, k)!r}" for k in ["info", "schema"]]
     )
+    joined = ",\n    ".join(parts)
+    return f"Table(\n    {joined}\n)"
 
 
 def format_mastr_table_to_db_table(mastr_table_to_db_table: dict[str, Table]) -> str:

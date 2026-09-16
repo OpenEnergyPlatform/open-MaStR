@@ -1,16 +1,18 @@
 import logging
 import os
-from enum import auto, Enum
+from collections.abc import Iterator
 from dataclasses import dataclass
+from enum import Enum, auto
 from pathlib import Path
-from typing import Optional, Union, Iterator, IO
+from typing import IO, Optional, Union
 from zipfile import ZipFile
-import xmlschema
-from xmlschema.validators.simple_types import XsdAtomicBuiltin, XsdAtomicRestriction
-from xmlschema.validators.exceptions import XMLSchemaModelError
 
-from open_mastr.utils.helpers import data_to_include_tables
+import xmlschema
+from xmlschema.validators.exceptions import XMLSchemaModelError
+from xmlschema.validators.simple_types import XsdAtomicBuiltin, XsdAtomicRestriction
+
 from open_mastr.utils.constants import COLUMN_TRANSLATIONS, TABLE_TRANSLATIONS
+from open_mastr.utils.helpers import data_to_include_tables
 
 _XML_SCHEMA_PREFIX = "{http://www.w3.org/2001/XMLSchema}"
 
@@ -179,7 +181,8 @@ class InvalidXmlSchemaError(Exception):
 def _iterate_xsd_files(source: Union[Path, str]) -> Iterator[tuple[str, IO[bytes]]]:
     """Iterate over .xsd files in a ZIP file or directory.
 
-    Source can either be a directory directly containing `*.xsd` files, or a ZIP file that contains either an `xsd` directory or another ZIP file called `xsd.zip`.
+    Source can either be a directory directly containing `*.xsd` files, or a ZIP file
+    that contains either an `xsd` directory or another ZIP file called `xsd.zip`.
 
     Yields tuples of (name, file_object) where file_object is a context manager.
     """

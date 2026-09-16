@@ -52,7 +52,7 @@ API download
 
 ## Accessing the database
 
-For accessing and working with the MaStR database after you have downloaded it, you can use sqlite browsers 
+For accessing and working with the MaStR database after you have downloaded it, you can use sqlite browsers
 such as [DB Browser for SQLite](https://sqlitebrowser.org/) or any python module
 which can process sqlite data. Pandas, for example, comes with the function
 [read_sql](https://pandas.pydata.org/docs/reference/api/pandas.read_sql.html).

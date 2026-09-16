@@ -1,10 +1,11 @@
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+
+from open_mastr.mastr import Mastr
 from open_mastr.xml_download.utils_download_bulk import (
     get_available_download_links,
     list_available_downloads,
     select_download_date,
 )
-from open_mastr.mastr import Mastr
 
 # Sample HTML content for mocking urlopen
 SAMPLE_HTML = """
@@ -81,7 +82,8 @@ def test_list_available_downloads(mock_print, mock_get_links):
     mock_print.assert_any_call("AVAILABLE MAStR DOWNLOADS")
     mock_print.assert_any_call(
         "#    Date         Version    Type         XML URL"
-        "                                                                                    Docs URL"
+        "                                          "
+        "                                          Docs URL"
     )
     mock_print.assert_any_call("Total: 4 downloads available")
 
@@ -141,7 +143,9 @@ def test_mastr_download_interactive(
 
 @patch("open_mastr.mastr.select_download_date")
 @patch("open_mastr.mastr.download_xml_Mastr")
-def test_mastr_download_interactive_cancel(mock_download, mock_select_date, mastr: Mastr):
+def test_mastr_download_interactive_cancel(
+    mock_download, mock_select_date, mastr: Mastr
+):
     """Test the main download method when interactive selection is cancelled."""
     mock_select_date.return_value = None
     mastr.download(select_date_interactively=True)
