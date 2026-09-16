@@ -87,6 +87,19 @@ include = ["open_mastr", "open_mastr.soap_api", "open_mastr.soap_api.metadata", 
 [tool.ruff]
 line-length = 88
 target-version = "py39"
+# Keep in sync with the global `exclude` in .pre-commit-config.yaml, so that a local
+# `ruff check .` sees the same files as the pre-commit hook. Ruff's own defaults already
+# cover build/, dist/, .tox/, .pytest_cache/, .mypy_cache/ and __pycache__/.
+# force-exclude is required because pre-commit passes file paths explicitly, and ruff
+# ignores its exclusions for explicitly passed paths unless this is set.
+force-exclude = true
+extend-exclude = [
+  "*.egg-info",
+  "postprocessing",
+  "open_mastr/soap_api",
+  "open_mastr/resources",
+  "scripts",
+]
 
 [tool.ruff.lint]
 # Enable:
