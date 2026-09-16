@@ -28,6 +28,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 
 
 ### Changed
+- Fix `Mastr.to_csv` aborting with "Invalid isoformat string" on date values whose year is not zero-padded to four digits. Those values are now exported as empty cells with a warning instead of failing the export
+  [#801](https://github.com/OpenEnergyPlatform/open-MaStR/pull/801)
 - Include AnlagenStromSpeicher when passing argument "storage" to `Mastr.download` and deprecate "storage_units"
   [#799](https://github.com/OpenEnergyPlatform/open-MaStR/pull/799)
 - Translate catalog category IDs for fields that are missing XSD restrictions during bulk cleansing
