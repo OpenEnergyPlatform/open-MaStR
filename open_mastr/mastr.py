@@ -352,7 +352,13 @@ class Mastr:
                 return
 
             # Update the date and use the selected URL
-            bulk_download_date = selected_link["date"]
+            selected_date = selected_link["date"]
+            if selected_date is None:
+                raise ValueError(
+                    "The selected download link does not contain a date:"
+                    f" {selected_link!r}"
+                )
+            bulk_download_date = selected_date
             custom_xml_url = selected_link["url"]
             custom_docs_url = selected_link["docs_url"]
         else:
@@ -422,7 +428,7 @@ class Mastr:
 
     def to_csv(
         self,
-        db_table_names: Union[str, Iterable[str]] = None,
+        db_table_names: Optional[Union[str, Iterable[str]]] = None,
         chunksize: int = 500000,
     ) -> None:
         """Export tables from existing database to CSV.
@@ -500,7 +506,7 @@ class Mastr:
 
 
 def _generate_data_model_from_downloaded_docs(
-    zipped_docs_file_path: Path,
+    zipped_docs_file_path: Union[Path, str],
     data: list[str],
     catalog_value_as_str: bool = True,
     metadata: Optional[MetaData] = None,

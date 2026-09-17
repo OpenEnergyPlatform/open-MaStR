@@ -86,8 +86,8 @@ def gen_version(
             release = 2
 
     # only the last two digits of the year are used
-    year = str(year)[-2:]
-    return f"{year}.{release}"
+    year_short = str(year)[-2:]
+    return f"{year_short}.{release}"
 
 
 def gen_xml_download_url(
@@ -134,7 +134,7 @@ def download_xml_Mastr(  # noqa: N802 public name, kept for backwards compatibil
     bulk_date_string: str,
     bulk_data_list: list[str],
     xml_folder_path: str,
-    url: str = None,
+    url: Optional[str] = None,
 ) -> None:
     """Download the zipped MaStR.
 
@@ -667,7 +667,7 @@ def download_documentation(
     time_a = time.perf_counter()
     log.info(f"Downloading MaStR documentation from {preferred_url}")
     r = requests.get(preferred_url, headers={"User-Agent": USER_AGENT})
-    if r.status_code == 404:
+    if r.status_code == 404 and fallback_url:
         log.warning(
             "MaStR documentation download file was not found."
             f" Trying to download from {fallback_url}"

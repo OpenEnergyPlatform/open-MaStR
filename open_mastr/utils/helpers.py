@@ -25,7 +25,7 @@ MASTR_TIMEZONE = ZoneInfo("Europe/Berlin")
 
 def create_database_engine(
     engine: Union[Literal["sqlite"] | sqlalchemy.engine.Engine],
-    sqlite_db_path: Optional[str],
+    sqlite_db_path: str,
 ) -> sqlalchemy.engine.Engine:
     if isinstance(engine, sqlalchemy.engine.Engine):
         return engine
@@ -146,9 +146,7 @@ def transform_data_parameter(data, **kwargs):
     return data
 
 
-def transform_date_parameter(
-    date: Union[datetime.date, Literal["today"]], **kwargs: Optional[str]
-) -> str:
+def transform_date_parameter(date: Optional[str], **kwargs: Optional[str]) -> str:
     date = kwargs.get("bulk_date", date)
     date = "today" if date is None else date
     if date == "existing":

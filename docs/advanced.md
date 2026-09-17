@@ -31,7 +31,9 @@ from sqlalchemy import create_engine
 # SQLite DB
 engine_sqlite = create_engine("sqlite:///path/to/sqlite/database.db")
 # PostgreSQL DB
-engine_postgres = create_engine("postgresql+psycopg2://open-mastr:open-mastr-pw@localhost:55443/open-mastr-db")
+engine_postgres = create_engine(
+    "postgresql+psycopg2://open-mastr:open-mastr-pw@localhost:55443/open-mastr-db"
+)
 mastr = Mastr(engine=engine_sqlite)  # or engine=engine_postgres
 mastr.download()
 ```
@@ -50,7 +52,9 @@ To get started with the default database schema, we recommend generating it from
 from sqlalchemy import create_engine
 from open_mastr import Mastr, format_mastr_table_to_db_table
 
-engine_postgres = create_engine("postgresql+psycopg2://open-mastr:open-mastr-pw@localhost:55443/open-mastr-db")
+engine_postgres = create_engine(
+    "postgresql+psycopg2://open-mastr:open-mastr-pw@localhost:55443/open-mastr-db"
+)
 mastr = Mastr(engine=engine_postgres)
 
 # Generate SQLAlchemy table definitions without creating the tables
@@ -275,7 +279,7 @@ To download data from the MaStR API using the `open-MaStR`, the credentials (MaS
     Instantiate with
 
     ```python
-    MaStRAPI(user='USERNAME', key='TOKEN')
+    MaStRAPI(user="USERNAME", key="TOKEN")
     ```
 
     to provide user and token in a script and use these
@@ -291,7 +295,6 @@ configured correctly. Use the code snippet below for queries.
 from open_mastr.soap_api.download import MaStRAPI
 
 if __name__ == "__main__":
-
     mastr_api = MaStRAPI()
     print(mastr_api.GetLokaleUhrzeit())
 ```
@@ -331,33 +334,33 @@ For API calls, models and optional parameters refer to the
         Response:
         ```python
         {
-        "Ergebniscode": "OkWeitereDatenVorhanden",
-        "AufrufVeraltet": False,
-        "AufrufLebenszeitEnde": None,
-        "AufrufVersion": 1,
-        "Einheiten": [
-            {
-                "EinheitMastrNummer": "SEE984033548619",
-                "DatumLetzeAktualisierung": datetime.datetime(
-                    2020, 2, 20, 16, 28, 35, 250812
-                ),
-                "Name": "Photovoltaikanlage ERWin4",
-                "Einheitart": "Stromerzeugungseinheit",
-                "Einheittyp": "Solareinheit",
-                "Standort": "48147 Münster",
-                "Bruttoleistung": Decimal("3.960"),
-                "Erzeugungsleistung": None,
-                "EinheitSystemstatus": "Aktiv",
-                "EinheitBetriebsstatus": "InBetrieb",
-                "Anlagenbetreiber": "ABR949444220202",
-                "EegMastrNummer": "EEG920083771065",
-                "KwkMastrNummer": None,
-                "SpeMastrNummer": None,
-                "GenMastrNummer": None,
-                "BestandsanlageMastrNummer": None,
-                "NichtVorhandenInMigriertenEinheiten": None,
-            }
-        ],
+            "Ergebniscode": "OkWeitereDatenVorhanden",
+            "AufrufVeraltet": False,
+            "AufrufLebenszeitEnde": None,
+            "AufrufVersion": 1,
+            "Einheiten": [
+                {
+                    "EinheitMastrNummer": "SEE984033548619",
+                    "DatumLetzeAktualisierung": datetime.datetime(
+                        2020, 2, 20, 16, 28, 35, 250812
+                    ),
+                    "Name": "Photovoltaikanlage ERWin4",
+                    "Einheitart": "Stromerzeugungseinheit",
+                    "Einheittyp": "Solareinheit",
+                    "Standort": "48147 Münster",
+                    "Bruttoleistung": Decimal("3.960"),
+                    "Erzeugungsleistung": None,
+                    "EinheitSystemstatus": "Aktiv",
+                    "EinheitBetriebsstatus": "InBetrieb",
+                    "Anlagenbetreiber": "ABR949444220202",
+                    "EegMastrNummer": "EEG920083771065",
+                    "KwkMastrNummer": None,
+                    "SpeMastrNummer": None,
+                    "GenMastrNummer": None,
+                    "BestandsanlageMastrNummer": None,
+                    "NichtVorhandenInMigriertenEinheiten": None,
+                }
+            ],
         }
         ```
 
@@ -377,90 +380,90 @@ For API calls, models and optional parameters refer to the
         Response:
         ```python
         {
-        "Ergebniscode": "OK",
-        "AufrufVeraltet": False,
-        "AufrufLebenszeitEnde": None,
-        "AufrufVersion": 1,
-        "EinheitMastrNummer": "SEE984033548619",
-        "DatumLetzteAktualisierung": datetime.datetime(2020, 2, 20, 16, 28, 35, 250812),
-        "LokationMastrNummer": "SEL948991715391",
-        "NetzbetreiberpruefungStatus": "Geprueft",
-        "Netzbetreiberzuordnungen": [
-            {
-                "NetzbetreiberMastrNummer": "SNB980883363112",
-                "NetzbetreiberpruefungsDatum": datetime.date(2020, 2, 25),
-                "NetzbetreiberpruefungsStatus": "Geprueft",
-            }
-        ],
-        "NetzbetreiberpruefungDatum": datetime.date(2020, 2, 25),
-        "AnlagenbetreiberMastrNummer": "ABR949444220202",
-        "NetzbetreiberMastrNummer": ["SNB980883363112"],
-        "Land": "Deutschland",
-        "Bundesland": "NordrheinWestfalen",
-        "Landkreis": "Münster",
-        "Gemeinde": "Münster",
-        "Gemeindeschluessel": "05515000",
-        "Postleitzahl": "48147",
-        "Gemarkung": None,
-        "FlurFlurstuecknummern": None,
-        "Strasse": None,
-        "StrasseNichtGefunden": False,
-        "Hausnummer": {"Wert": None, "NichtVorhanden": False},
-        "HausnummerNichtGefunden": False,
-        "Adresszusatz": None,
-        "Ort": "Münster",
-        "Laengengrad": None,
-        "Breitengrad": None,
-        "UtmZonenwert": None,
-        "UtmEast": None,
-        "UtmNorth": None,
-        "GaussKruegerHoch": None,
-        "GaussKruegerRechts": None,
-        "Registrierungsdatum": datetime.date(2019, 2, 1),
-        "GeplantesInbetriebnahmedatum": None,
-        "Inbetriebnahmedatum": datetime.date(2007, 7, 20),
-        "DatumEndgueltigeStilllegung": None,
-        "DatumBeginnVoruebergehendeStilllegung": None,
-        "DatumWiederaufnahmeBetrieb": None,
-        "EinheitSystemstatus": "Aktiv",
-        "EinheitBetriebsstatus": "InBetrieb",
-        "BestandsanlageMastrNummer": None,
-        "NichtVorhandenInMigriertenEinheiten": None,
-        "AltAnlagenbetreiberMastrNummer": None,
-        "DatumDesBetreiberwechsels": None,
-        "DatumRegistrierungDesBetreiberwechsels": None,
-        "NameStromerzeugungseinheit": "Photovoltaikanlage ERWin4",
-        "Weic": {"Wert": None, "NichtVorhanden": False},
-        "WeicDisplayName": None,
-        "Kraftwerksnummer": {"Wert": None, "NichtVorhanden": False},
-        "Energietraeger": "SolareStrahlungsenergie",
-        "Bruttoleistung": Decimal("3.960"),
-        "Nettonennleistung": Decimal("3.960"),
-        "Schwarzstartfaehigkeit": None,
-        "Inselbetriebsfaehigkeit": None,
-        "Einsatzverantwortlicher": None,
-        "FernsteuerbarkeitNb": False,
-        "FernsteuerbarkeitDv": None,
-        "FernsteuerbarkeitDr": None,
-        "Einspeisungsart": "Volleinspeisung",
-        "PraequalifiziertFuerRegelenergie": None,
-        "GenMastrNummer": None,
-        "zugeordneteWirkleistungWechselrichter": Decimal("4.000"),
-        "GemeinsamerWechselrichterMitSpeicher": "KeinStromspeicherVorhanden",
-        "AnzahlModule": 22,
-        "Lage": "BaulicheAnlagen",
-        "Leistungsbegrenzung": "Nein",
-        "EinheitlicheAusrichtungUndNeigungswinkel": True,
-        "Hauptausrichtung": "Sued",
-        "HauptausrichtungNeigungswinkel": "Grad20Bis40",
-        "Nebenausrichtung": "None",
-        "NebenausrichtungNeigungswinkel": "None",
-        "InAnspruchGenommeneFlaeche": None,
-        "ArtDerFlaeche": [],
-        "InAnspruchGenommeneAckerflaeche": None,
-        "Nutzungsbereich": "Haushalt",
-        "Buergerenergie": None,
-        "EegMastrNummer": "EEG920083771065",
+            "Ergebniscode": "OK",
+            "AufrufVeraltet": False,
+            "AufrufLebenszeitEnde": None,
+            "AufrufVersion": 1,
+            "EinheitMastrNummer": "SEE984033548619",
+            "DatumLetzteAktualisierung": datetime.datetime(2020, 2, 20, 16, 28, 35, 250812),
+            "LokationMastrNummer": "SEL948991715391",
+            "NetzbetreiberpruefungStatus": "Geprueft",
+            "Netzbetreiberzuordnungen": [
+                {
+                    "NetzbetreiberMastrNummer": "SNB980883363112",
+                    "NetzbetreiberpruefungsDatum": datetime.date(2020, 2, 25),
+                    "NetzbetreiberpruefungsStatus": "Geprueft",
+                }
+            ],
+            "NetzbetreiberpruefungDatum": datetime.date(2020, 2, 25),
+            "AnlagenbetreiberMastrNummer": "ABR949444220202",
+            "NetzbetreiberMastrNummer": ["SNB980883363112"],
+            "Land": "Deutschland",
+            "Bundesland": "NordrheinWestfalen",
+            "Landkreis": "Münster",
+            "Gemeinde": "Münster",
+            "Gemeindeschluessel": "05515000",
+            "Postleitzahl": "48147",
+            "Gemarkung": None,
+            "FlurFlurstuecknummern": None,
+            "Strasse": None,
+            "StrasseNichtGefunden": False,
+            "Hausnummer": {"Wert": None, "NichtVorhanden": False},
+            "HausnummerNichtGefunden": False,
+            "Adresszusatz": None,
+            "Ort": "Münster",
+            "Laengengrad": None,
+            "Breitengrad": None,
+            "UtmZonenwert": None,
+            "UtmEast": None,
+            "UtmNorth": None,
+            "GaussKruegerHoch": None,
+            "GaussKruegerRechts": None,
+            "Registrierungsdatum": datetime.date(2019, 2, 1),
+            "GeplantesInbetriebnahmedatum": None,
+            "Inbetriebnahmedatum": datetime.date(2007, 7, 20),
+            "DatumEndgueltigeStilllegung": None,
+            "DatumBeginnVoruebergehendeStilllegung": None,
+            "DatumWiederaufnahmeBetrieb": None,
+            "EinheitSystemstatus": "Aktiv",
+            "EinheitBetriebsstatus": "InBetrieb",
+            "BestandsanlageMastrNummer": None,
+            "NichtVorhandenInMigriertenEinheiten": None,
+            "AltAnlagenbetreiberMastrNummer": None,
+            "DatumDesBetreiberwechsels": None,
+            "DatumRegistrierungDesBetreiberwechsels": None,
+            "NameStromerzeugungseinheit": "Photovoltaikanlage ERWin4",
+            "Weic": {"Wert": None, "NichtVorhanden": False},
+            "WeicDisplayName": None,
+            "Kraftwerksnummer": {"Wert": None, "NichtVorhanden": False},
+            "Energietraeger": "SolareStrahlungsenergie",
+            "Bruttoleistung": Decimal("3.960"),
+            "Nettonennleistung": Decimal("3.960"),
+            "Schwarzstartfaehigkeit": None,
+            "Inselbetriebsfaehigkeit": None,
+            "Einsatzverantwortlicher": None,
+            "FernsteuerbarkeitNb": False,
+            "FernsteuerbarkeitDv": None,
+            "FernsteuerbarkeitDr": None,
+            "Einspeisungsart": "Volleinspeisung",
+            "PraequalifiziertFuerRegelenergie": None,
+            "GenMastrNummer": None,
+            "zugeordneteWirkleistungWechselrichter": Decimal("4.000"),
+            "GemeinsamerWechselrichterMitSpeicher": "KeinStromspeicherVorhanden",
+            "AnzahlModule": 22,
+            "Lage": "BaulicheAnlagen",
+            "Leistungsbegrenzung": "Nein",
+            "EinheitlicheAusrichtungUndNeigungswinkel": True,
+            "Hauptausrichtung": "Sued",
+            "HauptausrichtungNeigungswinkel": "Grad20Bis40",
+            "Nebenausrichtung": "None",
+            "NebenausrichtungNeigungswinkel": "None",
+            "InAnspruchGenommeneFlaeche": None,
+            "ArtDerFlaeche": [],
+            "InAnspruchGenommeneAckerflaeche": None,
+            "Nutzungsbereich": "Haushalt",
+            "Buergerenergie": None,
+            "EegMastrNummer": "EEG920083771065",
         }
         ```
 

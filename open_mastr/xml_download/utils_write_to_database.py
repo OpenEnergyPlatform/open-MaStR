@@ -4,7 +4,7 @@ from collections.abc import Collection, Mapping
 from concurrent.futures import ProcessPoolExecutor, wait
 from io import StringIO
 from multiprocessing import cpu_count
-from shutil import Error
+from typing import Any
 from zipfile import ZipFile
 
 import lxml
@@ -242,7 +242,7 @@ def create_efficient_engine(connection_url: str) -> sqlalchemy.engine.Engine:
     """Create an efficient engine for the SQLite database."""
     is_sqlite = connection_url.startswith("sqlite://")
 
-    connect_args = {}
+    connect_args: dict[str, Any] = {}
 
     if is_sqlite:
         # Wait for max 5 minutes before timing out.
@@ -285,7 +285,7 @@ def interleave_files(threads_data: list):
         Interleaved order: AnlagenEegSolar_1, AnlagenEegSpeicher_1, ...,
             AnlagenEegSolar_2, AnlagenEegSpeicher_2, ...
     """
-    files_grouped_by_table = {}
+    files_grouped_by_table: dict[str, list] = {}
 
     for item in threads_data:
         db_table = item[1]
@@ -530,13 +530,15 @@ def add_missing_columns_to_table(
     )
 
 
-def delete_wrong_xml_entry(err: Error, df: pd.DataFrame) -> pd.DataFrame:
+def delete_wrong_xml_entry(
+    err: sqlalchemy.exc.DataError, df: pd.DataFrame
+) -> pd.DataFrame:
     delete_entry = str(err).split("«")[0].split("»")[1]
     log.warning(f"The entry {delete_entry} was deleted due to its false data type.")
     return df.replace(delete_entry, np.nan)
 
 
-def handle_xml_syntax_error(data: str, err: Error) -> pd.DataFrame:
+def handle_xml_syntax_error(data: str, err: lxml.etree.XMLSyntaxError) -> pd.DataFrame:
     """Delete entries that cause an xml syntax error and produce a DataFrame.
 
     Parameters
@@ -557,28 +559,30 @@ def handle_xml_syntax_error(data: str, err: Error) -> pd.DataFrame:
         right_bracket_position = xml_string.find("<", position)
         return left_bracket_position, right_bracket_position
 
-    data = data.splitlines()
+    lines = data.splitlines()
 
     for _ in range(100):
         # check for maximum of 100 syntax errors, otherwise return an error
         wrong_char_row, wrong_char_column = err.position
-        row_with_error = data[wrong_char_row - 1]
+        row_with_error = lines[wrong_char_row - 1]
 
         left_bracket, right_bracket = find_nearest_brackets(
             row_with_error, wrong_char_column
         )
-        data[wrong_char_row - 1] = (
+        lines[wrong_char_row - 1] = (
             row_with_error[: left_bracket + 1] + row_with_error[right_bracket:]
         )
         try:
             log.warning("One invalid xml expression was deleted.")
-            df = pd.read_xml(StringIO("\n".join(data)))
+            df = pd.read_xml(StringIO("\n".join(lines)))
             return df
         except lxml.etree.XMLSyntaxError as e:
             err = e
             continue
 
-    raise Error("An error occured when parsing the xml file. Maybe it is corrupted?")
+    raise RuntimeError(
+        "An error occured when parsing the xml file. Maybe it is corrupted?"
+    ) from err
 
 
 def process_table_before_insertion(

@@ -44,5 +44,6 @@ repos:
           - types-requests
           - types-PyYAML
           - types-tqdm
+          - types-python-dateutil
         args: [--ignore-missing-imports, --show-error-codes]
         exclude: ^(tests/|scripts/|docs/|postprocessing/)

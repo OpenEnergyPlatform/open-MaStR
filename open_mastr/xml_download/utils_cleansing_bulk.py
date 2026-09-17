@@ -26,7 +26,7 @@ def cleanse_bulk_data(
 
 
 def replace_system_catalog_ids(
-    df: pd.DataFrame, system_catalog: dict[int, str]
+    df: pd.DataFrame, system_catalog: dict[str, dict[int, str]]
 ) -> pd.DataFrame:
     """Replace IDs with names according to the system catalog.
 

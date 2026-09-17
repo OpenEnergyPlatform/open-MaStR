@@ -75,7 +75,7 @@ class MastrColumnType(Enum):
     @classmethod
     def from_xsd_type(
         cls, xsd_type: Union[XsdAtomicBuiltin, XsdAtomicRestriction]
-    ) -> "MastrColumnDescription":
+    ) -> "MastrColumnType":
         xsd_type_to_mastr_column_type = {
             f"{_XML_SCHEMA_PREFIX}string": cls.STRING,
             f"{_XML_SCHEMA_PREFIX}decimal": cls.INTEGER,
@@ -139,7 +139,7 @@ class MastrTableDescription:
     original_table_name: str
     english_table_name: Optional[str]
     instance_name: str
-    columns: tuple[MastrColumnDescription]
+    columns: tuple[MastrColumnDescription, ...]
 
     @classmethod
     def from_xml_schema(cls, schema: xmlschema.XMLSchema) -> "MastrTableDescription":

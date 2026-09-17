@@ -114,8 +114,12 @@ def make_sqlalchemy_table_from_mastr_table_description(
         artificial_primary_key_name = "TempOpenMastrIdForUnknownTable"
 
     if primary_key_columns and english:
+        # TODO: translate_mastr_column_name returns None when no translation exists, so
+        # an untranslatable primary key silently becomes None and then matches no
+        # column, leaving the table with the artificial primary key instead.
         primary_key_columns = {
-            translate_mastr_column_name(column) for column in primary_key_columns
+            translate_mastr_column_name(column)  # type: ignore[misc]
+            for column in primary_key_columns
         }
 
     db_column_kwargs = []
