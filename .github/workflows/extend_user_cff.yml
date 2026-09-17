@@ -8,7 +8,7 @@ on:
 permissions:
   contents: write
   pull-requests: write
-  
+
 jobs:
   create-pr-to-add-new-user:
     if: contains(join(github.event.issue.labels.*.name, ','), 'user')
@@ -67,10 +67,10 @@ jobs:
             orcid: ${{env.ORCID}}
         EOF
 
-        
+
     - name: Print updated USERS.cff
       run: cat USERS.cff
-      
+
     - name: Create Pull Request
       uses: peter-evans/create-pull-request@v6
       with:
@@ -82,7 +82,7 @@ jobs:
           Add new user to USERS.cff
         body: |
           This pull request updates the USERS.cff file with new user information extracted from issue #${{ github.event.issue.number }}
-          
+
           Closes #${{ github.event.issue.number }}
 
           Many thanks @${{ github.actor }}!

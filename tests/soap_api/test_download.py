@@ -1,6 +1,7 @@
-from open_mastr.soap_api.download import MaStRAPI
 import pytest
 import responses
+
+from open_mastr.soap_api.download import MaStRAPI
 
 
 def _check_real_credentials():

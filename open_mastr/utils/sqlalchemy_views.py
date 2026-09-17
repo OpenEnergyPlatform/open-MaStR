@@ -1,7 +1,7 @@
 import logging
 from collections.abc import Mapping
 
-from sqlalchemy import Engine, MetaData, Table, inspect, select, text
+from sqlalchemy import Engine, Table, inspect, select, text
 from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.sql.ddl import DDLElement
 
@@ -95,4 +95,3 @@ def create_views(engine: Engine, mastr_table_to_db_table: Mapping[str, Table]) -
 
         log.info(f"Creating view {old_table_name} mirroring table {db_table.name}")
         _create_view(engine=engine, db_table=db_table, view_name=old_table_name)
-

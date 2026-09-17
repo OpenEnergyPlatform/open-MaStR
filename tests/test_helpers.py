@@ -1,23 +1,20 @@
-import pytest
-import os
-from pathlib import Path
 import itertools
-
-
-from open_mastr import Mastr
+import os
 from zipfile import ZipFile
+
+import pytest
 
 from open_mastr.utils.constants import BULK_DATA
 from open_mastr.utils.helpers import (
-    validate_parameter_format_for_download_method,
-    validate_parameter_format_for_mastr_init,
-    transform_data_parameter,
     data_to_include_tables,
     delete_zip_file_if_corrupted,
+    transform_data_parameter,
+    validate_parameter_format_for_download_method,
+    validate_parameter_format_for_mastr_init,
 )
 
 
-def test_Mastr_validate_working_parameter():
+def test_mastr_validate_working_parameter():
     valid_params = {
         "method": ["bulk"],
         "data": [
@@ -66,7 +63,7 @@ def test_Mastr_validate_working_parameter():
         )
 
 
-def test_Mastr_validate_not_working_parameter():
+def test_mastr_validate_not_working_parameter():
     invalid_params = {
         "method": [5, "BULK", "api"],
         "data": ["wint", "Solar", "biomasse", 5, []],

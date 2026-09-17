@@ -1,27 +1,27 @@
 import os
+import re
 from collections.abc import Collection, Mapping
 from concurrent.futures import ProcessPoolExecutor, wait
 from io import StringIO
 from multiprocessing import cpu_count
-from shutil import Error
+from typing import Any
 from zipfile import ZipFile
 
-import re
 import lxml
 import numpy as np
 import pandas as pd
 import sqlalchemy
-from sqlalchemy import Column, Engine, Table, delete, select, create_engine
+from sqlalchemy import Column, Engine, Table, create_engine, delete, select
 from sqlalchemy.sql import text
 from sqlalchemy.sql.sqltypes import Date, DateTime
 
 from open_mastr.utils.config import setup_logger
 from open_mastr.utils.helpers import data_to_include_tables
+from open_mastr.utils.sqlalchemy_tables import CatalogInteger, CatalogString
 from open_mastr.utils.xsd_tables import (
     normalize_mastr_name,
     translate_mastr_column_name,
 )
-from open_mastr.utils.sqlalchemy_tables import CatalogInteger, CatalogString
 from open_mastr.xml_download.utils_cleansing_bulk import cleanse_bulk_data
 
 log = setup_logger()
@@ -58,7 +58,8 @@ def write_mastr_xml_to_database(
             db_table = lower_mastr_table_to_db_table.get(xml_table_name)
             if db_table is None:
                 log.warning(
-                    f"Skipping MaStR file {file_name!r} because no database table was found for {xml_table_name=}"
+                    f"Skipping MaStR file {file_name!r} because no database table"
+                    f" was found for {xml_table_name=}"
                 )
                 continue
 
@@ -99,9 +100,12 @@ def write_mastr_xml_to_database(
 
 
 def get_number_of_processes():
-    """Get the number of processes to use for the bulk download. Returns -1 if the user has not opted for the
-    parallelized implementation. Otherwise, we recommend using the number of available CPUs - 1. If the user wants to
-    use more processes, they can set the custom environment variable."""
+    """Get the number of processes to use for the bulk download.
+
+    Returns -1 if the user has not opted for the parallelized implementation.
+    Otherwise, we recommend using the number of available CPUs - 1. If the user
+    wants to use more processes, they can set the custom environment variable.
+    """
     if "NUMBER_OF_PROCESSES" in os.environ:
         try:
             number_of_processes = int(os.environ.get("NUMBER_OF_PROCESSES"))
@@ -132,14 +136,16 @@ def process_xml_file(
 ) -> None:
     """Process a single xml file and write it to the database."""
     try:
-        # If set, the connection url obfuscates the password. We must replace the masked password with the actual password.
+        # If set, the connection url obfuscates the password. We must replace the
+        # masked password with the actual password.
         if password:
             connection_url = re.sub(
                 r"://([^:]+):\*+@", r"://\1:" + password + "@", connection_url
             )
 
-        # Each process will create its own engine to ensure isolation and efficient resource management.
-        # The connection url obfuscates the password. We must replace the masked password with the actual password.
+        # Each process will create its own engine to ensure isolation and efficient
+        # resource management. The connection url obfuscates the password. We must
+        # replace the masked password with the actual password.
         engine = create_efficient_engine(connection_url)
         with ZipFile(zipped_xml_file_path, "r") as f:
             log.info(f"Processing file '{file_name}'...")
@@ -188,7 +194,8 @@ def check_for_column_mismatch_and_try_to_solve_it(
     db_column_names = {column.name for column in db_table.columns}
 
     if additional_db_column_names := db_column_names - df_column_names:
-        # Many columns are optional and it's perfectly normal to have and XML file / a dataframe that doesn't have
+        # Many columns are optional and it's perfectly normal to have and XML file /
+        # a dataframe that doesn't have
         # a column that is present in the database. So this is only worth a debug message.
         log.debug(
             f"Database table {db_table.name} has some columns that weren't found in the XML file."
@@ -199,11 +206,13 @@ def check_for_column_mismatch_and_try_to_solve_it(
     if additional_df_column_names := df_column_names - db_column_names:
         if alter_database_tables:
             log.warning(
-                f"XML file has some columns that aren't present in the database table {db_table.name}."
+                f"XML file has some columns that aren't present in the database"
+                f" table {db_table.name}."
                 f" Trying to add the columns to the table. Additional XML columns:"
                 f" {', '.join(additional_df_column_names)}"
             )
-            # TODO: What if we can add some columns and not others? We should then return the columns for which we succeeded.
+            # TODO: What if we can add some columns and not others? We should then
+            # return the columns for which we succeeded.
             try:
                 add_missing_columns_to_table(
                     engine=engine,
@@ -212,13 +221,16 @@ def check_for_column_mismatch_and_try_to_solve_it(
                 )
             except Exception:
                 log.exception(
-                    "Could not add at least some columns to the database. Ignoring the columns from the XML file instead."
+                    "Could not add at least some columns to the database. Ignoring"
+                    " the columns from the XML file instead."
                 )
                 df = df.drop(columns=additional_df_column_names)
         else:
             log.warning(
-                f"XML file has some columns that aren't present in the database table {db_table.name}."
-                f" Ignoring those columns since you asked not to alter tables. Additional XML columns:"
+                f"XML file has some columns that aren't present in the database"
+                f" table {db_table.name}."
+                " Ignoring those columns since you asked not to alter tables."
+                " Additional XML columns:"
                 f" {', '.join(additional_df_column_names)}"
             )
             df = df.drop(columns=additional_df_column_names)
@@ -230,7 +242,7 @@ def create_efficient_engine(connection_url: str) -> sqlalchemy.engine.Engine:
     """Create an efficient engine for the SQLite database."""
     is_sqlite = connection_url.startswith("sqlite://")
 
-    connect_args = {}
+    connect_args: dict[str, Any] = {}
 
     if is_sqlite:
         # Wait for max 5 minutes before timing out.
@@ -261,14 +273,19 @@ def create_efficient_engine(connection_url: str) -> sqlalchemy.engine.Engine:
 
 def interleave_files(threads_data: list):
     """
-    Multiple threads will process different files at once. If the files target the same table, the risk of a
-    "database lock" error (i.e., 2 threads attempting to modify the same table at the same time) is increased.
-    To reduce this probability, we can "interleave" the files based on the table they belong to.
+    Interleave the files based on the table they belong to.
+
+    Multiple threads will process different files at once. If the files target the same
+    table, the risk of a "database lock" error (i.e., 2 threads attempting to modify the
+    same table at the same time) is increased. To reduce this probability, we can
+    "interleave" the files based on the table they belong to.
     Example:
-        Initial order: AnlagenEegSolar_1, AnlagenEegSolar_2, ..., AnlagenEegSpeicher_1, AnlagenEegSpeicher_2, ...
-        Interleaved order: AnlagenEegSolar_1, AnlagenEegSpeicher_1, ..., AnlagenEegSolar_2, AnlagenEegSpeicher_2, ...
+        Initial order: AnlagenEegSolar_1, AnlagenEegSolar_2, ...,
+            AnlagenEegSpeicher_1, AnlagenEegSpeicher_2, ...
+        Interleaved order: AnlagenEegSolar_1, AnlagenEegSpeicher_1, ...,
+            AnlagenEegSolar_2, AnlagenEegSpeicher_2, ...
     """
-    files_grouped_by_table = {}
+    files_grouped_by_table: dict[str, list] = {}
 
     for item in threads_data:
         db_table = item[1]
@@ -328,8 +345,11 @@ def is_date_column(column: Column) -> bool:
 
 
 def correct_ordering_of_filelist(files_list: list) -> list:
-    """Files that end with a single digit number get a 0 prefixed to this number
-    to correct the list ordering. Afterwards the 0 is deleted again."""
+    """Order the files by the number they end with.
+
+    Files that end with a single digit number get a 0 prefixed to this number to
+    correct the list ordering. Afterwards the 0 is deleted again.
+    """
     files_list_ordered = []
     count_if_zeros_are_prefixed = 0
     for file_name in files_list:
@@ -401,10 +421,11 @@ def add_table_to_non_sqlite_database(
 
 
 def add_zero_as_first_character_for_too_short_string(df: pd.DataFrame) -> pd.DataFrame:
-    """Some columns are read as integer even though they are actually strings starting with
-    a 0. This function converts those columns back to strings and adds a 0 as first character.
-    """
+    """Convert columns back to strings and add a 0 as first character.
 
+    Some columns are read as integer even though they are actually strings starting
+    with a 0.
+    """
     dict_of_columns_and_string_length = {
         "Gemeindeschluessel": 8,
         "Postleitzahl": 5,
@@ -436,7 +457,8 @@ def write_single_entries_until_not_unique_comes_up(
     df: pd.DataFrame, db_table: Table, engine: sqlalchemy.engine.Engine
 ) -> pd.DataFrame:
     """
-    Remove from dataframe these rows, which are already existing in the database table
+    Remove from dataframe these rows, which are already existing in the database table.
+
     Parameters
     ----------
     df
@@ -477,25 +499,23 @@ def add_missing_columns_to_table(
     missing_columns: Collection[str],
 ) -> None:
     """
-    Some files introduce new columns for existing tables.
-    If the pandas dataframe contains columns that do not
-    exist in the database, they are added to the database.
+    Add columns that exist in the XML data but not yet in the database table.
+
+    Some files introduce new columns for existing tables. If the pandas dataframe
+    contains columns that do not exist in the database, they are added to the database.
+
     Parameters
     ----------
-    engine
-    xml_table_name
-    column_list
-
-    Returns
-    -------
-
+    engine : sqlalchemy.engine.Engine
+        Engine of the database the table lives in.
+    db_table : Table
+        Table that the columns are added to.
+    missing_columns : Collection[str]
+        Names of the columns to add.
     """
     table_name = db_table.name
     for column_name in missing_columns:
-        alter_query = 'ALTER TABLE %s ADD "%s" VARCHAR NULL;' % (
-            table_name,
-            column_name,
-        )
+        alter_query = f'ALTER TABLE {table_name} ADD "{column_name}" VARCHAR NULL;'
         try:
             with engine.connect().execution_options(autocommit=True) as con:
                 with con.begin():
@@ -510,24 +530,26 @@ def add_missing_columns_to_table(
     )
 
 
-def delete_wrong_xml_entry(err: Error, df: pd.DataFrame) -> pd.DataFrame:
+def delete_wrong_xml_entry(
+    err: sqlalchemy.exc.DataError, df: pd.DataFrame
+) -> pd.DataFrame:
     delete_entry = str(err).split("«")[0].split("»")[1]
     log.warning(f"The entry {delete_entry} was deleted due to its false data type.")
     return df.replace(delete_entry, np.nan)
 
 
-def handle_xml_syntax_error(data: str, err: Error) -> pd.DataFrame:
-    """Deletes entries that cause an xml syntax error and produces DataFrame.
+def handle_xml_syntax_error(data: str, err: lxml.etree.XMLSyntaxError) -> pd.DataFrame:
+    """Delete entries that cause an xml syntax error and produce a DataFrame.
 
     Parameters
-    -----------
+    ----------
     data : str
         Decoded xml file as one string
     err : ErrorMessage
         Error message that appeared when trying to use pd.read_xml on invalid xml file.
 
     Returns
-    ----------
+    -------
     df : pandas.DataFrame
         DataFrame which is read from the changed xml data.
     """
@@ -537,28 +559,30 @@ def handle_xml_syntax_error(data: str, err: Error) -> pd.DataFrame:
         right_bracket_position = xml_string.find("<", position)
         return left_bracket_position, right_bracket_position
 
-    data = data.splitlines()
+    lines = data.splitlines()
 
     for _ in range(100):
         # check for maximum of 100 syntax errors, otherwise return an error
         wrong_char_row, wrong_char_column = err.position
-        row_with_error = data[wrong_char_row - 1]
+        row_with_error = lines[wrong_char_row - 1]
 
         left_bracket, right_bracket = find_nearest_brackets(
             row_with_error, wrong_char_column
         )
-        data[wrong_char_row - 1] = (
+        lines[wrong_char_row - 1] = (
             row_with_error[: left_bracket + 1] + row_with_error[right_bracket:]
         )
         try:
             log.warning("One invalid xml expression was deleted.")
-            df = pd.read_xml(StringIO("\n".join(data)))
+            df = pd.read_xml(StringIO("\n".join(lines)))
             return df
         except lxml.etree.XMLSyntaxError as e:
             err = e
             continue
 
-    raise Error("An error occured when parsing the xml file. Maybe it is corrupted?")
+    raise RuntimeError(
+        "An error occured when parsing the xml file. Maybe it is corrupted?"
+    ) from err
 
 
 def process_table_before_insertion(
@@ -628,7 +652,11 @@ def add_table_to_sqlite_database(
     df = cast_date_columns_to_string(db_table, df)
 
     # Create SQL statement for bulk insert. ON CONFLICT DO NOTHING prevents duplicates.
-    insert_stmt = f"INSERT INTO {db_table.name} ({','.join(column_list)}) VALUES ({','.join(['?' for _ in column_list])}) ON CONFLICT DO NOTHING"
+    insert_stmt = (
+        f"INSERT INTO {db_table.name} ({','.join(column_list)})"
+        f" VALUES ({','.join(['?' for _ in column_list])})"
+        " ON CONFLICT DO NOTHING"
+    )
 
     for _ in range(10000):
         try:

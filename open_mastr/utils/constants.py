@@ -495,11 +495,15 @@ COLUMN_TRANSLATIONS = {
     "GroesseDerInAnspruchGenommenenFlaeche": "sizeOfAreaUsed",
     "GroesseDerInAnspruchGenommenenFlaecheInHektar": "sizeOfAreaUsedInHectares",
     "UeberwiegendeNutzungsartDerFlaecheVorErrichtung": "prevailingLandUseTypeBeforeConstruction",
-    "UeberwiegendeNutzungsartDerFlaecheVorErrichtungDerSolaranlage": "prevailingLandUseTypeBeforeConstructionOfSolarInstallation",
+    "UeberwiegendeNutzungsartDerFlaecheVorErrichtungDerSolaranlage": (
+        "prevailingLandUseTypeBeforeConstructionOfSolarInstallation"
+    ),
     "SpeicherAmGleichenOrt": "storageAtSameLocation",
     "NameDesSolarparks": "nameOfSolarPark",
     "VorherigerNutzungsartenbereichDerFlaeche": "previousLandUseTypeOfArea",
-    "ZusaetzlicheMerkmaleDerFlaecheUndDerAktuellenFlaechennutzung": "additionalCharacteristicsOfAreaAndCurrentLandUse",
+    "ZusaetzlicheMerkmaleDerFlaecheUndDerAktuellenFlaechennutzung": (
+        "additionalCharacteristicsOfAreaAndCurrentLandUse"
+    ),
     "LichteHoehe": "clearHeight",
     "GemeinsamRegistrierteSolareinheitMastrNummer": "jointlyRegisteredSolarUnitMastrNumber",
     "GebietNachDemFlaechenentwicklungsplanNordsee": "areaAccordingToSpatialDevelopmentPlanNorthSea",

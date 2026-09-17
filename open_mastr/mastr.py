@@ -1,46 +1,56 @@
 import os
+from collections.abc import Iterable, Iterator, Mapping
 from pathlib import Path
 from typing import Any, Literal, Optional, Union
-from collections.abc import Iterable, Mapping
 
 import pandas as pd
-from sqlalchemy import inspect, Engine, Table, MetaData
-
-# import xml dependencies
-from open_mastr.xml_download.utils_download_bulk import (
-    download_documentation,
-    download_xml_Mastr,
-    select_download_date,
-    delete_xml_files_not_from_given_date,
-    list_available_downloads,
-    get_date_from_docs_url,
-)
-from open_mastr.xml_download.utils_write_to_database import (
-    write_mastr_xml_to_database,
-)
-from open_mastr.utils.xsd_tables import (
-    read_mastr_table_descriptions_from_xsd,
+from sqlalchemy import (
+    Connection,
+    Date,
+    DateTime,
+    Engine,
+    MetaData,
+    String,
+    Table,
+    inspect,
+    select,
+    type_coerce,
 )
 
-from open_mastr.utils.helpers import (
-    validate_parameter_format_for_download_method,
-    validate_parameter_format_for_mastr_init,
-    transform_data_parameter,
-    parse_date_string,
-    transform_date_parameter,
-    delete_zip_file_if_corrupted,
-    create_database_engine,
-)
 from open_mastr.utils.config import (
     get_data_config,
     get_output_dir,
     setup_logger,
 )
+from open_mastr.utils.helpers import (
+    create_database_engine,
+    delete_zip_file_if_corrupted,
+    parse_date_string,
+    transform_data_parameter,
+    transform_date_parameter,
+    validate_parameter_format_for_download_method,
+    validate_parameter_format_for_mastr_init,
+)
 from open_mastr.utils.sqlalchemy_tables import (
     make_sqlalchemy_table_from_mastr_table_description,
 )
 from open_mastr.utils.sqlalchemy_views import create_views
+from open_mastr.utils.xsd_tables import (
+    read_mastr_table_descriptions_from_xsd,
+)
 
+# import xml dependencies
+from open_mastr.xml_download.utils_download_bulk import (
+    delete_xml_files_not_from_given_date,
+    download_documentation,
+    download_xml_Mastr,
+    get_date_from_docs_url,
+    list_available_downloads,
+    select_download_date,
+)
+from open_mastr.xml_download.utils_write_to_database import (
+    write_mastr_xml_to_database,
+)
 
 # setup logger
 log = setup_logger()
@@ -110,7 +120,8 @@ class Mastr:
         MaStR XML files, and generate SQLAlchemy tables from those XSD files. The tables are not
         created in the database.
 
-        You can use this method to create a mapping from the MaStR data model to your own data model.
+        You can use this method to create a mapping from the MaStR data model to your
+        own data model.
         This mapping should then be passed to the `Mastr.download` method.
 
         !!! example
@@ -258,10 +269,12 @@ class Mastr:
 
             | date       | description |
             |------------|-------------|
-            | "20230101" | If file from this date exists locally, it is used. Otherwise, it tries to get it from markstammdatenregister.de |
+            | "20230101" | Use the local file from this date, else fetch it from the website |
             | "today"    | Shorthand for specify today's date in YYYYMMDD format |
             | None       | set date="today" |
-            | "existing" | Deprecated since 0.16, see [#616](https://github.com/OpenEnergyPlatform/open-MaStR/issues/616#issuecomment-3089377062) |
+            | "existing" | Deprecated since 0.16, see [#616][1] |
+
+            [1]: https://github.com/OpenEnergyPlatform/open-MaStR/issues/616
 
             Defaults to `None`.
 
@@ -274,14 +287,16 @@ class Mastr:
         bulk_cleansing : bool, optional
             If set to True, data cleansing is applied after the download (which is recommended).
             In its original format, many entries in the MaStR are encoded with IDs. Columns like
-            `state` or `fueltype` do not contain entries such as "Hessen" or "Braunkohle", but instead
-            only contain IDs. Cleansing replaces these IDs with their corresponding original entries.
+            `state` or `fueltype` do not contain entries such as "Hessen" or
+            "Braunkohle", but instead only contain IDs. Cleansing replaces these IDs
+            with their corresponding original entries.
             Defaults to True.
 
         keep_old_downloads : bool, optional
             If set to True, prior downloaded MaStR zip files will be kept. Defaults to False.
 
-        mastr_table_to_db_table : Mapping from MaStR table name (str) to SQLALchemy Table, or None, optional
+        mastr_table_to_db_table : Mapping from MaStR table name (str) to SQLALchemy
+            Table, or None, optional
             If given, downloaded data from a MaStR file will be stored in the SQLAlchemy table
             associated with that file. The tables must exist already; they are not created.
             Example: {"EinheitenWind": Table(...), "EinheitenSolar": Table(...), ...}
@@ -310,8 +325,9 @@ class Mastr:
             Defaults to False.
 
         add_views_for_old_table_names : bool = True, optional,
-            If set to True, database views will be generated for tables renamed in version 1.0 so that
-            the previous table names still work. Only has an effect if mastr_table_to_db_table is not
+            If set to True, database views will be generated for tables renamed in
+            version 1.0 so that the previous table names still work. Only has an
+            effect if mastr_table_to_db_table is not
             given.
 
             Defaults to True.
@@ -347,7 +363,13 @@ class Mastr:
                 return
 
             # Update the date and use the selected URL
-            bulk_download_date = selected_link["date"]
+            selected_date = selected_link["date"]
+            if selected_date is None:
+                raise ValueError(
+                    "The selected download link does not contain a date:"
+                    f" {selected_link!r}"
+                )
+            bulk_download_date = selected_date
             custom_xml_url = selected_link["url"]
             custom_docs_url = selected_link["docs_url"]
         else:
@@ -399,8 +421,10 @@ class Mastr:
         )
         log.info(
             "\nWould you like to speed up the creation of your MaStR database?\n"
-            "Try our new parallelized processing by setting os.environ['USE_RECOMMENDED_NUMBER_OF_PROCESSES'] = True "
-            "or configure your own number of processes via os.environ['NUMBER_OF_PROCESSES'] = your_number\n"
+            "Try our new parallelized processing by setting "
+            "os.environ['USE_RECOMMENDED_NUMBER_OF_PROCESSES'] = True "
+            "or configure your own number of processes via "
+            "os.environ['NUMBER_OF_PROCESSES'] = your_number\n"
         )
 
         write_mastr_xml_to_database(
@@ -415,7 +439,7 @@ class Mastr:
 
     def to_csv(
         self,
-        db_table_names: Union[str, Iterable[str]] = None,
+        db_table_names: Optional[Union[str, Iterable[str]]] = None,
         chunksize: int = 500000,
     ) -> None:
         """Export tables from existing database to CSV.
@@ -455,7 +479,7 @@ class Mastr:
                     log.info(f"Deleting existing file {csv_path}")
                     os.unlink(csv_path)
                 for i, chunk in enumerate(
-                    pd.read_sql_table(requested_table_name, conn, chunksize=chunksize)
+                    _read_table_in_chunks(conn, requested_table_name, chunksize)
                 ):
                     chunk.to_csv(csv_path, mode="a", index=False, header=i == 0)
 
@@ -481,8 +505,10 @@ class Mastr:
 
     def translate(self) -> None:
         """
-        The translate method has been removed. You can use the `english` option
-        in the `Mastr.download` method to get English table and column names.
+        Raise NotImplementedError; the translate method has been removed.
+
+        Use the `english` option in the `Mastr.download` method to get English
+        table and column names.
         """
         raise NotImplementedError(
             "The translate method has been removed. You can use the `english` option"
@@ -490,8 +516,60 @@ class Mastr:
         )
 
 
+def _read_table_in_chunks(
+    conn: Connection, table_name: str, chunksize: int
+) -> Iterator[pd.DataFrame]:
+    """Read a database table in chunks, replacing invalid dates with empty values.
+
+    A year before 1000 is stored without a zero-padded year, so it is no valid ISO
+    string and reading it as a date would fail. Date columns are therefore read as plain
+    strings and parsed by pandas, which turns those values into NULL.
+    """
+    table = Table(table_name, MetaData(), autoload_with=conn)
+    date_column_names = [
+        column.name
+        for column in table.columns
+        if isinstance(column.type, (Date, DateTime))
+    ]
+    columns = [
+        (
+            type_coerce(column, String).label(column.name)
+            if column.name in date_column_names
+            else column
+        )
+        for column in table.columns
+    ]
+
+    for chunk in pd.read_sql(select(*columns), conn, chunksize=chunksize):
+        for column_name in date_column_names:
+            # ISO8601 accepts every valid date string but rejects the unpadded years,
+            # without relying on pandas guessing a format from the data.
+            dates = pd.to_datetime(
+                chunk[column_name], format="ISO8601", errors="coerce"
+            )
+
+            invalid = chunk[column_name].notna() & dates.isna()
+            if invalid.any():
+                log.warning(
+                    f"Table {table_name!r}, column {column_name!r}: exporting "
+                    f"{invalid.sum()} date value(s) without a four-digit year as empty"
+                    f" values, e.g. {_format_date_examples(chunk, column_name, invalid)}."
+                )
+
+            chunk[column_name] = dates
+        yield chunk
+
+
+def _format_date_examples(
+    chunk: pd.DataFrame, column_name: str, mask: pd.Series
+) -> str:
+    return ", ".join(
+        repr(date_string) for date_string in chunk.loc[mask, column_name].head(3)
+    )
+
+
 def _generate_data_model_from_downloaded_docs(
-    zipped_docs_file_path: Path,
+    zipped_docs_file_path: Union[Path, str],
     data: list[str],
     catalog_value_as_str: bool = True,
     metadata: Optional[MetaData] = None,
