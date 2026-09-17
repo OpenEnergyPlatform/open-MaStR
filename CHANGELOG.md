@@ -25,7 +25,7 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
   [#780](https://github.com/OpenEnergyPlatform/open-MaStR/pull/780)
 - Add `scripts/release_test.py` that downloads the full MaStR and runs hard-coded consistency checks
   [#793](https://github.com/OpenEnergyPlatform/open-MaStR/issues/793)
-- Modernize linting setup and add pre-commit checks in CI
+- Modernize linting setup and add pre-commit checks in CI - Remove the flake8, black and pylint configuration and development dependencies and add ruff and mypy.
   [#671](https://github.com/OpenEnergyPlatform/open-MaStR/pull/671)
 
 ### Changed
@@ -55,6 +55,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
   [#749](https://github.com/OpenEnergyPlatform/open-MaStR/pull/749)
 - Change default python version to 3.14
   [#753](https://github.com/OpenEnergyPlatform/open-MaStR/pull/753)
+- Apply the new ruff and mypy rules to the codebase
+  [#671](https://github.com/OpenEnergyPlatform/open-MaStR/pull/671)
 
 ### Removed
 - Remove `Mastr.translate`; English table and column names are now available via the `english=True` parameter in `generate_data_model` and `download`
