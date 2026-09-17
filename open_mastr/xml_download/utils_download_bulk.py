@@ -7,7 +7,7 @@ from collections import defaultdict
 from datetime import date, datetime
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Union
 from zipfile import ZipFile
 
 import numpy as np
@@ -643,7 +643,7 @@ def gen_docs_download_urls(
 
 
 def download_documentation(
-    save_path: str,
+    save_path: Union[str, Path],
     bulk_date_string: Optional[str] = None,
     url: Optional[str] = None,
 ) -> None:

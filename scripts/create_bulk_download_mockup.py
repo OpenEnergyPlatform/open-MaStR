@@ -19,14 +19,14 @@ import sys
 import tempfile
 import zipfile
 from collections import defaultdict
+from multiprocessing import cpu_count
 from pathlib import Path
 
 from lxml import etree
-from multiprocessing import cpu_count
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from open_mastr import Mastr
-from open_mastr.utils.constants import BULK_INCLUDE_TABLES_MAP, BULK_DATA
+from open_mastr.utils.constants import BULK_DATA, BULK_INCLUDE_TABLES_MAP
 
 MAX_RECORDS = 100  # should be dividable by four
 
@@ -69,9 +69,10 @@ def build_xml_bytes(root_tag: str, records: list) -> bytes:
 def sample_records_streaming(
     zip_file: zipfile.ZipFile, fname: str, n: int
 ) -> tuple[str | None, list]:
-    """Reservoir-sample n records from a zipped XML entry. This sampling is
-    memory efficient, which is important since the XML files are large. See
-    https://en.wikipedia.org/wiki/Reservoir_sampling
+    """Reservoir-sample n records from a zipped XML entry.
+
+    This sampling is memory efficient, which is important since the XML files are
+    large. See https://en.wikipedia.org/wiki/Reservoir_sampling.
 
     Uses iterparse + elem.clear() so only the sampled records and one element
     at a time are held in memory — the full tree is never built.
@@ -107,7 +108,8 @@ def main() -> None:
     recommended = min(cpu_count() - 1, 4)
     num_procs = input(
         f"Number of processes for parallelized XML parsing? "
-        f"(Recommended max: {recommended}; Leave empty for no parallelization or enter number of processes: "
+        f"(Recommended max: {recommended}; Leave empty for no parallelization"
+        " or enter number of processes: "
     )
     if num_procs.strip():
         os.environ["NUMBER_OF_PROCESSES"] = num_procs
@@ -127,7 +129,8 @@ def main() -> None:
         "You can then comment out the mastr.download() line in this script and rerun this script."
     )
     print(
-        "This works as the script only depends on the xml files being downloaded - it does not use the sqlite database."
+        "This works as the script only depends on the xml files being downloaded"
+        " - it does not use the sqlite database."
     )
     print("-------IMPORTANT NOTE-------")
     mastr = Mastr(output_dir=tmpdir)
@@ -174,6 +177,10 @@ def main() -> None:
                 if root_tag is None:
                     root_tag = file_root_tag
                 sampled.extend(records)
+            if root_tag is None:
+                raise ValueError(
+                    f"Found no XML records for {base}, cannot build a mockup file"
+                )
             # make sure that there are really only MAX_RECORDS there
             sampled = sampled[:MAX_RECORDS]
             if len(sampled) != MAX_RECORDS:

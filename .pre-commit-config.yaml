@@ -1,7 +1,10 @@
 # Global excludes - apply to all hooks
 # open_mastr/resources/ holds the vendored BNetza fallback XSD files. They are
 # regenerated verbatim by scripts/update_fallback_xsd.py, so no hook may rewrite them.
-exclude: ^(build/|dist/|.*\.egg-info/|\.tox/|\.pytest_cache/|\.mypy_cache/|__pycache__/|postprocessing/|open_mastr/soap_api/|scripts/|open_mastr/resources/)
+# scripts/utils/data_io.py is unmaintained and cannot be imported: it needs the
+# undeclared dependency pynodo and two names that no longer exist
+# (create_datapackage_meta_json, get_data_version_dir).
+exclude: ^(build/|dist/|.*\.egg-info/|\.tox/|\.pytest_cache/|\.mypy_cache/|__pycache__/|postprocessing/|open_mastr/soap_api/|open_mastr/resources/|scripts/utils/data_io\.py$)
 
 repos:
   # Base pre-commit hooks for common issues
@@ -46,4 +49,4 @@ repos:
           - types-tqdm
           - types-python-dateutil
         args: [--ignore-missing-imports, --show-error-codes]
-        exclude: ^(tests/|scripts/|docs/|postprocessing/)
+        exclude: ^(tests/|docs/|postprocessing/)

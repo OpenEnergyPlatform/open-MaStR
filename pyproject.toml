@@ -98,7 +98,8 @@ extend-exclude = [
   "postprocessing",
   "open_mastr/soap_api",
   "open_mastr/resources",
-  "scripts",
+  # unmaintained and unimportable, see .pre-commit-config.yaml
+  "scripts/utils/data_io.py",
 ]
 
 [tool.ruff.lint]
