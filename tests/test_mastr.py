@@ -8,6 +8,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 import pandas as pd
+import pytest
 import responses
 import sqlalchemy
 
@@ -51,6 +52,57 @@ def test_to_csv_multiple_table_names_as_list(
     data_path = Path(mastr.output_dir) / "data" / get_data_config()
     csv_files = list(data_path.glob("*.csv"))
     assert [f.name for f in csv_files] == ["EinheitenWind.csv"]
+
+
+def test_to_csv_exports_invalid_dates_as_empty(
+    mastr: Mastr, caplog: pytest.LogCaptureFixture
+) -> None:
+    """Regression test for #719.
+
+    A year before 1000 is stored without a zero-padded year, so it is no valid ISO
+    string, and reading it as a date used to raise
+    "ValueError: Invalid isoformat string: '205-12-06 00:00:00.000000'". Such a value is
+    exported as empty.
+    """
+    table = sqlalchemy.Table(
+        "EinheitenSolar",
+        sqlalchemy.MetaData(),
+        sqlalchemy.Column("EinheitMastrNummer", sqlalchemy.String, primary_key=True),
+        sqlalchemy.Column("Registrierungsdatum", sqlalchemy.Date),
+        sqlalchemy.Column(
+            "InbetriebnahmedatumAmAktuellenStandort", sqlalchemy.DateTime
+        ),
+    )
+    table.create(mastr.engine)
+    with mastr.engine.begin() as con:
+        con.exec_driver_sql(
+            "INSERT INTO EinheitenSolar VALUES (?, ?, ?)",
+            [
+                ("id1", "205-12-06", "205-12-06 00:00:00.000000"),
+                ("id2", "2005-12-06", "2005-12-06 10:12:46.000000"),
+            ],
+        )
+
+    with caplog.at_level(logging.WARNING):
+        mastr.to_csv(db_table_names="EinheitenSolar")
+
+    csv_path = (
+        Path(mastr.output_dir) / "data" / get_data_config() / "EinheitenSolar.csv"
+    )
+    df = pd.read_csv(csv_path, index_col="EinheitMastrNummer")
+
+    # Only the invalid dates are exported as empty values.
+    assert df.loc["id1"].isna().all()
+    assert pd.to_datetime(df.loc["id2", "Registrierungsdatum"]) == pd.Timestamp(
+        "2005-12-06"
+    )
+    assert pd.to_datetime(
+        df.loc["id2", "InbetriebnahmedatumAmAktuellenStandort"]
+    ) == pd.Timestamp("2005-12-06 10:12:46")
+
+    assert "1 date value(s) without a four-digit year as empty values" in caplog.text
+    assert "'205-12-06'" in caplog.text
+    assert "'205-12-06 00:00:00.000000'" in caplog.text
 
 
 def test_download_wind(
