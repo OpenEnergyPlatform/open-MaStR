@@ -20,6 +20,7 @@ CATALOG_COLUMNS_MISSING_XSD_RESTRICTION = {
     "Netze": frozenset({"Marktgebiet", "Bundesland", "Sparte"}),
     "EinheitenWind": frozenset({"Hersteller"}),
     "EinheitenVerbrennung": frozenset({"WeitereBrennstoffe"}),
+    "Ertuechtigungen": frozenset({"Ertuechtigungsart"}),
     "Marktakteure": frozenset({"Rechtsform", "Registergericht"}),
 }
 
