@@ -1,10 +1,21 @@
 import os
 from pathlib import Path
 from typing import Any, Literal, Optional, Union
-from collections.abc import Iterable, Mapping
+from collections.abc import Iterable, Iterator, Mapping
 
 import pandas as pd
-from sqlalchemy import inspect, Engine, Table, MetaData
+from sqlalchemy import (
+    Connection,
+    Date,
+    DateTime,
+    Engine,
+    MetaData,
+    String,
+    Table,
+    inspect,
+    select,
+    type_coerce,
+)
 
 # import xml dependencies
 from open_mastr.xml_download.utils_download_bulk import (
@@ -455,7 +466,7 @@ class Mastr:
                     log.info(f"Deleting existing file {csv_path}")
                     os.unlink(csv_path)
                 for i, chunk in enumerate(
-                    pd.read_sql_table(requested_table_name, conn, chunksize=chunksize)
+                    _read_table_in_chunks(conn, requested_table_name, chunksize)
                 ):
                     chunk.to_csv(csv_path, mode="a", index=False, header=i == 0)
 
@@ -488,6 +499,58 @@ class Mastr:
             "The translate method has been removed. You can use the `english` option"
             " in the `Mastr.download` method to get English table and column names."
         )
+
+
+def _read_table_in_chunks(
+    conn: Connection, table_name: str, chunksize: int
+) -> Iterator[pd.DataFrame]:
+    """Read a database table in chunks, replacing invalid dates with empty values.
+
+    A year before 1000 is stored without a zero-padded year, so it is no valid ISO
+    string and reading it as a date would fail. Date columns are therefore read as plain
+    strings and parsed by pandas, which turns those values into NULL.
+    """
+    table = Table(table_name, MetaData(), autoload_with=conn)
+    date_column_names = [
+        column.name
+        for column in table.columns
+        if isinstance(column.type, (Date, DateTime))
+    ]
+    columns = [
+        (
+            type_coerce(column, String).label(column.name)
+            if column.name in date_column_names
+            else column
+        )
+        for column in table.columns
+    ]
+
+    for chunk in pd.read_sql(select(*columns), conn, chunksize=chunksize):
+        for column_name in date_column_names:
+            # ISO8601 accepts every valid date string but rejects the unpadded years,
+            # without relying on pandas guessing a format from the data.
+            dates = pd.to_datetime(
+                chunk[column_name], format="ISO8601", errors="coerce"
+            )
+
+            invalid = chunk[column_name].notna() & dates.isna()
+            if invalid.any():
+                log.warning(
+                    f"Table {table_name!r}, column {column_name!r}: exporting "
+                    f"{invalid.sum()} date value(s) without a four-digit year as empty"
+                    f" values, e.g. {_format_date_examples(chunk, column_name, invalid)}."
+                )
+
+            chunk[column_name] = dates
+        yield chunk
+
+
+def _format_date_examples(
+    chunk: pd.DataFrame, column_name: str, mask: pd.Series
+) -> str:
+    return ", ".join(
+        repr(date_string) for date_string in chunk.loc[mask, column_name].head(3)
+    )
 
 
 def _generate_data_model_from_downloaded_docs(
