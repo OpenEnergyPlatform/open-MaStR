@@ -28,7 +28,7 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 
 
 ### Changed
-- Name the CSV export directory after the time of the export (e.g. `export-20260916T100000Z`) instead of labelling the current date as data version
+- Name the CSV export directory after the time of the export (e.g. `export-20260916T100000Z`)
   [#806](https://github.com/OpenEnergyPlatform/open-MaStR/pull/806)
 - Make `release_test.py`'s `regexp` function robust against non-string columns
   [#805](https://github.com/OpenEnergyPlatform/open-MaStR/pull/805)
