@@ -174,7 +174,9 @@ def main():
             "regexp",
             2,
             lambda pattern, value: (
-                value is not None and re.match(pattern, value) is not None
+                value is not None
+                and isinstance(value, str)
+                and re.match(pattern, value) is not None
             ),
         )
 

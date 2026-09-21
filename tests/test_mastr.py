@@ -80,6 +80,8 @@ def test_to_csv_exports_invalid_dates_as_empty(
             [
                 ("id1", "205-12-06", "205-12-06 00:00:00.000000"),
                 ("id2", "2005-12-06", "2005-12-06 10:12:46.000000"),
+                # Year with leading zero counts as valid.
+                ("id3", "0205-12-06", "0205-12-06 20:24:00.000000"),
             ],
         )
 
@@ -99,6 +101,12 @@ def test_to_csv_exports_invalid_dates_as_empty(
     assert pd.to_datetime(
         df.loc["id2", "InbetriebnahmedatumAmAktuellenStandort"]
     ) == pd.Timestamp("2005-12-06 10:12:46")
+    assert pd.to_datetime(df.loc["id3", "Registrierungsdatum"]) == pd.Timestamp(
+        "0205-12-06"
+    )
+    assert pd.to_datetime(
+        df.loc["id3", "InbetriebnahmedatumAmAktuellenStandort"]
+    ) == pd.Timestamp("0205-12-06 20:24:00")
 
     assert "1 date value(s) without a four-digit year as empty values" in caplog.text
     assert "'205-12-06'" in caplog.text

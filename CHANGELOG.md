@@ -29,6 +29,10 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
   [#671](https://github.com/OpenEnergyPlatform/open-MaStR/pull/671)
 
 ### Changed
+- Make `release_test.py`'s `regexp` function robust against non-string columns
+  [#805](https://github.com/OpenEnergyPlatform/open-MaStR/pull/805)
+- Add `Ertuechtigungen.Ertuechtigungsart` to known catalog columns
+  [#805](https://github.com/OpenEnergyPlatform/open-MaStR/pull/805)
 - Fix `Mastr.to_csv` aborting with "Invalid isoformat string" on date values whose year is not zero-padded to four digits. Those values are now exported as empty cells with a warning instead of failing the export
   [#801](https://github.com/OpenEnergyPlatform/open-MaStR/pull/801)
 - Include AnlagenStromSpeicher when passing argument "storage" to `Mastr.download` and deprecate "storage_units"
