@@ -1,8 +1,8 @@
+import datetime
 import os
 from contextlib import contextmanager
-import datetime
-from warnings import warn
 from typing import Literal, Optional, Union
+from warnings import warn
 from zipfile import BadZipfile, ZipFile
 from zoneinfo import ZoneInfo
 
@@ -12,13 +12,12 @@ from dateutil.parser import parse
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-
 from open_mastr.soap_api.download import log
 from open_mastr.utils.constants import (
-    BULK_DATA,
-    TECHNOLOGIES,
-    BULK_INCLUDE_TABLES_MAP,
     ADDITIONAL_TABLES,
+    BULK_DATA,
+    BULK_INCLUDE_TABLES_MAP,
+    TECHNOLOGIES,
 )
 
 MASTR_TIMEZONE = ZoneInfo("Europe/Berlin")
@@ -26,7 +25,7 @@ MASTR_TIMEZONE = ZoneInfo("Europe/Berlin")
 
 def create_database_engine(
     engine: Union[Literal["sqlite"] | sqlalchemy.engine.Engine],
-    sqlite_db_path: Optional[str],
+    sqlite_db_path: str,
 ) -> sqlalchemy.engine.Engine:
     if isinstance(engine, sqlalchemy.engine.Engine):
         return engine
@@ -88,7 +87,7 @@ def validate_parameter_method(method) -> None:
 
 
 def validate_parameter_bulk_cleansing(bulk_cleansing) -> None:
-    if type(bulk_cleansing) != bool:
+    if not isinstance(bulk_cleansing, bool):
         raise ValueError("parameter bulk_cleansing has to be boolean")
 
 
@@ -128,10 +127,11 @@ def validate_parameter_data(method, data) -> None:
 
 def transform_data_parameter(data, **kwargs):
     """
-    Parse input parameters related to data as lists. Harmonize variables for later use.
-    Data output depends on the possible data types of chosen method.
-    """
+    Parse input parameters related to data as lists.
 
+    Harmonize variables for later use. Data output depends on the possible data
+    types of the chosen method.
+    """
     # data was named technology in an early version of open-mastr
     data = kwargs.get("technology", data)
 
@@ -146,7 +146,7 @@ def transform_data_parameter(data, **kwargs):
     return data
 
 
-def transform_date_parameter(date: Union[datetime.date, Literal["today"]], **kwargs: Optional[str]) -> str:
+def transform_date_parameter(date: Optional[str], **kwargs: Optional[str]) -> str:
     date = kwargs.get("bulk_date", date)
     date = "today" if date is None else date
     if date == "existing":
@@ -168,7 +168,7 @@ def transform_date_parameter(date: Union[datetime.date, Literal["today"]], **kwa
 @contextmanager
 def session_scope(engine):
     """Provide a transactional scope around a series of operations."""
-    Session = sessionmaker(bind=engine)
+    Session = sessionmaker(bind=engine)  # noqa: N806 sessionmaker returns a class
     session = Session()
     try:
         yield session
@@ -183,11 +183,14 @@ def session_scope(engine):
 def data_to_include_tables(data: list[str]) -> set[str]:
     """
     Convert user input 'data' to the set 'include_tables'.
-    It contains file names from zipped bulk download.
+
+    It contains file names from the zipped bulk download.
+
     Parameters
     ----------
     data: list
         The user input for data selection
+
     Returns
     -------
     set
@@ -200,16 +203,12 @@ def data_to_include_tables(data: list[str]) -> set[str]:
         )
 
     # Map data selection to include tables in xml
-    include_tables = {
-        table for tech in data for table in BULK_INCLUDE_TABLES_MAP[tech]
-    }
+    include_tables = {table for tech in data for table in BULK_INCLUDE_TABLES_MAP[tech]}
     return include_tables
 
 
 def delete_zip_file_if_corrupted(save_path: str):
-    """
-    Check if existing zip file is corrupted and if yes, delete it, if no, zipfile exists.
-    """
+    """Check if the existing zip file is corrupted and delete it if so."""
     if os.path.exists(save_path):
         try:
             with ZipFile(save_path) as _:

@@ -1,19 +1,21 @@
 import io
 import logging
+import os
 import shutil
 import zipfile
 from datetime import date, timedelta
 from pathlib import Path
 from unittest.mock import patch
 
-import os
-import sqlalchemy
+import pandas as pd
 import pytest
 import responses
-import pandas as pd
+import sqlalchemy
+
 from open_mastr.mastr import Mastr
 from open_mastr.utils.constants import TABLE_TRANSLATIONS
 from open_mastr.utils.sqlalchemy_tables import CatalogString
+
 from .conftest import MOCKUP_XML_ZIP, NUMBER_ROWS_IN_MOCK_XML_FILES
 
 
@@ -314,10 +316,12 @@ def test_download_different_dates_different_technologies(
     mastr: Mastr,
     mockup_docs_zip_in_output_dir: Path,
 ) -> None:
-    """When the target zip doesn't exist,
-    delete_xml_files_not_from_given_date deletes ALL xml files before
-    downloading. Data for different technologies is preserved since they
-    are in separate tables."""
+    """Check that a missing target zip triggers deletion of all xml files.
+
+    When the target zip doesn't exist, delete_xml_files_not_from_given_date deletes
+    ALL xml files before downloading. Data for different technologies is preserved
+    since they are in separate tables.
+    """
     xml_dir = Path(mastr.output_dir) / "data" / "xml_download"
     xml_dir.mkdir(parents=True, exist_ok=True)
     date1 = "20230101"
@@ -347,8 +351,10 @@ def test_download_different_dates_same_technology(
     mastr: Mastr,
     mockup_docs_zip_in_output_dir: Path,
 ) -> None:
-    """When downloading same technology with different dates,
-    the first xml downloads are deleted and data is replaced.
+    """Check that re-downloading a technology for another date replaces the data.
+
+    When downloading the same technology with different dates, the first xml
+    downloads are deleted and data is replaced.
     """
     xml_dir = Path(mastr.output_dir) / "data" / "xml_download"
     xml_dir.mkdir(parents=True, exist_ok=True)
@@ -376,8 +382,11 @@ def test_download_date_zip_already_exists(
     mastr: Mastr,
     mockup_docs_zip_in_output_dir: Path,
 ) -> None:
-    """When the target zip already exists, no deletion occurs.
-    Data for different technologies accumulates in their respective tables."""
+    """Check that an existing target zip prevents deletion.
+
+    When the target zip already exists, no deletion occurs. Data for different
+    technologies accumulates in their respective tables.
+    """
     xml_dir = Path(mastr.output_dir) / "data" / "xml_download"
     xml_dir.mkdir(parents=True, exist_ok=True)
     date1 = "20230101"

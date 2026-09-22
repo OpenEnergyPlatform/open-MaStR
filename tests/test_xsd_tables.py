@@ -2,13 +2,12 @@ import tempfile
 import zipfile
 from pathlib import Path
 
+from open_mastr.mastr import _get_fallback_xsd
 from open_mastr.utils.xsd_tables import (
     MastrColumnType,
-    read_mastr_table_descriptions_from_xsd,
     _iterate_xsd_files,
+    read_mastr_table_descriptions_from_xsd,
 )
-from open_mastr.mastr import _get_fallback_xsd
-
 
 MINIMAL_XSD = """<?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">

@@ -16,7 +16,10 @@ def generate_data_docs():
     ]
     raw_data_doc_files = column_docs_csv(technologies, "_data/raw/")
 
-    raw_data_string = "Raw data\n========\n\nRaw data retrieved from MaStR database is structured as follows\n\n"
+    raw_data_string = (
+        "Raw data\n========\n\n"
+        "Raw data retrieved from MaStR database is structured as follows\n\n"
+    )
 
     for tech, data_table_doc in zip(technologies, raw_data_doc_files):
         section = f"{tech}\n-------\n\n"

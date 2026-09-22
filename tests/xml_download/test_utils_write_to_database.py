@@ -219,9 +219,7 @@ def test_add_missing_columns_to_table(engine_testdb: Engine) -> None:
                 "DatumLetzteAktualisierung": [datetime(2022, 2, 2)],
             }
         )
-        initial_data_in_db.to_sql(
-            table.name, con=con, if_exists="append", index=False
-        )
+        initial_data_in_db.to_sql(table.name, con=con, if_exists="append", index=False)
 
     add_missing_columns_to_table(engine_testdb, table, ["NewColumn"])
 
@@ -235,7 +233,8 @@ def test_add_missing_columns_to_table(engine_testdb: Engine) -> None:
     with engine_testdb.connect() as con:
         with con.begin():
             actual_df = pd.read_sql_table(table.name, con=con)
-            # The actual_df will contain more columns than the expected_df, so we can't use assert_frame_equal.
+            # The actual_df will contain more columns than the expected_df,
+            # so we can't use assert_frame_equal.
             assert expected_df.index.isin(actual_df.index).all()
 
 

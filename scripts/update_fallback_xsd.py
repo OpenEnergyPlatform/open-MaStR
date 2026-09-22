@@ -3,14 +3,14 @@
 
 from __future__ import annotations
 
-from datetime import datetime
-from pathlib import Path
-from typing import Any, Optional
-from zoneinfo import ZoneInfo
 import os
 import shutil
 import sys
 import tempfile
+from datetime import datetime
+from pathlib import Path
+from typing import Any
+from zoneinfo import ZoneInfo
 
 from open_mastr.mastr import _get_fallback_xsd
 from open_mastr.utils.xsd_tables import _iterate_xsd_files
@@ -64,11 +64,12 @@ def _make_new_fallback_xsd(top_dir: Path) -> Path:
 
 def _directory_diff(
     left: str | os.PathLike[str], right: str | os.PathLike[str]
-) -> Optional[dict[str, list[Any]]]:
+) -> dict[str, list[Any]] | None:
     """
     Recursively compare filenames, entry types, and file contents.
 
-    Returns:
+    Returns
+    -------
         {
             "only_in_left": ["path/to/file", ...],
             "only_in_right": ["path/to/file", ...],

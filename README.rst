@@ -25,7 +25,7 @@ open-mastr
      - |badge_issue_open| |badge_issue_closes| |badge_pr_open| |badge_pr_closes|
    * - Community
      - |badge_contributing| |PyPI download month| |Total PyPI downloads|
-   
+
 
 .. contents::
     :depth: 2
@@ -127,7 +127,7 @@ These projects already use open-mastr:
 - `Goal100 Monitor <https://goal100.org/monitor>`_
 - `Goal100 Studio <https://goal100.studio/>`_
 
-If you want to see your project in this list, write an  
+If you want to see your project in this list, write an
 `Issue <https://github.com/OpenEnergyPlatform/open-MaStR/issues>`_ or add
 changes in a `Pull Request <https://github.com/OpenEnergyPlatform/open-MaStR/pulls>`_.
 
@@ -194,7 +194,7 @@ Data
 
 .. |badge_contributing| image:: https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat
     :alt: contributions
-    
+
 .. |PyPI download month| image:: https://img.shields.io/pypi/dm/open-mastr?label=PyPi%20Downloads
     :target: https://pypistats.org/packages/open-mastr
 
