@@ -93,7 +93,7 @@ The project home directory is structured as follows (files and folders below `da
     │   ├── filenames.yml
     │   ├── logging.yml
     ├── data
-    │   ├── dataversion-<date>
+    │   ├── export-<timestamp>
     │   ├── docs_download
     │   │   └── Dokumentation MaStR Gesamtdatenexport_<date>.zip
     │   ├── sqlite
@@ -114,8 +114,10 @@ The project home directory is structured as follows (files and folders below `da
         Logging configuration. For changing the log level to increase or decrease details of log
         messages, edit the level of the handlers. See below for details on logging.
 * **data**
-     * `dataversion-<date>` <br>
-        Contains exported data as csv files from method [`to_csv`][open_mastr.Mastr.to_csv]
+     * `export-<timestamp>` <br>
+        Contains exported data as csv files from method [`to_csv`][open_mastr.Mastr.to_csv].
+        `<timestamp>` is the time of the export as an ISO 8601 basic format UTC
+        timestamp, e.g. `export-20260916T100000Z`.
      * `sqlite` <br>
         Contains the sqlite database in `open-mastr.db`
      * `docs_download` <br>
