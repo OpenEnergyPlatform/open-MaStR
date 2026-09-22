@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="GeloeschteUndDeaktivierteEinheiten">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="GeloeschteUndDeaktivierteEinheit" maxOccurs="unbounded" minOccurs="0">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element type="xs:dateTime" name="DatumLetzteAktualisierung"/>
+              <xs:element type="xs:string" name="EinheitMastrNummer"/>
+              <xs:element name="Einheittyp">
+                <xs:simpleType>
+                  <xs:restriction base="xs:byte">
+                    <xs:enumeration value="1"/>
+                    <xs:enumeration value="6"/>
+                    <xs:enumeration value="8"/>
+                    <xs:enumeration value="9"/>
+                    <xs:enumeration value="3"/>
+                    <xs:enumeration value="2"/>
+                    <xs:enumeration value="5"/>
+                    <xs:enumeration value="11"/>
+                    <xs:enumeration value="10"/>
+                    <xs:enumeration value="4"/>
+                    <xs:enumeration value="12"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="EinheitSystemstatus">
+                <xs:simpleType>
+                  <xs:restriction base="xs:short">
+                    <xs:enumeration value="473"/>
+                    <xs:enumeration value="572"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="EinheitBetriebsstatus">
+                <xs:simpleType>
+                  <xs:restriction base="xs:byte">
+                    <xs:enumeration value="35"/>
+                    <xs:enumeration value="31"/>
+                    <xs:enumeration value="38"/>
+                    <xs:enumeration value="37"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

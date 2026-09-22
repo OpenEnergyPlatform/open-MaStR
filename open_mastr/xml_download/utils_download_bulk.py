@@ -1,23 +1,24 @@
 import os
+import re
 import shutil
 import time
-from collections import defaultdict
-from importlib.metadata import PackageNotFoundError, version
-from zipfile import ZipFile
-from pathlib import Path
 import urllib.request
-import re
+from collections import defaultdict
 from datetime import date, datetime
-from typing import Optional
+from importlib.metadata import PackageNotFoundError, version
+from pathlib import Path
+from typing import Optional, Union
+from zipfile import ZipFile
 
 import numpy as np
 import requests
 from tqdm import tqdm
 
+from open_mastr.utils import unzip_http
+
 # setup logger
 from open_mastr.utils.config import setup_logger
-from open_mastr.utils.constants import BULK_INCLUDE_TABLES_MAP, BULK_DATA
-from open_mastr.utils import unzip_http
+from open_mastr.utils.constants import BULK_INCLUDE_TABLES_MAP
 
 try:
     USER_AGENT = (
@@ -32,7 +33,7 @@ def gen_version(
     when: time.struct_time = time.localtime(), use_version: str = "current"
 ) -> str:
     """
-    Generates the current version.
+    Generate the current version.
 
     The version number is determined according to a fixed release cycle,
     which is by convention in sync with the changes to other german regulatory
@@ -48,7 +49,8 @@ def gen_version(
 
     see <https://www.marktstammdatenregister.de/MaStRHilfe/files/webdienst/Release-Termine.pdf>
 
-    Examples:
+    Examples
+    --------
     2024-01-01 = version 23.2
     2024-04-01 = version 23.2
     2024-04-02 = version 24.1
@@ -57,7 +59,6 @@ def gen_version(
     2024-10-02 = version 24.2
     2024-31-12 = version 24.2
     """
-
     year = when.tm_year
     release = 1
 
@@ -85,14 +86,14 @@ def gen_version(
             release = 2
 
     # only the last two digits of the year are used
-    year = str(year)[-2:]
-    return f"{year}.{release}"
+    year_short = str(year)[-2:]
+    return f"{year_short}.{release}"
 
 
 def gen_xml_download_url(
     when: time.struct_time = time.localtime(), use_version="current", use_stichtag=False
 ) -> str:
-    """Generates the download URL for the specified date.
+    """Generate the download URL for the specified date.
 
     Note that not all dates are archived on the website.
     Normally only today is available, the export is usually made
@@ -105,9 +106,11 @@ def gen_xml_download_url(
 
 
     Args:
-        when (time.struct_time, optional): Time object used to generate url. Defaults to time.localtime().
-        use_version (str, optional): One of "current", "before", "after". "current" will generate the url
-        for the expected MaStR version. "before" will generate the url for the previous MaStR version.
+        when (time.struct_time, optional): Time object used to generate url.
+        Defaults to time.localtime().
+        use_version (str, optional): One of "current", "before", "after". "current"
+        will generate the url for the expected MaStR version. "before" will generate
+        the url for the previous MaStR version.
         "after" will generate the url for the subsequent MaStR version.
 
         "current": Gesamtdatenexport_20250403_25.1.zip
@@ -126,17 +129,17 @@ def gen_xml_download_url(
     return url_str
 
 
-def download_xml_Mastr(
+def download_xml_Mastr(  # noqa: N802 public name, kept for backwards compatibility
     save_path: str,
     bulk_date_string: str,
     bulk_data_list: list[str],
     xml_folder_path: str,
-    url: str = None,
+    url: Optional[str] = None,
 ) -> None:
-    """Downloads the zipped MaStR.
+    """Download the zipped MaStR.
 
     Parameters
-    -----------
+    ----------
     save_path: str
         Full file path where the downloaded MaStR zip file will be saved.
     bulk_date_string: str
@@ -179,7 +182,8 @@ def download_xml_Mastr(
     r = requests.get(url, stream=True, headers={"User-Agent": USER_AGENT})
     if r.status_code == 404:
         log.warning(
-            "Download file was not found. Assuming that the new file was not published yet and retrying with yesterday."
+            "Download file was not found. Assuming that the new file was not"
+            " published yet and retrying with yesterday."
         )
         now = time.localtime(
             time.mktime(url_time) - (24 * 60 * 60)
@@ -187,15 +191,21 @@ def download_xml_Mastr(
         url = gen_xml_download_url(now)
         r = requests.get(url, stream=True, headers={"User-Agent": USER_AGENT})
     if r.status_code == 404:
-        url = gen_xml_download_url(url_time, use_version="before")  # Use lower MaStR Version
+        url = gen_xml_download_url(
+            url_time, use_version="before"
+        )  # Use lower MaStR Version
         log.warning(
-            f"Download file was not found. Assuming that the version of MaStR has changed and retrying with download link: {url}"
+            "Download file was not found. Assuming that the version of MaStR has"
+            f" changed and retrying with download link: {url}"
         )
         r = requests.get(url, stream=True, headers={"User-Agent": USER_AGENT})
     if r.status_code == 404:
-        url = gen_xml_download_url(url_time, use_version="after")  # Use higher MaStR Version
+        url = gen_xml_download_url(
+            url_time, use_version="after"
+        )  # Use higher MaStR Version
         log.warning(
-            f"Download file was not found. Assuming that the version of MaStR has changed and retrying with download link: {url}"
+            "Download file was not found. Assuming that the version of MaStR has"
+            f" changed and retrying with download link: {url}"
         )
         r = requests.get(url, stream=True, headers={"User-Agent": USER_AGENT})
 
@@ -204,7 +214,8 @@ def download_xml_Mastr(
             url_time, use_stichtag=True
         )  # Use different url-structure for older downloads
         log.warning(
-            f"Download file was not found. Assuming that the link structure of MaStR has changed and retrying with download link: {url}"
+            "Download file was not found. Assuming that the link structure of"
+            f" MaStR has changed and retrying with download link: {url}"
         )
         r = requests.get(url, stream=True, headers={"User-Agent": USER_AGENT})
     if r.status_code == 404:
@@ -228,9 +239,7 @@ def download_xml_Mastr(
     log.info(f"MaStR was successfully downloaded to {xml_folder_path}.")
 
 
-def _find_missing_tables(
-    save_path: str, bulk_data_list: list[str]
-) -> set[str]:
+def _find_missing_tables(save_path: str, bulk_data_list: list[str]) -> set[str]:
     """Check if an existing download contains the XML files corresponding to the bulk_data_list."""
     needed_tables = {
         bulk_table_name
@@ -266,6 +275,7 @@ def delete_xml_files_not_from_given_date(
 ) -> None:
     """
     Delete xml files that are not corresponding to the given date.
+
     Assumes that the xml folder only contains one zipfile.
 
     Parameters
@@ -282,8 +292,11 @@ def delete_xml_files_not_from_given_date(
         os.makedirs(xml_folder_path)
 
 
-def partial_download_with_unzip_http(save_path: str, url: str, names_to_download: set[str]):
+def partial_download_with_unzip_http(
+    save_path: str, url: str, names_to_download: set[str]
+):
     """
+    Download only the selected members of the remote zip file.
 
     Parameters
     ----------
@@ -307,10 +320,12 @@ def partial_download_with_unzip_http(save_path: str, url: str, names_to_download
 
     download_files_list = []
     for name in names_to_download:
-        # we have to find the corresponding index in the remote_zip_file list in order to fetch the correct file
+        # we have to find the corresponding index in the remote_zip_file list
+        # in order to fetch the correct file
         for remote_index, remote_zip_name in enumerate(remote_zip_names):
             if remote_zip_name == name:
-                # Example: remote_zip_file.namelist()[remote_index] corresponds to e.g. 'AnlagenEegSolar_1.xml'
+                # Example: remote_zip_file.namelist()[remote_index] corresponds
+                # to e.g. 'AnlagenEegSolar_1.xml'
                 download_files_list.append(remote_zip_file.namelist()[remote_index])
 
     for zipfile_name in tqdm(download_files_list, unit=" file"):
@@ -322,6 +337,7 @@ def full_download_without_unzip_http(
     r: requests.models.Response,
 ) -> None:
     """
+    Download the complete zip file from an already opened response.
 
     Parameters
     ----------
@@ -341,7 +357,7 @@ def full_download_without_unzip_http(
     # We could get rid of this magic number by first making a request to get the file size
     # and then using that as total length for the progress bar.
     # See https://github.com/OpenEnergyPlatform/open-MaStR/issues/570
-    total_length = int(23000)
+    total_length = 23000
     with (
         open(save_path, "wb") as zfile,
         tqdm(desc=save_path, total=total_length, unit="") as bar,
@@ -408,9 +424,11 @@ def get_available_download_links(
         return []
 
     # We have in principle two ways of finding the URLs in the HTML of the MaStR Datendownload page:
-    # 1. Depend on some parts of the HTML structure, identify the <a> tags and get the href attributes and somehow the date.
+    # 1. Depend on some parts of the HTML structure, identify the <a> tags and get
+    #    the href attributes and somehow the date.
     # 2. Depend on the URL structure and search for them using regex. Pull the date from the URL.
-    # We guess that the URL structure is more stable than the HTML structure, so we implement approach 2.
+    # We guess that the URL structure is more stable than the HTML structure,
+    # so we implement approach 2.
 
     current_link = _find_current_download_link(html)
     stichtag_links = _find_stichtag_download_links(html)
@@ -427,7 +445,9 @@ def _find_current_download_link(html: str) -> dict[str, Optional[str]]:
     pattern_current_xml = r"https://download\.marktstammdatenregister\.de/Gesamtdatenexport_(?P<date>[0-9]{8})_(?P<version>[0-9]{2}\.[0-9])\.zip"
     match_xml = re.search(pattern_current_xml, html)
     if not match_xml:
-        log.error("Found no link for the current XML download in MaStR download list HTML")
+        log.error(
+            "Found no link for the current XML download in MaStR download list HTML"
+        )
         return {}
     link = {
         "url": match_xml.group(),
@@ -438,13 +458,23 @@ def _find_current_download_link(html: str) -> dict[str, Optional[str]]:
     }
 
     mastr_origin = "https://www.marktstammdatenregister.de"
-    # The URL origin is actually omitted in the HTML. We make it work with and without it in case BNetzA adds the origin in the link.
-    pattern_current_docs = rf"(?P<origin>{re.escape(mastr_origin)})?/MaStRHilfe/files/gesamtdatenexport/Dokumentation%20MaStR%20Gesamtdatenexport.zip"
+    # The URL origin is actually omitted in the HTML. We make it work with and without
+    # it in case BNetzA adds the origin in the link.
+    pattern_current_docs = (
+        rf"(?P<origin>{re.escape(mastr_origin)})?/MaStRHilfe/files/gesamtdatenexport"
+        r"/Dokumentation%20MaStR%20Gesamtdatenexport.zip"
+    )
     if match_docs := re.search(pattern_current_docs, html):
         matched_string = match_docs.group()
-        link["docs_url"] = matched_string if match_docs.group("origin") else mastr_origin + matched_string
+        link["docs_url"] = (
+            matched_string
+            if match_docs.group("origin")
+            else mastr_origin + matched_string
+        )
     else:
-        log.error("Found no link for the current docs download in MaStR download list HTML")
+        log.error(
+            "Found no link for the current docs download in MaStR download list HTML"
+        )
 
     return link
 
@@ -471,7 +501,11 @@ def _find_stichtag_download_links(html: str) -> list[dict[str, Optional[str]]]:
     for match_docs in re.finditer(pattern_stichtag_docs, html):
         # When there are two XML downloads with different versions for the same day,
         # there is still (strangely) only one docs download. So we assign it to multiple links.
-        date = match_docs.group("year") + match_docs.group("month") + match_docs.group("day")
+        date = (
+            match_docs.group("year")
+            + match_docs.group("month")
+            + match_docs.group("day")
+        )
         if links := date_to_links.get(date):
             for link in links:
                 link["docs_url"] = match_docs.group()
@@ -505,7 +539,9 @@ def list_available_downloads():
     print("\n" + "=" * 80)
     print("AVAILABLE MAStR DOWNLOADS")
     print("=" * 80)
-    print(f"{'#':<4} {'Date':<12} {'Version':<10} {'Type':<12} {'XML URL':<{url_pad}} Docs URL")
+    print(
+        f"{'#':<4} {'Date':<12} {'Version':<10} {'Type':<12} {'XML URL':<{url_pad}} Docs URL"
+    )
     print("-" * 80)
 
     for i, link in enumerate(links, 1):
@@ -554,7 +590,9 @@ def select_download_date() -> Optional[dict[str, Optional[str]]]:
                     if 1 <= index <= len(links):
                         selected = links[index - 1]
                         print(
-                            f"\nSelected: {selected['date']} (Version {selected['version']}, Type: {selected['type']})"
+                            f"\nSelected: {selected['date']} "
+                            f"(Version {selected['version']}, "
+                            f"Type: {selected['type']})"
                         )
                         return selected
                     else:
@@ -577,8 +615,7 @@ def get_date_from_docs_url(url: str) -> Optional[str]:
 
 
 def gen_docs_download_urls(
-    bulk_date_string: Optional[str] = None,
-    url: Optional[str] = None
+    bulk_date_string: Optional[str] = None, url: Optional[str] = None
 ) -> tuple[str, Optional[str]]:
     newest_url = "https://www.marktstammdatenregister.de/MaStRHilfe/files/gesamtdatenexport/Dokumentation%20MaStR%20Gesamtdatenexport.zip"
     if url:
@@ -606,14 +643,14 @@ def gen_docs_download_urls(
 
 
 def download_documentation(
-    save_path: str,
+    save_path: Union[str, Path],
     bulk_date_string: Optional[str] = None,
     url: Optional[str] = None,
 ) -> None:
-    """Downloads the zipped MaStR.
+    """Download the zipped MaStR documentation.
 
     Parameters
-    -----------
+    ----------
     save_path: str
         Full file path where the downloaded MaStR documentation zip file will be saved.
     """
@@ -630,7 +667,7 @@ def download_documentation(
     time_a = time.perf_counter()
     log.info(f"Downloading MaStR documentation from {preferred_url}")
     r = requests.get(preferred_url, headers={"User-Agent": USER_AGENT})
-    if r.status_code == 404:
+    if r.status_code == 404 and fallback_url:
         log.warning(
             "MaStR documentation download file was not found."
             f" Trying to download from {fallback_url}"

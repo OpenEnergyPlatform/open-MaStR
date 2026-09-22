@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "open_mastr"
-version = "0.17.1"
+version = "0.17.4"
 dependencies = [
   "pandas>=2.2.2",
   "numpy",
@@ -40,7 +40,7 @@ maintainers = [
 description = "A package that provides an interface for downloading and processing the data of the Marktstammdatenregister (MaStR)"
 readme = "README.rst"
 license = {text = "AGPL-3.0-or-later" }
-keywords = ["Markstammdatenregister", "Energy", "Dataset", "Solar", "Wind", "Energy-data", "OEP", "OpenEnergyFamily"]
+keywords = ["Markstammdatenregister", "Energy", "Dataset", "Solar", "Wind", "Energy-data", "OEP", "OpenEnergyFamily", "Bundesnetzagentur", "MaStR"]
 classifiers = [
   "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
   "Development Status :: 4 - Beta",
@@ -51,8 +51,6 @@ classifiers = [
 
 [project.optional-dependencies]
 dev = [
-  "flake8",
-  "pylint",
   "pytest",
   "pytest-dependency",
   "xmltodict",
@@ -61,9 +59,10 @@ dev = [
   "mkdocstrings[python]",
   "mkdocs-material",
   "mkdocs-include-markdown-plugin",
-  "black",
   "responses",
   "pytest-responses",
+  "ruff",
+  "mypy",
 ]
 
 [project.urls]
@@ -83,4 +82,48 @@ open_mastr = [
 include = ["open_mastr", "open_mastr.soap_api", "open_mastr.soap_api.metadata", "open_mastr.utils", "open_mastr.utils.config", "open_mastr.xml_download"] # package names should match these glob patterns (["*"] by default)
 
 # from setup.py - not yet included in here
-# download_url="https://github.com/OpenEnergyPlatform/open-MaStR/archive""/refs/tags/v0.17.1.tar.gz",
+# download_url="https://github.com/OpenEnergyPlatform/open-MaStR/archive""/refs/tags/v0.17.4.tar.gz",
+
+[tool.ruff]
+line-length = 88
+target-version = "py39"
+# Keep in sync with the global `exclude` in .pre-commit-config.yaml, so that a local
+# `ruff check .` sees the same files as the pre-commit hook. Ruff's own defaults already
+# cover build/, dist/, .tox/, .pytest_cache/, .mypy_cache/ and __pycache__/.
+# force-exclude is required because pre-commit passes file paths explicitly, and ruff
+# ignores its exclusions for explicitly passed paths unless this is set.
+force-exclude = true
+extend-exclude = [
+  "*.egg-info",
+  "postprocessing",
+  "open_mastr/soap_api",
+  "open_mastr/resources",
+  # unmaintained and unimportable, see .pre-commit-config.yaml
+  "scripts/utils/data_io.py",
+]
+
+[tool.ruff.lint]
+# Enable:
+# E - pycodestyle errors
+# F - pyflakes
+# I - isort (import sorting)
+# N - pep8-naming
+# W - pycodestyle warnings
+# UP - pyupgrade (modernize Python code)
+# D - pydocstyle (docstring conventions)
+select = ["E", "F", "I", "N", "W", "UP", "D"]
+# D1 - undocumented-* (D100-D107). Existing docstrings still have to be well-formed
+# (D2xx/D4xx stay enabled), but a missing docstring is not an error.
+ignore = ["D1"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
+
+[tool.ruff.lint.pycodestyle]
+# The formatter wraps code at `line-length` (88). E501 is deliberately more tolerant, so
+# that it only flags what the formatter cannot split anyway - long strings, URLs and
+# comments.
+max-line-length = 100
+
+[tool.ruff.lint.isort]
+known-first-party = ["open_mastr"]

@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="AnlagenEegBiomasse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="AnlageEegBiomasse" maxOccurs="unbounded" minOccurs="1">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element type="xs:date" name="Registrierungsdatum" minOccurs="0"/>
+              <xs:element type="xs:dateTime" name="DatumLetzteAktualisierung"/>
+              <xs:element type="xs:date" name="EegInbetriebnahmedatum" minOccurs="0"/>
+              <xs:element type="xs:string" name="EegMaStRNummer"/>
+              <xs:element type="xs:string" name="AnlagenschluesselEeg" minOccurs="0"/>
+              <xs:element type="xs:string" name="AnlagenkennzifferAnlagenregister" minOccurs="0"/>
+              <xs:element name="AnlagenkennzifferAnlagenregister_nv">
+                <xs:simpleType>
+                  <xs:restriction base="xs:byte">
+                    <xs:enumeration value="0"/>
+                    <xs:enumeration value="1"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element type="xs:float" name="InstallierteLeistung" minOccurs="0"/>
+              <xs:element name="AusschliesslicheVerwendungBiomasse" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:byte">
+                    <xs:enumeration value="1"/>
+                    <xs:enumeration value="0"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="AusschreibungZuschlag" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:byte">
+                    <xs:enumeration value="0"/>
+                    <xs:enumeration value="1"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element type="xs:string" name="Zuschlagsnummer" minOccurs="0"/>
+              <xs:element name="BiogasInanspruchnahmeFlexiPraemie" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:byte">
+                    <xs:enumeration value="1"/>
+                    <xs:enumeration value="0"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element type="xs:date" name="BiogasDatumInanspruchnahmeFlexiPraemie" minOccurs="0"/>
+              <xs:element name="BiogasLeistungserhoehung" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:byte">
+                    <xs:enumeration value="0"/>
+                    <xs:enumeration value="1"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element type="xs:date" name="BiogasDatumLeistungserhoehung" minOccurs="0"/>
+              <xs:element type="xs:float" name="BiogasUmfangLeistungserhoehung" minOccurs="0"/>
+              <xs:element type="xs:float" name="BiogasGaserzeugungskapazitaet" minOccurs="0"/>
+              <xs:element name="BiogasGaserzeugungskapazitaet_nv">
+                <xs:simpleType>
+                  <xs:restriction base="xs:byte">
+                    <xs:enumeration value="0"/>
+                    <xs:enumeration value="1"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element type="xs:float" name="BiogasHoechstbemessungsleistung" minOccurs="0"/>
+              <xs:element type="xs:date" name="BiomethanErstmaligerEinsatz" minOccurs="0"/>
+              <xs:element name="BiomethanErstmaligerEinsatz_nv">
+                <xs:simpleType>
+                  <xs:restriction base="xs:byte">
+                    <xs:enumeration value="0"/>
+                    <xs:enumeration value="1"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="AnlageBetriebsstatus">
+                <xs:simpleType>
+                  <xs:restriction base="xs:byte">
+                    <xs:enumeration value="35"/>
+                    <xs:enumeration value="38"/>
+                    <xs:enumeration value="37"/>
+                    <xs:enumeration value="31"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element type="xs:string" name="VerknuepfteEinheitenMaStRNummern" minOccurs="0"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

@@ -1,8 +1,6 @@
-import os
-import pandas as pd
-import pytest
-from os.path import expanduser
 from pathlib import Path
+
+import pandas as pd
 
 from open_mastr.xml_download.utils_cleansing_bulk import (
     cleanse_bulk_data,
@@ -10,22 +8,8 @@ from open_mastr.xml_download.utils_cleansing_bulk import (
     replace_mastr_katalogeintraege,
 )
 
-from tests.conftest import EXISTING_XML_ZIP
 
-# Check if xml file exists
-_xml_file_exists = False
-_xml_folder_path = os.path.join(expanduser("~"), ".open-MaStR", "data", "xml_download")
-if os.path.isdir(_xml_folder_path):
-    for entry in os.scandir(path=_xml_folder_path):
-        if "Gesamtdatenexport" in entry.name and entry.name.endswith(".zip"):
-            _xml_file_exists = True
-
-
-@pytest.mark.skipif(
-    not EXISTING_XML_ZIP,
-    reason="The zipped XML could not be found."
-)
-def test_cleanse_bulk_data(existing_xml_zip_in_output_dir: Path) -> None:
+def test_cleanse_bulk_data(mockup_xml_zip_in_output_dir: Path) -> None:
     df_raw = pd.DataFrame(
         {
             "ID": [0, 1, 2],
@@ -43,37 +27,75 @@ def test_cleanse_bulk_data(existing_xml_zip_in_output_dir: Path) -> None:
 
     pd.testing.assert_frame_equal(
         cleanse_bulk_data(
-            df=df_raw, zipped_xml_file_path=str(existing_xml_zip_in_output_dir), catalog_columns={"Bundesland", "Einheittyp"},
+            df=df_raw,
+            zipped_xml_file_path=str(mockup_xml_zip_in_output_dir),
+            catalog_columns={"Bundesland", "Einheittyp"},
         ),
         df_replaced,
+        check_dtype=False,
     )
 
 
-@pytest.mark.skipif(
-    not EXISTING_XML_ZIP,
-    reason="The zipped XML could not be found."
-)
-def test_replace_mastr_katalogeintraege(existing_xml_zip_in_output_dir: Path) -> None:
+def test_replace_mastr_katalogeintraege(mockup_xml_zip_in_output_dir: Path) -> None:
     df_raw = pd.DataFrame({"ID": [0, 1, 2], "Bundesland": [335, 335, 336]})
     df_replaced = pd.DataFrame(
         {"ID": [0, 1, 2], "Bundesland": ["Bayern", "Bayern", "Bremen"]}
     )
     pd.testing.assert_frame_equal(
         replace_mastr_katalogeintraege(
-            zipped_xml_file_path=str(existing_xml_zip_in_output_dir), df=df_raw, catalog_columns={"Bundesland", "Einheittyp"},
+            zipped_xml_file_path=str(mockup_xml_zip_in_output_dir),
+            df=df_raw,
+            catalog_columns={"Bundesland", "Einheittyp"},
         ),
         df_replaced,
     )
 
 
-@pytest.mark.skipif(
-    not EXISTING_XML_ZIP,
-    reason="The zipped XML could not be found."
-)
-def test_create_katalogwerte_from_bulk_download(existing_xml_zip_in_output_dir: Path) -> None:
-    katalogwerte = create_katalogwerte_from_bulk_download(
-        zipped_xml_file_path=existing_xml_zip_in_output_dir
+def test_replace_mastr_katalogeintraege_with_comma_separated_ids(
+    mockup_xml_zip_in_output_dir: Path,
+) -> None:
+    df_raw = pd.DataFrame({"Bundesland": [335, "335, 336"]})
+    df_replaced = pd.DataFrame({"Bundesland": ["Bayern", "Bayern,Bremen"]})
+
+    pd.testing.assert_frame_equal(
+        replace_mastr_katalogeintraege(
+            zipped_xml_file_path=str(mockup_xml_zip_in_output_dir),
+            df=df_raw,
+            catalog_columns={"Bundesland"},
+        ),
+        df_replaced,
+        # Only the values matter here, not whether the string column ends up as
+        # object or as a string dtype.
+        check_dtype=False,
     )
-    assert type(katalogwerte) == dict
+
+
+def test_replace_mastr_katalogeintraege_keeps_already_resolved_names(
+    mockup_xml_zip_in_output_dir: Path,
+) -> None:
+    # Values that are already resolved catalog names must pass through unchanged,
+    # while numeric IDs (single or comma-separated) are still replaced.
+    df_raw = pd.DataFrame({"Bundesland": ["Bayern", 335, "335, 336"]})
+    df_replaced = pd.DataFrame({"Bundesland": ["Bayern", "Bayern", "Bayern,Bremen"]})
+
+    df_new = replace_mastr_katalogeintraege(
+        zipped_xml_file_path=str(mockup_xml_zip_in_output_dir),
+        df=df_raw,
+        catalog_columns={"Bundesland"},
+    )
+    pd.testing.assert_frame_equal(
+        df_new,
+        df_replaced,
+        check_dtype=False,
+    )
+
+
+def test_create_katalogwerte_from_bulk_download(
+    mockup_xml_zip_in_output_dir: Path,
+) -> None:
+    katalogwerte = create_katalogwerte_from_bulk_download(
+        zipped_xml_file_path=mockup_xml_zip_in_output_dir
+    )
+    assert isinstance(katalogwerte, dict)
     assert len(katalogwerte) > 1000
-    assert type(list(katalogwerte.keys())[0]) == int
+    assert isinstance(list(katalogwerte.keys())[0], int)

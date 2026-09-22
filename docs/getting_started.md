@@ -39,7 +39,7 @@ If you are interested in a specific part of the dataset, you can specify this by
 from open_mastr import Mastr
 
 db = Mastr()
-db.download(data=["wind","hydro"])
+db.download(data=["wind", "hydro"])
 ```
 
 More detailed information can be found in the section [bulk download](advanced.md#bulk-download).
@@ -52,7 +52,7 @@ API download
 
 ## Accessing the database
 
-For accessing and working with the MaStR database after you have downloaded it, you can use sqlite browsers 
+For accessing and working with the MaStR database after you have downloaded it, you can use sqlite browsers
 such as [DB Browser for SQLite](https://sqlitebrowser.org/) or any python module
 which can process sqlite data. Pandas, for example, comes with the function
 [read_sql](https://pandas.pydata.org/docs/reference/api/pandas.read_sql.html).
@@ -63,10 +63,12 @@ which can process sqlite data. Pandas, for example, comes with the function
     import pandas as pd
 
     # generate a list of all tables
-    df = pd.read_sql_query("SELECT name FROM sqlite_master WHERE type='table';", con=db.engine)
+    df = pd.read_sql_query(
+        "SELECT name FROM sqlite_master WHERE type='table';", con=db.engine
+    )
 
     # read the data of one table
-    table="wind_extended"
+    table = "wind_extended"
     df = pd.read_sql(sql=table, con=db.engine)
     ```
 
@@ -79,7 +81,6 @@ The tables in the database can be exported as csv files. While technology-relate
 additional tables are mirrored from database to csv as they are. To export the data you can use to method `to_csv`.
 
 ```python
-
-    tables=["wind", "grids"]
-    db.to_csv(tables)
+tables = ["wind", "grids"]
+db.to_csv(tables)
 ```

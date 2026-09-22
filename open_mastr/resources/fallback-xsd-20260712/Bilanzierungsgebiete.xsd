@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="Bilanzierungsgebiete">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Bilanzierungsgebiet" maxOccurs="unbounded" minOccurs="0">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element type="xs:short" name="Id"/>
+              <xs:element type="xs:string" name="Yeic" minOccurs="0"/>
+              <xs:element type="xs:string" name="BilanzierungsgebietNetzanschlusspunkt" minOccurs="0"/>
+              <xs:element name="RegelzoneNetzanschlusspunkt">
+                <xs:simpleType>
+                  <xs:restriction base="xs:int">
+                    <xs:enumeration value="1000001"/>
+                    <xs:enumeration value="1000010"/>
+                    <xs:enumeration value="1001572"/>
+                    <xs:enumeration value="1001564"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

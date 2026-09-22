@@ -1,4 +1,4 @@
-For most users, the functionalites described in [Getting Started](getting_started.md) are sufficient.  If you want 
+For most users, the functionalites described in [Getting Started](getting_started.md) are sufficient.  If you want
 to examine how you can configure the package's behavior for your own needs, check out [Configuration](#configuration). Or you can explore the two main functionalities of the package, namely the [Bulk Download](#bulk-download)
 or the [SOAP API download](#soap-api-download).
 
@@ -31,7 +31,9 @@ from sqlalchemy import create_engine
 # SQLite DB
 engine_sqlite = create_engine("sqlite:///path/to/sqlite/database.db")
 # PostgreSQL DB
-engine_postgres = create_engine("postgresql+psycopg2://open-mastr:open-mastr-pw@localhost:55443/open-mastr-db")
+engine_postgres = create_engine(
+    "postgresql+psycopg2://open-mastr:open-mastr-pw@localhost:55443/open-mastr-db"
+)
 mastr = Mastr(engine=engine_sqlite)  # or engine=engine_postgres
 mastr.download()
 ```
@@ -50,7 +52,9 @@ To get started with the default database schema, we recommend generating it from
 from sqlalchemy import create_engine
 from open_mastr import Mastr, format_mastr_table_to_db_table
 
-engine_postgres = create_engine("postgresql+psycopg2://open-mastr:open-mastr-pw@localhost:55443/open-mastr-db")
+engine_postgres = create_engine(
+    "postgresql+psycopg2://open-mastr:open-mastr-pw@localhost:55443/open-mastr-db"
+)
 mastr = Mastr(engine=engine_postgres)
 
 # Generate SQLAlchemy table definitions without creating the tables
@@ -93,7 +97,7 @@ The project home directory is structured as follows (files and folders below `da
     │   ├── filenames.yml
     │   ├── logging.yml
     ├── data
-    │   ├── dataversion-<date>
+    │   ├── export-<timestamp>
     │   ├── docs_download
     │   │   └── Dokumentation MaStR Gesamtdatenexport_<date>.zip
     │   ├── sqlite
@@ -103,7 +107,7 @@ The project home directory is structured as follows (files and folders below `da
     └── logs
         └── open_mastr.log
 ```
- 
+
 * **config**
      * `credentials.cfg` <br>
         Credentials used to access
@@ -114,15 +118,17 @@ The project home directory is structured as follows (files and folders below `da
         Logging configuration. For changing the log level to increase or decrease details of log
         messages, edit the level of the handlers. See below for details on logging.
 * **data**
-     * `dataversion-<date>` <br>
-        Contains exported data as csv files from method [`to_csv`][open_mastr.Mastr.to_csv]
+     * `export-<timestamp>` <br>
+        Contains exported data as csv files from method [`to_csv`][open_mastr.Mastr.to_csv].
+        `<timestamp>` is the time of the export as an ISO 8601 basic format UTC
+        timestamp, e.g. `export-20260916T100000Z`.
      * `sqlite` <br>
         Contains the sqlite database in `open-mastr.db`
      * `docs_download` <br>
         Contains the documentation of the MaStR download.
      * `xml_download` <br>
         Contains the bulk download in `Gesamtdatenexport_<date>.zip` <br>
-        New bulk download versions overwrite older versions. 
+        New bulk download versions overwrite older versions.
 * **logs**
      * `open_mastr.log` <br>
         The files stores the logging information from executing open-mastr.
@@ -146,7 +152,7 @@ or adjusting it manually in your code. E.g. to enable `DEBUG` messages in `open_
 
 ### Data
 
-If the zipped dump of the MaStR is downloaded, it is saved in the folder `$HOME/.open-MaStR/data/xml_download`. 
+If the zipped dump of the MaStR is downloaded, it is saved in the folder `$HOME/.open-MaStR/data/xml_download`.
 
 The data can then be written to any sql database supported by [sqlalchemy](https://docs.sqlalchemy.org/). The type of the sql database is determined by the parameter `engine` in the [Mastr][open_mastr.Mastr] class.
 
@@ -169,8 +175,8 @@ There are some environment variables to customize open-MaStR:
 ## Bulk download
 
 On the homepage [MaStR/Datendownload](https://www.marktstammdatenregister.de/MaStR/Datendownload) a zipped folder containing the whole
-MaStR is offered. The data is delivered as XML files. The official documentation can be found 
-on the same page (in German). This data is updated on a daily basis. 
+MaStR is offered. The data is delivered as XML files. The official documentation can be found
+on the same page (in German). This data is updated on a daily basis.
 
 ``` mermaid
 flowchart LR
@@ -189,7 +195,7 @@ flowchart LR
 ```
 
 
-In the following, the process is described that is started when calling the [`Mastr.download`][open_mastr.Mastr.download] without parameters. 
+In the following, the process is described that is started when calling the [`Mastr.download`][open_mastr.Mastr.download] without parameters.
 First, the zipped documentation is downloaded and saved in `$HOME/.open-MaStR/data/docs_download`. The zipped documentation contains
 XSD files that describe the MaStR XML files that contain the data. open-mastr reads the XSD files and generates a database schema for
 importing the data. I.e., for each MaStR table, it defines a database table and then creates it in a SQLite database.
@@ -201,9 +207,36 @@ previously created SQLite database tables.
 If only some specific tables are of interest, they can be specified with the parameter `data`. Every table that is
 selected in `data` will be deleted from the local database, if existent, and then filled with data from the xml files.
 
+### `data` table mapping
+
+The `data` parameter accepts the following values. Each value includes the listed MaStR XML tables in the bulk
+download.
+
+| `data` value | Included MaStR tables |
+|---|---|
+| `wind` | `AnlagenEegWind`, `EinheitenWind` |
+| `solar` | `AnlagenEegSolar`, `EinheitenSolar` |
+| `biomass` | `AnlagenEegBiomasse`, `EinheitenBiomasse` |
+| `hydro` | `AnlagenEegWasser`, `EinheitenWasser` |
+| `gsgk` | `AnlagenEegGeothermieGrubengasDruckentspannung`, `EinheitenGeothermieGrubengasDruckentspannung` |
+| `combustion` | `AnlagenKwk`, `EinheitenVerbrennung` |
+| `nuclear` | `EinheitenKernkraft` |
+| `gas` | `AnlagenGasSpeicher`, `EinheitenGasErzeuger`, `EinheitenGasSpeicher`, `EinheitenGasverbraucher` |
+| `storage` | `AnlagenEegSpeicher`, `EinheitenStromSpeicher`, `AnlagenStromSpeicher` |
+| `electricity_consumer` | `EinheitenStromVerbraucher` |
+| `location` | `Lokationen` |
+| `market` | `Marktakteure`, `MarktakteureUndRollen` |
+| `grid` | `Netzanschlusspunkte`, `Netze` |
+| `balancing_area` | `Bilanzierungsgebiete` |
+| `permit` | `EinheitenGenehmigung` |
+| `deleted_units` | `GeloeschteUndDeaktivierteEinheiten` |
+| `deleted_market_actors` | `GeloeschteUndDeaktivierteMarktakteure` |
+| `retrofit_units` | `Ertuechtigungen` |
+| `changed_dso_assignment` | `EinheitenAenderungNetzbetreiberzuordnungen` |
+
 In the next step, a basic data cleansing is performed. Many entries in the MaStR from the bulk download are replaced by numbers.
-As an example, instead of writing the German states where the unit is registered (Saxony, Brandenburg, Bavaria, ...) the MaStR states 
-corresponding digits (7, 2, 9, ...). One major step of cleansing is therefore to replace those digits with their original meaning. 
+As an example, instead of writing the German states where the unit is registered (Saxony, Brandenburg, Bavaria, ...) the MaStR states
+corresponding digits (7, 2, 9, ...). One major step of cleansing is therefore to replace those digits with their original meaning.
 Moreover, the datatypes of different entries are set in the data cleansing process and corrupted files are repaired.
 
 The tables in the database can be exported to CSV files using the [`to_csv`][open_mastr.Mastr.to_csv] method.
@@ -223,8 +256,8 @@ via its API a [registration](https://www.marktstammdatenregister.de/MaStRHilfe/f
 
 To download data from the MaStR API using the `open-MaStR`, the credentials (MaStR user and token) need to be provided in a certain way. Three options exist:
 
-1. **Credentials file:** 
-    Both, user and token, are stored in plain text in the credentials file. The file is located at 
+1. **Credentials file:**
+    Both, user and token, are stored in plain text in the credentials file. The file is located at
     '~/.open-MaStR/config/credentials.cfg'. Fill in your user and token like this:
 
     ```
@@ -235,20 +268,20 @@ To download data from the MaStR API using the `open-MaStR`, the credentials (MaS
 
     The `token` should be written in one line, without line breaks.
 
-2. **Credentials file + keyring:** 
+2. **Credentials file + keyring:**
     The user is stored in the credentials file, while the token is stored encrypted in the [keyring](https://pypi.org/project/keyring/).
 
     Read in the documentation of the keyring library how to store your token in the
     keyring.
 
-3. **Don't store:** 
+3. **Don't store:**
     Just use the password for one query and forget it
 
     The latter option is only available when using [`MaStRAPI`][open_mastr.soap_api.download.MaStRAPI].
     Instantiate with
 
     ```python
-    MaStRAPI(user='USERNAME', key='TOKEN')
+    MaStRAPI(user="USERNAME", key="TOKEN")
     ```
 
     to provide user and token in a script and use these
@@ -256,7 +289,7 @@ To download data from the MaStR API using the `open-MaStR`, the credentials (MaS
 
 ### MaStRAPI
 
-You can access the MaStR data via API by using the class `MaStRAPI` directly if you have the API credentials 
+You can access the MaStR data via API by using the class `MaStRAPI` directly if you have the API credentials
 configured correctly. Use the code snippet below for queries.
 
 
@@ -264,7 +297,6 @@ configured correctly. Use the code snippet below for queries.
 from open_mastr.soap_api.download import MaStRAPI
 
 if __name__ == "__main__":
-
     mastr_api = MaStRAPI()
     print(mastr_api.GetLokaleUhrzeit())
 ```
@@ -281,8 +313,8 @@ For API calls, models and optional parameters refer to the
 ???+ example "Example queries and their responses (for model 'Anlage')"
 
     === "mastr_api.GetLokaleUhrzeit()"
-        
-        Response: 
+
+        Response:
         ```python
         {
         'Ergebniscode': 'OK',
@@ -296,47 +328,47 @@ For API calls, models and optional parameters refer to the
         API function name: `GetLokaleUhrzeit` <br>
         Example query: `mastr_api.GetLokaleUhrzeit()` <br>
         Parameter: `None`
-        
 
-    
+
+
     === "mastr_api.GetListeAlleEinheiten(limit=1)"
-        
-        Response:  
+
+        Response:
         ```python
         {
-        "Ergebniscode": "OkWeitereDatenVorhanden",
-        "AufrufVeraltet": False,
-        "AufrufLebenszeitEnde": None,
-        "AufrufVersion": 1,
-        "Einheiten": [
-            {
-                "EinheitMastrNummer": "SEE984033548619",
-                "DatumLetzeAktualisierung": datetime.datetime(
-                    2020, 2, 20, 16, 28, 35, 250812
-                ),
-                "Name": "Photovoltaikanlage ERWin4",
-                "Einheitart": "Stromerzeugungseinheit",
-                "Einheittyp": "Solareinheit",
-                "Standort": "48147 Münster",
-                "Bruttoleistung": Decimal("3.960"),
-                "Erzeugungsleistung": None,
-                "EinheitSystemstatus": "Aktiv",
-                "EinheitBetriebsstatus": "InBetrieb",
-                "Anlagenbetreiber": "ABR949444220202",
-                "EegMastrNummer": "EEG920083771065",
-                "KwkMastrNummer": None,
-                "SpeMastrNummer": None,
-                "GenMastrNummer": None,
-                "BestandsanlageMastrNummer": None,
-                "NichtVorhandenInMigriertenEinheiten": None,
-            }
-        ],
+            "Ergebniscode": "OkWeitereDatenVorhanden",
+            "AufrufVeraltet": False,
+            "AufrufLebenszeitEnde": None,
+            "AufrufVersion": 1,
+            "Einheiten": [
+                {
+                    "EinheitMastrNummer": "SEE984033548619",
+                    "DatumLetzeAktualisierung": datetime.datetime(
+                        2020, 2, 20, 16, 28, 35, 250812
+                    ),
+                    "Name": "Photovoltaikanlage ERWin4",
+                    "Einheitart": "Stromerzeugungseinheit",
+                    "Einheittyp": "Solareinheit",
+                    "Standort": "48147 Münster",
+                    "Bruttoleistung": Decimal("3.960"),
+                    "Erzeugungsleistung": None,
+                    "EinheitSystemstatus": "Aktiv",
+                    "EinheitBetriebsstatus": "InBetrieb",
+                    "Anlagenbetreiber": "ABR949444220202",
+                    "EegMastrNummer": "EEG920083771065",
+                    "KwkMastrNummer": None,
+                    "SpeMastrNummer": None,
+                    "GenMastrNummer": None,
+                    "BestandsanlageMastrNummer": None,
+                    "NichtVorhandenInMigriertenEinheiten": None,
+                }
+            ],
         }
         ```
 
         API function name: `GetEinheitSolar` <br>
         Example query: `mastr_api.GetListeAlleEinheiten(limit=1)`
-    
+
         | Parameter                 | Description                                                              |
         |------------------------|-----------------------------------------------------------------------------------------------------------|
         | marktakteurMastrNummer | The MaStR number of the requested unit                                                                    |
@@ -344,96 +376,96 @@ For API calls, models and optional parameters refer to the
         | datumAb                | Restrict the amount of data to be retrieved to changed data from the specified date [Default value: NULL] |
         | limit                  | Limit of the maximum data records to be delivered [default/maximum value: maximum of own limit]           |
         | einheitMastrNummern[]  |                                                                                                           |
-    
+
     === "mastr_api.GetEinheitSolar(einheitMastrNummer="SEE984033548619")"
-        
-        Response: 
+
+        Response:
         ```python
         {
-        "Ergebniscode": "OK",
-        "AufrufVeraltet": False,
-        "AufrufLebenszeitEnde": None,
-        "AufrufVersion": 1,
-        "EinheitMastrNummer": "SEE984033548619",
-        "DatumLetzteAktualisierung": datetime.datetime(2020, 2, 20, 16, 28, 35, 250812),
-        "LokationMastrNummer": "SEL948991715391",
-        "NetzbetreiberpruefungStatus": "Geprueft",
-        "Netzbetreiberzuordnungen": [
-            {
-                "NetzbetreiberMastrNummer": "SNB980883363112",
-                "NetzbetreiberpruefungsDatum": datetime.date(2020, 2, 25),
-                "NetzbetreiberpruefungsStatus": "Geprueft",
-            }
-        ],
-        "NetzbetreiberpruefungDatum": datetime.date(2020, 2, 25),
-        "AnlagenbetreiberMastrNummer": "ABR949444220202",
-        "NetzbetreiberMastrNummer": ["SNB980883363112"],
-        "Land": "Deutschland",
-        "Bundesland": "NordrheinWestfalen",
-        "Landkreis": "Münster",
-        "Gemeinde": "Münster",
-        "Gemeindeschluessel": "05515000",
-        "Postleitzahl": "48147",
-        "Gemarkung": None,
-        "FlurFlurstuecknummern": None,
-        "Strasse": None,
-        "StrasseNichtGefunden": False,
-        "Hausnummer": {"Wert": None, "NichtVorhanden": False},
-        "HausnummerNichtGefunden": False,
-        "Adresszusatz": None,
-        "Ort": "Münster",
-        "Laengengrad": None,
-        "Breitengrad": None,
-        "UtmZonenwert": None,
-        "UtmEast": None,
-        "UtmNorth": None,
-        "GaussKruegerHoch": None,
-        "GaussKruegerRechts": None,
-        "Registrierungsdatum": datetime.date(2019, 2, 1),
-        "GeplantesInbetriebnahmedatum": None,
-        "Inbetriebnahmedatum": datetime.date(2007, 7, 20),
-        "DatumEndgueltigeStilllegung": None,
-        "DatumBeginnVoruebergehendeStilllegung": None,
-        "DatumWiederaufnahmeBetrieb": None,
-        "EinheitSystemstatus": "Aktiv",
-        "EinheitBetriebsstatus": "InBetrieb",
-        "BestandsanlageMastrNummer": None,
-        "NichtVorhandenInMigriertenEinheiten": None,
-        "AltAnlagenbetreiberMastrNummer": None,
-        "DatumDesBetreiberwechsels": None,
-        "DatumRegistrierungDesBetreiberwechsels": None,
-        "NameStromerzeugungseinheit": "Photovoltaikanlage ERWin4",
-        "Weic": {"Wert": None, "NichtVorhanden": False},
-        "WeicDisplayName": None,
-        "Kraftwerksnummer": {"Wert": None, "NichtVorhanden": False},
-        "Energietraeger": "SolareStrahlungsenergie",
-        "Bruttoleistung": Decimal("3.960"),
-        "Nettonennleistung": Decimal("3.960"),
-        "Schwarzstartfaehigkeit": None,
-        "Inselbetriebsfaehigkeit": None,
-        "Einsatzverantwortlicher": None,
-        "FernsteuerbarkeitNb": False,
-        "FernsteuerbarkeitDv": None,
-        "FernsteuerbarkeitDr": None,
-        "Einspeisungsart": "Volleinspeisung",
-        "PraequalifiziertFuerRegelenergie": None,
-        "GenMastrNummer": None,
-        "zugeordneteWirkleistungWechselrichter": Decimal("4.000"),
-        "GemeinsamerWechselrichterMitSpeicher": "KeinStromspeicherVorhanden",
-        "AnzahlModule": 22,
-        "Lage": "BaulicheAnlagen",
-        "Leistungsbegrenzung": "Nein",
-        "EinheitlicheAusrichtungUndNeigungswinkel": True,
-        "Hauptausrichtung": "Sued",
-        "HauptausrichtungNeigungswinkel": "Grad20Bis40",
-        "Nebenausrichtung": "None",
-        "NebenausrichtungNeigungswinkel": "None",
-        "InAnspruchGenommeneFlaeche": None,
-        "ArtDerFlaeche": [],
-        "InAnspruchGenommeneAckerflaeche": None,
-        "Nutzungsbereich": "Haushalt",
-        "Buergerenergie": None,
-        "EegMastrNummer": "EEG920083771065",
+            "Ergebniscode": "OK",
+            "AufrufVeraltet": False,
+            "AufrufLebenszeitEnde": None,
+            "AufrufVersion": 1,
+            "EinheitMastrNummer": "SEE984033548619",
+            "DatumLetzteAktualisierung": datetime.datetime(2020, 2, 20, 16, 28, 35, 250812),
+            "LokationMastrNummer": "SEL948991715391",
+            "NetzbetreiberpruefungStatus": "Geprueft",
+            "Netzbetreiberzuordnungen": [
+                {
+                    "NetzbetreiberMastrNummer": "SNB980883363112",
+                    "NetzbetreiberpruefungsDatum": datetime.date(2020, 2, 25),
+                    "NetzbetreiberpruefungsStatus": "Geprueft",
+                }
+            ],
+            "NetzbetreiberpruefungDatum": datetime.date(2020, 2, 25),
+            "AnlagenbetreiberMastrNummer": "ABR949444220202",
+            "NetzbetreiberMastrNummer": ["SNB980883363112"],
+            "Land": "Deutschland",
+            "Bundesland": "NordrheinWestfalen",
+            "Landkreis": "Münster",
+            "Gemeinde": "Münster",
+            "Gemeindeschluessel": "05515000",
+            "Postleitzahl": "48147",
+            "Gemarkung": None,
+            "FlurFlurstuecknummern": None,
+            "Strasse": None,
+            "StrasseNichtGefunden": False,
+            "Hausnummer": {"Wert": None, "NichtVorhanden": False},
+            "HausnummerNichtGefunden": False,
+            "Adresszusatz": None,
+            "Ort": "Münster",
+            "Laengengrad": None,
+            "Breitengrad": None,
+            "UtmZonenwert": None,
+            "UtmEast": None,
+            "UtmNorth": None,
+            "GaussKruegerHoch": None,
+            "GaussKruegerRechts": None,
+            "Registrierungsdatum": datetime.date(2019, 2, 1),
+            "GeplantesInbetriebnahmedatum": None,
+            "Inbetriebnahmedatum": datetime.date(2007, 7, 20),
+            "DatumEndgueltigeStilllegung": None,
+            "DatumBeginnVoruebergehendeStilllegung": None,
+            "DatumWiederaufnahmeBetrieb": None,
+            "EinheitSystemstatus": "Aktiv",
+            "EinheitBetriebsstatus": "InBetrieb",
+            "BestandsanlageMastrNummer": None,
+            "NichtVorhandenInMigriertenEinheiten": None,
+            "AltAnlagenbetreiberMastrNummer": None,
+            "DatumDesBetreiberwechsels": None,
+            "DatumRegistrierungDesBetreiberwechsels": None,
+            "NameStromerzeugungseinheit": "Photovoltaikanlage ERWin4",
+            "Weic": {"Wert": None, "NichtVorhanden": False},
+            "WeicDisplayName": None,
+            "Kraftwerksnummer": {"Wert": None, "NichtVorhanden": False},
+            "Energietraeger": "SolareStrahlungsenergie",
+            "Bruttoleistung": Decimal("3.960"),
+            "Nettonennleistung": Decimal("3.960"),
+            "Schwarzstartfaehigkeit": None,
+            "Inselbetriebsfaehigkeit": None,
+            "Einsatzverantwortlicher": None,
+            "FernsteuerbarkeitNb": False,
+            "FernsteuerbarkeitDv": None,
+            "FernsteuerbarkeitDr": None,
+            "Einspeisungsart": "Volleinspeisung",
+            "PraequalifiziertFuerRegelenergie": None,
+            "GenMastrNummer": None,
+            "zugeordneteWirkleistungWechselrichter": Decimal("4.000"),
+            "GemeinsamerWechselrichterMitSpeicher": "KeinStromspeicherVorhanden",
+            "AnzahlModule": 22,
+            "Lage": "BaulicheAnlagen",
+            "Leistungsbegrenzung": "Nein",
+            "EinheitlicheAusrichtungUndNeigungswinkel": True,
+            "Hauptausrichtung": "Sued",
+            "HauptausrichtungNeigungswinkel": "Grad20Bis40",
+            "Nebenausrichtung": "None",
+            "NebenausrichtungNeigungswinkel": "None",
+            "InAnspruchGenommeneFlaeche": None,
+            "ArtDerFlaeche": [],
+            "InAnspruchGenommeneAckerflaeche": None,
+            "Nutzungsbereich": "Haushalt",
+            "Buergerenergie": None,
+            "EegMastrNummer": "EEG920083771065",
         }
         ```
 
@@ -444,18 +476,18 @@ For API calls, models and optional parameters refer to the
         |--------------------------|-------------------------------------------------------------------|
         | `apiKey`                 | The web service key for validation                                |
         | `marktakteurMastrNummer` | The MaStR number of the market actor used by the web service user |
-        | `einheitMastrNummer`     | The MaStR number of the requested unit                            | 
+        | `einheitMastrNummer`     | The MaStR number of the requested unit                            |
 
 
 ??? note "Why can't I just query all information of all units of a specific power plant type?"
 
-    As the example queries above demonstrate, the API is structured so that units of power plants types (e.g. wind 
-    turbine, solar PV systems, gas power plant) have to be queried directly by their unique identifier ( 
-    `EinheitMastrNummer"`) and a distinct API query. To download all unit information of a specific power plant 
+    As the example queries above demonstrate, the API is structured so that units of power plants types (e.g. wind
+    turbine, solar PV systems, gas power plant) have to be queried directly by their unique identifier (
+    `EinheitMastrNummer"`) and a distinct API query. To download all unit information of a specific power plant
     you need to know the "EinheitMastrNummer". <br>
 
-    Firstly, by querying for all units with `mastr_api.GetListeAlleEinheiten()` you'll get all units, their unique 
-    identifier (`EinheitMastrNummer`) and their power plant type (`Einheitentyp`). You can then sort them by power 
+    Firstly, by querying for all units with `mastr_api.GetListeAlleEinheiten()` you'll get all units, their unique
+    identifier (`EinheitMastrNummer`) and their power plant type (`Einheitentyp`). You can then sort them by power
     plant type and use the power plant type specific API query to retrieve information about it. <br>
 
 
@@ -471,6 +503,3 @@ For API calls, models and optional parameters refer to the
 
 !!! warning "MaStRMirror has been removed"
     In versions > `v0.16.0` the `MaStRMirror` class cannot be used anymore.
-
-
-

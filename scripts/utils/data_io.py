@@ -1,27 +1,28 @@
 import datetime
 import json
 import os
-import pandas as pd
 import pathlib
+
+import pandas as pd
 import pynodo
 
-from open_mastr.utils.config import (
-    get_filenames,
-    get_data_version_dir,
-)
 from open_mastr.soap_api.metadata.create import create_datapackage_meta_json
+from open_mastr.utils.config import (
+    get_data_version_dir,
+    get_filenames,
+)
 from open_mastr.utils.constants import TECHNOLOGIES
 from open_mastr.utils.credentials import get_zenodo_token
-
 
 dtypes = {"Postleitzahl": str, "Gemeindeschluessel": str, "Bruttoleistung": float}
 
 
 def filter(df):
     """
-    Filter unit data based on characters of index labels
+    Filter unit data based on characters of index labels.
 
-    Data is filtered by unit category. Only directly in MaStR entered data is considered; migrated data is filtered out.
+    Data is filtered by unit category. Only directly in MaStR entered data is
+    considered; migrated data is filtered out.
     # TODO: Link to data description about migrated, duplicates update process
 
     Parameters
@@ -39,7 +40,7 @@ def filter(df):
 
 def convert_datetime(row):
     """
-    String to datetime conversion considering different string formats
+    Convert a string to datetime considering different string formats.
 
     Parameters
     ----------
@@ -59,7 +60,7 @@ def convert_datetime(row):
 
 
 def read_csv_data(data_stage):
-    """Read raw open-MaStR data from project home dir
+    """Read raw open-MaStR data from project home dir.
 
     Parameters
     ----------
@@ -70,7 +71,6 @@ def read_csv_data(data_stage):
         * "cleaned": Cleaned MaStR data is read
 
     """
-
     data_dir = get_data_version_dir()
     filenames = get_filenames()
 
@@ -97,7 +97,7 @@ def read_csv_data(data_stage):
 
 def save_cleaned_data(data):
     """
-    Save cleaned open-MaStR to CSV files in desired location in project home dir
+    Save cleaned open-MaStR to CSV files in desired location in project home dir.
 
     Parameters
     ----------
@@ -132,24 +132,24 @@ def zenodo_upload(
     data_stages=["raw", "cleaned", "postprocessed"], zenodo_token=None, sandbox=True
 ):
     """
-    Upload MaStR data to a new Zenodo deposit
+    Upload MaStR data to a new Zenodo deposit.
 
     Metadata stored in `datapackage.json` is also uploaded.
 
     Parameters
     ----------
     data_stages: list, optional
-        Data is available at three stages: 'raw', 'cleaned' and 'processed'. The data upload only includes data stages
-        specified here. Defaults to all data.
+        Data is available at three stages: 'raw', 'cleaned' and 'processed'. The
+        data upload only includes data stages specified here. Defaults to all data.
     zenodo_token: str, optional
-        Uploading to Zenodo requires authentication. Either provide your token here or store it in the credentials.cfg
-        file. See also in :ref:`Zenodo token`.
+        Uploading to Zenodo requires authentication. Either provide your token here
+        or store it in the credentials.cfg file. See also in :ref:`Zenodo token`.
     sandbox: bool
         Flag to toggle between `Zenodo production <https://www.zenodo.org/>`_ and
-        `sandbox instance <https://sandbox.zenodo.org>`_. If True, the sandbox instance will be used.
+        `sandbox instance <https://sandbox.zenodo.org>`_. If True, the sandbox
+        instance will be used.
         Specify False, to upload a publication ready dataset of the production instance.
     """
-
     data_dir = get_data_version_dir()
     filenames = get_filenames()
     metadata_file = os.path.join(data_dir, filenames["metadata"])
@@ -162,7 +162,7 @@ def zenodo_upload(
         raise ValueError("No Zenodo token provided. Can't upload.")
 
     # Prepare metadata for Zenodo deposit
-    with open(metadata_file, "r") as read_file:
+    with open(metadata_file) as read_file:
         metadata = json.load(read_file)
     zenodo_required_metadata = {
         "upload_type": "dataset",
@@ -210,7 +210,7 @@ def zenodo_upload(
 
 def cleaned_data(save_csv=True):
     """
-    Cleanes raw data while preserving columns and its names
+    Clean raw data while preserving columns and its names.
 
     Cleaning includes:
 
@@ -227,7 +227,6 @@ def cleaned_data(save_csv=True):
     dict
         Cleaned open-MaStR unit data
     """
-
     # Read raw data
     raw = read_csv_data("raw")
 

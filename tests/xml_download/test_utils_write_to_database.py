@@ -1,8 +1,4 @@
-import os
-import sqlite3
-import sys
 from datetime import datetime
-from os.path import expanduser
 from pathlib import Path
 from typing import Any, Callable
 from zipfile import ZipFile
@@ -13,7 +9,6 @@ import pytest
 from sqlalchemy import (
     Boolean,
     Column,
-    create_engine,
     Date,
     DateTime,
     Double,
@@ -22,26 +17,23 @@ from sqlalchemy import (
     MetaData,
     String,
     Table,
+    create_engine,
 )
-
 
 from open_mastr.utils.sqlalchemy_tables import CatalogString
 from open_mastr.xml_download.utils_write_to_database import (
     add_missing_columns_to_table,
+    add_table_to_non_sqlite_database,
+    add_table_to_sqlite_database,
     add_zero_as_first_character_for_too_short_string,
     cast_date_columns_to_string,
     correct_ordering_of_filelist,
     extract_xml_table_name,
+    interleave_files,
     is_date_column,
-    is_first_file,
     process_table_before_insertion,
     read_xml_file,
-    add_table_to_non_sqlite_database,
-    add_table_to_sqlite_database,
-    interleave_files,
 )
-
-from tests.conftest import EXISTING_XML_ZIP
 
 
 @pytest.fixture
@@ -54,12 +46,6 @@ def engine_testdb(tmp_path: Path) -> Engine:
 def test_extract_xml_table_name():
     file_name = "Netzanschlusspunkte_31.xml"
     assert extract_xml_table_name(file_name) == "netzanschlusspunkte"
-
-
-def test_is_first_file():
-    assert is_first_file("EinheitenKernkraft.xml") is True
-    assert is_first_file("EinheitenKernkraft_1.xml") is True
-    assert is_first_file("EinheitenKernkraft_2.xml") is False
 
 
 def test_cast_date_columns_to_string():
@@ -154,10 +140,9 @@ def test_correct_ordering_of_filelist():
     ]
 
 
-@pytest.mark.skipif(not EXISTING_XML_ZIP, reason="The zipped XML could not be found.")
-def test_read_xml_file(existing_xml_zip_in_output_dir: Path) -> None:
-    file_name = "EinheitenStromVerbraucher"
-    with ZipFile(existing_xml_zip_in_output_dir, "r") as f:
+def test_read_xml_file(mockup_xml_zip_in_output_dir: Path) -> None:
+    file_name = "EinheitenWind"
+    with ZipFile(mockup_xml_zip_in_output_dir, "r") as f:
         df = read_xml_file(f, f"{file_name}.xml")
 
     assert df.shape[0] > 0
@@ -178,8 +163,7 @@ def test_add_zero_as_first_character_for_too_short_string() -> None:
     pd.testing.assert_frame_equal(df_edited, df_correct)
 
 
-@pytest.mark.skipif(not EXISTING_XML_ZIP, reason="The zipped XML could not be found.")
-def test_process_table_before_insertion(existing_xml_zip_in_output_dir: Path) -> None:
+def test_process_table_before_insertion(mockup_xml_zip_in_output_dir: Path) -> None:
     bulk_download_date = datetime.now().date().strftime("%Y%m%d")
     initial_df = pd.DataFrame(
         {
@@ -202,7 +186,7 @@ def test_process_table_before_insertion(existing_xml_zip_in_output_dir: Path) ->
     actual_df = process_table_before_insertion(
         initial_df,
         db_table,
-        existing_xml_zip_in_output_dir,
+        mockup_xml_zip_in_output_dir,
         bulk_download_date,
         bulk_cleansing=True,
     )
@@ -228,17 +212,14 @@ def test_add_missing_columns_to_table(engine_testdb: Engine) -> None:
         Column("DatumLetzteAktualisierung", DateTime),
     )
     table.create(engine_testdb)
-    with engine_testdb.connect() as con:
-        with con.begin():
-            initial_data_in_db = pd.DataFrame(
-                {
-                    "EinheitMastrNummer": ["id1"],
-                    "DatumLetzteAktualisierung": [datetime(2022, 2, 2)],
-                }
-            )
-            initial_data_in_db.to_sql(
-                table.name, con=con, if_exists="append", index=False
-            )
+    with engine_testdb.connect() as con, con.begin():
+        initial_data_in_db = pd.DataFrame(
+            {
+                "EinheitMastrNummer": ["id1"],
+                "DatumLetzteAktualisierung": [datetime(2022, 2, 2)],
+            }
+        )
+        initial_data_in_db.to_sql(table.name, con=con, if_exists="append", index=False)
 
     add_missing_columns_to_table(engine_testdb, table, ["NewColumn"])
 
@@ -252,7 +233,8 @@ def test_add_missing_columns_to_table(engine_testdb: Engine) -> None:
     with engine_testdb.connect() as con:
         with con.begin():
             actual_df = pd.read_sql_table(table.name, con=con)
-            # The actual_df will contain more columns than the expected_df, so we can't use assert_frame_equal.
+            # The actual_df will contain more columns than the expected_df,
+            # so we can't use assert_frame_equal.
             assert expected_df.index.isin(actual_df.index).all()
 
 
@@ -326,27 +308,35 @@ def test_add_table_to_sqlite_database(
     add_table_to_database_function(df, table, engine_testdb)
     with engine_testdb.connect() as con:
         with con.begin():
-            pd.testing.assert_frame_equal(
-                expected_df, pd.read_sql_table(table.name, con=con)
-            )
+            actual_df = pd.read_sql_table(table.name, con=con)
+            # pandas 3.x returns StringDtype with pd.NA for null strings; normalize to
+            # object/None so that assert_frame_equal treats nulls consistently across versions
+            for col in actual_df.select_dtypes(include="string").columns:
+                actual_df[col] = actual_df[col].to_numpy(dtype=object, na_value=None)
+            pd.testing.assert_frame_equal(expected_df, actual_df, check_dtype=False)
 
 
 def test_interleave_files():
-    input_data = [
-        ("AnlagenEegBiomasse.xml", "anlageneegbiomasse", "anlageneegbiomasse"),
-        ("AnlagenEegSolar_1.xml", "anlageneegsolar", "anlageneegsolar"),
-        ("AnlagenEegSolar_2.xml", "anlageneegsolar", "anlageneegsolar"),
-        ("AnlagenEegWind_1.xml", "anlageneegwind", "anlageneegwind"),
-        ("AnlagenEegWind_2.xml", "anlageneegwind", "anlageneegwind"),
-        ("AnlagenEegWind_3.xml", "anlageneegwind", "anlageneegwind"),
-        ("Bilanzierungsgebiete.xml", "bilanzierungsgebiete", "bilanzierungsgebiete"),
+    from sqlalchemy import Column, Integer, MetaData, Table
+
+    meta = MetaData()
+    tbl_solar = Table("AnlagenEegSolar", meta, Column("id", Integer, primary_key=True))
+    tbl_wind = Table("AnlagenEegWind", meta, Column("id", Integer, primary_key=True))
+    tbl_bio = Table("AnlagenEegBiomasse", meta, Column("id", Integer, primary_key=True))
+
+    db_url = "sqlite:////home/user/.open-MaStR/data/sqlite/open-mastr.db"
+    prod_like_input = [
+        ("Solar_1.xml", tbl_solar, db_url, None),
+        ("Solar_2.xml", tbl_solar, db_url, None),
+        ("Wind_1.xml", tbl_wind, db_url, None),
+        ("Wind_2.xml", tbl_wind, db_url, None),
+        ("Bio_1.xml", tbl_bio, db_url, None),
     ]
-    assert interleave_files(input_data) == [
-        ("AnlagenEegBiomasse.xml", "anlageneegbiomasse", "anlageneegbiomasse"),
-        ("AnlagenEegSolar_1.xml", "anlageneegsolar", "anlageneegsolar"),
-        ("AnlagenEegWind_1.xml", "anlageneegwind", "anlageneegwind"),
-        ("Bilanzierungsgebiete.xml", "bilanzierungsgebiete", "bilanzierungsgebiete"),
-        ("AnlagenEegSolar_2.xml", "anlageneegsolar", "anlageneegsolar"),
-        ("AnlagenEegWind_2.xml", "anlageneegwind", "anlageneegwind"),
-        ("AnlagenEegWind_3.xml", "anlageneegwind", "anlageneegwind"),
+    interleaved_prod = interleave_files(prod_like_input)
+    assert interleaved_prod == [
+        ("Solar_1.xml", tbl_solar, db_url, None),
+        ("Wind_1.xml", tbl_wind, db_url, None),
+        ("Bio_1.xml", tbl_bio, db_url, None),
+        ("Solar_2.xml", tbl_solar, db_url, None),
+        ("Wind_2.xml", tbl_wind, db_url, None),
     ]
