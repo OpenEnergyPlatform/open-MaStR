@@ -21,7 +21,7 @@ import logging.config
 import os
 import pathlib
 import shutil
-from datetime import date
+from datetime import datetime, timezone
 
 import yaml
 
@@ -82,20 +82,22 @@ def get_filenames():
     return filenames
 
 
-def get_data_config():
+def get_csv_export_dir_name():
     """
-    Get data version.
+    Get the name of the directory a CSV export is written to.
+
+    The name holds the time of the export as an ISO 8601 basic format UTC
+    timestamp, e.g. `export-20260916T100000Z`. The data itself cannot be dated,
+    since a database may be pieced together from downloads of different dates.
 
     Returns
     -------
     str
-        dataversion
+        Name of the CSV export directory
     """
-    today = date.today()
+    timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
 
-    data_config = f"dataversion-{today.strftime('%Y-%m-%d')}"
-
-    return data_config
+    return f"export-{timestamp}"
 
 
 def create_project_home_dir():

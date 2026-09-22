@@ -13,11 +13,17 @@ import responses
 import sqlalchemy
 
 from open_mastr.mastr import Mastr
-from open_mastr.utils.config import get_data_config
 from open_mastr.utils.constants import TABLE_TRANSLATIONS
 from open_mastr.utils.sqlalchemy_tables import CatalogString
 
 from .conftest import MOCKUP_XML_ZIP, NUMBER_ROWS_IN_MOCK_XML_FILES
+
+
+def csv_export_dir(mastr: Mastr) -> Path:
+    """Return the single CSV export directory created by `Mastr.to_csv`."""
+    export_dirs = list((Path(mastr.output_dir) / "data").glob("export-*"))
+    assert len(export_dirs) == 1
+    return export_dirs[0]
 
 
 def test_mastr_init(mastr: Mastr) -> None:
@@ -33,7 +39,7 @@ def test_to_csv_single_table_name_as_string(
     mastr.download(data="wind")
     mastr.to_csv(db_table_names="EinheitenWind")
 
-    data_path = Path(mastr.output_dir) / "data" / get_data_config()
+    data_path = csv_export_dir(mastr)
     csv_files = list(data_path.glob("*.csv"))
     assert [f.name for f in csv_files] == ["EinheitenWind.csv"]
 
@@ -49,7 +55,7 @@ def test_to_csv_multiple_table_names_as_list(
     mastr.download(data="wind")
     mastr.to_csv(db_table_names=["EinheitenWind"])
 
-    data_path = Path(mastr.output_dir) / "data" / get_data_config()
+    data_path = csv_export_dir(mastr)
     csv_files = list(data_path.glob("*.csv"))
     assert [f.name for f in csv_files] == ["EinheitenWind.csv"]
 
@@ -88,9 +94,7 @@ def test_to_csv_exports_invalid_dates_as_empty(
     with caplog.at_level(logging.WARNING):
         mastr.to_csv(db_table_names="EinheitenSolar")
 
-    csv_path = (
-        Path(mastr.output_dir) / "data" / get_data_config() / "EinheitenSolar.csv"
-    )
+    csv_path = csv_export_dir(mastr) / "EinheitenSolar.csv"
     df = pd.read_csv(csv_path, index_col="EinheitMastrNummer")
 
     # Only the invalid dates are exported as empty values.

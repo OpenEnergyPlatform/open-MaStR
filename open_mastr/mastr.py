@@ -18,7 +18,7 @@ from sqlalchemy import (
 )
 
 from open_mastr.utils.config import (
-    get_data_config,
+    get_csv_export_dir_name,
     get_output_dir,
     setup_logger,
 )
@@ -454,7 +454,7 @@ class Mastr:
             Number of rows to retrieve from the database before dumping them to the CSV file.
             Defaults to 500000.
         """
-        data_path = os.path.join(self.output_dir, "data", get_data_config())
+        data_path = os.path.join(self.output_dir, "data", get_csv_export_dir_name())
         os.makedirs(data_path, exist_ok=True)
 
         inspector = inspect(self.engine)
@@ -465,7 +465,8 @@ class Mastr:
             db_table_names = [db_table_names]
 
         log.info(
-            f"Exporting the following database tables to CSV: {', '.join(db_table_names)}"
+            f"Exporting the following database tables to CSV files in {data_path}: "
+            f"{', '.join(db_table_names)}"
         )
         with self.engine.connect() as conn:
             for requested_table_name in db_table_names:
