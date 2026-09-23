@@ -74,6 +74,7 @@ nav:
   - Home: index.md
   - Getting Started: getting_started.md
   - Dataset: dataset.md
+  - MaStR data model: https://openenergyplatform.github.io/mastr-docs/
   - Advanced: advanced.md
   - Reference:
     - Basic Usage: reference/basic.md
