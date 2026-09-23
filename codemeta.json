@@ -137,7 +137,7 @@
         "Solar",
         "Wind"
     ],
-    "license": "https://spdx.org/licenses/AGPL-3.0",
+    "license": "https://spdx.org/licenses/AGPL-3.0-or-later",
     "name": "open-MaStR",
     "programmingLanguage": "Python",
     "runtimePlatform": [
