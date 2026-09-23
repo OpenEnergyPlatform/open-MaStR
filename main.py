@@ -46,7 +46,7 @@ if __name__ == "__main__":
     # instantiate Mastr class
     db = Mastr()
 
-    ## download Markstammdatenregister
+    ## download Marktstammdatenregister
     # bulk download
     db.download(method="bulk", data=data_bulk, date=bulk_date, bulk_cleansing=True)
 
