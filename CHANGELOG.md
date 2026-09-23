@@ -29,6 +29,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
   [#671](https://github.com/OpenEnergyPlatform/open-MaStR/pull/671)
 
 ### Changed
+- Update the release metadata for v1.0.0
+  [#808](https://github.com/OpenEnergyPlatform/open-MaStR/pull/808)
 - Name the CSV export directory after the time of the export in basic ISO format (e.g. `export-20260916T100000Z`)
   [#806](https://github.com/OpenEnergyPlatform/open-MaStR/pull/806)
 - Make `release_test.py`'s `regexp` function robust against non-string columns
