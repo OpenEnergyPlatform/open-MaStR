@@ -10,9 +10,9 @@
                 "name": "Reiner Lemoine Institut",
                 "@type": "Organization"
             },
-            "familyName": "Ludwig",
-            "givenName": "Hülk",
-            "name": "Hülk Ludwig",
+            "familyName": "Hülk",
+            "givenName": "Ludwig",
+            "name": "Ludwig Hülk",
             "@id": "https://orcid.org/0000-0003-4655-2321",
             "@type": "Person"
         },
@@ -21,9 +21,9 @@
                 "name": "Reiner Lemoine Institut",
                 "@type": "Organization"
             },
-            "familyName": "Guido",
-            "givenName": "Pleßmann",
-            "name": "Pleßmann Guido",
+            "familyName": "Pleßmann",
+            "givenName": "Guido",
+            "name": "Guido Pleßmann",
             "@id": "_:author_2",
             "@type": "Person"
         },
@@ -32,9 +32,9 @@
                 "name": "Reiner Lemoine Institut",
                 "@type": "Organization"
             },
-            "familyName": "Christoph",
-            "givenName": "Muschner",
-            "name": "Muschner Christoph",
+            "familyName": "Muschner",
+            "givenName": "Christoph",
+            "name": "Christoph Muschner",
             "@id": "https://orcid.org/0000-0001-8144-5260",
             "@type": "Person"
         },
@@ -43,9 +43,9 @@
                 "name": "OFFIS e.V. - Institute for Informatics",
                 "@type": "Organization"
             },
-            "familyName": "Florian",
-            "givenName": "Kotthoff",
-            "name": "Kotthoff Florian",
+            "familyName": "Kotthoff",
+            "givenName": "Florian",
+            "name": "Florian Kotthoff",
             "@id": "https://orcid.org/0000-0003-3666-6122",
             "@type": "Person"
         },
@@ -54,9 +54,9 @@
                 "name": "fortiss",
                 "@type": "Organization"
             },
-            "familyName": "Deniz",
-            "givenName": "Tepe",
-            "name": "Tepe Deniz",
+            "familyName": "Tepe",
+            "givenName": "Deniz",
+            "name": "Deniz Tepe",
             "@id": "https://orcid.org/0000-0002-7605-0173",
             "@type": "Person"
         },
@@ -65,22 +65,51 @@
                 "name": "Reiner Lemoine Institut",
                 "@type": "Organization"
             },
-            "familyName": "Jonathan",
-            "givenName": "Amme",
-            "name": "Amme Jonathan",
+            "familyName": "Amme",
+            "givenName": "Jonathan",
+            "name": "Jonathan Amme",
             "@id": "https://orcid.org/0000-0002-8563-5261",
+            "@type": "Person"
+        },
+        {
+            "affiliation": {
+                "name": "Technical University of Munich",
+                "@type": "Organization"
+            },
+            "familyName": "Imbrisca",
+            "givenName": "Alexandra-Andreea",
+            "name": "Alexandra-Andreea Imbrisca",
+            "@id": "_:author_7",
+            "@type": "Person"
+        },
+        {
+            "affiliation": {
+                "name": "ProjectTogether gGmbH",
+                "@type": "Organization"
+            },
+            "familyName": "Krämer",
+            "givenName": "Kevin",
+            "name": "Kevin Krämer",
+            "@id": "_:author_8",
             "@type": "Person"
         },
         {
             "familyName": "Will",
             "givenName": "Simon",
             "name": "Simon Will",
-            "@id": "_:author_7",
+            "@id": "_:author_9",
+            "@type": "Person"
+        },
+        {
+            "familyName": "Rady",
+            "givenName": "Hassan",
+            "name": "Hassan Rady",
+            "@id": "_:author_10",
             "@type": "Person"
         },
         {
             "name": "Open Energy Family",
-            "@id": "_:author_8",
+            "@id": "_:author_11",
             "@type": "Organization"
         }
     ],
