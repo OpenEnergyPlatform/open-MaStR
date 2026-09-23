@@ -19,7 +19,7 @@ dependencies = [
   "xmlschema",
 ]
 
-requires-python = ">=3.9, <4"
+requires-python = ">=3.12, <4"
 authors = [
   {name = "Hülk Ludwig"},
   {name = "Pleßmann Guido"},

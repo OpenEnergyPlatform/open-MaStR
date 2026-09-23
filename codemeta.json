@@ -141,7 +141,7 @@
     "name": "open-MaStR",
     "programmingLanguage": "Python",
     "runtimePlatform": [
-        "Python>=3.9",
+        "Python>=3.12",
         "<4",
         "Conda"
     ],
