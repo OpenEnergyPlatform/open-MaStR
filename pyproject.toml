@@ -43,7 +43,7 @@ license = {text = "AGPL-3.0-or-later" }
 keywords = ["Marktstammdatenregister", "Energy", "Dataset", "Solar", "Wind", "Energy-data", "OEP", "OpenEnergyFamily", "Bundesnetzagentur", "MaStR"]
 classifiers = [
   "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
-  "Development Status :: 4 - Beta",
+  "Development Status :: 5 - Production/Stable",
   "Intended Audience :: Science/Research",
   "Topic :: Scientific/Engineering",
   "Topic :: Scientific/Engineering :: GIS",
