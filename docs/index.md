@@ -17,11 +17,12 @@ In particular, `open-mastr` facilitates access to the daily provided MaStR dumps
 
 ## Benefits provided by `open-mastr`
 
-| Benefit                   | Description                                                                                                      |
-| ------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| Data download and parsing | Download, decode, and write data to a local database                                                             |
-| Translation to English    | Translate table names and columns from German to English as well as an English documentation page of the dataset |
-| CSV export                | Export downloaded data as CSV                                                                                    |
+| Benefit                        | Description                                                                                                                   |
+| ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
+| Data download and parsing      | Download, decode, and write data to a local database                                                                          |
+| Selective & parallel download  | Download only the tables from MaStR that you need and parse them in parallel                                                  |
+| English table and column names | Translate table names and columns from German to English by passing `english=True` to [`Mastr.download`][open_mastr.Mastr.download] |
+| CSV export                     | Export downloaded data as CSV                                                                                                 |
 
 !!! question "Just here for the data?"
     :sparkles: We regularly run the whole download and cleansing pipeline and upload the dataset as csv files at [zenodo](https://doi.org/10.5281/zenodo.6807425)!

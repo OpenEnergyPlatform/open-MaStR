@@ -96,6 +96,12 @@ After downloading the MaStR, you will find a database with a large number of tab
     | Netzanschlusspunkte | grid_connections | Connects locations with grids |
     | Netze | grids | Grids |
 
+!!! note "German vs English table names"
+    By default the database uses the German table and column names (the "Original German name" column below)
+    plus database views that provide the old pre-v1.0 names (such as `wind_extended`). The "English name" column
+    only applies if you download with `english=True` in [`Mastr.download`][open_mastr.Mastr.download].
+
+
 ### MaStR data model
 
 A useful overview of the MaStR data model can be found at the MaStR [help page](https://www.marktstammdatenregister.de/MaStRHilfe/subpages/faq.html). A translated version using the names from the tables you can find in your local database is presented here:
