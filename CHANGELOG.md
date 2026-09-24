@@ -10,7 +10,7 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 ## [v1.x.x] Unreleased - 202x-xx-xx
 ### Added
 - Add `Mastr.to_parquet` to export database tables to zstd-compressed Parquet files that keep the column types, with `pyarrow` as optional dependency `open-mastr[parquet]`
-  [#787](https://github.com/OpenEnergyPlatform/open-MaStR/issues/787)
+  [#813](https://github.com/OpenEnergyPlatform/open-MaStR/pull/813)
 
 ### Changed
 
