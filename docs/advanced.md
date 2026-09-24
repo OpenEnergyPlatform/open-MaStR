@@ -189,9 +189,9 @@ flowchart LR
   id3 --> id5("Export to CSV")
   id5 --> id6>"📜 open-mastr CSV files"]
   click id1 "https://www.marktstammdatenregister.de/MaStR/Datendownload" _blank
-  click id2 "https://github.com/OpenEnergyPlatform/open-MaStR/blob/develop/open_mastr/xml_download/utils_write_to_database.py#L30" _blank
-  click id4 "https://github.com/OpenEnergyPlatform/open-MaStR/blob/develop/open_mastr/xml_download/utils_cleansing_bulk.py#L13" _blank
-  click id5 "https://github.com/OpenEnergyPlatform/open-MaStR/blob/develop/open_mastr/mastr.py#L440" _blank
+  click id2 "https://github.com/OpenEnergyPlatform/open-MaStR/blob/develop/open_mastr/xml_download/utils_write_to_database.py" _blank
+  click id4 "https://github.com/OpenEnergyPlatform/open-MaStR/blob/develop/open_mastr/xml_download/utils_cleansing_bulk.py" _blank
+  click id5 "https://github.com/OpenEnergyPlatform/open-MaStR/blob/develop/open_mastr/mastr.py" _blank
   click id6 "https://doi.org/10.5281/zenodo.6807425" _blank
 ```
 
