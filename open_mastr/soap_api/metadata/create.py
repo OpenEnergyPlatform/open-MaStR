@@ -1,11 +1,9 @@
 import csv
 import datetime
-import json
 import os
 import uuid
 
-from open_mastr.soap_api.metadata.description import DataDescription
-from open_mastr.utils.config import get_data_config, get_filenames, column_renaming
+from open_mastr.utils.config import get_filenames
 
 
 # TODO: We should not describe the data in both metadata folder and orm.py
@@ -39,7 +37,7 @@ def datapackag_base(reference_date, publication_date=None, statistik_flag=None):
         publication_date = datetime.datetime.now()
 
     publication_date = publication_date.strftime("%Y-%m-%d %H:%M:%S")
-    data_version = get_data_config()
+    data_version = f"dataversion-{datetime.date.today().strftime('%Y-%m-%d')}"
 
     # Add a note to the description if this is filtered data or if it the complete data including potential duplicates
     if statistik_flag == "B":

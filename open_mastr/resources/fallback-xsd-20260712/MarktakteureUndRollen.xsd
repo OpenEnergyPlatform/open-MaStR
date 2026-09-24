@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="MarktakteureUndRollen">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="MarktakteurUndRolle" maxOccurs="unbounded" minOccurs="0">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element type="xs:string" name="MarktakteurMastrNummer"/>
+              <xs:element type="xs:dateTime" name="DatumLetzteAktualisierung" minOccurs="0"/>
+              <xs:element type="xs:string" name="MastrNummer"/>
+              <xs:element type="xs:string" name="Marktrolle"/>
+              <xs:element type="xs:string" name="BundesnetzagenturBetriebsnummer" minOccurs="0"/>
+              <xs:element name="BundesnetzagenturBetriebsnummer_nv" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:byte">
+                    <xs:enumeration value="0"/>
+                    <xs:enumeration value="1"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element type="xs:string" name="Marktpartneridentifikationsnummer" minOccurs="0"/>
+              <xs:element name="Marktpartneridentifikationsnummer_nv" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:byte">
+                    <xs:enumeration value="0"/>
+                    <xs:enumeration value="1"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element type="xs:string" name="KontaktdatenMarktrolle" minOccurs="0"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

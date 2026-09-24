@@ -1,56 +1,57 @@
-import time
-from open_mastr.xml_download.utils_download_bulk import (
-    gen_url,
-    delete_xml_files_not_from_given_date,
-)
 import os
 import shutil
+import time
+
+from open_mastr.xml_download.utils_download_bulk import (
+    delete_xml_files_not_from_given_date,
+    gen_xml_download_url,
+)
 
 
-def test_gen_url():
+def test_gen_xml_download_url():
     when = time.strptime("2024-01-01", "%Y-%m-%d")
-    url = gen_url(when)
-    assert type(url) == str
+    url = gen_xml_download_url(when)
+    assert isinstance(url, str)
     assert (
         url
         == "https://download.marktstammdatenregister.de/Gesamtdatenexport_20240101_23.2.zip"
     )
 
     when = time.strptime("2024-04-01", "%Y-%m-%d")
-    url = gen_url(when)
-    assert type(url) == str
+    url = gen_xml_download_url(when)
+    assert isinstance(url, str)
     assert (
         url
         == "https://download.marktstammdatenregister.de/Gesamtdatenexport_20240401_23.2.zip"
     )
 
     when = time.strptime("2024-04-02", "%Y-%m-%d")
-    url = gen_url(when)
-    assert type(url) == str
+    url = gen_xml_download_url(when)
+    assert isinstance(url, str)
     assert (
         url
         == "https://download.marktstammdatenregister.de/Gesamtdatenexport_20240402_24.1.zip"
     )
 
     when = time.strptime("2024-10-01", "%Y-%m-%d")
-    url = gen_url(when)
-    assert type(url) == str
+    url = gen_xml_download_url(when)
+    assert isinstance(url, str)
     assert (
         url
         == "https://download.marktstammdatenregister.de/Gesamtdatenexport_20241001_24.1.zip"
     )
 
     when = time.strptime("2024-10-02", "%Y-%m-%d")
-    url = gen_url(when)
-    assert type(url) == str
+    url = gen_xml_download_url(when)
+    assert isinstance(url, str)
     assert (
         url
         == "https://download.marktstammdatenregister.de/Gesamtdatenexport_20241002_24.2.zip"
     )
 
     when = time.strptime("2024-12-31", "%Y-%m-%d")
-    url = gen_url(when)
-    assert type(url) == str
+    url = gen_xml_download_url(when)
+    assert isinstance(url, str)
     assert (
         url
         == "https://download.marktstammdatenregister.de/Gesamtdatenexport_20241231_24.2.zip"
@@ -59,32 +60,32 @@ def test_gen_url():
     # Tests for use_version parameter
 
     when = time.strptime("2024-12-31", "%Y-%m-%d")
-    url = gen_url(when, use_version="before")
-    assert type(url) == str
+    url = gen_xml_download_url(when, use_version="before")
+    assert isinstance(url, str)
     assert (
         url
         == "https://download.marktstammdatenregister.de/Gesamtdatenexport_20241231_24.1.zip"
     )
 
     when = time.strptime("2024-12-31", "%Y-%m-%d")
-    url = gen_url(when, use_version="after")
-    assert type(url) == str
+    url = gen_xml_download_url(when, use_version="after")
+    assert isinstance(url, str)
     assert (
         url
         == "https://download.marktstammdatenregister.de/Gesamtdatenexport_20241231_25.1.zip"
     )
 
     when = time.strptime("2024-04-02", "%Y-%m-%d")
-    url = gen_url(when, use_version="before")
-    assert type(url) == str
+    url = gen_xml_download_url(when, use_version="before")
+    assert isinstance(url, str)
     assert (
         url
         == "https://download.marktstammdatenregister.de/Gesamtdatenexport_20240402_23.2.zip"
     )
 
     when = time.strptime("2024-04-02", "%Y-%m-%d")
-    url = gen_url(when, use_version="after")
-    assert type(url) == str
+    url = gen_xml_download_url(when, use_version="after")
+    assert isinstance(url, str)
     assert (
         url
         == "https://download.marktstammdatenregister.de/Gesamtdatenexport_20240402_24.2.zip"

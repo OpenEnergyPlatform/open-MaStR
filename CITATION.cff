@@ -38,9 +38,12 @@ authors:
     given-names: "Kevin"
     alias: "@pt-kkraemer"
     affiliation: "ProjectTogether gGmbH"
-  - family-names: 'Will'
+  - family-names: "Will"
     given-names: "Simon"
     alias: "@Simon-Will"
+  - family-names: "Rady"
+    given-names: "Hassan"
+    alias: "@hassanrady"
 identifiers:
   - type: swh
     value: 'swh:1:dir:28252b3ca57b56d22be851bad576b6748af2e171'
@@ -65,7 +68,8 @@ keywords:
   - Energy System Data
   - Open Data
 type: software
-license: AGPL-3.0
-version: 0.17.4
-date-released: 2026-07-17
+license: AGPL-3.0-or-later
+version: 1.0.0
+doi: "10.5281/zenodo.21415387"
+date-released: 2026-09-24
 url: "https://github.com/OpenEnergyPlatform/open-MaStR/"

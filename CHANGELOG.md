@@ -1,28 +1,97 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
-For each version important additions, changes and removals are listed here. 
+For each version important additions, changes and removals are listed here.
 
 The format is inspired from [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
+
+
+## [v1.0.0] Open-MaStR stable release: SchemaSurfer - 2026-09-24
+### Added
+- Add script for updating fallback XSD
+  [#766](https://github.com/OpenEnergyPlatform/open-MaStR/pull/766)
+- Add `Mastr.generate_data_model` method that downloads the current MaStR documentation and generates SQLAlchemy tables from the XSD definitions; supports `english=True` for English column names
+  [#718](https://github.com/OpenEnergyPlatform/open-MaStR/pull/718)
+- Add `mastr_table_to_db_table` argument to `Mastr.download` to pass a custom database schema
+  [#718](https://github.com/OpenEnergyPlatform/open-MaStR/pull/718)
+- Add `alter_database_tables` argument to `Mastr.download` to prevent open-mastr from issuing DDL statements
+  [#718](https://github.com/OpenEnergyPlatform/open-MaStR/pull/718)
+- Add more integration tests
+  [#753](https://github.com/OpenEnergyPlatform/open-MaStR/pull/753)
+- Add missing english translations
+  [#754](https://github.com/OpenEnergyPlatform/open-MaStR/pull/754)
+- Add codemeta.json file
+  [#780](https://github.com/OpenEnergyPlatform/open-MaStR/pull/780)
+- Add `scripts/release_test.py` that downloads the full MaStR and runs hard-coded consistency checks
+  [#793](https://github.com/OpenEnergyPlatform/open-MaStR/issues/793)
+- Modernize linting setup and add pre-commit checks in CI - Remove the flake8, black and pylint configuration and development dependencies and add ruff and mypy.
+  [#671](https://github.com/OpenEnergyPlatform/open-MaStR/pull/671)
+- Add a link to the [MaStR data model documentation](https://openenergyplatform.github.io/mastr-docs/)
+  [#808](https://github.com/OpenEnergyPlatform/open-MaStR/pull/808)
+
+### Changed
+- Updated docs to represent code changes of release v1.0.0
+  [#810](https://github.com/OpenEnergyPlatform/open-MaStR/pull/810)
+- Update the metadata for v1.0.0 release
+  [#808](https://github.com/OpenEnergyPlatform/open-MaStR/pull/808)
+- Raise the minimum Python version to 3.12, matching the versions tested in CI
+  [#808](https://github.com/OpenEnergyPlatform/open-MaStR/pull/808)
+- Name the CSV export directory after the time of the export in basic ISO format (e.g. `export-20260916T100000Z`)
+  [#806](https://github.com/OpenEnergyPlatform/open-MaStR/pull/806)
+- Make `release_test.py`'s `regexp` function robust against non-string columns
+  [#805](https://github.com/OpenEnergyPlatform/open-MaStR/pull/805)
+- Add `Ertuechtigungen.Ertuechtigungsart` to known catalog columns
+  [#805](https://github.com/OpenEnergyPlatform/open-MaStR/pull/805)
+- Fix `Mastr.to_csv` aborting with "Invalid isoformat string" on date values whose year is not zero-padded to four digits. Those values are now exported as empty cells with a warning instead of failing the export
+  [#801](https://github.com/OpenEnergyPlatform/open-MaStR/pull/801)
+- Include AnlagenStromSpeicher when passing argument "storage" to `Mastr.download` and deprecate "storage_units"
+  [#799](https://github.com/OpenEnergyPlatform/open-MaStR/pull/799)
+- Translate catalog category IDs for fields that are missing XSD restrictions during bulk cleansing
+  [#796](https://github.com/OpenEnergyPlatform/open-MaStR/pull/796)
+- Fix `Mastr.to_csv` iterating over a single table name string character by character instead of exporting the named table
+  [#795](https://github.com/OpenEnergyPlatform/open-MaStR/pull/795)
+- Fix table name extraction in `interleave_files` to enable parallel worker interleaving and reduce SQLite lock contention
+  [#790](https://github.com/OpenEnergyPlatform/open-MaStR/pull/790)
+- Fix race condition in parallel bulk XML import that resulted in silent data loss
+  [#765](https://github.com/OpenEnergyPlatform/open-MaStR/pull/765)
+- Add support for reading XSD files from both zipped / unzipped documentation sources
+  [#761](https://github.com/OpenEnergyPlatform/open-MaStR/pull/761)
+- Refactor data path configuration: remove `get_data_version_dir()`, add `MASTR_PROJECT_HOME_DIR` env var support to `get_project_home_dir()`
+  [#748](https://github.com/OpenEnergyPlatform/open-MaStR/pull/748)
+- Switch to dynamic table generation based on parsing of XSD files from the MaStR documentation; fall back to bundled XSD files if the downloaded documentation is invalid
+  [#718](https://github.com/OpenEnergyPlatform/open-MaStR/pull/718)
+- Change default table and column names to align more closely with the original MaStR export file names
+  [#718](https://github.com/OpenEnergyPlatform/open-MaStR/pull/718)
+- Simplify CSV export by removing cross-table joins; tables are exported as-is
+  [#718](https://github.com/OpenEnergyPlatform/open-MaStR/pull/718)
+- Refactor test suite to run without a local MaStR bulk download
+  [#749](https://github.com/OpenEnergyPlatform/open-MaStR/pull/749)
+- Skip credential-dependent SOAP tests when credentials are absent
+  [#749](https://github.com/OpenEnergyPlatform/open-MaStR/pull/749)
+- Change default python version to 3.14
+  [#753](https://github.com/OpenEnergyPlatform/open-MaStR/pull/753)
+- Apply the new ruff and mypy rules to the codebase
+  [#671](https://github.com/OpenEnergyPlatform/open-MaStR/pull/671)
+
+### Removed
+- Remove `Mastr.translate`; English table and column names are now available via the `english=True` parameter in `generate_data_model` and `download`
+  [#718](https://github.com/OpenEnergyPlatform/open-MaStR/pull/718)
 
 ## [v0.17.4] Hotfix - 2026-07-17
 ### Changed
 - Remove trailing white space in CITATION.cff
   [#779](https://github.com/OpenEnergyPlatform/open-MaStR/pull/779)
 
-
 ## [v0.17.3] Hotfix - 2026-07-17
 ### Changed
 - Fix format of CITATION.cff file
   [#775](https://github.com/OpenEnergyPlatform/open-MaStR/pull/775)
 
-
 ## [v0.17.2] Hotfix - 2026-07-17
 ### Changed
 - Fix error where tables where empty by correctly parsing comma seperated int values
   [#772](https://github.com/OpenEnergyPlatform/open-MaStR/pull/772)
-
 
 ## [v0.17.1] Hotfix - 2026-04-13
 ### Changed
@@ -41,7 +110,7 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 ### Changed
 - Replace Marktrollen with MarktakteureUndRollen
   [#722](https://github.com/OpenEnergyPlatform/open-MaStR/pull/722)
-- Zero fill specific date strings 
+- Zero fill specific date strings
   [#728](https://github.com/OpenEnergyPlatform/open-MaStR/pull/728)
 
 ### Removed
@@ -60,7 +129,6 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
   [#699](https://github.com/OpenEnergyPlatform/open-MaStR/pull/699)
 - Use trusted publishing on pypi
   [#685](https://github.com/OpenEnergyPlatform/open-MaStR/pull/685)
-
 
 
 ## [v0.16.0] Partial downloads with open-MaStR PartialPumpkinPull - 2025-11-26
@@ -150,7 +218,7 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 - Fixed missing call to gen_url in case first bulk download fails as xml file for today is not yet available [#534](https://github.com/OpenEnergyPlatform/open-MaStR/pull/534)
 - Repair links in the documentation page [#536](https://github.com/OpenEnergyPlatform/open-MaStR/pull/536)
 
-## [v0.14.3] Fix Pypi Release - 2024-04-24 
+## [v0.14.3] Fix Pypi Release - 2024-04-24
 ### Added
 - Add new table `changed_dso_assignment` [#510](https://github.com/OpenEnergyPlatform/open-MaStR/pull/510)
 - Add deprecation warning for `MaStRMirror` and `MaStRDownload` [#492](https://github.com/OpenEnergyPlatform/open-MaStR/pull/492)
@@ -314,27 +382,27 @@ Additionally, a new datasource was identified and can be used: the xml bulk down
 The API was updated to the newest version and the data model was adapted.
 
 ### Added
-- The class :class:`open_mastr.mastr.Matr` 
-  was introduced as the entrypoint for users, the API download was included in this entrypoint 
+- The class :class:`open_mastr.mastr.Matr`
+  was introduced as the entrypoint for users, the API download was included in this entrypoint
   [#203](https://github.com/OpenEnergyPlatform/open-MaStR/issues/203)
 - A method for downloading and parsing the xml dump from the MaStR website
-  was implemented 
+  was implemented
   [#202](https://github.com/OpenEnergyPlatform/open-MaStR/issues/202)
-- New data classes and attributes were introduced to orm.py 
+- New data classes and attributes were introduced to orm.py
 [#209](https://github.com/OpenEnergyPlatform/open-MaStR/issues/209)
 - The documentation page was updated
-- Unit tests were created 
+- Unit tests were created
 [#207](https://github.com/OpenEnergyPlatform/open-MaStR/issues/207)
-- A CI pipeline was introduced 
+- A CI pipeline was introduced
 [#208](https://github.com/OpenEnergyPlatform/open-MaStR/issues/208)
-- The metadata was updated 
+- The metadata was updated
 [#219](https://github.com/OpenEnergyPlatform/open-MaStR/issues/219)
 
 
 ## [v0.10.0] Unreleased - Refactoring - 2020-10-08
-A complete refactoring took place! Downloading data was entirely changed; introducing layers of code and removing 
-duplicated code while more of less following DRY. 
-Moreover, post-processing was changed to be more accessible and easier to execute. For example, docker now helps to 
+A complete refactoring took place! Downloading data was entirely changed; introducing layers of code and removing
+duplicated code while more of less following DRY.
+Moreover, post-processing was changed to be more accessible and easier to execute. For example, docker now helps to
 spin up a database container.
 The documention on RTD was extended, update and improved to be more helpful for new users.
 Read more about the details:
@@ -344,24 +412,24 @@ Read more about the details:
 - added documentation for ReadTheDocs
 - improved parallel download
 - merged all stale branches
-- The class :class:`open_mastr.soap_api.mirror.MaStRMirror` 
-  was introduced for mirroring MaStR data with latest updates 
+- The class :class:`open_mastr.soap_api.mirror.MaStRMirror`
+  was introduced for mirroring MaStR data with latest updates
   [#149](https://github.com/OpenEnergyPlatform/open-MaStR/issues/149)
 - Introduce project home `~/.open-MaStR/config/` [#120](https://github.com/OpenEnergyPlatform/open-MaStR/issues/120)
 - Documentation of post-processing [#117](https://github.com/OpenEnergyPlatform/open-MaStR/issues/117)
 - Updated documentation of downloading data
   [#124](https://github.com/OpenEnergyPlatform/open-MaStR/issues/124) which is harmonized with the other parts of docs
   and with GitHubs README [#135](https://github.com/OpenEnergyPlatform/open-MaStR/issues/135)
-- Local execution of post-processing now possible, optionally in dockered database 
+- Local execution of post-processing now possible, optionally in dockered database
   [#116](https://github.com/OpenEnergyPlatform/open-MaStR/issues/116)
 - Post-processing adapted to CSV data from :class:`open_mastr.soap_api.mirror.MaStRMirror`
   [#172](https://github.com/OpenEnergyPlatform/open-MaStR/issues/172)
 - Tests for changed download code are added [#131](https://github.com/OpenEnergyPlatform/open-MaStR/issues/131)
-- Metadata added for raw data as frictionless data package 
+- Metadata added for raw data as frictionless data package
   [#160](https://github.com/OpenEnergyPlatform/open-MaStR/issues/160)
 - Suffix columns instead of deferring in database CSV export
   [#157](https://github.com/OpenEnergyPlatform/open-MaStR/issues/157)
-- Code examples added for :class:`open_mastr.soap_api.mirror.MaStRMirror` explaining basic use of 
+- Code examples added for :class:`open_mastr.soap_api.mirror.MaStRMirror` explaining basic use of
   mirroring database [#164](https://github.com/OpenEnergyPlatform/open-MaStR/issues/164)
 - CSV file reader for MaStR raw data added
   [#181](https://github.com/OpenEnergyPlatform/open-MaStR/issues/181)
@@ -378,27 +446,27 @@ Read more about the details:
 - The CHANGELOG is now included in the documentation
 
 ### Changed
-- Download of raw data has entirely been refactored. A 
-  [python wrapper](https://open-mastr.readthedocs.io/en/latest/download.html#mastr-api-wrapper) for querying 
+- Download of raw data has entirely been refactored. A
+  [python wrapper](https://open-mastr.readthedocs.io/en/latest/download.html#mastr-api-wrapper) for querying
   the MaStR API was introduced
   [#83](https://github.com/OpenEnergyPlatform/open-MaStR/issues/83)
-- Based on that, for bulk data download, 
-  [MaStRDownload](https://open-mastr.readthedocs.io/en/latest/download.html#bulk-download) provides handy query 
+- Based on that, for bulk data download,
+  [MaStRDownload](https://open-mastr.readthedocs.io/en/latest/download.html#bulk-download) provides handy query
   functions for power unit data
   [#86](https://github.com/OpenEnergyPlatform/open-MaStR/issues/86). See also
   [#128](https://github.com/OpenEnergyPlatform/open-MaStR/issues/128)
 - configuration through config filen in `~/.open-MaStR/config/` with less hard-coded parameters in source files
-  [#120](https://github.com/OpenEnergyPlatform/open-MaStR/issues/120), 
+  [#120](https://github.com/OpenEnergyPlatform/open-MaStR/issues/120),
   [#112](https://github.com/OpenEnergyPlatform/open-MaStR/issues/112)
 - move code into one package named `open_mastr` [#123](https://github.com/OpenEnergyPlatform/open-MaStR/issues/123)
 - Switch to GitHub Actions for CI instead of Travis [#143](https://github.com/OpenEnergyPlatform/open-MaStR/issues/143)
-- Fixed unexpected line breaks during CSV export that corrupted data 
+- Fixed unexpected line breaks during CSV export that corrupted data
   [#170](https://github.com/OpenEnergyPlatform/open-MaStR/issues/170)
-- Filtering of duplicates in MaStR data (see 
+- Filtering of duplicates in MaStR data (see
   `MaStR help <https://www.marktstammdatenregister.de/MaStRHilfe/subpages/statistik.html>`_) got changed to filter
   units by leading three characters and select only directly entered data
   [#180](https://github.com/OpenEnergyPlatform/open-MaStR/issues/180)
-- Generalize CSV reading function 
+- Generalize CSV reading function
   [#188](https://github.com/OpenEnergyPlatform/open-MaStR/issues/188)
 
 ### Removed
@@ -412,7 +480,7 @@ Read more about the details:
 - tests
 - setup.py file
 - added update function (based on latest timestamp in powerunits csv)
-- added wind functions 
+- added wind functions
   * only download power units for wind to avoid massive download
   * changed : process units wind ("one-click solution")
 - added loop to retry failed power unit downloads, currently one retry

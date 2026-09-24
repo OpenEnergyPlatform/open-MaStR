@@ -1,5 +1,5 @@
 
-.. image:: https://raw.githubusercontent.com/OpenEnergyPlatform/open-MaStR/refs/heads/production/docs/images/README_HeaderThreePartners.svg
+.. image:: https://raw.githubusercontent.com/OpenEnergyPlatform/open-MaStR/refs/heads/production/docs/images/README_HeaderFourPartners.svg
     :align: left
     :target: https://github.com/OpenEnergyPlatform/open-MaStR
     :alt: MaStR logo
@@ -16,7 +16,7 @@ open-mastr
    * - General
      - |badge_license| |badge_rtd| |badge_ci|
    * - Publication
-     - |badge_pypi| |badge_joss|
+     - |badge_pypi| |badge_joss| |badge_zenodo_software_mirror|
    * - Data Publication
      - |badge_zenodo|
    * - Software Archive
@@ -25,7 +25,7 @@ open-mastr
      - |badge_issue_open| |badge_issue_closes| |badge_pr_open| |badge_pr_closes|
    * - Community
      - |badge_contributing| |PyPI download month| |Total PyPI downloads|
-   
+
 
 .. contents::
     :depth: 2
@@ -125,8 +125,9 @@ These projects already use open-mastr:
 - `Digiplan Anhalt <https://digiplan.rl-institut.de/>`_
 - `EmPowerPlan <https://epp.rl-institut.de/>`_
 - `Goal100 Monitor <https://goal100.org/monitor>`_
+- `Goal100 Studio <https://goal100.studio/>`_
 
-If you want to see your project in this list, write an  
+If you want to see your project in this list, write an
 `Issue <https://github.com/OpenEnergyPlatform/open-MaStR/issues>`_ or add
 changes in a `Pull Request <https://github.com/OpenEnergyPlatform/open-MaStR/pulls>`_.
 
@@ -193,7 +194,7 @@ Data
 
 .. |badge_contributing| image:: https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat
     :alt: contributions
-    
+
 .. |PyPI download month| image:: https://img.shields.io/pypi/dm/open-mastr?label=PyPi%20Downloads
     :target: https://pypistats.org/packages/open-mastr
 
@@ -205,3 +206,6 @@ Data
 
 .. |badge_software_heritage| image:: https://archive.softwareheritage.org/badge/swh:1:dir:28252b3ca57b56d22be851bad576b6748af2e171/
    :target: https://archive.softwareheritage.org/swh:1:dir:28252b3ca57b56d22be851bad576b6748af2e171;origin=https://github.com/OpenEnergyPlatform/open-MaStR;visit=swh:1:snp:8065d0931f826af24c57fae612c6a48e0fcb135b;anchor=swh:1:rev:430223ddf437ba2611fe9a38521e6549ff61e750
+
+.. |badge_zenodo_software_mirror| image:: https://zenodo.org/badge/203598131.svg
+   :target: https://doi.org/10.5281/zenodo.21415387

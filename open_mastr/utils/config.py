@@ -1,9 +1,8 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 
 """
-Service functions for logging
+Service functions for logging.
 
 Configure console and file logging; Create and handle config file for api keys;
 
@@ -17,26 +16,26 @@ __author__ = "Ludee; christian-rli"
 __issue__ = "https://github.com/OpenEnergyPlatform/examples/issues/52"
 __version__ = "v0.10.0"
 
-import os
-import yaml
-import shutil
-import pathlib
-from datetime import date
-
 import logging
 import logging.config
-from open_mastr.utils.constants import (
-    TECHNOLOGIES,
-    API_LOCATION_TYPES,
-    ADDITIONAL_TABLES,
-)
+import os
+import pathlib
+import shutil
+from datetime import datetime, timezone
 
+import yaml
+
+from open_mastr.utils.constants import (
+    ADDITIONAL_TABLES,
+    API_LOCATION_TYPES,
+    TECHNOLOGIES,
+)
 
 log = logging.getLogger(__name__)
 
 
 def get_project_home_dir():
-    """Get root dir of project data
+    """Get root dir of project data, where credentials and config files are located.
 
     On linux this path equals `$HOME/.open-MaStR/`, respectively `~/.open-MaStR/`
     which is also called `PROJECTHOME`.
@@ -46,47 +45,29 @@ def get_project_home_dir():
     path-like object
         Absolute path to root dir of open-MaStR project home
     """
+    if "MASTR_PROJECT_HOME_DIR" in os.environ:
+        return os.environ.get("MASTR_PROJECT_HOME_DIR")
 
     return os.path.join(os.path.expanduser("~"), ".open-MaStR")
 
 
 def get_output_dir():
-    """Get output directory for csv data, xml file and database. Defaults to get_project_home_dir()
+    """Get output directory for csv data, xml file and database. Defaults to get_project_home_dir().
 
     Returns
     -------
     path-like object
         Absolute path to output path
     """
-
     if "OUTPUT_PATH" in os.environ:
         return os.environ.get("OUTPUT_PATH")
 
     return get_project_home_dir()
 
 
-def get_data_version_dir():
-    """
-    Subdirectory of data/ in PROJECTHOME
-
-    See :ref:`docs <Project directory>` for configuration of data version.
-
-    Returns
-    -------
-    path-like object
-        Absolute path to `PROJECTHOME/data/<data-version>/`
-    """
-    data_version = get_data_config()
-
-    if "OUTPUT_PATH" in os.environ:
-        return os.path.join(os.environ.get("OUTPUT_PATH"), "data", data_version)
-
-    return os.path.join(get_project_home_dir(), "data", data_version)
-
-
 def get_filenames():
     """
-    Get file names defined in config
+    Get file names defined in config.
 
     Returns
     -------
@@ -101,25 +82,26 @@ def get_filenames():
     return filenames
 
 
-def get_data_config():
+def get_csv_export_dir_name():
     """
-    Get data version
+    Get the name of the directory a CSV export is written to.
+
+    The name holds the time of the export as an ISO 8601 basic format UTC
+    timestamp, e.g. `export-20260916T100000Z`. The data itself cannot be dated,
+    since a database may be pieced together from downloads of different dates.
 
     Returns
     -------
     str
-        dataversion
+        Name of the CSV export directory
     """
+    timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
 
-    today = date.today()
-
-    data_config = f'dataversion-{today.strftime("%Y-%m-%d")}'
-
-    return data_config
+    return f"export-{timestamp}"
 
 
 def create_project_home_dir():
-    """Create directory structure of PROJECTHOME"""
+    """Create directory structure of PROJECTHOME."""
     project_home = get_project_home_dir()
 
     # Create root project home path
@@ -151,20 +133,8 @@ def create_project_home_dir():
             )
 
 
-def create_data_dir():
-    """
-    Create direct for current data version
-
-    The directory that is created for this fata version can
-    be returned by :func:`~.get_data_version_dir`.
-    """
-
-    os.makedirs(get_data_version_dir(), exist_ok=True)
-
-
 def _filenames_generator():
-    """Write default file names .yml to project home dir"""
-
+    """Write default file names .yml to project home dir."""
     filenames_file = os.path.join(get_project_home_dir(), "config", "filenames.yml")
 
     # How files are prefixed
@@ -207,7 +177,6 @@ def _filenames_generator():
     for section, section_filenames in filenames_template.items():
         filenames[section] = {}
         for tech in TECHNOLOGIES:
-
             # Files for all technologies
             files = ["joined", "basic", "extended", "extended_fail"]
 
@@ -259,12 +228,11 @@ def _filenames_generator():
 
 
 def setup_project_home():
-    """Create open-MaStR project home directory structure
+    """Create open-MaStR project home directory structure.
 
     Create PROJECTHOME returned by :func:`~.get_project_home_dir`.
     In addition, default config files are copied to `PROJECTHOME/config/`.
     """
-
     # Create directory structure of project home dir
     create_project_home_dir()
 
@@ -280,7 +248,6 @@ def setup_logger():
     logging.Logger
         Logger with two handlers: console and file.
     """
-
     # Read logging config
     with open(
         os.path.join(get_project_home_dir(), "config", "logging.yml")
@@ -298,7 +265,7 @@ def setup_logger():
 
 def column_renaming():
     """
-    Column renaming for CSV export of raw data
+    Column renaming for CSV export of raw data.
 
     Helps to export duplicate columns from different data sources.
 

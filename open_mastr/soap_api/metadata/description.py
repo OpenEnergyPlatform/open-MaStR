@@ -156,7 +156,7 @@ class DataDescription(object):
                     log.error(f"Unexpected sequence type: {type(fcn['sequence'])}")
                     log.error(f"Sequence content: {fcn['sequence']}")
                     raise ValueError(
-                        f"Unexpected sequence structure in function metadata"
+                        "Unexpected sequence structure in function metadata"
                     )
 
                 # Add data for inherited columns from base types

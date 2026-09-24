@@ -1,0 +1,365 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="EinheitenStromSpeicher">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="EinheitStromSpeicher" maxOccurs="unbounded" minOccurs="0">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element type="xs:string" name="EinheitMastrNummer"/>
+              <xs:element type="xs:dateTime" name="DatumLetzteAktualisierung"/>
+              <xs:element type="xs:string" name="LokationMaStRNummer" minOccurs="0"/>
+              <xs:element name="NetzbetreiberpruefungStatus">
+                <xs:simpleType>
+                  <xs:restriction base="xs:short">
+                    <xs:enumeration value="2954"/>
+                    <xs:enumeration value="2955"/>
+                    <xs:enumeration value="3075"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element type="xs:date" name="NetzbetreiberpruefungDatum" minOccurs="0"/>
+              <xs:element type="xs:string" name="AnlagenbetreiberMastrNummer" minOccurs="0"/>
+              <xs:element name="Land">
+                <xs:simpleType>
+                  <xs:restriction base="xs:short">
+                    <xs:enumeration value="84"/>
+                    <xs:enumeration value="90"/>
+                    <xs:enumeration value="198"/>
+                    <xs:enumeration value="66"/>
+                    <xs:enumeration value="169"/>
+                    <xs:enumeration value="106"/>
+                    <xs:enumeration value="231"/>
+                    <xs:enumeration value="206"/>
+                    <xs:enumeration value="215"/>
+                    <xs:enumeration value="269"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="Bundesland" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:short">
+                    <xs:enumeration value="1416"/>
+                    <xs:enumeration value="1402"/>
+                    <xs:enumeration value="1403"/>
+                    <xs:enumeration value="1401"/>
+                    <xs:enumeration value="1400"/>
+                    <xs:enumeration value="1404"/>
+                    <xs:enumeration value="1406"/>
+                    <xs:enumeration value="1405"/>
+                    <xs:enumeration value="1407"/>
+                    <xs:enumeration value="1408"/>
+                    <xs:enumeration value="1409"/>
+                    <xs:enumeration value="1410"/>
+                    <xs:enumeration value="1412"/>
+                    <xs:enumeration value="1413"/>
+                    <xs:enumeration value="1414"/>
+                    <xs:enumeration value="1411"/>
+                    <xs:enumeration value="1415"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element type="xs:string" name="Landkreis" minOccurs="0"/>
+              <xs:element type="xs:string" name="Gemeinde" minOccurs="0"/>
+              <xs:element type="xs:string" name="Gemeindeschluessel" minOccurs="0"/>
+              <xs:element type="xs:string" name="Postleitzahl"/>
+              <xs:element type="xs:string" name="Gemarkung" minOccurs="0"/>
+              <xs:element type="xs:string" name="FlurFlurstuecknummern" minOccurs="0"/>
+              <xs:element type="xs:string" name="Strasse" minOccurs="0"/>
+              <xs:element name="StrasseNichtGefunden" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:byte">
+                    <xs:enumeration value="0"/>
+                    <xs:enumeration value="1"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element type="xs:string" name="Hausnummer" minOccurs="0"/>
+              <xs:element name="Hausnummer_nv" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:byte">
+                    <xs:enumeration value="0"/>
+                    <xs:enumeration value="1"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="HausnummerNichtGefunden" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:byte">
+                    <xs:enumeration value="0"/>
+                    <xs:enumeration value="1"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element type="xs:string" name="Adresszusatz" minOccurs="0"/>
+              <xs:element type="xs:string" name="Ort"/>
+              <xs:element type="xs:float" name="Laengengrad" minOccurs="0"/>
+              <xs:element type="xs:float" name="Breitengrad" minOccurs="0"/>
+              <xs:element type="xs:date" name="Registrierungsdatum" minOccurs="0"/>
+              <xs:element type="xs:date" name="Inbetriebnahmedatum" minOccurs="0"/>
+              <xs:element type="xs:date" name="GeplantesInbetriebnahmedatum" minOccurs="0"/>
+              <xs:element type="xs:date" name="DatumEndgueltigeStilllegung" minOccurs="0"/>
+              <xs:element type="xs:date" name="DatumBeginnVoruebergehendeStilllegung" minOccurs="0"/>
+              <xs:element type="xs:date" name="DatumWiederaufnahmeBetrieb" minOccurs="0"/>
+              <xs:element name="EinheitSystemstatus">
+                <xs:simpleType>
+                  <xs:restriction base="xs:short">
+                    <xs:enumeration value="472"/>
+                    <xs:enumeration value="473"/>
+                    <xs:enumeration value="484"/>
+                    <xs:enumeration value="490"/>
+                    <xs:enumeration value="572"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="EinheitBetriebsstatus">
+                <xs:simpleType>
+                  <xs:restriction base="xs:byte">
+                    <xs:enumeration value="35"/>
+                    <xs:enumeration value="31"/>
+                    <xs:enumeration value="38"/>
+                    <xs:enumeration value="37"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element type="xs:string" name="BestandsanlageMastrNummer" minOccurs="0"/>
+              <xs:element name="NichtVorhandenInMigriertenEinheiten" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:byte">
+                    <xs:enumeration value="0"/>
+                    <xs:enumeration value="1"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element type="xs:string" name="AltAnlagenbetreiberMastrNummer" minOccurs="0"/>
+              <xs:element type="xs:date" name="DatumDesBetreiberwechsels" minOccurs="0"/>
+              <xs:element type="xs:date" name="DatumRegistrierungDesBetreiberwechsels" minOccurs="0"/>
+              <xs:element type="xs:string" name="NameStromerzeugungseinheit"/>
+              <xs:element type="xs:string" name="Weic" minOccurs="0"/>
+              <xs:element name="Weic_nv">
+                <xs:simpleType>
+                  <xs:restriction base="xs:byte">
+                    <xs:enumeration value="0"/>
+                    <xs:enumeration value="1"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element type="xs:string" name="WeicDisplayName" minOccurs="0"/>
+              <xs:element type="xs:string" name="Kraftwerksnummer" minOccurs="0"/>
+              <xs:element name="Kraftwerksnummer_nv">
+                <xs:simpleType>
+                  <xs:restriction base="xs:byte">
+                    <xs:enumeration value="0"/>
+                    <xs:enumeration value="1"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="Energietraeger">
+                <xs:simpleType>
+                  <xs:restriction base="xs:short">
+                    <xs:enumeration value="2411"/>
+                    <xs:enumeration value="2493"/>
+                    <xs:enumeration value="2408"/>
+                    <xs:enumeration value="2410"/>
+                    <xs:enumeration value="2494"/>
+                    <xs:enumeration value="2409"/>
+                    <xs:enumeration value="2412"/>
+                    <xs:enumeration value="2407"/>
+                    <xs:enumeration value="2413"/>
+                    <xs:enumeration value="2403"/>
+                    <xs:enumeration value="2404"/>
+                    <xs:enumeration value="2405"/>
+                    <xs:enumeration value="2495"/>
+                    <xs:enumeration value="2406"/>
+                    <xs:enumeration value="2957"/>
+                    <xs:enumeration value="2958"/>
+                    <xs:enumeration value="2496"/>
+                    <xs:enumeration value="2498"/>
+                    <xs:enumeration value="2497"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element type="xs:float" name="Bruttoleistung"/>
+              <xs:element type="xs:float" name="Nettonennleistung" minOccurs="0"/>
+              <xs:element name="AnschlussAnHoechstOderHochSpannung" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:byte">
+                    <xs:enumeration value="0"/>
+                    <xs:enumeration value="1"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element type="xs:string" name="Einsatzverantwortlicher" minOccurs="0"/>
+              <xs:element name="FernsteuerbarkeitNb" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:byte">
+                    <xs:enumeration value="0"/>
+                    <xs:enumeration value="1"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="FernsteuerbarkeitDv" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:byte">
+                    <xs:enumeration value="0"/>
+                    <xs:enumeration value="1"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="Einspeisungsart" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:short">
+                    <xs:enumeration value="689"/>
+                    <xs:enumeration value="688"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element type="xs:string" name="GenMastrNummer" minOccurs="0"/>
+              <xs:element name="Einsatzort" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:short">
+                    <xs:enumeration value="2399"/>
+                    <xs:enumeration value="1531"/>
+                    <xs:enumeration value="738"/>
+                    <xs:enumeration value="739"/>
+                    <xs:enumeration value="1532"/>
+                    <xs:enumeration value="733"/>
+                    <xs:enumeration value="741"/>
+                    <xs:enumeration value="740"/>
+                    <xs:enumeration value="737"/>
+                    <xs:enumeration value="742"/>
+                    <xs:enumeration value="743"/>
+                    <xs:enumeration value="734"/>
+                    <xs:enumeration value="744"/>
+                    <xs:enumeration value="1533"/>
+                    <xs:enumeration value="745"/>
+                    <xs:enumeration value="746"/>
+                    <xs:enumeration value="736"/>
+                    <xs:enumeration value="747"/>
+                    <xs:enumeration value="755"/>
+                    <xs:enumeration value="754"/>
+                    <xs:enumeration value="753"/>
+                    <xs:enumeration value="752"/>
+                    <xs:enumeration value="735"/>
+                    <xs:enumeration value="751"/>
+                    <xs:enumeration value="750"/>
+                    <xs:enumeration value="748"/>
+                    <xs:enumeration value="749"/>
+                    <xs:enumeration value="2400"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="AcDcKoppelung" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:short">
+                    <xs:enumeration value="694"/>
+                    <xs:enumeration value="693"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="Batterietechnologie" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:short">
+                    <xs:enumeration value="727"/>
+                    <xs:enumeration value="728"/>
+                    <xs:enumeration value="732"/>
+                    <xs:enumeration value="731"/>
+                    <xs:enumeration value="730"/>
+                    <xs:enumeration value="729"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element type="xs:float" name="PumpbetriebLeistungsaufnahme" minOccurs="0"/>
+              <xs:element name="PumpbetriebKontinuierlichRegelbar" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:byte">
+                    <xs:enumeration value="1"/>
+                    <xs:enumeration value="0"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="Pumpspeichertechnologie" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:short">
+                    <xs:enumeration value="2920"/>
+                    <xs:enumeration value="2921"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="Notstromaggregat" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:byte">
+                    <xs:enumeration value="0"/>
+                    <xs:enumeration value="1"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="BestandteilGrenzkraftwerk" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:byte">
+                    <xs:enumeration value="0"/>
+                    <xs:enumeration value="1"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element type="xs:float" name="NettonennleistungDeutschland" minOccurs="0"/>
+              <xs:element type="xs:float" name="ZugeordnenteWirkleistungWechselrichter" minOccurs="0"/>
+              <xs:element type="xs:string" name="SpeMastrNummer" minOccurs="0"/>
+              <xs:element type="xs:string" name="EegMaStRNummer" minOccurs="0"/>
+              <xs:element name="EegAnlagentyp" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:short">
+                    <xs:enumeration value="1"/>
+                    <xs:enumeration value="2"/>
+                    <xs:enumeration value="3"/>
+                    <xs:enumeration value="4"/>
+                    <xs:enumeration value="5"/>
+                    <xs:enumeration value="6"/>
+                    <xs:enumeration value="7"/>
+                    <xs:enumeration value="8"/>
+                    <xs:enumeration value="9"/>
+                    <xs:enumeration value="10"/>
+                    <xs:enumeration value="11"/>
+                    <xs:enumeration value="12"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="Technologie" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:short">
+                    <xs:enumeration value="524"/>
+                    <xs:enumeration value="784"/>
+                    <xs:enumeration value="1537"/>
+                    <xs:enumeration value="526"/>
+                    <xs:enumeration value="525"/>
+                    <xs:enumeration value="3067"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element type="xs:string" name="GemeinsamRegistrierteSolareinheitMastrNummer" minOccurs="0"/>
+              <xs:element name="NetzreserveZugeordnet" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:byte">
+                    <xs:enumeration value="0"/>
+                    <xs:enumeration value="1"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element type="xs:dateTime" name="DatumNetzreserve" minOccurs="0"/>
+              <xs:element name="KapazitaetsreserveZugeordnet" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:byte">
+                    <xs:enumeration value="0"/>
+                    <xs:enumeration value="1"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element type="xs:dateTime" name="DatumKapazitaetsreserve" minOccurs="0"/>
+              <xs:element type="xs:dateTime" name="InbetriebnahmedatumAmAktuellenStandort" minOccurs="0"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

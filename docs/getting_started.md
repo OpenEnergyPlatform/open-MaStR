@@ -18,11 +18,7 @@ pip install open-mastr --upgrade
 ## Downloading the MaStR data
 
 
-The MaStR dataset is updated on a daily basis. To download todays MaStR and save it in a sqlite database, you will use the [`Mastr`][open_mastr.Mastr] class and its [`download`][open_mastr.Mastr.download] method. The [`download`][open_mastr.Mastr.download] method offers two different ways to get the data by changing the `method` parameter (if not specified, `method` defaults to "bulk"):
-
-1. `method` = "bulk": Get data via the bulk download from [MaStR/Datendownload](https://www.marktstammdatenregister.de/MaStR/Datendownload). Use this if you want to download the whole dataset (few Gigabite) or if you want to download all units of a given technology (e.g. all wind turbines in Germany).
-2. `method` = "API": Get data via the MaStR SOAP-API. Use this if you want specific information about single units and if you have registerd to get an API token.
-
+The MaStR dataset is updated on a daily basis. To download today's MaStR and save it in a sqlite database, you will use the [`Mastr`][open_mastr.Mastr] class and its [`download`][open_mastr.Mastr.download] method. This will get the bulk download from [MaStR/Datendownload](https://www.marktstammdatenregister.de/MaStR/Datendownload). You can either download the whole dataset (a few GB) or all units of a given technology (e.g. all wind turbines in Germany).
 
 ### Bulk download
 
@@ -43,10 +39,46 @@ If you are interested in a specific part of the dataset, you can specify this by
 from open_mastr import Mastr
 
 db = Mastr()
-db.download(data=["wind","hydro"])
+db.download(data=["wind", "hydro"])
 ```
 
 More detailed information can be found in the section [bulk download](advanced.md#bulk-download).
+
+### English table and column names
+
+By default the database tables and columns use the German names from the MaStR. If you prefer English names, pass
+`english=True` to [`Mastr.download`][open_mastr.Mastr.download]. The generated tables will then use English table and
+column names (e.g. `EinheitenWind` becomes `units_wind`):
+
+```python
+from open_mastr import Mastr
+
+db = Mastr()
+db.download(english=True)
+```
+
+### Downloading historical data
+
+By default the latest available MaStR dataset is downloaded. To download data from a specific historical date, pass
+the desired date to the `date` parameter. To browse the dates that are available on the MaStR website without starting
+a download, use [`browse_available_downloads`][open_mastr.Mastr.browse_available_downloads], and to pick one
+interactively, pass `select_date_interactively=True` to [`Mastr.download`][open_mastr.Mastr.download]:
+
+```python
+from open_mastr import Mastr
+
+db = Mastr()
+available = db.browse_available_downloads()  # list the available download dates
+
+db.download(date="20250101")                    # download a specific historical date
+db.download(select_date_interactively=True)     # or pick a date from a list
+```
+
+### Old (pre-v1.0) table names
+
+Tables that were renamed in version 1.0 (e.g. `wind_extended` → `EinheitenWind`) are still accessible through
+database views, which are created by default. You can disable these views by passing
+`add_views_for_old_table_names=False` to [`Mastr.download`][open_mastr.Mastr.download].
 
 API download
 -----------------------------------
@@ -56,7 +88,7 @@ API download
 
 ## Accessing the database
 
-For accessing and working with the MaStR database after you have downloaded it, you can use sqlite browsers 
+For accessing and working with the MaStR database after you have downloaded it, you can use sqlite browsers
 such as [DB Browser for SQLite](https://sqlitebrowser.org/) or any python module
 which can process sqlite data. Pandas, for example, comes with the function
 [read_sql](https://pandas.pydata.org/docs/reference/api/pandas.read_sql.html).
@@ -67,10 +99,12 @@ which can process sqlite data. Pandas, for example, comes with the function
     import pandas as pd
 
     # generate a list of all tables
-    df = pd.read_sql_query("SELECT name FROM sqlite_master WHERE type='table';", con=db.engine)
+    df = pd.read_sql_query(
+        "SELECT name FROM sqlite_master WHERE type='table';", con=db.engine
+    )
 
     # read the data of one table
-    table="wind_extended"
+    table = "EinheitenWind"
     df = pd.read_sql(sql=table, con=db.engine)
     ```
 
@@ -79,11 +113,15 @@ which can process sqlite data. Pandas, for example, comes with the function
 
 ## Exporting data
 
-The tables in the database can be exported as csv files. While technology-related data is joined for each unit,
-additional tables are mirrored from database to csv as they are. To export the data you can use to method `to_csv`.
+The tables in the database can be exported as csv files. To export the data you can use the method [`to_csv`][open_mastr.Mastr.to_csv], which
+accepts the names of the database tables to export (if none are given, all tables are exported):
 
 ```python
-
-    tables=["wind", "grids"]
-    db.to_csv(tables)
+tables = ["EinheitenWind", "Netze"]
+db.to_csv(tables)
 ```
+
+!!! note "Old table names cannot be exported"
+    The pre-v1.0 table names described [above](#old-pre-v10-table-names) are database views, not tables, so `to_csv`
+    skips them with a warning. Pass the name of the underlying table instead, for example `EinheitenWind` rather than
+    `wind_extended`.

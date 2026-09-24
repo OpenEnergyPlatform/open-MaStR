@@ -1,26 +1,38 @@
-import pandas as pd
+import io
+from collections.abc import Collection
+from zipfile import ZipFile
+
 import numpy as np
+import pandas as pd
+
 from open_mastr.xml_download.colums_to_replace import (
     system_catalog,
-    columns_replace_list,
 )
-from zipfile import ZipFile
-import io
 
 
-def cleanse_bulk_data(df: pd.DataFrame, zipped_xml_file_path: str) -> pd.DataFrame:
-    df = replace_ids_with_names(df, system_catalog)
-    # Katalogeintraege: int -> string value
+def cleanse_bulk_data(
+    df: pd.DataFrame,
+    catalog_columns: Collection[str],
+    zipped_xml_file_path: str,
+) -> pd.DataFrame:
+    df = replace_system_catalog_ids(df, system_catalog)
+    catalog_columns = set(catalog_columns) - system_catalog.keys()
     df = replace_mastr_katalogeintraege(
-        zipped_xml_file_path=zipped_xml_file_path, df=df
+        zipped_xml_file_path=zipped_xml_file_path,
+        df=df,
+        catalog_columns=catalog_columns,
     )
     return df
 
 
-def replace_ids_with_names(df: pd.DataFrame, system_catalog: dict) -> pd.DataFrame:
-    """Replaces ids with names according to the system catalog. This is
-    necessary since the data from the bulk download encodes columns with
-    IDs instead of the actual values."""
+def replace_system_catalog_ids(
+    df: pd.DataFrame, system_catalog: dict[str, dict[int, str]]
+) -> pd.DataFrame:
+    """Replace IDs with names according to the system catalog.
+
+    This is necessary since the data from the bulk download encodes columns with
+    IDs instead of the actual values.
+    """
     for column_name, name_mapping_dictionary in system_catalog.items():
         if column_name in df.columns:
             df[column_name] = df[column_name].replace(name_mapping_dictionary)
@@ -28,18 +40,27 @@ def replace_ids_with_names(df: pd.DataFrame, system_catalog: dict) -> pd.DataFra
 
 
 def replace_mastr_katalogeintraege(
-    zipped_xml_file_path: str,
     df: pd.DataFrame,
+    catalog_columns: Collection[str],
+    zipped_xml_file_path: str,
 ) -> pd.DataFrame:
-    """Replaces the IDs from the mastr database by its mapped string values from
-    the table katalogwerte"""
+    """Replace the IDs from the MaStR database by their mapped string values.
+
+    The mapping is defined in the table Katalogwerte.
+    """
+    # TODO: Create Katalogwerte dict once for whole download, not once per processed file.
     katalogwerte = create_katalogwerte_from_bulk_download(zipped_xml_file_path)
     for column_name in df.columns:
-        if column_name in columns_replace_list:
-            if pd.api.types.is_string_dtype(df[column_name]):
-                # Handle comma seperated strings from catalog values
-                df[column_name] = (
-                    df[column_name]
+        if column_name in catalog_columns:
+            if pd.api.types.is_string_dtype(
+                df[column_name]
+            ) or pd.api.types.is_object_dtype(df[column_name]):
+                # Only replace rows that still are numeric catalog IDs;
+                # already-resolved names (e.g. "Bayern") pass through unchanged.
+                column_as_string = df[column_name].astype("string")
+                is_id = column_as_string.str.match(r"^[\d,\s]+$")
+                df.loc[is_id, column_name] = (
+                    column_as_string.loc[is_id]
                     .str.split(",", expand=True)
                     .apply(lambda x: x.str.strip())
                     .replace("", None)
@@ -57,8 +78,10 @@ def replace_mastr_katalogeintraege(
 
 
 def create_katalogwerte_from_bulk_download(zipped_xml_file_path) -> dict:
-    """Creates a dictionary from the id -> value mapping defined in the table
-    katalogwerte from MaStR."""
+    """Create a dictionary from the id -> value mapping of the MaStR data.
+
+    The mapping is defined in the table Katalogwerte.
+    """
     with ZipFile(zipped_xml_file_path, "r") as f:
         with f.open("Katalogwerte.xml") as xml_bytes_io:
             xml_bytes = xml_bytes_io.read()

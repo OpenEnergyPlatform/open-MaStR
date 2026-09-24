@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 """
-open-MaStR - Main file
+open-MaStR - Main file.
 
 Bulk: Download XML-Dump and fill in local SQLite database.
 
@@ -10,7 +9,6 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 """
 
 from open_mastr import Mastr
-import os
 
 ## specify download parameter
 
@@ -48,13 +46,13 @@ if __name__ == "__main__":
     # instantiate Mastr class
     db = Mastr()
 
-    ## download Markstammdatenregister
+    ## download Marktstammdatenregister
     # bulk download
     db.download(method="bulk", data=data_bulk, date=bulk_date, bulk_cleansing=True)
 
     ## export to csv
     """
     Technology-related tables are exported as joined, whereas additional tables
-    are duplicated as they are in the database. 
+    are duplicated as they are in the database.
     """
     db.to_csv()
