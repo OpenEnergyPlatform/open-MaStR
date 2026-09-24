@@ -97,7 +97,7 @@ After downloading the MaStR, you will find a database with a large number of tab
     | Netze | grids | Grids |
 
 !!! note "German vs English table names"
-    By default the database uses the German table and column names (the "Original German name" column below)
+    By default the database uses the German table and column names (the "Original German name" column above)
     plus database views that provide the old pre-v1.0 names (such as `wind_extended`). The "English name" column
     only applies if you download with `english=True` in [`Mastr.download`][open_mastr.Mastr.download].
 
