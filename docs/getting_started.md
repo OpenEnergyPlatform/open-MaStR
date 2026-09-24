@@ -120,3 +120,8 @@ accepts the names of the database tables to export (if none are given, all table
 tables = ["EinheitenWind", "Netze"]
 db.to_csv(tables)
 ```
+
+!!! note "Old table names cannot be exported"
+    The pre-v1.0 table names described [above](#old-pre-v10-table-names) are database views, not tables, so `to_csv`
+    skips them with a warning. Pass the name of the underlying table instead, for example `EinheitenWind` rather than
+    `wind_extended`.
