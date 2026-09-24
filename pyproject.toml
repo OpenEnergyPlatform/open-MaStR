@@ -19,7 +19,7 @@ dependencies = [
   "xmlschema",
 ]
 
-requires-python = ">=3.9, <4"
+requires-python = ">=3.12, <4"
 authors = [
   {name = "Hülk Ludwig"},
   {name = "Pleßmann Guido"},
@@ -40,10 +40,10 @@ maintainers = [
 description = "A package that provides an interface for downloading and processing the data of the Marktstammdatenregister (MaStR)"
 readme = "README.rst"
 license = {text = "AGPL-3.0-or-later" }
-keywords = ["Markstammdatenregister", "Energy", "Dataset", "Solar", "Wind", "Energy-data", "OEP", "OpenEnergyFamily", "Bundesnetzagentur", "MaStR"]
+keywords = ["Marktstammdatenregister", "Energy", "Dataset", "Solar", "Wind", "Energy-data", "OEP", "OpenEnergyFamily", "Bundesnetzagentur", "MaStR"]
 classifiers = [
   "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
-  "Development Status :: 4 - Beta",
+  "Development Status :: 5 - Production/Stable",
   "Intended Audience :: Science/Research",
   "Topic :: Scientific/Engineering",
   "Topic :: Scientific/Engineering :: GIS",

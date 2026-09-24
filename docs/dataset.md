@@ -106,6 +106,17 @@ A useful overview of the MaStR data model can be found at the MaStR [help page](
 === "original image (german)"
     ![Data model of the MaStR](images/DetailAnlagenModellMaStR.png)
 
+For a field-level reference, see the
+[MaStR Datenmodell documentation](https://openenergyplatform.github.io/mastr-docs/). It documents every class,
+attribute and catalogue value of the `Gesamtdatenexport` and is generated with [LinkML](https://linkml.io/) from the
+same XSD schema files that `open-mastr` parses to build its tables, enriched with the descriptions from the official
+"Dokumentation des Exports" and the `Katalogkategorien.xml` / `Katalogwerte.xml` lookup tables - the same
+catalogues that `open-mastr` resolves into readable values during cleansing. Use it to look up what a column contains
+or which values a catalogue field accepts.
+
+The site is maintained at [OpenEnergyPlatform/mastr-docs](https://github.com/OpenEnergyPlatform/mastr-docs). Like
+`open-mastr`, it is not an official Bundesnetzagentur resource.
+
 
 ## Tables as CSV
 

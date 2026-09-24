@@ -27,8 +27,14 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
   [#793](https://github.com/OpenEnergyPlatform/open-MaStR/issues/793)
 - Modernize linting setup and add pre-commit checks in CI - Remove the flake8, black and pylint configuration and development dependencies and add ruff and mypy.
   [#671](https://github.com/OpenEnergyPlatform/open-MaStR/pull/671)
+- Add a link to the [MaStR data model documentation](https://openenergyplatform.github.io/mastr-docs/)
+  [#808](https://github.com/OpenEnergyPlatform/open-MaStR/pull/808)
 
 ### Changed
+- Update the metadata for v1.0.0 release
+  [#808](https://github.com/OpenEnergyPlatform/open-MaStR/pull/808)
+- Raise the minimum Python version to 3.12, matching the versions tested in CI
+  [#808](https://github.com/OpenEnergyPlatform/open-MaStR/pull/808)
 - Name the CSV export directory after the time of the export in basic ISO format (e.g. `export-20260916T100000Z`)
   [#806](https://github.com/OpenEnergyPlatform/open-MaStR/pull/806)
 - Make `release_test.py`'s `regexp` function robust against non-string columns
