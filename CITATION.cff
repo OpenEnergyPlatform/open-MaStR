@@ -44,6 +44,10 @@ authors:
   - family-names: "Rady"
     given-names: "Hassan"
     alias: "@hassanrady"
+  - family-names: "Thewessen"
+    given-names: "Mayk"
+    alias: "@MaykThewessen"
+    affiliation: "Birdview Energy"
 identifiers:
   - type: swh
     value: 'swh:1:dir:28252b3ca57b56d22be851bad576b6748af2e171'
