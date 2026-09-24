@@ -1,14 +1,17 @@
 import os
 from collections.abc import Iterable, Iterator, Mapping
 from pathlib import Path
-from typing import Any, Literal, Optional, Union
+from typing import TYPE_CHECKING, Any, Literal, Optional, Union
 
 import pandas as pd
 from sqlalchemy import (
+    Boolean,
     Connection,
     Date,
     DateTime,
     Engine,
+    Float,
+    Integer,
     MetaData,
     String,
     Table,
@@ -51,6 +54,9 @@ from open_mastr.xml_download.utils_download_bulk import (
 from open_mastr.xml_download.utils_write_to_database import (
     write_mastr_xml_to_database,
 )
+
+if TYPE_CHECKING:
+    import pyarrow as pa
 
 # setup logger
 log = setup_logger()
@@ -454,6 +460,61 @@ class Mastr:
             Number of rows to retrieve from the database before dumping them to the CSV file.
             Defaults to 500000.
         """
+        for conn, table, csv_path in self._export_tables(db_table_names, "csv"):
+            for i, chunk in enumerate(_read_table_in_chunks(conn, table, chunksize)):
+                chunk.to_csv(csv_path, mode="a", index=False, header=i == 0)
+
+    def to_parquet(
+        self,
+        db_table_names: Optional[Union[str, Iterable[str]]] = None,
+        chunksize: int = 500000,
+    ) -> None:
+        """Export tables from existing database to Parquet.
+
+        Writes one zstd-compressed Parquet file per table. The column types follow the
+        database schema, so dates, timestamps and booleans keep their type. Invalid
+        dates are exported as empty values, as in [`to_csv`][open_mastr.Mastr.to_csv].
+
+        Requires the optional dependency `pyarrow`, installed with
+        `pip install "open-mastr[parquet]"`.
+
+        Parameters
+        ----------
+        db_table_names : str, Iterable of str, or None, optional
+            The names of the database tables to export. A single table name can be passed as a
+            plain string. If None, all tables in the database will be exported. Defaults to None.
+
+        chunksize : int, optional
+            Number of rows to retrieve from the database before writing them to the Parquet
+            file. Defaults to 500000.
+        """
+        try:
+            import pyarrow as pa
+            import pyarrow.parquet as pq
+        except ImportError as err:
+            raise ImportError(
+                "Mastr.to_parquet requires pyarrow. Install it with "
+                '`pip install "open-mastr[parquet]"`.'
+            ) from err
+
+        for conn, table, parquet_path in self._export_tables(db_table_names, "parquet"):
+            schema = _arrow_schema(table)
+            with pq.ParquetWriter(parquet_path, schema, compression="zstd") as writer:
+                for chunk in _read_table_in_chunks(conn, table, chunksize):
+                    writer.write_table(
+                        pa.Table.from_pandas(chunk, schema=schema, preserve_index=False)
+                    )
+
+    def _export_tables(
+        self,
+        db_table_names: Optional[Union[str, Iterable[str]]],
+        file_extension: str,
+    ) -> Iterator[tuple[Connection, Table, str]]:
+        """Yield each requested table with the path of its export file.
+
+        The export directory is created, missing tables are skipped with a warning and
+        an existing export file of a table is deleted before the table is yielded.
+        """
         data_path = os.path.join(self.output_dir, "data", get_csv_export_dir_name())
         os.makedirs(data_path, exist_ok=True)
 
@@ -465,8 +526,8 @@ class Mastr:
             db_table_names = [db_table_names]
 
         log.info(
-            f"Exporting the following database tables to CSV files in {data_path}: "
-            f"{', '.join(db_table_names)}"
+            f"Exporting the following database tables to {file_extension} files in "
+            f"{data_path}: {', '.join(db_table_names)}"
         )
         with self.engine.connect() as conn:
             for requested_table_name in db_table_names:
@@ -475,14 +536,14 @@ class Mastr:
                         f"Table {requested_table_name} does not exist. Skipping."
                     )
                     continue
-                csv_path = os.path.join(data_path, f"{requested_table_name}.csv")
-                if os.path.exists(csv_path):
-                    log.info(f"Deleting existing file {csv_path}")
-                    os.unlink(csv_path)
-                for i, chunk in enumerate(
-                    _read_table_in_chunks(conn, requested_table_name, chunksize)
-                ):
-                    chunk.to_csv(csv_path, mode="a", index=False, header=i == 0)
+                file_path = os.path.join(
+                    data_path, f"{requested_table_name}.{file_extension}"
+                )
+                if os.path.exists(file_path):
+                    log.info(f"Deleting existing file {file_path}")
+                    os.unlink(file_path)
+                table = Table(requested_table_name, MetaData(), autoload_with=conn)
+                yield conn, table, file_path
 
     def browse_available_downloads(self) -> list[dict[str, Optional[str]]]:
         """Browse available MaStR downloads from the website without starting the download.
@@ -518,7 +579,7 @@ class Mastr:
 
 
 def _read_table_in_chunks(
-    conn: Connection, table_name: str, chunksize: int
+    conn: Connection, table: Table, chunksize: int
 ) -> Iterator[pd.DataFrame]:
     """Read a database table in chunks, replacing invalid dates with empty values.
 
@@ -526,7 +587,7 @@ def _read_table_in_chunks(
     string and reading it as a date would fail. Date columns are therefore read as plain
     strings and parsed by pandas, which turns those values into NULL.
     """
-    table = Table(table_name, MetaData(), autoload_with=conn)
+    table_name = table.name
     date_column_names = [
         column.name
         for column in table.columns
@@ -559,6 +620,39 @@ def _read_table_in_chunks(
 
             chunk[column_name] = dates
         yield chunk
+
+
+def _arrow_schema(table: Table) -> "pa.Schema":
+    """Map the column types of a database table to an Arrow schema.
+
+    The schema is fixed per table instead of being inferred from each chunk: in a chunk
+    where a column holds only NULL values, pandas cannot tell its type, and the Parquet
+    writer rejects every later chunk whose schema differs from the first.
+    """
+    import pyarrow as pa
+
+    fields = []
+    for column in table.columns:
+        column_type = column.type
+        if isinstance(column_type, Boolean):
+            arrow_type = pa.bool_()
+        elif isinstance(column_type, Integer):
+            arrow_type = pa.int64()
+        elif isinstance(column_type, Float):
+            arrow_type = pa.float64()
+        elif isinstance(column_type, DateTime):
+            arrow_type = pa.timestamp("us", tz="UTC" if column_type.timezone else None)
+        elif isinstance(column_type, Date):
+            arrow_type = pa.date32()
+        elif isinstance(column_type, String):
+            arrow_type = pa.string()
+        else:
+            raise TypeError(
+                f"Table {table.name!r}, column {column.name!r}: cannot export column "
+                f"type {column_type!r} to Parquet."
+            )
+        fields.append(pa.field(column.name, arrow_type))
+    return pa.schema(fields)
 
 
 def _format_date_examples(

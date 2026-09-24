@@ -7,6 +7,15 @@ The format is inspired from [Keep a Changelog](http://keepachangelog.com/en/1.0.
 and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 
+## [v1.x.x] Unreleased - 202x-xx-xx
+### Added
+- Add `Mastr.to_parquet` to export database tables to zstd-compressed Parquet files that keep the column types, with `pyarrow` as optional dependency `open-mastr[parquet]`
+  [#813](https://github.com/OpenEnergyPlatform/open-MaStR/pull/813)
+
+### Changed
+
+### Removed
+
 ## [v0.xx.x] Unreleased - 202x-xx-xx
 ### Added
 - Add script for updating fallback XSD

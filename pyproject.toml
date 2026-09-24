@@ -50,7 +50,11 @@ classifiers = [
 ]
 
 [project.optional-dependencies]
+parquet = [
+  "pyarrow",
+]
 dev = [
+  "pyarrow",
   "pytest",
   "pytest-dependency",
   "xmltodict",
