@@ -69,7 +69,7 @@ keywords:
   - Open Data
 type: software
 license: AGPL-3.0-or-later
-version: 0.17.4
+version: 1.0.0
 doi: "10.5281/zenodo.21415387"
-date-released: 2026-07-17
+date-released: 2026-09-24
 url: "https://github.com/OpenEnergyPlatform/open-MaStR/"
