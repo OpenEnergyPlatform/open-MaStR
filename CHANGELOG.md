@@ -31,6 +31,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
   [#808](https://github.com/OpenEnergyPlatform/open-MaStR/pull/808)
 
 ### Changed
+- Updated docs to represent code changes of release v1.0.0
+  [#810](https://github.com/OpenEnergyPlatform/open-MaStR/pull/810)
 - Update the metadata for v1.0.0 release
   [#808](https://github.com/OpenEnergyPlatform/open-MaStR/pull/808)
 - Raise the minimum Python version to 3.12, matching the versions tested in CI

@@ -135,7 +135,7 @@ The project home directory is structured as follows (files and folders below `da
 
 ### Logs
 
-For the download via the API, logs are stored in a single file in `/$HOME/<user>/.open-MaStR/logs/open_mastr.log`.
+Logs are stored in a single file in `/$HOME/<user>/.open-MaStR/logs/open_mastr.log`.
 New logging messages are appended. It is recommended to delete the log file from time to time because of its required disk space.
 
 By default, the log level is set to `INFO`. You can increase or decrease the verbosity by either changing `logging.yml` (see above)
@@ -165,6 +165,7 @@ There are some environment variables to customize open-MaStR:
 
 | Variable                              | Description                                                                                                                                                                                                                | Example                                                                                                                    |
 |---------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------|
+| `MASTR_PROJECT_HOME_DIR`              | Path to the open-MaStR project home directory. It holds the config files and, unless `OUTPUT_PATH` is set, the database, the downloads and the logs as well. Defaults to `$HOME/.open-MaStR/`.                             | `/home/mastr-rabbit/my-mastr-home`                                                                                         |
 | `SQLITE_DATABASE_PATH`                | Path to the SQLite file. This allows to use to use multiple instances of the MaStR database. The database instances exist in parallel and are independent of each other.                                                   | `/home/mastr-rabbit/.open-MaStR/data/sqlite/your_custom_instance_name.db`                                                  |
 | `OUTPUT_PATH`                         | Path to user-defined output directory for CSV data, XML file and database. If not specified, output directory defaults to `$HOME/.open-MaStR/`                                                                             | Linux: `/home/mastr-rabbit/open-mastr-user-defined-output-path`, Windows: `C:\\Users\\open-mastr-user-defined-output-path` |
 | `USE_RECOMMENDED_NUMBER_OF_PROCESSES` | If set to `True`, the number of processes used for the bulk download is set to the recommended number of processes. The recommended number is min(the number of available CPUs - 1, 4). If set to `False`, the number of processes is 1 if not otherwise configured via `NUMBER_OF_PROCESSES`. | `True` or `False`                                                                                                          |
@@ -188,9 +189,9 @@ flowchart LR
   id3 --> id5("Export to CSV")
   id5 --> id6>"📜 open-mastr CSV files"]
   click id1 "https://www.marktstammdatenregister.de/MaStR/Datendownload" _blank
-  click id2 "https://github.com/OpenEnergyPlatform/open-MaStR/blob/7b155a9ebdd5204de8ae6ba7a96036775a1f4aec/open_mastr/xml_download/utils_write_to_database.py#L17C6-L17C6" _blank
-  click id4 "https://github.com/OpenEnergyPlatform/open-MaStR/blob/7b155a9ebdd5204de8ae6ba7a96036775a1f4aec/open_mastr/xml_download/utils_cleansing_bulk.py#L10" _blank
-  click id5 "https://github.com/OpenEnergyPlatform/open-MaStR/blob/7b155a9ebdd5204de8ae6ba7a96036775a1f4aec/open_mastr/mastr.py#L288" _blank
+  click id2 "https://github.com/OpenEnergyPlatform/open-MaStR/blob/develop/open_mastr/xml_download/utils_write_to_database.py" _blank
+  click id4 "https://github.com/OpenEnergyPlatform/open-MaStR/blob/develop/open_mastr/xml_download/utils_cleansing_bulk.py" _blank
+  click id5 "https://github.com/OpenEnergyPlatform/open-MaStR/blob/develop/open_mastr/mastr.py" _blank
   click id6 "https://doi.org/10.5281/zenodo.6807425" _blank
 ```
 
@@ -233,6 +234,10 @@ download.
 | `deleted_market_actors` | `GeloeschteUndDeaktivierteMarktakteure` |
 | `retrofit_units` | `Ertuechtigungen` |
 | `changed_dso_assignment` | `EinheitenAenderungNetzbetreiberzuordnungen` |
+
+!!! warning "`storage_units` is deprecated"
+    The `data` value `storage_units` is still accepted but deprecated; use `storage` instead. See
+    [#799](https://github.com/OpenEnergyPlatform/open-MaStR/issues/799).
 
 In the next step, a basic data cleansing is performed. Many entries in the MaStR from the bulk download are replaced by numbers.
 As an example, instead of writing the German states where the unit is registered (Saxony, Brandenburg, Bavaria, ...) the MaStR states
