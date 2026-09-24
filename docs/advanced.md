@@ -119,7 +119,8 @@ The project home directory is structured as follows (files and folders below `da
         messages, edit the level of the handlers. See below for details on logging.
 * **data**
      * `export-<timestamp>` <br>
-        Contains exported data as csv files from method [`to_csv`][open_mastr.Mastr.to_csv].
+        Contains exported data as csv or Parquet files from methods [`to_csv`][open_mastr.Mastr.to_csv]
+        and [`to_parquet`][open_mastr.Mastr.to_parquet].
         `<timestamp>` is the time of the export as an ISO 8601 basic format UTC
         timestamp, e.g. `export-20260916T100000Z`.
      * `sqlite` <br>
@@ -186,8 +187,8 @@ flowchart LR
   id2 --> id3[("📗 open-mastr database")]
   id3 --> id4("🔧 Decode and cleanse data")
   id4 --> id3
-  id3 --> id5("Export to CSV")
-  id5 --> id6>"📜 open-mastr CSV files"]
+  id3 --> id5("Export to CSV or Parquet")
+  id5 --> id6>"📜 open-mastr CSV or Parquet files"]
   click id1 "https://www.marktstammdatenregister.de/MaStR/Datendownload" _blank
   click id2 "https://github.com/OpenEnergyPlatform/open-MaStR/blob/develop/open_mastr/xml_download/utils_write_to_database.py" _blank
   click id4 "https://github.com/OpenEnergyPlatform/open-MaStR/blob/develop/open_mastr/xml_download/utils_cleansing_bulk.py" _blank
@@ -244,7 +245,8 @@ As an example, instead of writing the German states where the unit is registered
 corresponding digits (7, 2, 9, ...). One major step of cleansing is therefore to replace those digits with their original meaning.
 Moreover, the datatypes of different entries are set in the data cleansing process and corrupted files are repaired.
 
-The tables in the database can be exported to CSV files using the [`to_csv`][open_mastr.Mastr.to_csv] method.
+The tables in the database can be exported to CSV files using the [`to_csv`][open_mastr.Mastr.to_csv] method,
+or to Parquet files using the [`to_parquet`][open_mastr.Mastr.to_parquet] method.
 
 **Note**: By default, existing zip files in `$HOME/.open-MaStR/data/xml_download` are deleted when a new file is
 downloaded. You can change this behavior by setting `keep_old_downloads`=True in
