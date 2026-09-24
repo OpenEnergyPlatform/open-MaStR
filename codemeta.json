@@ -10,9 +10,9 @@
                 "name": "Reiner Lemoine Institut",
                 "@type": "Organization"
             },
-            "familyName": "Ludwig",
-            "givenName": "Hülk",
-            "name": "Hülk Ludwig",
+            "familyName": "Hülk",
+            "givenName": "Ludwig",
+            "name": "Ludwig Hülk",
             "@id": "https://orcid.org/0000-0003-4655-2321",
             "@type": "Person"
         },
@@ -21,9 +21,9 @@
                 "name": "Reiner Lemoine Institut",
                 "@type": "Organization"
             },
-            "familyName": "Guido",
-            "givenName": "Pleßmann",
-            "name": "Pleßmann Guido",
+            "familyName": "Pleßmann",
+            "givenName": "Guido",
+            "name": "Guido Pleßmann",
             "@id": "_:author_2",
             "@type": "Person"
         },
@@ -32,9 +32,9 @@
                 "name": "Reiner Lemoine Institut",
                 "@type": "Organization"
             },
-            "familyName": "Christoph",
-            "givenName": "Muschner",
-            "name": "Muschner Christoph",
+            "familyName": "Muschner",
+            "givenName": "Christoph",
+            "name": "Christoph Muschner",
             "@id": "https://orcid.org/0000-0001-8144-5260",
             "@type": "Person"
         },
@@ -43,9 +43,9 @@
                 "name": "OFFIS e.V. - Institute for Informatics",
                 "@type": "Organization"
             },
-            "familyName": "Florian",
-            "givenName": "Kotthoff",
-            "name": "Kotthoff Florian",
+            "familyName": "Kotthoff",
+            "givenName": "Florian",
+            "name": "Florian Kotthoff",
             "@id": "https://orcid.org/0000-0003-3666-6122",
             "@type": "Person"
         },
@@ -54,9 +54,9 @@
                 "name": "fortiss",
                 "@type": "Organization"
             },
-            "familyName": "Deniz",
-            "givenName": "Tepe",
-            "name": "Tepe Deniz",
+            "familyName": "Tepe",
+            "givenName": "Deniz",
+            "name": "Deniz Tepe",
             "@id": "https://orcid.org/0000-0002-7605-0173",
             "@type": "Person"
         },
@@ -65,61 +65,83 @@
                 "name": "Reiner Lemoine Institut",
                 "@type": "Organization"
             },
-            "familyName": "Jonathan",
-            "givenName": "Amme",
-            "name": "Amme Jonathan",
+            "familyName": "Amme",
+            "givenName": "Jonathan",
+            "name": "Jonathan Amme",
             "@id": "https://orcid.org/0000-0002-8563-5261",
+            "@type": "Person"
+        },
+        {
+            "affiliation": {
+                "name": "Technical University of Munich",
+                "@type": "Organization"
+            },
+            "familyName": "Imbrisca",
+            "givenName": "Alexandra-Andreea",
+            "name": "Alexandra-Andreea Imbrisca",
+            "@id": "_:author_7",
+            "@type": "Person"
+        },
+        {
+            "affiliation": {
+                "name": "ProjectTogether gGmbH",
+                "@type": "Organization"
+            },
+            "familyName": "Krämer",
+            "givenName": "Kevin",
+            "name": "Kevin Krämer",
+            "@id": "_:author_8",
             "@type": "Person"
         },
         {
             "familyName": "Will",
             "givenName": "Simon",
             "name": "Simon Will",
-            "@id": "_:author_7",
+            "@id": "_:author_9",
+            "@type": "Person"
+        },
+        {
+            "familyName": "Rady",
+            "givenName": "Hassan",
+            "name": "Hassan Rady",
+            "@id": "_:author_10",
             "@type": "Person"
         },
         {
             "name": "Open Energy Family",
-            "@id": "_:author_8",
+            "@id": "_:author_11",
             "@type": "Organization"
         }
     ],
     "codeRepository": "https://github.com/OpenEnergyPlatform/open-MaStR",
     "dateCreated": "2019-08-21",
+    "developmentStatus": "active",
     "dateModified": "2026-07-14",
     "datePublished": "2019-12-05",
     "description": "A Python Package to Download and Process the German Power Plant and Energy System Registry Marktstammdatenregister (MaStR)",
     "downloadUrl": "https://github.com/OpenEnergyPlatform/open-MaStR/releases",
     "identifier": "https://doi.org/10.5281/zenodo.21415387",
     "keywords": [
-        "bnetza",
-        "dataset",
-        "datasets",
-        "energy",
-        "energy-data",
-        "marktstammdatenregister",
-        "oep",
-        "open-energy-family",
         "python",
-        "solar",
-        "Markstammdatenregister",
+        "Marktstammdatenregister",
+        "MaStR",
+        "Bundesnetzagentur",
+        "BNetzA",
         "Energy",
-        "Dataset",
-        "Solar",
-        "Wind",
+        "Energy System",
+        "Energy System Data",
         "Energy-data",
+        "Open Data",
         "OEP",
         "OpenEnergyFamily",
-        "Bundesnetzagentur",
-        "MaStR",
-        "bundesnetzagentur",
-        "mastr"
+        "Solar",
+        "Wind"
     ],
-    "license": "https://spdx.org/licenses/AGPL-3.0",
+    "license": "https://spdx.org/licenses/AGPL-3.0-or-later",
     "name": "open-MaStR",
     "programmingLanguage": "Python",
     "runtimePlatform": [
-        "Python>=3.9",
+        "Python>=3.12",
         "<4",
         "Conda"
     ],
@@ -196,7 +218,7 @@
             "@type": "SoftwareApplication"
         }
     ],
-    "version": "v0.17.4",
+    "version": "0.17.4",
     "continuousIntegration": "https://raw.githubusercontent.com/OpenEnergyPlatform/open-MaStR/develop/.github/workflows/ci-develop.yml",
     "issueTracker": "https://github.com/OpenEnergyPlatform/open-MaStR/issues"
 }
