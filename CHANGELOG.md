@@ -7,7 +7,15 @@ The format is inspired from [Keep a Changelog](http://keepachangelog.com/en/1.0.
 and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 
-## [v0.xx.x] Unreleased - 202x-xx-xx
+## [v1.XX.X] unreleased - 202X-XX-XX
+### Added
+
+### Changed
+
+### Removed
+
+
+## [v1.0.0] Open-MaStR stable release: SchemaSurfer - 2026-09-24
 ### Added
 - Add script for updating fallback XSD
   [#766](https://github.com/OpenEnergyPlatform/open-MaStR/pull/766)
