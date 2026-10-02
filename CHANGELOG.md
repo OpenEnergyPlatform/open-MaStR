@@ -11,6 +11,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 ### Added
 
 ### Changed
+- `bump2version` now also updates the version in `.zenodo.json`
+   [#816](https://github.com/OpenEnergyPlatform/open-MaStR/pull/816)
 
 ### Removed
 
