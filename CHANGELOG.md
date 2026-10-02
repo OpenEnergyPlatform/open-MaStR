@@ -15,6 +15,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
    [#816](https://github.com/OpenEnergyPlatform/open-MaStR/pull/816)
 
 ### Removed
+- `publication_date` from `.zenodo.json`, so Zenodo defaults it to the release date
+   [#816](https://github.com/OpenEnergyPlatform/open-MaStR/pull/816)
 
 
 ## [v1.0.0] Open-MaStR stable release: SchemaSurfer - 2026-09-24
