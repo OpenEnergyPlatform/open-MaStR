@@ -70,6 +70,25 @@ def test_replace_mastr_katalogeintraege_with_comma_separated_ids(
     )
 
 
+def test_replace_mastr_katalogeintraege_with_space_separated_ids(
+    mockup_xml_zip_in_output_dir: Path,
+) -> None:
+    df_raw = pd.DataFrame({"Bundesland": ["335 336", " 335,  336 ", "335 335"]})
+    df_replaced = pd.DataFrame(
+        {"Bundesland": ["Bayern,Bremen", "Bayern,Bremen", "Bayern"]}
+    )
+
+    pd.testing.assert_frame_equal(
+        replace_mastr_katalogeintraege(
+            zipped_xml_file_path=str(mockup_xml_zip_in_output_dir),
+            df=df_raw,
+            catalog_columns={"Bundesland"},
+        ),
+        df_replaced,
+        check_dtype=False,
+    )
+
+
 def test_replace_mastr_katalogeintraege_keeps_already_resolved_names(
     mockup_xml_zip_in_output_dir: Path,
 ) -> None:
