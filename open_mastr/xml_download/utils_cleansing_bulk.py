@@ -58,17 +58,17 @@ def replace_mastr_katalogeintraege(
                 # Only replace rows that still are numeric catalog IDs;
                 # already-resolved names (e.g. "Bayern") pass through unchanged.
                 column_as_string = df[column_name].astype("string")
-                is_id = column_as_string.str.match(r"^[\d,\s]+$")
+                is_id = column_as_string.str.match(r"^[\d,\s;|]+$")
                 df.loc[is_id, column_name] = (
                     column_as_string.loc[is_id]
                     .str.strip()
-                    .str.split(r"[\s,]+", expand=True)
+                    .str.split(r"[\s,;|]+", expand=True)
                     .apply(lambda x: x.str.strip())
                     .replace("", None)
                     .astype("Int64")
                     .map(katalogwerte.get)
                     .agg(
-                        lambda d: ",".join(
+                        lambda d: "|".join(
                             dict.fromkeys(i for i in d if isinstance(i, str))
                         ),
                         axis=1,
