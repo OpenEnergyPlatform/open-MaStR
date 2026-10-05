@@ -61,12 +61,18 @@ def replace_mastr_katalogeintraege(
                 is_id = column_as_string.str.match(r"^[\d,\s]+$")
                 df.loc[is_id, column_name] = (
                     column_as_string.loc[is_id]
-                    .str.split(",", expand=True)
+                    .str.strip()
+                    .str.split(r"[\s,]+", expand=True)
                     .apply(lambda x: x.str.strip())
                     .replace("", None)
                     .astype("Int64")
                     .map(katalogwerte.get)
-                    .agg(lambda d: ",".join(i for i in d if isinstance(i, str)), axis=1)
+                    .agg(
+                        lambda d: ",".join(
+                            dict.fromkeys(i for i in d if isinstance(i, str))
+                        ),
+                        axis=1,
+                    )
                     .replace("", None)
                 )
             else:
