@@ -9,6 +9,7 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 
 ## [v1.XX.X] unreleased - 202X-XX-XX
 ### Added
+- Support XML Schema list types (`XsdList`) when generating table models from XSD documentation
 
 ### Changed
 - `bump2version` now also updates the version in `.zenodo.json`
