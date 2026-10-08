@@ -151,7 +151,7 @@ def download_xml_Mastr(  # noqa: N802 public name, kept for backwards compatibil
     url: str, optional
         Custom download URL. If None, generates URL based on bulk_date_string.
     """
-    missing_tables = _find_missing_tables(save_path, bulk_data_list)
+    missing_tables, is_full_download = _find_missing_tables(save_path, bulk_data_list)
     if not missing_tables:
         return
 
@@ -222,11 +222,14 @@ def download_xml_Mastr(  # noqa: N802 public name, kept for backwards compatibil
         log.error("Could not download file: download URL not found")
         return
 
-    try:
-        partial_download_with_unzip_http(save_path, url, missing_tables)
-    except Exception as e:
-        log.warning(f"Partial download failed, fallback to full download: {e}")
+    if is_full_download:
         full_download_without_unzip_http(save_path, r)
+    else:
+        try:
+            partial_download_with_unzip_http(save_path, url, missing_tables)
+        except Exception as e:
+            log.warning(f"Partial download failed, fallback to full download: {e}")
+            full_download_without_unzip_http(save_path, r)
 
     time_b = time.perf_counter()
     log.info(
@@ -235,34 +238,47 @@ def download_xml_Mastr(  # noqa: N802 public name, kept for backwards compatibil
     log.info(f"MaStR was successfully downloaded to {xml_folder_path}.")
 
 
-def _find_missing_tables(save_path: str, bulk_data_list: list[str]) -> set[str]:
-    """Check if an existing download contains the XML files corresponding to the bulk_data_list."""
+def _find_missing_tables(
+    save_path: str, bulk_data_list: list[str]
+) -> tuple[set[str], bool]:
+    """Check if an existing download contains the XML files corresponding to the bulk_data_list.
+
+    Returns the tables that are missing and whether a full download is needed.
+    A full download is only worthwhile when the request spans the whole zip AND
+    all of the requested tables are missing (otherwise a partial download of just
+    the missing tables is cheaper than re-downloading everything).
+    """
     needed_tables = {
         bulk_table_name
         for bulk_data_name in bulk_data_list
         for bulk_table_name in BULK_INCLUDE_TABLES_MAP[bulk_data_name]
     } | {"katalogwerte"}  # We always need Katalogwerte!
+    all_tables = {t for tables in BULK_INCLUDE_TABLES_MAP.values() for t in tables} | {
+        "katalogwerte"
+    }
+
     if not os.path.exists(save_path):
-        return needed_tables
-
-    with ZipFile(save_path, "r") as zip_ref:
-        existing_tables = {
-            zip_name.lower().split("_")[0].split(".")[0]
-            for zip_name in zip_ref.namelist()
-        }
-
-    missing_tables = needed_tables - existing_tables
-    if missing_tables:
-        log.info(
-            f"MaStR XML ZIP file already present but missing the following data: {missing_tables}"
-        )
+        missing_tables = needed_tables
     else:
-        log.info(
-            "MaStR XML ZIP file already present and has all info. Not downloading again."
-            f" Existing file: {save_path}"
-        )
+        with ZipFile(save_path, "r") as zip_ref:
+            existing_tables = {
+                zip_name.lower().split("_")[0].split(".")[0]
+                for zip_name in zip_ref.namelist()
+            }
+        missing_tables = needed_tables - existing_tables
+        if missing_tables:
+            log.info(
+                "MaStR XML ZIP file already present but missing the "
+                f"following data: {missing_tables}"
+            )
+        else:
+            log.info(
+                "MaStR XML ZIP file already present and has all info. Not downloading again."
+                f" Existing file: {save_path}"
+            )
 
-    return missing_tables
+    is_full_download = missing_tables == needed_tables and needed_tables == all_tables
+    return missing_tables, is_full_download
 
 
 def delete_xml_files_not_from_given_date(
