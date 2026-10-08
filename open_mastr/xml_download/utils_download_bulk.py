@@ -354,10 +354,10 @@ def full_download_without_unzip_http(
         "Warning: The servers from MaStR restrict the download speed."
         " You may want to download it another time."
     )
-    # We could get rid of this magic number by first making a request to get the file size
-    # and then using that as total length for the progress bar.
-    # See https://github.com/OpenEnergyPlatform/open-MaStR/issues/570
-    total_length = 23000
+    # Loading bar based on content length form requested url
+    # if not given use 3200, roughly current size oct 2026
+    content_length = r.headers.get("content-length")
+    total_length = int(np.ceil(int(content_length or 3200) / (1024 * 1024)))
     with (
         open(save_path, "wb") as zfile,
         tqdm(desc=save_path, total=total_length, unit="") as bar,
