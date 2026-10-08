@@ -222,15 +222,11 @@ def download_xml_Mastr(  # noqa: N802 public name, kept for backwards compatibil
         log.error("Could not download file: download URL not found")
         return
 
-    all_tables = {table for tables in BULK_INCLUDE_TABLES_MAP for table in tables}
-    if missing_tables.issuperset(all_tables):
+    try:
+        partial_download_with_unzip_http(save_path, url, missing_tables)
+    except Exception as e:
+        log.warning(f"Partial download failed, fallback to full download: {e}")
         full_download_without_unzip_http(save_path, r)
-    else:
-        try:
-            partial_download_with_unzip_http(save_path, url, missing_tables)
-        except Exception as e:
-            log.warning(f"Partial download failed, fallback to full download: {e}")
-            full_download_without_unzip_http(save_path, r)
 
     time_b = time.perf_counter()
     log.info(
