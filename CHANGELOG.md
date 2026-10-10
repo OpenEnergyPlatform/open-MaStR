@@ -14,6 +14,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 - Support space- and comma-separated catalog IDs with whitespace stripping and value deduplication during bulk cleansing
 - `bump2version` now also updates the version in `.zenodo.json`
    [#816](https://github.com/OpenEnergyPlatform/open-MaStR/pull/816)
+- Fix condition check that triggers the full xml_download when all tables are requested
+  [#826](https://github.com/OpenEnergyPlatform/open-MaStR/pull/826)
 
 ### Removed
 - `publication_date` from `.zenodo.json`, so Zenodo defaults it to the release date
