@@ -32,7 +32,11 @@
               </xs:element>
               <xs:element type="xs:string" name="Bezeichnung" minOccurs="0"/>
               <xs:element type="xs:int" name="Marktgebiet" minOccurs="0"/>
-              <xs:element type="xs:string" name="Bundesland" minOccurs="0"/>
+              <xs:element name="Bundesland" minOccurs="0">
+                <xs:simpleType>
+                  <xs:list itemType="xs:short"/>
+                </xs:simpleType>
+              </xs:element>
               <xs:element type="xs:string" name="Bilanzierungsgebiete" minOccurs="0"/>
             </xs:sequence>
           </xs:complexType>

@@ -16,7 +16,9 @@
 								</xs:restriction>
 							</xs:simpleType>
 							</xs:element>
-							<xs:element type="xs:string" name="DatumLetzteAktualisierung"/>
+							<xs:element type="xs:string" name="DatumLetzteAktualisierung"/>							
+							<xs:element type="xs:date" name="DatumDerLoeschung" minOccurs="0"/>
+							<xs:element type="xs:int" name="MarktakteurLoeschgrund" minOccurs="0"/>		
 						</xs:sequence>
 					</xs:complexType>
 				</xs:element>

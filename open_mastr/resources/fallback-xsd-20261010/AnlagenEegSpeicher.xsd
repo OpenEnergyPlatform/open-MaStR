@@ -11,6 +11,14 @@
               <xs:element type="xs:date" name="EegInbetriebnahmedatum" minOccurs="0"/>
               <xs:element type="xs:string" name="EegMaStRNummer"/>
               <xs:element type="xs:string" name="AnlagenschluesselEeg" minOccurs="0"/>
+              <xs:element name="AnlagenschluesselEeg_nv" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:byte">
+                    <xs:enumeration value="0"/>
+                    <xs:enumeration value="1"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
               <xs:element name="AusschreibungZuschlag" minOccurs="0">
                 <xs:simpleType>
                   <xs:restriction base="xs:byte">
