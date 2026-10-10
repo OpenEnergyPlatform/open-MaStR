@@ -55,7 +55,7 @@ def test_replace_mastr_katalogeintraege_with_comma_separated_ids(
     mockup_xml_zip_in_output_dir: Path,
 ) -> None:
     df_raw = pd.DataFrame({"Bundesland": [335, "335, 336"]})
-    df_replaced = pd.DataFrame({"Bundesland": ["Bayern", "Bayern,Bremen"]})
+    df_replaced = pd.DataFrame({"Bundesland": ["Bayern", "Bayern|Bremen"]})
 
     pd.testing.assert_frame_equal(
         replace_mastr_katalogeintraege(
@@ -75,7 +75,7 @@ def test_replace_mastr_katalogeintraege_with_space_separated_ids(
 ) -> None:
     df_raw = pd.DataFrame({"Bundesland": ["335 336", " 335,  336 ", "335 335"]})
     df_replaced = pd.DataFrame(
-        {"Bundesland": ["Bayern,Bremen", "Bayern,Bremen", "Bayern"]}
+        {"Bundesland": ["Bayern|Bremen", "Bayern|Bremen", "Bayern"]}
     )
 
     pd.testing.assert_frame_equal(
@@ -95,7 +95,7 @@ def test_replace_mastr_katalogeintraege_keeps_already_resolved_names(
     # Values that are already resolved catalog names must pass through unchanged,
     # while numeric IDs (single or comma-separated) are still replaced.
     df_raw = pd.DataFrame({"Bundesland": ["Bayern", 335, "335, 336"]})
-    df_replaced = pd.DataFrame({"Bundesland": ["Bayern", "Bayern", "Bayern,Bremen"]})
+    df_replaced = pd.DataFrame({"Bundesland": ["Bayern", "Bayern", "Bayern|Bremen"]})
 
     df_new = replace_mastr_katalogeintraege(
         zipped_xml_file_path=str(mockup_xml_zip_in_output_dir),
@@ -104,6 +104,27 @@ def test_replace_mastr_katalogeintraege_keeps_already_resolved_names(
     )
     pd.testing.assert_frame_equal(
         df_new,
+        df_replaced,
+        check_dtype=False,
+    )
+
+
+def test_replace_mastr_katalogeintraege_with_internal_commas(
+    mockup_xml_zip_in_output_dir: Path,
+) -> None:
+    # Some catalog values (e.g. fuels) contain commas within individual labels.
+    # Joining with pipes preserves distinct labels without ambiguity.
+    df_raw = pd.DataFrame({"WeitereBrennstoffe": ["2467 2473", 2467]})
+    df_replaced = pd.DataFrame(
+        {"WeitereBrennstoffe": ["Heizöl, leicht|Erdgas, Erdölgas", "Heizöl, leicht"]}
+    )
+
+    pd.testing.assert_frame_equal(
+        replace_mastr_katalogeintraege(
+            zipped_xml_file_path=str(mockup_xml_zip_in_output_dir),
+            df=df_raw,
+            catalog_columns={"WeitereBrennstoffe"},
+        ),
         df_replaced,
         check_dtype=False,
     )
