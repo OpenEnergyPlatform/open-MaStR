@@ -9,6 +9,7 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 
 ## [v1.XX.X] unreleased - 202X-XX-XX
 ### Added
+- Support XML Schema list types (`XsdList`) when generating table models from XSD documentation
 
 ### Changed
 - Support space- and comma-separated catalog IDs with whitespace stripping and value deduplication during bulk cleansing
