@@ -107,7 +107,7 @@ def test_find_missing_tables_is_full_download():
         # Whole-zip request on a missing file -> full download
         all_bulk = list(BULK_INCLUDE_TABLES_MAP.keys())
         missing, is_full = _find_missing_tables(save_path, all_bulk)
-        # assert that resolved list is longer then key word list of download
+        # assert that resolved list is longer than key word list of download
         # tables
         assert len(missing) > len(all_bulk)
         assert is_full
