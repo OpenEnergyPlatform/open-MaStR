@@ -1,4 +1,5 @@
 import logging
+from collections.abc import Set
 from typing import Any, NotRequired, TypedDict
 
 from sqlalchemy import (
@@ -26,7 +27,7 @@ log = logging.getLogger("open-MaStR")
 class _ColumnKwargs(TypedDict):
     name: str
     type_: type[TypeEngine[Any]] | TypeEngine[Any]
-    info: NotRequired[dict[str, str | None]]
+    info: NotRequired[dict[str, str] | dict[str, str | None]]
     primary_key: NotRequired[bool]
     nullable: NotRequired[bool]
     autoincrement: NotRequired[bool]
@@ -110,7 +111,7 @@ def make_sqlalchemy_table_from_mastr_table_description(
         table_name = table_description.original_table_name
 
     try:
-        primary_key_columns: set[str | None] = set(
+        primary_key_columns: Set[str | None] = (
             MASTR_TABLE_NAME_TO_PRIMARY_KEY_COLUMNS[
                 table_description.original_table_name
             ]
@@ -167,11 +168,13 @@ def make_sqlalchemy_table_from_mastr_table_description(
     )
 
     if include_download_metadata:
-        data_source_col_info: dict[str, str | None] = {
+        data_source_col_info = {
             "normalized_name": "DatenQuelle",
             "english_name": "dataSource",
         }
-        data_source_col_name = "dataSource" if english else "DatenQuelle"
+        data_source_col_name = data_source_col_info[
+            "english_name" if english else "normalized_name"
+        ]
         db_column_kwargs.append(
             {
                 "name": data_source_col_name,
@@ -179,11 +182,13 @@ def make_sqlalchemy_table_from_mastr_table_description(
                 "info": data_source_col_info,
             }
         )
-        download_date_col_info: dict[str, str | None] = {
+        download_date_col_info = {
             "normalized_name": "DatumDownload",
             "english_name": "downloadDate",
         }
-        download_date_col_name = "downloadDate" if english else "DatumDownload"
+        download_date_col_name = download_date_col_info[
+            "english_name" if english else "normalized_name"
+        ]
         db_column_kwargs.append(
             {
                 "name": download_date_col_name,
@@ -206,7 +211,7 @@ def make_sqlalchemy_table_from_mastr_table_description(
 
 
 def _prepend_primary_key_if_missing(
-    expected_primary_key_columns: set[str | None],
+    expected_primary_key_columns: Set[str | None],
     db_column_kwargs: list[_ColumnKwargs],
     table_name: str,
     new_primary_key_name: str,
