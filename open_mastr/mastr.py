@@ -225,6 +225,7 @@ class Mastr:
         alter_database_tables: bool = True,
         english: bool = False,
         add_views_for_old_table_names: bool = True,
+        metadata: Optional[MetaData] = None,
         **kwargs: Any,
     ) -> None:
         """Download the MaStR registry and write it to a local database.
@@ -331,6 +332,11 @@ class Mastr:
             given.
 
             Defaults to True.
+
+        metadata : SQLAlchemy MetaData or None, optional
+            SQLAlchemy MetaData object to use to create the tables. If not given, a new MetaData object is created.
+            Only has an effect if mastr_table_to_db_table is not given.
+
         """
         if method == "API":
             log.warning(
@@ -385,6 +391,7 @@ class Mastr:
                 url=custom_docs_url,
                 catalog_value_as_str=bulk_cleansing,
                 english=english,
+                metadata=metadata,
             )
             log.info(
                 "Ensuring database tables for MaStR are present:"
