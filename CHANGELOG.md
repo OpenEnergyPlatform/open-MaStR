@@ -7,16 +7,23 @@ The format is inspired from [Keep a Changelog](http://keepachangelog.com/en/1.0.
 and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 
-## [v1.x.x] Unreleased - 202x-xx-xx
+## [v1.XX.X] unreleased - 202X-XX-XX
 ### Added
 - Add `Mastr.to_parquet` to export database tables to zstd-compressed Parquet files that keep the column types, with `pyarrow` as optional dependency `open-mastr[parquet]`
   [#813](https://github.com/OpenEnergyPlatform/open-MaStR/pull/813)
+- Support XML Schema list types (`XsdList`) when generating table models from XSD documentation
 
 ### Changed
+- Support space- and comma-separated catalog IDs with whitespace stripping, value deduplication, and pipe (|) delimiter during bulk cleansing
+- `bump2version` now also updates the version in `.zenodo.json`
+   [#816](https://github.com/OpenEnergyPlatform/open-MaStR/pull/816)
 
 ### Removed
+- `publication_date` from `.zenodo.json`, so Zenodo defaults it to the release date
+   [#816](https://github.com/OpenEnergyPlatform/open-MaStR/pull/816)
 
-## [v0.xx.x] Unreleased - 202x-xx-xx
+
+## [v1.0.0] Open-MaStR stable release: SchemaSurfer - 2026-09-24
 ### Added
 - Add script for updating fallback XSD
   [#766](https://github.com/OpenEnergyPlatform/open-MaStR/pull/766)

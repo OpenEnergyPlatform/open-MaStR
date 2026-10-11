@@ -218,7 +218,7 @@
             "@type": "SoftwareApplication"
         }
     ],
-    "version": "0.17.4",
+    "version": "1.0.0",
     "continuousIntegration": "https://raw.githubusercontent.com/OpenEnergyPlatform/open-MaStR/develop/.github/workflows/ci-develop.yml",
     "issueTracker": "https://github.com/OpenEnergyPlatform/open-MaStR/issues"
 }

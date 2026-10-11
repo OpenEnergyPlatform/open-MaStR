@@ -9,7 +9,11 @@ from zipfile import ZipFile
 
 import xmlschema
 from xmlschema.validators.exceptions import XMLSchemaModelError
-from xmlschema.validators.simple_types import XsdAtomicBuiltin, XsdAtomicRestriction
+from xmlschema.validators.simple_types import (
+    XsdAtomicBuiltin,
+    XsdAtomicRestriction,
+    XsdList,
+)
 
 from open_mastr.utils.constants import COLUMN_TRANSLATIONS, TABLE_TRANSLATIONS
 from open_mastr.utils.helpers import data_to_include_tables
@@ -75,8 +79,18 @@ class MastrColumnType(Enum):
 
     @classmethod
     def from_xsd_type(
-        cls, xsd_type: Union[XsdAtomicBuiltin, XsdAtomicRestriction]
+        cls, xsd_type: Union[XsdAtomicBuiltin, XsdAtomicRestriction, XsdList]
     ) -> "MastrColumnType":
+        if xsd_type.is_list():
+            list_type = (
+                xsd_type if isinstance(xsd_type, XsdList) else xsd_type.primitive_type
+            )
+            if enumeration := list_type.item_type.enumeration:
+                if set(enumeration) == {0, 1}:
+                    return cls.BOOLEAN
+                return cls.CATALOG_VALUE
+            return cls.STRING
+
         xsd_type_to_mastr_column_type = {
             f"{_XML_SCHEMA_PREFIX}string": cls.STRING,
             f"{_XML_SCHEMA_PREFIX}decimal": cls.INTEGER,
