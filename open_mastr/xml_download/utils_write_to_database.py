@@ -515,7 +515,7 @@ def add_missing_columns_to_table(
     """
     table_name = db_table.name
     for column_name in missing_columns:
-        alter_query = f'ALTER TABLE {table_name} ADD "{column_name}" VARCHAR NULL;'
+        alter_query = f'ALTER TABLE "{table_name}" ADD "{column_name}" VARCHAR NULL;'
         try:
             with engine.connect().execution_options(autocommit=True) as con:
                 with con.begin():
