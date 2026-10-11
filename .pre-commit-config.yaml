@@ -44,6 +44,8 @@ repos:
     hooks:
       - id: mypy
         additional_dependencies:
+          - sqlalchemy>=2.0
+          - xmlschema
           - types-requests
           - types-PyYAML
           - types-tqdm

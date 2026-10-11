@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Union
+from typing import Any, NotRequired, TypedDict
 
 from sqlalchemy import (
     Boolean,
@@ -12,6 +12,7 @@ from sqlalchemy import (
     String,
     Table,
 )
+from sqlalchemy.types import TypeEngine
 
 from open_mastr.utils.xsd_tables import (
     MastrColumnType,
@@ -20,6 +21,16 @@ from open_mastr.utils.xsd_tables import (
 )
 
 log = logging.getLogger("open-MaStR")
+
+
+class _ColumnKwargs(TypedDict):
+    name: str
+    type_: type[TypeEngine[Any]] | TypeEngine[Any]
+    info: NotRequired[dict[str, str | None]]
+    primary_key: NotRequired[bool]
+    nullable: NotRequired[bool]
+    autoincrement: NotRequired[bool]
+
 
 # Potential hierarchy
 # Id -> MastrNummer -> EinheitMastrNummer
@@ -99,7 +110,7 @@ def make_sqlalchemy_table_from_mastr_table_description(
         table_name = table_description.original_table_name
 
     try:
-        primary_key_columns = (
+        primary_key_columns: set[str | None] = set(
             MASTR_TABLE_NAME_TO_PRIMARY_KEY_COLUMNS[
                 table_description.original_table_name
             ]
@@ -118,11 +129,12 @@ def make_sqlalchemy_table_from_mastr_table_description(
         # an untranslatable primary key silently becomes None and then matches no
         # column, leaving the table with the artificial primary key instead.
         primary_key_columns = {
-            translate_mastr_column_name(column)  # type: ignore[misc]
+            translate_mastr_column_name(column)
             for column in primary_key_columns
+            if column is not None
         }
 
-    db_column_kwargs = []
+    db_column_kwargs: list[_ColumnKwargs] = []
     for mastr_column in table_description.columns:
         column_name = (
             mastr_column.english_name or mastr_column.normalized_name
@@ -133,23 +145,20 @@ def make_sqlalchemy_table_from_mastr_table_description(
             mastr_column_type=mastr_column.type,
             catalog_value_as_str=catalog_value_as_str,
         )
-        kwargs = (
-            {"primary_key": True}
-            if column_name in primary_key_columns
-            else {"nullable": True}
-        )
-        db_column_kwargs.append(
-            {
-                "name": column_name,
-                "type_": column_type,
-                "info": {
-                    "original_name": mastr_column.original_name,
-                    "normalized_name": mastr_column.normalized_name,
-                    "english_name": mastr_column.english_name,
-                },
-                **kwargs,
-            }
-        )
+        column_kwargs: _ColumnKwargs = {
+            "name": column_name,
+            "type_": column_type,
+            "info": {
+                "original_name": mastr_column.original_name,
+                "normalized_name": mastr_column.normalized_name,
+                "english_name": mastr_column.english_name,
+            },
+        }
+        if column_name in primary_key_columns:
+            column_kwargs["primary_key"] = True
+        else:
+            column_kwargs["nullable"] = True
+        db_column_kwargs.append(column_kwargs)
     db_column_kwargs = _prepend_primary_key_if_missing(
         expected_primary_key_columns=primary_key_columns,
         db_column_kwargs=db_column_kwargs,
@@ -158,13 +167,11 @@ def make_sqlalchemy_table_from_mastr_table_description(
     )
 
     if include_download_metadata:
-        data_source_col_info = {
+        data_source_col_info: dict[str, str | None] = {
             "normalized_name": "DatenQuelle",
             "english_name": "dataSource",
         }
-        data_source_col_name = data_source_col_info[
-            "english_name" if english else "normalized_name"
-        ]
+        data_source_col_name = "dataSource" if english else "DatenQuelle"
         db_column_kwargs.append(
             {
                 "name": data_source_col_name,
@@ -172,13 +179,11 @@ def make_sqlalchemy_table_from_mastr_table_description(
                 "info": data_source_col_info,
             }
         )
-        download_date_col_info = {
+        download_date_col_info: dict[str, str | None] = {
             "normalized_name": "DatumDownload",
             "english_name": "downloadDate",
         }
-        download_date_col_name = download_date_col_info[
-            "english_name" if english else "normalized_name"
-        ]
+        download_date_col_name = "downloadDate" if english else "DatumDownload"
         db_column_kwargs.append(
             {
                 "name": download_date_col_name,
@@ -201,11 +206,11 @@ def make_sqlalchemy_table_from_mastr_table_description(
 
 
 def _prepend_primary_key_if_missing(
-    expected_primary_key_columns: set[str],
-    db_column_kwargs: list[dict[str, Any]],
+    expected_primary_key_columns: set[str | None],
+    db_column_kwargs: list[_ColumnKwargs],
     table_name: str,
     new_primary_key_name: str,
-) -> list[dict[str, Any]]:
+) -> list[_ColumnKwargs]:
     realized_primary_key_columns = {
         kwargs["name"]
         for kwargs in db_column_kwargs
@@ -220,19 +225,24 @@ def _prepend_primary_key_if_missing(
         f"Missing primary key column for table {table_name}."
         f" Inserting custom ID column {new_primary_key_name!r}"
     )
-    return [
-        {
-            "name": new_primary_key_name,
-            "type_": Integer,
-            "primary_key": True,
-            "autoincrement": True,
-        }
-    ] + [
-        kwargs | {"primary_key": False, "nullable": True} for kwargs in db_column_kwargs
-    ]
+    primary_key_kwargs: _ColumnKwargs = {
+        "name": new_primary_key_name,
+        "type_": Integer,
+        "primary_key": True,
+        "autoincrement": True,
+    }
+    columns = [primary_key_kwargs]
+    for kwargs in db_column_kwargs:
+        nullable_kwargs = kwargs.copy()
+        nullable_kwargs["primary_key"] = False
+        nullable_kwargs["nullable"] = True
+        columns.append(nullable_kwargs)
+    return columns
 
 
-_MASTR_COLUMN_TYPE_TO_SQLALCHEMY_TYPE = {
+_MASTR_COLUMN_TYPE_TO_SQLALCHEMY_TYPE: dict[
+    MastrColumnType, type[TypeEngine[Any]] | TypeEngine[Any]
+] = {
     MastrColumnType.STRING: String,
     MastrColumnType.INTEGER: Integer,
     MastrColumnType.FLOAT: Float,
@@ -255,9 +265,7 @@ class CatalogString(String):
 def _get_sqlalchemy_type_for_mastr_column_type(
     mastr_column_type: MastrColumnType,
     catalog_value_as_str: bool,
-) -> Union[
-    type[String], type[Integer], type[Float], type[Date], type[DateTime], type[Boolean]
-]:
+) -> type[TypeEngine[Any]] | TypeEngine[Any]:
     if mastr_column_type is MastrColumnType.CATALOG_VALUE:
         return CatalogString if catalog_value_as_str else CatalogInteger
     return _MASTR_COLUMN_TYPE_TO_SQLALCHEMY_TYPE[mastr_column_type]
