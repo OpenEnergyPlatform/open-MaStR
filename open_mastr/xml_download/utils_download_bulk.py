@@ -355,12 +355,11 @@ def full_download_without_unzip_http(
         " You may want to download it another time."
     )
     # Loading bar based on content length from url with extra request for the header
-    # if not given use 3200, roughly current size oct 2026
+    # if not given use 3100, roughly current size oct 2026
     head = requests.head(r.url, headers={"User-Agent": USER_AGENT})
-
     content_length = head.headers.get("content-length")
     total_length = int(
-        np.ceil(int(content_length or 3200 * 1024 * 1024) / (1024 * 1024))
+        np.ceil(int(content_length or 3100 * 1024 * 1024) / (1024 * 1024))
     )
 
     with (
