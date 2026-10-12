@@ -354,10 +354,15 @@ def full_download_without_unzip_http(
         "Warning: The servers from MaStR restrict the download speed."
         " You may want to download it another time."
     )
-    # Loading bar based on content length form requested url
+    # Loading bar based on content length from url with extra request for the header
     # if not given use 3200, roughly current size oct 2026
-    content_length = r.headers.get("content-length")
-    total_length = int(np.ceil(int(content_length or 3200) / (1024 * 1024)))
+    head = requests.head(r.url, headers={"User-Agent": USER_AGENT})
+
+    content_length = head.headers.get("content-length")
+    total_length = int(
+        np.ceil(int(content_length or 3200 * 1024 * 1024) / (1024 * 1024))
+    )
+
     with (
         open(save_path, "wb") as zfile,
         tqdm(desc=save_path, total=total_length, unit="") as bar,
