@@ -9,6 +9,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 
 ## [v1.XX.X] unreleased - 202X-XX-XX
 ### Added
+- Add `Mastr.to_parquet` to export database tables to zstd-compressed Parquet files that keep the column types, with `pyarrow` as optional dependency `open-mastr[parquet]`
+  [#813](https://github.com/OpenEnergyPlatform/open-MaStR/pull/813)
 - Support XML Schema list types (`XsdList`) when generating table models from XSD documentation
 
 ### Changed
