@@ -12,6 +12,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 - Support XML Schema list types (`XsdList`) when generating table models from XSD documentation
 
 ### Changed
+- Wrap table name in quotes to support non-lowercase tables in PostgreSQL
+   [#834](https://github.com/OpenEnergyPlatform/open-MaStR/pull/834)
 - Support space- and comma-separated catalog IDs with whitespace stripping, value deduplication, and pipe (|) delimiter during bulk cleansing
 - `bump2version` now also updates the version in `.zenodo.json`
    [#816](https://github.com/OpenEnergyPlatform/open-MaStR/pull/816)
