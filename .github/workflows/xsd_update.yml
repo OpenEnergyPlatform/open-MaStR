@@ -1,0 +1,62 @@
+name: Update MaStR fallback XSD
+
+on:
+  schedule:
+    - cron: "0 6 1 * *"   # 06:00 UTC on the 1st of every month
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+env:
+  ZIP_URL: "https://www.marktstammdatenregister.de/MaStRHilfe/files/gesamtdatenexport/Dokumentation%20MaStR%20Gesamtdatenexport.zip"
+  RESOURCES_DIR: "open_mastr/resources"
+  BASE_BRANCH: "develop"
+
+jobs:
+  update-xsd:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.BASE_BRANCH }}
+
+      - name: Download and replace fallback XSD folder
+        run: |
+          curl -fsSL -o "$RUNNER_TEMP/mastr-docs.zip" "$ZIP_URL"
+          unzip -q "$RUNNER_TEMP/mastr-docs.zip" -d "$RUNNER_TEMP/extract"
+
+          XSD_SRC=$(find "$RUNNER_TEMP/extract" -type d -name xsd | head -n 1)
+          if [ -z "$XSD_SRC" ]; then
+            echo "No xsd folder found in the archive" >&2
+            exit 1
+          fi
+
+          NEW_NAME="fallback-xsd-$(date +%Y%m%d)"
+          LATEST=$(find "$RESOURCES_DIR" -maxdepth 1 -type d -name 'fallback-xsd-*' | sort | tail -n 1)
+
+          # Skip if the content is identical to the current folder
+          if [ -n "$LATEST" ] && diff -rq "$XSD_SRC" "$LATEST" > /dev/null; then
+            echo "XSD files unchanged, nothing to do."
+            exit 0
+          fi
+
+          # Remove old dated folder(s), create the new one
+          find "$RESOURCES_DIR" -maxdepth 1 -type d -name 'fallback-xsd-*' -exec rm -rf {} +
+          mkdir -p "$RESOURCES_DIR/$NEW_NAME"
+          cp -a "$XSD_SRC"/. "$RESOURCES_DIR/$NEW_NAME"/
+
+          echo "NEW_NAME=$NEW_NAME" >> "$GITHUB_ENV"
+
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          base: ${{ env.BASE_BRANCH }}
+          branch: automated/mastr-fallback-xsd-update
+          commit-message: "chore: update MaStR fallback XSD"
+          title: "Update MaStR fallback XSD"
+          body: |
+            Automated update of the fallback XSD files from the MaStR Gesamtdatenexport documentation.
+            Source: ${{ env.ZIP_URL }}
+          add-paths: ${{ env.RESOURCES_DIR }}/
