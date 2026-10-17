@@ -21,11 +21,14 @@ requires_real_credentials = pytest.mark.skipif(
 
 @pytest.fixture
 def mastr_api_fake_credentials():
+    # MaStRAPI loads the WSDL on init, so allow it before pytest-responses blocks it
+    responses.add_passthru("https://www.marktstammdatenregister.de")
     return MaStRAPI(user="testuser", key="testpassword")
 
 
 @pytest.fixture
 def mastr_api():
+    responses.add_passthru("https://www.marktstammdatenregister.de")
     return MaStRAPI()
 
 
