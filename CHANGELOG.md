@@ -12,7 +12,7 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 - Support XML Schema list types (`XsdList`) when generating table models from XSD documentation
   [#820](https://github.com/OpenEnergyPlatform/open-MaStR/pull/820)
 - Raise `MissingMaStRAPIKeyError` in `MaStRAPI` if no API key is passed or configured
-  [#750](https://github.com/OpenEnergyPlatform/open-MaStR/issues/750)
+  [#838](https://github.com/OpenEnergyPlatform/open-MaStR/pull/838)
 
 ### Changed
 - Update fallback XSD to the XSD provided on 2026-10-10
