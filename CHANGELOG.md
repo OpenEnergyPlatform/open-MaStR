@@ -9,6 +9,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 
 ## [v1.XX.X] unreleased - 202X-XX-XX
 ### Added
+- Create xsd_update.yml
+  [#837](https://github.com/OpenEnergyPlatform/open-MaStR/pull/837)
 - Support XML Schema list types (`XsdList`) when generating table models from XSD documentation
   [#820](https://github.com/OpenEnergyPlatform/open-MaStR/pull/820)
 
