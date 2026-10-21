@@ -56,6 +56,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
   [#808](https://github.com/OpenEnergyPlatform/open-MaStR/pull/808)
 
 ### Changed
+- Update full download loading bar
+  [#570](https://github.com/OpenEnergyPlatform/open-MaStR/pull/824)
 - Updated docs to represent code changes of release v1.0.0
   [#810](https://github.com/OpenEnergyPlatform/open-MaStR/pull/810)
 - Update the metadata for v1.0.0 release
