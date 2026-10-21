@@ -359,9 +359,7 @@ def full_download_without_unzip_http(
     # if not given use 3100, roughly current size oct 2026
     head = requests.head(r.url, headers={"User-Agent": USER_AGENT})
     content_length = head.headers.get("content-length")
-    total_length = int(
-        math.ceil(int(content_length or 3100 * 1024 * 1024) / (1024 * 1024))
-    )
+    total_length = math.ceil(int(content_length or 3100 * 1024 * 1024) / (1024 * 1024))
 
     with (
         open(save_path, "wb") as zfile,
