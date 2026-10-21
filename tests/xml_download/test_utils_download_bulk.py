@@ -1,7 +1,7 @@
 import os
 import shutil
-import tempfile
 import time
+from pathlib import Path
 from zipfile import ZipFile
 
 from open_mastr.utils.constants import BULK_INCLUDE_TABLES_MAP
@@ -96,28 +96,27 @@ def test_gen_xml_download_url():
     )
 
 
-def test_find_missing_tables_is_full_download():
+def test_find_missing_tables_is_full_download(tmp_path: Path) -> None:
     # Requesting only some categories on a missing file -> partial download
-    with tempfile.TemporaryDirectory() as tmp:
-        save_path = os.path.join(tmp, "mastr.zip")
-        missing, is_full = _find_missing_tables(save_path, ["wind", "solar"])
-        assert len(missing) > 1
-        assert not is_full
+    save_path = str(tmp_path / "mastr.zip")
+    missing, is_full = _find_missing_tables(save_path, ["wind", "solar"])
+    assert len(missing) > 1
+    assert not is_full
 
-        # Whole-zip request on a missing file -> full download
-        all_bulk = list(BULK_INCLUDE_TABLES_MAP.keys())
-        missing, is_full = _find_missing_tables(save_path, all_bulk)
-        # assert that resolved list is longer than key word list of download
-        # tables
-        assert len(missing) > len(all_bulk)
-        assert is_full
+    # Whole-zip request on a missing file -> full download
+    all_bulk = list(BULK_INCLUDE_TABLES_MAP.keys())
+    missing, is_full = _find_missing_tables(save_path, all_bulk)
+    # assert that resolved list is longer than key word list of download
+    # tables
+    assert len(missing) > len(all_bulk)
+    assert is_full
 
-        # Zip present with some tables -> not a full download, only missing returned
-        with ZipFile(save_path, "w") as z:
-            z.writestr("AnlagenEegWind_foo.xml", "x")
-        missing, is_full = _find_missing_tables(save_path, all_bulk)
-        assert is_full is False
-        assert "anlageneegwind" not in missing
+    # Zip present with some tables -> not a full download, only missing returned
+    with ZipFile(save_path, "w") as z:
+        z.writestr("AnlagenEegWind_foo.xml", "x")
+    missing, is_full = _find_missing_tables(save_path, all_bulk)
+    assert is_full is False
+    assert "anlageneegwind" not in missing
 
 
 def test_delete_xml_files_not_from_given_date():
