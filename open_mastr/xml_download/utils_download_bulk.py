@@ -1,3 +1,4 @@
+import math
 import os
 import re
 import shutil
@@ -359,7 +360,7 @@ def full_download_without_unzip_http(
     head = requests.head(r.url, headers={"User-Agent": USER_AGENT})
     content_length = head.headers.get("content-length")
     total_length = int(
-        np.ceil(int(content_length or 3100 * 1024 * 1024) / (1024 * 1024))
+        math.ceil(int(content_length or 3100 * 1024 * 1024) / (1024 * 1024))
     )
 
     with (
