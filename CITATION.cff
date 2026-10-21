@@ -48,6 +48,10 @@ authors:
     alias: "@duramson"
     affiliation: "OFFIS e.V. - Institute for Informatics"
     orcid: "https://orcid.org/0009-0004-3160-0815"
+  - family-names: "Krebber"
+    given-names: "Till"
+    alias: "TillKrebber"
+    affiliation: "Reiner Lemoine Institut"
 identifiers:
   - type: swh
     value: 'swh:1:dir:28252b3ca57b56d22be851bad576b6748af2e171'
