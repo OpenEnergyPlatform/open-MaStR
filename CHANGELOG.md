@@ -17,6 +17,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
   [#838](https://github.com/OpenEnergyPlatform/open-MaStR/pull/838)
 
 ### Changed
+- Update ci with 5s stagger for "parallel" tests
+  [#840](https://github.com/OpenEnergyPlatform/open-MaStR/pull/841)
 - Update fallback XSD to the XSD provided on 2026-10-10
   [#828](https://github.com/OpenEnergyPlatform/open-MaStR/pull/826)
 - Wrap table name in quotes to support non-lowercase tables in PostgreSQL
