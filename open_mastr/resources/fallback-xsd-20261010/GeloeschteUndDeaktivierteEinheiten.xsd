@@ -42,7 +42,9 @@
                     <xs:enumeration value="37"/>
                   </xs:restriction>
                 </xs:simpleType>
-              </xs:element>
+              </xs:element>		
+			  <xs:element type="xs:date" name="DatumDerLoeschung" minOccurs="0"/>
+			  <xs:element type="xs:int" name="EinheitLoeschgrund" minOccurs="0"/>		
             </xs:sequence>
           </xs:complexType>
         </xs:element>

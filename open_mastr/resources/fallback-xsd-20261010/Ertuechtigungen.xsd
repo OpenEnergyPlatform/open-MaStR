@@ -36,7 +36,7 @@
               </xs:element>
               <xs:element name="WiederinbetriebnahmeDatum" minOccurs="0">
                 <xs:simpleType>
-                  <xs:restriction base="xs:dateTime">
+                  <xs:restriction base="xs:date">
                   </xs:restriction>
                 </xs:simpleType>
               </xs:element>
