@@ -17,7 +17,7 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
   [#838](https://github.com/OpenEnergyPlatform/open-MaStR/pull/838)
 
 ### Changed
-- Remove max-parallel limit
+- Remove max-parallel limit for github actions CI
   [#840](https://github.com/OpenEnergyPlatform/open-MaStR/pull/841)
 - Update fallback XSD to the XSD provided on 2026-10-10
   [#828](https://github.com/OpenEnergyPlatform/open-MaStR/pull/826)
