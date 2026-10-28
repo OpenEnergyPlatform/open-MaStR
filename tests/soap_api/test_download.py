@@ -1,32 +1,44 @@
 import pytest
 import responses
 
-from open_mastr.soap_api.download import MaStRAPI
+from open_mastr.soap_api import download
+from open_mastr.soap_api.download import MaStRAPI, MissingMaStRAPIKeyError
 
 
-def _check_real_credentials():
+def _check_credentials_configured():
     try:
-        api = MaStRAPI()
-        result = api.GetAktuellerStandTageskontingent()
-        return result.get("Ergebniscode") == "OK"
-    except Exception:
+        MaStRAPI()
+        return True
+    except MissingMaStRAPIKeyError:
         return False
 
 
 requires_real_credentials = pytest.mark.skipif(
-    not _check_real_credentials(),
-    reason="Real MaStR credentials not available or not working",
+    not _check_credentials_configured(),
+    reason="MaStR credentials not configured",
 )
 
 
 @pytest.fixture
 def mastr_api_fake_credentials():
+    # MaStRAPI loads the WSDL on init, so allow it before pytest-responses blocks it
+    responses.add_passthru("https://www.marktstammdatenregister.de")
     return MaStRAPI(user="testuser", key="testpassword")
 
 
 @pytest.fixture
 def mastr_api():
+    responses.add_passthru("https://www.marktstammdatenregister.de")
     return MaStRAPI()
+
+
+@pytest.mark.parametrize("token", [None, ""])
+def test_missing_api_key_raises(monkeypatch, token):
+    monkeypatch.setattr(download.cred, "get_mastr_user", lambda: "testuser")
+    monkeypatch.setattr(download.cred, "get_mastr_token", lambda user: token)
+
+    with pytest.raises(MissingMaStRAPIKeyError):
+        MaStRAPI()
 
 
 @responses.activate

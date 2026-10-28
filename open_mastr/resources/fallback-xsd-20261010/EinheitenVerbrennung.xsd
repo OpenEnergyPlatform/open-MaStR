@@ -271,7 +271,6 @@
               <xs:element name="WeitererHauptbrennstoff">
                 <xs:simpleType>
                   <xs:restriction base="xs:short">
-
                     <xs:enumeration value="2414"/>
                     <xs:enumeration value="2415"/>
                     <xs:enumeration value="2416"/>
@@ -343,7 +342,11 @@
                   </xs:restriction>
                 </xs:simpleType>
               </xs:element>
-              <xs:element type="xs:string" name="WeitereBrennstoffe"/>
+              <xs:element name="WeitereBrennstoffe">
+              <xs:simpleType>
+                <xs:list itemType="xs:short"/>
+              </xs:simpleType>
+              </xs:element>
               <xs:element name="Notstromaggregat" minOccurs="0">
                 <xs:simpleType>
                   <xs:restriction base="xs:byte">
@@ -409,7 +412,11 @@
               </xs:element>
               <xs:element type="xs:float" name="SteigerungNettonennleistungKombibetrieb" minOccurs="0"/>
               <xs:element type="xs:string" name="Adresszusatz" minOccurs="0"/>
-              <xs:element type="xs:string" name="MastrNummernKombibetrieb" minOccurs="0"/>
+              <xs:element name="MastrNummernKombibetrieb" minOccurs="0">
+              <xs:simpleType>
+                <xs:list itemType="xs:string"/>
+              </xs:simpleType>
+              </xs:element>
               <xs:element type="xs:date" name="DatumBaubeginn" minOccurs="0"/>
               <xs:element type="xs:date" name="SicherheitsbereitschaftAbDatum" minOccurs="0"/>
               <xs:element type="xs:float" name="NettonennleistungDeutschland" minOccurs="0"/>
@@ -439,7 +446,12 @@
                 </xs:simpleType>
               </xs:element>
               <xs:element type="xs:dateTime" name="DatumKapazitaetsreserve" minOccurs="0"/>
-              <xs:element type="xs:dateTime" name="InbetriebnahmedatumAmAktuellenStandort" minOccurs="0"/>
+              <xs:element type="xs:date" name="InbetriebnahmedatumAmAktuellenStandort" minOccurs="0"/>
+			  <xs:element name="VorlaeufigeRegelzonenDerEinheit" minOccurs="0">
+				<xs:simpleType>
+					<xs:list itemType="xs:int"/>
+				</xs:simpleType>
+			  </xs:element>
             </xs:choice>
           </xs:complexType>
         </xs:element>
