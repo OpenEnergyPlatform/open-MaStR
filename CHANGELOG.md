@@ -23,6 +23,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
   [#828](https://github.com/OpenEnergyPlatform/open-MaStR/pull/826)
 - Wrap table name in quotes to support non-lowercase tables in PostgreSQL
   [#834](https://github.com/OpenEnergyPlatform/open-MaStR/pull/834)
+- Fix XSD and SQLAlchemy type annotations and check them with runtime dependencies in the mypy hook
+  [#831](https://github.com/OpenEnergyPlatform/open-MaStR/pull/831)
 - Support space- and comma-separated catalog IDs with whitespace stripping, value deduplication, and pipe (|) delimiter during bulk cleansing
   [#819](https://github.com/OpenEnergyPlatform/open-MaStR/pull/819)
   [#821](https://github.com/OpenEnergyPlatform/open-MaStR/pull/821)
