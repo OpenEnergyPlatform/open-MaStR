@@ -121,7 +121,19 @@ tables = ["EinheitenWind", "Netze"]
 db.to_csv(tables)
 ```
 
+The same tables can be exported as zstd-compressed Parquet files with [`to_parquet`][open_mastr.Mastr.to_parquet].
+Parquet files are much smaller than CSV files and keep the column types of the database, so dates, timestamps and
+booleans are read back with their type. This requires the optional dependency `pyarrow`:
+
+```bash
+pip install "open-mastr[parquet]"
+```
+
+```python
+db.to_parquet(tables)
+```
+
 !!! note "Old table names cannot be exported"
     The pre-v1.0 table names described [above](#old-pre-v10-table-names) are database views, not tables, so `to_csv`
-    skips them with a warning. Pass the name of the underlying table instead, for example `EinheitenWind` rather than
-    `wind_extended`.
+    and `to_parquet` skip them with a warning. Pass the name of the underlying table instead, for example
+    `EinheitenWind` rather than `wind_extended`.
