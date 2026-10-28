@@ -36,14 +36,22 @@ authors:
     affiliation: "Technical University of Munich"
   - family-names: 'Krämer'
     given-names: "Kevin"
-    alias: "@pt-kkraemer"
-    affiliation: "ProjectTogether gGmbH"
+    alias: "@kvnkrmr"
   - family-names: "Will"
     given-names: "Simon"
     alias: "@Simon-Will"
   - family-names: "Rady"
     given-names: "Hassan"
     alias: "@hassanrady"
+  - family-names: "Theesen"
+    given-names: "Cedrik"
+    alias: "@duramson"
+    affiliation: "OFFIS e.V. - Institute for Informatics"
+    orcid: "https://orcid.org/0009-0004-3160-0815"
+  - family-names: "Krebber"
+    given-names: "Till"
+    alias: "TillKrebber"
+    affiliation: "Reiner Lemoine Institut"
 identifiers:
   - type: swh
     value: 'swh:1:dir:28252b3ca57b56d22be851bad576b6748af2e171'
