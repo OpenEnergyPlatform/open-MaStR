@@ -341,8 +341,29 @@ def partial_download_with_unzip_http(
                 # to e.g. 'AnlagenEegSolar_1.xml'
                 download_files_list.append(remote_zip_file.namelist()[remote_index])
 
-    for zipfile_name in tqdm(download_files_list, unit=" file"):
-        remote_zip_file.extractzip(zipfile_name, path=Path(save_path))
+    # Members are appended to a copy that replaces save_path only once every
+    # member is complete. An interrupted append still closes the zip cleanly,
+    # so a truncated member in save_path would pass every later check (#839).
+    if not download_files_list:
+        return
+    part_path = save_path + ".part"
+    try:
+        if os.path.exists(part_path):
+            os.remove(part_path)  # left behind by a killed run
+        if os.path.exists(save_path):
+            shutil.copyfile(save_path, part_path)
+        for zipfile_name in tqdm(download_files_list, unit=" file"):
+            remote_zip_file.extractzip(zipfile_name, path=Path(part_path))
+        with ZipFile(part_path) as part_zip:
+            for zipfile_name in download_files_list:
+                expected = remote_zip_file.files[zipfile_name].file_size
+                if part_zip.getinfo(zipfile_name).file_size != expected:
+                    raise OSError(f"Incomplete download of {zipfile_name}")
+        os.replace(part_path, save_path)
+    except BaseException:
+        if os.path.exists(part_path):
+            os.remove(part_path)
+        raise
 
 
 def full_download_without_unzip_http(
