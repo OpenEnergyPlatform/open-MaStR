@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:element name="EinheitenWasser">
+  <xs:element name="EinheitenKernkraft">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="EinheitWasser" maxOccurs="unbounded" minOccurs="0">
+        <xs:element name="EinheitKernkraft" maxOccurs="unbounded" minOccurs="0">
           <xs:complexType>
-            <xs:choice maxOccurs="unbounded" minOccurs="0">
+            <xs:sequence>
               <xs:element type="xs:string" name="EinheitMastrNummer"/>
               <xs:element type="xs:dateTime" name="DatumLetzteAktualisierung"/>
               <xs:element type="xs:string" name="LokationMaStRNummer" minOccurs="0"/>
@@ -62,7 +62,7 @@
               <xs:element type="xs:string" name="Landkreis" minOccurs="0"/>
               <xs:element type="xs:string" name="Gemeinde" minOccurs="0"/>
               <xs:element type="xs:string" name="Gemeindeschluessel" minOccurs="0"/>
-              <xs:element type="xs:string" name="Postleitzahl"/>
+              <xs:element type="xs:string" name="Postleitzahl" minOccurs="0"/>
               <xs:element type="xs:string" name="Strasse" minOccurs="0"/>
               <xs:element type="xs:string" name="Gemarkung" minOccurs="0"/>
               <xs:element type="xs:string" name="FlurFlurstuecknummern" minOccurs="0"/>
@@ -78,8 +78,8 @@
               <xs:element name="Hausnummer_nv">
                 <xs:simpleType>
                   <xs:restriction base="xs:byte">
-                    <xs:enumeration value="1"/>
                     <xs:enumeration value="0"/>
+                    <xs:enumeration value="1"/>
                   </xs:restriction>
                 </xs:simpleType>
               </xs:element>
@@ -91,16 +91,15 @@
                   </xs:restriction>
                 </xs:simpleType>
               </xs:element>
-              <xs:element type="xs:string" name="Adresszusatz" minOccurs="0"/>
               <xs:element type="xs:string" name="Ort"/>
               <xs:element type="xs:float" name="Laengengrad" minOccurs="0"/>
               <xs:element type="xs:float" name="Breitengrad" minOccurs="0"/>
               <xs:element type="xs:date" name="Registrierungsdatum"/>
               <xs:element type="xs:date" name="Inbetriebnahmedatum" minOccurs="0"/>
-              <xs:element type="xs:date" name="GeplantesInbetriebnahmedatum" minOccurs="0"/>
               <xs:element type="xs:date" name="DatumEndgueltigeStilllegung" minOccurs="0"/>
               <xs:element type="xs:date" name="DatumBeginnVoruebergehendeStilllegung" minOccurs="0"/>
               <xs:element type="xs:date" name="DatumWiederaufnahmeBetrieb" minOccurs="0"/>
+              <xs:element type="xs:date" name="GeplantesInbetriebnahmedatum" minOccurs="0"/>
               <xs:element name="EinheitSystemstatus">
                 <xs:simpleType>
                   <xs:restriction base="xs:short">
@@ -116,9 +115,9 @@
                 <xs:simpleType>
                   <xs:restriction base="xs:byte">
                     <xs:enumeration value="35"/>
-                    <xs:enumeration value="31"/>
                     <xs:enumeration value="38"/>
                     <xs:enumeration value="37"/>
+                    <xs:enumeration value="31"/>
                   </xs:restriction>
                 </xs:simpleType>
               </xs:element>
@@ -216,45 +215,15 @@
               </xs:element>
               <xs:element type="xs:string" name="GenMastrNummer" minOccurs="0"/>
               <xs:element type="xs:string" name="NameKraftwerk"/>
-              <xs:element name="ArtDerWasserkraftanlage" minOccurs="0">
+              <xs:element type="xs:string" name="NameKraftwerksblock" minOccurs="0"/>
+              <xs:element name="Technologie" minOccurs="0">
                 <xs:simpleType>
                   <xs:restriction base="xs:short">
-                    <xs:enumeration value="890"/>
-                    <xs:enumeration value="894"/>
-                    <xs:enumeration value="895"/>
-                    <xs:enumeration value="891"/>
-                    <xs:enumeration value="896"/>
-                    <xs:enumeration value="897"/>
+                    <xs:enumeration value="1444"/>
+                    <xs:enumeration value="1445"/>
                   </xs:restriction>
                 </xs:simpleType>
               </xs:element>
-              <xs:element name="MinderungStromerzeugung" minOccurs="0">
-                <xs:simpleType>
-                  <xs:restriction base="xs:byte">
-                    <xs:enumeration value="0"/>
-                    <xs:enumeration value="1"/>
-                  </xs:restriction>
-                </xs:simpleType>
-              </xs:element>
-              <xs:element name="BestandteilGrenzkraftwerk" minOccurs="0">
-                <xs:simpleType>
-                  <xs:restriction base="xs:byte">
-                    <xs:enumeration value="0"/>
-                    <xs:enumeration value="1"/>
-                  </xs:restriction>
-                </xs:simpleType>
-              </xs:element>
-              <xs:element type="xs:float" name="NettonennleistungDeutschland" minOccurs="0"/>
-              <xs:element name="ArtDesZuflusses" minOccurs="0">
-                <xs:simpleType>
-                  <xs:restriction base="xs:short">
-                    <xs:enumeration value="724"/>
-                    <xs:enumeration value="726"/>
-                    <xs:enumeration value="725"/>
-                  </xs:restriction>
-                </xs:simpleType>
-              </xs:element>
-              <xs:element type="xs:string" name="EegMaStRNummer"/>
               <xs:element name="NetzreserveZugeordnet" minOccurs="0">
                 <xs:simpleType>
                   <xs:restriction base="xs:byte">
@@ -274,12 +243,7 @@
               </xs:element>
               <xs:element type="xs:dateTime" name="DatumKapazitaetsreserve" minOccurs="0"/>
               <xs:element type="xs:date" name="InbetriebnahmedatumAmAktuellenStandort" minOccurs="0"/>
-			  <xs:element name="VorlaeufigeRegelzonenDerEinheit" minOccurs="0">
-				<xs:simpleType>
-					<xs:list itemType="xs:int"/>
-				</xs:simpleType>
-			  </xs:element>
-            </xs:choice>
+            </xs:sequence>
           </xs:complexType>
         </xs:element>
       </xs:sequence>
