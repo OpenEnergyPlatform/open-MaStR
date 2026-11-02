@@ -17,6 +17,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
   [#838](https://github.com/OpenEnergyPlatform/open-MaStR/pull/838)
 
 ### Changed
+- Replace the partial-download zip only after every new member is complete
+  [#843](https://github.com/OpenEnergyPlatform/open-MaStR/pull/843)
 - Remove max-parallel limit for github actions CI
   [#840](https://github.com/OpenEnergyPlatform/open-MaStR/pull/841)
 - Update fallback XSD to the XSD provided on 2026-10-10
