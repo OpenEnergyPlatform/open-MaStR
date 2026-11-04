@@ -16,7 +16,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 - Raise `MissingMaStRAPIKeyError` in `MaStRAPI` if no API key is passed or configured
   [#838](https://github.com/OpenEnergyPlatform/open-MaStR/pull/838)
 - Added translations for new columns
-  [835](https://github.com/OpenEnergyPlatform/open-MaStR/pull/844)
+  [#844](https://github.com/OpenEnergyPlatform/open-MaStR/pull/844)
+  [#845](https://github.com/OpenEnergyPlatform/open-MaStR/pull/845)
 
 ### Changed
 - Remove max-parallel limit for github actions CI
