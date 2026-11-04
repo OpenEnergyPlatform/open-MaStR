@@ -14,8 +14,8 @@ The possible databases are:
 
 * **sqlite**: By default the database will be stored in `$HOME/.open-MaStR/data/sqlite/open-mastr.db`.
 * **own database**: The Mastr class accepts a `sqlalchemy.engine.Engine` object as engine which enables the user to
-  use any other desired database such as PostgreSQL. The tables are created in the default DB schema, in PostgreSQL
-  this is `public`.
+  use any other desired database such as PostgreSQL.
+
   If you use an own database so, you need to insert the connection parameter into the engine variable. In the
   example below, the following parameters are used: user `open-mastr`, password `open-mastr-pw`, database
   `open-mastr-db`. Make sure it exists and the user has sufficient permissions.
@@ -23,7 +23,7 @@ The possible databases are:
 !!! warning MySQL needs special table definitions
     You can pass an engine for a MySQL database, but MySQL demands maximum lengths for its `VARCHAR` fields.
     Since open-mastr generates its database string fields without maximum length, using MySQL will fail by default.
-    You can make it work by defining your own tables beforehand and [passing your own database schema](#using-a-custom-database-schema).
+    You can make it work by defining your own tables beforehand and [passing your own database tables](#using-custom-database-tables).
 
 ```python
 from sqlalchemy import create_engine
@@ -38,18 +38,42 @@ mastr = Mastr(engine=engine_sqlite)  # or engine=engine_postgres
 mastr.download()
 ```
 
-#### Using a custom database schema
+#### Using a different schema in PostgresSQL
 
-By default, `Mastr.download` will download the MaStR documentation, generate a database schema from the contained XSD
+By default, the database tables will be created in PostgresSQL's default database schema `public`.
+You can change this by passing your own `MetaData` object to `Mastr.download`:
+
+```python
+from sqlalchemy import create_engine, MetaData
+from open_mastr import Mastr
+
+engine_postgres = create_engine(
+    "postgresql+psycopg2://open-mastr:open-mastr-pw@localhost:55443/open-mastr-db"
+)
+mastr = Mastr(engine=engine_postgres)
+
+metadata_with_custom_schema = MetaData(schema="mymastr")
+# Ensure the schema exists before calling `download`.
+with engine_postgres.begin() as connection:
+    connection.execute(CreateSchema("mymastr", if_not_exists=True))
+mastr_table_to_db_table = mastr.download(metadata=metadata_with_custom_schema)
+```
+
+#### Using custom database tables
+
+By default, `Mastr.download` will download the MaStR documentation, generate database table definitions from the contained XSD
 files and create all database tables necessary for storing MaStR data.
 
 If you want to prepare the database yourself, you can pass your own mapping from the original MaStR table name to your
 database table to `Mastr.download` with the `mastr_table_to_db_table` parameter.
-To get started with the default database schema, we recommend generating it from the MaStR docs using
-`Mastr.generate_data_model` and then adjusting it:
+To get started with the default database table definitions, we recommend generating them from the MaStR docs using
+`Mastr.generate_data_model` and then adjusting them.
+
+In this following example, we want to download only `EinheitenWind` (not `AnlagenEegWind`) and we only want the columns `EinheitMastrNummer`
+and `Bruttoleistung`:
 
 ```python
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, MetaData, Table, Column, String, Float
 from open_mastr import Mastr, format_mastr_table_to_db_table
 
 engine_postgres = create_engine(
@@ -58,30 +82,36 @@ engine_postgres = create_engine(
 mastr = Mastr(engine=engine_postgres)
 
 # Generate SQLAlchemy table definitions without creating the tables
-mastr_table_to_db_table = mastr.generate_data_model()
+mastr_table_to_db_table = mastr.generate_data_model(data=["wind"])
 # Print the tables so that you can see what was generated.
 print(format_mastr_table_to_db_table(mastr_table_to_db_table))
 
 # Now you need to go and create the tables in your database and adjust them to your needs.
 # It's best to use the table definitions we generated and adjust them.
 # Finally, you need your custom version of mastr_table_to_db_table.
-mastr_table_to_your_custom_db_table = ...
+metadata = MetaData()
+wind_units_table = Table(
+    "EinheitenWind",
+    metadata,
+    Column('EinheitMastrNummer', String(), primary_key=True, nullable=False, info={'original_name': 'EinheitMastrNummer', 'normalized_name': 'EinheitMastrNummer', 'english_name': 'unitMastrNumber'}),
+    Column('Bruttoleistung', Float(), info={'original_name': 'Bruttoleistung', 'normalized_name': 'Bruttoleistung', 'english_name': 'grossCapacity'}),
+)
+mastr_table_to_your_custom_db_table = {
+    "EinheitenWind": wind_units_table
+}
+wind_units_table.create(bind=engine_postgres)
 
 # Download MaStR data into your custom tables.
-mastr.download(mastr_table_to_db_table=mastr_table_to_your_custom_db_table)
+mastr.download(
+    mastr_table_to_db_table=mastr_table_to_your_custom_db_table
+    alter_database_tables=False,
+)
 ```
 
 When open-mastr encounters XML files in the MaStR download that have additional columns when compared to the database
 tables, it will issue `ALTER` statements to add the columns to the database on the fly. To avoid this and to instead
-skip the additional columns during import, you can pass the parameter `alter_database_tables=False`:
-
-```python
-# Download MaStR data into your custom tables.
-mastr.download(
-    mastr_table_to_db_table=mastr_table_to_your_custom_db_table,
-    alter_database_tables=False,
-)
-```
+skip the additional columns during import, you can pass the parameter `alter_database_tables=False`. We did this in
+the example above because we really only wanted the two columns `EinheitMastrNummer` and `Bruttoleistung`.
 
 ### Project directory
 
