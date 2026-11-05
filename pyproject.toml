@@ -63,6 +63,10 @@ dev = [
   "pytest-responses",
   "ruff",
   "mypy",
+  "types-requests",
+  "types-PyYAML",
+  "types-tqdm",
+  "types-python-dateutil",
 ]
 
 [project.urls]
