@@ -9,7 +9,7 @@
 							<xs:element type="xs:byte" name="Id"/>
 							<xs:element type="xs:string" name="Wert"/>
 							<xs:element type="xs:int" name="Marktfunktion"/>
-							<xs:element type="xs:int" name="Sparte"/>
+							<xs:element type="xs:int" name="Sparte" minOccurs="0"/>
 						</xs:sequence>
 					</xs:complexType>
 				</xs:element>

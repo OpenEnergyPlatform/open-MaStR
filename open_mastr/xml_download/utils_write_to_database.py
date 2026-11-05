@@ -404,6 +404,7 @@ def add_table_to_non_sqlite_database(
                     df.to_sql(
                         db_table.name,
                         con=con,
+                        schema=db_table.schema,
                         index=False,
                         if_exists="append",
                         dtype=dtypes_for_writing_sql,
