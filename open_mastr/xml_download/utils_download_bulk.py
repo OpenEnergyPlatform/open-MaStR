@@ -346,24 +346,30 @@ def partial_download_with_unzip_http(
     # so a truncated member in save_path would pass every later check (#839).
     if not download_files_list:
         return
+    expected_sizes = {
+        name: remote_zip_file.files[name].file_size for name in download_files_list
+    }
     part_path = save_path + ".part"
+    Path(part_path).unlink(missing_ok=True)  # left behind by a killed run
     try:
-        if os.path.exists(part_path):
-            os.remove(part_path)  # left behind by a killed run
+        # An earlier partial download left a zip to append to; otherwise start empty.
         if os.path.exists(save_path):
             shutil.copyfile(save_path, part_path)
-        for zipfile_name in tqdm(download_files_list, unit=" file"):
-            remote_zip_file.extractzip(zipfile_name, path=Path(part_path))
+        for name in tqdm(download_files_list, unit=" file"):
+            remote_zip_file.extractzip(name, path=Path(part_path))
         with ZipFile(part_path) as part_zip:
-            for zipfile_name in download_files_list:
-                expected = remote_zip_file.files[zipfile_name].file_size
-                if part_zip.getinfo(zipfile_name).file_size != expected:
-                    raise OSError(f"Incomplete download of {zipfile_name}")
+            incomplete = [
+                name
+                for name in download_files_list
+                if part_zip.getinfo(name).file_size != expected_sizes[name]
+            ]
+        # A dropped connection can end the member early without raising, so the
+        # zip is valid but the member is shorter than the remote one.
+        if incomplete:
+            raise OSError(f"Incomplete download of {incomplete}")
         os.replace(part_path, save_path)
-    except BaseException:
-        if os.path.exists(part_path):
-            os.remove(part_path)
-        raise
+    finally:
+        Path(part_path).unlink(missing_ok=True)
 
 
 def full_download_without_unzip_http(
