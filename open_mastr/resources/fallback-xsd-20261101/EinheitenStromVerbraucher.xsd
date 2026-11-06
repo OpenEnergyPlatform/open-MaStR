@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:element name="EinheitenGasErzeuger">
+  <xs:element name="EinheitenStromVerbraucher">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="EinheitGasErzeuger" maxOccurs="unbounded" minOccurs="0">
+        <xs:element name="EinheitStromVerbraucher" maxOccurs="unbounded" minOccurs="0">
           <xs:complexType>
             <xs:sequence>
               <xs:element type="xs:string" name="EinheitMastrNummer"/>
@@ -75,15 +75,15 @@
                 </xs:simpleType>
               </xs:element>
               <xs:element type="xs:string" name="Hausnummer" minOccurs="0"/>
-              <xs:element name="Hausnummer_nv" minOccurs="0">
+              <xs:element name="Hausnummer_nv">
                 <xs:simpleType>
                   <xs:restriction base="xs:byte">
-                    <xs:enumeration value="0"/>
                     <xs:enumeration value="1"/>
+                    <xs:enumeration value="0"/>
                   </xs:restriction>
                 </xs:simpleType>
               </xs:element>
-              <xs:element name="HausnummerNichtGefunden" minOccurs="0">
+              <xs:element name="HausnummerNichtGefunden">
                 <xs:simpleType>
                   <xs:restriction base="xs:byte">
                     <xs:enumeration value="0"/>
@@ -97,10 +97,10 @@
               <xs:element type="xs:float" name="Breitengrad" minOccurs="0"/>
               <xs:element type="xs:date" name="Registrierungsdatum"/>
               <xs:element type="xs:date" name="Inbetriebnahmedatum" minOccurs="0"/>
-              <xs:element type="xs:date" name="GeplantesInbetriebnahmedatum" minOccurs="0"/>
               <xs:element type="xs:date" name="DatumEndgueltigeStilllegung" minOccurs="0"/>
               <xs:element type="xs:date" name="DatumBeginnVoruebergehendeStilllegung" minOccurs="0"/>
               <xs:element type="xs:date" name="DatumWiederaufnahmeBetrieb" minOccurs="0"/>
+              <xs:element type="xs:date" name="GeplantesInbetriebnahmedatum" minOccurs="0"/>
               <xs:element name="EinheitSystemstatus">
                 <xs:simpleType>
                   <xs:restriction base="xs:short">
@@ -116,14 +116,14 @@
                 <xs:simpleType>
                   <xs:restriction base="xs:byte">
                     <xs:enumeration value="35"/>
-                    <xs:enumeration value="31"/>
-                    <xs:enumeration value="37"/>
                     <xs:enumeration value="38"/>
+                    <xs:enumeration value="37"/>
+                    <xs:enumeration value="31"/>
                   </xs:restriction>
                 </xs:simpleType>
               </xs:element>
               <xs:element type="xs:string" name="BestandsanlageMastrNummer" minOccurs="0"/>
-              <xs:element name="NichtVorhandenInMigriertenEinheiten">
+              <xs:element name="NichtVorhandenInMigriertenEinheiten" minOccurs="0">
                 <xs:simpleType>
                   <xs:restriction base="xs:byte">
                     <xs:enumeration value="0"/>
@@ -134,22 +134,15 @@
               <xs:element type="xs:string" name="AltAnlagenbetreiberMastrNummer" minOccurs="0"/>
               <xs:element type="xs:date" name="DatumDesBetreiberwechsels" minOccurs="0"/>
               <xs:element type="xs:date" name="DatumRegistrierungDesBetreiberwechsels" minOccurs="0"/>
-              <xs:element type="xs:string" name="NameGaserzeugungseinheit"/>
-              <xs:element type="xs:string" name="SpeicherMaStRNummer" minOccurs="0"/>
-              <xs:element name="Technologie" minOccurs="0">
-                <xs:simpleType>
-                  <xs:restriction base="xs:short">
-                    <xs:enumeration value="825"/>
-                    <xs:enumeration value="824"/>
-                    <xs:enumeration value="826"/>
-                    <xs:enumeration value="827"/>
-                    <xs:enumeration value="828"/>
-                    <xs:enumeration value="829"/>
-                  </xs:restriction>
-                </xs:simpleType>
-              </xs:element>
-              <xs:element type="xs:float" name="Erzeugungsleistung" minOccurs="0"/>
-              <xs:element type="xs:dateTime" name="InbetriebnahmedatumAmAktuellenStandort" minOccurs="0"/>
+              <xs:element type="xs:string" name="Einsatzverantwortlicher" minOccurs="0"/>
+              <xs:element type="xs:string" name="NameStromverbrauchseinheit" minOccurs="0"/>
+              <xs:element type="xs:short" name="AnzahlStromverbrauchseinheitenGroesser50Mw" minOccurs="0"/>
+              <xs:element type="xs:date" name="InbetriebnahmedatumAmAktuellenStandort" minOccurs="0"/>
+			  <xs:element name="VorlaeufigeRegelzonenDerEinheit" minOccurs="0">
+				<xs:simpleType>
+					<xs:list itemType="xs:int"/>
+				</xs:simpleType>
+			  </xs:element>
             </xs:sequence>
           </xs:complexType>
         </xs:element>

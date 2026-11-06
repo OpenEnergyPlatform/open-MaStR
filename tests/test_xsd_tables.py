@@ -112,3 +112,63 @@ def test_catalog_columns_missing_xsd_restriction_are_catalog_values():
         is MastrColumnType.CATALOG_VALUE
     )
     assert table_to_column_types["Netze"]["Bezeichnung"] is MastrColumnType.STRING
+
+
+def test_from_xsd_type_list():
+    import xmlschema
+
+    schema_str = """<?xml version="1.0" encoding="UTF-8"?>
+    <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+      <xs:element name="ListInt">
+        <xs:simpleType>
+          <xs:list itemType="xs:int"/>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="ListString">
+        <xs:simpleType>
+          <xs:list itemType="xs:string"/>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="ListCatalog">
+        <xs:simpleType>
+          <xs:list>
+            <xs:simpleType>
+              <xs:restriction base="xs:int">
+                <xs:enumeration value="101"/>
+                <xs:enumeration value="102"/>
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:list>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="ListBoolean">
+        <xs:simpleType>
+          <xs:list>
+            <xs:simpleType>
+              <xs:restriction base="xs:byte">
+                <xs:enumeration value="0"/>
+                <xs:enumeration value="1"/>
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:list>
+        </xs:simpleType>
+      </xs:element>
+    </xs:schema>"""
+
+    schema = xmlschema.XMLSchema(schema_str)
+    assert (
+        MastrColumnType.from_xsd_type(schema.elements["ListInt"].type)
+        is MastrColumnType.STRING
+    )
+    assert (
+        MastrColumnType.from_xsd_type(schema.elements["ListString"].type)
+        is MastrColumnType.STRING
+    )
+    assert (
+        MastrColumnType.from_xsd_type(schema.elements["ListCatalog"].type)
+        is MastrColumnType.CATALOG_VALUE
+    )
+    assert (
+        MastrColumnType.from_xsd_type(schema.elements["ListBoolean"].type)
+        is MastrColumnType.BOOLEAN
+    )

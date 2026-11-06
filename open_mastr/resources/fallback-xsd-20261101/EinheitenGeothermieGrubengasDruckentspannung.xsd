@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:element name="EinheitenBiomasse">
+  <xs:element name="EinheitenGeothermieGrubengasDruckentspannung">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="EinheitBiomasse" maxOccurs="unbounded" minOccurs="0">
+        <xs:element name="EinheitGeothermieGrubengasDruckentspannung" maxOccurs="unbounded" minOccurs="0">
           <xs:complexType>
-            <xs:sequence>
+            <xs:choice maxOccurs="unbounded" minOccurs="0">
               <xs:element type="xs:string" name="EinheitMastrNummer"/>
               <xs:element type="xs:dateTime" name="DatumLetzteAktualisierung"/>
               <xs:element type="xs:string" name="LokationMaStRNummer" minOccurs="0"/>
@@ -62,7 +62,7 @@
               <xs:element type="xs:string" name="Landkreis" minOccurs="0"/>
               <xs:element type="xs:string" name="Gemeinde" minOccurs="0"/>
               <xs:element type="xs:string" name="Gemeindeschluessel" minOccurs="0"/>
-              <xs:element type="xs:string" name="Postleitzahl"/>
+              <xs:element type="xs:string" name="Postleitzahl" minOccurs="0"/>
               <xs:element type="xs:string" name="Strasse" minOccurs="0"/>
               <xs:element type="xs:string" name="Gemarkung" minOccurs="0"/>
               <xs:element type="xs:string" name="FlurFlurstuecknummern" minOccurs="0"/>
@@ -75,11 +75,11 @@
                 </xs:simpleType>
               </xs:element>
               <xs:element type="xs:string" name="Hausnummer" minOccurs="0"/>
-              <xs:element name="Hausnummer_nv" minOccurs="0">
+              <xs:element name="Hausnummer_nv">
                 <xs:simpleType>
                   <xs:restriction base="xs:byte">
-                    <xs:enumeration value="0"/>
                     <xs:enumeration value="1"/>
+                    <xs:enumeration value="0"/>
                   </xs:restriction>
                 </xs:simpleType>
               </xs:element>
@@ -95,7 +95,7 @@
               <xs:element type="xs:string" name="Ort"/>
               <xs:element type="xs:float" name="Laengengrad" minOccurs="0"/>
               <xs:element type="xs:float" name="Breitengrad" minOccurs="0"/>
-              <xs:element type="xs:date" name="Registrierungsdatum" minOccurs="0"/>
+              <xs:element type="xs:date" name="Registrierungsdatum"/>
               <xs:element type="xs:date" name="Inbetriebnahmedatum" minOccurs="0"/>
               <xs:element type="xs:date" name="DatumEndgueltigeStilllegung" minOccurs="0"/>
               <xs:element type="xs:date" name="DatumBeginnVoruebergehendeStilllegung" minOccurs="0"/>
@@ -123,7 +123,7 @@
                 </xs:simpleType>
               </xs:element>
               <xs:element type="xs:string" name="BestandsanlageMastrNummer" minOccurs="0"/>
-              <xs:element name="NichtVorhandenInMigriertenEinheiten">
+              <xs:element name="NichtVorhandenInMigriertenEinheiten" minOccurs="0">
                 <xs:simpleType>
                   <xs:restriction base="xs:byte">
                     <xs:enumeration value="0"/>
@@ -180,7 +180,7 @@
                 </xs:simpleType>
               </xs:element>
               <xs:element type="xs:float" name="Bruttoleistung"/>
-              <xs:element type="xs:float" name="Nettonennleistung" minOccurs="0"/>
+              <xs:element type="xs:float" name="Nettonennleistung"/>
               <xs:element name="AnschlussAnHoechstOderHochSpannung" minOccurs="0">
                 <xs:simpleType>
                   <xs:restriction base="xs:byte">
@@ -201,8 +201,8 @@
               <xs:element name="FernsteuerbarkeitDv" minOccurs="0">
                 <xs:simpleType>
                   <xs:restriction base="xs:byte">
-                    <xs:enumeration value="1"/>
                     <xs:enumeration value="0"/>
+                    <xs:enumeration value="1"/>
                   </xs:restriction>
                 </xs:simpleType>
               </xs:element>
@@ -215,60 +215,6 @@
                 </xs:simpleType>
               </xs:element>
               <xs:element type="xs:string" name="GenMastrNummer" minOccurs="0"/>
-              <xs:element name="Hauptbrennstoff" minOccurs="0">
-                <xs:simpleType>
-                  <xs:restriction base="xs:short">
-                    <xs:enumeration value="2414"/>
-                    <xs:enumeration value="2415"/>
-                    <xs:enumeration value="2416"/>
-                    <xs:enumeration value="2417"/>
-                    <xs:enumeration value="2418"/>
-                    <xs:enumeration value="2419"/>
-                    <xs:enumeration value="2420"/>
-                    <xs:enumeration value="2421"/>
-                    <xs:enumeration value="2422"/>
-                    <xs:enumeration value="2423"/>
-                    <xs:enumeration value="2424"/>
-                    <xs:enumeration value="2425"/>
-                    <xs:enumeration value="2426"/>
-                    <xs:enumeration value="2427"/>
-                    <xs:enumeration value="2428"/>
-                    <xs:enumeration value="2429"/>
-                    <xs:enumeration value="2430"/>
-                    <xs:enumeration value="2431"/>
-                    <xs:enumeration value="2432"/>
-                    <xs:enumeration value="2433"/>
-                    <xs:enumeration value="2434"/>
-                    <xs:enumeration value="2435"/>
-                    <xs:enumeration value="2436"/>
-                    <xs:enumeration value="2437"/>
-                    <xs:enumeration value="2438"/>
-                    <xs:enumeration value="2439"/>
-                    <xs:enumeration value="2440"/>
-                    <xs:enumeration value="2441"/>
-                    <xs:enumeration value="2442"/>
-                    <xs:enumeration value="2443"/>
-                    <xs:enumeration value="2444"/>
-                    <xs:enumeration value="2445"/>
-                    <xs:enumeration value="2446"/>
-                    <xs:enumeration value="2447"/>
-                    <xs:enumeration value="2448"/>
-                    <xs:enumeration value="3031"/>
-                    <xs:enumeration value="3032"/>
-                    <xs:enumeration value="3033"/>
-                    <xs:enumeration value="3034"/>
-                  </xs:restriction>
-                </xs:simpleType>
-              </xs:element>
-              <xs:element name="Biomasseart" minOccurs="0">
-                <xs:simpleType>
-                  <xs:restriction base="xs:short">
-                    <xs:enumeration value="721"/>
-                    <xs:enumeration value="719"/>
-                    <xs:enumeration value="720"/>
-                  </xs:restriction>
-                </xs:simpleType>
-              </xs:element>
               <xs:element name="Technologie" minOccurs="0">
                 <xs:simpleType>
                   <xs:restriction base="xs:short">
@@ -289,8 +235,8 @@
                   </xs:restriction>
                 </xs:simpleType>
               </xs:element>
-              <xs:element type="xs:string" name="EegMaStRNummer" minOccurs="0"/>
-              <xs:element type="xs:string" name="KwkMaStRNummer" minOccurs="0"/>
+              <xs:element type="xs:string" name="KwkMaStRNummer"/>
+              <xs:element type="xs:string" name="EegMaStRNummer"/>
               <xs:element name="NetzreserveZugeordnet" minOccurs="0">
                 <xs:simpleType>
                   <xs:restriction base="xs:byte">
@@ -309,8 +255,13 @@
                 </xs:simpleType>
               </xs:element>
               <xs:element type="xs:dateTime" name="DatumKapazitaetsreserve" minOccurs="0"/>
-              <xs:element type="xs:dateTime" name="InbetriebnahmedatumAmAktuellenStandort" minOccurs="0"/>
-            </xs:sequence>
+              <xs:element type="xs:date" name="InbetriebnahmedatumAmAktuellenStandort" minOccurs="0"/>
+			  <xs:element name="VorlaeufigeRegelzonenDerEinheit" minOccurs="0">
+				<xs:simpleType>
+					<xs:list itemType="xs:int"/>
+				</xs:simpleType>
+			  </xs:element>
+            </xs:choice>
           </xs:complexType>
         </xs:element>
       </xs:sequence>

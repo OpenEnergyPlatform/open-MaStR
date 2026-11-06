@@ -1,3 +1,4 @@
+import math
 import os
 import re
 import shutil
@@ -151,7 +152,7 @@ def download_xml_Mastr(  # noqa: N802 public name, kept for backwards compatibil
     url: str, optional
         Custom download URL. If None, generates URL based on bulk_date_string.
     """
-    missing_tables = _find_missing_tables(save_path, bulk_data_list)
+    missing_tables, is_full_download = _find_missing_tables(save_path, bulk_data_list)
     if not missing_tables:
         return
 
@@ -222,8 +223,7 @@ def download_xml_Mastr(  # noqa: N802 public name, kept for backwards compatibil
         log.error("Could not download file: download URL not found")
         return
 
-    all_tables = {table for tables in BULK_INCLUDE_TABLES_MAP for table in tables}
-    if missing_tables.issuperset(all_tables):
+    if is_full_download:
         full_download_without_unzip_http(save_path, r)
     else:
         try:
@@ -239,34 +239,47 @@ def download_xml_Mastr(  # noqa: N802 public name, kept for backwards compatibil
     log.info(f"MaStR was successfully downloaded to {xml_folder_path}.")
 
 
-def _find_missing_tables(save_path: str, bulk_data_list: list[str]) -> set[str]:
-    """Check if an existing download contains the XML files corresponding to the bulk_data_list."""
+def _find_missing_tables(
+    save_path: str, bulk_data_list: list[str]
+) -> tuple[set[str], bool]:
+    """Check if an existing download contains the XML files corresponding to the bulk_data_list.
+
+    Returns the tables that are missing and whether a full download is needed.
+    A full download is only worthwhile when the request spans the whole zip AND
+    all of the requested tables are missing (otherwise a partial download of just
+    the missing tables is cheaper than re-downloading everything).
+    """
     needed_tables = {
         bulk_table_name
         for bulk_data_name in bulk_data_list
         for bulk_table_name in BULK_INCLUDE_TABLES_MAP[bulk_data_name]
     } | {"katalogwerte"}  # We always need Katalogwerte!
+    all_tables = {t for tables in BULK_INCLUDE_TABLES_MAP.values() for t in tables} | {
+        "katalogwerte"
+    }
+
     if not os.path.exists(save_path):
-        return needed_tables
-
-    with ZipFile(save_path, "r") as zip_ref:
-        existing_tables = {
-            zip_name.lower().split("_")[0].split(".")[0]
-            for zip_name in zip_ref.namelist()
-        }
-
-    missing_tables = needed_tables - existing_tables
-    if missing_tables:
-        log.info(
-            f"MaStR XML ZIP file already present but missing the following data: {missing_tables}"
-        )
+        missing_tables = needed_tables
     else:
-        log.info(
-            "MaStR XML ZIP file already present and has all info. Not downloading again."
-            f" Existing file: {save_path}"
-        )
+        with ZipFile(save_path, "r") as zip_ref:
+            existing_tables = {
+                zip_name.lower().split("_")[0].split(".")[0]
+                for zip_name in zip_ref.namelist()
+            }
+        missing_tables = needed_tables - existing_tables
+        if missing_tables:
+            log.info(
+                "MaStR XML ZIP file already present but missing the "
+                f"following data: {missing_tables}"
+            )
+        else:
+            log.info(
+                "MaStR XML ZIP file already present and has all info. Not downloading again."
+                f" Existing file: {save_path}"
+            )
 
-    return missing_tables
+    is_full_download = missing_tables == needed_tables and needed_tables == all_tables
+    return missing_tables, is_full_download
 
 
 def delete_xml_files_not_from_given_date(
@@ -328,8 +341,35 @@ def partial_download_with_unzip_http(
                 # to e.g. 'AnlagenEegSolar_1.xml'
                 download_files_list.append(remote_zip_file.namelist()[remote_index])
 
-    for zipfile_name in tqdm(download_files_list, unit=" file"):
-        remote_zip_file.extractzip(zipfile_name, path=Path(save_path))
+    # Members are appended to a copy that replaces save_path only once every
+    # member is complete. An interrupted append still closes the zip cleanly,
+    # so a truncated member in save_path would pass every later check (#839).
+    if not download_files_list:
+        return
+    expected_sizes = {
+        name: remote_zip_file.files[name].file_size for name in download_files_list
+    }
+    part_path = save_path + ".part"
+    Path(part_path).unlink(missing_ok=True)  # left behind by a killed run
+    try:
+        # An earlier partial download left a zip to append to; otherwise start empty.
+        if os.path.exists(save_path):
+            shutil.copyfile(save_path, part_path)
+        for name in tqdm(download_files_list, unit=" file"):
+            remote_zip_file.extractzip(name, path=Path(part_path))
+        with ZipFile(part_path) as part_zip:
+            incomplete = [
+                name
+                for name in download_files_list
+                if part_zip.getinfo(name).file_size != expected_sizes[name]
+            ]
+        # A dropped connection can end the member early without raising, so the
+        # zip is valid but the member is shorter than the remote one.
+        if incomplete:
+            raise OSError(f"Incomplete download of {incomplete}")
+        os.replace(part_path, save_path)
+    finally:
+        Path(part_path).unlink(missing_ok=True)
 
 
 def full_download_without_unzip_http(
@@ -354,10 +394,12 @@ def full_download_without_unzip_http(
         "Warning: The servers from MaStR restrict the download speed."
         " You may want to download it another time."
     )
-    # We could get rid of this magic number by first making a request to get the file size
-    # and then using that as total length for the progress bar.
-    # See https://github.com/OpenEnergyPlatform/open-MaStR/issues/570
-    total_length = 23000
+    # Loading bar based on content length from url with extra request for the header
+    # if not given use 3100, roughly current size oct 2026
+    head = requests.head(r.url, headers={"User-Agent": USER_AGENT})
+    content_length = head.headers.get("content-length")
+    total_length = math.ceil(int(content_length or 3100 * 1024 * 1024) / (1024 * 1024))
+
     with (
         open(save_path, "wb") as zfile,
         tqdm(desc=save_path, total=total_length, unit="") as bar,

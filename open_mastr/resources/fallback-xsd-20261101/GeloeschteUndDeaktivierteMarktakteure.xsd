@@ -10,13 +10,15 @@
 							<xs:element type="xs:string" name="MarktakteurMastrNummer"/>
 							<xs:element name="MarktakteurStatus">
 							<xs:simpleType>
-								<xs:restriction base="xs:string">
+								<xs:restriction base="xs:short">
 									<xs:enumeration value="488"/>
 									<xs:enumeration value="489"/>
 								</xs:restriction>
 							</xs:simpleType>
 							</xs:element>
-							<xs:element type="xs:string" name="DatumLetzteAktualisierung"/>
+							<xs:element type="xs:string" name="DatumLetzteAktualisierung"/>							
+							<xs:element type="xs:date" name="DatumDerLoeschung" minOccurs="0"/>
+							<xs:element type="xs:int" name="MarktakteurLoeschgrund" minOccurs="0"/>		
 						</xs:sequence>
 					</xs:complexType>
 				</xs:element>

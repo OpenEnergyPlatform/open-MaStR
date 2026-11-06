@@ -7,6 +7,42 @@ The format is inspired from [Keep a Changelog](http://keepachangelog.com/en/1.0.
 and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 
+## [v1.1.1] - 2026-11-06
+### Added
+- Create xsd_update.yml
+  [#837](https://github.com/OpenEnergyPlatform/open-MaStR/pull/837)
+- Support XML Schema list types (`XsdList`) when generating table models from XSD documentation
+  [#820](https://github.com/OpenEnergyPlatform/open-MaStR/pull/820)
+- Raise `MissingMaStRAPIKeyError` in `MaStRAPI` if no API key is passed or configured
+  [#838](https://github.com/OpenEnergyPlatform/open-MaStR/pull/838)
+- Added translations for new columns
+  [#844](https://github.com/OpenEnergyPlatform/open-MaStR/pull/844)
+  [#845](https://github.com/OpenEnergyPlatform/open-MaStR/pull/845)
+
+### Changed
+- Replace the partial-download zip only after every new member is complete
+  [#843](https://github.com/OpenEnergyPlatform/open-MaStR/pull/843)
+- Support custom PostgreSQL schema & make advanced docs clearer
+  [#833](https://github.com/OpenEnergyPlatform/open-MaStR/pull/833)
+- Remove max-parallel limit for github actions CI
+  [#840](https://github.com/OpenEnergyPlatform/open-MaStR/pull/841)
+- Update fallback XSD to the XSD provided on 2026-10-10
+  [#828](https://github.com/OpenEnergyPlatform/open-MaStR/pull/826)
+- Wrap table name in quotes to support non-lowercase tables in PostgreSQL
+  [#834](https://github.com/OpenEnergyPlatform/open-MaStR/pull/834)
+- Support space- and comma-separated catalog IDs with whitespace stripping, value deduplication, and pipe (|) delimiter during bulk cleansing
+  [#819](https://github.com/OpenEnergyPlatform/open-MaStR/pull/819)
+  [#821](https://github.com/OpenEnergyPlatform/open-MaStR/pull/821)
+- `bump2version` now also updates the version in `.zenodo.json`
+  [#816](https://github.com/OpenEnergyPlatform/open-MaStR/pull/816)
+- Fix condition check that triggers the full xml_download when all tables are requested
+  [#826](https://github.com/OpenEnergyPlatform/open-MaStR/pull/826)
+
+### Removed
+- `publication_date` from `.zenodo.json`, so Zenodo defaults it to the release date
+   [#816](https://github.com/OpenEnergyPlatform/open-MaStR/pull/816)
+
+
 ## [v1.0.0] Open-MaStR stable release: SchemaSurfer - 2026-09-24
 ### Added
 - Add script for updating fallback XSD
@@ -31,6 +67,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
   [#808](https://github.com/OpenEnergyPlatform/open-MaStR/pull/808)
 
 ### Changed
+- Update full download loading bar
+  [#570](https://github.com/OpenEnergyPlatform/open-MaStR/pull/824)
 - Updated docs to represent code changes of release v1.0.0
   [#810](https://github.com/OpenEnergyPlatform/open-MaStR/pull/810)
 - Update the metadata for v1.0.0 release

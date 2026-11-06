@@ -62,7 +62,7 @@
               <xs:element type="xs:string" name="Landkreis" minOccurs="0"/>
               <xs:element type="xs:string" name="Gemeinde" minOccurs="0"/>
               <xs:element type="xs:string" name="Gemeindeschluessel" minOccurs="0"/>
-              <xs:element type="xs:string" name="Postleitzahl"/>
+              <xs:element type="xs:string" name="Postleitzahl" minOccurs="0"/>
               <xs:element type="xs:string" name="Gemarkung" minOccurs="0"/>
               <xs:element type="xs:string" name="FlurFlurstuecknummern" minOccurs="0"/>
               <xs:element type="xs:string" name="Strasse" minOccurs="0"/>
@@ -92,7 +92,7 @@
                 </xs:simpleType>
               </xs:element>
               <xs:element type="xs:string" name="Adresszusatz" minOccurs="0"/>
-              <xs:element type="xs:string" name="Ort"/>
+              <xs:element type="xs:string" name="Ort" minOccurs="0"/>
               <xs:element type="xs:float" name="Laengengrad" minOccurs="0"/>
               <xs:element type="xs:float" name="Breitengrad" minOccurs="0"/>
               <xs:element type="xs:date" name="Registrierungsdatum" minOccurs="0"/>
@@ -355,7 +355,12 @@
                 </xs:simpleType>
               </xs:element>
               <xs:element type="xs:dateTime" name="DatumKapazitaetsreserve" minOccurs="0"/>
-              <xs:element type="xs:dateTime" name="InbetriebnahmedatumAmAktuellenStandort" minOccurs="0"/>
+              <xs:element type="xs:date" name="InbetriebnahmedatumAmAktuellenStandort" minOccurs="0"/>
+			  <xs:element name="VorlaeufigeRegelzonenDerEinheit" minOccurs="0">
+				<xs:simpleType>
+					<xs:list itemType="xs:int"/>
+				</xs:simpleType>
+			  </xs:element>
             </xs:sequence>
           </xs:complexType>
         </xs:element>

@@ -15,6 +15,10 @@ from zeep.transports import Transport
 log = setup_logger()
 
 
+class MissingMaStRAPIKeyError(Exception):
+    """Raised when no MaStR API key (token) is passed or configured."""
+
+
 class MaStRAPI(object):
     """
     Access the Marktstammdatenregister (MaStR) SOAP API via a Python wrapper
@@ -76,7 +80,25 @@ class MaStRAPI(object):
             full list:
             https://www.marktstammdatenregister.de/MaStRHilfe/subpages/webdienst.html
             Defaults to "Anlage".
+
+        Raises
+        ------
+        MissingMaStRAPIKeyError
+            If no key is passed and none is found in the keyring or in
+            `credentials.cfg`.
         """
+
+        # Assign MaStR credentials before loading the WSDL, so a missing key
+        # fails fast without network access
+        self._user = user if user else cred.get_mastr_user()
+        self._key = key if key else cred.get_mastr_token(self._user)
+
+        if not self._key:
+            raise MissingMaStRAPIKeyError(
+                "No MaStR API key found. Pass it as `key` to MaStRAPI or store it "
+                "in the keyring or in credentials.cfg, see "
+                "https://open-mastr.readthedocs.io/en/latest/advanced/#mastr-account-and-credentials"
+            )
 
         # Bind MaStR SOAP API functions as instance methods
         client, client_bind = _mastr_bindings(service_port=service_port)
@@ -91,11 +113,6 @@ class MaStRAPI(object):
                 setattr(self, n, f)
             else:
                 setattr(self, n, self._mastr_wrapper(f))
-
-        # Assign MaStR credentials
-
-        self._user = user if user else cred.get_mastr_user()
-        self._key = key if key else cred.get_mastr_token(self._user)
 
     def _mastr_wrapper(self, soap_func):
         """

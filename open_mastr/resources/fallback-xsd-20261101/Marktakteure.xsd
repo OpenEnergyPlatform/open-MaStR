@@ -205,7 +205,7 @@
                       <xs:enumeration value="198"/>
                       <xs:enumeration value="199"/>
                       <xs:enumeration value="200"/>
-                      <xs:enumeration value="203"/>
+                      <xs:enumeration value="201"/>
                       <xs:enumeration value="204"/>
                       <xs:enumeration value="205"/>
                       <xs:enumeration value="206"/>
@@ -664,7 +664,7 @@
                   </xs:restriction>
                 </xs:simpleType>
               </xs:element>
-              <xs:element type="xs:dateTime" name="RegistrierungsdatumMarktakteur"/>
+              <xs:element type="xs:date" name="RegistrierungsdatumMarktakteur"/>
               <xs:element name="HauptwirtdschaftszweigAbteilung" minOccurs="0">
                 <xs:simpleType>
                   <xs:restriction base="xs:short">

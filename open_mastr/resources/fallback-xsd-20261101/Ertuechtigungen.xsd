@@ -8,12 +8,7 @@
             <xs:sequence>
               <xs:element type="xs:int" name="Id"/>
               <xs:element type="xs:dateTime" name="DatumLetzteAktualisierung" minOccurs="0"/>
-              <xs:element name="EegMastrNummer">
-                <xs:simpleType>
-                  <xs:restriction base="xs:string">
-                  </xs:restriction>
-                </xs:simpleType>
-              </xs:element>
+              <xs:element type="xs:string" name="EegMastrNummer"/>
               <xs:element name="Ertuechtigungsart" minOccurs="0">
                 <xs:simpleType>
                   <xs:restriction base="xs:short">
@@ -28,18 +23,8 @@
                   </xs:restriction>
                 </xs:simpleType>
               </xs:element>
-              <xs:element name="Leistungserhoehung" minOccurs="0">
-                <xs:simpleType>
-                  <xs:restriction base="xs:float">
-                  </xs:restriction>
-                </xs:simpleType>
-              </xs:element>
-              <xs:element name="WiederinbetriebnahmeDatum" minOccurs="0">
-                <xs:simpleType>
-                  <xs:restriction base="xs:dateTime">
-                  </xs:restriction>
-                </xs:simpleType>
-              </xs:element>
+              <xs:element type="xs:float" name="Leistungserhoehung" minOccurs="0"/>
+              <xs:element type="xs:date" name="WiederinbetriebnahmeDatum" minOccurs="0"/>
             </xs:sequence>
           </xs:complexType>
         </xs:element>
