@@ -6,8 +6,17 @@ For each version important additions, changes and removals are listed here.
 The format is inspired from [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [v1.X.X] - 20XX-XX-XX
+### Added
 
-## [v1.XX.X] unreleased - 202X-XX-XX
+
+### Changed
+
+
+### Removed
+
+
+## [v1.1.1] - 2026-11-06
 ### Added
 - Create xsd_update.yml
   [#837](https://github.com/OpenEnergyPlatform/open-MaStR/pull/837)
