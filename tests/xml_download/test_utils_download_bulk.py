@@ -2,13 +2,18 @@ import os
 import shutil
 import time
 from pathlib import Path
+from types import SimpleNamespace
 from zipfile import ZipFile
 
+import pytest
+
 from open_mastr.utils.constants import BULK_INCLUDE_TABLES_MAP
+from open_mastr.xml_download import utils_download_bulk
 from open_mastr.xml_download.utils_download_bulk import (
     _find_missing_tables,
     delete_xml_files_not_from_given_date,
     gen_xml_download_url,
+    partial_download_with_unzip_http,
 )
 
 
@@ -141,3 +146,90 @@ def test_delete_xml_files_not_from_given_date():
     assert not os.path.exists(path_old_file)
     # clean up test folder
     shutil.rmtree(xml_folder_path)
+
+
+class _FakeRemoteZipFile:
+    """Stands in for unzip_http.RemoteZipFile; extractzip appends like the real one."""
+
+    members = {
+        "EinheitenSolar_1.xml": b"a" * 1000,
+        "EinheitenSolar_2.xml": b"b" * 1000,
+        "Katalogwerte.xml": b"k" * 10,
+    }
+    interrupt_in = None
+
+    def __init__(self, url):
+        pass
+
+    def namelist(self):
+        return list(self.members)
+
+    @property
+    def files(self):
+        return {
+            name: SimpleNamespace(file_size=len(data))
+            for name, data in self.members.items()
+        }
+
+    def extractzip(self, member, path=None, pwd=None):
+        with ZipFile(path, "a") as zout:
+            with zout.open(member, "w") as fpout:
+                fpout.write(self.members[member][:100])
+                if member == self.interrupt_in:
+                    raise KeyboardInterrupt
+                fpout.write(self.members[member][100:])
+
+
+@pytest.fixture
+def fake_remote_zip(monkeypatch):
+    monkeypatch.setattr(
+        utils_download_bulk.unzip_http, "RemoteZipFile", _FakeRemoteZipFile
+    )
+    yield _FakeRemoteZipFile
+    _FakeRemoteZipFile.interrupt_in = None
+
+
+def test_partial_download_interrupted_leaves_no_truncated_member(
+    tmp_path: Path, fake_remote_zip
+) -> None:
+    save_path = str(tmp_path / "Gesamtdatenexport_20261017.zip")
+    with ZipFile(save_path, "w") as z:
+        z.writestr("AnlagenEegSolar_1.xml", "x")
+
+    fake_remote_zip.interrupt_in = "EinheitenSolar_2.xml"
+    with pytest.raises(KeyboardInterrupt):
+        partial_download_with_unzip_http(
+            save_path, "http://example.invalid", {"einheitensolar", "katalogwerte"}
+        )
+
+    with ZipFile(save_path) as z:
+        assert z.namelist() == ["AnlagenEegSolar_1.xml"]
+    assert not os.path.exists(save_path + ".part")
+    missing, _ = _find_missing_tables(save_path, ["solar"])
+    assert "einheitensolar" in missing
+
+
+def test_partial_download_complete_replaces_zip(
+    tmp_path: Path, fake_remote_zip
+) -> None:
+    save_path = str(tmp_path / "Gesamtdatenexport_20261017.zip")
+    with ZipFile(save_path, "w") as z:
+        z.writestr("AnlagenEegSolar_1.xml", "x")
+    # leftover from a run that was killed before it could clean up
+    with open(save_path + ".part", "wb") as f:
+        f.write(b"stale")
+
+    partial_download_with_unzip_http(
+        save_path, "http://example.invalid", {"einheitensolar", "katalogwerte"}
+    )
+
+    with ZipFile(save_path) as z:
+        assert z.testzip() is None
+        assert sorted(z.namelist()) == [
+            "AnlagenEegSolar_1.xml",
+            "EinheitenSolar_1.xml",
+            "EinheitenSolar_2.xml",
+            "Katalogwerte.xml",
+        ]
+        assert z.getinfo("EinheitenSolar_2.xml").file_size == 1000
+    assert not os.path.exists(save_path + ".part")

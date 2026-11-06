@@ -20,6 +20,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
   [#845](https://github.com/OpenEnergyPlatform/open-MaStR/pull/845)
 
 ### Changed
+- Replace the partial-download zip only after every new member is complete
+  [#843](https://github.com/OpenEnergyPlatform/open-MaStR/pull/843)
 - Support custom PostgreSQL schema & make advanced docs clearer
   [#833](https://github.com/OpenEnergyPlatform/open-MaStR/pull/833)
 - Remove max-parallel limit for github actions CI
