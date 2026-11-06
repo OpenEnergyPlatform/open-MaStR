@@ -2,12 +2,15 @@ import io
 import logging
 import os
 import shutil
+import sys
 import zipfile
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from pathlib import Path
 from unittest.mock import patch
 
 import pandas as pd
+import pyarrow as pa
+import pyarrow.parquet as pq
 import pytest
 import responses
 import sqlalchemy
@@ -19,8 +22,8 @@ from open_mastr.utils.sqlalchemy_tables import CatalogString
 from .conftest import MOCKUP_XML_ZIP, NUMBER_ROWS_IN_MOCK_XML_FILES
 
 
-def csv_export_dir(mastr: Mastr) -> Path:
-    """Return the single CSV export directory created by `Mastr.to_csv`."""
+def export_dir(mastr: Mastr) -> Path:
+    """Return the single export directory created by `to_csv` or `to_parquet`."""
     export_dirs = list((Path(mastr.output_dir) / "data").glob("export-*"))
     assert len(export_dirs) == 1
     return export_dirs[0]
@@ -39,7 +42,7 @@ def test_to_csv_single_table_name_as_string(
     mastr.download(data="wind")
     mastr.to_csv(db_table_names="EinheitenWind")
 
-    data_path = csv_export_dir(mastr)
+    data_path = export_dir(mastr)
     csv_files = list(data_path.glob("*.csv"))
     assert [f.name for f in csv_files] == ["EinheitenWind.csv"]
 
@@ -55,7 +58,7 @@ def test_to_csv_multiple_table_names_as_list(
     mastr.download(data="wind")
     mastr.to_csv(db_table_names=["EinheitenWind"])
 
-    data_path = csv_export_dir(mastr)
+    data_path = export_dir(mastr)
     csv_files = list(data_path.glob("*.csv"))
     assert [f.name for f in csv_files] == ["EinheitenWind.csv"]
 
@@ -94,7 +97,7 @@ def test_to_csv_exports_invalid_dates_as_empty(
     with caplog.at_level(logging.WARNING):
         mastr.to_csv(db_table_names="EinheitenSolar")
 
-    csv_path = csv_export_dir(mastr) / "EinheitenSolar.csv"
+    csv_path = export_dir(mastr) / "EinheitenSolar.csv"
     df = pd.read_csv(csv_path, index_col="EinheitMastrNummer")
 
     # Only the invalid dates are exported as empty values.
@@ -115,6 +118,129 @@ def test_to_csv_exports_invalid_dates_as_empty(
     assert "1 date value(s) without a four-digit year as empty values" in caplog.text
     assert "'205-12-06'" in caplog.text
     assert "'205-12-06 00:00:00.000000'" in caplog.text
+
+
+def test_to_parquet_matches_database(
+    mastr: Mastr,
+    mockup_xml_zip_in_output_dir: Path,
+    mockup_docs_zip_in_output_dir: Path,
+) -> None:
+    mastr.download(data="wind")
+    mastr.to_parquet(db_table_names="EinheitenWind")
+
+    parquet_files = list(export_dir(mastr).glob("*.parquet"))
+    assert [f.name for f in parquet_files] == ["EinheitenWind.parquet"]
+    assert pq.read_metadata(parquet_files[0]).row_group(0).column(0).compression == (
+        "ZSTD"
+    )
+
+    df_parquet = pd.read_parquet(parquet_files[0])
+    df_database = pd.read_sql("EinheitenWind", con=mastr.engine)
+    assert len(df_parquet) == NUMBER_ROWS_IN_MOCK_XML_FILES
+    assert list(df_parquet.columns) == list(df_database.columns)
+    assert df_parquet.notna().sum().equals(df_database.notna().sum())
+
+
+def test_to_parquet_keeps_column_types_across_chunks(
+    mastr: Mastr, caplog: pytest.LogCaptureFixture
+) -> None:
+    """Every chunk is written with the schema of the database table.
+
+    The first chunk holds only NULL values, from which no column type can be inferred.
+    """
+    table = sqlalchemy.Table(
+        "EinheitenSolar",
+        sqlalchemy.MetaData(),
+        sqlalchemy.Column("EinheitMastrNummer", sqlalchemy.String, primary_key=True),
+        sqlalchemy.Column("AnzahlModule", sqlalchemy.Integer),
+        sqlalchemy.Column("Bruttoleistung", sqlalchemy.Float),
+        sqlalchemy.Column("EegMastrNummerVorhanden", sqlalchemy.Boolean),
+        sqlalchemy.Column("Registrierungsdatum", sqlalchemy.Date),
+        sqlalchemy.Column("DatumLetzteAktualisierung", sqlalchemy.DateTime),
+    )
+    table.create(mastr.engine)
+    with mastr.engine.begin() as con:
+        con.exec_driver_sql(
+            "INSERT INTO EinheitenSolar VALUES (?, ?, ?, ?, ?, ?)",
+            [
+                ("id1", None, None, None, None, None),
+                ("id2", 12, 9.9, 1, "2005-12-06", "2005-12-06 10:12:46.000000"),
+                ("id3", 3, None, 0, "0100-01-01", None),
+                # Year without leading zeros is exported as empty, as in to_csv.
+                ("id4", None, 1.5, None, "205-12-06", None),
+            ],
+        )
+
+    with caplog.at_level(logging.WARNING):
+        mastr.to_parquet(db_table_names="EinheitenSolar", chunksize=1)
+
+    arrow_table = pq.read_table(export_dir(mastr) / "EinheitenSolar.parquet")
+    assert arrow_table.schema == pa.schema(
+        [
+            ("EinheitMastrNummer", pa.string()),
+            ("AnzahlModule", pa.int64()),
+            ("Bruttoleistung", pa.float64()),
+            ("EegMastrNummerVorhanden", pa.bool_()),
+            ("Registrierungsdatum", pa.date32()),
+            ("DatumLetzteAktualisierung", pa.timestamp("us")),
+        ]
+    )
+    assert arrow_table.to_pylist() == [
+        {
+            "EinheitMastrNummer": "id1",
+            "AnzahlModule": None,
+            "Bruttoleistung": None,
+            "EegMastrNummerVorhanden": None,
+            "Registrierungsdatum": None,
+            "DatumLetzteAktualisierung": None,
+        },
+        {
+            "EinheitMastrNummer": "id2",
+            "AnzahlModule": 12,
+            "Bruttoleistung": 9.9,
+            "EegMastrNummerVorhanden": True,
+            "Registrierungsdatum": date(2005, 12, 6),
+            "DatumLetzteAktualisierung": datetime(2005, 12, 6, 10, 12, 46),
+        },
+        {
+            "EinheitMastrNummer": "id3",
+            "AnzahlModule": 3,
+            "Bruttoleistung": None,
+            "EegMastrNummerVorhanden": False,
+            "Registrierungsdatum": date(100, 1, 1),
+            "DatumLetzteAktualisierung": None,
+        },
+        {
+            "EinheitMastrNummer": "id4",
+            "AnzahlModule": None,
+            "Bruttoleistung": 1.5,
+            "EegMastrNummerVorhanden": None,
+            "Registrierungsdatum": None,
+            "DatumLetzteAktualisierung": None,
+        },
+    ]
+    assert "'205-12-06'" in caplog.text
+
+
+def test_to_parquet_rejects_unsupported_column_type(mastr: Mastr) -> None:
+    table = sqlalchemy.Table(
+        "EinheitenSolar",
+        sqlalchemy.MetaData(),
+        sqlalchemy.Column("EinheitMastrNummer", sqlalchemy.String, primary_key=True),
+        sqlalchemy.Column("Anhang", sqlalchemy.LargeBinary),
+    )
+    table.create(mastr.engine)
+
+    with pytest.raises(TypeError, match="'Anhang'"):
+        mastr.to_parquet(db_table_names="EinheitenSolar")
+
+
+def test_to_parquet_without_pyarrow(mastr: Mastr) -> None:
+    with (
+        patch.dict(sys.modules, {"pyarrow": None, "pyarrow.parquet": None}),
+        pytest.raises(ImportError, match=r"open-mastr\[parquet\]"),
+    ):
+        mastr.to_parquet()
 
 
 def test_download_wind(
