@@ -1,4 +1,3 @@
-import math
 import os
 import re
 import shutil
@@ -397,12 +396,10 @@ def full_download_without_unzip_http(
     # Loading bar based on content length from url with extra request for the header
     # if not given use 3100, roughly current size oct 2026
     head = requests.head(r.url, headers={"User-Agent": USER_AGENT})
-    content_length = head.headers.get("content-length")
-    total_length = math.ceil(int(content_length or 3100 * 1024 * 1024) / (1024 * 1024))
-
+    content_length = int(head.headers.get("content-length") or 3100 * 1024 * 1024)
     with (
         open(save_path, "wb") as zfile,
-        tqdm(desc=save_path, total=total_length, unit="") as bar,
+        tqdm(desc=save_path, total=content_length, unit="B", unit_scale=True) as bar,
     ):
         for chunk in r.iter_content(chunk_size=1024 * 1024):
             # chunk size of 1024 * 1024 needs 9min 11 sek = 551sek
@@ -410,9 +407,9 @@ def full_download_without_unzip_http(
             if chunk:
                 zfile.write(chunk)
                 zfile.flush()
-            bar.update()
+            bar.update(len(chunk))
             # if the rate falls below 100 kB/s -> prompt warning
-            if bar.format_dict["rate"] and bar.format_dict["rate"] < 2:
+            if bar.format_dict["rate"] and bar.format_dict["rate"] < 102400:
                 bar.set_postfix_str(s=warning_message)
             else:
                 # remove warning
