@@ -28,7 +28,7 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
   [#844](https://github.com/OpenEnergyPlatform/open-MaStR/pull/844)
   [#845](https://github.com/OpenEnergyPlatform/open-MaStR/pull/845)
 - Update bulk download bar using chunk length
-  [#851](https://github.com/OpenEnergyPlatform/open-MaStR/pull/851)
+  [#852](https://github.com/OpenEnergyPlatform/open-MaStR/pull/852)
 
 ### Changed
 - Replace the partial-download zip only after every new member is complete
