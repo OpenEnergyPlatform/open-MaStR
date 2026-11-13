@@ -11,7 +11,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 
 
 ### Changed
-
+- Use an explicit unit for `np.datetime64("NaT")` in the tests
+  [#853](https://github.com/OpenEnergyPlatform/open-MaStR/pull/853)
 
 ### Removed
 
