@@ -10,7 +10,7 @@
 							<xs:element type="xs:string" name="MarktakteurMastrNummer"/>
 							<xs:element name="MarktakteurStatus">
 							<xs:simpleType>
-								<xs:restriction base="xs:string">
+								<xs:restriction base="xs:short">
 									<xs:enumeration value="488"/>
 									<xs:enumeration value="489"/>
 								</xs:restriction>

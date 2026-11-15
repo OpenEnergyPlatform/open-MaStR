@@ -6,8 +6,17 @@ For each version important additions, changes and removals are listed here.
 The format is inspired from [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [v1.X.X] - 20XX-XX-XX
+### Added
 
-## [v1.XX.X] unreleased - 202X-XX-XX
+
+### Changed
+
+
+### Removed
+
+
+## [v1.1.1] - 2026-11-06
 ### Added
 - Create xsd_update.yml
   [#837](https://github.com/OpenEnergyPlatform/open-MaStR/pull/837)
@@ -15,8 +24,15 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
   [#820](https://github.com/OpenEnergyPlatform/open-MaStR/pull/820)
 - Raise `MissingMaStRAPIKeyError` in `MaStRAPI` if no API key is passed or configured
   [#838](https://github.com/OpenEnergyPlatform/open-MaStR/pull/838)
+- Added translations for new columns
+  [#844](https://github.com/OpenEnergyPlatform/open-MaStR/pull/844)
+  [#845](https://github.com/OpenEnergyPlatform/open-MaStR/pull/845)
 
 ### Changed
+- Replace the partial-download zip only after every new member is complete
+  [#843](https://github.com/OpenEnergyPlatform/open-MaStR/pull/843)
+- Support custom PostgreSQL schema & make advanced docs clearer
+  [#833](https://github.com/OpenEnergyPlatform/open-MaStR/pull/833)
 - Remove max-parallel limit for github actions CI
   [#840](https://github.com/OpenEnergyPlatform/open-MaStR/pull/841)
 - Update fallback XSD to the XSD provided on 2026-10-10
@@ -29,7 +45,7 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
   [#819](https://github.com/OpenEnergyPlatform/open-MaStR/pull/819)
   [#821](https://github.com/OpenEnergyPlatform/open-MaStR/pull/821)
 - `bump2version` now also updates the version in `.zenodo.json`
-   [#816](https://github.com/OpenEnergyPlatform/open-MaStR/pull/816)
+  [#816](https://github.com/OpenEnergyPlatform/open-MaStR/pull/816)
 - Fix condition check that triggers the full xml_download when all tables are requested
   [#826](https://github.com/OpenEnergyPlatform/open-MaStR/pull/826)
 
