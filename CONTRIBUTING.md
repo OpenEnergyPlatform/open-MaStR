@@ -129,11 +129,9 @@ git status
 ```
 
 #### 2.3. Commit your changes
-Install the project with its development dependencies in your active Python
-environment before installing the hooks. The mypy hook uses that environment,
-including the runtime dependencies and type stubs declared in `pyproject.toml`:
+First, make sure you have the pre-commit hooks installed to have your code
+automatically checked on commit for programmatic and stylistic errors:
 ```bash
-python -m pip install -e ".[dev]"
 pre-commit install
 ```
 

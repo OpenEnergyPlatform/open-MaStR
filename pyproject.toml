@@ -67,6 +67,9 @@ dev = [
   "types-PyYAML",
   "types-tqdm",
   "types-python-dateutil",
+  "types-xmltodict",
+  "pandas-stubs",
+  "lxml-stubs",
 ]
 
 [project.urls]

@@ -38,13 +38,13 @@ repos:
         args: [--fix, --exit-non-zero-on-fix]
       - id: ruff-format
 
-  # mypy - static type checking
-  - repo: local
+  # mypy - static type checking.
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v2.4.0  # pins mypy==2.4.0, the version locked in uv.lock
     hooks:
       - id: mypy
-        name: mypy
-        entry: python -m mypy
-        language: system
-        types: [python]
         args: [--ignore-missing-imports, --show-error-codes]
+        types: [python]
         exclude: ^(tests/|docs/|postprocessing/)
+        additional_dependencies:
+          - .[dev]  # TODO: This seems like it doesn't work. The problem in utils_write_to_database.py is currently not reported.

@@ -78,11 +78,13 @@ class MastrColumnType(Enum):
     DATE = auto()
     DATETIME = auto()
     BOOLEAN = auto()
+    # We use CATALOG_VALUE for columns containing a single catalog value or a list of catalog
+    # values.
     CATALOG_VALUE = auto()
 
     @classmethod
     def from_xsd_type(
-        cls, xsd_type: XsdSimpleType | XsdComplexType
+        cls, xsd_type: Union[XsdSimpleType, XsdComplexType]
     ) -> "MastrColumnType":
         primitive_type = (
             xsd_type.primitive_type
@@ -90,6 +92,7 @@ class MastrColumnType(Enum):
             else xsd_type
         )
         if isinstance(primitive_type, XsdList):
+            # This branch covers XsdAtomicRestriction of an XsdList as well as simple XsdList.
             list_type = primitive_type
             if enumeration := list_type.item_type.enumeration:
                 if set(enumeration) == {0, 1}:
@@ -159,6 +162,8 @@ class MastrColumnDescription:
 class MastrTableDescription:
     original_table_name: str
     english_table_name: Optional[str]
+    # `instance_name` is the name of a single row in the table. E.g. 'EinheitSolar' in the case of
+    # the table 'EinheitenSolar'".
     instance_name: str
     columns: tuple[MastrColumnDescription, ...]
 
@@ -173,15 +178,24 @@ class MastrTableDescription:
 
         try:
             if not isinstance(root.content, XsdGroup):
-                raise ValueError("Root must contain an instance element")
+                raise ValueError(
+                    "Top-level XSD element must be an XsdGroup containing a single instance element"
+                    f", but is of type {type(root.content)}"
+                )
             main_element = root.content.content[0]
             if not isinstance(main_element, xmlschema.XsdElement):
-                raise ValueError("Instance must be an XSD element")
+                raise ValueError(
+                    "XSD instance element must be an XsdElement, but is of type"
+                    f" {type(main_element)}"
+                )
             if not isinstance(main_element.content, XsdGroup):
-                raise ValueError("Instance must contain column elements")
+                raise ValueError(
+                    "XSD instance element must be an XsdGroup containing multiple column elements"
+                    f", but is of type {type(main_element.content)}"
+                )
             column_elements = main_element.content.content
             if main_element.name is None:
-                raise ValueError("Instance must have a name")
+                raise ValueError("XSD instance element must have a name")
         except (AttributeError, IndexError, TypeError) as e:
             raise ValueError(f"Could not find columns in XML schema {schema!r}") from e
 
