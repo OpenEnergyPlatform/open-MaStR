@@ -11,6 +11,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 
 
 ### Changed
+- Check for XSD update daily instead of monthly
+  [#856](https://github.com/OpenEnergyPlatform/open-MaStR/pull/856)
 
 
 ### Removed
