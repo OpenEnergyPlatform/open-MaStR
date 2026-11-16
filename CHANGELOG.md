@@ -11,7 +11,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 
 
 ### Changed
-
+- Add resolution to NaT timestamps in tests
+  [#855](https://github.com/OpenEnergyPlatform/open-MaStR/pull/855)
 
 ### Removed
 
