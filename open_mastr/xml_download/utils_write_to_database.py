@@ -11,7 +11,7 @@ import lxml
 import numpy as np
 import pandas as pd
 import sqlalchemy
-from sqlalchemy import Column, Engine, Table, create_engine, delete, select
+from sqlalchemy import Column, Engine, Table, create_engine, delete, event, select
 from sqlalchemy.sql import text
 from sqlalchemy.sql.sqltypes import Date, DateTime
 
@@ -25,6 +25,9 @@ from open_mastr.utils.xsd_tables import (
 from open_mastr.xml_download.utils_cleansing_bulk import cleanse_bulk_data
 
 log = setup_logger()
+
+# SQLite page cache per connection in KiB (negative PRAGMA cache_size value).
+SQLITE_CACHE_SIZE_KIB = 256_000
 
 
 def write_mastr_xml_to_database(
@@ -255,7 +258,7 @@ def create_efficient_engine(connection_url: str) -> sqlalchemy.engine.Engine:
         # Wait for max 5 minutes before timing out.
         connect_args["connect_timeout"] = 300
 
-    return create_engine(
+    engine = create_engine(
         connection_url,
         connect_args=connect_args,
         # Before returning a connection from the pool, check if the connection is still valid.
@@ -269,6 +272,17 @@ def create_efficient_engine(connection_url: str) -> sqlalchemy.engine.Engine:
         # Wait for 30 seconds before raising an exception when the pool is full.
         pool_timeout=30,
     )
+
+    if is_sqlite:
+
+        @event.listens_for(engine, "connect")
+        def _set_sqlite_cache_size(dbapi_connection, _connection_record):
+            # The default page cache (2 MB) is far smaller than the primary key
+            # index of large MaStR tables, which makes inserts slow down as the
+            # tables grow. Pages are only allocated when used.
+            dbapi_connection.execute(f"PRAGMA cache_size=-{SQLITE_CACHE_SIZE_KIB}")
+
+    return engine
 
 
 def interleave_files(threads_data: list):
@@ -376,10 +390,13 @@ def correct_ordering_of_filelist(files_list: list) -> list:
 def read_xml_file(f: ZipFile, file_name: str) -> pd.DataFrame:
     """Read the xml file from the zip file and return it as a DataFrame."""
     with f.open(file_name) as xml_file:
-        try:
-            return pd.read_xml(xml_file, encoding="UTF-16", parser="etree")
-        except lxml.etree.XMLSyntaxError as error:
-            return handle_xml_syntax_error(xml_file.read().decode("utf-16"), error)
+        raw = xml_file.read()
+    try:
+        root = lxml.etree.fromstring(raw)
+    except lxml.etree.XMLSyntaxError as error:
+        return handle_xml_syntax_error(raw.decode("utf-16"), error)
+    records = [{child.tag: child.text for child in row} for row in root]
+    return pd.DataFrame(records)
 
 
 def add_table_to_non_sqlite_database(
@@ -645,6 +662,13 @@ def add_table_to_sqlite_database(
     engine: sqlalchemy.engine.Engine,
 ) -> None:
     column_list = df.columns.tolist()
+
+    # Insert rows in primary key order. New keys then land on neighbouring pages of
+    # the primary key index instead of random ones, which keeps inserts into large
+    # tables fast.
+    primary_key_columns = [column.name for column in db_table.primary_key.columns]
+    if primary_key_columns and set(primary_key_columns).issubset(column_list):
+        df = df.sort_values(primary_key_columns, kind="stable")
 
     # Convert NaNs to None.
     df = df.where(pd.notnull(df), None)

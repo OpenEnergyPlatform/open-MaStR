@@ -36,6 +36,34 @@ def test_cleanse_bulk_data(mockup_xml_zip_in_output_dir: Path) -> None:
     )
 
 
+def test_cleanse_bulk_data_with_string_ids(mockup_xml_zip_in_output_dir: Path) -> None:
+    # read_xml_file returns all values as strings, so IDs must be replaced as well.
+    df_raw = pd.DataFrame(
+        {
+            "ID": ["0", "1", "2"],
+            "Bundesland": ["335", "335", None],
+            "Einheittyp": ["1", "8", None],
+        }
+    )
+    df_replaced = pd.DataFrame(
+        {
+            "ID": ["0", "1", "2"],
+            "Bundesland": ["Bayern", "Bayern", None],
+            "Einheittyp": ["Solareinheit", "Stromspeichereinheit", None],
+        }
+    )
+
+    pd.testing.assert_frame_equal(
+        cleanse_bulk_data(
+            df=df_raw,
+            zipped_xml_file_path=str(mockup_xml_zip_in_output_dir),
+            catalog_columns={"Bundesland", "Einheittyp"},
+        ),
+        df_replaced,
+        check_dtype=False,
+    )
+
+
 def test_replace_mastr_katalogeintraege(mockup_xml_zip_in_output_dir: Path) -> None:
     df_raw = pd.DataFrame({"ID": [0, 1, 2], "Bundesland": [335, 335, 336]})
     df_replaced = pd.DataFrame(
