@@ -38,10 +38,10 @@ def replace_system_catalog_ids(
     for column_name, name_mapping_dictionary in system_catalog.items():
         if column_name in df.columns:
             # IDs may be read as integers or as strings, so map both representations.
-            mapping = {
-                **name_mapping_dictionary,
-                **{str(key): value for key, value in name_mapping_dictionary.items()},
-            }
+            mapping: dict[int | str, str] = {}
+            for key, value in name_mapping_dictionary.items():
+                mapping[key] = value
+                mapping[str(key)] = value
             df[column_name] = df[column_name].replace(mapping)
     return df
 
