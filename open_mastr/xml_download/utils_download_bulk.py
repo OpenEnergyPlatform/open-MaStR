@@ -399,7 +399,9 @@ def full_download_without_unzip_http(
     content_length = int(head.headers.get("content-length") or 3100 * 1024 * 1024)
     with (
         open(save_path, "wb") as zfile,
-        tqdm(desc=save_path, total=content_length, unit="B", unit_scale=True) as bar,
+        tqdm(
+            desc=save_path, total=content_length, unit="B", unit_scale=True, smoothing=0
+        ) as bar,
     ):
         for chunk in r.iter_content(chunk_size=1024 * 1024):
             # chunk size of 1024 * 1024 needs 9min 11 sek = 551sek
