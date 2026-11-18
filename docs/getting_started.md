@@ -70,8 +70,8 @@ from open_mastr import Mastr
 db = Mastr()
 available = db.browse_available_downloads()  # list the available download dates
 
-db.download(date="20250101")                    # download a specific historical date
-db.download(select_date_interactively=True)     # or pick a date from a list
+db.download(date="20250101")  # download a specific historical date
+db.download(select_date_interactively=True)  # or pick a date from a list
 ```
 
 ### Old (pre-v1.0) table names

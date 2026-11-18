@@ -8,11 +8,14 @@ from typing import IO, Optional, Union
 from zipfile import ZipFile
 
 import xmlschema
+from xmlschema.validators.complex_types import XsdComplexType
 from xmlschema.validators.exceptions import XMLSchemaModelError
+from xmlschema.validators.groups import XsdGroup
 from xmlschema.validators.simple_types import (
     XsdAtomicBuiltin,
     XsdAtomicRestriction,
     XsdList,
+    XsdSimpleType,
 )
 
 from open_mastr.utils.constants import COLUMN_TRANSLATIONS, TABLE_TRANSLATIONS
@@ -75,16 +78,22 @@ class MastrColumnType(Enum):
     DATE = auto()
     DATETIME = auto()
     BOOLEAN = auto()
+    # We use CATALOG_VALUE for columns containing a single catalog value or a list of catalog
+    # values.
     CATALOG_VALUE = auto()
 
     @classmethod
     def from_xsd_type(
-        cls, xsd_type: Union[XsdAtomicBuiltin, XsdAtomicRestriction, XsdList]
+        cls, xsd_type: Union[XsdSimpleType, XsdComplexType]
     ) -> "MastrColumnType":
-        if xsd_type.is_list():
-            list_type = (
-                xsd_type if isinstance(xsd_type, XsdList) else xsd_type.primitive_type
-            )
+        primitive_type = (
+            xsd_type.primitive_type
+            if isinstance(xsd_type, (XsdAtomicBuiltin, XsdAtomicRestriction))
+            else xsd_type
+        )
+        if isinstance(primitive_type, XsdList):
+            # This branch covers XsdAtomicRestriction of an XsdList as well as simple XsdList.
+            list_type = primitive_type
             if enumeration := list_type.item_type.enumeration:
                 if set(enumeration) == {0, 1}:
                     return cls.BOOLEAN
@@ -101,7 +110,7 @@ class MastrColumnType(Enum):
             f"{_XML_SCHEMA_PREFIX}date": cls.DATE,
             f"{_XML_SCHEMA_PREFIX}dateTime": cls.DATETIME,
         }
-        if xsd_type.is_restriction():
+        if isinstance(xsd_type, XsdAtomicRestriction):
             if enumeration := xsd_type.enumeration:
                 if set(enumeration) == {0, 1}:
                     return cls.BOOLEAN
@@ -110,11 +119,11 @@ class MastrColumnType(Enum):
             # We cope with that by extracting the primitive type it's restricted to.
             inner_xsd_type = xsd_type.primitive_type
             if mastr_column_type := xsd_type_to_mastr_column_type.get(
-                inner_xsd_type.name
+                inner_xsd_type.name or ""
             ):
                 return mastr_column_type
 
-        if mastr_column_type := xsd_type_to_mastr_column_type.get(xsd_type.name):
+        if mastr_column_type := xsd_type_to_mastr_column_type.get(xsd_type.name or ""):
             return mastr_column_type
 
         raise ValueError(
@@ -153,6 +162,8 @@ class MastrColumnDescription:
 class MastrTableDescription:
     original_table_name: str
     english_table_name: Optional[str]
+    # `instance_name` is the name of a single row in the table. E.g. 'EinheitSolar' in the case of
+    # the table 'EinheitenSolar'".
     instance_name: str
     columns: tuple[MastrColumnDescription, ...]
 
@@ -166,8 +177,25 @@ class MastrTableDescription:
         root = schema.root_elements[0]
 
         try:
+            if not isinstance(root.content, XsdGroup):
+                raise ValueError(
+                    "Top-level XSD element must be an XsdGroup containing a single instance element"
+                    f", but is of type {type(root.content)}"
+                )
             main_element = root.content.content[0]
+            if not isinstance(main_element, xmlschema.XsdElement):
+                raise ValueError(
+                    "XSD instance element must be an XsdElement, but is of type"
+                    f" {type(main_element)}"
+                )
+            if not isinstance(main_element.content, XsdGroup):
+                raise ValueError(
+                    "XSD instance element must be an XsdGroup containing multiple column elements"
+                    f", but is of type {type(main_element.content)}"
+                )
             column_elements = main_element.content.content
+            if main_element.name is None:
+                raise ValueError("XSD instance element must have a name")
         except (AttributeError, IndexError, TypeError) as e:
             raise ValueError(f"Could not find columns in XML schema {schema!r}") from e
 
@@ -176,10 +204,14 @@ class MastrTableDescription:
         # - the normalization would leave the table name as is (at least as of Feb 2026)
         original_table_name = root.name
         english_table_name = translate_mastr_table_name(original_table_name)
-        columns = tuple(
-            MastrColumnDescription.from_xsd_element(element, original_table_name)
-            for element in column_elements
-        )
+        column_descriptions = []
+        for element in column_elements:
+            if not isinstance(element, xmlschema.XsdElement):
+                raise ValueError(f"Could not find columns in XML schema {schema!r}")
+            column_descriptions.append(
+                MastrColumnDescription.from_xsd_element(element, original_table_name)
+            )
+        columns = tuple(column_descriptions)
 
         return cls(
             original_table_name=original_table_name,
