@@ -1,4 +1,6 @@
+import functools
 import io
+import os
 from collections.abc import Collection
 from zipfile import ZipFile
 
@@ -35,7 +37,12 @@ def replace_system_catalog_ids(
     """
     for column_name, name_mapping_dictionary in system_catalog.items():
         if column_name in df.columns:
-            df[column_name] = df[column_name].replace(name_mapping_dictionary)
+            # IDs may be read as integers or as strings, so map both representations.
+            mapping: dict[int | str, str] = {}
+            for key, value in name_mapping_dictionary.items():
+                mapping[key] = value
+                mapping[str(key)] = value
+            df[column_name] = df[column_name].replace(mapping)
     return df
 
 
@@ -58,7 +65,23 @@ def replace_mastr_katalogeintraege(
                 # Only replace rows that still are numeric catalog IDs;
                 # already-resolved names (e.g. "Bayern") pass through unchanged.
                 column_as_string = df[column_name].astype("string")
-                is_id = column_as_string.str.match(r"^[\d,\s;|]+$")
+                # Fast path: cells holding a single ID are mapped vectorized.
+                is_single_id = column_as_string.str.fullmatch(r"\s*\d+\s*").fillna(
+                    False
+                )
+                df.loc[is_single_id, column_name] = (
+                    column_as_string.loc[is_single_id]
+                    .str.strip()
+                    .astype("Int64")
+                    .map(katalogwerte.get)
+                )
+                # Slow path: cells holding multiple IDs (e.g. "1,2") are split row-wise.
+                is_id = (
+                    column_as_string.str.match(r"^[\d,\s;|]+$").fillna(False)
+                    & ~is_single_id
+                )
+                if not is_id.any():
+                    continue
                 df.loc[is_id, column_name] = (
                     column_as_string.loc[is_id]
                     .str.strip()
@@ -86,8 +109,18 @@ def replace_mastr_katalogeintraege(
 def create_katalogwerte_from_bulk_download(zipped_xml_file_path) -> dict:
     """Create a dictionary from the id -> value mapping of the MaStR data.
 
-    The mapping is defined in the table Katalogwerte.
+    The mapping is defined in the table Katalogwerte. It is read once per zip file
+    and process; the cache key includes the file's size and modification time, so a
+    replaced zip file at the same path is read again.
     """
+    stat = os.stat(zipped_xml_file_path)
+    return _read_katalogwerte(
+        os.path.abspath(zipped_xml_file_path), stat.st_mtime_ns, stat.st_size
+    )
+
+
+@functools.lru_cache(maxsize=4)
+def _read_katalogwerte(zipped_xml_file_path: str, _mtime_ns: int, _size: int) -> dict:
     with ZipFile(zipped_xml_file_path, "r") as f:
         with f.open("Katalogwerte.xml") as xml_bytes_io:
             xml_bytes = xml_bytes_io.read()
