@@ -15,6 +15,8 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
   [#856](https://github.com/OpenEnergyPlatform/open-MaStR/pull/856)
 - Add resolution to NaT timestamps in tests
   [#855](https://github.com/OpenEnergyPlatform/open-MaStR/pull/855)
+- Keep the leading zero of 5-digit district keys in `Gemeindeschluessel`
+  [#862](https://github.com/OpenEnergyPlatform/open-MaStR/pull/862)
 
 ### Removed
 
