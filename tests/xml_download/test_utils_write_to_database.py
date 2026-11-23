@@ -151,10 +151,16 @@ def test_read_xml_file(mockup_xml_zip_in_output_dir: Path) -> None:
 def test_add_zero_as_first_character_for_too_short_string() -> None:
     # Prepare
     df_raw = pd.DataFrame(
-        {"ID": [0, 1, 2], "Gemeindeschluessel": [9162000, np.nan, 19123456]}
+        {
+            "ID": [0, 1, 2, 3, 4],
+            "Gemeindeschluessel": [9162000, np.nan, 19123456, 5315, 10041],
+        }
     )
     df_correct = pd.DataFrame(
-        {"ID": [0, 1, 2], "Gemeindeschluessel": ["09162000", np.nan, "19123456"]}
+        {
+            "ID": [0, 1, 2, 3, 4],
+            "Gemeindeschluessel": ["09162000", np.nan, "19123456", "05315", "10041"],
+        }
     )
 
     # Act
