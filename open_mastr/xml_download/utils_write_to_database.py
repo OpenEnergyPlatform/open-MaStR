@@ -373,11 +373,17 @@ def correct_ordering_of_filelist(files_list: list) -> list:
     return files_list
 
 
+# Columns that pd.read_xml would otherwise read as numbers, dropping leading zeros
+STRING_COLUMN_DTYPES = {"Gemeindeschluessel": str}
+
+
 def read_xml_file(f: ZipFile, file_name: str) -> pd.DataFrame:
     """Read the xml file from the zip file and return it as a DataFrame."""
     with f.open(file_name) as xml_file:
         try:
-            return pd.read_xml(xml_file, encoding="UTF-16", parser="etree")
+            return pd.read_xml(
+                xml_file, encoding="UTF-16", parser="etree", dtype=STRING_COLUMN_DTYPES
+            )
         except lxml.etree.XMLSyntaxError as error:
             return handle_xml_syntax_error(xml_file.read().decode("utf-16"), error)
 
@@ -428,7 +434,6 @@ def add_zero_as_first_character_for_too_short_string(df: pd.DataFrame) -> pd.Dat
     with a 0.
     """
     dict_of_columns_and_string_length = {
-        "Gemeindeschluessel": 8,
         "Postleitzahl": 5,
     }
     for column_name, string_length in dict_of_columns_and_string_length.items():
@@ -575,7 +580,7 @@ def handle_xml_syntax_error(data: str, err: lxml.etree.XMLSyntaxError) -> pd.Dat
         )
         try:
             log.warning("One invalid xml expression was deleted.")
-            df = pd.read_xml(StringIO("\n".join(lines)))
+            df = pd.read_xml(StringIO("\n".join(lines)), dtype=STRING_COLUMN_DTYPES)
             return df
         except lxml.etree.XMLSyntaxError as e:
             err = e

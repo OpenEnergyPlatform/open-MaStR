@@ -146,15 +146,14 @@ def test_read_xml_file(mockup_xml_zip_in_output_dir: Path) -> None:
         df = read_xml_file(f, f"{file_name}.xml")
 
     assert df.shape[0] > 0
+    assert df["Gemeindeschluessel"].dropna().str.startswith("0").any()
 
 
 def test_add_zero_as_first_character_for_too_short_string() -> None:
     # Prepare
-    df_raw = pd.DataFrame(
-        {"ID": [0, 1, 2], "Gemeindeschluessel": [9162000, np.nan, 19123456]}
-    )
+    df_raw = pd.DataFrame({"ID": [0, 1, 2], "Postleitzahl": [1067, np.nan, 54321]})
     df_correct = pd.DataFrame(
-        {"ID": [0, 1, 2], "Gemeindeschluessel": ["09162000", np.nan, "19123456"]}
+        {"ID": [0, 1, 2], "Postleitzahl": ["01067", np.nan, "54321"]}
     )
 
     # Act
@@ -167,7 +166,7 @@ def test_process_table_before_insertion(mockup_xml_zip_in_output_dir: Path) -> N
     bulk_download_date = datetime.now().date().strftime("%Y%m%d")
     initial_df = pd.DataFrame(
         {
-            "Gemeindeschluessel": [9162000, 19123456],
+            "Gemeindeschluessel": ["09162000", "19123456"],
             "Postleitzahl": [1234, 54321],
             "NameKraftwerk": ["test1", "test2"],
             "NetzbetreiberpruefungStatus": [2954, 2955],
